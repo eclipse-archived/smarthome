@@ -14,9 +14,14 @@ import org.eclipse.smarthome.binding.hue.handler.LightStateConverter
 import org.eclipse.smarthome.core.library.types.PercentType
 import org.junit.Test
 
-import nl.q42.jue.State
-import nl.q42.jue.StateUpdate
+import org.eclipse.smarthome.binding.hue.internal.State
+import org.eclipse.smarthome.binding.hue.internal.StateUpdate
 
+/**
+ *
+ * @author Markus Bösling - initial contribution
+ * @author Denis Dudnik - switched to internally integrated source of Jue library
+ */
 class LightStateConverterOSGiTest extends AbstractHueOSGiTest {
 
     @Test

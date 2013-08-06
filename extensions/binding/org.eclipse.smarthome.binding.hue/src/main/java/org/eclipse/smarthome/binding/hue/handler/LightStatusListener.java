@@ -7,13 +7,14 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
+import org.eclipse.smarthome.binding.hue.internal.FullLight;
+import org.eclipse.smarthome.binding.hue.internal.HueBridge;
 
 /**
  * The {@link LightStatusListener} is notified when a light status has changed or a light has been removed or added.
  *
  * @author Oliver Libutzki - Initial contribution
+ * @author Denis Dudnik - switched to internally integrated source of Jue library, minor code cleanup
  *
  */
 public interface LightStatusListener {
@@ -25,7 +26,7 @@ public interface LightStatusListener {
      * @param bridge The bridge the changed light is connected to.
      * @param light The light which received the state update.
      */
-    public void onLightStateChanged(HueBridge bridge, FullLight light);
+    void onLightStateChanged(HueBridge bridge, FullLight light);
 
     /**
      * This method us called whenever a light is removed.
@@ -33,7 +34,7 @@ public interface LightStatusListener {
      * @param bridge The bridge the removed light was connected to.
      * @param light The light which is removed.
      */
-    public void onLightRemoved(HueBridge bridge, FullLight light);
+    void onLightRemoved(HueBridge bridge, FullLight light);
 
     /**
      * This method us called whenever a light is added.
@@ -41,6 +42,6 @@ public interface LightStatusListener {
      * @param bridge The bridge the added light was connected to.
      * @param light The light which is added.
      */
-    public void onLightAdded(HueBridge bridge, FullLight light);
+    void onLightAdded(HueBridge bridge, FullLight light);
 
 }
