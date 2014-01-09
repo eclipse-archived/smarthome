@@ -1,0 +1,4 @@
+smarthome
+=========
+
+Eclipse SmartHome project
