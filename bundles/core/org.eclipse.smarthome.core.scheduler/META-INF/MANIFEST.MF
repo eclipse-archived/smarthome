@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Private-Package: org.eclipse.smarthome.core.scheduler.internal
+Ignore-Package: org.eclipse.smarthome.core.scheduler.internal
+Bundle-Name: Eclipse SmartHome Scheduler Service
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.7.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-SymbolicName: org.eclipse.smarthome.core.scheduler
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: org.osgi.framework,
+ org.osgi.service.component,
+ org.quartz,
+ org.quartz.impl,
+ org.slf4j;version="1.5.11"
+Bundle-Activator: org.eclipse.smarthome.core.scheduler.internal.SchedulerActivator
+Bundle-ActivationPolicy: lazy

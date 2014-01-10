@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/org.eclipse.smarthome.dependencies.feature_0.7.0.qualifier.jar" id="org.eclipse.smarthome.dependencies.feature" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.runtime.feature_0.7.0.qualifier.jar" id="org.eclipse.smarthome.runtime.feature" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">
+      <description>
+         This category contains all Eclipse SmartHome features
+      </description>
+   </category-def>
+</site>

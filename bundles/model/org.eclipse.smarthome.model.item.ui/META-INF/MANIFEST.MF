@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Item Editor UI
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.7.0.qualifier
+Bundle-SymbolicName: org.eclipse.smarthome.model.item.ui;singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.smarthome.model.item;visibility:=reexport,
+ org.eclipse.xtext.ui,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.xtext.ui.shared,
+ org.eclipse.ui,
+ org.eclipse.xtext.builder,
+ org.antlr.runtime
+Import-Package: com.google.common.collect,
+ org.apache.log4j,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.designer.ui,
+ org.osgi.service.event
+Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.ui.contentassist
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: org.eclipse.smarthome.model.ui.internal.ItemsActivator

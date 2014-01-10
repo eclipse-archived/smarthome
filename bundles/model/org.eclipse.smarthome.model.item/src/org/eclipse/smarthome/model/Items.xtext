@@ -1,0 +1,35 @@
+grammar org.eclipse.smarthome.model.Items with org.eclipse.xtext.common.Terminals
+
+generate items "http://www.eclipse.org/smarthome/model/Items"
+
+ItemModel :
+	{ItemModel} (items+=ModelItem)*
+;
+
+ModelItem :
+	(ModelNormalItem | ModelGroupItem) name=ID
+	(label=STRING)?
+	('<' icon=(ID|STRING) '>')?
+	('(' groups+=ID (',' groups+=ID)* ')')? 
+	('{' bindings+=ModelBinding (',' bindings+=ModelBinding)* '}')? 
+;
+
+ModelGroupItem :
+	{ModelGroupItem} 'Group' (':' type=ModelItemType ( ':' function=ModelGroupFunction ('(' args+=(ID|STRING) (',' args+=(ID|STRING))* ')')?)?)?
+;
+
+enum ModelGroupFunction :
+	AND='AND' | OR='OR' | NAND='NAND' | NOR='NOR' | AVG='AVG' | SUM='SUM' | MAX='MAX' | MIN='MIN'
+;
+
+ModelNormalItem :
+	type=ModelItemType
+;
+
+ModelItemType :
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | ID
+;
+
+ModelBinding:
+	type=ID '=' configuration=STRING
+;

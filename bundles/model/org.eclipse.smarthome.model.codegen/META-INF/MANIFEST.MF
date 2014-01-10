@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Codegen Project
+Bundle-SymbolicName: org.eclipse.smarthome.model.codegen
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.emf.mwe2.launch;bundle-version="2.2.0",
+ org.apache.log4j;bundle-version="1.2.15",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.eclipse.emf.codegen;bundle-version="2.6.0",
+ org.eclipse.smarthome.model.item,
+ org.eclipse.smarthome.model.rule,
+ org.eclipse.smarthome.model.script,
+ org.eclipse.smarthome.model.sitemap,
+ org.eclipse.xtext.generator,
+ org.eclipse.smarthome.model.persistence
+

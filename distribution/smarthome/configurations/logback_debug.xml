@@ -1,0 +1,58 @@
+<configuration scan="true">
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{30}[:%line] - %msg%n%ex{10}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>logs/smarthome.log</file>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{30}[:%line]- %msg%n%ex</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="EVENTFILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/events.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- weekly rollover and archiving -->
+			<fileNamePattern>events-%d{yyyy-ww}.log.zip</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="runtime.busevents" level="INFO" additivity="false">
+		<appender-ref ref="EVENTFILE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<logger name="org.eclipse.smarthome" level="DEBUG" />
+	<logger name="org.eclipse.smarthome.ui" level="INFO" />
+	<logger name="org.eclipse.smarthome.ui.webapp" level="DEBUG" />
+	<logger name="org.eclipse.smarthome.ui.webapp.internal.servlet" level="INFO" />
+	<logger name="org.eclipse.smarthome.io.net" level="INFO" />
+	<logger name="org.eclipse.smarthome.core.autoupdate" level="DEBUG" />
+	<logger name="org.eclipse.smarthome.core.persistence.internal" level="TRACE" />
+	<logger name="org.eclipse.smarthome.core.transform.internal.service.MapTransformationService" level="INFO" />
+	<logger name="org.eclipse.smarthome.model.core.internal.folder" level="INFO" />
+
+	<logger name="OSGi" level="WARN" />
+	<logger name="org.eclipse.jetty" level="WARN" />
+	<logger name="org.atmosphere.cpr.AtmosphereFramework" level="OFF" />
+
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+	
+	<!-- temporary workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=402750 -->
+	<logger name="OSGi" level="OFF" />
+	
+</configuration>

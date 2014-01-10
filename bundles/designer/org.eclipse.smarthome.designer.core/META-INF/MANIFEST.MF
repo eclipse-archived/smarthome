@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Designer Core
+Bundle-SymbolicName: org.eclipse.smarthome.designer.core;singleton:=true
+Bundle-Version: 0.7.0.qualifier
+Bundle-Activator: org.eclipse.smarthome.designer.core.CoreActivator
+Bundle-Vendor: Eclipse.org/SmartHome
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Export-Package: org.eclipse.smarthome.designer.core,
+ org.eclipse.smarthome.designer.core.config
+Import-Package: org.eclipse.smarthome.config.core,
+ org.slf4j

@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Net I/O Bundle
+Bundle-SymbolicName: org.eclipse.smarthome.io.net
+Bundle-Version: 0.7.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.servlet;version="2.6.0",
+ javax.servlet.http;version="2.6.0",
+ org.apache.commons.codec.net,
+ org.apache.commons.exec;version="1.1.0",
+ org.apache.commons.httpclient,
+ org.apache.commons.httpclient.auth,
+ org.apache.commons.httpclient.methods,
+ org.apache.commons.httpclient.params,
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.apache.commons.net.util,
+ org.eclipse.smarthome.core.scriptengine.action,
+ org.eclipse.smarthome.io.console,
+ org.osgi.service.cm,
+ org.osgi.service.http,
+ org.slf4j
+Bundle-ClassPath: .
+Export-Package: org.eclipse.smarthome.io.net.actions,
+ org.eclipse.smarthome.io.net.exec,
+ org.eclipse.smarthome.io.net.http
+Service-Component: OSGI-INF/pingaction.xml, OSGI-INF/httpaction.xml,
+ OSGI-INF/execaction.xml
+Bundle-ActivationPolicy: lazy

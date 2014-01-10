@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Config Core
+Bundle-SymbolicName: org.eclipse.smarthome.config.core
+Bundle-Version: 0.7.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.apache.commons.io,
+ org.apache.commons.lang,
+ org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.util.tracker,
+ org.quartz,
+ org.quartz.impl,
+ org.quartz.impl.matchers,
+ org.quartz.utils,
+ org.slf4j
+Bundle-Activator: org.eclipse.smarthome.config.core.internal.ConfigActivator
+Export-Package: org.eclipse.smarthome.config.core
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/configdispatcher.xml

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="MACROMAN"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.eclipse.smarthome</groupId>
+    <artifactId>bundles</artifactId>
+    <version>0.7.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome.bundles</groupId>
+  <artifactId>model</artifactId>
+
+  <name>Eclipse SmartHome Models</name>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>org.eclipse.smarthome.model.core</module>
+    <module>org.eclipse.smarthome.model.item</module>
+    <module>org.eclipse.smarthome.model.item.ui</module>
+    <module>org.eclipse.smarthome.model.persistence</module>
+    <module>org.eclipse.smarthome.model.persistence.ui</module>
+    <module>org.eclipse.smarthome.model.rule</module>
+    <module>org.eclipse.smarthome.model.rule.ui</module>
+    <module>org.eclipse.smarthome.model.script</module>
+    <module>org.eclipse.smarthome.model.script.ui</module>
+    <module>org.eclipse.smarthome.model.sitemap</module>
+    <module>org.eclipse.smarthome.model.sitemap.ui</module>
+  </modules>
+
+</project>

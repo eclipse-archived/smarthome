@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Eclipse SmartHome Designer" uid="org.eclipse.smarthome.designer.product" id="org.eclipse.smarthome.designer.core.product" application="org.eclipse.smarthome.designer.ui.application" version="0.7.0.qualifier" useFeatures="true" includeLaunchers="true">
+
+   <aboutInfo>
+      <image path="/org.eclipse.smarthome.designer.core/icons/esh400.png"/>
+      <text></text>
+   </aboutInfo>
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <vmArgs>-Dorg.eclipse.equinox.p2.reconciler.dropins.directory=../../addons -DnoRules=true -Xmx256m -XX:PermSize=128M</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.eclipse.smarthome.designer.core/icons/esh_logo_16.png" i32="/org.eclipse.smarthome.designer.core/icons/esh_logo_32.png" i128="/org.eclipse.smarthome.designer.core/icons/esh_logo_128.png"/>
+
+   <splash
+      location="org.eclipse.smarthome.designer.core" />
+   <launcher name="SmartHome-Designer">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.smarthome.dependencies.feature"/>
+      <feature id="org.eclipse.smarthome.designer.feature"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.frameworkadmin.equinox" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.equinox.p2.console" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.equinox.p2.reconciler.dropins" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.config.core" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.core" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.smarthome.core.library" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="0" />
+   </configurations>
+
+</product>

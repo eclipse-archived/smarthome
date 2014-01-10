@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Service-Component: OSGI-INF/eventlogger.xml
+Private-Package: org.eclipse.smarthome.core.monitor.internal
+Ignore-Package: org.eclipse.smarthome.core.monitor.internal
+Bundle-Name: Eclipse SmartHome Monitor
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.7.0.qualifier
+Bundle-Activator: org.eclipse.smarthome.io.monitor.internal.MonitorActivator
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Import-Package: org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.types,
+ org.osgi.framework,
+ org.osgi.service.event,
+ org.slf4j
+Bundle-SymbolicName: org.eclipse.smarthome.io.monitor
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+
