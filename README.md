@@ -1,5 +1,4 @@
-Eclipse SmartHome Build Instructions
-====================================
+# Eclipse SmartHome Build Instructions
 
 Thanks for your interest in the Eclipse SmartHome project!
 
@@ -7,7 +6,7 @@ Building and running the project is fairly easy if you follow the steps
 detailed below.
 
 
-1. PREREQUISITES
+1. Prerequisites
 ================
 
 The build infrastructure is based on Maven in order to make it
@@ -21,14 +20,14 @@ What you need before you start:
 Make sure that the "mvn" command is available on your path
 
 
-2. CHECKOUT
+2. Checkout
 ===========
 
-Checkout the source code from GitHub:
+Checkout the source code from GitHub, e.g. by running
 
 git clone https://github.com/eclipse/smarthome.git
 
-3. BUILDING WITH MAVEN
+3. Building with Maven
 ======================
 
 To build Eclipse SmartHome from the sources, Maven takes care of everything:
@@ -40,7 +39,7 @@ smarthome/distribution/target. Both the runtime as well as
 the designer zips are placed in there.
 
 
-4. STARTING THE RUNTIME
+4. Starting the demo runtime
 =======================
 
 - unzip the file distribution-<version>-runtime.zip to a local folder
@@ -48,7 +47,7 @@ the designer zips are placed in there.
 - check if everything has started correctly: http://localhost:8080/smarthome.app?sitemap=demo
 
 
-5. STARTING THE DESIGNER
+5. Starting the designer
 ========================
 
 - unzip the file distribution-<version>-designer-<platform>.zip to a local folder
