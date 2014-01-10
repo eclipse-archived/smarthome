@@ -15,10 +15,6 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.model.core,
- org.eclipse.smarthome.model.items,
- org.eclipse.smarthome.model.persistence.persistence,
- org.eclipse.smarthome.model.persistence.scoping,
  org.joda.time.base,
  org.osgi.framework,
  org.osgi.service.cm,
@@ -29,9 +25,15 @@ Import-Package: org.apache.commons.lang,
  org.quartz.impl.matchers,
  org.quartz.utils,
  org.slf4j
-Service-Component: OSGI-INF/persistenceextension.xml,
- OSGI-INF/persistencemanager.xml
+Service-Component: OSGI-INF/persistenceextension.xml
 Export-Package: org.eclipse.smarthome.core.persistence,
- org.eclipse.smarthome.core.persistence.extensions
+ org.eclipse.smarthome.core.persistence.extensions,
+ org.joda.time,
+ org.joda.time.base,
+ org.joda.time.chrono,
+ org.joda.time.convert,
+ org.joda.time.field,
+ org.joda.time.format,
+ org.joda.time.tz
 Bundle-ClassPath: .
 Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4"
