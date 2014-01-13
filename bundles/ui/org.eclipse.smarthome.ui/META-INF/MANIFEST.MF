@@ -7,8 +7,7 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.ui.internal.UIActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.xeiam.xchart,
- javax.servlet,
+Import-Package: javax.servlet,
  javax.servlet.http,
  org.apache.commons.httpclient,
  org.apache.commons.httpclient.auth,
@@ -31,7 +30,8 @@ Import-Package: com.xeiam.xchart,
  org.osgi.service.cm;version="1.4.0",
  org.osgi.service.http,
  org.slf4j
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/xchart-2.2.1.jar
 Bundle-SymbolicName: org.eclipse.smarthome.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.ui.chart,
