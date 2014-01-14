@@ -7,10 +7,6 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.persistence
 Import-Package: org.apache.commons.lang,
- org.eclipse.emf.common.util,
- org.eclipse.emf.ecore,
- org.eclipse.emf.ecore.resource,
- org.eclipse.emf.ecore.util,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.types,
@@ -19,7 +15,7 @@ Import-Package: org.apache.commons.lang,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.event,
- org.osgi.util.tracker;version="1.5.0",
+ org.osgi.util.tracker,
  org.quartz,
  org.quartz.impl,
  org.quartz.impl.matchers,
@@ -35,5 +31,5 @@ Export-Package: org.eclipse.smarthome.core.persistence,
  org.joda.time.field,
  org.joda.time.format,
  org.joda.time.tz
-Bundle-ClassPath: .
-Require-Bundle: org.apache.commons.logging;bundle-version="1.0.4"
+Bundle-ClassPath: .,
+ lib/joda-time-2.3.jar
