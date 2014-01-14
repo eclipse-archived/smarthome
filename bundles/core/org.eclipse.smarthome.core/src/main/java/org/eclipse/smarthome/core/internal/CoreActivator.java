@@ -7,16 +7,12 @@
  */
 package org.eclipse.smarthome.core.internal;
 
-import java.util.logging.Handler;
-
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 
 /**
  * @author Kai Kreuzer - Initial contribution and API
- * @author Thomas.Eichstaedt-Engelen
  * 
  */
 public class CoreActivator implements BundleActivator {
@@ -26,14 +22,6 @@ public class CoreActivator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {		
-
-		java.util.logging.Logger rootLogger = java.util.logging.LogManager.getLogManager().getLogger("");
-		Handler[] handlers = rootLogger.getHandlers();
-		for (Handler handler : handlers) {
-			rootLogger.removeHandler(handler);
-		}
-		
-		SLF4JBridgeHandler.install();
 	}
 
 	/*

@@ -24,6 +24,5 @@ Import-Package: org.apache.commons.io,
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.service.log,
- org.slf4j,
- org.slf4j.bridge
+ org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core
