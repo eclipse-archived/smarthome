@@ -75,16 +75,16 @@ public class SitemapStateChangeListener extends ResourceStateChangeListener {
             	String sitemapName = pathSegments[1];
             	String pageName = pathSegments[2];
 
-            	Sitemap sitemap = (Sitemap) RESTApplication.getModelRepository().getModel(sitemapName + ".sitemap");
+            	Sitemap sitemap = (Sitemap) SitemapResource.getModelRepository().getModel(sitemapName + ".sitemap");
             	if(sitemap!=null) {
             		List<Widget> children = null;
             		if(pageName.equals(sitemapName)) {
             			children = sitemap.getChildren();
             		} else {            		
-	            		Widget widget = RESTApplication.getItemUIRegistry().getWidget(sitemap, pageName);
+	            		Widget widget = SitemapResource.getItemUIRegistry().getWidget(sitemap, pageName);
 	            		if(widget instanceof LinkableWidget) {
 	            			LinkableWidget page = (LinkableWidget) widget;
-	            			children = RESTApplication.getItemUIRegistry().getChildren(page);
+	            			children = SitemapResource.getItemUIRegistry().getChildren(page);
 	            		}
             		}
             		if(children!=null) {
@@ -123,7 +123,7 @@ public class SitemapStateChangeListener extends ResourceStateChangeListener {
 	            if(pathSegments.length>=3) {
 	            	String sitemapName = pathSegments[1];
 	            	String pageId = pathSegments[2];
-	            	Sitemap sitemap = (Sitemap) RESTApplication.getModelRepository().getModel(sitemapName + ".sitemap");
+	            	Sitemap sitemap = (Sitemap) SitemapResource.getModelRepository().getModel(sitemapName + ".sitemap");
 	            	if(sitemap!=null) {
 						return SitemapResource.getPageBean(sitemapName, pageId, basePath);
 	            	}

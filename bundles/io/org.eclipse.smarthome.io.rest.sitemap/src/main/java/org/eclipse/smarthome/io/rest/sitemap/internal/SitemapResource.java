@@ -30,7 +30,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.io.rest.MediaTypeHelper;
-import org.eclipse.smarthome.io.rest.RESTApplication;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.item.ItemResource;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.MappingBean;
@@ -80,6 +79,34 @@ public class SitemapResource implements RESTResource {
 	public static final String PATH_SITEMAPS = "sitemaps";
     
 	@Context UriInfo uriInfo;
+
+	static private ItemUIRegistry itemUIRegistry;
+
+	static private ModelRepository modelRepository;
+	
+	public void setItemRegistry(ItemUIRegistry itemUIRegistry) {
+		SitemapResource.itemUIRegistry = itemUIRegistry;
+	}
+	
+	public void unsetItemRegistry(ItemUIRegistry itemUIRegistry) {
+		SitemapResource.itemUIRegistry = null;
+	}	
+	
+	static public ItemUIRegistry getItemUIRegistry() {
+		return itemUIRegistry;
+	}
+
+	public void setModelRepository(ModelRepository modelRepository) {
+		SitemapResource.modelRepository = modelRepository;
+	}
+	
+	public void unsetModelRepository(ModelRepository modelRepository) {
+		SitemapResource.modelRepository = null;
+	}
+	
+	static public ModelRepository getModelRepository() {
+		return modelRepository;
+	}
 
 	@GET
     @Produces( { MediaType.WILDCARD })
@@ -137,7 +164,6 @@ public class SitemapResource implements RESTResource {
     }
 	
     static public PageBean getPageBean(String sitemapName, String pageId, URI uri) {
-		ItemUIRegistry itemUIRegistry = RESTApplication.getItemUIRegistry();
 		Sitemap sitemap = getSitemap(sitemapName);
 		if(sitemap!=null) {
 			if(pageId.equals(sitemap.getName())) {
@@ -183,7 +209,6 @@ public class SitemapResource implements RESTResource {
 	public Collection<SitemapBean> getSitemapBeans(URI uri) {
 		Collection<SitemapBean> beans = new LinkedList<SitemapBean>();
 		logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
-		ModelRepository modelRepository = RESTApplication.getModelRepository();
 		for(String modelName : modelRepository.getAllModelNamesOfType("sitemap")) {
 			Sitemap sitemap = (Sitemap) modelRepository.getModel(modelName);
 			if(sitemap!=null) {
@@ -245,8 +270,6 @@ public class SitemapResource implements RESTResource {
 	}
 
 	static private WidgetBean createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId) {
-		ItemUIRegistry itemUIRegistry = RESTApplication.getItemUIRegistry();
-
 		// Test visibility
 		if(itemUIRegistry.getVisiblity(widget) == false)
 			return null;
@@ -376,7 +399,6 @@ public class SitemapResource implements RESTResource {
 				}
 			} else if(w instanceof LinkableWidget) {
 				LinkableWidget linkableWidget = (LinkableWidget) w;
-				ItemUIRegistry itemUIRegistry = RESTApplication.getItemUIRegistry();
 				if(itemUIRegistry.getChildren(linkableWidget).size() > 0) {
 					return false;
 				}
@@ -386,9 +408,8 @@ public class SitemapResource implements RESTResource {
 	}
 
 	static public Sitemap getSitemap(String sitemapname) {
-        ModelRepository repo = RESTApplication.getModelRepository();
-        if(repo!=null) {
-			Sitemap sitemap = (Sitemap) repo.getModel(sitemapname + SITEMAP_FILEEXT);
+        if(modelRepository!=null) {
+			Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapname + SITEMAP_FILEEXT);
 			return sitemap;
         }
         return null;
