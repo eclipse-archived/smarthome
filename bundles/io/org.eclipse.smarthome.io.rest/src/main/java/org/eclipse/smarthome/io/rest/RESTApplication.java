@@ -23,8 +23,6 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.rest.internal.resources.RootResource;
 import org.eclipse.smarthome.io.servicediscovery.DiscoveryService;
 import org.eclipse.smarthome.io.servicediscovery.ServiceDescription;
-import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
@@ -59,11 +57,9 @@ public class RESTApplication extends Application {
 	private DiscoveryService discoveryService;
 
 	static private EventPublisher eventPublisher;
-	
-	static private ItemUIRegistry itemUIRegistry;
 
-	static private ModelRepository modelRepository;
-	
+	static private ItemRegistry itemRegistry;
+
 	static private List<RESTResource> restResources = new ArrayList<RESTResource>();
 
 	public void setHttpService(HttpService httpService) {
@@ -86,28 +82,16 @@ public class RESTApplication extends Application {
 		return eventPublisher;
 	}
 
-	public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-		RESTApplication.itemUIRegistry = itemUIRegistry;
+	public void setItemRegistry(ItemRegistry itemRegistry) {
+		RESTApplication.itemRegistry = itemRegistry;
 	}
 	
-	public void unsetItemUIRegistry(ItemRegistry itemUIRegistry) {
-		RESTApplication.itemUIRegistry = null;
+	public void unsetItemRegistry(ItemRegistry itemRegistry) {
+		RESTApplication.itemRegistry = null;
 	}
 
-	static public ItemUIRegistry getItemUIRegistry() {
-		return itemUIRegistry;
-	}
-
-	public void setModelRepository(ModelRepository modelRepository) {
-		RESTApplication.modelRepository = modelRepository;
-	}
-	
-	public void unsetModelRepository(ModelRepository modelRepository) {
-		RESTApplication.modelRepository = null;
-	}
-
-	static public ModelRepository getModelRepository() {
-		return modelRepository;
+	static public ItemRegistry getItemRegistry() {
+		return RESTApplication.itemRegistry;
 	}
 
 	public void setDiscoveryService(DiscoveryService discoveryService) {

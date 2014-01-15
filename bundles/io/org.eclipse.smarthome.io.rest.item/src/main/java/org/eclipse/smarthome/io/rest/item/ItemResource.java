@@ -33,6 +33,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -46,7 +47,6 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.item.beans.GroupItemBean;
 import org.eclipse.smarthome.io.rest.item.beans.ItemBean;
 import org.eclipse.smarthome.io.rest.item.beans.ItemListBean;
-import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,7 +198,7 @@ public class ItemResource implements RESTResource {
     }
     
     static public Item getItem(String itemname) {
-        ItemUIRegistry registry = RESTApplication.getItemUIRegistry();
+        ItemRegistry registry = RESTApplication.getItemRegistry();
         if(registry!=null) {
         	try {
 				Item item = registry.getItem(itemname);
@@ -212,7 +212,7 @@ public class ItemResource implements RESTResource {
 
 	private List<ItemBean> getItemBeans() {
 		List<ItemBean> beans = new LinkedList<ItemBean>();
-		ItemUIRegistry registry = RESTApplication.getItemUIRegistry();
+		ItemRegistry registry = RESTApplication.getItemRegistry();
 		for(Item item : registry.getItems()) {
 			beans.add(createItemBean(item, false, uriInfo.getBaseUri().toASCIIString()));
 		}

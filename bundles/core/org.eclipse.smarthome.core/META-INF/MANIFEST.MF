@@ -4,7 +4,7 @@ Export-Package: org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.types,org.eclipse.smarthome.core.events",
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.types
-Service-Component: OSGI-INF/eventpublisher.xml,OSGI-INF/itemregistry.xml,OSGI-INF/logservice.xml, OSGI-INF/itemupdater.xml
+Service-Component: OSGI-INF/eventpublisher.xml,OSGI-INF/itemregistry.xml,OSGI-INF/itemupdater.xml
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smarthome.core.internal.e
  vents,org.eclipse.smarthome.core.internal.items,org.eclipse.smarthome.core.internal.loggi
  ng
@@ -24,6 +24,5 @@ Import-Package: org.apache.commons.io,
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.service.log,
- org.slf4j,
- org.slf4j.bridge
+ org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core
