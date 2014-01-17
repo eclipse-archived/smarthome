@@ -11,7 +11,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Type;
-import org.eclipse.smarthome.model.script.internal.engine.ItemRegistryProvider;
+import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;

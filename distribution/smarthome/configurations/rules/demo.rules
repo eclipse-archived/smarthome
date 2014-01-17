@@ -1,6 +1,4 @@
-import org.eclipse.smarthome.core.library.types.*
-import org.eclipse.smarthome.core.persistence.*
-import org.eclipse.smarthome.model.script.actions.*
+import org.eclipse.smarthome.model.script.actions.Timer
 
 var Number counter = 1
 var Timer timer = null
@@ -12,6 +10,7 @@ rule "Initialize light states"
 	when
 		System started
 	then
+		
 		Lights.members.forEach[
 			print("HAHA")
 		]

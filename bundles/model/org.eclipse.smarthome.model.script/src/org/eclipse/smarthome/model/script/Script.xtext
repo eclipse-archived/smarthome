@@ -9,7 +9,7 @@ generate script "http://www.eclipse.org/smarthome/model/Script"
 
 Script returns XBlockExpression: 
 	{Script}
-	expressions+=XExpressionInsideBlock (expressions+=XExpressionInsideBlock ';'?)* 
+	(expressions+=XExpressionInsideBlock ';'?)* 
 ;
 
 XLiteral returns XExpression:

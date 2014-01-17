@@ -1,6 +1,9 @@
 package org.eclipse.smarthome.model.rule.jvmmodel
 
 import com.google.inject.Inject
+import org.eclipse.smarthome.core.types.Command
+import org.eclipse.smarthome.core.types.State
+import org.eclipse.smarthome.model.rule.internal.engine.RuleContextHelper
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
@@ -11,9 +14,7 @@ import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.model.rule.internal.engine.RuleContextHelper
-import org.eclipse.smarthome.core.types.State
+import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -30,6 +31,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	@Inject extension JvmTypesBuilder
 	@Inject extension IQualifiedNameProvider	
 
+	@Inject
+	ItemRegistryProvider itemRegistryProvider
+
 	/**
 	 * Is called for each instance of the first argument's type contained in a resource.
 	 * 
@@ -39,13 +43,26 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	 * @param isPreLinkingPhase - whether the method is called in a pre linking phase, i.e. when the global index isn't fully updated. You
 	 *        must not rely on linking using the index if iPrelinkingPhase is <code>true</code>
 	 */
+	 
+	
 	 def dispatch void infer(RuleModel ruleModel, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 		acceptor.accept(ruleModel.toClass("test.TestClass")).initializeLater [
 			members += ruleModel.variables.filter(XVariableDeclaration).map[
-				toField(name, type.cloneWithProxies)
+				toField(name, type.cloneWithProxies) => [
+					static = true
+				]
 			]
+			 // TODO check for name conflicts
+			 val itemRegistry = itemRegistryProvider.get
+			 members += itemRegistry.items.map[
+			 	ruleModel.toField(name, ruleModel.newTypeRef(class)) => [
+			 		static = true
+			 	]
+			 ]
+			 
 			members += ruleModel.rules.map[ rule |
-				rule.toMethod(rule.name, ruleModel.newTypeRef(Void.TYPE)) [
+				rule.toMethod("_" + rule.name, ruleModel.newTypeRef(Void.TYPE)) [
+					static = true
 					if(containsCommandTrigger(rule)) {
 						val commandTypeRef = ruleModel.newTypeRef(Command)
 						parameters += rule.toParameter(RuleContextHelper.VAR_RECEIVED_COMMAND, commandTypeRef) 

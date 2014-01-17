@@ -18,7 +18,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Type;
-import org.eclipse.smarthome.model.script.internal.engine.ItemRegistryProvider;
+import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider;
 import org.eclipse.xtext.common.types.TypesFactory;
 import org.eclipse.xtext.common.types.access.IJvmTypeProvider;
 import org.eclipse.xtext.resource.EObjectDescription;
