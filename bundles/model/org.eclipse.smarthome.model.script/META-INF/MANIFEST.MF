@@ -47,6 +47,7 @@ Import-Package: com.google.common.base,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.actions,
+ org.eclipse.smarthome.model.script.engine,
  org.eclipse.smarthome.model.script.formatting,
  org.eclipse.smarthome.model.script.jvmmodel,
  org.eclipse.smarthome.model.script.lib,
@@ -56,9 +57,9 @@ Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.script,
  org.eclipse.smarthome.model.script.script.impl,
  org.eclipse.smarthome.model.script.script.util,
+ org.eclipse.smarthome.model.script.serializer,
  org.eclipse.smarthome.model.script.services,
- org.eclipse.smarthome.model.script.validation,
- org.eclipse.smarthome.model.script.serializer
+ org.eclipse.smarthome.model.script.validation
 Service-Component: OSGI-INF/scriptengine.xml
 Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .

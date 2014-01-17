@@ -39,17 +39,17 @@ public class RulesProposalProvider extends AbstractRulesProposalProvider {
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider;
 	
-	@Override
-	public void completeScript_Expressions(EObject model,
-			Assignment assignment, ContentAssistContext context,
-			ICompletionProposalAcceptor acceptor) {
-		super.completeScript_Expressions(model, assignment, context, acceptor);
-		if (model == null || model instanceof Rule ) {
-			Function<IEObjectDescription, ICompletionProposal> proposalFactory = getProposalFactory(getFeatureCallRuleName(), context);
-			IScope scope = getScopeProvider().createSimpleFeatureCallScope(model, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE, context.getResource(), false, -1);
-			createLocalVariableAndImplicitProposals(model, context, acceptor);
-		}
-	}
+//	@Override
+//	public void completeScript_Expressions(EObject model,
+//			Assignment assignment, ContentAssistContext context,
+//			ICompletionProposalAcceptor acceptor) {
+//		super.completeScript_Expressions(model, assignment, context, acceptor);
+//		if (model == null || model instanceof Rule ) {
+//			Function<IEObjectDescription, ICompletionProposal> proposalFactory = getProposalFactory(getFeatureCallRuleName(), context);
+//			IScope scope = getScopeProvider().createSimpleFeatureCallScope(model, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE, context.getResource(), false, -1);
+//			createLocalVariableAndImplicitProposals(model, context, acceptor);
+//		}
+//	}
 	
 	@Override
 	public void complete_ItemName(EObject model, RuleCall ruleCall,
