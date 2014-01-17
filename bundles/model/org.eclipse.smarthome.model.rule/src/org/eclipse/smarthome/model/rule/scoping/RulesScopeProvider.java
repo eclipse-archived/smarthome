@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschränkt) and others.
+ * Copyright (c) 2014 openHAB UG (haftungsbeschr??nkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,81 +49,81 @@ import com.google.inject.Inject;
  */
 @SuppressWarnings("restriction")
 public class RulesScopeProvider extends ScriptScopeProvider {
-
-	@Inject
-	private TypeReferences typeReferences;
-	
-	@Override
-	protected IScope createLocalVarScope(IScope parentScope,
-			LocalVariableScopeContext scopeContext) {
-		if(scopeContext.getContext() instanceof Rule) {
-			IScope parent = super.createLocalVarScope(parentScope, scopeContext);
-			List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
-			descriptions.addAll(createVarFeatures(scopeContext.getContext().eResource()));
-			descriptions.addAll(createTriggerSpecificVars((Rule) scopeContext.getContext()));
-			return MapBasedScope.createScope(parent, descriptions);
-		} else {
-			return super.createLocalVarScope(parentScope, scopeContext);
-		}
-	}
-	
-	private Collection<? extends IEObjectDescription> createVarFeatures(Resource resource) {
-		List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
-
-		if(resource.getContents().size()>0 && resource.getContents().get(0) instanceof RuleModel) {
-			RuleModel ruleModel = (RuleModel) resource.getContents().get(0);
-			for(XExpression expr : ruleModel.getVariables()) {
-				if (expr instanceof XVariableDeclaration) {
-					XVariableDeclaration var = (XVariableDeclaration) expr;
-					if(var.getName()!=null && var.getType()!=null) {
-						descriptions.add(createLocalVarDescription(var));
-					}
-				}
-			}
-		}
-		
-		return descriptions;
-	}
-
-	private Collection<? extends IEObjectDescription> createTriggerSpecificVars(Rule rule) {
-		List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
-		Resource varResource = new XtextResource(URI.createURI("event://specific.vars"));
-		if(containsCommandTrigger(rule)) {
-			JvmTypeReference commandTypeRef = typeReferences.getTypeForName(Command.class, rule);
-			XVariableDeclaration varDecl = XbaseFactory.eINSTANCE.createXVariableDeclaration();
-			varDecl.setName(RuleContextHelper.VAR_RECEIVED_COMMAND);
-			varDecl.setType(commandTypeRef);
-			varDecl.setWriteable(false);
-			varResource.getContents().add(varDecl);
-			descriptions.add(new LocalVarDescription(QualifiedName.create(varDecl.getName()), varDecl));
-		}
-		if(containsStateChangeTrigger(rule)) {
-			JvmTypeReference stateTypeRef = typeReferences.getTypeForName(State.class, rule);
-			XVariableDeclaration varDecl = XbaseFactory.eINSTANCE.createXVariableDeclaration();
-			varDecl.setName(RuleContextHelper.VAR_PREVIOUS_STATE);
-			varDecl.setType(stateTypeRef);
-			varDecl.setWriteable(false);
-			varResource.getContents().add(varDecl);
-			descriptions.add(new LocalVarDescription(QualifiedName.create(varDecl.getName()), varDecl));
-		}
-		return descriptions;
-	}
-
-	private boolean containsCommandTrigger(Rule rule) {
-		for(EventTrigger trigger : rule.getEventtrigger()) {
-			if(trigger instanceof CommandEventTrigger) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean containsStateChangeTrigger(Rule rule) {
-		for(EventTrigger trigger : rule.getEventtrigger()) {
-			if(trigger instanceof ChangedEventTrigger) {
-				return true;
-			}
-		}
-		return false;
-	}
+//
+//	@Inject
+//	private TypeReferences typeReferences;
+//	
+//	@Override
+//	protected IScope createLocalVarScope(IScope parentScope,
+//			LocalVariableScopeContext scopeContext) {
+//		if(scopeContext.getContext() instanceof Rule) {
+//			IScope parent = super.createLocalVarScope(parentScope, scopeContext);
+//			List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
+//			descriptions.addAll(createVarFeatures(scopeContext.getContext().eResource()));
+//			descriptions.addAll(createTriggerSpecificVars((Rule) scopeContext.getContext()));
+//			return MapBasedScope.createScope(parent, descriptions);
+//		} else {
+//			return super.createLocalVarScope(parentScope, scopeContext);
+//		}
+//	}
+//	
+//	private Collection<? extends IEObjectDescription> createVarFeatures(Resource resource) {
+//		List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
+//
+//		if(resource.getContents().size()>0 && resource.getContents().get(0) instanceof RuleModel) {
+//			RuleModel ruleModel = (RuleModel) resource.getContents().get(0);
+//			for(XExpression expr : ruleModel.getVariables()) {
+//				if (expr instanceof XVariableDeclaration) {
+//					XVariableDeclaration var = (XVariableDeclaration) expr;
+//					if(var.getName()!=null && var.getType()!=null) {
+//						descriptions.add(createLocalVarDescription(var));
+//					}
+//				}
+//			}
+//		}
+//		
+//		return descriptions;
+//	}
+//
+//	private Collection<? extends IEObjectDescription> createTriggerSpecificVars(Rule rule) {
+//		List<IEObjectDescription> descriptions = new ArrayList<IEObjectDescription>();
+//		Resource varResource = new XtextResource(URI.createURI("event://specific.vars"));
+//		if(containsCommandTrigger(rule)) {
+//			JvmTypeReference commandTypeRef = typeReferences.getTypeForName(Command.class, rule);
+//			XVariableDeclaration varDecl = XbaseFactory.eINSTANCE.createXVariableDeclaration();
+//			varDecl.setName(RuleContextHelper.VAR_RECEIVED_COMMAND);
+//			varDecl.setType(commandTypeRef);
+//			varDecl.setWriteable(false);
+//			varResource.getContents().add(varDecl);
+//			descriptions.add(new LocalVarDescription(QualifiedName.create(varDecl.getName()), varDecl));
+//		}
+//		if(containsStateChangeTrigger(rule)) {
+//			JvmTypeReference stateTypeRef = typeReferences.getTypeForName(State.class, rule);
+//			XVariableDeclaration varDecl = XbaseFactory.eINSTANCE.createXVariableDeclaration();
+//			varDecl.setName(RuleContextHelper.VAR_PREVIOUS_STATE);
+//			varDecl.setType(stateTypeRef);
+//			varDecl.setWriteable(false);
+//			varResource.getContents().add(varDecl);
+//			descriptions.add(new LocalVarDescription(QualifiedName.create(varDecl.getName()), varDecl));
+//		}
+//		return descriptions;
+//	}
+//
+//	private boolean containsCommandTrigger(Rule rule) {
+//		for(EventTrigger trigger : rule.getEventtrigger()) {
+//			if(trigger instanceof CommandEventTrigger) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
+//
+//	private boolean containsStateChangeTrigger(Rule rule) {
+//		for(EventTrigger trigger : rule.getEventtrigger()) {
+//			if(trigger instanceof ChangedEventTrigger) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 }
