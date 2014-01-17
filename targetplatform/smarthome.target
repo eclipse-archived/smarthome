@@ -93,11 +93,11 @@
 <unit id="org.eclipse.xtend.dependencies.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xpand.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtend.feature.group" version="0.0.0"/>
-<unit id="org.eclipse.xtend.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xpand.sdk.feature.group" version="0.0.0"/>
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/latest/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.xtend.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtext.ui.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
 <unit id="org.eclipse.xtext.xbase.feature.group" version="0.0.0"/>
