@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschränkt) and others.
+ * Copyright (c) 2014 openHAB UG (haftungsbeschr??nkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public class ActionClasspathTypeProviderFactory extends ClasspathTypeProviderFac
 
 	@Override
 	protected ClasspathTypeProvider createClasspathTypeProvider(ResourceSet resourceSet) {
-		return new ClasspathTypeProvider(new ActionClassLoader(super.getClassLoader()), resourceSet, getIndexedJvmTypeAccess());
+		return new ClasspathTypeProvider(new ActionClassLoader(super.getClassLoader(resourceSet)), resourceSet, getIndexedJvmTypeAccess());
 	}
 
 }

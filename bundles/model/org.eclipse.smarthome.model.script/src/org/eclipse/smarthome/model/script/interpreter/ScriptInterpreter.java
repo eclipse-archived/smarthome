@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschränkt) and others.
+ * Copyright (c) 2014 openHAB UG (haftungsbeschr??nkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,13 +15,8 @@ import org.eclipse.smarthome.model.script.internal.engine.ItemRegistryProvider;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
 import org.eclipse.xtext.common.types.JvmIdentifiableElement;
-import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.util.CancelIndicator;
-import org.eclipse.xtext.util.PolymorphicDispatcher;
 import org.eclipse.xtext.xbase.XAbstractFeatureCall;
-import org.eclipse.xtext.xbase.XAssignment;
-import org.eclipse.xtext.xbase.XFeatureCall;
-import org.eclipse.xtext.xbase.XVariableDeclaration;
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter;
 
@@ -32,6 +27,7 @@ import com.google.inject.Inject;
  * to the standard Xbase interpreter.
  * 
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Oliver Libutzki - Xtext 2.5.0 migration
  *
  */
 @SuppressWarnings("restriction")
@@ -42,13 +38,15 @@ public class ScriptInterpreter extends XbaseInterpreter {
 	
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider;
-		
-	private PolymorphicDispatcher<Object> featureCallDispatcher = createFeatureCallDispatcher();
 
-	protected Object _featureCallJvmIdentifyableElement(JvmIdentifiableElement identifiable, XFeatureCall featureCall, Object receiver,
+	protected Object invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall, Object receiverObj,
 			IEvaluationContext context, CancelIndicator indicator) {
-		Object value = super._featureCallJvmIdentifyableElement(identifiable, featureCall, receiver, context, indicator);
-		if(value==null && receiver==null) {
+		if(featureCall.getFeature().eIsProxy()) {
+			throw new RuntimeException("The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
+		}
+		
+		Object value = super.invokeFeature(feature, featureCall, receiverObj, context, indicator);
+		if(value == null && receiverObj == null) {
 			for(Type type : stateAndCommandProvider.getAllTypes()) {
 				if(type.toString().equals(featureCall.toString())) {
 					return type;
@@ -56,20 +54,6 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			}
 			value = getItem(featureCall.toString());
 		}
-		return value;
-	}
-	
-	protected Object internalFeatureCallDispatch(XAbstractFeatureCall featureCall, Object receiverObj,
-			IEvaluationContext context, CancelIndicator indicator) {
-		if(featureCall.getFeature().eIsProxy()) {
-			throw new RuntimeException("The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
-		}
-		return featureCallDispatcher.invoke(featureCall.getFeature(), featureCall, receiverObj, context, indicator);
-	}
-
-	protected Object _assignValue(XVariableDeclaration variable, XAssignment assignment, Object value,
-			IEvaluationContext context, CancelIndicator indicator) {
-		context.assignValue(QualifiedName.create(variable.getName()), value);
 		return value;
 	}
 

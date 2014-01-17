@@ -19,6 +19,7 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.designer.core.config,
  org.eclipse.smarthome.designer.ui
 Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
- org.eclipse.smarthome.model.ui.contentassist
+ org.eclipse.smarthome.model.ui.contentassist,
+ org.eclipse.smarthome.model.ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.ui.internal.SitemapActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

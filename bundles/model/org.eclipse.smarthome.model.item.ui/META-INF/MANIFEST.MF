@@ -19,6 +19,7 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.designer.ui,
  org.osgi.service.event
 Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
- org.eclipse.smarthome.model.ui.contentassist
+ org.eclipse.smarthome.model.ui.contentassist,
+ org.eclipse.smarthome.model.ui.quickfix
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: org.eclipse.smarthome.model.ui.internal.ItemsActivator

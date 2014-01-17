@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschränkt) and others.
+ * Copyright (c) 2014 openHAB UG (haftungsbeschr??nkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,16 +10,26 @@
  */
 package org.eclipse.smarthome.model.rule;
 
-import org.eclipse.smarthome.model.rule.scoping.RuleExtensionClassNameProvider;
+import org.eclipse.smarthome.model.rule.scoping.RulesFeatureScopes;
+import org.eclipse.smarthome.model.rule.scoping.RulesImplicitlyImportedTypes;
 import org.eclipse.smarthome.model.rule.scoping.RulesScopeProvider;
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptIdentifiableSimpleNameProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
+import org.eclipse.smarthome.model.script.scoping.ScriptFeatureScopes;
+import org.eclipse.smarthome.model.script.scoping.ScriptReentrantTypeResolver;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
+import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.xbase.featurecalls.IdentifiableSimpleNameProvider;
-import org.eclipse.xtext.xbase.scoping.featurecalls.StaticImplicitMethodsFeatureForTypeProvider.ExtensionClassNameProvider;
+import org.eclipse.xtext.xbase.scoping.batch.FeatureScopes;
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
+import org.eclipse.xtext.xbase.typesystem.internal.DefaultBatchTypeResolver;
+import org.eclipse.xtext.xbase.typesystem.internal.DefaultReentrantTypeResolver;
+
+import com.google.inject.Binder;
 
 
 /**
@@ -28,13 +38,15 @@ import org.eclipse.xtext.xbase.scoping.featurecalls.StaticImplicitMethodsFeature
 @SuppressWarnings("restriction")
 public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.AbstractRulesRuntimeModule {
 
+	
 	public Class<? extends IdentifiableSimpleNameProvider> bindIdentifiableSimpleNameProvider() {
 		return ScriptIdentifiableSimpleNameProvider.class;
 	}
 	
-	public Class<? extends ExtensionClassNameProvider> bindExtensionClassNameProvider() {
-		return RuleExtensionClassNameProvider.class;
+	public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
+		return RulesImplicitlyImportedTypes.class;
 	}
+
 	
 	public Class<StateAndCommandProvider> bindStateAndCommandProvider() {
 		return StateAndCommandProvider.class;
@@ -62,4 +74,14 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
 	public ClassLoader bindClassLoaderToInstance() {
 		return new ActionClassLoader(getClass().getClassLoader());
 	}
+	
+	public Class<? extends FeatureScopes> bindFeatureScopes() {
+		return RulesFeatureScopes.class;
+	}
+	
+	@Override
+	public Class<? extends IGenerator> bindIGenerator() {
+		return NullGenerator.class;
+	}
+	
 }

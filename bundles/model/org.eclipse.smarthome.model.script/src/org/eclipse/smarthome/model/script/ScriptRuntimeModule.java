@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschränkt) and others.
+ * Copyright (c) 2014 openHAB UG (haftungsbeschr??nkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,12 +17,16 @@ import org.eclipse.smarthome.model.script.jvmmodel.ScriptIdentifiableSimpleNameP
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
-import org.eclipse.smarthome.model.script.scoping.ScriptExtensionClassNameProvider;
+import org.eclipse.smarthome.model.script.scoping.ScriptFeatureScopes;
+import org.eclipse.smarthome.model.script.scoping.ScriptImplicitlyImportedTypes;
 import org.eclipse.smarthome.model.script.scoping.ScriptScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
+import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.xbase.featurecalls.IdentifiableSimpleNameProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
-import org.eclipse.xtext.xbase.scoping.featurecalls.StaticImplicitMethodsFeatureForTypeProvider.ExtensionClassNameProvider;
+import org.eclipse.xtext.xbase.scoping.batch.FeatureScopes;
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -30,8 +34,9 @@ import org.eclipse.xtext.xbase.scoping.featurecalls.StaticImplicitMethodsFeature
 @SuppressWarnings("restriction")
 public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.AbstractScriptRuntimeModule {
 
-	public Class<? extends ExtensionClassNameProvider> bindExtensionClassNameProvider() {
-		return ScriptExtensionClassNameProvider.class;
+
+	public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
+		return ScriptImplicitlyImportedTypes.class;
 	}
 	
 	public Class<? extends IdentifiableSimpleNameProvider> bindIdentifiableSimpleNameProvider() {
@@ -71,6 +76,15 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 	@Override
 	public ClassLoader bindClassLoaderToInstance() {
 		return new ActionClassLoader(getClass().getClassLoader());
+	}
+	
+	public Class<? extends FeatureScopes> bindFeatureScopes() {
+		return ScriptFeatureScopes.class;
+	}
+	
+	@Override
+	public Class<? extends IGenerator> bindIGenerator() {
+		return NullGenerator.class;
 	}
 
 }

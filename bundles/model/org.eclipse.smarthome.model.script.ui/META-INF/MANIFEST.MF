@@ -37,5 +37,6 @@ Import-Package: com.google.common.base,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
  org.eclipse.smarthome.model.script.ui.contentassist.antlr,
- org.eclipse.smarthome.model.script.ui.internal
+ org.eclipse.smarthome.model.script.ui.internal,
+ org.eclipse.smarthome.model.script.ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptUIActivator
