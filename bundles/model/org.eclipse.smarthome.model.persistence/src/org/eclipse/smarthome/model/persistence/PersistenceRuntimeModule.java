@@ -11,6 +11,8 @@
 package org.eclipse.smarthome.model.persistence;
 
 import org.eclipse.smarthome.model.persistence.scoping.PersistenceGlobalScopeProvider;
+import org.eclipse.xtext.generator.IGenerator;
+import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IGlobalScopeProvider;
 
 /**
@@ -21,5 +23,9 @@ public class PersistenceRuntimeModule extends org.eclipse.smarthome.model.persis
 	@Override
 	public Class<? extends IGlobalScopeProvider> bindIGlobalScopeProvider() {
 		return PersistenceGlobalScopeProvider.class;
+	}
+	
+	public Class<? extends IGenerator> bindIGenerator() {
+		return NullGenerator.class;
 	}
 }
