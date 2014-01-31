@@ -13,23 +13,19 @@ package org.eclipse.smarthome.model.rule;
 import org.eclipse.smarthome.model.rule.scoping.RulesFeatureScopes;
 import org.eclipse.smarthome.model.rule.scoping.RulesImplicitlyImportedTypes;
 import org.eclipse.smarthome.model.rule.scoping.RulesScopeProvider;
+import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptIdentifiableSimpleNameProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
-import org.eclipse.smarthome.model.script.scoping.ScriptFeatureScopes;
-import org.eclipse.smarthome.model.script.scoping.ScriptReentrantTypeResolver;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.xbase.featurecalls.IdentifiableSimpleNameProvider;
+import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
 import org.eclipse.xtext.xbase.scoping.batch.FeatureScopes;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
-import org.eclipse.xtext.xbase.typesystem.internal.DefaultBatchTypeResolver;
-import org.eclipse.xtext.xbase.typesystem.internal.DefaultReentrantTypeResolver;
-
-import com.google.inject.Binder;
 
 
 /**
@@ -82,6 +78,10 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
 	@Override
 	public Class<? extends IGenerator> bindIGenerator() {
 		return NullGenerator.class;
+	}
+	
+	public Class<? extends IExpressionInterpreter> bindIExpressionInterpreter() {
+		return ScriptInterpreter.class;
 	}
 	
 }
