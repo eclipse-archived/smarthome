@@ -17,6 +17,13 @@ import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.common.types.JvmField
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.xtext.xbase.XAssignment
+import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
+import org.eclipse.xtext.util.CancelIndicator
+import org.eclipse.xtext.xbase.interpreter.impl.EvaluationException
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.xbase.XAbstractFeatureCall
+import org.eclipse.xtext.xbase.XVariableDeclaration
 
 /**
  * The script interpreter handles the openHAB specific script components, which are not known
@@ -38,20 +45,26 @@ public class ScriptInterpreter extends XbaseInterpreter {
 	@Inject 
 	extension IJvmModelAssociations 
 
-	override protected Object featureCallField(JvmField jvmField, Object receiver) {
+	override protected _invokeFeature(JvmField jvmField, XAbstractFeatureCall featureCall, Object receiver, IEvaluationContext context, CancelIndicator indicator) {
 		// Check if the JvmField is inferred
 		val sourceElement = jvmField.sourceElements.head
 		if (sourceElement != null) {
-			// Looks like we have an item field
-			for(Type type : stateAndCommandProvider.getAllTypes()) {
-				if (type.toString == jvmField.simpleName) {
-					return type
+			switch sourceElement {
+				XVariableDeclaration : return context.getValue(QualifiedName.create(jvmField.simpleName))
+				default: {
+					// Looks like we have an item field
+					for(Type type : stateAndCommandProvider.getAllTypes()) {
+						if (type.toString == jvmField.simpleName) {
+							return type
+						}
+					}
+					return getItem(jvmField.simpleName)
 				}
 			}
-			return getItem(jvmField.simpleName)
 		} else {
-			super.featureCallField(jvmField, receiver)
+			super._invokeFeature(jvmField, featureCall, receiver, context, indicator)	
 		}
+	
 	}
 
 
@@ -73,4 +86,16 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			return super.eq(a, b);
 		}
 	}
+	
+	override protected _assigneValueTo(JvmField jvmField, XAssignment assignment, Object value, IEvaluationContext context, CancelIndicator indicator) {
+		// Check if the JvmField is inferred
+		val sourceElement = jvmField.sourceElements.head
+		if (sourceElement != null) {
+			context.assignValue(QualifiedName.create(jvmField.simpleName), value)
+			value
+		} else {
+			super._assigneValueTo(jvmField, assignment, value, context, indicator)
+		}
+	}
+	
 }
