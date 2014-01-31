@@ -10,21 +10,15 @@
  */
 package org.eclipse.smarthome.model.rule;
 
-import org.eclipse.smarthome.model.rule.scoping.RulesFeatureScopes;
 import org.eclipse.smarthome.model.rule.scoping.RulesImplicitlyImportedTypes;
-import org.eclipse.smarthome.model.rule.scoping.RulesScopeProvider;
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
-import org.eclipse.smarthome.model.script.jvmmodel.ScriptIdentifiableSimpleNameProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
-import org.eclipse.xtext.scoping.IScopeProvider;
-import org.eclipse.xtext.xbase.featurecalls.IdentifiableSimpleNameProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
-import org.eclipse.xtext.xbase.scoping.batch.FeatureScopes;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 
 
@@ -34,23 +28,12 @@ import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 @SuppressWarnings("restriction")
 public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.AbstractRulesRuntimeModule {
 
-	
-	public Class<? extends IdentifiableSimpleNameProvider> bindIdentifiableSimpleNameProvider() {
-		return ScriptIdentifiableSimpleNameProvider.class;
-	}
-	
 	public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
 		return RulesImplicitlyImportedTypes.class;
 	}
 
-	
 	public Class<StateAndCommandProvider> bindStateAndCommandProvider() {
 		return StateAndCommandProvider.class;
-	}
-	
-	@Override
-	public Class<? extends IScopeProvider> bindIScopeProvider() {
-		return RulesScopeProvider.class;
 	}
 	
 	/* we need this so that our pluggable actions can be resolved at design time */
@@ -69,10 +52,6 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
 	@Override
 	public ClassLoader bindClassLoaderToInstance() {
 		return new ActionClassLoader(getClass().getClassLoader());
-	}
-	
-	public Class<? extends FeatureScopes> bindFeatureScopes() {
-		return RulesFeatureScopes.class;
 	}
 	
 	@Override

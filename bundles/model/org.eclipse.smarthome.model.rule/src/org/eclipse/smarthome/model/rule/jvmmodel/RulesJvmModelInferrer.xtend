@@ -57,7 +57,8 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	 
 	
 	 def dispatch void infer(RuleModel ruleModel, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
-		acceptor.accept(ruleModel.toClass("test.TestClass")).initializeLater [
+	 	val className = ruleModel.eResource.URI.lastSegment.split("\\.").head.toFirstUpper + "Rules"
+		acceptor.accept(ruleModel.toClass(className)).initializeLater [
 			members += ruleModel.variables.filter(XVariableDeclaration).map[
 				toField(name, type.cloneWithProxies) => [
 					static = true
