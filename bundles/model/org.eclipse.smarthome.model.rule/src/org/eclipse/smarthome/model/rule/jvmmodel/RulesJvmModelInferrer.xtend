@@ -1,20 +1,26 @@
 package org.eclipse.smarthome.model.rule.jvmmodel
 
 import com.google.inject.Inject
+import java.util.Map
+import java.util.Set
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.model.rule.internal.engine.RuleContextHelper
+import org.eclipse.smarthome.model.rule.internal.engine.RuleEngine
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
 import org.eclipse.smarthome.model.rule.rules.Rule
 import org.eclipse.smarthome.model.rule.rules.RuleModel
+import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptJvmModelInferrer
+import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
-import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * <p>Infers a JVM model from the source model.</p> 
@@ -25,6 +31,8 @@ import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
 class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
 
+
+	static private final Logger logger = LoggerFactory.getLogger(RulesJvmModelInferrer)
     /**
      * conveninence API to build and initialize JvmTypes and their members.
      */
@@ -33,6 +41,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
 	@Inject
 	ItemRegistryProvider itemRegistryProvider
+
+	@Inject
+	StateAndCommandProvider stateAndCommandProvider
 
 	/**
 	 * Is called for each instance of the first argument's type contained in a resource.
@@ -52,12 +63,31 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 					static = true
 				]
 			]
-			 // TODO check for name conflicts
+			
+			val Set<String> fieldNames = newHashSet()
+			 
+			val types = stateAndCommandProvider.allTypes
+			types.forEach [ type |
+				val name = type.toString
+				if (fieldNames.add(name)) {
+					members += ruleModel.toField(name, ruleModel.newTypeRef(type.class)) [
+						static = true
+					]
+				} else {
+					logger.warn("Duplicate field: '{}'. Ignoring '{}'.", name, type.class.name)
+				}
+			]
+
 			 val itemRegistry = itemRegistryProvider.get
-			 members += itemRegistry.items.map[
-			 	ruleModel.toField(name, ruleModel.newTypeRef(class)) => [
-			 		static = true
-			 	]
+			 itemRegistry.items.forEach[ item |
+			 	val name = item.name
+					if (fieldNames.add(name)) {
+			 		members += 	ruleModel.toField(item.name, ruleModel.newTypeRef(item.class)) [
+				 		static = true
+				 	]
+			 	} else {
+			 		logger.warn("Duplicate field: '{}'. Ignoring '{}'.", item.name, item.class.name)
+			 	}
 			 ]
 			 
 			members += ruleModel.rules.map[ rule |
