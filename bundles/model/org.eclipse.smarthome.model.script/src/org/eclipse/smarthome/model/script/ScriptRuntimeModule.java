@@ -13,19 +13,13 @@ package org.eclipse.smarthome.model.script;
 import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.model.script.internal.engine.ScriptImpl;
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
-import org.eclipse.smarthome.model.script.jvmmodel.ScriptIdentifiableSimpleNameProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
-import org.eclipse.smarthome.model.script.scoping.ScriptFeatureScopes;
 import org.eclipse.smarthome.model.script.scoping.ScriptImplicitlyImportedTypes;
-import org.eclipse.smarthome.model.script.scoping.ScriptScopeProvider;
-import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
-import org.eclipse.xtext.xbase.featurecalls.IdentifiableSimpleNameProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
-import org.eclipse.xtext.xbase.scoping.batch.FeatureScopes;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 
 /**
@@ -39,10 +33,6 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 		return ScriptImplicitlyImportedTypes.class;
 	}
 	
-	public Class<? extends IdentifiableSimpleNameProvider> bindIdentifiableSimpleNameProvider() {
-		return ScriptIdentifiableSimpleNameProvider.class;
-	}
-
 	public Class<? extends Script> bindScript() {
 		return ScriptImpl.class;
 	}
@@ -51,15 +41,6 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 		return ScriptInterpreter.class;
 	}
 	
-	public Class<StateAndCommandProvider> bindStateAndCommandProvider() {
-		return StateAndCommandProvider.class;
-	}
-
-	@Override
-	public Class<? extends org.eclipse.xtext.scoping.IScopeProvider> bindIScopeProvider() {
-		return ScriptScopeProvider.class;
-	}
-
 	/* we need this so that our pluggable actions can be resolved at design time */
 	@Override
 	public Class<? extends org.eclipse.xtext.common.types.access.IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
@@ -78,13 +59,9 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 		return new ActionClassLoader(getClass().getClassLoader());
 	}
 	
-	public Class<? extends FeatureScopes> bindFeatureScopes() {
-		return ScriptFeatureScopes.class;
-	}
-	
 	@Override
 	public Class<? extends IGenerator> bindIGenerator() {
 		return NullGenerator.class;
 	}
-
+	
 }

@@ -41,10 +41,7 @@ import com.google.inject.Singleton;
 @Singleton
 public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 
-	@Inject
-	private TypeReferences typeReferences;
-	
-	private Collection<String> staticImportClassNames = null;
+	private List<Class<?>> actionClasses = null;
 	
 	private int trackingCount = -1;
 	
@@ -65,24 +62,24 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 		return result;
 	}
 	
-	@Override
-	public List<JvmType> getStaticImportClasses(Resource context) {
-		List<JvmType> result = super.getStaticImportClasses(context);
-		
-		Collection<String> classNames = getStaticImportClassNames();
-		result.addAll(getClassNameTypes(classNames, context));
-		return result;
-	}
-	
-	protected Collection<JvmType> getClassNameTypes(Collection<String> classNames, Resource context) {
-		List<JvmType> result = Lists.newArrayListWithCapacity(classNames.size());
-		for(String className: classNames) {
-			JvmType type = typeReferences.findDeclaredType(className, context);
-			if (type != null)
-				result.add(type);
-		}
-		return result;
-	}
+//	@Override
+//	public List<JvmType> getStaticImportClasses(Resource context) {
+//		List<JvmType> result = super.getStaticImportClasses(context);
+//		
+//		List<Class<?>> actionClasses = getActionClasses();
+//		result.addAll(getTypes(actionClasses, context));
+//		return result;
+//	}
+//	
+//	protected Collection<JvmType> getClassNameTypes(Collection<String> classNames, Resource context) {
+//		List<JvmType> result = Lists.newArrayListWithCapacity(classNames.size());
+//		for(String className: classNames) {
+//			JvmType type = typeReferences.findDeclaredType(className, context);
+//			if (type != null)
+//				result.add(type);
+//		}
+//		return result;
+//	}
 	
 	@Override
 	protected List<Class<?>> getStaticImportClasses() {
@@ -94,27 +91,29 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 		// jodatime static functions
 		result.add(DateTime.class);
 		result.add(DateMidnight.class);
+		
+		result.addAll(getActionClasses());
 		return result;
 	}
 	
-	protected Collection<String> getStaticImportClassNames() {
+	protected List<Class<?>> getActionClasses() {
 		
 		int currentTrackingCount = ScriptActivator.actionServiceTracker.getTrackingCount();
 		
 		// if something has changed about the tracked services, recompute the list
 		if(trackingCount != currentTrackingCount) {
 			trackingCount = currentTrackingCount;
-			Collection<String> extensions = new ArrayList<String>();
+			List<Class<?>> privateActionClasses = new ArrayList<Class<?>>();
 			// add all actions that are contributed as OSGi services
 			Object[] services = ScriptActivator.actionServiceTracker.getServices();
 			if(services!=null) {
 				for(Object service : services) {
 					ActionService actionService = (ActionService) service;
-					extensions.add(actionService.getActionClassName());
+					privateActionClasses.add(actionService.getActionClass());
 				}
 			}
-			staticImportClassNames=extensions;
+			this.actionClasses=privateActionClasses;
 		}
-		return staticImportClassNames;
+		return this.actionClasses;
 	}
 }

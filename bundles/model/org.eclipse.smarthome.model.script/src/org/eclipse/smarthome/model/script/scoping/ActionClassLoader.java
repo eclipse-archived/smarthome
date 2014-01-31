@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 
@@ -41,5 +44,20 @@ final public class ActionClassLoader extends ClassLoader {
 			}
 		}
 		throw new ClassNotFoundException();
+	}
+	
+	@Override
+	protected URL findResource(String name) {
+		Object[] services = ScriptActivator.actionServiceTracker.getServices();
+		if(services!=null) {
+			for(Object service : services) {
+				ActionService actionService = (ActionService) service;
+				URL url = actionService.getActionClass().getClassLoader().getResource(name);
+				if (url != null) {
+					return url;
+				}
+			}
+		}
+		return null;
 	}
 }
