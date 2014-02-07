@@ -11,7 +11,7 @@ import com.google.inject.Inject
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.types.Type
-import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
+import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
 import org.eclipse.smarthome.model.script.lib.NumberExtensions
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.common.types.JvmField
@@ -36,7 +36,7 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
 public class ScriptInterpreter extends XbaseInterpreter {
 
 	@Inject
-	ItemRegistryProvider itemRegistryProvider
+	IItemRegistryProvider itemRegistryProvider
 	
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider

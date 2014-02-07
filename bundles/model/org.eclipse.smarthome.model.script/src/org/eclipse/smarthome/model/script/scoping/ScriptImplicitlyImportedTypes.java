@@ -12,12 +12,13 @@ import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
 import org.eclipse.smarthome.model.script.actions.LogAction;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
+import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 
@@ -37,7 +38,10 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 
 	private List<Class<?>> actionClasses = null;
 	
-	private int trackingCount = -1;
+	@Inject
+	IActionServiceProvider actionServiceProvider;
+	
+
 	
 	@Override
 	protected List<Class<?>> getExtensionClasses() {
@@ -73,22 +77,14 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 	
 	protected List<Class<?>> getActionClasses() {
 		
-		int currentTrackingCount = ScriptActivator.actionServiceTracker.getTrackingCount();
-		
-		// if something has changed about the tracked services, recompute the list
-		if(trackingCount != currentTrackingCount) {
-			trackingCount = currentTrackingCount;
-			List<Class<?>> privateActionClasses = new ArrayList<Class<?>>();
-			// add all actions that are contributed as OSGi services
-			Object[] services = ScriptActivator.actionServiceTracker.getServices();
-			if(services!=null) {
-				for(Object service : services) {
-					ActionService actionService = (ActionService) service;
-					privateActionClasses.add(actionService.getActionClass());
-				}
+		List<ActionService> services = actionServiceProvider.get();
+		if (services != null) {
+			List<Class<?>> localActionClasses = new ArrayList<Class<?>>();
+			for (ActionService actionService : services) {
+				localActionClasses.add(actionService.getActionClass());
 			}
-			this.actionClasses=privateActionClasses;
+			actionClasses = localActionClasses;
 		}
-		return this.actionClasses;
+		return actionClasses;
 	}
 }

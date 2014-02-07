@@ -8,9 +8,13 @@
 package org.eclipse.smarthome.model.script.scoping;
 
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
+import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
+
+import com.google.inject.Inject;
 
 /**
  * This is a special class loader that tries to resolve classes from available {@link ActionService}s,
@@ -26,6 +30,13 @@ final public class ActionClassLoader extends ClassLoader {
 		super(cl);
 	}
 
+	IActionServiceProvider actionServiceProvider;
+	
+	@Inject
+	public void setActionServiceProvider(IActionServiceProvider actionServiceProvider) {
+		this.actionServiceProvider = actionServiceProvider;
+	}
+	
 	@Override
 	public Class<?> loadClass(String name)
 			throws ClassNotFoundException {
@@ -33,10 +44,9 @@ final public class ActionClassLoader extends ClassLoader {
 			Class<?> clazz = getParent().loadClass(name);
 			return clazz;
 		} catch(ClassNotFoundException e) {
-			Object[] services = ScriptActivator.actionServiceTracker.getServices();
+			List<ActionService> services = actionServiceProvider.get();
 			if(services!=null) {
-				for(Object service : services) {
-					ActionService actionService = (ActionService) service;
+				for(ActionService actionService : services) {
 					if(actionService.getActionClassName().equals(name)) {
 						return actionService.getActionClass();
 					}
@@ -48,10 +58,9 @@ final public class ActionClassLoader extends ClassLoader {
 	
 	@Override
 	protected URL findResource(String name) {
-		Object[] services = ScriptActivator.actionServiceTracker.getServices();
+		List<ActionService> services = actionServiceProvider.get();
 		if(services!=null) {
-			for(Object service : services) {
-				ActionService actionService = (ActionService) service;
+			for(ActionService actionService : services) {
 				URL url = actionService.getActionClass().getClassLoader().getResource(name);
 				if (url != null) {
 					return url;

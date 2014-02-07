@@ -2,7 +2,7 @@ package org.eclipse.smarthome.model.script.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
-import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
+import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.smarthome.model.script.script.Script
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
@@ -31,7 +31,7 @@ class ScriptJvmModelInferrer extends AbstractModelInferrer {
 	
 
 	@Inject
-	ItemRegistryProvider itemRegistryProvider
+	IItemRegistryProvider itemRegistryProvider
 
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider	

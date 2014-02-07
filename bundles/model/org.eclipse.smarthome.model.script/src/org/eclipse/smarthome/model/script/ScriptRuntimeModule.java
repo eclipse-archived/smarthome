@@ -11,6 +11,8 @@
 package org.eclipse.smarthome.model.script;
 
 import org.eclipse.smarthome.core.scriptengine.Script;
+import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
+import org.eclipse.smarthome.model.script.internal.engine.ScriptEngineImpl;
 import org.eclipse.smarthome.model.script.internal.engine.ScriptImpl;
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
@@ -63,5 +65,11 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 	public Class<? extends IGenerator> bindIGenerator() {
 		return NullGenerator.class;
 	}
+	
+	public Class<? extends ScriptEngine> bindScriptEngine() {
+		return ScriptEngineImpl.class;
+	}
+	
+	
 	
 }

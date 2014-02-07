@@ -10,7 +10,7 @@ import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
 import org.eclipse.smarthome.model.rule.rules.Rule
 import org.eclipse.smarthome.model.rule.rules.RuleModel
-import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
+import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptJvmModelInferrer
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
@@ -41,7 +41,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	@Inject extension IQualifiedNameProvider	
 
 	@Inject
-	ItemRegistryProvider itemRegistryProvider
+	IItemRegistryProvider itemRegistryProvider
 
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider
