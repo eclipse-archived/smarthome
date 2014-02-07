@@ -2,12 +2,9 @@ package org.eclipse.smarthome.model.script.jvmmodel
 
 import com.google.inject.Inject
 import java.util.Set
-import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.smarthome.model.script.script.Script
-import org.eclipse.xtext.naming.IQualifiedNameProvider
 import org.eclipse.xtext.xbase.jvmmodel.AbstractModelInferrer
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
@@ -18,7 +15,10 @@ import org.slf4j.LoggerFactory
  * <p>Infers a JVM model from the source model.</p> 
  *
  * <p>The JVM model should contain all elements that would appear in the Java code 
- * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>     
+ * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>
+ * 
+ * @author Oliver Libutzki - Xtext 2.5.0 migration
+ *      
  */
 class ScriptJvmModelInferrer extends AbstractModelInferrer {
 
@@ -28,7 +28,6 @@ class ScriptJvmModelInferrer extends AbstractModelInferrer {
      * conveninence API to build and initialize JvmTypes and their members.
      */
 	@Inject extension JvmTypesBuilder
-	@Inject extension IQualifiedNameProvider
 	
 
 	@Inject
