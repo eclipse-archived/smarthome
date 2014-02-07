@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
@@ -18,6 +17,7 @@ import org.eclipse.smarthome.model.script.internal.ScriptActivator;
  * if the class cannot be resolved from the normal classpath.
  * 
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Oliver Libutzki - Xtext 2.5.0 migration
  *
  */
 final public class ActionClassLoader extends ClassLoader {

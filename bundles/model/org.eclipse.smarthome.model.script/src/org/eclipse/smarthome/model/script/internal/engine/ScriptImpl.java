@@ -29,11 +29,6 @@ import com.google.inject.Inject;
 @SuppressWarnings("restriction")
 public class ScriptImpl implements Script {
 
-//	@Inject
-//	protected IExpressionInterpreter interpreter;
-//	@Inject
-//	protected Provider<IEvaluationContext> contextProvider;
-
 	private XExpression xExpression;
 
 	@Inject

@@ -12,6 +12,7 @@ package org.eclipse.smarthome.model.script.formatting;
 
 import org.eclipse.xtext.formatting.impl.AbstractDeclarativeFormatter;
 import org.eclipse.xtext.formatting.impl.FormattingConfig;
+import org.eclipse.xtext.xbase.formatting.XbaseFormatter;
 
 /**
  * This class contains custom formatting description.
@@ -20,8 +21,10 @@ import org.eclipse.xtext.formatting.impl.FormattingConfig;
  * on how and when to use it 
  * 
  * Also see {@link org.eclipse.xtext.xtext.XtextFormattingTokenSerializer} as an example
+ * 
+ * @author Oliver Libutzki - Xtext 2.5.0 migration
  */
-public class ScriptFormatter extends AbstractDeclarativeFormatter {
+public class ScriptFormatter extends XbaseFormatter {
 	
 	@Override
 	protected void configureFormatting(FormattingConfig c) {

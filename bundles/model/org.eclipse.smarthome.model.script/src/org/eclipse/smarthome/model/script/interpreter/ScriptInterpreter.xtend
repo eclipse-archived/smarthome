@@ -15,15 +15,14 @@ import org.eclipse.smarthome.model.script.engine.ItemRegistryProvider
 import org.eclipse.smarthome.model.script.lib.NumberExtensions
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.common.types.JvmField
+import org.eclipse.xtext.naming.QualifiedName
+import org.eclipse.xtext.util.CancelIndicator
+import org.eclipse.xtext.xbase.XAbstractFeatureCall
+import org.eclipse.xtext.xbase.XAssignment
+import org.eclipse.xtext.xbase.XVariableDeclaration
+import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
-import org.eclipse.xtext.xbase.XAssignment
-import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
-import org.eclipse.xtext.util.CancelIndicator
-import org.eclipse.xtext.xbase.interpreter.impl.EvaluationException
-import org.eclipse.xtext.naming.QualifiedName
-import org.eclipse.xtext.xbase.XAbstractFeatureCall
-import org.eclipse.xtext.xbase.XVariableDeclaration
 
 /**
  * The script interpreter handles the openHAB specific script components, which are not known
@@ -52,13 +51,9 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			switch sourceElement {
 				XVariableDeclaration : return context.getValue(QualifiedName.create(jvmField.simpleName))
 				default: {
-					// Looks like we have an item field
-					for(Type type : stateAndCommandProvider.getAllTypes()) {
-						if (type.toString == jvmField.simpleName) {
-							return type
-						}
-					}
-					return getItem(jvmField.simpleName)
+					// Looks like we have an state, command or item field
+					val fieldName = jvmField.simpleName
+					fieldName.stateOrCommand ?: fieldName.item
 				}
 			}
 		} else {
@@ -67,11 +62,18 @@ public class ScriptInterpreter extends XbaseInterpreter {
 	
 	}
 
+	def protected Type getStateOrCommand(String name) {
+		for(Type type : stateAndCommandProvider.getAllTypes()) {
+			if (type.toString == name) {
+				return type
+			}
+		}
+	}
 
-	def protected Item getItem(String itemName) {
+	def protected Item getItem(String name) {
 		val itemRegistry = itemRegistryProvider.get()
 		try {
-			return itemRegistry.getItem(itemName);
+			return itemRegistry.getItem(name);
 		} catch (ItemNotFoundException e) {
 			return null;
 		}

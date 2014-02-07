@@ -1,12 +1,10 @@
 package org.eclipse.smarthome.model.rule.jvmmodel
 
 import com.google.inject.Inject
-import java.util.Map
 import java.util.Set
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.model.rule.internal.engine.RuleContextHelper
-import org.eclipse.smarthome.model.rule.internal.engine.RuleEngine
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
@@ -26,7 +24,10 @@ import org.slf4j.LoggerFactory
  * <p>Infers a JVM model from the source model.</p> 
  *
  * <p>The JVM model should contain all elements that would appear in the Java code 
- * which is generated from the source model. Other models link against the JVM model rather than the source model.</p>     
+ * which is generated from the source model. Other models link against the JVM model rather than the source model.</p> 
+ * 
+ * @author Oliver Libutzki - Xtext 2.5.0 migration
+ *     
  */
 class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
@@ -60,8 +61,9 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	 	val className = ruleModel.eResource.URI.lastSegment.split("\\.").head.toFirstUpper + "Rules"
 		acceptor.accept(ruleModel.toClass(className)).initializeLater [
 			members += ruleModel.variables.filter(XVariableDeclaration).map[
-				toField(name, type.cloneWithProxies) => [
-					static = true
+				toField(name, type.cloneWithProxies) => [ field |
+					field.static = true
+					field.final = !writeable 
 				]
 			]
 			

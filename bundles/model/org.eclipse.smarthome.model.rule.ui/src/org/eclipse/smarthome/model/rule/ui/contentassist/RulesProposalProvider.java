@@ -11,24 +11,16 @@
 package org.eclipse.smarthome.model.rule.ui.contentassist;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.rule.ui.internal.RuleModelUIActivator;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
-import org.eclipse.xtext.Assignment;
 import org.eclipse.xtext.RuleCall;
-import org.eclipse.xtext.resource.IEObjectDescription;
-import org.eclipse.xtext.scoping.IScope;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
-import org.eclipse.xtext.xbase.XbasePackage;
-import org.eclipse.smarthome.model.rule.rules.Rule;
-import org.eclipse.smarthome.model.rule.ui.contentassist.AbstractRulesProposalProvider;
 
-import com.google.common.base.Function;
 import com.google.inject.Inject;
 /**
  * see http://www.eclipse.org/Xtext/documentation/latest/xtext.html#contentAssist on how to customize content assistant
@@ -38,18 +30,6 @@ public class RulesProposalProvider extends AbstractRulesProposalProvider {
 	
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider;
-	
-//	@Override
-//	public void completeScript_Expressions(EObject model,
-//			Assignment assignment, ContentAssistContext context,
-//			ICompletionProposalAcceptor acceptor) {
-//		super.completeScript_Expressions(model, assignment, context, acceptor);
-//		if (model == null || model instanceof Rule ) {
-//			Function<IEObjectDescription, ICompletionProposal> proposalFactory = getProposalFactory(getFeatureCallRuleName(), context);
-//			IScope scope = getScopeProvider().createSimpleFeatureCallScope(model, XbasePackage.Literals.XABSTRACT_FEATURE_CALL__FEATURE, context.getResource(), false, -1);
-//			createLocalVariableAndImplicitProposals(model, context, acceptor);
-//		}
-//	}
 	
 	@Override
 	public void complete_ItemName(EObject model, RuleCall ruleCall,
