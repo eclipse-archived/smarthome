@@ -15,9 +15,14 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.xtext.junit4,
  org.eclipse.ui.workbench;resolution:=optional
 Export-Package: org.eclipse.smarthome.model.script
-Import-Package: org.junit.runner;version="4.5.0",
+Import-Package: org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.scriptengine,
+ org.eclipse.smarthome.core.scriptengine.action,
+ org.hamcrest.core,
+ org.junit;version="4.5.0",
+ org.junit.runner;version="4.5.0",
  org.junit.runner.manipulation;version="4.5.0",
  org.junit.runner.notification;version="4.5.0",
  org.junit.runners;version="4.5.0",
- org.junit.runners.model;version="4.5.0",
- org.hamcrest.core
+ org.junit.runners.model;version="4.5.0"

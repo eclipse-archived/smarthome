@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.script.engine;
+package org.eclipse.smarthome.model.script.internal.engine;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 
-import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -23,9 +23,9 @@ import com.google.inject.Singleton;
  *
  */
 @Singleton
-public class ItemRegistryProvider implements Provider<ItemRegistry> {
+public class ServiceTrackerItemRegistryProvider implements IItemRegistryProvider {
 	public ItemRegistry get() {
-		ItemRegistry itemRegistry = (ItemRegistry) ScriptActivator.itemRegistryTracker.getService();
+		ItemRegistry itemRegistry = ScriptActivator.itemRegistryTracker.getService();
 		return itemRegistry;
 	}
 }
