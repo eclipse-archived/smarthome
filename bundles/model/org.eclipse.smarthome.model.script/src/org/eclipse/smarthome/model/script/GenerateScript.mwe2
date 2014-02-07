@@ -81,7 +81,7 @@ Workflow {
                 // fragment = exporting.SimpleNamesFragment {}
     
                 // scoping and exporting API
-                fragment = scoping.ImportNamespacesScopingFragment {}
+                // fragment = scoping.ImportNamespacesScopingFragment {}
                 fragment = exporting.QualifiedNamesFragment {}
                 fragment = builder.BuilderIntegrationFragment {}
     
