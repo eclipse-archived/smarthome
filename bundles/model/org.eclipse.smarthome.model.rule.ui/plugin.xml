@@ -6,14 +6,14 @@
     <extension
             point="org.eclipse.ui.editors">
         <editor
-              class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
-              contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
-              default="true"
-              extensions="rules"
-              icon="icons/rules.png"
-              id="org.eclipse.smarthome.model.rule.Rules"
-			  matchingStrategy="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.editor.JavaEditorInputMatcher"
-              name="Rules Editor">
+            class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            extensions="rules"
+            icon="icons/rules.png"
+            id="org.eclipse.smarthome.model.rule.Rules"
+            matchingStrategy="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.editor.JavaEditorInputMatcher"
+            name="Rules Editor">
         </editor>
     </extension>
     <extension
@@ -36,6 +36,26 @@
             </reference>
          </activeWhen>
       	</handler>
+      	<!-- copy qualified name -->
+        <handler
+            class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName">
+            <activeWhen>
+				<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened" />
+            </activeWhen>
+        </handler>
+        <handler
+            class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName">
+            <activeWhen>
+            	<and>
+            		<reference definitionId="org.eclipse.smarthome.model.rule.Rules.XtextEditor.opened" />
+	                <iterate>
+						<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+					</iterate>
+				</and>
+            </activeWhen>
+        </handler>
     </extension>
     <extension point="org.eclipse.core.expressions.definitions">
         <definition id="org.eclipse.smarthome.model.rule.Rules.Editor.opened">
@@ -108,6 +128,19 @@
             id="org.eclipse.smarthome.model.rule.Rules.validate"
             name="Validate">
       </command>
+      <!-- copy qualified name -->
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
     </extension>
     <extension point="org.eclipse.ui.menus">
         <menuContribution
@@ -122,6 +155,36 @@
                 </reference>
             </visibleWhen>
          </command>  
+         </menuContribution>
+         <!-- copy qualified name -->
+         <menuContribution locationURI="popup:#TextEditorContext?after=copy">
+         	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName" 
+         		style="push" tooltip="Copy Qualified Name">
+            	<visibleWhen checkEnabled="false">
+                	<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened" />
+            	</visibleWhen>
+         	</command>  
+         </menuContribution>
+         <menuContribution locationURI="menu:edit?after=copy">
+         	<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+            	style="push" tooltip="Copy Qualified Name">
+            	<visibleWhen checkEnabled="false">
+                	<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened" />
+            	</visibleWhen>
+         	</command>  
+         </menuContribution>
+         <menuContribution locationURI="popup:org.eclipse.xtext.ui.outline?after=additions">
+			<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName" 
+				style="push" tooltip="Copy Qualified Name">
+         		<visibleWhen checkEnabled="false">
+	            	<and>
+	            		<reference definitionId="org.eclipse.smarthome.model.rule.Rules.XtextEditor.opened" />
+						<iterate>
+							<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+						</iterate>
+					</and>
+				</visibleWhen>
+			</command>
          </menuContribution>
     </extension>
     <extension point="org.eclipse.ui.menus">
@@ -316,6 +379,24 @@
 <!-- Type Hierarchy  -->
 	<extension
 		point="org.eclipse.ui.handlers">
+		<handler 
+			class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.hierarchy.OpenTypeHierarchyHandler"
+			commandId="org.eclipse.xtext.xbase.ui.hierarchy.OpenTypeHierarchy">
+			<activeWhen>
+				<reference
+					definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+		<handler 
+			class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.hierarchy.QuickTypeHierarchyHandler"
+			commandId="org.eclipse.jdt.ui.edit.text.java.open.hierarchy">
+			<activeWhen>
+				<reference
+					definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
 		<handler
             class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.imports.OrganizeImportsHandler"
             commandId="org.eclipse.xtext.xbase.ui.organizeImports">
@@ -326,7 +407,6 @@
 			</activeWhen>
         </handler>
 	</extension>
-	
 	<extension point="org.eclipse.ui.menus">
 	    <menuContribution
             locationURI="popup:#TextEditorContext?after=group.edit">
@@ -341,9 +421,85 @@
                 </visibleWhen>
             </command>  
         </menuContribution>
-  </extension>
-  
-   <!-- Introduce Local Variable Refactoring -->
+		<menuContribution
+			locationURI="popup:#TextEditorContext?after=group.open">
+			<command commandId="org.eclipse.xtext.xbase.ui.hierarchy.OpenTypeHierarchy"
+				style="push"
+				tooltip="Open Type Hierarchy">
+				<visibleWhen checkEnabled="false">
+					<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened"/>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+		<menuContribution
+			locationURI="popup:#TextEditorContext?after=group.open">
+			<command commandId="org.eclipse.jdt.ui.edit.text.java.open.hierarchy"
+				style="push"
+				tooltip="Quick Type Hierarchy">
+				<visibleWhen checkEnabled="false">
+					<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened"/>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+	<!-- Call Hierachy -->
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler 
+			class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.hierarchy.OpenCallHierachyHandler"
+			commandId="org.eclipse.xtext.xbase.ui.hierarchy.OpenCallHierarchy">
+			<activeWhen>
+				<reference
+					definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+	
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="popup:#TextEditorContext?after=group.open">
+			<command commandId="org.eclipse.xtext.xbase.ui.hierarchy.OpenCallHierarchy"
+				style="push"
+				tooltip="Open Call Hierarchy">
+				<visibleWhen checkEnabled="false">
+					<reference definitionId="org.eclipse.smarthome.model.rule.Rules.Editor.opened"/>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+	<extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.builder.smap.StratumBreakpointAdapterFactory"
+         adaptableType="org.eclipse.xtext.ui.editor.XtextEditor">
+         <adapter type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget"/>
+      </factory> 
+   </extension>
+   <extension point="org.eclipse.ui.editorActions">
+      <editorContribution targetID="org.eclipse.smarthome.model.rule.Rules" 
+                          id="org.eclipse.smarthome.model.rule.Rules.ide.rulerActions">
+	     <action
+	             label="Not Used"
+	             class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+	             style="push"
+	             actionID="RulerDoubleClick"
+	             id="org.eclipse.smarthome.model.rule.Rules.doubleClickBreakpointAction"/>
+	  </editorContribution>
+   </extension>
+   <extension point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+         targetID="example.rulerContextMenuId"
+         id="org.eclipse.smarthome.model.rule.Rules.ide.RulerPopupActions">
+         <action
+            label="Toggle Breakpoint"
+            class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+            menubarPath="additions"
+            id="org.eclipse.smarthome.model.rule.Rules.ide.rulerContextMenu.toggleBreakpointAction">
+         </action>
+      </viewerContribution>
+   </extension>
+   
+    <!-- Introduce Local Variable Refactoring -->
 	<extension point="org.eclipse.ui.handlers">
 		<handler 
 			class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.xbase.ui.refactoring.ExtractVariableHandler"
@@ -368,6 +524,7 @@
          </command>
       </menuContribution>
    </extension>  
+
   <extension point="org.eclipse.compare.contentViewers">
     <viewer id="org.eclipse.smarthome.model.rule.Rules.compare.contentViewers"
             class="org.eclipse.smarthome.model.rule.ui.RulesExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"

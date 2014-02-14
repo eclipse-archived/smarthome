@@ -10,11 +10,18 @@ Require-Bundle: org.eclipse.smarthome.model.rule,
  org.eclipse.smarthome.model.rule.ui,
  org.eclipse.core.runtime,
  org.eclipse.xtext.junit4,
- org.eclipse.ui.workbench;resolution:=optional
+ org.eclipse.ui.workbench;resolution:=optional,
+ org.eclipse.xtend.lib,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib
 Export-Package: org.eclipse.smarthome.model.rule
-Import-Package: org.junit.runner;version="4.5.0",
+Import-Package: org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.scriptengine.action,
+ org.eclipse.smarthome.model.script.engine,
+ org.hamcrest.core,
+ org.junit.runner;version="4.5.0",
  org.junit.runner.manipulation;version="4.5.0",
  org.junit.runner.notification;version="4.5.0",
  org.junit.runners;version="4.5.0",
- org.junit.runners.model;version="4.5.0",
- org.hamcrest.core
+ org.junit.runners.model;version="4.5.0"

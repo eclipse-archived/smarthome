@@ -19,7 +19,6 @@ import org.eclipse.xtext.naming.QualifiedName
 import org.eclipse.xtext.util.CancelIndicator
 import org.eclipse.xtext.xbase.XAbstractFeatureCall
 import org.eclipse.xtext.xbase.XAssignment
-import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
@@ -48,13 +47,11 @@ public class ScriptInterpreter extends XbaseInterpreter {
 		// Check if the JvmField is inferred
 		val sourceElement = jvmField.sourceElements.head
 		if (sourceElement != null) {
-			switch sourceElement {
-				XVariableDeclaration : return context.getValue(QualifiedName.create(jvmField.simpleName))
-				default: {
+			val value = context.getValue(QualifiedName.create(jvmField.simpleName))
+			value ?: {
 					// Looks like we have an state, command or item field
 					val fieldName = jvmField.simpleName
 					fieldName.stateOrCommand ?: fieldName.item
-				}
 			}
 		} else {
 			super._invokeFeature(jvmField, featureCall, receiver, context, indicator)	

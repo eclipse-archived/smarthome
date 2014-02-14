@@ -1,11 +1,11 @@
 package org.eclipse.smarthome.model.script.tests.mock
 
-import org.eclipse.smarthome.core.items.ItemRegistry
-import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
-import org.eclipse.smarthome.core.items.ItemNotFoundException
-import org.eclipse.smarthome.core.items.ItemNotUniqueException
 import java.util.Map
 import org.eclipse.smarthome.core.items.Item
+import org.eclipse.smarthome.core.items.ItemNotFoundException
+import org.eclipse.smarthome.core.items.ItemNotUniqueException
+import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
 
 class MapBasedItemRegistry implements ItemRegistry{
 	
