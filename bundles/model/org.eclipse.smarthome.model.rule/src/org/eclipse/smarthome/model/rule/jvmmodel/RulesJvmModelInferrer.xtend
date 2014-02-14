@@ -14,7 +14,6 @@ import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider
 import org.eclipse.smarthome.model.script.jvmmodel.ScriptJvmModelInferrer
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider
 import org.eclipse.xtext.naming.IQualifiedNameProvider
-import org.eclipse.xtext.xbase.XVariableDeclaration
 import org.eclipse.xtext.xbase.jvmmodel.IJvmDeclaredTypeAcceptor
 import org.eclipse.xtext.xbase.jvmmodel.JvmTypesBuilder
 import org.slf4j.Logger
@@ -60,10 +59,11 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 	 def dispatch void infer(RuleModel ruleModel, IJvmDeclaredTypeAcceptor acceptor, boolean isPreIndexingPhase) {
 	 	val className = ruleModel.eResource.URI.lastSegment.split("\\.").head.toFirstUpper + "Rules"
 		acceptor.accept(ruleModel.toClass(className)).initializeLater [
-			members += ruleModel.variables.filter(XVariableDeclaration).map[
-				toField(name, type.cloneWithProxies) => [ field |
+			members += ruleModel.variables.map[
+				toField(name, type?.cloneWithProxies) => [ field |
 					field.static = true
 					field.final = !writeable 
+					field.initializer = right
 				]
 			]
 			

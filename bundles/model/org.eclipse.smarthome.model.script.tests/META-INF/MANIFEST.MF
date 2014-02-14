@@ -17,6 +17,7 @@ Require-Bundle: org.eclipse.xtend.lib,
 Export-Package: org.eclipse.smarthome.model.script
 Import-Package: org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.model.script.engine,
  org.eclipse.smarthome.core.scriptengine,
  org.eclipse.smarthome.core.scriptengine.action,
  org.hamcrest.core,
