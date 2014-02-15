@@ -11,4 +11,5 @@ Import-Package: org.apache.commons.lang,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/mqtt-*.xml
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/mqtt-client-0.4.0.jar
