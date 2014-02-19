@@ -52,7 +52,7 @@
 			});
 
 			WA.AddEventListener("load", function() {
-				setTimeout("WA.Request('../%servletname%?sitemap=%sitemap%&poll=true', null, -1, true, null)", 1500);
+				setTimeout("WA.Request('%servletname%?sitemap=%sitemap%&poll=true', null, -1, true, null)", 1500);
 			});
 			
 	        function ChangeState(request) {
@@ -126,7 +126,7 @@
 	        } 
 	        
 	        function AsyncLoad(widgetId) {
-	            WA.Request("../%servletname%?sitemap=%sitemap%&w=" + widgetId, null, -1, true, null);
+	            WA.Request("%servletname%?sitemap=%sitemap%&w=" + widgetId, null, -1, true, null);
 	        }
 
 			// script code for the color picker widget
@@ -138,7 +138,7 @@
 	        	if(now-lastColorChange>300) {
 		        	var input = document.getElementById('colorPickerInput');
 		        	var cmd = $.minicolors.hsbString($(input));
-					WA.Request("/CMD?" + colorItem + "=" + cmd, null, null);
+					WA.Request("CMD?" + colorItem + "=" + cmd, null, null);
 					lastColorChange = now;
 				}
 	        }
