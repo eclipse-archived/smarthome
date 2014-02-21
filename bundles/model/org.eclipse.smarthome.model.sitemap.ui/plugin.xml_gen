@@ -224,27 +224,58 @@
     </extension>
 
 
-    <!-- marker definitions for org.eclipse.smarthome.model.Sitemap -->
-    <extension
-            id="sitemap.check.fast"
-            name="Sitemap Problem"
-            point="org.eclipse.core.resources.markers">
-        <super type="org.eclipse.xtext.ui.check.fast"/>
-        <persistent value="true"/>
+	<!-- marker definitions for org.eclipse.smarthome.model.Sitemap -->
+	<extension
+	        id="sitemap.check.fast"
+	        name="Sitemap Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.fast"/>
+	    <persistent value="true"/>
+	</extension>
+	<extension
+	        id="sitemap.check.normal"
+	        name="Sitemap Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.normal"/>
+	    <persistent value="true"/>
+	</extension>
+	<extension
+	        id="sitemap.check.expensive"
+	        name="Sitemap Problem"
+	        point="org.eclipse.core.resources.markers">
+	    <super type="org.eclipse.xtext.ui.check.expensive"/>
+	    <persistent value="true"/>
+	</extension>
+
+   <extension
+         point="org.eclipse.xtext.builder.participant">
+      <participant
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant">
+      </participant>
+   </extension>
+   <extension
+            point="org.eclipse.ui.preferencePages">
+        <page
+            category="org.eclipse.smarthome.model.Sitemap"
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="org.eclipse.smarthome.model.Sitemap.compiler.preferencePage"
+            name="Compiler">
+            <keywordReference id="org.eclipse.smarthome.model.ui.keyword_Sitemap"/>
+        </page>
     </extension>
     <extension
-            id="sitemap.check.normal"
-            name="Sitemap Problem"
-            point="org.eclipse.core.resources.markers">
-        <super type="org.eclipse.xtext.ui.check.normal"/>
-        <persistent value="true"/>
-    </extension>
-    <extension
-            id="sitemap.check.expensive"
-            name="Sitemap Problem"
-            point="org.eclipse.core.resources.markers">
-        <super type="org.eclipse.xtext.ui.check.expensive"/>
-        <persistent value="true"/>
+            point="org.eclipse.ui.propertyPages">
+        <page
+            category="org.eclipse.smarthome.model.Sitemap"
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="org.eclipse.smarthome.model.Sitemap.compiler.propertyPage"
+            name="Compiler">
+            <keywordReference id="org.eclipse.smarthome.model.ui.keyword_Sitemap"/>
+            <enabledWhen>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+			</enabledWhen>
+	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
+        </page>
     </extension>
 
 	<!-- Quick Outline -->
@@ -308,5 +339,58 @@
             </attribute>
         </markerResolutionGenerator>
     </extension>
+   	<!-- Rename Refactoring -->
+	<extension point="org.eclipse.ui.handlers">
+		<handler 
+			class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.DefaultRenameElementHandler"
+			commandId="org.eclipse.xtext.ui.refactoring.RenameElement">
+			<activeWhen>
+				<reference
+					definitionId="org.eclipse.smarthome.model.Sitemap.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+    <extension point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="popup:#TextEditorContext?after=group.edit">
+         <command commandId="org.eclipse.xtext.ui.refactoring.RenameElement"
+               style="push">
+            <visibleWhen checkEnabled="false">
+               <reference
+                     definitionId="org.eclipse.smarthome.model.Sitemap.Editor.opened">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+	    <page
+	        category="org.eclipse.smarthome.model.Sitemap"
+	        class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.RefactoringPreferencePage"
+	        id="org.eclipse.smarthome.model.Sitemap.refactoring"
+	        name="Refactoring">
+	        <keywordReference id="org.eclipse.smarthome.model.ui.keyword_Sitemap"/>
+	    </page>
+	</extension>
+
+  <extension point="org.eclipse.compare.contentViewers">
+    <viewer id="org.eclipse.smarthome.model.Sitemap.compare.contentViewers"
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="sitemap">
+    </viewer>
+  </extension>
+  <extension point="org.eclipse.compare.contentMergeViewers">
+    <viewer id="org.eclipse.smarthome.model.Sitemap.compare.contentMergeViewers"
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="sitemap" label="Sitemap Compare">
+     </viewer>
+  </extension>
+  <extension point="org.eclipse.ui.editors.documentProviders">
+    <provider id="org.eclipse.smarthome.model.Sitemap.editors.documentProviders"
+            class="org.eclipse.smarthome.model.ui.SitemapExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
+            extensions="sitemap">
+    </provider>
+  </extension>
 
 </plugin>

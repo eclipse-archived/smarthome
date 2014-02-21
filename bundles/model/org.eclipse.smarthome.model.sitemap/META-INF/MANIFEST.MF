@@ -17,7 +17,8 @@ Import-Package: org.apache.log4j,
  org.eclipse.smarthome.model.core,
  org.osgi.framework,
  org.osgi.service.cm,
- org.slf4j
+ org.slf4j,
+ org.eclipse.xtext.xbase.lib
 Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
  org.eclipse.smarthome.model.scoping,
@@ -26,9 +27,10 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.services,
  org.eclipse.smarthome.model.sitemap.impl,
  org.eclipse.smarthome.model.sitemap.util,
- org.eclipse.smarthome.model.parseTreeConstruction,
  org.eclipse.smarthome.model.parser.antlr,
- org.eclipse.smarthome.model.parser.antlr.internal
+ org.eclipse.smarthome.model.parser.antlr.internal,
+ org.eclipse.smarthome.model.serializer,
+ org.eclipse.smarthome.model.generator
 Service-Component: OSGI-INF/sitemapprovider.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: org.eclipse.smarthome.model.sitemap.internal.SitemapModelActivator
