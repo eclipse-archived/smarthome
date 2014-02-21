@@ -16,7 +16,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class PersistenceProposalProvider extends AbstractPersistenceProposalProvider {
-	
+
 	override void completeGroupConfig_Group(EObject model, Assignment assignment,
 			ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		super.completeGroupConfig_Group(model, assignment, context, acceptor);
@@ -42,5 +42,4 @@ class PersistenceProposalProvider extends AbstractPersistenceProposalProvider {
 			}
 		}
 	}
-	
 }

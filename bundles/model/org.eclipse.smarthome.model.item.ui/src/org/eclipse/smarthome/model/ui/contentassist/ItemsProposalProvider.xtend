@@ -3,6 +3,7 @@
  */
 package org.eclipse.smarthome.model.ui.contentassist
 
+
 import java.util.Set
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.smarthome.core.items.GroupItem
@@ -17,7 +18,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class ItemsProposalProvider extends AbstractItemsProposalProvider {
-	
+
 
 	protected static final Set<String> ITEMTYPES = newHashSet("Group", "Switch", "Number", "String", "Dimmer", "Color", "Contact", "Rollershutter", "DateTime")
 
@@ -47,5 +48,4 @@ class ItemsProposalProvider extends AbstractItemsProposalProvider {
 		}
 	
 	}
-	
 }

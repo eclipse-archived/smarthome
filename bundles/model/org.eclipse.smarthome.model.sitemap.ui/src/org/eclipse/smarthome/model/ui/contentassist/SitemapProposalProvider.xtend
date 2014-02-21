@@ -20,8 +20,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class SitemapProposalProvider extends AbstractSitemapProposalProvider {
-	
-	
+
 	/* the image location inside the installation folder */
 	protected static final String IMAGE_LOCATION = "../webapps/images/";
 
@@ -70,5 +69,4 @@ class SitemapProposalProvider extends AbstractSitemapProposalProvider {
 			}
 		} catch (CoreException e) {}
 	}
-	
 }

@@ -11,11 +11,13 @@ import org.eclipse.smarthome.model.items.ModelItem
 import org.eclipse.smarthome.model.items.ModelNormalItem
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
 
+
 /**
  * Provides labels for a EObjects.
  * 
  * see http://www.eclipse.org/Xtext/documentation.html#labelProvider
  */
+
 class ItemsLabelProvider extends DefaultEObjectLabelProvider {
 
 	@Inject
