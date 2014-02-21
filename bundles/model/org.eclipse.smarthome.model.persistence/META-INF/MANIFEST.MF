@@ -47,6 +47,6 @@ Export-Package: org.eclipse.smarthome.model.persistence,
  org.eclipse.smarthome.model.persistence.scoping,
  org.eclipse.smarthome.model.persistence.generator,
  org.eclipse.smarthome.model.persistence.formatting,
- org.eclipse.smarthome.model.persistence.parseTreeConstruction
+ org.eclipse.smarthome.model.persistence.serializer
 Bundle-Activator: org.eclipse.smarthome.model.persistence.internal.PersistenceModelActivator
 Service-Component: OSGI-INF/persistencemanager.xml

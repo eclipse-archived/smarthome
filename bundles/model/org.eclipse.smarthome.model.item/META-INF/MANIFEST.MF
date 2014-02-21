@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.util,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.common,
- org.antlr.runtime
+ org.antlr.runtime,
+ org.eclipse.xtext.common.types
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
@@ -26,9 +27,10 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.items,
  org.eclipse.smarthome.model.items.impl,
  org.eclipse.smarthome.model.items.util,
- org.eclipse.smarthome.model.parseTreeConstruction,
  org.eclipse.smarthome.model.parser.antlr,
- org.eclipse.smarthome.model.parser.antlr.internal
+ org.eclipse.smarthome.model.parser.antlr.internal,
+ org.eclipse.smarthome.model.serializer,
+ org.eclipse.smarthome.model.generator
 Import-Package: org.apache.log4j,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.items,
@@ -38,6 +40,7 @@ Import-Package: org.apache.log4j,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.model.core,
  org.osgi.framework,
- org.slf4j
+ org.slf4j,
+ org.eclipse.xtext.xbase.lib
 Bundle-Activator: org.eclipse.smarthome.model.item.internal.ItemModelActivator
 Service-Component: OSGI-INF/genericitemprovider.xml

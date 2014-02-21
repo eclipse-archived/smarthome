@@ -5,10 +5,12 @@
 
   <extension point="org.eclipse.emf.ecore.generated_package">
     <package 
-       uri = "http://www.eclipse.org/SmartHome/model/Items" 
+       uri = "http://www.eclipse.org/smarthome/model/Items" 
        class = "org.eclipse.smarthome.model.items.ItemsPackage"
-       genModel = "org/eclipse/smarthome/model/Items.genmodel" /> 
+       genModel = "model/generated/Items.genmodel" /> 
 	
   </extension>
+
+
 
 </plugin>
