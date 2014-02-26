@@ -68,7 +68,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 			]
 			
 			val Set<String> fieldNames = newHashSet()
-			 
+			
 			val types = stateAndCommandProvider.allTypes
 			types.forEach [ type |
 				val name = type.toString
@@ -82,7 +82,7 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 			]
 
 			 val itemRegistry = itemRegistryProvider.get
-			 itemRegistry.items.forEach[ item |
+			 itemRegistry?.items?.forEach[ item |
 			 	val name = item.name
 					if (fieldNames.add(name)) {
 			 		members += 	ruleModel.toField(item.name, ruleModel.newTypeRef(item.class)) [

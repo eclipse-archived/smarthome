@@ -6,10 +6,15 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.designer.core.CoreActivator
 Bundle-Vendor: Eclipse.org/SmartHome
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.core.resources
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.xtend.lib,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.smarthome.designer.core,
  org.eclipse.smarthome.designer.core.config
 Import-Package: org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.scriptengine.action,
  org.slf4j

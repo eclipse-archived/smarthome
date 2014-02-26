@@ -11,7 +11,6 @@ import java.io.File;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -20,9 +19,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.eclipse.smarthome.designer.core.CoreActivator;
 import org.eclipse.smarthome.designer.core.DesignerCoreConstants;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 import org.slf4j.Logger;
@@ -34,15 +33,15 @@ public class ConfigurationFolderProvider {
 	
 	private static IFolder folder; 
 	
+	private static IProjectCreator projectCreator = new PluginProjectCreator();
+	
 	static public synchronized IFolder getRootConfigurationFolder() throws CoreException {
 		if(folder==null) {
-			IProject defaultProject = ResourcesPlugin.getWorkspace().getRoot().getProject("config");
-			if(!defaultProject.exists()) {
-				initialize(defaultProject);
-			}
+			IProject project = projectCreator.createProject("config");
+			
 			File configFolder = getFolderFromPreferences();
 			if(configFolder!=null) {
-				folder = defaultProject.getFolder("config");
+				folder = project.getFolder("config");
 				folder.createLink(configFolder.toURI(), IResource.BACKGROUND_REFRESH|IResource.REPLACE, null);
 				ConfigDispatcher.setConfigFolder(configFolder.getAbsolutePath());
 			}
@@ -54,12 +53,11 @@ public class ConfigurationFolderProvider {
 		ConfigDispatcher.setConfigFolder(configFolder.getAbsolutePath());
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				IProject defaultProject = ResourcesPlugin.getWorkspace().getRoot().getProject("config");
-				if(!defaultProject.exists()) {
-					initialize(defaultProject);
-				}
+				IProject project = projectCreator.createProject("config");
+				
+				 
 				if(configFolder!=null) {
-					folder = defaultProject.getFolder("config");
+					folder = project.getFolder("config");
 					if(folder.exists()) {
 						folder.delete(true, null);
 					}
@@ -70,18 +68,7 @@ public class ConfigurationFolderProvider {
 		ResourcesPlugin.getWorkspace().run(runnable, null);
 	}	
 	
-	private static void initialize(IProject project) {
-		try {			
-			IProjectDescription desc = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
-			desc.setNatureIds(new String[] {
-					"org.eclipse.xtext.ui.shared.xtextNature"
-			});
-			project.create(desc, null);
-			project.open(null);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
+
 
 	private static File getFolderFromPreferences() {
 		IPreferencesService service = Platform.getPreferencesService();
