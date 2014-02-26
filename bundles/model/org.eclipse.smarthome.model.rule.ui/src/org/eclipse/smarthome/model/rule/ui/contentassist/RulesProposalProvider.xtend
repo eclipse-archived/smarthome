@@ -6,7 +6,6 @@ package org.eclipse.smarthome.model.rule.ui.contentassist
 import com.google.inject.Inject
 import org.eclipse.emf.ecore.EObject
 import org.eclipse.smarthome.core.items.Item
-import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.model.rule.ui.internal.RuleModelUIActivator
@@ -19,6 +18,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class RulesProposalProvider extends AbstractRulesProposalProvider {
+
 	
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider
@@ -54,5 +54,4 @@ class RulesProposalProvider extends AbstractRulesProposalProvider {
 			}
 		}
 	}
-	
 }

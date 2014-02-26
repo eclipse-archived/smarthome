@@ -4,9 +4,11 @@
 package org.eclipse.smarthome.model.ui.labeling
 
 import com.google.inject.Inject
+
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.smarthome.model.sitemap.Widget
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
+
 
 /**
  * Provides labels for a EObjects.

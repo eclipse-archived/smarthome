@@ -6,10 +6,8 @@ package org.eclipse.smarthome.model.ui.contentassist
 import java.io.File
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.jface.text.contentassist.ICompletionProposal
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
-import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider
 import org.eclipse.smarthome.designer.ui.UIActivator
 import org.eclipse.xtext.RuleCall
@@ -20,8 +18,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class SitemapProposalProvider extends AbstractSitemapProposalProvider {
-	
-	
+
 	/* the image location inside the installation folder */
 	protected static final String IMAGE_LOCATION = "../webapps/images/";
 
@@ -70,5 +67,4 @@ class SitemapProposalProvider extends AbstractSitemapProposalProvider {
 			}
 		} catch (CoreException e) {}
 	}
-	
 }
