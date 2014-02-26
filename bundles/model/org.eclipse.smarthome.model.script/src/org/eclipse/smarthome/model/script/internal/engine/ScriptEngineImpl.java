@@ -34,6 +34,7 @@ import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
 
 import com.google.common.base.Predicate;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 /**
@@ -46,14 +47,35 @@ import com.google.inject.Injector;
 public class ScriptEngineImpl implements ScriptEngine {
 
 	protected Injector guiceInjector;
+	
+	
 	protected XtextResourceSet resourceSet;
 
+	
 	public ScriptEngineImpl() {}
 	
 	public void activate() {
-		this.guiceInjector = new ScriptStandaloneSetup().createInjectorAndDoEMFRegistration();
-		this.resourceSet = guiceInjector.getInstance(XtextResourceSet.class);
-		resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+
+	}
+	
+	@Inject
+	public void setGuiceInjector(Injector injector) {
+		this.guiceInjector = injector;
+	}
+	
+	private Injector getInjector() {
+		if (guiceInjector == null) {
+			guiceInjector = new ScriptStandaloneSetup().createInjectorAndDoEMFRegistration();
+		}
+		return guiceInjector;
+	}
+	
+	private XtextResourceSet getResourceSet() {
+		if (resourceSet == null) {
+			resourceSet = guiceInjector.getInstance(XtextResourceSet.class);
+			resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+		}
+		return resourceSet;
 	}
 	
 	public void deactivate() {
@@ -73,7 +95,7 @@ public class ScriptEngineImpl implements ScriptEngine {
 	 * {@inheritDoc}
 	 */
 	public Script newScriptFromXExpression(XExpression expression) {
-		ScriptImpl script = guiceInjector.getInstance(ScriptImpl.class);
+		ScriptImpl script = getInjector().getInstance(ScriptImpl.class);
 		script.setXExpression(expression);
 		return script;
 	}
@@ -87,6 +109,7 @@ public class ScriptEngineImpl implements ScriptEngine {
 	}
 
 	private XExpression parseScriptIntoXTextEObject(String scriptAsString) throws ScriptParsingException {
+		XtextResourceSet resourceSet = getResourceSet();
 		Resource resource = resourceSet.createResource(computeUnusedUri(resourceSet)); // IS-A XtextResource
 		try {
 			resource.load(new StringInputStream(scriptAsString), resourceSet.getLoadOptions());

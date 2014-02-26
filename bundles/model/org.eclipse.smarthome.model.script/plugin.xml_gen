@@ -7,10 +7,9 @@
     <package 
        uri = "http://www.eclipse.org/smarthome/model/Script" 
        class = "org.eclipse.smarthome.model.script.script.ScriptPackage"
-       genModel = "org/eclipse/smarthome/model/script/Script.genmodel" /> 
+       genModel = "model/generated/Script.genmodel" /> 
 	
   </extension>
-
 
 
 
