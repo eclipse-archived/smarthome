@@ -5,10 +5,12 @@
 
   <extension point="org.eclipse.emf.ecore.generated_package">
     <package 
-       uri = "http://www.eclipse.org/SmartHome/model/Sitemap" 
+       uri = "http://www.eclipse.org/smarthome/model/Sitemap" 
        class = "org.eclipse.smarthome.model.sitemap.SitemapPackage"
-       genModel = "org/eclipse/smarthome/model/Sitemap.genmodel" /> 
+       genModel = "model/generated/Sitemap.genmodel" /> 
 	
   </extension>
+
+
 
 </plugin>
