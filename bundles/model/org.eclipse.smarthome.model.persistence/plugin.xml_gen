@@ -7,10 +7,9 @@
     <package 
        uri = "http://www.eclipse.org/smarthome/model/Persistence" 
        class = "org.eclipse.smarthome.model.persistence.persistence.PersistencePackage"
-       genModel = "org/eclipse/smarthome/model/persistence/Persistence.genmodel" /> 
+       genModel = "model/generated/Persistence.genmodel" /> 
 	
   </extension>
-
 
 
 

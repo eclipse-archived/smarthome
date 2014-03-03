@@ -1,101 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
+	<!-- <parent> <groupId>org.eclipse</groupId> <artifactId>eclipse-parent</artifactId> 
+		<version>3</version> </parent> -->
+	<groupId>org.eclipse.smarthome</groupId>
+	<artifactId>smarthome</artifactId>
+	<version>0.7.0-SNAPSHOT</version>
 
-  <parent>
-   <groupId>org.eclipse</groupId>
-   <artifactId>eclipse-parent</artifactId>
-   <version>3</version>
-  </parent>
+	<name>Eclipse SmartHome</name>
 
-  <groupId>org.eclipse.smarthome</groupId>
-  <artifactId>smarthome</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
+	<organization>
+		<name>Eclipse.org</name>
+		<url>http://www.eclipse.org/SmartHome</url>
+	</organization>
 
-  <name>Eclipse SmartHome</name>
+	<licenses>
+		<license>
+			<name>Eclipse Public License</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+		</license>
+	</licenses>
 
-  <organization>
-    <name>Eclipse.org</name>
-    <url>http://www.eclipse.org/SmartHome</url>
-  </organization>
+	<description>This is the Eclipse SmartHome project</description>
 
-  <licenses>
-    <license>
-      <name>Eclipse Public License</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
-    </license>
-  </licenses>
+	<properties>
+		<tycho-version>0.19.0</tycho-version>
+		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
+		<xtext-version>2.5.2</xtext-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-  <description>This is the Eclipse SmartHome project</description>
+	<packaging>pom</packaging>
 
-  <properties>
-    <tycho-version>0.19.0</tycho-version>    
-    <tycho-groupid>org.eclipse.tycho</tycho-groupid>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  
-  <packaging>pom</packaging>
+	<modules>
+		<module>bundles</module>
+		<module>features</module>
+		<module>products</module>
+		<module>targetplatform</module>
+		<module>distribution</module>
+	</modules>
 
-  <modules>
-    <module>bundles</module>
-    <module>features</module>
-    <module>products</module>
-    <module>targetplatform</module>
-    <module>distribution</module>
-  </modules>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>${tycho-groupid}</groupId>
-        <artifactId>tycho-maven-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <extensions>true</extensions>
-      </plugin>
-      <plugin>
-        <groupId>${tycho-groupid}</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-        <resolver>p2</resolver>
-	<ignoreTychoRepositories>true</ignoreTychoRepositories>
-        <pomDependencies>consider</pomDependencies>          
-	<target>
-            <artifact>
-              <groupId>org.eclipse.smarthome</groupId>
-              <artifactId>targetplatform</artifactId>
-              <version>${project.version}</version>
-              <classifier>smarthome</classifier>
-            </artifact>
-          </target>
-          <environments>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-        </configuration>
-      </plugin>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<ignoreTychoRepositories>true</ignoreTychoRepositories>
+					<pomDependencies>consider</pomDependencies>
+					<target>
+						<artifact>
+							<groupId>org.eclipse.smarthome</groupId>
+							<artifactId>targetplatform</artifactId>
+							<version>${project.version}</version>
+							<classifier>smarthome</classifier>
+						</artifact>
+					</target>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>${tycho-groupid}</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<failIfNoTests>false</failIfNoTests>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -117,117 +123,154 @@
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>2.7</version>
 							<configuration>
-          			<aggregate>true</aggregate>
-   				    </configuration>
-  					</plugin>
-  					<plugin>
+								<aggregate>true</aggregate>
+							</configuration>
+						</plugin>
+						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-jxr-plugin</artifactId>
 							<configuration>
-          			<aggregate>true</aggregate>
-   				    </configuration>
+								<aggregate>true</aggregate>
+							</configuration>
 							<version>2.1</version>
 						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-checkstyle-plugin</artifactId>
 							<version>2.5</version>
-			        <configuration>
-			          <!--<configLocation>${settings.localRepository}/path /to/checkstyle.config</configLocation>-->
-			          <enableRulesSummary>false</enableRulesSummary>
-			          <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
-			        </configuration>
+							<configuration>
+								<!--<configLocation>${settings.localRepository}/path /to/checkstyle.config</configLocation> -->
+								<enableRulesSummary>false</enableRulesSummary>
+								<xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
+							</configuration>
 						</plugin>
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-pmd-plugin</artifactId>
 							<version>2.4</version>
 							<configuration>
-          			<xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
-        			</configuration>
+								<xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
+							</configuration>
 						</plugin>
 						<plugin>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>jdepend-maven-plugin</artifactId>
-			      </plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>jdepend-maven-plugin</artifactId>
+						</plugin>
 						<plugin>
-			        <groupId>org.codehaus.mojo</groupId>
-			        <artifactId>findbugs-maven-plugin</artifactId>
-			      </plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+						</plugin>
 					</reportPlugins>
 				</configuration>
 			</plugin>
-    </plugins>
-    
-    <pluginManagement>
-      <plugins>
-	      <plugin>
-	        <groupId>${tycho-groupid}</groupId>
-	        <artifactId>tycho-compiler-plugin</artifactId>
-	        <version>${tycho-version}</version>
-	        <configuration>
-	          <encoding>UTF-8</encoding>
-	          <source>1.6</source>
-	          <target>1.6</target>
-	        </configuration>
-	      </plugin>
-        <plugin>
-            <groupId>com.mycila.maven-license-plugin</groupId>
-            <artifactId>maven-license-plugin</artifactId>
-            <version>1.9.0</version>
-            <configuration>
-                <basedir>${basedir}</basedir>
-                <header>src/etc/header.txt</header>
-                <quiet>false</quiet>
-                <failIfMissing>true</failIfMissing>
-                <strictCheck>true</strictCheck>
-                <aggregate>true</aggregate>
-                <includes>
-                	<include>**/org/eclipse/smarthome/**/*.java</include>
-                	<include>**/feature.xml</include>
-                	<include>**/OSGI-INF/*.xml</include>
-                </includes>
-                <excludes>
-                    <exclude>target/**</exclude>
-                    <exclude>**/pom.xml</exclude>
-                    <exclude>_*.java</exclude>
-                </excludes>
-                <useDefaultExcludes>true</useDefaultExcludes>
-                <properties>
-                    <year>2013</year>
-                </properties>
-                <encoding>UTF-8</encoding>
-            </configuration>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>check</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-        <plugin>
-          <groupId>${tycho-groupid}</groupId>
-          <artifactId>tycho-versions-plugin</artifactId>
-          <version>${tycho-version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${basedir}/xtend-gen</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+							<excludes>
+								<exclude>.gitignore</exclude>
+							</excludes>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.xtend</groupId>
+				<artifactId>xtend-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
 
-  <pluginRepositories>
-	  <pluginRepository>
-	    <id>fornax.repository</id>
-	    <name>Fornax Repository</name>
-	    <url>http://www.fornax-platform.org/nexus/content/groups/public/</url>
-	    <snapshots>
-	    	<enabled>true</enabled>
-	    </snapshots>
-	  </pluginRepository>
-	  <pluginRepository>
-	    <id>tycho-snapshots</id>
-	    <url>https://oss.sonatype.org/content/groups/public/</url>
-   	  </pluginRepository>
-  </pluginRepositories>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>${tycho-groupid}</groupId>
+					<artifactId>tycho-compiler-plugin</artifactId>
+					<version>${tycho-version}</version>
+					<configuration>
+						<encoding>UTF-8</encoding>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.mycila.maven-license-plugin</groupId>
+					<artifactId>maven-license-plugin</artifactId>
+					<version>1.9.0</version>
+					<configuration>
+						<basedir>${basedir}</basedir>
+						<header>src/etc/header.txt</header>
+						<quiet>false</quiet>
+						<failIfMissing>true</failIfMissing>
+						<strictCheck>true</strictCheck>
+						<aggregate>true</aggregate>
+						<includes>
+							<include>**/org/eclipse/smarthome/**/*.java</include>
+							<include>**/feature.xml</include>
+							<include>**/OSGI-INF/*.xml</include>
+						</includes>
+						<excludes>
+							<exclude>target/**</exclude>
+							<exclude>**/pom.xml</exclude>
+							<exclude>_*.java</exclude>
+						</excludes>
+						<useDefaultExcludes>true</useDefaultExcludes>
+						<properties>
+							<year>2013</year>
+						</properties>
+						<encoding>UTF-8</encoding>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.xtend</groupId>
+					<artifactId>xtend-maven-plugin</artifactId>
+					<version>${xtext-version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>compile</goal>
+								<goal>xtend-install-debug-info</goal>
+								<goal>testCompile</goal>
+								<goal>xtend-test-install-debug-info</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<outputDirectory>xtend-gen</outputDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>${tycho-groupid}</groupId>
+					<artifactId>tycho-versions-plugin</artifactId>
+					<version>${tycho-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>tycho-snapshots</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>
