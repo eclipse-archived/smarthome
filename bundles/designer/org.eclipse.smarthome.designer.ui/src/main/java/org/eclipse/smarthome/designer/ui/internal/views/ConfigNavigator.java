@@ -14,10 +14,14 @@ import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.navigator.CommonNavigator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigNavigator extends CommonNavigator {
 
 	private IResourceChangeListener changeListener;
+	
+	private final static Logger logger = LoggerFactory.getLogger(ConfigNavigator.class);
 	
 	@Override
 	protected Object getInitialInput() {
@@ -35,6 +39,7 @@ public class ConfigNavigator extends CommonNavigator {
 		try {
 			return ConfigurationFolderProvider.getRootConfigurationFolder().getProject();
 		} catch (Exception e) {
+			logger.error("An error occurred while reading config project", e);
 			return null;
 		}
 	}

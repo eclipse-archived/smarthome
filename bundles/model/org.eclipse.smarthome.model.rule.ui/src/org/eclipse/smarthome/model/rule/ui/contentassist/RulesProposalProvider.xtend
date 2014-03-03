@@ -19,6 +19,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  */
 class RulesProposalProvider extends AbstractRulesProposalProvider {
 
+	
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider
 	

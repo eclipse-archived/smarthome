@@ -114,6 +114,8 @@
       <import plugin="org.eclipse.smarthome.core.transform"/>
       <import plugin="org.eclipse.xtext.common.types"/>
       <import plugin="org.eclipse.xtext.xbase"/>
+      <import plugin="org.eclipse.pde.build"/>
+      <import plugin="org.eclipse.pde.core"/>
    </requires>
 
    <plugin

@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.designer.core;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -20,6 +22,8 @@ public class CoreActivator extends Plugin {
 
 	// The shared instance
 	private static CoreActivator plugin;
+	
+	public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
 	
 	/**
 	 * The constructor
@@ -34,6 +38,8 @@ public class CoreActivator extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(context, ActionService.class, null);
+		actionServiceTracker.open();
 	}
 
 	/*
@@ -43,6 +49,7 @@ public class CoreActivator extends Plugin {
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		super.stop(context);
+		actionServiceTracker.close();
 	}
 
 	/**

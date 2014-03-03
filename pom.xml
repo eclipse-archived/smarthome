@@ -4,6 +4,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+
 	<prerequisites>
 		<maven>3.0</maven>
 	</prerequisites>
@@ -19,6 +20,7 @@
 		<name>Eclipse.org</name>
 		<url>http://www.eclipse.org/SmartHome</url>
 	</organization>
+
 
 	<licenses>
 		<license>
@@ -102,6 +104,7 @@
 					<failIfNoTests>false</failIfNoTests>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -171,6 +174,12 @@
 					<filesets>
 						<fileset>
 							<directory>${basedir}/xtend-gen</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+							<excludes>
+								<exclude>.gitignore</exclude>
+							</excludes>
 						</fileset>
 					</filesets>
 				</configuration>

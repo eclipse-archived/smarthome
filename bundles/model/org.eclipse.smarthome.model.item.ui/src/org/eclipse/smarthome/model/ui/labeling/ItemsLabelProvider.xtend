@@ -4,13 +4,13 @@
 package org.eclipse.smarthome.model.ui.labeling
 
 import com.google.inject.Inject
+
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider
 import org.eclipse.smarthome.model.items.ModelBinding
 import org.eclipse.smarthome.model.items.ModelGroupItem
 import org.eclipse.smarthome.model.items.ModelItem
 import org.eclipse.smarthome.model.items.ModelNormalItem
 import org.eclipse.xtext.ui.label.DefaultEObjectLabelProvider
-
 
 /**
  * Provides labels for a EObjects.

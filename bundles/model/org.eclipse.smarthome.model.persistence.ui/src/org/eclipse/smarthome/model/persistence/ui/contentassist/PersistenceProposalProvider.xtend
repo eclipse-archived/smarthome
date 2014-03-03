@@ -42,4 +42,5 @@ class PersistenceProposalProvider extends AbstractPersistenceProposalProvider {
 			}
 		}
 	}
+
 }

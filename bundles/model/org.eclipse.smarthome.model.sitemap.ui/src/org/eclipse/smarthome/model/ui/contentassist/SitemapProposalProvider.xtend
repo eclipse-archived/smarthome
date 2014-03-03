@@ -6,10 +6,8 @@ package org.eclipse.smarthome.model.ui.contentassist
 import java.io.File
 import org.eclipse.core.runtime.CoreException
 import org.eclipse.emf.ecore.EObject
-import org.eclipse.jface.text.contentassist.ICompletionProposal
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
-import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider
 import org.eclipse.smarthome.designer.ui.UIActivator
 import org.eclipse.xtext.RuleCall

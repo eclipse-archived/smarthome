@@ -25,13 +25,13 @@ public class ScriptUiModule extends org.eclipse.smarthome.model.script.ui.Abstra
 		super(plugin);
 	}
 	
-	public Class<? extends org.eclipse.xtext.common.types.access.IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
-		return ActionClasspathTypeProviderFactory.class;
-	}
-	
-	public Class<? extends org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
-		return ActionClasspathBasedTypeScopeProvider.class;
-	}
+//	public Class<? extends org.eclipse.xtext.common.types.access.IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
+//		return ActionClasspathTypeProviderFactory.class;
+//	}
+//	
+//	public Class<? extends org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
+//		return ActionClasspathBasedTypeScopeProvider.class;
+//	}
 
 	public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
         return ActionEObjectHoverProvider.class;
