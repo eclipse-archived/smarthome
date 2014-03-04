@@ -181,6 +181,15 @@
 								<exclude>.gitignore</exclude>
 							</excludes>
 						</fileset>
+						<fileset>
+							<directory>${basedir}/src/main/generated-sources/xtend</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+							<excludes>
+								<exclude>.gitignore</exclude>
+							</excludes>
+						</fileset>
 					</filesets>
 				</configuration>
 			</plugin>
@@ -251,9 +260,6 @@
 							</goals>
 						</execution>
 					</executions>
-					<configuration>
-						<outputDirectory>xtend-gen</outputDirectory>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>${tycho-groupid}</groupId>
