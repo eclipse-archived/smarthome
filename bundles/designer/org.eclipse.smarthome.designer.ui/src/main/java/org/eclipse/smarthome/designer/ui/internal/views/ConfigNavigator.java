@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.designer.ui.internal.views;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -37,7 +38,12 @@ public class ConfigNavigator extends CommonNavigator {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(changeListener);
 		
 		try {
-			return ConfigurationFolderProvider.getRootConfigurationFolder().getProject();
+			IFolder rootConfigurationFolder = ConfigurationFolderProvider.getRootConfigurationFolder();
+			if (rootConfigurationFolder != null) {
+				return rootConfigurationFolder.getProject();				
+			} else {
+				return null;
+			}
 		} catch (Exception e) {
 			logger.error("An error occurred while reading config project", e);
 			return null;

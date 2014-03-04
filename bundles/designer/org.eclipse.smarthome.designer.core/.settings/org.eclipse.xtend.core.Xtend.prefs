@@ -1,0 +1,12 @@
+autobuilding=true
+eclipse.preferences.version=1
+is_project_specific=true
+outlet.DEFAULT_OUTPUT.cleanDirectory=false
+outlet.DEFAULT_OUTPUT.cleanupDerived=true
+outlet.DEFAULT_OUTPUT.createDirectory=true
+outlet.DEFAULT_OUTPUT.derived=true
+outlet.DEFAULT_OUTPUT.directory=generated-sources/xtend
+outlet.DEFAULT_OUTPUT.hideLocalSyntheticVariables=true
+outlet.DEFAULT_OUTPUT.installDslAsPrimarySource=false
+outlet.DEFAULT_OUTPUT.keepLocalHistory=false
+outlet.DEFAULT_OUTPUT.override=true

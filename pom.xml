@@ -181,6 +181,15 @@
 								<exclude>.gitignore</exclude>
 							</excludes>
 						</fileset>
+						<fileset>
+							<directory>${basedir}/src/main/generated-sources/xtend</directory>
+							<includes>
+								<include>**</include>
+							</includes>
+							<excludes>
+								<exclude>.gitignore</exclude>
+							</excludes>
+						</fileset>
 					</filesets>
 				</configuration>
 			</plugin>
@@ -249,11 +258,12 @@
 								<goal>testCompile</goal>
 								<goal>xtend-test-install-debug-info</goal>
 							</goals>
+							<configuration>
+								<outputDirectory>${basedir}/xtend-gen</outputDirectory>
+								<testOutputDirectory>${basedir}/xtend-gen</testOutputDirectory>
+							</configuration>
 						</execution>
 					</executions>
-					<configuration>
-						<outputDirectory>xtend-gen</outputDirectory>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>${tycho-groupid}</groupId>
