@@ -103,7 +103,11 @@ class PluginProjectCreator implements IProjectCreator {
 			Bundle-Version: 1.0.0.qualifier
 			Bundle-Vendor: Eclipse.org/SmartHome
 			Require-Bundle: org.eclipse.xtext.xbase.lib
-			Import-Package: org.eclipse.smarthome.model.script.actions«IF !importedPackages.empty»,«ENDIF»
+			Import-Package: org.eclipse.smarthome.model.script.actions,
+			 org.eclipse.smarthome.core.library.types,
+			 org.eclipse.smarthome.core.library.items,
+			 org.eclipse.smarthome.core.items,
+			 org.eclipse.smarthome.core.persistence«IF !importedPackages.empty»,«ENDIF»
 			«FOR importPackage : importedPackages SEPARATOR ","»
 				«" " + importPackage»
 			«ENDFOR»

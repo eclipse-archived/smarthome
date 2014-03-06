@@ -69,7 +69,6 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 
 		// jodatime static functions
 		result.add(DateTime.class);
-		result.add(DateMidnight.class);
 		
 		result.addAll(getActionClasses());
 		return result;
