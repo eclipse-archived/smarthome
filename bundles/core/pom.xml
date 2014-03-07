@@ -22,7 +22,6 @@
     <module>org.eclipse.smarthome.core.library</module>
     <module>org.eclipse.smarthome.core.library.test</module>
     <module>org.eclipse.smarthome.core.persistence</module>
-    <module>org.eclipse.smarthome.core.persistence.test</module>
     <module>org.eclipse.smarthome.core.scheduler</module>
     <module>org.eclipse.smarthome.core.scriptengine</module>
     <module>org.eclipse.smarthome.core.transform</module>

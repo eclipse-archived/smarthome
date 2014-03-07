@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.persistence.extensions;
+package org.eclipse.smarthome.model.persistence.extensions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -16,10 +16,9 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
-import org.eclipse.smarthome.core.persistence.extensions.PersistenceExtensions;
-import org.eclipse.smarthome.core.persistence.test.TestPersistenceService;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.model.persistence.tests.TestPersistenceService;
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +28,7 @@ import org.junit.Test;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
  */
+@SuppressWarnings("deprecation")
 public class PersistenceExtensionsTest {
 
 	private PersistenceService testPersistenceService = new TestPersistenceService();
