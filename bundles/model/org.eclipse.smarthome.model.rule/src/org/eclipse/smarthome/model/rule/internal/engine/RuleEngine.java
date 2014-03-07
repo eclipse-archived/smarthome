@@ -35,9 +35,9 @@ import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
-import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
+import org.eclipse.xtext.naming.QualifiedName;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -52,6 +52,7 @@ import com.google.common.collect.Lists;
  * schedules them for execution dependent on their triggering conditions.
  * 
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Oliver Libutzki - Bugfixing
  *
  */
 @SuppressWarnings("restriction")
@@ -164,9 +165,8 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		public void stateChanged(Item item, State oldState, State newState) {			
 			if(triggerManager!=null) {
 				Iterable<Rule> rules = triggerManager.getRules(CHANGE, item, oldState, newState);
-				RuleEvaluationContext context = new RuleEvaluationContext();
-				context.newValue(QualifiedName.create(RuleContextHelper.VAR_PREVIOUS_STATE), oldState);
-				executeRules(rules, context);
+
+				executeRules(rules, oldState);
 			}
 		}
 
@@ -185,9 +185,8 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 				try {
 					Item item = itemRegistry.getItem(itemName);
 					Iterable<Rule> rules = triggerManager.getRules(COMMAND, item, command);
-					RuleEvaluationContext context = new RuleEvaluationContext();
-					context.newValue(QualifiedName.create(RuleContextHelper.VAR_RECEIVED_COMMAND), command);
-					executeRules(rules, context);
+
+					executeRules(rules, command);
 				} catch (ItemNotFoundException e) {
 					// ignore commands for non-existent items
 				}
@@ -289,11 +288,24 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		}
 
 		protected synchronized void executeRules(Iterable<Rule> rules) {
-			executeRules(rules, new RuleEvaluationContext());
+			for(Rule rule : rules) {
+				RuleEvaluationContext context = new RuleEvaluationContext();
+				executeRule(rule, context);
+			}
 		}
 		
-		protected synchronized void executeRules(Iterable<Rule> rules, RuleEvaluationContext context) {
+		protected synchronized void executeRules(Iterable<Rule> rules, Command command) {
 			for(Rule rule : rules) {
+				RuleEvaluationContext context = new RuleEvaluationContext();
+				context.newValue(QualifiedName.create(RuleContextHelper.VAR_RECEIVED_COMMAND), command);
+				executeRule(rule, context);
+			}
+		}
+		
+		protected synchronized void executeRules(Iterable<Rule> rules, State oldState) {
+			for(Rule rule : rules) {
+				RuleEvaluationContext context = new RuleEvaluationContext();
+				context.newValue(QualifiedName.create(RuleContextHelper.VAR_PREVIOUS_STATE), oldState);
 				executeRule(rule, context);
 			}
 		}

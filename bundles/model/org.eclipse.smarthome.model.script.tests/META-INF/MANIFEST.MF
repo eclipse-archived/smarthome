@@ -1,1 +1,26 @@
-
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Script Tests
+Bundle-SymbolicName: org.eclipse.smarthome.model.script.tests;singleton:=true
+Bundle-Version: 0.7.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.xtend.lib,
+ com.google.guava,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.smarthome.model.script,
+ org.eclipse.core.runtime,
+ org.eclipse.xtext.junit4
+Import-Package: org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.model.script.engine,
+ org.eclipse.smarthome.core.scriptengine,
+ org.eclipse.smarthome.core.scriptengine.action,
+ org.hamcrest.core,
+ org.junit;version="4.5.0",
+ org.junit.runner;version="4.5.0",
+ org.junit.runner.manipulation;version="4.5.0",
+ org.junit.runner.notification;version="4.5.0",
+ org.junit.runners;version="4.5.0",
+ org.junit.runners.model;version="4.5.0"

@@ -13,12 +13,11 @@ import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
 import org.eclipse.smarthome.model.rule.internal.RuleModelActivator;
-import org.eclipse.xtext.naming.QualifiedName;
-import org.eclipse.xtext.xbase.XExpression;
-import org.eclipse.xtext.xbase.XVariableDeclaration;
-import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
+import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
+import org.eclipse.xtext.naming.QualifiedName;
+import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,16 +61,13 @@ public class RuleContextHelper {
 		
 		// no evaluation context found, so create a new one
 	    IEvaluationContext evaluationContext = contextProvider.get();
-	    for(XExpression expr : ruleModel.getVariables()) {
-	    	if (expr instanceof XVariableDeclaration) {
-				XVariableDeclaration var = (XVariableDeclaration) expr;
-				try {
-			    	Object initialValue = var.getRight()==null ? null : scriptEngine.newScriptFromXExpression(var.getRight()).execute();
-					evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
-				} catch (ScriptExecutionException e) {
-					logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}", 
-							new String[] { var.getName(), ruleModel.eResource().getURI().path(), var.getRight().toString(), e.getMessage() });
-				}
+	    for(VariableDeclaration var : ruleModel.getVariables()) {
+			try {
+		    	Object initialValue = var.getRight()==null ? null : scriptEngine.newScriptFromXExpression(var.getRight()).execute();
+				evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
+			} catch (ScriptExecutionException e) {
+				logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}", 
+						new String[] { var.getName(), ruleModel.eResource().getURI().path(), var.getRight().toString(), e.getMessage() });
 			}
 	    }
 	    ruleModel.eAdapters().add(new RuleContextAdapter(evaluationContext));
