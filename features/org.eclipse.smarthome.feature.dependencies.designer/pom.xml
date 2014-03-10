@@ -9,10 +9,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome</groupId>
-  <artifactId>org.eclipse.smarthome.runtime.feature</artifactId>
+  <artifactId>org.eclipse.smarthome.feature.dependencies.designer</artifactId>
 
-  <name>Eclipse SmartHome Runtime</name>
+  <name>Eclipse SmartHome Designer Dependencies</name>
 
   <packaging>eclipse-feature</packaging>
-	
+
 </project>

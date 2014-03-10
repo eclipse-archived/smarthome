@@ -30,8 +30,9 @@
    <features>
       <feature id="org.eclipse.jetty.core"/>
       <feature id="org.eclipse.equinox.server.core"/>
-      <feature id="org.eclipse.smarthome.runtime.feature"/>
-      <feature id="org.eclipse.smarthome.dependencies.feature"/>
+      <feature id="org.eclipse.smarthome.feature.runtime"/>
+      <feature id="org.eclipse.smarthome.feature.dependencies.common"/>
+      <feature id="org.eclipse.smarthome.feature.dependencies.runtime"/>
    </features>
 
    <configurations>

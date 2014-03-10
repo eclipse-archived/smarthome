@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/org.eclipse.smarthome.dependencies.feature_0.7.0.qualifier.jar" id="org.eclipse.smarthome.dependencies.feature" version="0.7.0.qualifier">
+   <feature url="features/org.eclipse.smarthome.feature.dependencies.common.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.dependencies.common" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
-   <feature url="features/org.eclipse.smarthome.designer.feature_0.7.0.qualifier.jar" id="org.eclipse.smarthome.designer.feature" version="0.7.0.qualifier">
+   <feature url="features/org.eclipse.smarthome.feature.dependencies.designer.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.dependencies.designer" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.designer_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.designer" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
    <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">

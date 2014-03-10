@@ -9,8 +9,8 @@
 
 -->
 <feature
-      id="org.eclipse.smarthome.dependencies.feature"
-      label="Eclipse SmartHome Dependencies"
+      id="org.eclipse.smarthome.feature.dependencies.common"
+      label="Eclipse SmartHome Common Dependencies"
       version="0.7.0.qualifier"
       provider-name="eclipse.org/SmartHome">
 

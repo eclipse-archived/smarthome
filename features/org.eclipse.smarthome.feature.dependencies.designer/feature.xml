@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<feature
+      id="org.eclipse.smarthome.feature.dependencies.designer"
+      label="Eclipse SmartHome Designer Dependencies"
+      version="0.7.0.qualifier"
+      provider-name="Eclipse.org">
+
+   <description>
+      This features defines all bundles that form the Eclipse SmartHome designer dependencies.
+   </description>
+
+   <copyright>
+      Copyright (C) 2014 openHAB UG (haftungsbeschränkt) and others
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <includes
+         id="org.eclipse.xtext.ui"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.platform"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.jdt"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.codegen"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.mwe2.runtime.sdk"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.ecore.edit"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.edit"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.xtext.runtime"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.ecore"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.edit.ui"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.common.ui"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.emf.common"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.xtext.xbase"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="org.apache.commons.lang"/>
+      <import plugin="org.eclipse.osgi"/>
+      <import plugin="org.eclipse.osgi.services"/>
+      <import plugin="org.slf4j.api"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.apache.commons.io"/>
+      <import plugin="org.eclipse.emf.common"/>
+      <import plugin="org.eclipse.emf.ecore"/>
+      <import plugin="org.eclipse.xtext"/>
+      <import plugin="org.eclipse.xtext.util"/>
+      <import plugin="org.antlr.runtime"/>
+      <import plugin="org.eclipse.xtext.ui"/>
+      <import plugin="org.eclipse.ui.editors" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.xtext.ui.shared"/>
+      <import plugin="org.eclipse.xtext.builder"/>
+      <import plugin="org.eclipse.ui.ide" version="3.5.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.collections"/>
+      <import plugin="org.slf4j.jul"/>
+      <import plugin="org.slf4j.log4j"/>
+      <import plugin="javax.mail"/>
+      <import plugin="org.apache.commons.httpclient"/>
+      <import plugin="org.eclipse.xtext.common.types.ui"/>
+      <import plugin="org.eclipse.compare"/>
+      <import plugin="org.eclipse.xtext.ui.codetemplates.ui"/>
+      <import plugin="org.eclipse.xtext.xbase.ui"/>
+      <import plugin="org.slf4j.jcl"/>
+      <import plugin="org.eclipse.xtext.xbase.lib"/>
+      <import plugin="org.eclipse.smarthome.core.transform"/>
+      <import plugin="org.eclipse.xtext.common.types"/>
+      <import plugin="org.eclipse.xtext.xbase"/>
+      <import plugin="org.eclipse.pde.build"/>
+      <import plugin="org.eclipse.pde.core"/>
+   </requires>
+</feature>

@@ -10,7 +10,7 @@
     <version>0.7.0-SNAPSHOT</version>
   </parent>
   
-  <artifactId>distribution</artifactId>
+  <artifactId>distribution-incubation</artifactId>
 
   <packaging>pom</packaging>
 
@@ -30,6 +30,7 @@
 	          </goals>
 	          <configuration>
 	            <descriptors>
+ 	              <descriptor>src/assemble/repo.xml</descriptor>
  	              <descriptor>src/assemble/runtime.xml</descriptor>
 	              <descriptor>src/assemble/designer-win.xml</descriptor>
 	              <descriptor>src/assemble/designer-macosx64.xml</descriptor>
@@ -78,6 +79,12 @@
       <version>${project.version}</version>
 			<type>zip</type>
       <classifier>linux.gtk.x86_64</classifier>
+    </dependency>
+    <dependency>
+		  <groupId>org.eclipse.smarthome.products</groupId>
+		  <artifactId>org.eclipse.smarthome.repo</artifactId>
+      <version>${project.version}</version>
+		<type>zip</type>
     </dependency>
 
   </dependencies>

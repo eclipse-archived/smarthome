@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.smarthome.runtime.feature</name>
+	<name>org.eclipse.smarthome.feature.dependencies.common</name>
 	<comment></comment>
 	<projects>
 	</projects>
