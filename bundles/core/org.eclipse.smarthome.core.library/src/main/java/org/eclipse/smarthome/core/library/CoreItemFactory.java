@@ -7,16 +7,17 @@
  */
 package org.eclipse.smarthome.core.library;
 
+import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.ImageItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.ItemFactory;
 
 
 /**
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
  */
 public class CoreItemFactory implements ItemFactory {
 	
-	private static String[] ITEM_TYPES = new String[] { "Switch", "Rollershutter", "Contact", "String", "Number", "Dimmer", "DateTime", "Color" };
+	private static String[] ITEM_TYPES = new String[] { "Switch", "Rollershutter", "Contact", "String", "Number", "Dimmer", "DateTime", "Color", "Image" };
 
 	/**
 	 * @{inheritDoc}
@@ -40,6 +41,7 @@ public class CoreItemFactory implements ItemFactory {
 		if (itemTypeName.equals(ITEM_TYPES[5])) return new DimmerItem(itemName);
 		if (itemTypeName.equals(ITEM_TYPES[6])) return new DateTimeItem(itemName);
 		if (itemTypeName.equals(ITEM_TYPES[7])) return new ColorItem(itemName);
+		if (itemTypeName.equals(ITEM_TYPES[8])) return new ImageItem(itemName);
 		else return null;
 	}
 	
