@@ -9,13 +9,15 @@ package org.eclipse.smarthome.io.console.internal.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.ConsoleInterpreter;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
 /**
  * This class provides access to openHAB functionality through the OSGi console
@@ -27,15 +29,8 @@ import org.eclipse.smarthome.io.console.ConsoleInterpreter;
  */
 public class ConsoleCommandProvider implements CommandProvider {
 
-	protected static ScriptEngine scriptEngine;
-
-	protected void setScriptEngine(ScriptEngine scriptEngine) {
-		ConsoleCommandProvider.scriptEngine = scriptEngine;
-	}
-
-	protected void unsetScriptEngine(ScriptEngine scriptEngine) {
-		ConsoleCommandProvider.scriptEngine = null;
-	}
+	protected Set<ConsoleCommandExtension> consoleCommandExtensions = new CopyOnWriteArraySet<ConsoleCommandExtension>();
+	
 
 	/**
 	 * Methods staring with "_" will be used as commands. We only define one command "smarthome" to make
@@ -67,23 +62,34 @@ public class ConsoleCommandProvider implements CommandProvider {
 		}
 		
 		String[] args = argsList.toArray(new String[argsList.size()]);
-		ConsoleInterpreter.handleRequest(args, console);
+		ConsoleInterpreter.handleRequest(args, console, consoleCommandExtensions);
 		
 		return null;
 	}
 
+	public void addConsoleCommandExtension(ConsoleCommandExtension consoleCommandExtension) {
+		this.consoleCommandExtensions.add(consoleCommandExtension);
+	}
+	
+	public void removeConsoleCommandExtension(ConsoleCommandExtension consoleCommandExtension) {
+		this.consoleCommandExtensions.remove(consoleCommandExtension);
+	}
 
 	/**
 	 * Contributes the usage of our command to the console help output.
 	 */
 	public String getHelp() {
+		List<String> usages = ConsoleInterpreter.getUsages(consoleCommandExtensions);
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("---SmartHome commands---\n\t");
-		buffer.append("smarthome " + ConsoleInterpreter.getCommandUsage() + "\n\t");
-		buffer.append("smarthome " + ConsoleInterpreter.getUpdateUsage() + "\n\t");
-		buffer.append("smarthome " + ConsoleInterpreter.getStatusUsage() + "\n\t");
-		buffer.append("smarthome " + ConsoleInterpreter.getItemsUsage() + "\n\t");
-		buffer.append("smarthome " + ConsoleInterpreter.getScriptUsage() + "\n");
+		for (int i = 0; i < usages.size(); i++) {
+			String usageString = usages.get(i);
+			buffer.append("smarthome " + usageString + "\n");
+			if (usages.size() > i+1) {
+				buffer.append("\t");
+			}
+		}
+
 		return buffer.toString();
 	}
 	

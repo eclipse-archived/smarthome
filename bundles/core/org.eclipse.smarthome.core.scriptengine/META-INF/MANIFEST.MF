@@ -7,9 +7,16 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.core.scriptengine,
  org.eclipse.smarthome.core.scriptengine.action
-Import-Package: org.eclipse.emf.ecore.resource,
+Import-Package: com.google.common.base;version="10.0.1",
+ org.apache.commons.lang;version="2.6.0",
+ org.eclipse.emf.ecore.resource,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
  org.eclipse.xtext.diagnostics,
  org.eclipse.xtext.validation,
  org.eclipse.xtext.xbase,
  org.eclipse.xtext.xbase.interpreter,
+ org.osgi.framework;version="1.7.0",
+ org.osgi.util.tracker;version="1.5.1",
  org.slf4j
+Service-Component: OSGI-INF/consolecommandextension.xml
