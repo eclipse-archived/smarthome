@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.xtext,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.formatting,
- org.eclipse.smarthome.model.item.binding,
  org.eclipse.smarthome.model.scoping,
  org.eclipse.smarthome.model.validation,
  org.eclipse.smarthome.model.services,
