@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.binding.BindingConfigParseException;
+import org.eclipse.smarthome.core.binding.BindingConfigReader;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -29,8 +31,6 @@ import org.eclipse.smarthome.model.ItemsStandaloneSetup;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
-import org.eclipse.smarthome.model.item.binding.BindingConfigParseException;
-import org.eclipse.smarthome.model.item.binding.BindingConfigReader;
 import org.eclipse.smarthome.model.items.ItemModel;
 import org.eclipse.smarthome.model.items.ModelBinding;
 import org.eclipse.smarthome.model.items.ModelGroupFunction;

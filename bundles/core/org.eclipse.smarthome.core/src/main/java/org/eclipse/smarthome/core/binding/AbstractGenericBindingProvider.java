@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.item.binding;
+package org.eclipse.smarthome.core.binding;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,9 +16,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.binding.BindingChangeListener;
-import org.eclipse.smarthome.core.binding.BindingConfig;
-import org.eclipse.smarthome.core.binding.BindingProvider;
 import org.eclipse.smarthome.core.items.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

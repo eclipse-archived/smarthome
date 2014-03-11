@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.item.binding;
+package org.eclipse.smarthome.core.binding;
 
 import org.eclipse.smarthome.core.items.Item;
 

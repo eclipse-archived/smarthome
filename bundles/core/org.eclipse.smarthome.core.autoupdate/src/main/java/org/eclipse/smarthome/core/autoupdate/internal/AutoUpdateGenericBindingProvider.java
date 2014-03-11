@@ -9,10 +9,10 @@ package org.eclipse.smarthome.core.autoupdate.internal;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingProvider;
+import org.eclipse.smarthome.core.binding.AbstractGenericBindingProvider;
 import org.eclipse.smarthome.core.binding.BindingConfig;
+import org.eclipse.smarthome.core.binding.BindingConfigParseException;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.model.item.binding.AbstractGenericBindingProvider;
-import org.eclipse.smarthome.model.item.binding.BindingConfigParseException;
 
 
 /**
