@@ -7,10 +7,9 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  org.apache.commons.lang,
- org.eclipse.osgi.framework.console,
+ org.eclipse.osgi.framework.console;resolution:=optional,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
- org.eclipse.smarthome.core.scriptengine,
  org.eclipse.smarthome.core.types,
  org.osgi.framework,
  org.osgi.service.event,
@@ -21,4 +20,5 @@ Originally-Created-By: Apache Maven Bundle Plugin
 Service-Component: OSGI-INF/commandprovider.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.io.console
+Export-Package: org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions

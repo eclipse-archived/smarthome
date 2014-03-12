@@ -7,7 +7,11 @@
  */
 package org.eclipse.smarthome.io.console;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -15,16 +19,13 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.scriptengine.Script;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
-import org.eclipse.smarthome.core.scriptengine.ScriptParsingException;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.eclipse.smarthome.io.console.internal.ConsoleActivator;
-
-import com.google.common.base.Joiner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides generic methods for handling console input (i.e. pure strings).
@@ -34,6 +35,7 @@ import com.google.common.base.Joiner;
  */
 public class ConsoleInterpreter {
 
+	protected final static Logger logger = LoggerFactory.getLogger(ConsoleInterpreter.class);	
 	/**
 	 * This method simply takes a list of arguments, where the first one is treated
 	 * as the console command (such as "update", "send" etc.). The following entries
@@ -43,22 +45,45 @@ public class ConsoleInterpreter {
 	 * @param args array which contains the console command and all its arguments
 	 * @param console the console for printing messages for the user
 	 */
-	static public void handleRequest(String[] args, Console console) {
+	static public void handleRequest(String[] args, Console console, Set<ConsoleCommandExtension> consoleCommandExtensions) {
 		String arg = args[0];
-		args = (String[]) ArrayUtils.remove(args, 0);
-		if(arg.equals("items")) {
-			ConsoleInterpreter.handleItems(args, console);
-		} else if(arg.equals("send")) {
-			ConsoleInterpreter.handleSend(args, console);
-		} else if(arg.equals("update")) {
-			ConsoleInterpreter.handleUpdate(args, console);
-		} else if(arg.equals("status")) {
-			ConsoleInterpreter.handleStatus(args, console);
-		} else if(arg.equals(">")) {
-			ConsoleInterpreter.handleScript(args, console);
-		} else {
-			console.printUsage(getUsage());
-		}		
+		boolean handledByExtension = false;
+		Iterator<ConsoleCommandExtension> extensionIterator = consoleCommandExtensions.iterator();
+		
+		while (!handledByExtension && extensionIterator.hasNext()) {
+			ConsoleCommandExtension consoleCommandExtension = extensionIterator.next();
+			// The clients should not break the whole processing, so we need to catch exceptions in canHandle
+			boolean canHandle = false;
+			try {
+				canHandle = consoleCommandExtension.canHandle(args);
+			} catch (Exception e) {
+				logger.error("An error occured while invoking the command extension's can handle method.", e);
+			}
+			if (canHandle) {
+				handledByExtension = true;
+				try {
+					consoleCommandExtension.execute(args, console);				
+				} catch (Exception e) {
+					logger.error("An error occured while executing the console command.", e);
+					console.println("An unexpected error occured during execution.");
+				}
+			}
+		}
+		
+		if (!handledByExtension) {
+			args = (String[]) ArrayUtils.remove(args, 0);
+			if(arg.equals("items")) {
+				ConsoleInterpreter.handleItems(args, console);
+			} else if(arg.equals("send")) {
+				ConsoleInterpreter.handleSend(args, console);
+			} else if(arg.equals("update")) {
+				ConsoleInterpreter.handleUpdate(args, console);
+			} else if(arg.equals("status")) {
+				ConsoleInterpreter.handleStatus(args, console);
+			} else {
+				console.printUsage(getUsage(consoleCommandExtensions));
+			}		
+		}
 	}
 	
 	/**
@@ -218,49 +243,28 @@ public class ConsoleInterpreter {
 		}
 	}
 
-
-	public static void handleScript(String[] args, Console console) {
-		ScriptEngine scriptEngine = ConsoleActivator.scriptEngineTracker.getService();
-		if(scriptEngine!=null) {
-			String scriptString = Joiner.on(" ").join(args);
-			Script script;
-			try {
-				script = scriptEngine.newScriptFromString(scriptString);
-				Object result = script.execute();
-				
-				if(result!=null) {
-					console.println(result.toString());
-				} else {
-					console.println("OK");
-				}
-			} catch (ScriptParsingException e) {
-				console.println(e.getMessage());
-			} catch (ScriptExecutionException e) {
-				console.println(e.getMessage());
-			}
-		} else {
-			console.println("Script engine is not available.");
-		}
-	}
-
 	/** returns a CR-separated list of usage texts for all available commands */
-	private static String getUsage() {
+	private static String getUsage(Set<ConsoleCommandExtension> consoleCommandExtensions)  {
 		StringBuilder sb = new StringBuilder();
-		for(String usage : ConsoleInterpreter.getUsages()) {
+		for(String usage : ConsoleInterpreter.getUsages(consoleCommandExtensions)) {
 			sb.append(usage + "\n");
 		}
 		return sb.toString();
 	}
 
 	/** returns an array of the usage texts for all available commands */
-	static public String[] getUsages() {
-		return new String[] {
-				getUpdateUsage(),
-				getCommandUsage(),
-				getStatusUsage(),
-				getItemsUsage(),
-				getScriptUsage()
-		};
+	static public List<String> getUsages(Set<ConsoleCommandExtension> consoleCommandExtensions) {
+		List<String> usages = new ArrayList<String>();
+		for (ConsoleCommandExtension consoleCommandExtension : consoleCommandExtensions) {
+			usages.add(consoleCommandExtension.getUsage());
+		}
+		
+		usages.add(getUpdateUsage());
+		usages.add(getCommandUsage());
+		usages.add(getStatusUsage());
+		usages.add(getItemsUsage());
+		return usages;
+		
 	}
 	
 	static public String getUpdateUsage() {
@@ -277,10 +281,6 @@ public class ConsoleInterpreter {
 
 	static public String getItemsUsage() {
 		return "items [<pattern>] - lists names and types of all items matching the pattern";
-	}
-
-	public static String getScriptUsage() {
-		return "> <script to execute> - Executes a script";
 	}
 
 }

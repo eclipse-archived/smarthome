@@ -9,7 +9,6 @@ package org.eclipse.smarthome.io.console.internal;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -21,20 +20,16 @@ public final class ConsoleActivator implements BundleActivator {
 	
 	public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
 	public static ServiceTracker<EventPublisher, EventPublisher> eventPublisherTracker;
-	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
 	
 	/**
 	 * Called whenever the OSGi framework starts our bundle
 	 */
 	public void start(BundleContext bc) throws Exception {
-		itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(bc, ItemRegistry.class, null);
+		itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(bc, ItemRegistry.class.getName(), null);
 		itemRegistryTracker.open();
 
-		eventPublisherTracker = new ServiceTracker<EventPublisher, EventPublisher>(bc, EventPublisher.class, null);
+		eventPublisherTracker = new ServiceTracker<EventPublisher, EventPublisher>(bc, EventPublisher.class.getName(), null);
 		eventPublisherTracker.open();
-
-		scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
-		scriptEngineTracker.open();
 	}
 
 	/**

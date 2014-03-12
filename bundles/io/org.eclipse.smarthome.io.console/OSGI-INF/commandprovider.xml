@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.osgi.framework.console.CommandProvider"/>
    </service>
+   <reference bind="addConsoleCommandExtension" cardinality="0..n" interface="org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension" name="ConsoleCommandExtension" policy="dynamic" unbind="removeConsoleCommandExtension"/>
 </scr:component>
