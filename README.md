@@ -42,7 +42,7 @@ the designer zips are placed in there.
 4. Starting the demo runtime
 =======================
 
-- unzip the file distribution-<version>-runtime.zip to a local folder
+- unzip the file eclipsesmarthome-incubation-0.x.0-runtime.zip to a local folder
 - launch the runtime with the "start.sh" (resp. "start.bat") script
 - check if everything has started correctly: http://localhost:8080/smarthome.app?sitemap=demo
 
@@ -50,5 +50,5 @@ the designer zips are placed in there.
 5. Starting the designer
 ========================
 
-- unzip the file distribution-<version>-designer-<platform>.zip to a local folder
+- unzip the file eclipsesmarthome-incubation-0.x.0-designer-<platform>.zip to a local folder
 - run the executable „Eclipse-SmartHome-Designer.exe"
