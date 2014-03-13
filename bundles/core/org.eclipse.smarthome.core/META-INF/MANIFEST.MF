@@ -15,7 +15,6 @@ Bundle-Name: Eclipse SmartHome Core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.7.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.core.internal.CoreActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: org.apache.commons.io,
