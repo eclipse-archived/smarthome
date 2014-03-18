@@ -55,7 +55,6 @@
 					</products>
 				</configuration>
 			</plugin>
-		</plugins>
 		<plugin>
 	      <groupId>org.eclipse.cbi.maven.plugins</groupId>
 	      <artifactId>eclipse-macsigner-plugin</artifactId>
@@ -95,6 +94,7 @@
 	        </execution>
 	      </executions>
 	    </plugin>
+		</plugins>
 	</build>
 
   <dependencies>
