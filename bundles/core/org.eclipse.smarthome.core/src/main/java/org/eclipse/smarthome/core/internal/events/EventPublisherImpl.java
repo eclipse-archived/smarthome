@@ -14,89 +14,113 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * This is the main implementation of the {@link EventPublisher} interface.
- * Through it, openHAB events can be sent to the OSGi EventAdmin service
- * in order to broadcast them.
- * 
- * @author Kai Kreuzer - Initial contribution and API
+ * The {@link EventPublisherImpl} class is the main implementation of the {@link EventPublisher}
+ * service interface.
+ * <p>
+ * This implementation uses the <i>OSGi Event Admin</i> service as event bus implementation
+ * to broadcast <i>Eclipse SmartHome</i> events.
  *
+ * @author Kai Kreuzer - Initial contribution and API
+ * @author Michael Grammling - Javadoc and exception handling extended, Checkstyle compliancy,
+ *     thread-safety
  */
 public class EventPublisherImpl implements EventPublisher {
 
-	private static final Logger logger = 
-		LoggerFactory.getLogger(EventPublisherImpl.class);
-		
-	private EventAdmin eventAdmin;
-	
-	
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
-	}
+    private EventAdmin eventAdmin;
 
-	public void unsetEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = null;
-	}
-	
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.events.EventPublisher#sendCommand(org.eclipse.smarthome.core.items.GenericItem, org.eclipse.smarthome.core.datatypes.DataType)
-	 */
-	public void sendCommand(String itemName, Command command) {
-		if (command != null) {
-			if(eventAdmin!=null) eventAdmin.sendEvent(createCommandEvent(itemName, command));
-		} else {
-			logger.warn("given command is NULL, couldn't send command to '{}'", itemName);
-		}
-	}
+    public synchronized void setEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = eventAdmin;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.events.EventPublisher#postCommand(org.eclipse.smarthome.core.items.GenericItem, org.eclipse.smarthome.core.datatypes.DataType)
-	 */
-	public void postCommand(String itemName, Command command) {
-		if (command != null) {
-			if(eventAdmin!=null) eventAdmin.postEvent(createCommandEvent(itemName, command));
-		} else {
-			logger.warn("given command is NULL, couldn't post command to '{}'", itemName);
-		}
-	}
+    public synchronized void unsetEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.events.EventPublisher#postUpdate(org.eclipse.smarthome.core.items.GenericItem, org.eclipse.smarthome.core.datatypes.DataType)
-	 */
-	public void postUpdate(String itemName, State newState) {
-		if (newState != null) {
-			if(eventAdmin!=null) eventAdmin.postEvent(createUpdateEvent(itemName, newState));
-		} else {
-			logger.warn("given new state is NULL, couldn't post update for '{}'", itemName);
-		}
-	}
-	
-	private Event createUpdateEvent(String itemName, State newState) {
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("item", itemName);
-		properties.put("state", newState);
-		return new Event(createTopic(EventType.UPDATE, itemName), properties);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public void sendCommand(String itemName, Command command)
+            throws IllegalArgumentException, IllegalStateException {
 
-	private Event createCommandEvent(String itemName, Command command) {
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("item", itemName);
-		properties.put("command", command);
-		return new Event(createTopic(EventType.COMMAND, itemName) , properties);
-	}
+        ItemUtil.assertValidItemName(itemName);
+        if (command == null) {
+            throw new IllegalArgumentException("The command must not be null!");
+        }
 
-	private String createTopic(EventType type, String itemName) {
-		return TOPIC_PREFIX + TOPIC_SEPERATOR + type + TOPIC_SEPERATOR + itemName;
-	}
-	
-	
+        synchronized (this) {
+            if (this.eventAdmin != null) {
+                this.eventAdmin.sendEvent(createCommandEvent(itemName, command));
+            } else {
+                throw new IllegalStateException("The event bus module is not available!");
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void postCommand(String itemName, Command command) 
+            throws IllegalArgumentException, IllegalStateException {
+
+        ItemUtil.assertValidItemName(itemName);
+        if (command == null) {
+            throw new IllegalArgumentException("The command must not be null!");
+        }
+
+        synchronized (this) {
+            if (this.eventAdmin != null) {
+                this.eventAdmin.postEvent(createCommandEvent(itemName, command));
+            } else {
+                throw new IllegalStateException("The event bus module is not available!");
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void postUpdate(String itemName, State newState)
+            throws IllegalArgumentException, IllegalStateException {
+
+        ItemUtil.assertValidItemName(itemName);
+        if (newState == null) {
+            throw new IllegalArgumentException("The state must not be null!");
+        }
+
+        synchronized (this) {
+            if (this.eventAdmin != null) {
+                this.eventAdmin.postEvent(createUpdateEvent(itemName, newState));
+            } else {
+                throw new IllegalStateException("The event bus module is not available!");
+            }
+        }
+    }
+
+    private String createTopic(EventType type, String itemName) {
+        return TOPIC_PREFIX + TOPIC_SEPERATOR + type + TOPIC_SEPERATOR + itemName;
+    }
+
+    private Event createCommandEvent(String itemName, Command command) {
+        Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
+        properties.put("item", itemName);
+        properties.put("command", command);
+        return new Event(createTopic(EventType.COMMAND, itemName) , properties);
+    }
+
+    private Event createUpdateEvent(String itemName, State newState) {
+        Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
+        properties.put("item", itemName);
+        properties.put("state", newState);
+        return new Event(createTopic(EventType.UPDATE, itemName), properties);
+    }
+
 }
