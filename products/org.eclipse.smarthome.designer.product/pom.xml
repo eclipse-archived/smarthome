@@ -55,6 +55,15 @@
 					</products>
 				</configuration>
 			</plugin>
+		</plugins>
+	</build>
+
+    <profiles>
+      <profile>
+        <id>sign</id>
+        <build>
+          <plugins>
+
 		<plugin>
 	      <groupId>org.eclipse.cbi.maven.plugins</groupId>
 	      <artifactId>eclipse-macsigner-plugin</artifactId>
@@ -94,8 +103,10 @@
 	        </execution>
 	      </executions>
 	    </plugin>
-		</plugins>
-	</build>
+          </plugins>
+        </build>
+      </profile>
+    </profiles>
 
   <dependencies>
 			<dependency>
