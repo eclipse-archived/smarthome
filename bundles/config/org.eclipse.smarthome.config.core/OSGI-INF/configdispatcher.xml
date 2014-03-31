@@ -11,9 +11,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.config.core">
    <implementation class="org.eclipse.smarthome.config.core.ConfigDispatcher"/>
    
-   <service>
-      <provide interface="org.osgi.service.cm.ManagedService"/>
-   </service>
    <property name="service.pid" type="String" value="org.eclipse.smarthome.mainconfig"/>
    
 </scr:component>

@@ -7,43 +7,23 @@
  */
 package org.eclipse.smarthome.config.core;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.repeatSecondlyForever;
-import static org.quartz.TriggerBuilder.newTrigger;
-import static org.quartz.impl.matchers.GroupMatcher.jobGroupEquals;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.internal.ConfigActivator;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.TriggerKey;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,42 +48,21 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Thomas.Eichstaedt-Engelen
  */
-public class ConfigDispatcher implements ManagedService {
+public class ConfigDispatcher {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
 
 	// by default, we use the "configurations" folder in the home directory, but this location
 	// might be changed in certain situations (especially when setting a config folder in the
-	// openHAB Designer).
+	// SmartHome Designer).
 	private static String configFolder = ConfigConstants.MAIN_CONFIG_FOLDER;
-	
-	/** the last refresh timestamp in milliseconds */
-	private static long lastReload = -1;
-
-	/** the refresh interval. A value of '-1' deactivates the scan (optional, defaults to '-1' hence scanning is deactivated) */
-	private static int refreshInterval = -1;
-	
-	/** the name of the scheduler group under which refresh jobs are being registered */
-	private static final String SCHEDULER_GROUP = "ConfigDispatcher";
-	
-	/** the {@link JobKey} for the quartz job to refresh the main configuration file */
-	private final static JobKey REFRESH_JOB_KEY = new JobKey("Refresh", SCHEDULER_GROUP);
-	
-	/** the {@link TriggerKey} for the quartz job to refresh the main configuration file */
-	private final static TriggerKey REFRESH_TRIGGER_KEY = new TriggerKey("Refresh", SCHEDULER_GROUP);
-	
-	
+			
 	public void activate() {
 		initializeBundleConfigurations();
-		if (refreshInterval > -1) {
-			scheduleRefreshJob();
-		}
 	}
 	
 	public void deactivate() {
-		cancelRefreshJob();
 	}
-
 	
 	/**
 	 * Returns the configuration folder path name. The main config folder 
@@ -133,29 +92,20 @@ public class ConfigDispatcher implements ManagedService {
 	}
 
 	public static void initializeBundleConfigurations() {
-		initializeMainConfiguration(lastReload);			
+		initializeMainConfiguration();			
 	}
 
-	private static void initializeMainConfiguration(long lastReload) {
+	private static void initializeMainConfiguration() {
 		String mainConfigFilePath = getMainConfigurationFilePath();
 		File mainConfigFile = new File(mainConfigFilePath);
-
-		if (lastReload > -1 && mainConfigFile.lastModified() <= lastReload) {
-			logger.trace(
-				"main configuration file '{}' hasn't been changed since '{}' (lasModified='{}') -> initialization aborted.",
-				new Object[] { mainConfigFile.getAbsolutePath(), lastReload, mainConfigFile.lastModified() });
-			ConfigDispatcher.lastReload = System.currentTimeMillis();
-			return;
-		}
 		
 		try {
-			logger.debug("Processing openHAB main configuration file '{}'.", mainConfigFile.getAbsolutePath());
+			logger.debug("Processing main configuration file '{}'.", mainConfigFile.getAbsolutePath());
 			processConfigFile(mainConfigFile);
-			ConfigDispatcher.lastReload = System.currentTimeMillis();
 		} catch (FileNotFoundException e) {
-			logger.warn("Main openHAB configuration file '{}' does not exist.", mainConfigFilePath);
+			logger.warn("Main configuration file '{}' does not exist.", mainConfigFilePath);
 		} catch (IOException e) {
-			logger.error("Main openHAB configuration file '{}' cannot be read.", mainConfigFilePath, e);
+			logger.error("Main configuration file '{}' cannot be read.", mainConfigFilePath, e);
 		}
 	}
 
@@ -229,112 +179,5 @@ public class ConfigDispatcher implements ManagedService {
 			return getConfigFolder() + "/" + ConfigConstants.MAIN_CONFIG_FILENAME;
 		}
 	}
-	
-	
-	/**
-	 * Schedules a quartz job which is triggered every minute.
-	 */
-	public static void scheduleRefreshJob() {
-		try {
-			Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
-			JobDetail job = newJob(RefreshJob.class)
-			    .withIdentity(REFRESH_JOB_KEY)
-			    .build();
-
-			SimpleTrigger trigger = newTrigger()
-			    .withIdentity(REFRESH_TRIGGER_KEY)
-			    .withSchedule(repeatSecondlyForever(refreshInterval))
-			    .build();
-
-			sched.scheduleJob(job, trigger);
-			logger.debug("Scheduled refresh job '{}' in DefaulScheduler", job.getKey());
-		} catch (SchedulerException e) {
-			logger.warn("Could not schedule refresh job: {}", e.getMessage());
-		}
-	}
-	
-	/**
-	 * Reschedules a quartz job which is triggered every minute.
-	 */
-	public static void rescheduleRefreshJob() {
-		try {
-			Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
-
-			SimpleTrigger trigger = newTrigger()
-			    .withIdentity(REFRESH_TRIGGER_KEY)
-			    .withSchedule(repeatSecondlyForever(refreshInterval))
-			    .build();
-			
-			sched.rescheduleJob(REFRESH_TRIGGER_KEY, trigger);
-			logger.debug("Rescheduled refresh job '{}' in DefaulScheduler", REFRESH_TRIGGER_KEY);
-		} catch (SchedulerException e) {
-			logger.warn("Could not reschedule refresh job: {}", e.getMessage());
-		}
-	}
-	
-	private static void scheduleOrRescheduleRefreshJob() {
-		try {
-			Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
-			if (sched.checkExists(REFRESH_JOB_KEY)) {
-				rescheduleRefreshJob();
-			} else {
-				scheduleRefreshJob();
-			}
-		} catch (SchedulerException e) {
-			logger.warn("Could not check if job exists: {}", e.getMessage());
-		}
-	}
-
-	/**
-	 * Deletes all quartz refresh jobs containing to group 'ConfigDispatcher'
-	 */
-	public static void cancelRefreshJob() {
-		try {
-			Scheduler sched = StdSchedulerFactory.getDefaultScheduler();
-			Set<JobKey> jobKeys = sched.getJobKeys(jobGroupEquals(SCHEDULER_GROUP));
-			if (jobKeys.size() > 0) {
-				sched.deleteJobs(new ArrayList<JobKey>(jobKeys));
-				logger.debug("Found {} refresh jobs to delete from DefaulScheduler (keys={})", jobKeys.size(), jobKeys);
-			}
-		} catch (SchedulerException e) {
-			logger.warn("Could not remove refresh job: {}", e.getMessage());
-		}		
-	}
-	
-	
-	public void updated(Dictionary<String, ?> config) throws ConfigurationException {
-		if (config != null) {
-			String refreshIntervalString = (String) config.get("refresh");
-			if (isNotBlank(refreshIntervalString)) {
-				try {
-					ConfigDispatcher.refreshInterval = Integer.valueOf(refreshIntervalString);
-				}
-				catch (IllegalArgumentException iae) {
-					logger.warn("couldn't parse '{}' to an integer");
-				}
-				
-				if (ConfigDispatcher.refreshInterval == -1) {
-					cancelRefreshJob();
-				} else {
-					scheduleOrRescheduleRefreshJob();
-				}
-			}
-		}
-	}
-	
-	
-	/**
-	 * A quartz scheduler job to refresh the Configuration (via {@link ConfigurationAdmin})
-	 * when it changed.
-	 */
-	@DisallowConcurrentExecution
-	public static class RefreshJob implements Job {
 		
-		public void execute(JobExecutionContext context) throws JobExecutionException {
-			initializeMainConfiguration(lastReload);
-		}
-		
-	}
-
-	
 }
