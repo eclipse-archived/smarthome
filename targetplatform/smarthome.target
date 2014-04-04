@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="56">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="57">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.platform.sdk" version="4.3.2.M20140221-1700"/>
@@ -88,6 +88,10 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.jetty.sdk.feature.group" version="8.1.3.201206060641"/>
 <repository location="http://download.eclipse.org/releases/juno/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.codehaus.groovy21.feature.feature.group" version="2.8.0.xx-20130703-1600-e43-RELEASE"/>
+<repository location="http://dist.springsource.org/release/GRECLIPSE/e4.3/"/>
 </location>
 </locations>
 </target>
