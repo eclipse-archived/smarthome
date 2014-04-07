@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Export-Package: org.eclipse.smarthome.test
+Export-Package: org.eclipse.smarthome.test;uses:="groovy.lang,org.osgi.framework"
 Bundle-Name: Eclipse SmartHome Test
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome

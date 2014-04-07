@@ -109,6 +109,9 @@
 				<version>${tycho-version}</version>
 				<configuration>
 					<failIfNoTests>false</failIfNoTests>
+                    <includes>
+						<include>**/*</include>
+					</includes>
 				</configuration>
 			</plugin>
 

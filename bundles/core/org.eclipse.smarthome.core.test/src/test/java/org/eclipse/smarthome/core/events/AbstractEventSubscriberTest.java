@@ -6,11 +6,10 @@ import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import junit.framework.Assert;
-
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
+import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 
