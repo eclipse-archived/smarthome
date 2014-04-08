@@ -12,14 +12,16 @@ import org.osgi.framework.ServiceRegistration;
 
 /**
  * {@link OSGiTest} is an abstract base class for OSGi based tests. It provides 
- * convenience methods to register and unregister mocks as OSGi services. 
+ * convenience methods to register and unregister mocks as OSGi services. All services, which
+ * are registered through the {@link OSGiTest#registerService} methods, are unregistered 
+ * automatically in the tear down of the test.
  * 
  * @author Dennis Nobel - Initial contribution
  */
 abstract class OSGiTest {
 
-    static BundleContext bundleContext
-    def Map<String, ServiceRegistration<?>>registeredServices = [:]
+    BundleContext bundleContext
+    Map<String, ServiceRegistration<?>> registeredServices = [:]
 
     @Before
     public void bindBundleContext() {
@@ -27,19 +29,34 @@ abstract class OSGiTest {
         assertThat bundleContext, is(notNullValue())
     }
 	
+	/**
+	 * Returns the {@link BundleContext}, which is used for registration and unregistration of OSGi 
+	 * services. By default it uses the bundle context of the test class itself. This method can be overridden
+	 * by concrete implementations to provide another bundle context.
+	 * 
+	 * @return bundle context
+	 */
 	protected BundleContext getBundleContext() {
 		return FrameworkUtil.getBundle(this.getClass()).getBundleContext()
 	}
 
+    /**
+     * Returns an OSGi service for the given class.
+     * 
+     * @param clazz class under which the OSGi service is registered
+     * @return OSGi service or null if no service can be found for the given class
+     */
     protected <T> T getService(Class<T> clazz){
         def serviceReference = bundleContext.getServiceReference(clazz.name)
-        return bundleContext.getService(serviceReference)
+        return serviceReference ? bundleContext.getService(serviceReference) : null
     }
 
     /**
-     * Registers the given service as OSGi service. The first interface is used as OSGi service 
+     * Registers the given object as OSGi service. The first interface is used as OSGi service 
      * interface name.
+     * 
      * @param service service to be registered
+	 * @param properties OSGi service properties
      * @return service registration object
      */
     protected registerService(def service, Hashtable properties = [:]) {
@@ -48,26 +65,65 @@ abstract class OSGiTest {
         registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
     }
 	
+	/**
+	 * Registers the given object as OSGi service. The given interface name as String is used as OSGi service
+	 * interface name.
+	 *
+	 * @param service service to be registered
+	 * @param interfaceName interface name of the OSGi service
+	 * @param properties OSGi service properties
+	 * @return service registration object
+	 */
 	protected registerService(def service, String interfaceName, Hashtable properties = [:]) {
 		assertThat interfaceName, is(notNullValue())
 		registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
 	}
 
+    /**
+     * Unregisters an OSGi service by the given object, that was registered before. If the object is 
+     * a String the service is unregistered by the interface name. If the given service parameter is 
+     * the service itself the interface name is taken from the first interface of the service object.
+     * 
+     * @param service service or service interface name
+     * @return the service registration that was unregistered or null if no service could be found
+     */
     protected unregisterService(def service) {
 		def interfaceName = service instanceof String ?: getInterfaceName(service)
-        registeredServices.get(interfaceName).unregister()
+        registeredServices.get(interfaceName)?.unregister()
         registeredServices.remove(interfaceName)
     }
 	
-	protected waitFor(Closure<?> condition, int timeout = 1000, int sleepTime = 50) {
+	/**
+	 * When this method is called it waits until the condition is fulfilled or the timeout is reached.
+	 * The condition is specified by a closure, that must return a boolean object. When the condition is 
+	 * not fulfilled Thread.sleep is called at the current Thread for a specified time. After this time 
+	 * the condition is checked again. By a default the specified sleep time is 50 ms. The default timeout 
+	 * is 1000 ms.
+	 * 
+	 * @param condition closure that must not have an argument and must return a boolean value
+	 * @param timeout timeout, default is 1000ms
+	 * @param sleepTime interval for checking the condition, default is 50ms
+	 */
+	protected void waitFor(Closure<?> condition, int timeout = 1000, int sleepTime = 50) {
 		def waitingTime = 0
 		while(!condition() && waitingTime < timeout) {
 			waitingTime += sleepTime
 			sleep sleepTime
 		}
 	}
-
-	protected waitForAssert(Closure<?> assertion, int timeout = 1000, int sleepTime = 50) {
+	
+	/**
+	 * When this method is called it waits until the assertion is fulfilled or the timeout is reached.
+	 * The assertion is specified by a closure, that must throw an Exception, if the assertion is not fulfilled. 
+	 * When the assertion is not fulfilled Thread.sleep is called at the current Thread for a specified time. 
+	 * After this time the condition is checked again. By a default the specified sleep time is 50 ms. 
+	 * The default timeout is 1000 ms.
+	 *
+	 * @param condition closure that must not have an argument
+	 * @param timeout timeout, default is 1000ms
+	 * @param sleepTime interval for checking the condition, default is 50ms
+	 */
+	protected void waitForAssert(Closure<?> assertion, int timeout = 1000, int sleepTime = 50) {
 		def waitingTime = 0
 		while(waitingTime < timeout) {
 			try {
@@ -81,6 +137,12 @@ abstract class OSGiTest {
 		assertion()
 	}
 	
+	/**
+	 * Returns the interface name for a given service object by choosing the first interface.
+	 * 
+	 * @param service service object
+	 * @return name of the first interface or null if the object has no interfaces
+	 */
 	protected getInterfaceName(def service) {
 		service.class.interfaces?.find({it})?.name
 	}
