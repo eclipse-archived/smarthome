@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="57">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="58">
 <locations>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.sdk" version="4.3.2.M20140221-1700"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
-</location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.ibm.icu.base" version="50.1.1.v201304230130"/>
 <unit id="com.ibm.icu.base.source" version="50.1.1.v201304230130"/>
@@ -92,6 +88,11 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.codehaus.groovy21.feature.feature.group" version="2.8.0.xx-20130703-1600-e43-RELEASE"/>
 <repository location="http://dist.springsource.org/release/GRECLIPSE/e4.3/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.sdk.ide" version="4.3.2.M20140221-1700"/>
+<unit id="org.eclipse.pde.feature.group" version="3.9.1.v20140221-1700"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
 </location>
 </locations>
 </target>

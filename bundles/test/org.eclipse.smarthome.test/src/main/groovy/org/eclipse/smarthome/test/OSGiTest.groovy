@@ -37,7 +37,8 @@ abstract class OSGiTest {
 	 * @return bundle context
 	 */
 	protected BundleContext getBundleContext() {
-		return FrameworkUtil.getBundle(this.getClass()).getBundleContext()
+		def bundle = FrameworkUtil.getBundle(this.getClass())
+		return bundle?.getBundleContext()
 	}
 
     /**

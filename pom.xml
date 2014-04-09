@@ -110,7 +110,8 @@
 				<configuration>
 					<failIfNoTests>false</failIfNoTests>
                     <includes>
-						<include>**/*</include>
+						<include>**/*.java</include>
+                        <include>**/*.groovy</include>
 					</includes>
 				</configuration>
 			</plugin>
