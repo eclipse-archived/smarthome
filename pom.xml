@@ -218,6 +218,7 @@
 						<aggregate>true</aggregate>
 						<includes>
 							<include>**/org/eclipse/smarthome/**/*.java</include>
+                            <include>**/org/eclipse/smarthome/**/*.groovy</include>
 							<include>**/feature.xml</include>
 							<include>**/OSGI-INF/*.xml</include>
 						</includes>
