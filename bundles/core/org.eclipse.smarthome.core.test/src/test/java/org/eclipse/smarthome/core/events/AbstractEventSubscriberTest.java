@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.events;
 
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_PREFIX;
@@ -6,11 +13,10 @@ import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import junit.framework.Assert;
-
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
+import org.junit.Assert;
 import org.junit.Test;
 import org.osgi.service.event.Event;
 

@@ -11,12 +11,11 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
