@@ -31,7 +31,7 @@ Import-Package: javax.servlet,
  org.osgi.service.http,
  org.slf4j
 Bundle-ClassPath: .,
- lib/xchart-2.2.1.jar
+ lib/xchart-2.3.2.jar
 Bundle-SymbolicName: org.eclipse.smarthome.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.ui.chart,
