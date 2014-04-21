@@ -10,9 +10,6 @@ package org.eclipse.smarthome.ui.internal.chart;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -59,18 +56,10 @@ import org.slf4j.LoggerFactory;
 public class ChartServlet extends HttpServlet implements ManagedService {
 
 	private static final long serialVersionUID = 7700873790924746422L;
-	private static final Integer CHART_HEIGHT = 240;
-	private static final Integer CHART_WIDTH = 480;
-	private static final String dateFormat = "yyyyMMddHHmm";
 
-	private static final DateFormat dateFormatter = new SimpleDateFormat(dateFormat);
-	
-	private static final Logger logger = LoggerFactory.getLogger(ChartServlet.class);	
+	private static final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
 	protected String providerName = "default";
-	protected Integer defaultHeight = CHART_HEIGHT;
-	protected Integer defaultWidth = CHART_WIDTH;
-	protected Double scale = 1.0;
 	
 	// The URI of this servlet
 	public static final String SERVLET_NAME = "/chart";
@@ -153,94 +142,36 @@ public class ChartServlet extends HttpServlet implements ManagedService {
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		logger.debug("Received incoming chart request: ", req);
 
-		int width = defaultWidth;
-
+		int width = 480;
 		try {
-			String w = req.getParameter("w");
-			if(w != null) {
-				Double d = Double.parseDouble(w) * scale;
-				width = d.intValue();
-			}
+			width = Integer.parseInt(req.getParameter("w"));
 		} catch (Exception e) {
 		}
-		int height = defaultHeight;
+		int height = 240;
 		try {
-			String h = req.getParameter("h");
-			if(h != null) {
-				Double d = Double.parseDouble(h) * scale;
-				height = d.intValue();
-			}
+			height = Integer.parseInt(req.getParameter("h"));
 		} catch (Exception e) {
 		}
-		
-
-		//To avoid ambiguity you are not allowed to specify period, begin and end time at the same time.
-		if (req.getParameter("period") != null
-			&& req.getParameter("begin") != null && req.getParameter("end") != null) {
-			throw new ServletException("Do not specify the three parameter period, begin and" +
-				"end at the same time.");
-		}
-		
-
-		//Read out the parameter period, begin and end and save them.
-		Date timeBegin = null;
-		Date timeEnd = null;
-		
-		Long period = PERIODS.get(req.getParameter("period"));			
-		if (period == null && (req.getParameter("begin") == null || req.getParameter("end") == null)) {			
+		Long period = PERIODS.get(req.getParameter("period"));
+		if (period == null) {
 			// use a day as the default period
 			period = PERIODS.get("D");
-			logger.debug("Use a day as the period (default period).");			
 		}
-					
-		if (req.getParameter("begin") != null) {
-			try {
-				timeBegin = dateFormatter.parse(req.getParameter("begin"));
-			} catch (ParseException e) {
-				throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
-			}
-		}
-
-		if (req.getParameter("end") != null) {
-			try {				
-				timeEnd = dateFormatter.parse(req.getParameter("end"));
-			} catch (ParseException e) {
-				throw new ServletException("Begin and end must have this format: " + dateFormat + ".");
-			}
-		}
-
-
-		//Set begin and end time and check legality.		
-		if (timeBegin == null && timeEnd == null) {
-			timeEnd = new Date();
-			timeBegin = new Date(timeEnd.getTime() - period);
-			logger.debug("No begin and end are specified, use now as end and now - period as begin.");
-		}
-		else if (timeEnd == null) {
-			timeEnd = new Date(timeBegin.getTime() + period);
-			logger.debug("No end is specified, use begin + period as end.");
-		}
-		else if (timeBegin == null) {
-			timeBegin = new Date(timeEnd.getTime() - period);
-			logger.debug("No begin is specified, use end - period as begin");
-		}
-		else if (timeEnd.before(timeBegin)) {			
-			throw new ServletException("The end is before the begin.");
-		}
-
+		// Create the start and stop time
+		Date timeEnd = new Date();
+		Date timeBegin = new Date(timeEnd.getTime() - period);
 
 		// If a persistence service is specified, find the provider
 		String serviceName = req.getParameter("service");
 
 		ChartProvider provider = getChartProviders().get(providerName);
-		if (provider == null)
+		if(provider == null) 
 			throw new ServletException("Could not get chart provider.");
 
 		// Set the content type to that provided by the chart provider
-		res.setContentType("image/" + provider.getChartType());
+		res.setContentType("image/"+provider.getChartType());
 		try {
-			BufferedImage chart = provider.createChart(serviceName, null, timeBegin, timeEnd, height, width,
-					req.getParameter("items"), req.getParameter("groups"));
+			BufferedImage chart = provider.createChart(serviceName, null, timeBegin, timeEnd, height, width, req.getParameter("items"), req.getParameter("groups"));
 			ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
 		} catch (ItemNotFoundException e) {
 			logger.debug("Item not found error while generating chart.");
@@ -293,20 +224,9 @@ public class ChartServlet extends HttpServlet implements ManagedService {
 
 		if(properties == null)
 			return;
-
+		
 		if(properties.get("provider") != null) {
 			providerName = (String) properties.get("provider");
-		}
-		if(properties.get("defaultHeight") != null) {
-			defaultHeight = Integer.parseInt((String)properties.get("defaultHeight"));
-		}
-		if(properties.get("defaultWidth") != null) {
-			defaultWidth = Integer.parseInt((String)properties.get("defaultWidth"));
-		}
-		if(properties.get("scale") != null) {
-			scale = Double.parseDouble((String)properties.get("scale"));
-			if(scale < 0.5)
-				scale = 1.0;
 		}
 	}
 
