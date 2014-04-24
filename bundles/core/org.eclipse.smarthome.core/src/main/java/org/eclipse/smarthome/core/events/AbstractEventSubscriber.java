@@ -10,6 +10,9 @@ package org.eclipse.smarthome.core.events;
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_PREFIX;
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
@@ -35,13 +38,24 @@ import org.slf4j.LoggerFactory;
  * @see EventSubscriber
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Michael Grammling - Javadoc extended, stability improved, Checkstyle compliancy
+ * @author Michael Grammling - Javadoc extended, stability improved, Checkstyle compliance
  */
 public abstract class AbstractEventSubscriber implements EventSubscriber, EventHandler {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private List<String> sourceFilterList = new CopyOnWriteArrayList<String>();
 
+    protected List<String> getSourceFilterList() {
+    	return sourceFilterList;
+    }
+    
+    public AbstractEventSubscriber() {
+    	// to keep backward compatibility, we filter autoupdate events by default,
+    	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=433368
+    	sourceFilterList.add("org.eclipse.smarthome.core.autoupdate");
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -55,6 +69,15 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
             return;   // we have received an empty item name
         }
 
+        Object sourceObj = event.getProperty("source");
+        if(sourceObj instanceof String) {
+            String source = (String) sourceObj;
+            if(sourceFilterList.contains(source)) {
+            	// we are not supposed to process this event
+            	return;
+            }
+        }
+        
         String topic = event.getTopic();
         String[] topicParts = topic.split(TOPIC_SEPERATOR);
         if ((topicParts.length <= 2) || !TOPIC_PREFIX.equals(topicParts[0])) {
@@ -67,7 +90,7 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
             if (newStateObj instanceof State) {
                 State newState = (State) newStateObj;
                 try {
-                    internalReceiveUpdate(itemName, newState);
+                    receiveUpdate(itemName, newState);
                 } catch (Exception ex) {
                     this.logger.error("An error occured within the 'receiveUpdate' method"
                             + " of the event subscriber!", ex);
@@ -79,7 +102,7 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
                 Command command = (Command) commandObj;
 
                 try {
-                    internalReceiveCommand(itemName, command);
+                    receiveCommand(itemName, command);
                 } catch (Exception ex) {
                     this.logger.error("An error occured within the 'receiveCommand' method"
                             + " of the event subscriber!", ex);
@@ -88,19 +111,11 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
         }
     }
 
-    void internalReceiveCommand(String itemName, Command command) {
-        receiveCommand(itemName, command);
-    }
-
     /**
      * {@inheritDoc}
      */
     public void receiveCommand(String itemName, Command command) {
         // default implementation: do nothing
-    }
-
-    void internalReceiveUpdate(String itemName, State newState) {
-        receiveUpdate(itemName, newState);
     }
 
     /**

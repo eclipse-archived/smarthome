@@ -29,7 +29,7 @@ import org.osgi.service.event.EventAdmin;
  * to broadcast <i>Eclipse SmartHome</i> events.
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Michael Grammling - Javadoc and exception handling extended, Checkstyle compliancy,
+ * @author Michael Grammling - Javadoc and exception handling extended, Checkstyle compliance,
  *     thread-safety
  */
 public class EventPublisherImpl implements EventPublisher {
@@ -48,7 +48,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void sendCommand(String itemName, Command command)
+    public void sendCommand(String itemName, Command command, String source)
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -58,7 +58,7 @@ public class EventPublisherImpl implements EventPublisher {
 
         synchronized (this) {
             if (this.eventAdmin != null) {
-                this.eventAdmin.sendEvent(createCommandEvent(itemName, command));
+                this.eventAdmin.sendEvent(createCommandEvent(itemName, command, source));
             } else {
                 throw new IllegalStateException("The event bus module is not available!");
             }
@@ -68,7 +68,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void postCommand(String itemName, Command command) 
+    public void postCommand(String itemName, Command command, String source) 
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -78,7 +78,7 @@ public class EventPublisherImpl implements EventPublisher {
 
         synchronized (this) {
             if (this.eventAdmin != null) {
-                this.eventAdmin.postEvent(createCommandEvent(itemName, command));
+                this.eventAdmin.postEvent(createCommandEvent(itemName, command, source));
             } else {
                 throw new IllegalStateException("The event bus module is not available!");
             }
@@ -88,7 +88,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void postUpdate(String itemName, State newState)
+    public void postUpdate(String itemName, State newState, String source)
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -98,7 +98,7 @@ public class EventPublisherImpl implements EventPublisher {
 
         synchronized (this) {
             if (this.eventAdmin != null) {
-                this.eventAdmin.postEvent(createUpdateEvent(itemName, newState));
+                this.eventAdmin.postEvent(createUpdateEvent(itemName, newState, source));
             } else {
                 throw new IllegalStateException("The event bus module is not available!");
             }
@@ -109,18 +109,38 @@ public class EventPublisherImpl implements EventPublisher {
         return TOPIC_PREFIX + TOPIC_SEPERATOR + type + TOPIC_SEPERATOR + itemName;
     }
 
-    private Event createCommandEvent(String itemName, Command command) {
+    private Event createCommandEvent(String itemName, Command command, String source) {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("command", command);
+        if(source!=null) properties.put("source", source);
         return new Event(createTopic(EventType.COMMAND, itemName) , properties);
     }
 
-    private Event createUpdateEvent(String itemName, State newState) {
+    private Event createUpdateEvent(String itemName, State newState, String source) {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("state", newState);
+        if(source!=null) properties.put("source", source);
         return new Event(createTopic(EventType.UPDATE, itemName), properties);
     }
+
+	@Override
+	public void sendCommand(String itemName, Command command)
+			throws IllegalArgumentException, IllegalStateException {
+		sendCommand(itemName, command, null);
+	}
+
+	@Override
+	public void postCommand(String itemName, Command command)
+			throws IllegalArgumentException, IllegalStateException {
+		postCommand(itemName, command, null);
+	}
+
+	@Override
+	public void postUpdate(String itemName, State newState)
+			throws IllegalArgumentException, IllegalStateException {
+		postUpdate(itemName, newState, null);
+	}
 
 }

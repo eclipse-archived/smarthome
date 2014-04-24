@@ -27,6 +27,12 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemUpdater extends AbstractEventSubscriber {
 
+    public ItemUpdater() {
+        super();
+		// remove the filtering of the autoupdate events
+        getSourceFilterList().clear();
+    }
+
 	private static final Logger logger = LoggerFactory.getLogger(ItemUpdater.class);
 	
 	protected ItemRegistry itemRegistry;
