@@ -17,4 +17,5 @@
    
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
    <reference bind="addBindingProvider" cardinality="1..n" interface="org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingProvider" name="AutoUpdateBindingProvider" policy="dynamic" unbind="removeBindingProvider"/>
+   <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
 </scr:component>
