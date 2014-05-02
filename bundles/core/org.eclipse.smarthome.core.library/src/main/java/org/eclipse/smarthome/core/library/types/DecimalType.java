@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
+import java.util.IllegalFormatConversionException;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -66,6 +67,10 @@ public class DecimalType extends Number implements PrimitiveType, State,
 			} catch (ArithmeticException ae) {
 				// Could not convert to integer value without loss of
 				// information. Fall through to default behavior.
+			} catch (IllegalFormatConversionException ifce) {
+				// The conversion is not valid for the type BigInteger. This
+				// happens, if the format is like "%.1f" but the value is an
+				// integer. Fall through to default behavior.
 			}
 		}
 
