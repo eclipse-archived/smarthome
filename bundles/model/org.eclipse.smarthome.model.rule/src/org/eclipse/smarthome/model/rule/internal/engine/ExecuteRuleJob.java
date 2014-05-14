@@ -21,6 +21,9 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+
 /**
  * Implementation of Quartz {@link Job}-Interface. It takes a rule
  * and simply executes it.
@@ -33,6 +36,9 @@ public class ExecuteRuleJob implements Job {
 		
 	public static final String JOB_DATA_RULEMODEL = "model";
 	public static final String JOB_DATA_RULENAME = "rule";
+	
+	@Inject
+	private Injector injector;
 	
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		String modelName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULEMODEL);				
@@ -50,7 +56,7 @@ public class ExecuteRuleJob implements Job {
 					Script script = scriptEngine.newScriptFromXExpression(rule.getScript());
 					logger.debug("Executing scheduled rule '{}'", rule.getName());
 					try {
-						script.execute(RuleContextHelper.getContext(rule));
+						script.execute(RuleContextHelper.getContext(rule,injector));
 					} catch (ScriptExecutionException e) {
 						logger.error("Error during the execution of rule {}", rule.getName(), e.getCause());
 					}

@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.scriptengine.ScriptExecutionThread;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.model.core.ModelInjectorProvider;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.rule.rules.Rule;
@@ -44,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.inject.Injector;
 
 
 /**
@@ -65,9 +67,11 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		private ScriptEngine scriptEngine;
 
 		private RuleTriggerManager triggerManager;
+
+		private Injector injector;
 						
 		public void activate() {
-			triggerManager = new RuleTriggerManager();
+			triggerManager = injector.getInstance(RuleTriggerManager.class);
 
 			if(!isEnabled()) {
 				logger.info("Rule engine is disabled.");
@@ -253,7 +257,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 						Script script = scriptEngine.newScriptFromXExpression(rule.getScript());						
 						logger.debug("Executing startup rule '{}'", rule.getName());
 						RuleEvaluationContext context = new RuleEvaluationContext();
-						context.setGlobalContext(RuleContextHelper.getContext(rule));
+						context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
 						script.execute(context);
 						executedRules.add(rule);
 					} catch (ScriptExecutionException e) {
@@ -262,6 +266,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 							// so we keep the rule in the list and try it again later
 						} else {
 							logger.error("Error during the execution of startup rule '{}': {}", new String[] { rule.getName(), e.getCause().getMessage() });
+							logger.error("Error during the execution of startup rule", e);
 							executedRules.add(rule);
 						}
 					}
@@ -281,7 +286,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 			
 			logger.debug("Executing rule '{}'", rule.getName());
 			
-			context.setGlobalContext(RuleContextHelper.getContext(rule));
+			context.setGlobalContext(RuleContextHelper.getContext(rule, injector));
 			
 			ScriptExecutionThread thread = new ScriptExecutionThread(rule.getName(), script, context);
 			thread.start();
@@ -318,6 +323,14 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		 */
 		private boolean isEnabled() {
 			return !"true".equalsIgnoreCase(System.getProperty("noRules"));
+		}
+		
+		public void setInjectorProvider(ModelInjectorProvider injectorProvider) {
+			this.injector = injectorProvider.getInjector();
+		}
+		
+		public void unsetInjectorProvider(ModelInjectorProvider injectorProvider) {
+			this.injector = null;
 		}
 		
 }

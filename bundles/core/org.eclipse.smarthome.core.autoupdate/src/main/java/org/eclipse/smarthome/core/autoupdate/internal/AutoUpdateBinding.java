@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
  * <p>For example when implementing validation steps before changing a State one
  * needs to control the State update oneself.</p>
  * 
- * @author Thomas.Eichstaedt-Engelen
+ * @author Thomas.Eichstaedt-Engelen - Initial contribution
+ * @author Kai Kreuzer - added sending real events
  */
 public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider> {
 
@@ -42,7 +43,6 @@ public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider
 	public void unsetItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = null;
 	}
-	
 
 	/**
 	 * <p>Iterates through all registered {@link AutoUpdateBindingProvider}s and
@@ -82,18 +82,18 @@ public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider
 		}
 	}
 
-	private void postUpdate(String itemName, State newStatus) {
+	private void postUpdate(String itemName, State newState) {
 		if (itemRegistry != null) {
 			try {
 				GenericItem item = (GenericItem) itemRegistry.getItem(itemName);
 				boolean isAccepted = false;
-				if (item.getAcceptedDataTypes().contains(newStatus.getClass())) {
+				if (item.getAcceptedDataTypes().contains(newState.getClass())) {
 					isAccepted = true;
 				} else {
 					// Look for class hierarchy
 					for (Class<? extends State> state : item.getAcceptedDataTypes()) {
 						try {
-							if (!state.isEnum() && state.newInstance().getClass().isAssignableFrom(newStatus.getClass())) {
+							if (!state.isEnum() && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
 								isAccepted = true;
 								break;
 							}
@@ -105,9 +105,9 @@ public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider
 					}
 				}				
 				if (isAccepted) {
-					item.setState(newStatus);
+					eventPublisher.postUpdate(itemName, newState, "org.eclipse.smarthome.core.autoupdate");
 				} else {
-					logger.debug("Received update of a not accepted type ("	+ newStatus.getClass().getSimpleName() + ") for item " + itemName);
+					logger.debug("Received update of a not accepted type ("	+ newState.getClass().getSimpleName() + ") for item " + itemName);
 				}
 			} catch (ItemNotFoundException e) {
 				logger.debug("Received update for non-existing item: {}", e.getMessage());

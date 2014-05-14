@@ -17,4 +17,5 @@
    <property name="event.topics" type="String" value="smarthome/command/*"/>
    <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
    <reference bind="setScriptEngine" cardinality="1..1" interface="org.eclipse.smarthome.core.scriptengine.ScriptEngine" name="ScriptEngine" policy="dynamic" unbind="unsetScriptEngine"/>
+   <reference bind="setInjectorProvider" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelInjectorProvider" name="InjectorProvider" policy="dynamic" target="(injectorprovider.type=rules)" unbind="unsetInjectorProvider"/>
 </scr:component>

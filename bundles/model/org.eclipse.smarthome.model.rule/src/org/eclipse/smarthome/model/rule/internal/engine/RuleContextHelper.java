@@ -21,6 +21,7 @@ import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
 import com.google.inject.Provider;
 
 /**
@@ -40,7 +41,6 @@ public class RuleContextHelper {
 	/** Variable name for the received command in a "command triggered" rule */
 	public static final String VAR_RECEIVED_COMMAND = "receivedCommand";
 	
-	private static Provider<IEvaluationContext> contextProvider = RulesStandaloneSetup.getInjector().getProvider(IEvaluationContext.class);
 	private static ScriptEngine scriptEngine = RuleModelActivator.scriptEngineTracker.getService();
 
 	/**
@@ -49,7 +49,7 @@ public class RuleContextHelper {
 	 * @param rule the rule to get the context for
 	 * @return the evaluation context
 	 */
-	public static synchronized IEvaluationContext getContext(Rule rule) {
+	public static synchronized IEvaluationContext getContext(Rule rule, Injector injector) {
 	    RuleModel ruleModel = (RuleModel) rule.eContainer();
 
 	    // check if a context already exists on the resource
@@ -58,7 +58,7 @@ public class RuleContextHelper {
 				return ((RuleContextAdapter) adapter).getContext();
 			}
 		}
-		
+	    Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
 		// no evaluation context found, so create a new one
 	    IEvaluationContext evaluationContext = contextProvider.get();
 	    for(VariableDeclaration var : ruleModel.getVariables()) {

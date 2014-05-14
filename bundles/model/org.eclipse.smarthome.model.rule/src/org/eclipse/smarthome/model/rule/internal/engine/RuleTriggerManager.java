@@ -54,6 +54,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 /**
  * This is a helper class which deals with everything about rule triggers.
@@ -87,9 +89,11 @@ public class RuleTriggerManager {
 	// the scheduler used for timer events
 	private Scheduler scheduler;
 	
-	public RuleTriggerManager() {
+	@Inject
+	public RuleTriggerManager(Injector injector) {
 		 try {
 			scheduler = StdSchedulerFactory.getDefaultScheduler();
+			scheduler.setJobFactory(injector.getInstance(GuiceAwareJobFactory.class));
 		} catch (SchedulerException e) {
             logger.error("initializing scheduler throws exception", e);
 		}
@@ -430,7 +434,6 @@ public class RuleTriggerManager {
 	        Trigger quartzTrigger = newTrigger()
 	            .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
 	            .build();
-
 	        scheduler.scheduleJob(job, quartzTrigger);
 
 			logger.debug("Scheduled rule {} with cron expression {}", new String[] { rule.getName(), cronExpression });

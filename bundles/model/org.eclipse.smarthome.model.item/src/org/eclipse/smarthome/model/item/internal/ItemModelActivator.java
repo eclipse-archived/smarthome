@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.model.item.internal;
 
-import org.eclipse.smarthome.model.ItemsStandaloneSetup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -19,8 +18,7 @@ public class ItemModelActivator implements BundleActivator {
 	private final static Logger logger = LoggerFactory.getLogger(ItemModelActivator.class);
 
 	public void start(BundleContext context) throws Exception {
-		new ItemsStandaloneSetup().createInjectorAndDoEMFRegistration();
-		logger.debug("Registered 'item' configuration parser");		
+
 	}
 
 	public void stop(BundleContext context) throws Exception {

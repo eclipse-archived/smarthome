@@ -41,12 +41,10 @@ public interface EventPublisher {
      *
      * @param itemName name of the item to send the command for
      *     (must neither be null, nor empty and must follow the general item name specification)
-     *
      * @param command the command to send (must not be null)
      *
      * @throws IllegalArgumentException if the item name is null or empty or does not follow
      *     the general item specification, or the command is null
-     *
      * @throws IllegalStateException if the underlying event bus module is not available
      *
      * @see #postCommand(String, Command)
@@ -55,17 +53,34 @@ public interface EventPublisher {
             throws IllegalArgumentException, IllegalStateException;
 
     /**
+     * Sends a command under a specific item name through the event bus in a synchronous way.
+     * This method does <i>not</i> return to the caller until all subscribers have processed
+     * the command.
+     *
+     * @param itemName name of the item to send the command for
+     *     (must neither be null, nor empty and must follow the general item name specification)
+     * @param command the command to send (must not be null)
+     * @param source a string identifying the sender. This should usually be the bundle symbolic name.
+     *
+     * @throws IllegalArgumentException if the item name is null or empty or does not follow
+     *     the general item specification, or the command is null
+     * @throws IllegalStateException if the underlying event bus module is not available
+     *
+     * @see #postCommand(String, Command)
+     */
+    void sendCommand(String itemName, Command command, String source)
+            throws IllegalArgumentException, IllegalStateException;
+
+    /**
      * Posts a command under a specific item name through the event bus in an asynchronous way.
      * This method returns immediately to the caller.
      *
      * @param itemName name of the item to send the command for
      *     (must neither be null, nor empty and must follow the general item name specification)
-     *
      * @param command the command to send (must not be null)
      *
      * @throws IllegalArgumentException if the item name is null or empty or does not follow
      *     the general item specification, or the command is null
-     *
      * @throws IllegalStateException if the underlying event bus module is not available
      *
      * @see #sendCommand(String, Command)
@@ -74,20 +89,52 @@ public interface EventPublisher {
             throws IllegalArgumentException, IllegalStateException;
 
     /**
+     * Posts a command under a specific item name through the event bus in an asynchronous way.
+     * This method returns immediately to the caller.
+     *
+     * @param itemName name of the item to send the command for
+     *     (must neither be null, nor empty and must follow the general item name specification)
+     * @param command the command to send (must not be null)
+     * @param source a string identifying the sender. This should usually be the bundle symbolic name.
+     *
+     * @throws IllegalArgumentException if the item name is null or empty or does not follow
+     *     the general item specification, or the command is null
+     * @throws IllegalStateException if the underlying event bus module is not available
+     *
+     * @see #sendCommand(String, Command)
+     */
+    void postCommand(String itemName, Command command, String source)
+            throws IllegalArgumentException, IllegalStateException;
+
+    /**
      * Posts a status update under a specific item name through the event bus in an asynchronous way.
      * This method returns immediately to the caller.
      *
      * @param itemName name of the item to send the command for
      *     (must neither be null, nor empty and must follow the general item name specification)
-     *
      * @param newState the new state to send (must not be null)
      *
      * @throws IllegalArgumentException if the item name is null or empty or does not follow
      *     the general item specification, or the command is null
-     *
      * @throws IllegalStateException if the underlying event bus module is not available
      */
     void postUpdate(String itemName, State newState)
+            throws IllegalArgumentException, IllegalStateException;
+
+    /**
+     * Posts a status update under a specific item name through the event bus in an asynchronous way.
+     * This method returns immediately to the caller.
+     *
+     * @param itemName name of the item to send the command for
+     *     (must neither be null, nor empty and must follow the general item name specification)
+     * @param newState the new state to send (must not be null)
+     * @param source a string identifying the sender. This should usually be the bundle symbolic name.
+     *
+     * @throws IllegalArgumentException if the item name is null or empty or does not follow
+     *     the general item specification, or the command is null
+     * @throws IllegalStateException if the underlying event bus module is not available
+     */
+    void postUpdate(String itemName, State newState, String source)
             throws IllegalArgumentException, IllegalStateException;
 
 }

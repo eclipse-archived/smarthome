@@ -64,9 +64,6 @@ public class GenericItemProvider implements ItemProvider, ModelRepositoryChangeL
 	
 	
 	public GenericItemProvider() {
-		// make sure that the DSL is correctly registered with EMF before we
-		// start
-		new ItemsStandaloneSetup().createInjectorAndDoEMFRegistration();
 	}
 
 	

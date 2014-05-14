@@ -13,17 +13,44 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
+
 
 public class SitemapRuntimeActivator implements BundleActivator {
 
 	private final static Logger logger = LoggerFactory.getLogger(SitemapRuntimeActivator.class);
 
+	private static SitemapRuntimeActivator INSTANCE;
+	
+	private Injector injector;
+	
 	public void start(BundleContext context) throws Exception {
-		new SitemapStandaloneSetup().createInjectorAndDoEMFRegistration();
-		logger.debug("Registered 'sitemap' configuration parser");			
+		INSTANCE = this;	
+		getInjector();
 	}
 
 	public void stop(BundleContext context) throws Exception {
+		injector = null;
+		INSTANCE = null;
+	}
+	
+	public static SitemapRuntimeActivator getInstance() {
+		return INSTANCE;
+	}
+	
+	public Injector getInjector() {
+		synchronized (this) {
+			if (injector == null) {
+				injector = createInjector();
+			}
+			return injector;
+		}
+	}	
+	
+	protected Injector createInjector() {
+		Injector injector = new SitemapStandaloneSetup().createInjectorAndDoEMFRegistration();
+		logger.debug("Registered 'sitemap' configuration parser");
+		return injector;
 	}
 
 }

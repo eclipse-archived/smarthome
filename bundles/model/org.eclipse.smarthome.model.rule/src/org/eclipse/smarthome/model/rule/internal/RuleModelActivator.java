@@ -36,8 +36,6 @@ public class RuleModelActivator implements BundleActivator {
 		scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
 		scriptEngineTracker.open();		
 
-		RulesStandaloneSetup.doSetup();
-		logger.debug("Registered 'rules' configuration parser");	
 	}
 
 	public void stop(BundleContext context) throws Exception {

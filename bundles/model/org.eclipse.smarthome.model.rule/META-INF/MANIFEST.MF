@@ -43,6 +43,7 @@ Import-Package: com.google.common.collect,
  org.quartz,
  org.quartz.impl,
  org.quartz.impl.matchers,
+ org.quartz.spi,
  org.quartz.utils,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

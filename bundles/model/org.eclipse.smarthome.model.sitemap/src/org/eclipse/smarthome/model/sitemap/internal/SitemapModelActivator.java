@@ -18,8 +18,6 @@ public class SitemapModelActivator implements BundleActivator {
 	private final static Logger logger = LoggerFactory.getLogger(SitemapModelActivator.class);
 	
 	public void start(BundleContext context) throws Exception {
-		new SitemapStandaloneSetup().createInjectorAndDoEMFRegistration();
-		logger.debug("Registered 'sitemap' configuration parser");
 	}
 
 	public void stop(BundleContext context) throws Exception {
