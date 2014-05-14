@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.scriptengine.ScriptEngine"/>
    </service>
+   <reference bind="setInjectorProvider" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelInjectorProvider" name="InjectorProvider" policy="dynamic" target="(injectorprovider.type=script)" unbind="unsetInjectorProvider"/>
 </scr:component>

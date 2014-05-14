@@ -8,6 +8,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ com.google.inject,
  org.apache.commons.collections;version="3.2.0",
  org.apache.commons.io,
  org.apache.commons.lang;version="2.3.0",

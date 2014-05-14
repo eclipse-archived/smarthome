@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.core.scriptengine.ScriptParsingException;
-import org.eclipse.smarthome.model.script.ScriptStandaloneSetup;
+import org.eclipse.smarthome.model.core.ModelInjectorProvider;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -34,7 +34,6 @@ import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
 
 import com.google.common.base.Predicate;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 /**
@@ -46,40 +45,28 @@ import com.google.inject.Injector;
 @SuppressWarnings("restriction")
 public class ScriptEngineImpl implements ScriptEngine {
 
-	protected Injector guiceInjector;
-	
-	
+
 	protected XtextResourceSet resourceSet;
 
+
+	private Injector injector;
 	
 	public ScriptEngineImpl() {}
 	
 	public void activate() {
 
 	}
-	
-	@Inject
-	public void setGuiceInjector(Injector injector) {
-		this.guiceInjector = injector;
-	}
-	
-	private Injector getInjector() {
-		if (guiceInjector == null) {
-			guiceInjector = new ScriptStandaloneSetup().createInjectorAndDoEMFRegistration();
-		}
-		return guiceInjector;
-	}
-	
+
 	private XtextResourceSet getResourceSet() {
 		if (resourceSet == null) {
-			resourceSet = guiceInjector.getInstance(XtextResourceSet.class);
+			resourceSet = injector.getInstance(XtextResourceSet.class);
 			resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		}
 		return resourceSet;
 	}
 	
 	public void deactivate() {
-		this.guiceInjector = null;
+		this.injector = null;
 		this.resourceSet = null;
 	}
 		
@@ -95,7 +82,7 @@ public class ScriptEngineImpl implements ScriptEngine {
 	 * {@inheritDoc}
 	 */
 	public Script newScriptFromXExpression(XExpression expression) {
-		ScriptImpl script = getInjector().getInstance(ScriptImpl.class);
+		ScriptImpl script = injector.getInstance(ScriptImpl.class);
 		script.setXExpression(expression);
 		return script;
 	}
@@ -161,6 +148,14 @@ public class ScriptEngineImpl implements ScriptEngine {
 			}
 		});
 		return issues;
+	}
+	
+	public void setInjectorProvider(ModelInjectorProvider injectorProvider) {
+		this.injector = injectorProvider.getInjector();
+	}
+	
+	public void unsetInjectorProvider(ModelInjectorProvider injectorProvider) {
+		this.injector = null;
 	}
 
 }
