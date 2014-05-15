@@ -96,7 +96,8 @@ rule "Persistence Demo 2"
 when
 	Item DemoSwitch received command
 then
-	if(!DemoSwitch.changedSince(now.minusSeconds(5))) {
+	val changedSince = DemoSwitch.changedSince(now.minusSeconds(5))
+	if(changedSince != null && !changedSince) {
 		logInfo("Persistence Demo", "You did not press this button during the last 5 seconds!")
 	}
 end
