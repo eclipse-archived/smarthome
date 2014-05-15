@@ -8,8 +8,11 @@ import org.eclipse.xtext.junit4.XtextRunner
 import org.junit.Test
 import org.junit.runner.RunWith
 import static org.junit.Assert.*
+import org.junit.Ignore
+
 @RunWith(XtextRunner)
 @InjectWith(ScriptTestsInjectorProvider)
+@Ignore
 class ScriptEngineTest {
 	
 
