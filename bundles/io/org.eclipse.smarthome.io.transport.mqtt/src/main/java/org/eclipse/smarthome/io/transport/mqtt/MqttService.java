@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MQTT Service for creating new connections to MQTT brokers from the openHAB
+ * MQTT Service for creating new connections to MQTT brokers from the Smart Home
  * configuration file and registering message publishers and subscribers. This
  * service is the main entry point for all bundles wanting to use the MQTT
  * transport.
@@ -202,7 +202,7 @@ public class MqttService implements ManagedService {
 	}
 
 	/**
-	 * Set the publisher to use for publishing openHAB updates.
+	 * Set the publisher to use for publishing SmartHome updates.
 	 * 
 	 * @param eventPublisher
 	 *            EventPublisher
@@ -212,7 +212,7 @@ public class MqttService implements ManagedService {
 	}
 
 	/**
-	 * Remove the publisher to use for publishing openHAB updates.
+	 * Remove the publisher to use for publishing SmartHome updates.
 	 * 
 	 * @param eventPublisher
 	 *            EventPublisher

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * An MQTTBrokerConnection represents a single client connection to a MQTT
  * broker. The connection is configured by the MQTTService with properties from
- * the openhab.cfg file.
+ * the smarthome.cfg file.
  * 
  * When a connection to an MQTT broker is lost, it will try to reconnect every
  * 60 seconds.
@@ -129,7 +129,7 @@ public class MqttBrokerConnection implements MqttCallback {
 	}
 
 	/**
-	 * @return name for the connection as defined in openhab.cfg.
+	 * @return name for the connection as defined in smarthome.cfg.
 	 */
 	public String getName() {
 		return name;
