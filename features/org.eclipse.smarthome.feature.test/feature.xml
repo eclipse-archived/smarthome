@@ -9,13 +9,13 @@
 
 -->
 <feature
-      id="org.eclipse.smarthome.feature.dependencies.test"
-      label="Eclipse SmartHome Test Dependency Bundles"
+      id="org.eclipse.smarthome.feature.test"
+      label="Eclipse SmartHome Test Bundles"
       version="0.7.0.qualifier"
       provider-name="Eclipse.org">
 
    <description>
-      This features defines all bundles that needed to do OSGi based unit testing.
+      This features defines all bundles that needed to do OSGi based Unit testing.
    </description>
 
    <copyright>

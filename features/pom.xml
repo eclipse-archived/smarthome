@@ -19,9 +19,9 @@
     <module>org.eclipse.smarthome.feature.dependencies.common</module>
     <module>org.eclipse.smarthome.feature.dependencies.designer</module>
     <module>org.eclipse.smarthome.feature.dependencies.runtime</module>
-    <module>org.eclipse.smarthome.feature.dependencies.test</module>
     <module>org.eclipse.smarthome.feature.designer</module>
     <module>org.eclipse.smarthome.feature.runtime</module>
+    <module>org.eclipse.smarthome.feature.test</module>
   </modules>
 
 </project>
