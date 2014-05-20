@@ -23,15 +23,19 @@ public interface Storage<T> {
 	 * 
 	 * @param key  the key to add
 	 * @param value  the value to add
+	 * @return {@code true} if an existing value identified by {@code key}
+	 * has been replaced and {@code false} otherwise
 	 */
-	void put(String key, T value);
+	boolean put(String key, T value);
 	
 	/**
      * Removes the specified mapping from this map.
      * 
      * @param key  the mapping to remove
+     * @return {@code true} if the element identified by {@code key}
+     * has been removed successfully and {@code false} in otherwise
      */
-	void remove(String key);
+	boolean remove(String key);
 	
 	/**
 	 * Gets the value mapped to the key specified.

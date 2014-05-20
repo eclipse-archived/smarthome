@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.storage.volatilestorageservice">
-   <implementation class="org.eclipse.smarthome.core.storage.VolatileStorageService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.storage.volatilestorageservice">
+   <implementation class="org.eclipse.smarthome.core.internal.storage.VolatileStorageService"/>
    
    <service>
       <provide interface="org.eclipse.smarthome.core.storage.StorageService"/>

@@ -5,10 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.storage;
+package org.eclipse.smarthome.core.internal.storage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 
 
 /**
@@ -25,9 +28,10 @@ public class VolatileStorageService implements StorageService {
 	
 	/**
 	 * {@inheritDoc}
+	 * @return 
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> Storage<T> getStorage(String name) {
+	public synchronized <T> Storage<T> getStorage(String name) {
 		if (!storages.containsKey(name)) {
 			storages.put(name, new VolatileStorage<T>());
 		}
