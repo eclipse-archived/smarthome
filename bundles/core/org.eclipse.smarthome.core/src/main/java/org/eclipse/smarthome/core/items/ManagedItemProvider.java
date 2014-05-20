@@ -22,7 +22,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Eichstaedt-Engelen
- */
+ * @author Kai Kreuzer - improved return values
+*/
 public class ManagedItemProvider extends AbstractItemProvider {
 
 	private static final Logger logger = 
@@ -93,19 +94,19 @@ public class ManagedItemProvider extends AbstractItemProvider {
 	}
 	
 	
-	public void addItem(Item item) {
+	public Item addItem(Item item) {
 		if (item == null) {
 			throw new IllegalArgumentException("Cannot add null Item.");
 		}
 
-		// if this item previously existed we notify all listeners
-		// about it's removal.
-		if (itemStorage.get(item.getName()) != null) {
-			notifyItemChangeListenersAboutRemovedItem(item);
+		String oldItemType = itemStorage.put(item.getName(), toItemFactoryName(item));
+		Item oldItem = null;
+		if(oldItemType!=null) {
+			oldItem = instantiateItem(oldItemType, item.getName());
+			notifyItemChangeListenersAboutRemovedItem(oldItem);
 		}
-
-		itemStorage.put(item.getName(), toItemFactoryName(item));
 		notifyItemChangeListenersAboutAddedItem(item);
+		return oldItem;
 	}
 
 	/**
@@ -117,20 +118,21 @@ public class ManagedItemProvider extends AbstractItemProvider {
 	 *         {@link ItemFactory}s
 	 */
 	private String toItemFactoryName(Item item) {
-		// TODO: TEE: think about a solution to enhance the ItemFactory
-		// in a more generic way ...
-		return item.getClass().getSimpleName().replaceAll("Item", "");
+		return item.getType();
 	}
 
-	public void removeItem(Item item) {
-		if (item == null) {
+	public Item removeItem(String itemName) {
+		if (itemName == null) {
 			throw new IllegalArgumentException("Cannot remove null Item");
 		}
 
-		boolean successfullyRemoved = itemStorage.remove(item.getName());
-		if (successfullyRemoved) {
-			notifyItemChangeListenersAboutRemovedItem(item);
+		String removedItemType = itemStorage.remove(itemName);
+		if (removedItemType!=null) {
+			Item removedItem = instantiateItem(removedItemType, itemName);
+			notifyItemChangeListenersAboutRemovedItem(removedItem);
+			return removedItem;
 		}
+		return null;
 	}
 
 	/**
@@ -145,18 +147,22 @@ public class ManagedItemProvider extends AbstractItemProvider {
 		Collection<Item> storedItems = new ArrayList<Item>();
 		for (String itemName : itemStorage.getKeys()) {
 			String itemTypeName = itemStorage.get(itemName);
-			for (ItemFactory itemFactory : itemFactories) {
-				GenericItem item = itemFactory.createItem(itemTypeName, itemName);
-				if (item != null) {
-					storedItems.add(item);
-				} else {
-					logger.debug(
-						"Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
-						itemName, itemTypeName);
-				}
-			}
+			storedItems.add(instantiateItem(itemTypeName, itemName));
 		}
 		return storedItems;
+	}
+
+	private Item instantiateItem(String itemTypeName, String itemName) {
+		for (ItemFactory itemFactory : itemFactories) {
+			GenericItem item = itemFactory.createItem(itemTypeName, itemName);
+			if (item != null) {
+				return item;
+			}
+		}
+		logger.debug(
+				"Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
+				itemName, itemTypeName);
+			return null;
 	}
 
 }

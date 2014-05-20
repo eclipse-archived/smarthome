@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.storage.Storage;
  * A {@link Storage} implementation which stores it's data in-memory.
  *  
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
+ * @author Kai Kreuzer - improved return values
  */
 public class VolatileStorage<T> implements Storage<T> {
 	
@@ -27,16 +28,16 @@ public class VolatileStorage<T> implements Storage<T> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean put(String key, T value) {
-		return storage.put(key, value) != null;
+	public T put(String key, T value) {
+		return storage.put(key, value);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean remove(String key) {
-		return storage.remove(key) != null;
+	public T remove(String key) {
+		return storage.remove(key);
 	}
 
 	/**

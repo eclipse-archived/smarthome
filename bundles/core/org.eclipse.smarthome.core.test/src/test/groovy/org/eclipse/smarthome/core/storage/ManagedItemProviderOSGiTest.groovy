@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
+import org.junit.After
 import org.junit.Test
 
 /**
@@ -23,6 +24,7 @@ import org.junit.Test
  * OSGi container and tests the {@link ManagedItemProvider}.  
  * 
  * @author Thomas Eichstaedt-Engelen - Initial contribution
+ * @author Kai Kreuzer - added tests for repeated addition and removal
  */
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
@@ -32,6 +34,11 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 	@Before
 	void setUp() {
 		itemProvider = getService(ItemProvider)
+	}
+
+	@After
+	void tearUp() {
+		unregisterService(itemProvider)
 	}
 
 	@Test
@@ -45,10 +52,41 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 		def items = itemProvider.getItems()
 		assertThat items.size, is(2)
 		
-		itemProvider.removeItem new StringItem('StringItem')		
-		itemProvider.removeItem new SwitchItem('SwitchItem')
+		itemProvider.removeItem 'StringItem'		
+		itemProvider.removeItem 'SwitchItem'
 		
 		assertThat itemProvider.getItems().size, is(0)
 	}
-	
+
+	@Test
+	void 'assert adding twice returns first value'() {
+
+		assertThat itemProvider.getItems().size, is(0)
+		
+		itemProvider.addItem new StringItem('Item')
+		def result = itemProvider.addItem new SwitchItem('Item')
+
+		assertThat result.type, is("String")
+		
+		itemProvider.removeItem 'Item'
+		
+		assertThat itemProvider.getItems().size, is(0)
+	}
+
+	@Test
+	void 'assert removal returns old value'() {
+
+		assertThat itemProvider.getItems().size, is(0)
+		
+		itemProvider.addItem new StringItem('Item')
+		def result = itemProvider.removeItem 'Unknown'
+
+		assertNull result
+
+		result = itemProvider.removeItem 'Item'
+
+		assertThat result.name, is('Item')
+						
+		assertThat itemProvider.getItems().size, is(0)
+	}
 }

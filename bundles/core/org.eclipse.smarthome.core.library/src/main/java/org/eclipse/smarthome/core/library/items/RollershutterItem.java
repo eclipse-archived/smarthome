@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
@@ -44,7 +45,7 @@ public class RollershutterItem extends GenericItem {
 	}
 	
 	public RollershutterItem(String name) {
-		super(name);
+		super(CoreItemFactory.ROLLERSHUTTER, name);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {

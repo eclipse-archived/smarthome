@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -43,7 +44,11 @@ public class DimmerItem extends SwitchItem {
 	}
 	
 	public DimmerItem(String name) {
-		super(name);
+		super(CoreItemFactory.DIMMER, name);
+	}
+
+	/* package */ DimmerItem(String type, String name) {
+		super(CoreItemFactory.DIMMER, name);
 	}
 
 	public void send(PercentType command) {

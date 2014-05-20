@@ -12,6 +12,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -44,7 +45,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
 		}
 		
 		public ColorItem(String name) {
-			super(name);
+			super(CoreItemFactory.COLOR, name);
 		}
 
 		public void send(HSBType command) {

@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -38,7 +39,11 @@ public class SwitchItem extends GenericItem {
 	}
 	
 	public SwitchItem(String name) {
-		super(name);
+		super(CoreItemFactory.SWITCH, name);
+	}
+
+	/* package */ SwitchItem(String type, String name) {
+		super(CoreItemFactory.SWITCH, name);
 	}
 
 	public void send(OnOffType command) {

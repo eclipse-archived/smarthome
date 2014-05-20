@@ -15,6 +15,7 @@ import java.util.Collection;
  * implementation can store its data differently, e.g in-memory or in-database.
  * 
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
+ * @author Kai Kreuzer - improved return values
  */
 public interface Storage<T> {
 	
@@ -23,19 +24,17 @@ public interface Storage<T> {
 	 * 
 	 * @param key  the key to add
 	 * @param value  the value to add
-	 * @return {@code true} if an existing value identified by {@code key}
-	 * has been replaced and {@code false} otherwise
+	 * @return previous value for the key or null if no value was replaced
 	 */
-	boolean put(String key, T value);
+	T put(String key, T value);
 	
 	/**
      * Removes the specified mapping from this map.
      * 
      * @param key  the mapping to remove
-     * @return {@code true} if the element identified by {@code key}
-     * has been removed successfully and {@code false} in otherwise
+     * @return the removed value or null if no entry existed
      */
-	boolean remove(String key);
+	T remove(String key);
 	
 	/**
 	 * Gets the value mapped to the key specified.

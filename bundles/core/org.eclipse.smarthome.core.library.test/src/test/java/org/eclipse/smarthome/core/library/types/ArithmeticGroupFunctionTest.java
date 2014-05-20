@@ -210,7 +210,7 @@ public class ArithmeticGroupFunctionTest {
 	class TestItem extends GenericItem {
 
 		public TestItem(String name, State state) {
-			super(name);
+			super("Test", name);
 			setState(state);
 		}
 
