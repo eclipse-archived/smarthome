@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -39,7 +40,7 @@ public class StringItem extends GenericItem {
 	}
 	
 	public StringItem(String name) {
-		super(name);
+		super(CoreItemFactory.STRING, name);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {

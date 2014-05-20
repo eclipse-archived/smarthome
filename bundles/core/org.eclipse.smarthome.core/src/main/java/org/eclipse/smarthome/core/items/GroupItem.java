@@ -38,7 +38,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	}
 
 	public GroupItem(String name, GenericItem baseItem, GroupFunction function) {
-		super(name);
+		super("Group", name);
 		members = new CopyOnWriteArrayList<Item>();
 		this.function = function;
 		this.baseItem = baseItem;

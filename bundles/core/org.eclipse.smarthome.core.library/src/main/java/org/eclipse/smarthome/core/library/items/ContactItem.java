@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -36,7 +37,7 @@ public class ContactItem extends GenericItem {
 	}
 	
 	public ContactItem(String name) {
-		super(name);
+		super(CoreItemFactory.CONTACT, name);
 	}
 
 	public void send(OpenClosedType command) {

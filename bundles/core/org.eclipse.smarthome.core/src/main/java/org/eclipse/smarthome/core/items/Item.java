@@ -45,6 +45,13 @@ public interface Item {
 	public String getName();
 	
 	/**
+	 * returns the item type as defined by {@link ItemFactory}s
+	 * 
+	 * @return the item type
+	 */
+	public String getType();
+	
+	/**
 	 * <p>This method provides a list of all data types that can be used to update the item state</p>
 	 * <p>Imagine e.g. a dimmer device: It's status could be 0%, 10%, 50%, 100%, but also OFF or ON and
 	 * maybe UNDEFINED. So the  accepted data types would be in this case {@link PercentType}, {@link OnOffType}
