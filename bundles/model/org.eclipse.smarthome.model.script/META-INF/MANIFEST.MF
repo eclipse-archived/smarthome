@@ -60,6 +60,5 @@ Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.serializer,
  org.eclipse.smarthome.model.script.services,
  org.eclipse.smarthome.model.script.validation
-Service-Component: OSGI-INF/scriptengine.xml
 Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .

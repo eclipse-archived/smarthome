@@ -6,7 +6,7 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.rule.runtime;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Service-Component: OSGI-INF/rulesinjectorprovider.xml
+Service-Component: OSGI-INF/ruleengine.xml
 Fragment-Host: org.eclipse.smarthome.model.rule
 Import-Package: org.eclipse.core.runtime,
  org.eclipse.smarthome.model.core.guice
