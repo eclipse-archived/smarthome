@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.rule.internal.engine;
+package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.scriptengine.Script;

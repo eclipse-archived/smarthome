@@ -10,8 +10,6 @@
  */
 package org.eclipse.smarthome.model.script.ui;
 
-import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
-import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
 import org.eclipse.smarthome.model.script.ui.contentassist.ActionEObjectHoverProvider;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider;
@@ -24,14 +22,6 @@ public class ScriptUiModule extends org.eclipse.smarthome.model.script.ui.Abstra
 	public ScriptUiModule(AbstractUIPlugin plugin) {
 		super(plugin);
 	}
-	
-//	public Class<? extends org.eclipse.xtext.common.types.access.IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
-//		return ActionClasspathTypeProviderFactory.class;
-//	}
-//	
-//	public Class<? extends org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
-//		return ActionClasspathBasedTypeScopeProvider.class;
-//	}
 
 	public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
         return ActionEObjectHoverProvider.class;

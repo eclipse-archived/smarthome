@@ -11,8 +11,7 @@ Require-Bundle: org.eclipse.xtend.lib,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.smarthome.model.script,
  org.eclipse.core.runtime,
- org.eclipse.xtext.junit4,
- org.eclipse.smarthome.model.script.runtime
+ org.eclipse.xtext.junit4
 Import-Package: org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.model.script.engine,

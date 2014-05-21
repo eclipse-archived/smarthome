@@ -5,13 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.rule.internal.engine;
+package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
-import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
 import org.eclipse.smarthome.model.rule.internal.RuleModelActivator;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
@@ -34,12 +33,6 @@ import com.google.inject.Provider;
 public class RuleContextHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
-
-	/** Variable name for the previous state of an item in a "changed state triggered" rule */
-	public static final String VAR_PREVIOUS_STATE = "previousState";
-
-	/** Variable name for the received command in a "command triggered" rule */
-	public static final String VAR_RECEIVED_COMMAND = "receivedCommand";
 	
 	private static ScriptEngine scriptEngine = RuleModelActivator.scriptEngineTracker.getService();
 

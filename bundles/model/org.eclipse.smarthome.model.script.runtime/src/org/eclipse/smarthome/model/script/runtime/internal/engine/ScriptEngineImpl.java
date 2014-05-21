@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.script.internal.engine;
+package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
 import static com.google.common.collect.Iterables.filter;
 
@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.core.scriptengine.ScriptParsingException;
-import org.eclipse.smarthome.model.core.ModelInjectorProvider;
+import org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeInjectorProvider;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
@@ -47,9 +47,8 @@ public class ScriptEngineImpl implements ScriptEngine {
 
 
 	protected XtextResourceSet resourceSet;
-
-
-	private Injector injector;
+	private Injector injector = ScriptRuntimeInjectorProvider.getInjector();
+	
 	
 	public ScriptEngineImpl() {}
 	
@@ -66,7 +65,6 @@ public class ScriptEngineImpl implements ScriptEngine {
 	}
 	
 	public void deactivate() {
-		this.injector = null;
 		this.resourceSet = null;
 	}
 		
@@ -148,14 +146,6 @@ public class ScriptEngineImpl implements ScriptEngine {
 			}
 		});
 		return issues;
-	}
-	
-	public void setInjectorProvider(ModelInjectorProvider injectorProvider) {
-		this.injector = injectorProvider.getInjector();
-	}
-	
-	public void unsetInjectorProvider(ModelInjectorProvider injectorProvider) {
-		this.injector = null;
 	}
 
 }

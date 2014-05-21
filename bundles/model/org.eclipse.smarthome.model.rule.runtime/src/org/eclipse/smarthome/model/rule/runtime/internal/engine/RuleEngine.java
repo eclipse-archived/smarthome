@@ -5,15 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.rule.internal.engine;
+package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_PREFIX;
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
-import static org.eclipse.smarthome.model.rule.internal.engine.RuleTriggerManager.TriggerTypes.CHANGE;
-import static org.eclipse.smarthome.model.rule.internal.engine.RuleTriggerManager.TriggerTypes.COMMAND;
-import static org.eclipse.smarthome.model.rule.internal.engine.RuleTriggerManager.TriggerTypes.SHUTDOWN;
-import static org.eclipse.smarthome.model.rule.internal.engine.RuleTriggerManager.TriggerTypes.STARTUP;
-import static org.eclipse.smarthome.model.rule.internal.engine.RuleTriggerManager.TriggerTypes.UPDATE;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.CHANGE;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.COMMAND;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.SHUTDOWN;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.STARTUP;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.UPDATE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,11 +33,12 @@ import org.eclipse.smarthome.core.scriptengine.ScriptExecutionThread;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.model.core.ModelInjectorProvider;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
+import org.eclipse.smarthome.model.rule.jvmmodel.RulesJvmModelInferrer;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
+import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeInjectorProvider;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -68,7 +69,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 
 		private RuleTriggerManager triggerManager;
 
-		private Injector injector;
+		private Injector injector = RuleRuntimeInjectorProvider.getInjector();
 						
 		public void activate() {
 			triggerManager = injector.getInstance(RuleTriggerManager.class);
@@ -302,7 +303,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		protected synchronized void executeRules(Iterable<Rule> rules, Command command) {
 			for(Rule rule : rules) {
 				RuleEvaluationContext context = new RuleEvaluationContext();
-				context.newValue(QualifiedName.create(RuleContextHelper.VAR_RECEIVED_COMMAND), command);
+				context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_RECEIVED_COMMAND), command);
 				executeRule(rule, context);
 			}
 		}
@@ -310,7 +311,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		protected synchronized void executeRules(Iterable<Rule> rules, State oldState) {
 			for(Rule rule : rules) {
 				RuleEvaluationContext context = new RuleEvaluationContext();
-				context.newValue(QualifiedName.create(RuleContextHelper.VAR_PREVIOUS_STATE), oldState);
+				context.newValue(QualifiedName.create(RulesJvmModelInferrer.VAR_PREVIOUS_STATE), oldState);
 				executeRule(rule, context);
 			}
 		}
@@ -324,13 +325,4 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		private boolean isEnabled() {
 			return !"true".equalsIgnoreCase(System.getProperty("noRules"));
 		}
-		
-		public void setInjectorProvider(ModelInjectorProvider injectorProvider) {
-			this.injector = injectorProvider.getInjector();
-		}
-		
-		public void unsetInjectorProvider(ModelInjectorProvider injectorProvider) {
-			this.injector = null;
-		}
-		
 }

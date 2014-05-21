@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            class="org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+            type="items">
+      </parser>
+   </extension>
+   <extension
+         point="org.eclipse.xtext.extension_resourceServiceProvider">
+      <resourceServiceProvider
+            class="org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceServiceProvider"
+            uriExtension="items">
+      </resourceServiceProvider>
+   </extension>
+
+</fragment>

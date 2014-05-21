@@ -4,7 +4,6 @@ import com.google.inject.Inject
 import java.util.Set
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
-import org.eclipse.smarthome.model.rule.internal.engine.RuleContextHelper
 import org.eclipse.smarthome.model.rule.rules.ChangedEventTrigger
 import org.eclipse.smarthome.model.rule.rules.CommandEventTrigger
 import org.eclipse.smarthome.model.rule.rules.EventTrigger
@@ -33,6 +32,13 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 
 
 	static private final Logger logger = LoggerFactory.getLogger(RulesJvmModelInferrer)
+	
+	/** Variable name for the previous state of an item in a "changed state triggered" rule */
+	public static final String VAR_PREVIOUS_STATE = "previousState";
+
+	/** Variable name for the received command in a "command triggered" rule */
+	public static final String VAR_RECEIVED_COMMAND = "receivedCommand";
+	
     /**
      * conveninence API to build and initialize JvmTypes and their members.
      */
@@ -98,11 +104,11 @@ class RulesJvmModelInferrer extends ScriptJvmModelInferrer {
 					static = true
 					if(containsCommandTrigger(rule)) {
 						val commandTypeRef = ruleModel.newTypeRef(Command)
-						parameters += rule.toParameter(RuleContextHelper.VAR_RECEIVED_COMMAND, commandTypeRef) 
+						parameters += rule.toParameter(VAR_RECEIVED_COMMAND, commandTypeRef) 
 					}
 					if(containsStateChangeTrigger(rule)) {
 						val stateTypeRef = ruleModel.newTypeRef(State)
-						parameters += rule.toParameter(RuleContextHelper.VAR_PREVIOUS_STATE, stateTypeRef) 
+						parameters += rule.toParameter(VAR_PREVIOUS_STATE, stateTypeRef) 
 					}
 					
 					body = rule.script

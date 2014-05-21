@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.model.rule.internal.engine;  
+package org.eclipse.smarthome.model.rule.runtime.internal.engine;  
 
 import org.quartz.Job;  
 import org.quartz.Scheduler;  
