@@ -11,13 +11,15 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.items.ItemProvider
+import org.eclipse.smarthome.core.items.ItemFactory
+import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.After
 import org.junit.Test
+import org.junit.Ignore
 
 /**
  * The {@link ManagedItemProviderOSGiTest} runs inside an 
@@ -28,12 +30,11 @@ import org.junit.Test
  */
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
-	ItemProvider itemProvider
-	
-	
+	ManagedItemProvider itemProvider
+		
 	@Before
 	void setUp() {
-		itemProvider = getService(ItemProvider)
+		itemProvider = getService(ManagedItemProvider)
 	}
 
 	@After
@@ -42,7 +43,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 	}
 
 	@Test
-	void 'assert getItems returns item from registered ItemProvider'() {
+	void 'assert getItems returns item from registered ManagedItemProvider'() {
 
 		assertThat itemProvider.getItems().size, is(0)
 		
