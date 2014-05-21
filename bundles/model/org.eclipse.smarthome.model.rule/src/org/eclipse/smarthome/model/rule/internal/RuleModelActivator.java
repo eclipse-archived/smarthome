@@ -39,6 +39,8 @@ public class RuleModelActivator implements BundleActivator {
 	}
 
 	public void stop(BundleContext context) throws Exception {
+		modelRepositoryTracker.close();
+		scriptEngineTracker.close();
 	}
 
 }

@@ -41,5 +41,4 @@ Import-Package: org.apache.log4j,
  org.osgi.framework,
  org.slf4j,
  org.eclipse.xtext.xbase.lib
-Bundle-Activator: org.eclipse.smarthome.model.item.internal.ItemModelActivator
 Service-Component: OSGI-INF/genericitemprovider.xml
