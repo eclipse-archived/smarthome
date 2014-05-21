@@ -9,7 +9,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome</groupId>
-  <artifactId>org.eclipse.smarthome.feature.dependencies.test</artifactId>
+  <artifactId>org.eclipse.smarthome.feature.test</artifactId>
 
   <name>Eclipse SmartHome Test Dependencies</name>
 
