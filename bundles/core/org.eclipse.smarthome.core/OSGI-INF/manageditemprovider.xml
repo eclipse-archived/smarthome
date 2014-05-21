@@ -13,6 +13,7 @@
    
    <service>
       <provide interface="org.eclipse.smarthome.core.items.ItemProvider"/>
+      <provide interface="org.eclipse.smarthome.core.items.ManagedItemProvider"/>
    </service>
    
    <reference bind="addStorageService" cardinality="1..n" 
