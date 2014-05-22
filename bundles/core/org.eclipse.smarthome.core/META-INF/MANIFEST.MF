@@ -3,6 +3,7 @@ Export-Package: org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.items,org.osgi.service.event,org.eclipse.smarthome.core.types",
  org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.types,org.eclipse.smarthome.core.events",
  org.eclipse.smarthome.core.service,
+ org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types
 Service-Component: OSGI-INF/*
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smarthome.core.internal.e
