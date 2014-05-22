@@ -24,7 +24,6 @@ import org.eclipse.smarthome.io.rest.internal.resources.RootResource;
 import org.eclipse.smarthome.io.servicediscovery.DiscoveryService;
 import org.eclipse.smarthome.io.servicediscovery.ServiceDescription;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -51,6 +50,8 @@ public class RESTApplication extends Application {
 	private int httpSSLPort;
 
 	private int httpPort;
+	
+	private String mdnsName;
 
 	private HttpService httpService;
 
@@ -110,20 +111,19 @@ public class RESTApplication extends Application {
 		RESTApplication.restResources.remove(resource);
 	}
 
-	public void activate() {			    
+	public void activate(BundleContext bundleContext) {			    
         try {
-        	BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass())
-                    .getBundleContext();
-
     		com.sun.jersey.spi.container.servlet.ServletContainer servletContainer =
     			       new ServletContainer(this);
     		
 			httpService.registerServlet(REST_SERVLET_ALIAS,
 					servletContainer, getJerseyServletParams(), createHttpContext());
 
- 			logger.info("Started REST API at /rest");
+ 			logger.info("Started REST API at " + REST_SERVLET_ALIAS);
 
  			if (discoveryService != null) {
+ 				mdnsName = bundleContext.getProperty("mdnsName");
+ 				if(mdnsName==null) { mdnsName = "smarthome"; }
  	        	try {
  	        		httpPort = Integer.parseInt(bundleContext.getProperty("jetty.port"));
  	 				discoveryService.registerService(getDefaultServiceDescription());
@@ -182,15 +182,15 @@ public class RESTApplication extends Application {
     }
     
     private ServiceDescription getDefaultServiceDescription() {
-		Hashtable<String, String> serviceProperties = new Hashtable<String, String>();
+    	Hashtable<String, String> serviceProperties = new Hashtable<String, String>();
 		serviceProperties.put("uri", REST_SERVLET_ALIAS);
-		return new ServiceDescription("_smarthome-server._tcp.local.", "Eclipse SmartHome", httpPort, serviceProperties);
+		return new ServiceDescription("_" + mdnsName + "-server._tcp.local.", mdnsName, httpPort, serviceProperties);
     }
 
     private ServiceDescription getSSLServiceDescription() {
     	ServiceDescription description = getDefaultServiceDescription();
-    	description.serviceType = "_smarthome-server-ssl._tcp.local.";
-    	description.serviceName = "smarthome-ssl";
+    	description.serviceType = "_" + mdnsName + "-server-ssl._tcp.local.";
+    	description.serviceName = "" + mdnsName + "-ssl";
 		description.servicePort = httpSSLPort;
 		return description;
     }
