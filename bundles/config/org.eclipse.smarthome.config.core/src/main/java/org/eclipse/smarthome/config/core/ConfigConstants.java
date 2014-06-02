@@ -15,15 +15,18 @@ package org.eclipse.smarthome.config.core;
  */
 public class ConfigConstants {
 
+	/** The program argument name for setting the user data directory path */
+	final static public String USERDATA_DIR_PROG_ARGUMENT = "smarthome.userdata";
+
 	/** The program argument name for setting the main config directory path */
 	final static public String CONFIG_DIR_PROG_ARGUMENT = "smarthome.configdir";
 	
 	/** The program argument name for setting the main config file name */
 	final static public String CONFIG_FILE_PROG_ARGUMENT = "smarthome.configfile";
 	
-	/** The main configuration directory name of openHAB */
+	/** The main configuration directory name */
 	final static public String MAIN_CONFIG_FOLDER = "configurations"; 
 	
-	/** The default filename of the main openHAB configuration file */
+	/** The default filename of the main configuration file */
 	final static public String MAIN_CONFIG_FILENAME = "smarthome.cfg";
 }
