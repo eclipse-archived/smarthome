@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Model Core
-Bundle-SymbolicName: org.eclipse.smarthome.model.core
+Bundle-SymbolicName: org.eclipse.smarthome.model.core;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.model.core.internal.ModelCoreActivator
 Bundle-Vendor: Eclipse.org/SmartHome
@@ -20,6 +20,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.config.core,
  org.eclipse.xtext.common.types.impl,
  org.eclipse.xtext.resource,
+ org.eclipse.xtext.resource.impl,
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j;version="1.5.11"
