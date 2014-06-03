@@ -37,11 +37,11 @@ public class EventPublisherImpl implements EventPublisher {
     private EventAdmin eventAdmin;
 
 
-    public synchronized void setEventAdmin(EventAdmin eventAdmin) {
+    public void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
     }
 
-    public synchronized void unsetEventAdmin(EventAdmin eventAdmin) {
+    public void unsetEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = null;
     }
 
@@ -56,12 +56,15 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The command must not be null!");
         }
 
-        synchronized (this) {
-            if (this.eventAdmin != null) {
-                this.eventAdmin.sendEvent(createCommandEvent(itemName, command, source));
-            } else {
-                throw new IllegalStateException("The event bus module is not available!");
+        EventAdmin eventAdmin = this.eventAdmin;
+        if (eventAdmin != null) {
+            try {
+                eventAdmin.sendEvent(createCommandEvent(itemName, command, source));
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot send the command!", ex);
             }
+        } else {
+            throw new IllegalStateException("The event bus module is not available!");
         }
     }
 
@@ -76,12 +79,15 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The command must not be null!");
         }
 
-        synchronized (this) {
-            if (this.eventAdmin != null) {
-                this.eventAdmin.postEvent(createCommandEvent(itemName, command, source));
-            } else {
-                throw new IllegalStateException("The event bus module is not available!");
+        EventAdmin eventAdmin = this.eventAdmin;
+        if (eventAdmin != null) {
+            try {
+                eventAdmin.postEvent(createCommandEvent(itemName, command, source));
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot post the command!", ex);
             }
+        } else {
+            throw new IllegalStateException("The event bus module is not available!");
         }
     }
 
@@ -96,12 +102,15 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The state must not be null!");
         }
 
-        synchronized (this) {
-            if (this.eventAdmin != null) {
-                this.eventAdmin.postEvent(createUpdateEvent(itemName, newState, source));
-            } else {
-                throw new IllegalStateException("The event bus module is not available!");
+        EventAdmin eventAdmin = this.eventAdmin;
+        if (eventAdmin != null) {
+            try {
+                eventAdmin.postEvent(createUpdateEvent(itemName, newState, source));
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot post the update!", ex);
             }
+        } else {
+            throw new IllegalStateException("The event bus module is not available!");
         }
     }
 
