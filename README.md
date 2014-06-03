@@ -31,6 +31,7 @@ git clone https://github.com/eclipse/smarthome.git
 ======================
 
 To build Eclipse SmartHome from the sources, Maven takes care of everything:
+- set MAVEN_OPTS to "-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
 - change into the smarthome directory ("cd smarthome“)
 - run "mvn clean install" to compile and package all sources
 

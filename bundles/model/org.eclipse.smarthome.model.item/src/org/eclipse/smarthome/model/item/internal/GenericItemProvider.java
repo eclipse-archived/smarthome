@@ -10,19 +10,18 @@ package org.eclipse.smarthome.model.item.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.binding.BindingConfigParseException;
 import org.eclipse.smarthome.core.binding.BindingConfigReader;
+import org.eclipse.smarthome.core.items.AbstractItemProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
-import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.types.State;
@@ -46,14 +45,11 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API 
  * @author Thomas.Eichstaedt-Engelen
  */
-public class GenericItemProvider implements ItemProvider, ModelRepositoryChangeListener {
+public class GenericItemProvider extends AbstractItemProvider implements ModelRepositoryChangeListener {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(GenericItemProvider.class);
-
-	/** to keep track of all item change listeners */
-	private Collection<ItemsChangeListener> listeners = new HashSet<ItemsChangeListener>();
-
+	
 	/** to keep track of all binding config readers */
 	private Map<String, BindingConfigReader> bindingConfigReaders = new HashMap<String, BindingConfigReader>();
 
@@ -344,22 +340,6 @@ public class GenericItemProvider implements ItemProvider, ModelRepositoryChangeL
 			}
 		}
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void addItemChangeListener(ItemsChangeListener listener) {
-		listeners.add(listener);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void removeItemChangeListener(ItemsChangeListener listener) {
-		listeners.remove(listener);
-	}
 	
 	/**
 	 * {@inheritDoc}
@@ -370,12 +350,8 @@ public class GenericItemProvider implements ItemProvider, ModelRepositoryChangeL
 	@Override
 	public void modelChanged(String modelName, EventType type) {
 		if (modelName.endsWith("items")) {
-
 			processBindingConfigsFromModel(modelName);
-			
-			for (ItemsChangeListener listener : listeners) {
-			 	listener.allItemsChanged(this, null);
-			}
+			notifyItemChangeListenersAboutAllItemsChanged(null);
 		}
 	}
 	

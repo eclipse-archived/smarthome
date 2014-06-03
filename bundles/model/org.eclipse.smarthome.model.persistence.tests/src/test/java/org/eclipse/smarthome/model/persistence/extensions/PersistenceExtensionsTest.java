@@ -39,7 +39,7 @@ public class PersistenceExtensionsTest {
 	public void setUp() {
 		ext = new PersistenceExtensions();
 		ext.addPersistenceService(testPersistenceService);
-		item = new GenericItem("Test") {
+		item = new GenericItem("Test", "Test") {
 			@Override
 			public List<Class<? extends State>> getAcceptedDataTypes() {
 				return null;

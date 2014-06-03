@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
@@ -34,7 +35,7 @@ public class DateTimeItem extends GenericItem {
 	}
 	
 	public DateTimeItem(String name) {
-		super(name);
+		super(CoreItemFactory.DATETIME, name);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {

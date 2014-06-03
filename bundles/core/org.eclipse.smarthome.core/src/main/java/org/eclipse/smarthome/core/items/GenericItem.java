@@ -37,10 +37,13 @@ abstract public class GenericItem implements Item {
 	
 	final protected String name;
 	
+	final protected String type;
+	
 	protected State state = UnDefType.NULL;
 	
-	public GenericItem(String name) {
+	public GenericItem(String type, String name) {
 		this.name = name;
+		this.type = type;
 	}
 
 	/**
@@ -74,6 +77,13 @@ abstract public class GenericItem implements Item {
 		return name;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getType() {
+		return type;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

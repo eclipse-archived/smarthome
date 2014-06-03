@@ -174,7 +174,7 @@ public class ConfigDispatcher {
 	private static String getMainConfigurationFilePath() {
 		String progArg = System.getProperty(ConfigConstants.CONFIG_FILE_PROG_ARGUMENT);
 		if (progArg != null) {
-			return progArg;
+			return getConfigFolder() + "/" + progArg;
 		} else {
 			return getConfigFolder() + "/" + ConfigConstants.MAIN_CONFIG_FILENAME;
 		}

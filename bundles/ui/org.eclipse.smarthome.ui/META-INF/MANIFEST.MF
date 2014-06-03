@@ -35,6 +35,7 @@ Bundle-ClassPath: .,
 Bundle-SymbolicName: org.eclipse.smarthome.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.ui.chart,
+ org.eclipse.smarthome.ui.icon,
  org.eclipse.smarthome.ui.items
 Service-Component: OSGI-INF/genericitemuiprovider.xml, OSGI-INF/itemuiregistry.xml,
  OSGI-INF/proxy.xml, OSGI-INF/chartservlet.xml, OSGI-INF/chartprovider.xml

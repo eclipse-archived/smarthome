@@ -55,7 +55,7 @@ public class GroupItemTest {
 	class TestItem extends GenericItem {
 
 		public TestItem(String name) {
-			super(name);
+			super("Test", name);
 		}
 
 		@Override

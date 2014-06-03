@@ -12,15 +12,15 @@ import java.util.Enumeration;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.io.transport.mqtt.internal.MqttBrokerConnection;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.io.transport.mqtt.internal.MqttBrokerConnection;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MQTT Service for creating new connections to MQTT brokers from the openHAB
+ * MQTT Service for creating new connections to MQTT brokers from the Smart Home
  * configuration file and registering message publishers and subscribers. This
  * service is the main entry point for all bundles wanting to use the MQTT
  * transport.
@@ -36,8 +36,7 @@ public class MqttService implements ManagedService {
 	private EventPublisher eventPublisher;
 
 	@Override
-	public void updated(Dictionary<String, ?> properties)
-			throws ConfigurationException {
+	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
 
 		// load broker configurations from configuration file
 		if (properties == null || properties.isEmpty()) {
@@ -56,9 +55,7 @@ public class MqttService implements ManagedService {
 
 			String[] subkeys = key.split("\\.");
 			if (subkeys.length != 2) {
-				logger.debug(
-						"MQTT Broker property '{}' should have the format 'broker.propertykey'",
-						key);
+				logger.debug("MQTT Broker property '{}' should have the format 'broker.propertykey'", key);
 				continue;
 			}
 
@@ -93,6 +90,10 @@ public class MqttService implements ManagedService {
 				conn.setAsync(Boolean.parseBoolean(value));
 			} else if (property.equals("clientId")) {
 				conn.setClientId(value);
+			} else if (property.equals("lwt")) {
+				MqttWillAndTestament will = MqttWillAndTestament.fromString(value);
+				logger.debug("Setting last will: {}", will);
+				conn.setLastWill(will);
 			} else {
 				logger.warn("Unrecognized property: {}", key);
 			}
@@ -103,8 +104,7 @@ public class MqttService implements ManagedService {
 			try {
 				con.start();
 			} catch (Exception e) {
-				logger.error("Error starting broker connection {} : {}",
-						con.getName(), e.getMessage());
+				logger.error("Error starting broker connection", e);
 			}
 		}
 	}
@@ -125,7 +125,7 @@ public class MqttService implements ManagedService {
 		Enumeration<String> e = brokerConnections.keys();
 		while (e.hasMoreElements()) {
 			MqttBrokerConnection conn = brokerConnections.get(e.nextElement());
-			logger.info("Stopping connection {}", conn.getName());
+			logger.info("Stopping broker connection '{}'", conn.getName());
 			conn.close();
 		}
 
@@ -139,10 +139,9 @@ public class MqttService implements ManagedService {
 	 *            to look for.
 	 * @return existing connection or new one if it didn't exist yet.
 	 */
-	private MqttBrokerConnection getConnection(String brokerName) {
+	private synchronized MqttBrokerConnection getConnection(String brokerName) {
 
-		MqttBrokerConnection conn = brokerConnections.get(brokerName
-				.toLowerCase());
+		MqttBrokerConnection conn = brokerConnections.get(brokerName.toLowerCase());
 		if (conn == null) {
 			conn = new MqttBrokerConnection(brokerName);
 			brokerConnections.put(brokerName.toLowerCase(), conn);
@@ -158,8 +157,7 @@ public class MqttService implements ManagedService {
 	 * @param mqttMessageConsumer
 	 *            Consumer which will process any received message.
 	 */
-	public void registerMessageConsumer(String brokerName,
-			MqttMessageConsumer mqttMessageConsumer) {
+	public void registerMessageConsumer(String brokerName, MqttMessageConsumer mqttMessageConsumer) {
 
 		mqttMessageConsumer.setEventPublisher(eventPublisher);
 		getConnection(brokerName).addConsumer(mqttMessageConsumer);
@@ -171,14 +169,12 @@ public class MqttService implements ManagedService {
 	 * @param mqttMessageConsumer
 	 *            Consumer which needs to be unregistered.
 	 */
-	public void unregisterMessageConsumer(String brokerName,
-			MqttMessageConsumer mqttMessageConsumer) {
+	public void unregisterMessageConsumer(String brokerName, MqttMessageConsumer mqttMessageConsumer) {
 
 		getConnection(brokerName).removeConsumer(mqttMessageConsumer);
 	}
 
-	public void registerMessageProducer(String brokerName,
-			MqttMessageProducer commandPublisher) {
+	public void registerMessageProducer(String brokerName, MqttMessageProducer commandPublisher) {
 
 		getConnection(brokerName).addProducer(commandPublisher);
 	}
@@ -192,14 +188,13 @@ public class MqttService implements ManagedService {
 	 * @param mqttMessageProducer
 	 *            Producer which generates the messages.
 	 */
-	public void unregisterMessageProducer(String brokerName,
-			MqttMessageProducer commandPublisher) {
+	public void unregisterMessageProducer(String brokerName, MqttMessageProducer commandPublisher) {
 
 		getConnection(brokerName).removeProducer(commandPublisher);
 	}
 
 	/**
-	 * Set the publisher to use for publishing openHAB updates.
+	 * Set the publisher to use for publishing SmartHome updates.
 	 * 
 	 * @param eventPublisher
 	 *            EventPublisher
@@ -209,7 +204,7 @@ public class MqttService implements ManagedService {
 	}
 
 	/**
-	 * Remove the publisher to use for publishing openHAB updates.
+	 * Remove the publisher to use for publishing SmartHome updates.
 	 * 
 	 * @param eventPublisher
 	 *            EventPublisher

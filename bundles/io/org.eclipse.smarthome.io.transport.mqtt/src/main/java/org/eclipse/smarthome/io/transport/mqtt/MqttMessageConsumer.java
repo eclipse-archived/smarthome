@@ -42,7 +42,7 @@ public interface MqttMessageConsumer {
 
 	/**
 	 * Set the event publisher to use when broadcasting received messages onto
-	 * the openHAB event bus.
+	 * the smarthome event bus.
 	 * 
 	 * @param eventPublisher
 	 */

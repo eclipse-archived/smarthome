@@ -24,24 +24,33 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
  * {@link CoreItemFactory}-Implementation for the core ItemTypes 
  * 
  * @author Thomas.Eichstaedt-Engelen
+ * @author Kai Kreuzer
  */
 public class CoreItemFactory implements ItemFactory {
 	
-	private static String[] ITEM_TYPES = new String[] { "Switch", "Rollershutter", "Contact", "String", "Number", "Dimmer", "DateTime", "Color", "Image" };
-
+	public static final String SWITCH        = "Switch";
+	public static final String ROLLERSHUTTER = "Rollershutter";
+	public static final String CONTACT       = "Contact";
+	public static final String STRING        = "String";
+	public static final String NUMBER        = "Number";
+	public static final String DIMMER        = "Dimmer";
+	public static final String DATETIME      = "DateTime";
+	public static final String COLOR         = "Color";
+	public static final String IMAGE         = "Image";
+	
 	/**
 	 * @{inheritDoc}
 	 */
 	public GenericItem createItem(String itemTypeName, String itemName) {
-		if (itemTypeName.equals(ITEM_TYPES[0])) return new SwitchItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[1])) return new RollershutterItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[2])) return new ContactItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[3])) return new StringItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[4])) return new NumberItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[5])) return new DimmerItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[6])) return new DateTimeItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[7])) return new ColorItem(itemName);
-		if (itemTypeName.equals(ITEM_TYPES[8])) return new ImageItem(itemName);
+		if (itemTypeName.equals(SWITCH)) return new SwitchItem(itemName);
+		if (itemTypeName.equals(ROLLERSHUTTER)) return new RollershutterItem(itemName);
+		if (itemTypeName.equals(CONTACT)) return new ContactItem(itemName);
+		if (itemTypeName.equals(STRING)) return new StringItem(itemName);
+		if (itemTypeName.equals(NUMBER)) return new NumberItem(itemName);
+		if (itemTypeName.equals(DIMMER)) return new DimmerItem(itemName);
+		if (itemTypeName.equals(DATETIME)) return new DateTimeItem(itemName);
+		if (itemTypeName.equals(COLOR)) return new ColorItem(itemName);
+		if (itemTypeName.equals(IMAGE)) return new ImageItem(itemName);
 		else return null;
 	}
 	
@@ -49,7 +58,9 @@ public class CoreItemFactory implements ItemFactory {
 	 * @{inheritDoc}
 	 */
 	public String[] getSupportedItemTypes() {
-		return ITEM_TYPES;
+		return new String[] {
+				SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE
+		};
 	}
 
 }

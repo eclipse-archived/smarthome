@@ -84,11 +84,11 @@ public class SitemapResource implements RESTResource {
 
 	static private ModelRepository modelRepository;
 	
-	public void setItemRegistry(ItemUIRegistry itemUIRegistry) {
+	public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
 		SitemapResource.itemUIRegistry = itemUIRegistry;
 	}
 	
-	public void unsetItemRegistry(ItemUIRegistry itemUIRegistry) {
+	public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
 		SitemapResource.itemUIRegistry = null;
 	}	
 	

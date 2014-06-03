@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.RawType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -33,7 +34,7 @@ public class ImageItem extends GenericItem {
 	}
 	
 	public ImageItem(String name) {
-		super(name);
+		super(CoreItemFactory.IMAGE, name);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {

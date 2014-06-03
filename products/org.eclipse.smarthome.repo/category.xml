@@ -12,7 +12,9 @@
    <feature url="features/org.eclipse.smarthome.feature.runtime.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.source" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
-
+   <feature url="features/org.eclipse.smarthome.feature.test_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.test" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
    <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">
       <description>
          This category contains all Eclipse SmartHome features

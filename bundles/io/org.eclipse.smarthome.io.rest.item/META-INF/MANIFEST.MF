@@ -21,3 +21,4 @@ Import-Package: com.sun.jersey.api.json;version="1.17.0",
 Export-Package: org.eclipse.smarthome.io.rest.item,
  org.eclipse.smarthome.io.rest.item.beans
 Service-Component: OSGI-INF/itemrest.xml
+Bundle-ActivationPolicy: lazy

@@ -15,3 +15,4 @@ Import-Package: org.eclipse.smarthome.core.events,
 Export-Package: org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types
 Service-Component: OSGI-INF/itemfactory.xml
+Bundle-ActivationPolicy: lazy

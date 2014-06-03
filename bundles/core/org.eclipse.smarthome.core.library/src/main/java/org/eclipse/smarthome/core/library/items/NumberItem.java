@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
@@ -38,7 +39,7 @@ public class NumberItem extends GenericItem {
 	}
 	
 	public NumberItem(String name) {
-		super(name);
+		super(CoreItemFactory.NUMBER, name);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {

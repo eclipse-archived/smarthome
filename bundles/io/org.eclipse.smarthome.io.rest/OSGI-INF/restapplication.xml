@@ -16,5 +16,5 @@
    <reference bind="setDiscoveryService" cardinality="0..1" interface="org.eclipse.smarthome.io.servicediscovery.DiscoveryService" name="DiscoveryService" policy="dynamic" unbind="unsetDiscoveryService"/>
    <property name="marshallAsJaxbElement" type="Boolean" value="true"/>
    <property name="unmarshallAsJaxbElement" type="Boolean" value="true"/>
-   <reference bind="addRESTResource" cardinality="0..n" interface="org.eclipse.smarthome.io.rest.RESTResource" name="RESTResource" policy="static" unbind="removeRESTResource"/>
+   <reference bind="addRESTResource" cardinality="0..n" interface="org.eclipse.smarthome.io.rest.RESTResource" name="RESTResource" policy="dynamic" unbind="removeRESTResource"/>
 </scr:component>

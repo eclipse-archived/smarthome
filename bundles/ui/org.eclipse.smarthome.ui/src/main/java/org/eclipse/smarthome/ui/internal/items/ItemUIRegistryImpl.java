@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.ui.internal.items;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +42,7 @@ import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.eclipse.smarthome.ui.icon.IconProvider;
 import org.eclipse.smarthome.ui.internal.UIActivator;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -52,6 +54,7 @@ import org.eclipse.smarthome.model.sitemap.SitemapFactory;
 import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +87,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
 	protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
 
+	private List<IconProvider> iconProviders = new ArrayList<>();
+	
 	protected ItemRegistry itemRegistry;
 
 	public ItemUIRegistryImpl() {}
@@ -102,6 +107,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
 	public void removeItemUIProvider(ItemUIProvider itemUIProvider) {
 		itemUIProviders.remove(itemUIProvider);
+	}
+
+	public void addIconProvider(IconProvider iconProvider) {
+		this.iconProviders.add(iconProvider);
+	}
+
+	public void removeIconProvider(IconProvider iconProvider) {
+		this.iconProviders.remove(iconProvider);
 	}
 
 	/**
@@ -479,13 +492,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 	 * {@inheritDoc}
 	 */
 	public boolean iconExists(String icon) {
-		String iconLocation = IMAGE_LOCATION + icon + IMAGE_EXT;
-		File file = new File(iconLocation);
-		if(file.exists()) {
-			return true;
-		} else {
-			return false;
+		for(IconProvider provider : iconProviders) {
+			if(provider.hasIcon(icon)) {
+				return true;
+			}
 		}
+		return false;
 	}
 
 	private Class<? extends Item> getItemType(String itemName) {
