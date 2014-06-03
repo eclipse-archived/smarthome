@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.smarthome.core.internal.CoreActivator;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,60 +28,17 @@ public class ManagedItemProvider extends AbstractItemProvider {
 	private static final Logger logger = 
 		LoggerFactory.getLogger(ManagedItemProvider.class);
 
-	private Collection<StorageService> storageServiceCandidates = new CopyOnWriteArrayList<StorageService>();
 	private Storage<String> itemStorage;
 	private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
+	private EventPublisher eventPublisher;
 	
 	
-	public void addStorageService(StorageService storageService) {
-		storageServiceCandidates.add(storageService);
-
-		// small optimization - if there is just one StorageService available
-		// we don't have to select amongst others.
-		if (storageServiceCandidates.size() == 1) {
-			itemStorage = storageService.getStorage(Item.class.getName());
-		} else {
-			itemStorage = findStorageServiceByPriority();
-		}
+	public void setStorageService(StorageService storageService) {
+		this.itemStorage = storageService.getStorage(Item.class.getName());
 	}
 
-	public void removeStorageService(StorageService storageService) {
-		storageServiceCandidates.remove(storageService);
-
-		// if there are still StorageService left, we have to select
-		// a new one to take over ...
-		if (storageServiceCandidates.size() > 0) {
-			itemStorage = findStorageServiceByPriority();
-		} else {
-			itemStorage = null;
-		}
-	}
-
-	/**
-	 * Returns a {@link Storage} returned by a {@link StorageService} with the
-	 * highest priority available in the OSGi container. In theory this should 
-	 * not be necessary if DS would have taken the {@code service.ranking} property
-	 * into account properly. Unfortunately it haven't during my tests. So this
-	 * method should be seen as workaround until somebody proofs that DS evaluates
-	 * the property correctly. 
-	 * 
-	 * @return a {@link Storage} created by the {@link StorageService} with the
-	 * highest priority (according to the OSGi container)
-	 */
-	private Storage<String> findStorageServiceByPriority() {
-		ServiceReference<?> reference = 
-			CoreActivator.getContext().getServiceReference(StorageService.class);
-		if (reference != null) {
-			StorageService service = 
-				(StorageService) CoreActivator.getContext().getService(reference);
-			Storage<String> storage = service.getStorage(Item.class.getName());
-
-			return storage;
-		}
-
-		// no service of type StorageService available
-		throw new IllegalStateException(
-			"There is no Service of type 'StorageService' available. This should not happen!");
+	public void unsetStorageService(StorageService storageService) {
+		this.itemStorage = null;
 	}
 
 	public void addItemFactory(ItemFactory itemFactory) {
@@ -93,34 +49,31 @@ public class ManagedItemProvider extends AbstractItemProvider {
 		itemFactories.remove(itemFactory);
 	}
 	
+	public void setEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+	
+	public void unsetEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = null;
+	}
+	
 	
 	public Item addItem(Item item) {
 		if (item == null) {
 			throw new IllegalArgumentException("Cannot add null Item.");
 		}
 
-		String oldItemType = itemStorage.put(item.getName(), toItemFactoryName(item));
+		String oldItemType = itemStorage.put(item.getName(), item.getType());
 		Item oldItem = null;
 		if(oldItemType!=null) {
 			oldItem = instantiateItem(oldItemType, item.getName());
 			notifyItemChangeListenersAboutRemovedItem(oldItem);
 		}
+		
 		notifyItemChangeListenersAboutAddedItem(item);
 		return oldItem;
 	}
-
-	/**
-	 * Translates the Items class simple name into a type name understandable by
-	 * the {@link ItemFactory}s.
-	 * 
-	 * @param item  the Item to translate the name
-	 * @return the translated ItemTypeName understandable by the
-	 *         {@link ItemFactory}s
-	 */
-	private String toItemFactoryName(Item item) {
-		return item.getType();
-	}
-
+	
 	public Item removeItem(String itemName) {
 		if (itemName == null) {
 			throw new IllegalArgumentException("Cannot remove null Item");
@@ -156,13 +109,15 @@ public class ManagedItemProvider extends AbstractItemProvider {
 		for (ItemFactory itemFactory : itemFactories) {
 			GenericItem item = itemFactory.createItem(itemTypeName, itemName);
 			if (item != null) {
+				item.setEventPublisher(eventPublisher);
 				return item;
 			}
 		}
+		
 		logger.debug(
-				"Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
-				itemName, itemTypeName);
-			return null;
+			"Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
+			itemName, itemTypeName);
+		return null;
 	}
 
 }
