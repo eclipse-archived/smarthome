@@ -5,11 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.rule.internal;
+package org.eclipse.smarthome.model.rule.runtime.internal;
 
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -22,9 +21,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class RuleModelActivator implements BundleActivator {
+public class RuleModelRuntimeActivator implements BundleActivator {
 
-	private final static Logger logger = LoggerFactory.getLogger(RuleModelActivator.class);
+	private final static Logger logger = LoggerFactory.getLogger(RuleModelRuntimeActivator.class);
 
 	public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
 	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;

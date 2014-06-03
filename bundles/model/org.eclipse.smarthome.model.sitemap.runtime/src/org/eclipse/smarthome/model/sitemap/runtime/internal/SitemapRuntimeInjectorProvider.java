@@ -5,6 +5,7 @@ import org.eclipse.smarthome.model.SitemapRuntimeModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+
 public class SitemapRuntimeInjectorProvider {
 	private static Injector injector;
 	

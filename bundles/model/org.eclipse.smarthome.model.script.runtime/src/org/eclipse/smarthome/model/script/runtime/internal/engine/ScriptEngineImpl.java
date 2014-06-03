@@ -7,10 +7,10 @@
  */
 package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
-import static com.google.common.collect.Iterables.filter;
-
 import java.io.IOException;
 import java.util.List;
+
+import static com.google.common.collect.Iterables.filter;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -47,18 +47,16 @@ public class ScriptEngineImpl implements ScriptEngine {
 
 
 	protected XtextResourceSet resourceSet;
-	private Injector injector = ScriptRuntimeInjectorProvider.getInjector();
-	
 	
 	public ScriptEngineImpl() {}
 	
 	public void activate() {
-
+		
 	}
 
 	private XtextResourceSet getResourceSet() {
 		if (resourceSet == null) {
-			resourceSet = injector.getInstance(XtextResourceSet.class);
+			resourceSet = ScriptRuntimeInjectorProvider.getInjector().getInstance(XtextResourceSet.class);
 			resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 		}
 		return resourceSet;
@@ -80,7 +78,7 @@ public class ScriptEngineImpl implements ScriptEngine {
 	 * {@inheritDoc}
 	 */
 	public Script newScriptFromXExpression(XExpression expression) {
-		ScriptImpl script = injector.getInstance(ScriptImpl.class);
+		ScriptImpl script = ScriptRuntimeInjectorProvider.getInjector().getInstance(ScriptImpl.class);
 		script.setXExpression(expression);
 		return script;
 	}

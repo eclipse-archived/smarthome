@@ -7,6 +7,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/iteminjectorprovider.xml
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.model.item
-Import-Package: org.eclipse.core.runtime,
- org.eclipse.smarthome.model.core.guice
+Import-Package: com.google.inject,
+ org.eclipse.core.runtime,
+ org.eclipse.smarthome.model.core.guice,
+ org.eclipse.xtext.resource,
+ org.eclipse.xtext.service
+Require-Bundle: org.eclipse.smarthome.model.item

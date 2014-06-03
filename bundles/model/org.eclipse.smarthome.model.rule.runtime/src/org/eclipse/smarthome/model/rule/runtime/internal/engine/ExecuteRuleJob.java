@@ -12,9 +12,9 @@ import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.model.rule.internal.RuleModelActivator;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
+import org.eclipse.smarthome.model.rule.runtime.internal.RuleModelRuntimeActivator;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -44,8 +44,8 @@ public class ExecuteRuleJob implements Job {
 		String modelName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULEMODEL);				
 		String ruleName = (String) context.getJobDetail().getJobDataMap().get(JOB_DATA_RULENAME);
 		
-		ModelRepository modelRepository = RuleModelActivator.modelRepositoryTracker.getService();
-		ScriptEngine scriptEngine = RuleModelActivator.scriptEngineTracker.getService();
+		ModelRepository modelRepository = RuleModelRuntimeActivator.modelRepositoryTracker.getService();
+		ScriptEngine scriptEngine = RuleModelRuntimeActivator.scriptEngineTracker.getService();
 		
 		if(modelRepository!=null && scriptEngine!=null) {
 			EObject model = modelRepository.getModel(modelName);

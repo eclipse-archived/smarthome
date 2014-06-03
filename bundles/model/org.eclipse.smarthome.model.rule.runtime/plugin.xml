@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
-<fragment>
+<plugin>
    <extension
          point="org.eclipse.emf.ecore.extension_parser">
       <parser
@@ -15,5 +15,4 @@
             uriExtension="rules">
       </resourceServiceProvider>
    </extension>
-
-</fragment>
+</plugin>

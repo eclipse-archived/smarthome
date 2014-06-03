@@ -58,4 +58,3 @@ Export-Package: org.eclipse.smarthome.model.rule,
  org.eclipse.smarthome.model.rule.formatting,
  org.eclipse.smarthome.model.rule.jvmmodel,
  org.eclipse.smarthome.model.rule.serializer
-Bundle-Activator: org.eclipse.smarthome.model.rule.internal.RuleModelActivator

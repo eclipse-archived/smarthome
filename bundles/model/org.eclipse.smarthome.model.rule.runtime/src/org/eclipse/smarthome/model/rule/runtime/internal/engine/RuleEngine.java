@@ -69,9 +69,10 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 
 		private RuleTriggerManager triggerManager;
 
-		private Injector injector = RuleRuntimeInjectorProvider.getInjector();
+		private Injector injector;
 						
 		public void activate() {
+			injector = RuleRuntimeInjectorProvider.getInjector();
 			triggerManager = injector.getInstance(RuleTriggerManager.class);
 
 			if(!isEnabled()) {

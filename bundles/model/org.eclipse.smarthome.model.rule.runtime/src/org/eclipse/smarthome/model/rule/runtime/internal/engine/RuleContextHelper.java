@@ -11,10 +11,10 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
-import org.eclipse.smarthome.model.rule.internal.RuleModelActivator;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
+import org.eclipse.smarthome.model.rule.runtime.internal.RuleModelRuntimeActivator;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class RuleContextHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
 	
-	private static ScriptEngine scriptEngine = RuleModelActivator.scriptEngineTracker.getService();
+	private static ScriptEngine scriptEngine = RuleModelRuntimeActivator.scriptEngineTracker.getService();
 
 	/**
 	 * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the same model (= rule file).
