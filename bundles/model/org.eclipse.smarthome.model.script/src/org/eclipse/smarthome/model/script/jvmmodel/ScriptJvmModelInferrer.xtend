@@ -65,7 +65,7 @@ class ScriptJvmModelInferrer extends AbstractModelInferrer {
 		]
 
 		 val itemRegistry = itemRegistryProvider.get
-		 itemRegistry.items.forEach[ item |
+		 itemRegistry?.items?.forEach[ item |
 		 	val name = item.name
 				if (fieldNames.add(name)) {
 		 		members += 	script.toField(item.name, script.newTypeRef(item.class)) [
