@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.model.core.guice;
 
 import java.util.Map;
@@ -16,7 +23,12 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 
 /**
+ * The {@link AbstractGuiceAwareExecutableExtensionFactory} is responsible for providing Guice-aware instances of Equinox extensions.
+ * 
+ * In Xtext this class is included in an ui bundle which has a couple of dependencies Eclipse SmartHome does not need in its runtime environment, see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=364323">Xtext Bugzilla</a>.
+ * 
  * @author Sven Efftinge - Initial contribution and API
+ * @author Oliver Libutzki - Copied class from org.eclipse.xtext.ui.guice.AbstractGuiceAwareExecutableExtensionFactory to {@link AbstractGuiceAwareExecutableExtensionFactory}
  */
 public abstract class AbstractGuiceAwareExecutableExtensionFactory implements IExecutableExtensionFactory, IExecutableExtension {
 	public static final String GUICEKEY = "guicekey";

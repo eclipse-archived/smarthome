@@ -7,10 +7,10 @@
  */
 package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
+import static com.google.common.collect.Iterables.filter;
+
 import java.io.IOException;
 import java.util.List;
-
-import static com.google.common.collect.Iterables.filter;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -34,12 +34,12 @@ import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
 
 import com.google.common.base.Predicate;
-import com.google.inject.Injector;
 
 /**
  * This is the implementation of a {@link ScriptEngine} which is made available as an OSGi service.
  * 
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Oliver Libutzki - Reorganization of Guice injection
  *
  */
 @SuppressWarnings("restriction")

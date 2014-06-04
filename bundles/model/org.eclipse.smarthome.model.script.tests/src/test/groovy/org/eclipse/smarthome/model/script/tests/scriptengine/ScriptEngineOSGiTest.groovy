@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.model.script.tests.scriptengine
 
 import org.eclipse.smarthome.core.items.ItemProvider;
@@ -13,6 +20,12 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+
+/**
+ * The {@link ScriptEngineOSGiTest} provides tests for the {@link ScriptEngine}.
+ * @author Oliver Libutzki - Initial contribution
+ *
+ */
 class ScriptEngineOSGiTest extends OSGiTest {
 
 	ItemRegistry itemRegistry
