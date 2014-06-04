@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.library.types;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.text.DecimalFormatSymbols;
+
 import org.junit.Test;
 
 /**
@@ -31,23 +33,54 @@ public class DecimalTypeTest {
 	}
 
 	@Test
-	public void testFormat() {
-		DecimalType dt1 = new DecimalType("87");
-		assertEquals("87", dt1.format("%d"));
+	public void testIntFormat() {
+		DecimalType dt;
 
-		DecimalType dt2 = new DecimalType("87");
-		assertEquals(" 87", dt2.format("%3d"));
+		// Basic test with an integer value.
+		dt = new DecimalType("87");
+		assertEquals("87", dt.format("%d"));
 
-		DecimalType dt3 = new DecimalType("87");
-		assertEquals("0x57", dt3.format("%#x"));
+		// Again an integer value, but this time an "advanced" pattern.
+		dt = new DecimalType("87");
+		assertEquals(" 87", dt.format("%3d"));
 
-		DecimalType dt4 = new DecimalType("87.5");
+		// Again an integer value, but this time an "advanced" pattern.
+		dt = new DecimalType("87");
+		assertEquals("0x57", dt.format("%#x"));
+
+		// A float value cannot be converted into hex.
+		dt = new DecimalType("87.5");
 		try {
-			dt4.format("%x");
+			dt.format("%x");
 			fail();
 		} catch (Exception e) {
-			// That's what we expect, because "87.5" cannot be converted to a
-			// hex string.
+			// That's what we expect.
 		}
+
+		// An integer (with different representation) with int conversion.
+		dt = new DecimalType("11.0");
+		assertEquals("11", dt.format("%d"));
+	}
+
+	@Test
+	public void testFloatFormat() {
+		DecimalType dt;
+
+		// We know that DecimalType calls "String.format()" without a locale. So
+		// we have to do the same thing here in order to get the right decimal
+		// separator.
+		final char sep = (new DecimalFormatSymbols().getDecimalSeparator());
+
+		// A float value with float conversion.
+		dt = new DecimalType("11.123");
+		assertEquals("11" + sep + "1", dt.format("%.1f")); // "11.1"
+
+		// An integer value with float conversion. This has to work.
+		dt = new DecimalType("11");
+		assertEquals("11" + sep + "0", dt.format("%.1f")); // "11.0"
+
+		// An integer value with float conversion. This has to work.
+		dt = new DecimalType("11.0");
+		assertEquals("11" + sep + "0", dt.format("%.1f")); // "11.0"
 	}
 }
