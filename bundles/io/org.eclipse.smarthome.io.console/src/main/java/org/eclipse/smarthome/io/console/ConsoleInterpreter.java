@@ -256,7 +256,7 @@ public class ConsoleInterpreter {
 	static public List<String> getUsages(Set<ConsoleCommandExtension> consoleCommandExtensions) {
 		List<String> usages = new ArrayList<String>();
 		for (ConsoleCommandExtension consoleCommandExtension : consoleCommandExtensions) {
-			usages.add(consoleCommandExtension.getUsage());
+			usages.addAll(consoleCommandExtension.getUsages());
 		}
 		
 		usages.add(getUpdateUsage());
