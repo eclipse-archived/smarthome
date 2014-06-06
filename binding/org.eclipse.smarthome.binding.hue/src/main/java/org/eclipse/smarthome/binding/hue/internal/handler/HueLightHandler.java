@@ -106,10 +106,8 @@ public class HueLightHandler extends BaseThingHandler implements
                         .toColorTemperatureLightState((PercentType) command);
                 hueBridge.updateLightState(getLight(), lightState);
             } else if (command instanceof OnOffType) {
-                PercentType percentType = command == OnOffType.ON ? PercentType.HUNDRED
-                        : PercentType.ZERO;
                 StateUpdate lightState = lightStateConverter
-                        .toColorTemperatureLightState(percentType);
+                        .toColorLightState((OnOffType) command);
                 hueBridge.updateLightState(getLight(), lightState);
             }
             // TODO: support increase and decrease

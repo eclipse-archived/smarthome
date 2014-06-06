@@ -23,5 +23,10 @@ class AsyncResultWrapper<T> {
 	def isSet() {
 		isSet
 	}
+	
+	def void reset() {
+		wrappedObject = null
+		isSet = false
+	}
 }
 
