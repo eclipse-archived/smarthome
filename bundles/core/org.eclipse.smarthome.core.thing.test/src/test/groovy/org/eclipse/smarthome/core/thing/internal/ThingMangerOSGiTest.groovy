@@ -31,6 +31,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.test.OSGiTest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,13 @@ class ThingMangerOSGiTest extends OSGiTest {
 	@Before
 	void setUp() {
 		managedThingProvider = getService(ManagedThingProvider)
+	}
+	
+	@After
+	void teardown() {
+		managedThingProvider.getThings().each {
+			managedThingProvider.removeThing(it.getUID())
+		}
 	}
 
 	@Test
