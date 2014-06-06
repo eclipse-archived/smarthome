@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.pde.ui.JunitLaunchConfig">
+<booleanAttribute key="append.args" value="true"/>
+<stringAttribute key="application" value="org.eclipse.pde.junit.runtime.coretestapplication"/>
+<booleanAttribute key="askclear" value="false"/>
+<booleanAttribute key="automaticAdd" value="true"/>
+<booleanAttribute key="automaticValidate" value="false"/>
+<stringAttribute key="bootstrap" value=""/>
+<stringAttribute key="checked" value="[NONE]"/>
+<booleanAttribute key="clearConfig" value="true"/>
+<booleanAttribute key="clearws" value="true"/>
+<booleanAttribute key="clearwslog" value="false"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/pde-junit"/>
+<booleanAttribute key="default" value="false"/>
+<stringAttribute key="deselected_workspace_plugins" value="org.eclipse.smarthome.binding.hue,org.eclipse.smarthome.binding.hue.test,org.eclipse.smarthome.config.core,org.eclipse.smarthome.config.setup,org.eclipse.smarthome.core,org.eclipse.smarthome.core.autoupdate,org.eclipse.smarthome.core.library,org.eclipse.smarthome.core.test,org.eclipse.smarthome.core.thing,org.eclipse.smarthome.io.console"/>
+<booleanAttribute key="includeOptional" value="true"/>
+<stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/org.sample.binding.test/src/test/groovy/org/sample/binding/test/SampleOSGITest.groovy"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
+<booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+<stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+<stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.sample.binding.test.SampleOSGITest"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.sample.binding.test"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
+<stringAttribute key="pde.version" value="3.3"/>
+<stringAttribute key="product" value="org.eclipse.equinox.p2.director.app.product"/>
+<booleanAttribute key="run_in_ui_thread" value="true"/>
+<stringAttribute key="selected_target_plugins" value="javax.annotation@default:default,javax.inject@default:default,javax.servlet@default:default,javax.transaction@default:false,javax.xml@default:default,org.apache.ant@default:default,org.apache.commons.logging@default:default,org.codehaus.groovy@default:default,org.eclipse.core.contenttype@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.runtime.compatibility.registry@default:false,org.eclipse.core.runtime@default:true,org.eclipse.equinox.app@default:default,org.eclipse.equinox.common@2:true,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.equinox.transforms.hook@default:false,org.eclipse.equinox.weaving.hook@default:false,org.eclipse.osgi.services@default:default,org.eclipse.osgi@-1:true,org.hamcrest.core@default:default,org.junit*4.11.0.v201303080030@default:default"/>
+<stringAttribute key="selected_workspace_plugins" value="org.eclipse.smarthome.test@default:default,org.sample.binding.test@default:false,org.sample.binding@default:true"/>
+<booleanAttribute key="show_selected_only" value="false"/>
+<booleanAttribute key="tracing" value="false"/>
+<booleanAttribute key="useCustomFeatures" value="false"/>
+<booleanAttribute key="useDefaultConfig" value="true"/>
+<booleanAttribute key="useDefaultConfigArea" value="false"/>
+<booleanAttribute key="useProduct" value="false"/>
+</launchConfiguration>
