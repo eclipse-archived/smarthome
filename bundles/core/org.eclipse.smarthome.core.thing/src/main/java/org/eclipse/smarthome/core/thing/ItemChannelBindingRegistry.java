@@ -63,8 +63,10 @@ public class ItemChannelBindingRegistry implements ThingRegistryChangeListener {
 	@Override
 	public void thingRemoved(Thing thing) {
         List<Channel> channels = thing.getChannels();
-        for (Channel channel : channels) {
-            unbind(channel.getUID());
+        if (channels != null) {
+        	for (Channel channel : channels) {
+        		unbind(channel.getUID());
+        	}       	
         }
 	}
 
