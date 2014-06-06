@@ -28,6 +28,11 @@
 					<dependencies>
 						<dependency>
 							<type>eclipse-plugin</type>
+							<artifactId>org.eclipse.equinox.event</artifactId>
+							<version>0.0.0</version>
+						</dependency>					    
+						<dependency>
+							<type>eclipse-plugin</type>
 							<artifactId>org.eclipse.equinox.ds</artifactId>
 							<version>0.0.0</version>
 						</dependency>
@@ -38,6 +43,16 @@
 							<level>1</level>
 							<autoStart>true</autoStart>
 						</bundle>
+						<bundle>
+							<id>org.eclipse.equinox.event</id>
+							<level>2</level>
+							<autoStart>true</autoStart>
+						</bundle>
+						<bundle>
+							<id>org.eclipse.smarthome.core</id>
+							<level>3</level>
+							<autoStart>true</autoStart>
+						</bundle>						
 					</bundleStartLevel>
 				</configuration>
 			</plugin>

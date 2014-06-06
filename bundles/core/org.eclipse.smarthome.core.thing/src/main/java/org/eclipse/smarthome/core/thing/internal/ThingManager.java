@@ -81,7 +81,10 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void removedService(ServiceReference<ThingHandler> reference, ThingHandler service) {
         	ThingUID thingId = getThingId(reference);
             logger.warn("Thing handler for thing '{}' removed.", thingId);
-            handlerRemoved(getThing(thingId), service);
+            Thing thing = getThing(thingId);
+            if(thing != null) {
+            	handlerRemoved(thing, service);
+            }
             thingHandlers.remove(getThingId(reference));
         }
 

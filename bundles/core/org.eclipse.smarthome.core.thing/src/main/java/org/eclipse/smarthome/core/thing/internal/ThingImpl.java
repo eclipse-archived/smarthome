@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -51,6 +52,7 @@ public class ThingImpl implements Thing {
     public ThingImpl(ThingTypeUID thingTypeUID, String thingId) throws IllegalArgumentException {
         this.uid = new ThingUID(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingId);
         this.thingTypeUID = thingTypeUID;
+        this.channels = new ArrayList<>(0);
     }
 
     @Override
