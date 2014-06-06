@@ -27,6 +27,12 @@ import org.junit.Test
 import org.osgi.service.device.Constants
 import org.osgi.service.upnp.UPnPDevice
 
+
+/**
+ * Tests for {@link HueBridgeDiscoveryService}.
+ *
+ * @author Oliver Libutzki - Initial contribution
+ */
 class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
 
     DiscoveryService discoveryService

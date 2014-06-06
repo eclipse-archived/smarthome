@@ -30,6 +30,11 @@ import org.junit.Test
 
 
 
+/**
+ * Tests for {@link HueLightDiscoveryService}.
+ * 
+ * @author Oliver Libutzki - Initial contribution
+ */
 class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
     HueLightDiscoveryService hueLightDiscoveryService

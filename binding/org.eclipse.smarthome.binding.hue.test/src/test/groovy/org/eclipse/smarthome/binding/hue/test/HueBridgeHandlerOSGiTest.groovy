@@ -24,6 +24,12 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
 
+
+/**
+ * Tests for {@link HueBridgeHandler}.
+ *
+ * @author Oliver Libutzki - Initial contribution
+ */
 class HueBridgeHandlerOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
