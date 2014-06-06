@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.config.setup.test.inbox
+package org.eclipse.smarthome.config.discovery.inbox
 
 import static org.junit.Assert.*;
 

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.config.setup.test.discovery
+package org.eclipse.smarthome.config.discovery
 
 import static org.junit.Assert.*
 
