@@ -40,29 +40,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides a mean to read any kind of configuration data from a shared config
+ * This class provides a mean to read any kind of configuration data from a config folder
  * file and dispatch it to the different bundles using the {@link ConfigurationAdmin} service.
  * 
- * <p>The name of the configuration file can be provided as a program argument "smarthome.configfile".
- * If this argument is not set, the default "configurations/smarthome.cfg" will be used.
- * In case the configuration file does not exist, a warning will be logged and no action
- * will be performed.</p>
+ * <p>The name of the configuration folder can be provided as a program argument "smarthome.configdir"
+ * (default is "conf").
+ * Configurations for OSGi services are kept in a subfolder that can be provided as a program argument
+ * "smarthome.servicedir" (default is "services"). Any file in this folder with the extension .cfg will
+ * be processed.</p>
  * 
  * <p>The format of the configuration file is similar to a standard property file, with the
- * exception that the property name must be prefixed by the service pid of the {@link ManagedService}:</p>
+ * exception that the property name can be prefixed by the service pid of the {@link ManagedService}:</p>
  * <p>&lt;service-pid&gt;:&lt;property&gt;=&lt;value&gt;</p>
- * <p>The prefix "org.eclipse.smarthome" can be omitted on the service pid, it is automatically added if
- * the pid does not contain any "."</p> 
- * 
- * <p>A quartz job can be scheduled to reinitialize the Configurations on a regular
- * basis (defaults to '1' minute)</p>
- * 
+ * <p>In case the pid does not contain any ".", the default service pid namespace is prefixed, which can
+ * be defined by the program argument "smarthome.servicepid" (default is "org.eclipse.smarthome").</p> 
+ * <p>If no pid is defined in the property line, the default pid namespace will be used together with the
+ * filename. E.g. if you have a file "security.cfg", the pid that will be used is 
+ * "org.eclipse.smarthome.security".</p>
+ * <p>Last but not least, a pid can be defined in the first line of a cfg file by prefixing it with "pid:",
+ * e.g. "pid: com.acme.smarthome.security".
+ *  
  * @author Kai Kreuzer - Initial contribution and API
- * @author Thomas.Eichstaedt-Engelen
  */
 public class ConfigDispatcher {
-
-	private static final String SERVICES_DEFAULT_CFG_FILE = "runtime/etc/services.cfg";
 
 	private static final String PID_MARKER = "pid:";
 
@@ -112,12 +112,21 @@ public class ConfigDispatcher {
 		initializeWatchService();
 	}
 
+	private static String getDefaultServiceConfigFile() {
+		String progArg = System.getProperty(ConfigConstants.SERVICECFG_PROG_ARGUMENT);
+		if (progArg != null) {
+			return progArg;
+		} else {
+			return getConfigFolder() + "/" + ConfigConstants.SERVICE_CFG_FILE;
+		}
+	}
+
 	private void readDefaultConfig() {
-		File defaultCfg = new File(SERVICES_DEFAULT_CFG_FILE);
+		File defaultCfg = new File(getDefaultServiceConfigFile());
 		try {
 			processConfigFile(defaultCfg);
 		} catch (IOException e) {
-			logger.warn("Could not process default config file '{}': {}", SERVICES_DEFAULT_CFG_FILE, e);
+			logger.warn("Could not process default config file '{}': {}", getDefaultServiceConfigFile(), e);
 		}			
 	}
 
