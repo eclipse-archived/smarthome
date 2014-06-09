@@ -68,7 +68,7 @@ public class ConfigDispatcher {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
 
-	private WatchService watchService;
+	private static WatchService watchService;
 	
 	// by default, we use the "configurations" folder in the home directory, but this location
 	// might be changed in certain situations (especially when setting a config folder in the
@@ -107,7 +107,7 @@ public class ConfigDispatcher {
 	 * 
 	 * @param configFolder the path name to the new configuration folder
 	 */
-	public void setConfigFolder(String configFolder) {
+	public static void setConfigFolder(String configFolder) {
 		ConfigDispatcher.configFolder = configFolder;
 		initializeWatchService();
 	}
@@ -142,7 +142,7 @@ public class ConfigDispatcher {
 		}
 	}
 
-	private void initializeWatchService() {
+	private static void initializeWatchService() {
 		if(watchService!=null) {
 			try {
 				watchService.close();

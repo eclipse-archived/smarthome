@@ -16,6 +16,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider;
 import org.eclipse.smarthome.designer.ui.UIActivator;
 import org.eclipse.swt.SWT;
@@ -23,7 +24,6 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.smarthome.config.core.ConfigConstants;
 
 public class SelectConfigFolderAction extends Action {
 	
@@ -61,12 +61,8 @@ public class SelectConfigFolderAction extends Action {
 	}
 
 	private boolean isValidConfigurationFolder(File dir) {
-		if(dir.isDirectory()) {
-			for(File file : dir.listFiles()) {
-				if(file.getName().equals(ConfigConstants.MAIN_CONFIG_FILENAME)) {
-					return true;
-				}
-			}
+		if(dir.isDirectory() && dir.getName().equals(ConfigDispatcher.getConfigFolder())) {
+			return true;
 		}
 		return false;
 	}
