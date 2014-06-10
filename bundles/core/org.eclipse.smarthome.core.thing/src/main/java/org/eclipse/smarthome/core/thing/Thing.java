@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.internal.ThingListener;
 import org.eclipse.smarthome.core.types.State;
 
 /**
@@ -93,22 +94,6 @@ public interface Thing {
      * @return the configuration (can be null)
      */
     Configuration getConfiguration();
-
-    /**
-     * Adds the thing listener.
-     * 
-     * @param thingListener
-     *            the thing listener
-     */
-    void addThingListener(ThingListener thingListener);
-
-    /**
-     * Removes the thing listener.
-     * 
-     * @param thingListener
-     *            the thing listener
-     */
-    void removeThingListener(ThingListener thingListener);
 
     /**
      * Gets the uid.

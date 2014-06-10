@@ -16,7 +16,6 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingListener;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -55,7 +54,12 @@ public class ThingImpl implements Thing {
         this.channels = new ArrayList<>(0);
     }
 
-    @Override
+    /**
+     * Adds the thing listener.
+     * 
+     * @param thingListener
+     *            the thing listener
+     */
     public void addThingListener(ThingListener thingListener) {
         this.thingListeners.add(thingListener);
     }
@@ -100,7 +104,12 @@ public class ThingImpl implements Thing {
 		return name;
 	}
 
-    @Override
+    /**
+     * Removes the thing listener.
+     * 
+     * @param thingListener
+     *            the thing listener
+     */
     public void removeThingListener(ThingListener thingListener) {
         this.thingListeners.remove(thingListener);
     }

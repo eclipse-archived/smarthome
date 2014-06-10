@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ItemChannelBindingRegistry;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingListener;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTracker;
@@ -131,7 +130,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      */
     public void handlerAdded(Thing thing, ThingHandler thingHandler) {
         logger.info("Assigning handler and setting status to ONLINE.", thing.getUID());
-        thing.addThingListener(thingListener);
+        ((ThingImpl) thing).addThingListener(thingListener);
         thing.setHandler(thingHandler);
         thing.setStatus(ThingStatus.ONLINE);
     }
@@ -146,7 +145,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      */
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.info("Removing handler and setting status to OFFLINE.", thing.getUID());
-        thing.removeThingListener(thingListener);
+        ((ThingImpl) thing).removeThingListener(thingListener);
         thing.setHandler(null);
         thing.setStatus(ThingStatus.OFFLINE);
     }
