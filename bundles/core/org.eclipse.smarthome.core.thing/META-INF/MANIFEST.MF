@@ -6,8 +6,8 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.thing
-Import-Package: com.google.common.base;version="10.0.1",
- com.google.common.collect;version="10.0.1",
+Import-Package: com.google.common.base,
+ com.google.common.collect,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
