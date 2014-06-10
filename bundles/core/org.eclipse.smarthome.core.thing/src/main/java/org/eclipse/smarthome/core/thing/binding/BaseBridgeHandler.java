@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * {@link BaseBridgeHandler} adds some convience methods for bridges to the
+ * {@link BaseBridgeHandler} adds some convenience methods for bridges to the
  * {@link BaseThingHandler}.
  * 
  * @author Dennis Nobel - Initial contribution
