@@ -15,6 +15,13 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 
+/**
+ * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome types to jue types and vice versa.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ * @author Oliver Libutzki - Adjustments
+ *
+ */
 public class LightStateConverter {
 
     private static final double COLOR_TEMPERATURE_FACTOR = 3.46;

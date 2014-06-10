@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * The {@link BridgeHeartbeatService} is responsible for polling the Hue bridge
  * in order to detect changes and notify listeners.
  * 
- * @author Oliver Libutzki
+ * @author Oliver Libutzki - Initial contribution
  * 
  */
 public class BridgeHeartbeatService {

@@ -11,7 +11,7 @@ package org.eclipse.smarthome.binding.hue.internal.service;
  * The {@link WorkerThread} is responsible for providing a thread which can be
  * paused and proceeded.
  * 
- * @author Oliver Libutzki
+ * @author Oliver Libutzki - Initial contribution
  * 
  */
 class WorkerThread extends Thread {

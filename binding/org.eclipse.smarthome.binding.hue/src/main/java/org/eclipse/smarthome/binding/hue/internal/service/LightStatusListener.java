@@ -12,9 +12,9 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.Light;
 
 /**
- * 
  * The {@link LightStatusListener} is notified when a light status has changed or a light has been removed or added.
- * @author libutzki
+ * 
+ * @author Oliver Libutzki - Initial contribution
  *
  */
 public interface LightStatusListener {
