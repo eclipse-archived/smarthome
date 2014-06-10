@@ -84,7 +84,9 @@ public class FolderObserver extends Thread implements ManagedService {
 	public void run() {
 		while(!folderRefreshMap.isEmpty()) { // keep the thread running as long as there are folders to observe
 			try {
-				for(String foldername : folderRefreshMap.keySet()) {
+				String[] orderedFoldersNames = getFoldersNamesOrderedForLoading(folderRefreshMap.keySet());
+
+				for(String foldername : orderedFoldersNames) {
 					// if folder has been checked at least once and it is not time yet to refresh, skip
 					if( lastFileNames.get(foldername) != null  && 
 							(refreshCount % folderRefreshMap.get(foldername) > 0)) {										
@@ -113,6 +115,44 @@ public class FolderObserver extends Thread implements ManagedService {
 		}
 	}
 	
+	/**
+	 * Returns an array with the given folders names sorted according to their loading.<br />
+	 * See {@link FoldersLoadingOrder}
+	 * @param foldersNames the folders names
+	 * @return the ordered folders names
+	 */
+	private String[] getFoldersNamesOrderedForLoading(Set<String> foldersNames) {
+		String[] orderedFolders = null;
+		if(foldersNames != null && foldersNames.size() > 0)
+		{
+			Set<String> foldersNamesToOrder = new HashSet<>(foldersNames);
+
+			orderedFolders = new String[foldersNamesToOrder.size()];
+			int index = 0;
+		
+			FoldersLoadingOrder[] definedOrderedFolders = FoldersLoadingOrder.values();
+			if(definedOrderedFolders.length > 0)
+			{
+				for(int i = 0; i < definedOrderedFolders.length; i++)
+				{
+					String folderName = definedOrderedFolders[i].getFolderName();
+					if(foldersNamesToOrder.contains(folderName))
+					{
+						orderedFolders[index++] = folderName;
+						foldersNamesToOrder.remove(folderName);
+					}
+				}
+			}
+
+			for(String folder : foldersNamesToOrder)
+			{
+				orderedFolders[index++] = folder;
+			}
+		}
+
+		return orderedFolders;
+	}
+
 	private void checkFolder(String foldername) {
 		File folder = getFolder(foldername);
 		if(!folder.exists()) {
