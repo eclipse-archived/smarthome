@@ -22,7 +22,6 @@ import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
-import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -184,7 +183,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	@Test
 	void 'assert that createThing delegates to registered ThingHandlerFactory'() {
-		def expectedThingType = new ThingType(BINDIND_ID, THING_TYPE_ID, "label", "description", "testManufacturer")
+		def expectedThingTypeUID = THING_TYPE_UID
 		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
 		def expectedConfiguration = new Configuration()
 		def expectedBridge = BridgeBuilder.create(THING_TYPE_UID, THING2_ID).build()
@@ -195,18 +194,18 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 			supportsThingType: { ThingTypeUID thingTypeUID ->
 				true
 			},
-			createThing : { ThingType thingType, Configuration configuration, ThingUID thingUID, Bridge bridge ->
-				assertThat thingType, is(expectedThingType)
+			createThing : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, Bridge bridge ->
+				assertThat thingTypeUID, is(expectedThingTypeUID)
 				assertThat configuration, is(expectedConfiguration)
 				assertThat thingUID, is(expectedThingUID)
 				assertThat bridge, is(expectedBridge)
-				def thing = ThingBuilder.create(thingType.getUID(), thingUID.getId()).withBridge(bridge).build()
+				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridge).build()
 				thingResultWrapper.set(thing)
 				thing
 			}
 		] as ThingHandlerFactory)
 		
-		def thing = managedThingProvider.createThing(expectedThingType, expectedThingUID, expectedBridge, expectedConfiguration)
+		def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridge, expectedConfiguration)
 		waitForAssert{assertTrue thingResultWrapper.isSet}
 		assertThat thing, is(thingResultWrapper.wrappedObject)
 	}

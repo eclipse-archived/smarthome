@@ -12,7 +12,6 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * {@link ThingHandlerFactory} is responsible for creating {@link Thing}s and
@@ -54,8 +53,8 @@ public interface ThingHandlerFactory {
     /**
      * Creates a thing for given arguments.
      * 
-     * @param thingType
-     *            thing type
+     * @param thingTypeUID
+     *            thing type uid (not null)
      * @param configuration
      *            configuration
      * @param thingUID
@@ -64,7 +63,7 @@ public interface ThingHandlerFactory {
      *            bridge uid, which can be null
      * @return thing
      */
-    Thing createThing(ThingType thingType, Configuration configuration, ThingUID thingUID,
+    Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             Bridge bridge);
 
     /**

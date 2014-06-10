@@ -50,7 +50,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
             put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
-        Thing hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE, new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, configuration)
+        Thing hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, configuration)
         assertThat hueBridge, is(notNullValue())
 
         // wait for HueBridgeHandler to be registered

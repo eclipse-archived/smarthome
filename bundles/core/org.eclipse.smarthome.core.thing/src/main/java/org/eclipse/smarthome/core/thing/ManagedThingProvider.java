@@ -18,7 +18,6 @@ import org.eclipse.smarthome.core.storage.StorageSelector.StorageSelectionListen
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.internal.Activator;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +72,8 @@ public class ManagedThingProvider implements ThingProvider, StorageSelectionList
      * Creates a thing based on the given configuration properties, adds it and
      * informs all listeners.
      * 
-     * @param thingType
-     *            thing type
+     * @param thingTypeUID
+     *            thing type unique id
      * @param thingUID
      *            thing unique id which should be created. This id might be null.
      * @param bridge
@@ -84,23 +83,23 @@ public class ManagedThingProvider implements ThingProvider, StorageSelectionList
      *            the configuration
      * @return the created thing
      */
-    public Thing createThing(ThingType thingType, ThingUID thingUID, Bridge bridge,
+    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, Bridge bridge,
             Configuration configuration) {
-        logger.debug("Creating thing for type '{}'.", thingType);
-        String bindingId = thingType.getBindingId();
+        logger.debug("Creating thing for type '{}'.", thingTypeUID);
+        String bindingId = thingTypeUID.getBindingId();
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
-            if (thingHandlerFactory.supportsThingType(thingType.getUID())) {
-                Thing thing = thingHandlerFactory.createThing(thingType, configuration, thingUID,
+            if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID,
                         bridge);
                 addThing(thing);
                 return thing;
             } else {
-                logger.warn("Thing type {} is not supported by binding {}.", thingType, bindingId);
+                logger.warn("Thing type {} is not supported by binding {}.", thingTypeUID, bindingId);
             }
         }
         logger.warn(
                 "Cannot create thing. No binding found that supports creating a thing for the thing type {}.",
-                thingType);
+                thingTypeUID);
         return null;
     }
 

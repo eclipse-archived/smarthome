@@ -13,11 +13,17 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * {@link BaseThingHandlerFactory} provides a base implementation for the
@@ -31,9 +37,12 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
     private BundleContext bundleContext;
+    private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
 
     protected void activate(ComponentContext componentContext) {
         this.bundleContext = componentContext.getBundleContext();
+        thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
+        thingTypeRegistryServiceTracker.open();
     }
 
     protected void deactivate(ComponentContext componentContext) {
@@ -43,7 +52,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                     .getReference());
             thingHandler.dispose();
         }
-
+        thingTypeRegistryServiceTracker.close();
         this.bundleContext = null;
     }
 
@@ -140,5 +149,55 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     public void removeThing(ThingUID thingUID) {
         // can be overridden
     }
+    
+    /**
+     * Returns the {@link ThingType} which is represented by the given {@link ThingTypeUID}.
+     * @param thingTypeUID the unique id of the thing type
+     * @return the thing type represented by the given unique id
+     */
+    protected ThingType getThingTypeByUID(ThingTypeUID thingTypeUID) {
+    	ThingTypeRegistry thingTypeRegistry = thingTypeRegistryServiceTracker.getService();
+    	if (thingTypeRegistry != null) {
+    		return thingTypeRegistry.getThingType(thingTypeUID);
+    	}
+    	return null;
+    }
+    
+    /**
+     * Creates a thing based on given thing type uid.
+     * 
+     * @param thingTypeUID
+     *            thing type uid (should not be null)
+     * @param thingUID
+     *            thingUID (should not be null)
+     * @param configuration
+     *            (should not be null)
+     * @param bridge
+     *            (can be null)
+     * @return thing
+     */
+    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
+            Configuration configuration, Bridge bridge) {
+    	ThingType thingType = getThingTypeByUID(thingTypeUID);
+    	return ThingFactory.createThing(thingType, thingUID, configuration, bridge);
+    }
+    
+    /**
+     * Creates a thing based on given thing type uid.
+     * 
+     * @param thingTypeUID
+     *            thing type uid (can not be null)
+     * @param thingUID
+     *            thingUID (can not be null)
+     * @param configuration
+     *            (can not be null)
+     * @return thing
+     */
+    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
+    		Configuration configuration) {
+    	return createThing(thingTypeUID, thingUID, configuration, null);
+    }
+    
+    
 
 }

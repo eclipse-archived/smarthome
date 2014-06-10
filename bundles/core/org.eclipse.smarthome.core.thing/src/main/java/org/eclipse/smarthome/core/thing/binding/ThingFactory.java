@@ -38,18 +38,23 @@ public class ThingFactory {
      * Creates a thing based on a given thing type.
      * 
      * @param thingType
-     *            thing type (can not be null)
+     *            thing type (should not be null)
      * @param thingUID
-     *            thindUID (can not be null)
+     *            thindUID (should not be null)
      * @param configuration
-     *            (can not be null)
+     *            (should not be null)
      * @param bridge
      *            (can be null)
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID,
             Configuration configuration, Bridge bridge) {
-
+    	if (thingType == null) {
+    		throw new IllegalArgumentException("The thingType should not be null.");
+    	}
+    	if (thingUID == null) {
+    		throw new IllegalArgumentException("The thingUID should not be null.");
+    	}
         List<Channel> channels = createChannels(thingType, thingUID);
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration)
@@ -58,23 +63,20 @@ public class ThingFactory {
 
     /**
      * 
-     * Creates a thing for based on given thing type.
+     * Creates a thing based on given thing type.
      * 
      * @param thingType
-     *            thing type (can not be null)
+     *            thing type (should not be null)
      * @param thingUID
-     *            thindUID (can not be null)
+     *            thindUID (should not be null)
      * @param configuration
-     *            (can not be null)
+     *            (should not be null)
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID,
             Configuration configuration) {
 
-        List<Channel> channels = createChannels(thingType, thingUID);
-
-        return createThingBuilder(thingType, thingUID).withConfiguration(configuration)
-                .withChannels(channels).build();
+        return createThing(thingType, thingUID, configuration, null);
     }
 
     private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {

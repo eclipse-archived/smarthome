@@ -13,8 +13,8 @@ import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
-import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
+import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
+import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler
@@ -60,7 +60,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
-        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE, new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
+        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
         assertThat hueBridge, is(notNullValue())
 
 
@@ -70,7 +70,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             put(HueLightConfiguration.LIGHT_ID, "1")
             it
         }
-        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE, new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
+        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
         assertThat hueLight, is(notNullValue())
 
         // wait for HueLightHandler to be registered
@@ -265,14 +265,14 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
-        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE, new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
+        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
 		HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
 		assertThat hueLightHandler, is(nullValue())
 		Configuration lightConfiguration = new Configuration().with {
         	put(HueLightConfiguration.LIGHT_ID, "1")
         	it
         }
-        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE, new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
+        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
         try {
 			assertThat hueLight, is(notNullValue())
 	        assertThat hueBridge, is(notNullValue())

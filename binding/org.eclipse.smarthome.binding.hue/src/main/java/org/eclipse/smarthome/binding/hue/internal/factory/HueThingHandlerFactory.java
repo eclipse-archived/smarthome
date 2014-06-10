@@ -18,9 +18,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * {@link HueThingHandlerFactory} is a factory for {@link HueBridgeHandler}s.
@@ -31,17 +29,17 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
-    public Thing createThing(ThingType thingType, Configuration configuration, ThingUID thingUID,
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             Bridge bridge) {
-        if (HueThingTypeProvider.BRIDGE_THING_TYPE.equals(thingType)) {
-            ThingUID bridgeUID = getBridgeThingUID(thingType, thingUID, configuration);
-            return ThingFactory.createThing(thingType, bridgeUID, configuration, bridge);
+        if (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID().equals(thingTypeUID)) {
+            ThingUID bridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
+            return createThing(thingTypeUID, bridgeUID, configuration, bridge);
         }
-        if (HueThingTypeProvider.LIGHT_THING_TYPE.equals(thingType)) {
-            ThingUID lightUID = getLightUID(thingType, thingUID, configuration, bridge);
-            return ThingFactory.createThing(thingType, lightUID, configuration, bridge);
+        if (HueThingTypeProvider.LIGHT_THING_TYPE.getUID().equals(thingTypeUID)) {
+            ThingUID lightUID = getLightUID(thingTypeUID, thingUID, configuration, bridge);
+            return createThing(thingTypeUID, lightUID, configuration, bridge);
         }
-        throw new IllegalArgumentException("The thing type " + thingType
+        throw new IllegalArgumentException("The thing type " + thingTypeUID
                 + " is not supported by the hue binding.");
     }
 
@@ -50,22 +48,22 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         return HueThingTypeProvider.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
-    private ThingUID getBridgeThingUID(ThingType thingType, ThingUID thingUID,
+    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
             Configuration configuration) {
         if (thingUID == null) {
             String serialNumber = (String) configuration
                     .get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER);
-            thingUID = new ThingUID(thingType.getUID(), serialNumber);
+            thingUID = new ThingUID(thingTypeUID, serialNumber);
         }
         return thingUID;
     }
 
-    private ThingUID getLightUID(ThingType thingType, ThingUID thingUID,
+    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
             Configuration configuration, Bridge bridge) {
         String lightId = (String) configuration.get(HueLightConfiguration.LIGHT_ID);
 
         if (thingUID == null) {
-            thingUID = new ThingUID(thingType.getUID(), bridge.getUID() + "Light" + lightId);
+            thingUID = new ThingUID(thingTypeUID, bridge.getUID() + "Light" + lightId);
         }
         return thingUID;
     }
