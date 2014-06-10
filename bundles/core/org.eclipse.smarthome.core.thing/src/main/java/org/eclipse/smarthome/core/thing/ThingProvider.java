@@ -11,7 +11,8 @@ import java.util.Collection;
 
 /**
  * The {@link ThingProvider} is responsible for providing things.
- * @author Oliver Libutzki
+ * 
+ * @author Oliver Libutzki - Initial contribution
  *
  */
 public interface ThingProvider {

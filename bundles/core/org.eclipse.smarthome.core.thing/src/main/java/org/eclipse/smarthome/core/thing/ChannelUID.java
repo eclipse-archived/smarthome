@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ChannelUID} represents a unique identifier for channels.
+ * 
  * @author Oliver Libutzki - Initital contribution
  */
 public class ChannelUID extends UID {

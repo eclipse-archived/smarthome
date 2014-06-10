@@ -8,6 +8,14 @@
 package org.eclipse.smarthome.core.thing;
 
 
+/**
+ * 
+ * This is a listener interface which should be implemented wherever thing providers or
+ * the thing registry are used in order to be notified of any dynamic changes in the provided things.
+ * 
+ * @author Oliver Libutzki - Initital contribution
+ *
+ */
 public interface ThingChangeListener {
 
     /**
