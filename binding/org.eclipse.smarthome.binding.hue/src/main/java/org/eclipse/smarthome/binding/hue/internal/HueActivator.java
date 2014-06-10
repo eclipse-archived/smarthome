@@ -7,47 +7,30 @@
  */
 package org.eclipse.smarthome.binding.hue.internal;
 
-import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeDiscoveryService;
-import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb.HueLightDiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This activator sets up the needed services for the Philips hue system.
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
- * @author Oliver Libutzki - Added DiscoveryService implementation
+ * @author Oliver Libutzki - Added logging for hue Binding activation
  */
 public final class HueActivator implements BundleActivator {
 
-	private ServiceRegistration<?> bridgeDiscoveryServiceRegistration;
-	private ServiceRegistration<?> lightDiscoveryServiceRegistration;
+	private static final Logger logger = LoggerFactory.getLogger(HueActivator.class);
+
 
     @Override
     public void start(BundleContext bc) throws Exception {
-    	HueLightDiscoveryService lightDiscoveryService = new HueLightDiscoveryService(bc);
-    	lightDiscoveryServiceRegistration = bc.registerService(DiscoveryService.class.getName(), lightDiscoveryService, null);
-    	HueBridgeDiscoveryService bridgeDiscoveryService = new HueBridgeDiscoveryService(bc);
-    	bridgeDiscoveryServiceRegistration = bc.registerService(DiscoveryService.class.getName(), bridgeDiscoveryService, null);
-    	
-    	lightDiscoveryService.setAutoDiscoveryEnabled(true);
-        bridgeDiscoveryService.setAutoDiscoveryEnabled(true);
+    	logger.debug("Philips hue binding has been started.");
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-
-        HueBridgeDiscoveryService hueBridgeDiscoveryService = (HueBridgeDiscoveryService) bundleContext.getService(bridgeDiscoveryServiceRegistration.getReference());
-        hueBridgeDiscoveryService.setAutoDiscoveryEnabled(false);
-        bridgeDiscoveryServiceRegistration.unregister();
-        bridgeDiscoveryServiceRegistration = null;
-
-        HueLightDiscoveryService hueLightDiscoveryService = (HueLightDiscoveryService) bundleContext.getService(lightDiscoveryServiceRegistration.getReference());
-        hueLightDiscoveryService.setAutoDiscoveryEnabled(false);
-        lightDiscoveryServiceRegistration.unregister();
-        lightDiscoveryServiceRegistration = null;
+    	logger.debug("Philips hue binding has been stopped.");
     }
 
 
