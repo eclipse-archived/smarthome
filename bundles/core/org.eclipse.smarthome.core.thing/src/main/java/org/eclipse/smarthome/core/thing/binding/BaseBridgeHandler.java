@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * {@link BaseBridgeHandler} adds some convience methods for bridges to the
@@ -34,14 +35,14 @@ public abstract class BaseBridgeHandler extends BaseThingHandler {
      *            uid of the child thing
      * @return child thing with the given uid or null if thing was not found
      */
-    public Thing getThingByUID(String uid) {
+    public Thing getThingByUID(ThingUID uid) {
 
         Bridge bridge = getThing();
 
         List<Thing> things = bridge.getThings();
 
         for (Thing thing : things) {
-            if (thing.getUID().toString().equals(uid)) {
+            if (thing.getUID().equals(uid)) {
                 return thing;
             }
         }
