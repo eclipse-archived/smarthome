@@ -86,15 +86,12 @@ public class ManagedThingProvider implements ThingProvider, StorageSelectionList
     public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, Bridge bridge,
             Configuration configuration) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
-        String bindingId = thingTypeUID.getBindingId();
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID,
                         bridge);
                 addThing(thing);
                 return thing;
-            } else {
-                logger.warn("Thing type {} is not supported by binding {}.", thingTypeUID, bindingId);
             }
         }
         logger.warn(
