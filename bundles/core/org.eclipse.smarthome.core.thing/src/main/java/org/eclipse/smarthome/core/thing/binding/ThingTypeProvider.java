@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Collection;
 
-import org.eclipse.smarthome.core.thing.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * The {@link ThingTypeProvider} is responsible for providing thing types.

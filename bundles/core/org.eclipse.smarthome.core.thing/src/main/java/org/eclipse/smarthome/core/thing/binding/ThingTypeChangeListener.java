@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 public interface ThingTypeChangeListener {
 

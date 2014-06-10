@@ -5,11 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.type;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
  * The {@link ThingType} describes a concrete type of a {@link Thing}.

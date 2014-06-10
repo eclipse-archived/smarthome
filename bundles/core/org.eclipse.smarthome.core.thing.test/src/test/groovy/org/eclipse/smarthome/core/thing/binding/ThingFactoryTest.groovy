@@ -13,14 +13,14 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.BridgeType
-import org.eclipse.smarthome.core.thing.ChannelDefinition
-import org.eclipse.smarthome.core.thing.ChannelType
-import org.eclipse.smarthome.core.thing.ChannelTypeUID
-import org.eclipse.smarthome.core.thing.ThingType
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
+import org.eclipse.smarthome.core.thing.type.BridgeType;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.junit.Test
 
 class ThingFactoryTest {

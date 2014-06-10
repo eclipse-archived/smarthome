@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.storage.StorageSelector.StorageSelectionListen
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.internal.Activator;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

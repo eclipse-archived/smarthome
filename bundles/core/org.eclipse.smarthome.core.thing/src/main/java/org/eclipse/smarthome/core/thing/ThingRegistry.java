@@ -18,6 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.smarthome.core.thing.ThingTracker.ThingTrackerEvent;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeChangeListener;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

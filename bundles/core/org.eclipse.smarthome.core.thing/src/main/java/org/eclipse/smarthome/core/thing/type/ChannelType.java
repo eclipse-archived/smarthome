@@ -5,7 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.type;
+
+import org.eclipse.smarthome.core.thing.Channel;
 
 
 /**

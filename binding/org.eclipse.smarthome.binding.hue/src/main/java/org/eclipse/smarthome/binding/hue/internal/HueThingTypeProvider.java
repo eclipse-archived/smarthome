@@ -9,14 +9,14 @@ package org.eclipse.smarthome.binding.hue.internal;
 
 import java.util.Collection;
 
-import org.eclipse.smarthome.core.thing.BridgeType;
-import org.eclipse.smarthome.core.thing.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.ChannelType;
-import org.eclipse.smarthome.core.thing.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.ThingType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeChangeListener;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.BridgeType;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.google.common.collect.Lists;
 

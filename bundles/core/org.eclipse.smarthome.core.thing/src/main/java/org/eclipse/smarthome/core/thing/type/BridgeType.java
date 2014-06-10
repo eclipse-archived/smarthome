@@ -5,15 +5,18 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.type;
 
 import java.util.List;
+
+import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 
 /**
  * The {@link BridgeType} describes a concrete type of a {@link Bridge}. A
  * {@link BridgeType} inherits a
- * {@link org.eclipse.smarthome.core.thing.ThingType} and signals a
+ * {@link org.eclipse.smarthome.core.thing.type.ThingType} and signals a
  * parent-child relation.
  * <p>
  * This description is used as template definition for the creation of the
@@ -23,7 +26,7 @@ import java.util.List;
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public class BridgeType extends org.eclipse.smarthome.core.thing.ThingType {
+public class BridgeType extends org.eclipse.smarthome.core.thing.type.ThingType {
     
     /**
      * @see BridgeType#BridgeType(String, List, String, String, String,

@@ -25,6 +25,7 @@ Import-Package: com.google.common.base;version="10.0.1",
 Export-Package: org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util
 Service-Component: OSGI-INF/*
 Bundle-Activator: org.eclipse.smarthome.core.thing.internal.Activator

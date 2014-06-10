@@ -5,12 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.type;
+
+import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.Thing;
 
 
 /**
  * The {@link ChannelDefinition} class defines a {@link Channel} of a
- * {@link org.eclipse.smarthome.core.thing.ThingType}.
+ * {@link org.eclipse.smarthome.core.thing.type.ThingType}.
  * <p>
  * A {@link Channel} is part of a {@link Thing} that represents a functionality
  * of it.

@@ -10,9 +10,9 @@ package org.eclipse.smarthome.core.thing.binding;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
  * {@link ThingHandlerFactory} is responsible for creating {@link Thing}s and
