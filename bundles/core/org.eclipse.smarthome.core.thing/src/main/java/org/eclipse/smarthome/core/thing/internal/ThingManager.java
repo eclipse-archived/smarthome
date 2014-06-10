@@ -22,7 +22,6 @@ import org.eclipse.smarthome.core.thing.ItemChannelBindingRegistry;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingTracker;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
@@ -116,7 +115,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         }
     };
 
-    private ThingRegistry thingRegistry;
+    private ThingRegistryImpl thingRegistry;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
 
@@ -321,7 +320,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = thingRegistry;
+        this.thingRegistry = (ThingRegistryImpl) thingRegistry;
         this.thingRegistry.addThingTracker(this);
     }
 

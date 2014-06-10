@@ -5,7 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.thing;
+package org.eclipse.smarthome.core.thing.internal;
+
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 
 /**
  * A {@link ThingTracker} can be used to track added and removed things. In
@@ -23,7 +26,7 @@ public interface ThingTracker {
 
     /**
      * This method is called for every thing that exists in the
-     * {@link ThingRegistry} and for every added thing.
+     * {@link ThingRegistryImpl} and for every added thing.
      * 
      * @param thing
      *            thing
@@ -34,8 +37,8 @@ public interface ThingTracker {
 
     /**
      * This method is called for every thing that was removed from the
-     * {@link ThingRegistry}. Moreover the method is called for every thing,
-     * that exists in the {@link ThingRegistry}, when the tracker is
+     * {@link ThingRegistryImpl}. Moreover the method is called for every thing,
+     * that exists in the {@link ThingRegistryImpl}, when the tracker is
      * unregistered.
      * 
      * @param thing

@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.ThingRegistry">
-   <implementation class="org.eclipse.smarthome.core.thing.ThingRegistry"/>
+   <implementation class="org.eclipse.smarthome.core.thing.internal.ThingRegistryImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.ThingRegistry"/>
    </service>
