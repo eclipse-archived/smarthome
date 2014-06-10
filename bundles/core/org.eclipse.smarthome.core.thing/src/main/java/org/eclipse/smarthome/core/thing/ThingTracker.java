@@ -12,6 +12,8 @@ package org.eclipse.smarthome.core.thing;
  * contrast to the {@link ThingRegistryChangeListener} the method
  * {@link ThingTracker#thingAdded(Thing, ThingTrackerEvent)} is called for every
  * thing, although it was added before the tracker was registered.
+ * 
+ * @author Dennis Nobel - Initial contribution 
  */
 public interface ThingTracker {
 

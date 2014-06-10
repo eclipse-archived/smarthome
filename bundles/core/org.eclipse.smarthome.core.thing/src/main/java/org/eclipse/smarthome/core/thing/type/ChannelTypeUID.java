@@ -9,6 +9,11 @@ package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.smarthome.core.thing.UID;
 
+/**
+ * {@link ChannelTypeUID} represents a unique identifier for channel types.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class ChannelTypeUID extends UID {
 
     public ChannelTypeUID(String channelUid) {

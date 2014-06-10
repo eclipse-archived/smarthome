@@ -11,6 +11,8 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingTypeUID} represents a unique identifier for thing types.
+ * 
+ * @author Dennis Nobel - Initial contribution
  */
 public class ThingTypeUID extends UID {
 
