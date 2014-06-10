@@ -21,5 +21,7 @@ public class HueLightConfiguration {
      * Light identifier
      */
     public String lightId;
+    
+    public static final String LIGHT_ID = "lightId";
 
 }

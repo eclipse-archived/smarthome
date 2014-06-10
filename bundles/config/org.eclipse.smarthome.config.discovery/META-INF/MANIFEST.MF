@@ -12,7 +12,7 @@ Import-Package: com.google.common.collect,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.eclipse.smarthome.config.discovery.internal.Activator
+Bundle-Activator: org.eclipse.smarthome.config.discovery.internal.DiscoveryActivator
 Service-Component: OSGI-INF/*
 Export-Package: org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.config.discovery.inbox

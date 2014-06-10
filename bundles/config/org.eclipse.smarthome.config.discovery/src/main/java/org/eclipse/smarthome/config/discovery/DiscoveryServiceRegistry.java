@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import org.eclipse.smarthome.core.thing.ThingType;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 
@@ -28,13 +29,13 @@ public interface DiscoveryServiceRegistry {
 
     /**
      * Returns the {@link DiscoveryServiceInfo} object (meta information) of a
-     * {@link DiscoveryService} for the specified {@code Thing} type by searching
+     * {@link DiscoveryService} for the specified {@code ThingType} type by searching
      * in the list of any monitored {@link DiscoveryService}s.
      * <p>
      * If the specified {@code Thing} type is {@code null} or empty, or no according
      * {@link DiscoveryService} could be found, {@code null} is returned.
      *
-     * @param thingType the Thing type which points to the according discovery service
+     * @param thingTypeUID the Thing type UID which points to the according discovery service
      *     (could be null or empty)
      *
      * @return the discovery service meta information or null, if no according discovery

@@ -11,31 +11,19 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.BridgeType
-import org.eclipse.smarthome.core.thing.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.ChannelType;
-import org.eclipse.smarthome.core.thing.ChannelTypeUID
-import org.eclipse.smarthome.core.thing.DescriptionTypeMetaInfo
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingTracker.ThingTrackerEvent;
-import org.eclipse.smarthome.core.thing.ThingType;
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
-import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
-import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.test.OSGiTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.test.OSGiTest
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
 
-class ThingMangerOSGiTest extends OSGiTest {
+class ThingManagerOSGiTest extends OSGiTest {
 
 	ManagedThingProvider managedThingProvider
 

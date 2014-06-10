@@ -20,7 +20,7 @@ import org.osgi.framework.ServiceRegistration;
  * @author Michael Grammling - Initial Contribution (Draft API)
  * @author Oliver Libutzki
  */
-public class Activator implements BundleActivator {
+public class DiscoveryActivator implements BundleActivator {
 
 
     private DiscoveryServiceRegistryImpl discoveryServiceRegistry;

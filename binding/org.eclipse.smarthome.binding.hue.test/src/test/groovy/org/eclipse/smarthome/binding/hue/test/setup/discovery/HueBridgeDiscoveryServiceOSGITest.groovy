@@ -11,8 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
-import org.eclipse.smarthome.binding.hue.internal.setup.HueBridgeContextKey
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeDiscoveryService
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
@@ -88,8 +88,8 @@ class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
             assertThat flag, is (DiscoveryResultFlag.NEW)
             assertThat label, is ("00178814e058 (192.168.3.99)")
             assertThat thingTypeUID, is (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID())
-            assertThat properties.get(HueBridgeContextKey.IP.getKey()), is ("192.168.3.99")
-            assertThat properties.get(HueBridgeContextKey.BRIDGE_SERIAL_NUMBER.getKey()), is ("00178814e058")
+            assertThat properties.get(HueBridgeConfiguration.IP_ADDRESS), is ("192.168.3.99")
+            assertThat properties.get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER), is ("00178814e058")
         }
     }
 
@@ -220,8 +220,8 @@ class HueBridgeDiscoveryServiceOSGITest extends OSGiTest {
             assertThat flag, is (DiscoveryResultFlag.NEW)
             assertThat label, is ("00178814e058 (192.168.3.99)")
             assertThat thingTypeUID, is (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID())
-            assertThat properties.get(HueBridgeContextKey.IP.getKey()), is ("192.168.3.99")
-            assertThat properties.get(HueBridgeContextKey.BRIDGE_SERIAL_NUMBER.getKey()), is ("00178814e058")
+            assertThat properties.get(HueBridgeConfiguration.IP_ADDRESS), is ("192.168.3.99")
+            assertThat properties.get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER), is ("00178814e058")
         }
     }
 

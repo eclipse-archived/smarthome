@@ -11,9 +11,9 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
 import org.eclipse.smarthome.binding.hue.internal.factory.HueThingHandlerFactory
-import org.eclipse.smarthome.binding.hue.internal.setup.HueLightContextKey
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb.HueLightDiscoveryService
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
@@ -110,7 +110,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             assertThat label, is (lightName)
             assertThat thingTypeUID, is (HueThingTypeProvider.LIGHT_THING_TYPE.getUID())
             assertThat bridgeUID, is(bridge.getUID())
-            assertThat properties.get(HueLightContextKey.LIGHT_ID.getKey()), is (lightId)
+            assertThat properties.get(HueLightConfiguration.LIGHT_ID), is (lightId)
         }
     }
 }

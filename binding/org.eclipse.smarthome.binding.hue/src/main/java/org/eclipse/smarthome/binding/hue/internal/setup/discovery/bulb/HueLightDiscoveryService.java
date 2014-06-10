@@ -9,9 +9,9 @@ package org.eclipse.smarthome.binding.hue.internal.setup.discovery.bulb;
 
 import java.util.Collections;
 
+import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
-import org.eclipse.smarthome.binding.hue.internal.setup.HueLightContextKey;
 import org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge.HueBridgeServiceTracker;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -171,7 +171,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingTypeUID thingTypeUID = HueThingTypeProvider.LIGHT_THING_TYPE.getUID();
         ThingUID thingUID = new ThingUID(thingTypeUID, thingLightId);
         DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID);
-        discoveryResult.getProperties().put(HueLightContextKey.LIGHT_ID.getKey(), lightId);
+        discoveryResult.getProperties().put(HueLightConfiguration.LIGHT_ID, lightId);
         discoveryResult.setBridgeUID(hueBridgeUID);
         discoveryResult.setLabel(lightName);
         thingDiscovered(discoveryResult);

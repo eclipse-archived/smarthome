@@ -13,11 +13,11 @@ import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
+import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
+import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler
-import org.eclipse.smarthome.binding.hue.internal.setup.HueBridgeContextKey
-import org.eclipse.smarthome.binding.hue.internal.setup.HueLightContextKey
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.HSBType
@@ -55,9 +55,9 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     @Test
     void 'assert that HueLightHandler is registered and unregistered'() {
         Configuration bridgeConfiguration = new Configuration().with {
-            put(HueBridgeContextKey.IP.getKey(), "1.2.3.4")
-            put(HueBridgeContextKey.USERNAME.getKey(), "testUserName")
-            put(HueBridgeContextKey.BRIDGE_SERIAL_NUMBER.getKey(), "testSerialNumber")
+            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
+            put(HueBridgeConfiguration.USER_NAME, "testUserName")
+            put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
         Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE, new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
@@ -67,7 +67,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
         assertThat hueLightHandler, is(nullValue())
         Configuration lightConfiguration = new Configuration().with {
-            put(HueLightContextKey.LIGHT_ID.getKey(), "1")
+            put(HueLightConfiguration.LIGHT_ID, "1")
             it
         }
         Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE, new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
@@ -260,16 +260,16 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     private void assertSendCommand(String channel, Command command, String expectedBody) {
 
         Configuration bridgeConfiguration = new Configuration().with {
-            put(HueBridgeContextKey.IP.getKey(), "1.2.3.4")
-            put(HueBridgeContextKey.USERNAME.getKey(), "testUserName")
-            put(HueBridgeContextKey.BRIDGE_SERIAL_NUMBER.getKey(), "testSerialNumber")
+            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
+            put(HueBridgeConfiguration.USER_NAME, "testUserName")
+            put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
         Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE, new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
 		HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
 		assertThat hueLightHandler, is(nullValue())
 		Configuration lightConfiguration = new Configuration().with {
-        	put(HueLightContextKey.LIGHT_ID.getKey(), "1")
+        	put(HueLightConfiguration.LIGHT_ID, "1")
         	it
         }
         Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE, new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)

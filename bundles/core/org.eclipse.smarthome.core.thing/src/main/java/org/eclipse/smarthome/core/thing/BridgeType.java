@@ -26,12 +26,12 @@ import java.util.List;
 public class BridgeType extends org.eclipse.smarthome.core.thing.ThingType {
     
     /**
-     * @see BridgeType#BridgeType(String, List, DescriptionTypeMetaInfo, String,
+     * @see BridgeType#BridgeType(String, List, String, String, String,
      *      List, String)
      */
-    public BridgeType(String bindingId, String thingTypeId, DescriptionTypeMetaInfo metaInfo,
+    public BridgeType(String bindingId, String thingTypeId, String label, String description,
             String manufacturer) throws IllegalArgumentException {
-        this(new ThingTypeUID(bindingId, thingTypeId), null, metaInfo, manufacturer, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, description, manufacturer, null, null);
     }
 
     /**
@@ -45,9 +45,11 @@ public class BridgeType extends org.eclipse.smarthome.core.thing.ThingType {
      *            the unique identifiers to the bridges this Bridge type
      *            supports (could be null or empty)
      * 
-     * @param metaInfo
-     *            the meta information containing human readable text of this
-     *            Bridge type (must not be null)
+     * @param label the human readable label for the according type
+     *     (must neither be null nor empty)
+     * 
+     * @param description the human readable description for the according type
+     *     (must neither be null nor empty)
      * 
      * @param manufacturer
      *            the human readable name of the manufacturer of this Bridge
@@ -65,11 +67,11 @@ public class BridgeType extends org.eclipse.smarthome.core.thing.ThingType {
      *             null
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            DescriptionTypeMetaInfo metaInfo, String manufacturer,
+            String label, String description, String manufacturer,
             List<ChannelDefinition> channelDefinitions, String configDescriptionURI)
             throws IllegalArgumentException {
 
-        super(uid, supportedBridgeTypeUIDs, metaInfo, manufacturer,
+        super(uid, supportedBridgeTypeUIDs, label, description, manufacturer,
                 channelDefinitions, configDescriptionURI);
     }
 

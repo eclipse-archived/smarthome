@@ -32,18 +32,21 @@ public class ChannelType extends AbstractDescriptionType {
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
      *     (must neither be null nor empty)
      * 
-     * @param metaInfo the meta information containing human readable text of this Channel type
-     *     (must not be null)
+     * @param label the human readable label for the according type
+     *     (must neither be null nor empty)
+     * 
+     * @param description the human readable description for the according type
+     *     (must neither be null nor empty)
      *  
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * 
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *     or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, String itemType, DescriptionTypeMetaInfo metaInfo,
+    public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
             String configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, metaInfo, configDescriptionURI);
+        super(uid, label, description, configDescriptionURI);
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");

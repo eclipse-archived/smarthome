@@ -13,7 +13,6 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.DescriptionTypeMetaInfo
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingChangeListener
@@ -185,7 +184,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	@Test
 	void 'assert that createThing delegates to registered ThingHandlerFactory'() {
-		def expectedThingType = new ThingType(BINDIND_ID, THING_TYPE_ID, new DescriptionTypeMetaInfo("label", "description"), "testManufacturer")
+		def expectedThingType = new ThingType(BINDIND_ID, THING_TYPE_ID, "label", "description", "testManufacturer")
 		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
 		def expectedConfiguration = new Configuration()
 		def expectedBridge = BridgeBuilder.create(THING_TYPE_UID, THING2_ID).build()

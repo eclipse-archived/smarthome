@@ -7,15 +7,13 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.setup.discovery.bridge;
 
-import static org.eclipse.smarthome.binding.hue.internal.setup.HueBridgeContextKey.BRIDGE_SERIAL_NUMBER;
-import static org.eclipse.smarthome.binding.hue.internal.setup.HueBridgeContextKey.IP;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
@@ -117,8 +115,8 @@ public class HueBridgeDiscoveryService extends AbstractDiscoveryService implemen
         DiscoveryResult discoveryResult = new DiscoveryResult(bridgeTypeUID, new ThingUID(
                 bridgeTypeUID, discoveredBridge.serialNumber));
         Map<String, Object> properties = discoveryResult.getProperties();
-        properties.put(IP.getKey(), discoveredBridge.ipAddress);
-        properties.put(BRIDGE_SERIAL_NUMBER.getKey(), discoveredBridge.serialNumber);
+        properties.put(HueBridgeConfiguration.IP_ADDRESS, discoveredBridge.ipAddress);
+        properties.put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, discoveredBridge.serialNumber);
         discoveryResult.setLabel(discoveredBridge.serialNumber + " (" + discoveredBridge.ipAddress
                 + ")");
         thingDiscovered(discoveryResult);

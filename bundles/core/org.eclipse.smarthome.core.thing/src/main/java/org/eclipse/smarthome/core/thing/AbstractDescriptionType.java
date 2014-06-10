@@ -23,36 +23,45 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 public abstract class AbstractDescriptionType {
 
     private UID uid;
-    private DescriptionTypeMetaInfo metaInfo;
     private String configDescriptionURI;
-
+    private String label;
+    private String description;
+    
     /**
      * Creates a new instance of this class with the specified parameters.
      * 
      * @param uid the unique identifier which identifies the according type within
      *     the overall system (must neither be null, nor empty)
      * 
-     * @param metaInfo the meta information containing human readable text
-     *     of the according type (must not be null)
+     * @param label the human readable label for the according type
+     *     (must neither be null nor empty)
+     * 
+     * @param description the human readable description for the according type
+     *     (must neither be null nor empty)
      * 
      * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
      * 
      * @throws IllegalArgumentException if the UID is null or empty,
      *     or the the meta information is null
      */
-    public AbstractDescriptionType(UID uid, DescriptionTypeMetaInfo metaInfo,
+    public AbstractDescriptionType(UID uid, String label, String description,
             String configDescriptionURI) throws IllegalArgumentException {
 
         if (uid == null) {
             throw new IllegalArgumentException("The UID must not be null");
         }
 
-        if (metaInfo == null) {
-            throw new IllegalArgumentException("The meta information must not be null!");
+        if ((label == null) || (label.isEmpty())) {
+            throw new IllegalArgumentException("The label must neither be null nor empty!");
+        }
+
+        if ((description == null) || (description.isEmpty())) {
+            throw new IllegalArgumentException("The description must neither be null nor empty!");
         }
 
         this.uid = uid;
-        this.metaInfo = metaInfo;
+        this.label = label;
+        this.description = description;
         this.configDescriptionURI = configDescriptionURI;
     }
 
@@ -65,16 +74,6 @@ public abstract class AbstractDescriptionType {
      */
     public UID getUID() {
         return this.uid;
-    }
-
-    /**
-     * Returns the meta information containing human readable text of the according type.
-     * 
-     * @return the meta information containing human readable text
-     *     of the according type (not null)
-     */
-    public DescriptionTypeMetaInfo getMetaInfo() {
-        return this.metaInfo;
     }
 
     /**
@@ -95,5 +94,25 @@ public abstract class AbstractDescriptionType {
     public String getConfigDescriptionURI() {
         return this.configDescriptionURI;
     }
+    
+
+    /**
+     * Returns the human readable label for the according type.
+     * 
+     * @return the human readable label for the according type (neither null, nor empty)
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Returns the human readable description for the according type.
+     * 
+     * @return the human readable description for the according type (neither null, nor empty)
+     */
+    public String getDescription() {
+        return this.description;
+    }
+
 
 }

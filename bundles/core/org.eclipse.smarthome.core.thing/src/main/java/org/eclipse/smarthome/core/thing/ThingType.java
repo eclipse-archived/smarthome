@@ -30,13 +30,13 @@ public class ThingType extends AbstractDescriptionType {
     private final List<String> supportedBridgeTypeUIDs;
 
     /**
-     * @see ThingType#ThingType(String, List, DescriptionTypeMetaInfo, String,
+     * @see ThingType#ThingType(String, List, String, String, String,
      *      List, String)
      */
-    public ThingType(String bindingId, String thingTypeId, DescriptionTypeMetaInfo metaInfo,
+    public ThingType(String bindingId, String thingTypeId, String label, String description,
             String manufacturer)
             throws IllegalArgumentException {
-        this(new ThingTypeUID(bindingId, thingTypeId), null, metaInfo, manufacturer, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, description, manufacturer, null, null);
     }
 
     /**
@@ -50,13 +50,17 @@ public class ThingType extends AbstractDescriptionType {
      *            the unique identifiers to the bridges this Thing type supports
      *            (could be null or empty)
      * 
-     * @param metaInfo
-     *            the meta information containing human readable text of this
-     *            Thing type (must not be null)
+     * @param label the human readable label for the according type
+     *     (must neither be null nor empty)
      * 
-     * @param manufacturer
-     *            the human readable name of the manufacturer of this Thing type
-     *            (could be null or empty)
+     * @param description the human readable description for the according type
+     *     (must neither be null nor empty)
+     * 
+     * @param label the human readable label for the according type
+     *     (must neither be null nor empty)
+     * 
+     * @param description the human readable description for the according type
+     *     (must neither be null nor empty)
      * 
      * @param channelDefinitions
      *            the channels this Thing type provides (could be null or empty)
@@ -69,11 +73,11 @@ public class ThingType extends AbstractDescriptionType {
      *             null
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            DescriptionTypeMetaInfo metaInfo, String manufacturer,
+            String label, String description, String manufacturer,
             List<ChannelDefinition> channelDefinitions, String configDescriptionURI)
             throws IllegalArgumentException {
 
-        super(uid, metaInfo, configDescriptionURI);
+        super(uid, label, description, configDescriptionURI);
 
         this.manufacturer = manufacturer;
 

@@ -7,11 +7,11 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.factory;
 
+import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
+import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
-import org.eclipse.smarthome.binding.hue.internal.setup.HueBridgeContextKey;
-import org.eclipse.smarthome.binding.hue.internal.setup.HueLightContextKey;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -54,7 +54,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             Configuration configuration) {
         if (thingUID == null) {
             String serialNumber = (String) configuration
-                    .get(HueBridgeContextKey.BRIDGE_SERIAL_NUMBER.getKey());
+                    .get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER);
             thingUID = new ThingUID(thingType.getUID(), serialNumber);
         }
         return thingUID;
@@ -62,7 +62,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     private ThingUID getLightUID(ThingType thingType, ThingUID thingUID,
             Configuration configuration, Bridge bridge) {
-        String lightId = (String) configuration.get(HueLightContextKey.LIGHT_ID.getKey());
+        String lightId = (String) configuration.get(HueLightConfiguration.LIGHT_ID);
 
         if (thingUID == null) {
             thingUID = new ThingUID(thingType.getUID(), bridge.getUID() + "Light" + lightId);
