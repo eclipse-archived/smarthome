@@ -20,6 +20,13 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.google.common.collect.Lists;
 
+/**
+ * 
+ * {@link HueThingTypeProvider} provides a list of supported thing types by this
+ * binding. In the future the supported thing types can specified via xml.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class HueThingTypeProvider implements ThingTypeProvider {
 
     private static final String MANUFACTURER = "Philips";

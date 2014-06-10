@@ -10,10 +10,11 @@ package org.eclipse.smarthome.binding.hue.internal;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 
 /**
- * The {@link HueBindingInfo} is responsible for providing information about the hue binding.
+ * The {@link HueBindingInfo} is responsible for providing information about the
+ * hue binding. In the future the binding info can specified via xml.
  * 
  * @author Oliver Libutzki - Initial contribution
- *
+ * 
  */
 public class HueBindingInfo implements BindingInfo {
 
