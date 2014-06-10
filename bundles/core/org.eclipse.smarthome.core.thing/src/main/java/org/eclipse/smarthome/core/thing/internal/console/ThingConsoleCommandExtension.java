@@ -20,6 +20,11 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
+/**
+ * {@link ThingConsoleCommandExtension} provides console commands for listing and removing things.
+ * 
+ * @author Dennis Nobel - Initial contribution
+ */
 public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
 
     private final static String COMMAND_THINGS = "things";
@@ -49,10 +54,10 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
                     return;    
                 case "remove":
                     if (args.length > 2) {
-                    	ThingUID thingId = new ThingUID(args[2]);
-                        removeThing(console, things, thingId);
+                    	ThingUID thingUID = new ThingUID(args[2]);
+                        removeThing(console, things, thingUID);
                     } else {
-                        console.println("Specify thing id to remove: things remove <thingURI> (e.g. \"hue:light:1\")");
+                        console.println("Specify thing id to remove: things remove <thingUID> (e.g. \"hue:light:1\")");
                     }
                     return;
                 default:
@@ -67,12 +72,12 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
         }
     }
 
-    private void removeThing(Console console, Collection<Thing> things, ThingUID thingId) {
-        Thing removedThing = this.managedThingProvider.removeThing(thingId);
+    private void removeThing(Console console, Collection<Thing> things, ThingUID thingUID) {
+        Thing removedThing = this.managedThingProvider.removeThing(thingUID);
         if(removedThing!=null) {
-        	console.println("Thing '" + thingId + "' successfully removed.");
+        	console.println("Thing '" + thingUID + "' successfully removed.");
         } else {
-            console.println("Could not delete thing " + thingId + ".");
+            console.println("Could not delete thing " + thingUID + ".");
         }            	
     }
 
@@ -89,7 +94,7 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
         return Arrays.asList((new String[] {
         	COMMAND_THINGS + " list - lists all things",
         	COMMAND_THINGS + " clear - removes all managed things",
-        	COMMAND_THINGS + " remove <thingId> - removes a thing" 
+        	COMMAND_THINGS + " remove <thingUID> - removes a thing" 
         }));
     }
 

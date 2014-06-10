@@ -22,18 +22,29 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * {@link ThingHelper} provides a utility method to create and bind items.
+ * 
+ * @author Oliver Libutzki - Initial contribution
+ */
 public class ThingHelper {
 
 	private final static Logger logger = LoggerFactory.getLogger(ThingHelper.class);
 	
 	private BundleContext bundleContext;
 	
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param bundleContext the bundle context
+	 */
 	public ThingHelper(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
 	
 	/**
-	 * @param thing
+	 * Creates items for all channels of a thing and binds them to the according channels.
+	 * @param thing thing to create items for
 	 */
 	public void createAndBindItems(Thing thing) {
 		List<ItemFactory> itemFactories = getItemFactories();

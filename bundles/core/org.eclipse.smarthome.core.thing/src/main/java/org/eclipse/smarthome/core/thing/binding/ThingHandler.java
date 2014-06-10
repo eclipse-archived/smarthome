@@ -57,13 +57,13 @@ public interface ThingHandler {
     void handleUpdate(ChannelUID channelUID, State newState);
 
     /**
-     * This method is called, before the handler will be shutdown. An
+     * This method is called, before the handler is shut down. An
      * implementing class can clean resources here.
      */
     void dispose();
 
     /**
-     * This method is called, when the handler will be started.
+     * This method is called, when the handler is started.
      */
     void initialize();
 
