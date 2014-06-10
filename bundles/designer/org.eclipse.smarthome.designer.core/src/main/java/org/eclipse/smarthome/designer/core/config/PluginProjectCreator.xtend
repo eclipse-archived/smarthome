@@ -104,6 +104,8 @@ class PluginProjectCreator implements IProjectCreator {
 			Bundle-Vendor: Eclipse.org/SmartHome
 			Require-Bundle: org.eclipse.xtext.xbase.lib
 			Import-Package: org.eclipse.smarthome.model.script.actions,
+			 org.joda.time,
+			 org.osgi.service.cm,
 			 org.eclipse.smarthome.core.library.types,
 			 org.eclipse.smarthome.core.library.items,
 			 org.eclipse.smarthome.core.items,
