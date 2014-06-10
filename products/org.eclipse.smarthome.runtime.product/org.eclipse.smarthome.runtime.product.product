@@ -68,11 +68,17 @@
       <plugin id="org.eclipse.smarthome.io.rest.sitemap" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.io.servicediscovery" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.io.transport.mqtt" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.model.core" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="4" />
-      <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="5" />
-      <plugin id="org.eclipse.smarthome.model.script" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.smarthome.model.core" autoStart="true" startLevel="4" />
+      <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.item.runtime" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.persistence" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.persistence.runtime" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.rule.runtime" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.script" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.script.runtime" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.sitemap.runtime" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.ui" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.ui.webapp" autoStart="true" startLevel="0" />
    </configurations>

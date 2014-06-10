@@ -17,7 +17,13 @@ class ServiceTrackerActionServiceProvider implements org.eclipse.smarthome.model
 		
 		// if something has changed about the tracked services, recompute the list
 		if(trackingCount != currentTrackingCount) {
-			cache = ScriptActivator.actionServiceTracker.services.filter(ActionService).toList
+			val services = ScriptActivator.actionServiceTracker.services
+			cache = 
+				if (services != null) {
+					services.filter(ActionService).toList
+				} else {
+					emptyList
+				}
 		}
 		cache
 	}

@@ -33,4 +33,3 @@ Export-Package: org.eclipse.smarthome.model,
  org.eclipse.smarthome.model.generator
 Service-Component: OSGI-INF/sitemapprovider.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-Activator: org.eclipse.smarthome.model.sitemap.internal.SitemapModelActivator

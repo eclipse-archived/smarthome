@@ -26,7 +26,6 @@ import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
-import org.eclipse.smarthome.model.ItemsStandaloneSetup;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -60,9 +59,6 @@ public class GenericItemProvider extends AbstractItemProvider implements ModelRe
 	
 	
 	public GenericItemProvider() {
-		// make sure that the DSL is correctly registered with EMF before we
-		// start
-		new ItemsStandaloneSetup().createInjectorAndDoEMFRegistration();
 	}
 
 	
