@@ -5,15 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.binding;
+package org.eclipse.smarthome.model.item;
 
-/**
- * This is a simple marker interface to define data structures that are
- * used as binding configurations.
- * 
- * @author Kai Kreuzer - Initial contribution and API
- *
- */
-public interface BindingConfig {
+public class BindingConfigParseException extends Exception {
+
+	private static final long serialVersionUID = 1434607160082879845L;
+
+	public BindingConfigParseException(String msg) {
+		super(msg);
+	}
 
 }

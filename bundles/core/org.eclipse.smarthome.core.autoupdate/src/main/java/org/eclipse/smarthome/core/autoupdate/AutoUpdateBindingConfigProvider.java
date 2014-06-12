@@ -7,9 +7,6 @@
  */
 package org.eclipse.smarthome.core.autoupdate;
 
-import org.eclipse.smarthome.core.binding.BindingProvider;
-
-
 /**
  * This interface is implemented by classes that can provide configuration 
  * information of the AutoUpdate feature. 
@@ -17,9 +14,10 @@ import org.eclipse.smarthome.core.binding.BindingProvider;
  * Implementing classes should register themselves as a service in order to be 
  * taken into account.
  * 
- * @author Thomas.Eichstaedt-Engelen
+ * @author Thomas.Eichstaedt-Engelen - Initial contribution
+ * @author Kai Kreuzer - refactored to make independent of parent interfaces
  */
-public interface AutoUpdateBindingProvider extends BindingProvider {
+public interface AutoUpdateBindingConfigProvider {
 	
 	/**
 	 * Indicates whether an Item with the given <code>itemName</code> is 

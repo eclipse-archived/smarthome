@@ -7,13 +7,17 @@
  */
 package org.eclipse.smarthome.core.autoupdate.internal;
 
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingProvider;
-import org.eclipse.smarthome.core.binding.AbstractBinding;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
+import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 	
@@ -30,11 +34,32 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added sending real events
  */
-public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider> {
+public class AutoUpdateBinding extends AbstractEventSubscriber {
 
 	private static final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 	
 	protected ItemRegistry itemRegistry;
+
+	/** to keep track of all binding config providers */
+	protected Collection<AutoUpdateBindingConfigProvider> providers = new CopyOnWriteArraySet<>();
+	
+	protected EventPublisher eventPublisher = null;
+	
+	public void addBindingConfigProvider(AutoUpdateBindingConfigProvider provider) {
+		providers.add(provider);
+	}
+
+	public void removeBindingConfigProvider(AutoUpdateBindingConfigProvider provider) {
+		providers.remove(provider);
+	}
+
+	public void setEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+
+	public void unsetEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = null;
+	}
 	
 	public void setItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = itemRegistry;
@@ -45,10 +70,10 @@ public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider
 	}
 
 	/**
-	 * <p>Iterates through all registered {@link AutoUpdateBindingProvider}s and
+	 * <p>Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and
 	 * checks whether an autoupdate configuration is available for <code>itemName</code>.</p>
 	 * 
-	 * <p>If there are more then one {@link AutoUpdateBindingProvider}s providing
+	 * <p>If there are more then one {@link AutoUpdateBindingConfigProvider}s providing
 	 * a configuration the results are combined by a logical <em>OR</em>. If no
 	 * configuration is provided at all the autoupdate defaults to <code>true</code>
 	 * and an update is posted for the corresponding {@link State}.</p> 
@@ -60,7 +85,7 @@ public class AutoUpdateBinding extends AbstractBinding<AutoUpdateBindingProvider
 	@Override
 	public void receiveCommand(String itemName, Command command) {
 		Boolean autoUpdate = null;
-		for (AutoUpdateBindingProvider provider : providers) {
+		for (AutoUpdateBindingConfigProvider provider : providers) {
 			Boolean au = provider.autoUpdate(itemName);
 			if (au != null) {
 				autoUpdate = au;

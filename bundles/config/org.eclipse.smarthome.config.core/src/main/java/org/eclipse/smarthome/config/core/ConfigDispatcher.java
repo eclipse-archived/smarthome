@@ -299,7 +299,6 @@ public class ConfigDispatcher {
 	                Path name = ev.context();
 	 
 	                // print out event
-	                System.out.format("%s: %s\n", event.kind().name(), name);	 
 	                if(kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
 	                	try {
 	                		processConfigFile(new File(getServiceConfigFolder() + File.separator + name.toString()));
