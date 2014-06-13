@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
-import org.openhab.core.items.Item;
 
 
 /**
