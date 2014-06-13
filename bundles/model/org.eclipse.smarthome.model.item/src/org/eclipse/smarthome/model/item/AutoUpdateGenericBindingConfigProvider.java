@@ -9,6 +9,7 @@ package org.eclipse.smarthome.model.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
+import org.openhab.core.items.Item;
 
 
 /**
@@ -69,6 +71,13 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
 	 */
 	@Override
 	public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig) throws BindingConfigParseException {
+		Set<String> itemNames = contextMap.get(context);
+		if (itemNames==null) {
+			itemNames = new HashSet<String>();
+			contextMap.put(context, itemNames);
+		}
+		itemNames.add(itemName);
+		
 		AutoUpdateBindingConfig config = new AutoUpdateBindingConfig();
 		parseBindingConfig(bindingConfig, config);
 		addBindingConfig(itemType, itemName, config);		

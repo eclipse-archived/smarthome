@@ -11,7 +11,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.model.item.autoupdate.genericbindingprovider">
    <implementation class="org.eclipse.smarthome.model.item.AutoUpdateGenericBindingConfigProvider"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.item.internal.BindingConfigReader"/>
+      <provide interface="org.eclipse.smarthome.model.item.BindingConfigReader"/>
       <provide interface="org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider"/>
    </service>
 </scr:component>
