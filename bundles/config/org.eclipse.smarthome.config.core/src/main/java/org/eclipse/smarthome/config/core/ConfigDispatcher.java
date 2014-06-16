@@ -132,13 +132,17 @@ public class ConfigDispatcher {
 
 	private void readConfigs() {
 		File dir = new File(getServiceConfigFolder());
-		File[] files = dir.listFiles();
-		for(File file : files) {
-			try {
-				processConfigFile(file);
-			} catch (IOException e) {
-				logger.warn("Could not process config file '{}': {}", file.getName(), e);
-			}			
+		if(dir.exists()) {
+			File[] files = dir.listFiles();
+			for(File file : files) {
+				try {
+					processConfigFile(file);
+				} catch (IOException e) {
+					logger.warn("Could not process config file '{}': {}", file.getName(), e);
+				}			
+			}
+		} else {
+			logger.debug("Configuration folder '{}' does not exist.", dir.toString());
 		}
 	}
 
@@ -151,24 +155,28 @@ public class ConfigDispatcher {
 			}
 		}
 		Path toWatch = Paths.get(getServiceConfigFolder());
-		try {
-			watchService = toWatch.getFileSystem().newWatchService();
-			WatchQueueReader reader = new WatchQueueReader(watchService, toWatch);
-			Thread qr = new Thread(reader, "Dir Watcher");
-			qr.start();
-			toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
-		} catch (IOException e) {
-			logger.error("Cannot activate folder watcher for folder '{}': ", toWatch, e);
+		if(toWatch.toFile().exists()) {
+			try {
+				watchService = toWatch.getFileSystem().newWatchService();
+				WatchQueueReader reader = new WatchQueueReader(watchService, toWatch);
+				Thread qr = new Thread(reader, "Dir Watcher");
+				qr.start();
+				toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+			} catch (IOException e) {
+				logger.error("Cannot activate folder watcher for folder '{}': ", toWatch, e);
+			}
 		}
 	}
 
 	private void stopWatchService() {
-		try {
-			watchService.close();
-		} catch (IOException e) {
-			logger.warn("Cannot deactivate folder watcher", e);
+		if(watchService!=null) {
+			try {
+				watchService.close();
+			} catch (IOException e) {
+				logger.warn("Cannot deactivate folder watcher", e);
+			}
+			watchService = null;
 		}
-		watchService = null;
 	}
 
 	private static String getServiceConfigFolder() {
