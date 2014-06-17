@@ -14,8 +14,9 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ItemChannelBindingRegistry;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -56,7 +57,7 @@ public class ThingHelper {
 		
 		ManagedItemProvider managedItemProvider = getManagedItemProvider();
 		
-		ItemChannelBindingRegistry itemChannelBindingRegistry = getItemChannelBindingRegistry();
+        ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getManagedItemChannelLinkProvider();
 		
 		List<Channel> channels = thing.getChannels();
 		
@@ -71,7 +72,8 @@ public class ThingHelper {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
 					managedItemProvider.addItem(item);
-					itemChannelBindingRegistry.bind(item.getName(), channel.getUID());
+                    managedItemChannelLinkProvider.addItemChannelLink(new ItemChannelLink(item
+                            .getName(), channel.getUID()));
 				}
 			}
 		}
@@ -88,13 +90,15 @@ public class ThingHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private ItemChannelBindingRegistry getItemChannelBindingRegistry() {
-		ServiceReference<ItemChannelBindingRegistry> itemChannelBindingRegistryServiceRef = (ServiceReference<ItemChannelBindingRegistry>) bundleContext.getServiceReference(ItemChannelBindingRegistry.class.getName());
-		if (itemChannelBindingRegistryServiceRef == null) {
+    private ManagedItemChannelLinkProvider getManagedItemChannelLinkProvider() {
+        ServiceReference<ManagedItemChannelLinkProvider> managedItemChannelLinkProviderRef = (ServiceReference<ManagedItemChannelLinkProvider>) bundleContext
+                .getServiceReference(ManagedItemChannelLinkProvider.class.getName());
+        if (managedItemChannelLinkProviderRef == null) {
 			return null;
 		}
-		ItemChannelBindingRegistry itemChannelBindingRegistry = bundleContext.getService(itemChannelBindingRegistryServiceRef);
-		return itemChannelBindingRegistry;
+        ManagedItemChannelLinkProvider managedItemChannelLinkProvider = bundleContext
+                .getService(managedItemChannelLinkProviderRef);
+        return managedItemChannelLinkProvider;
 	}
 	
 	@SuppressWarnings("unchecked")
