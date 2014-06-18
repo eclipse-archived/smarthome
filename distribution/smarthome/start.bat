@@ -11,4 +11,4 @@ for /f "delims= tokens=1" %%c in ('dir /B /S /OD %ECLIPSEHOME%\plugins\org.eclip
  
 :: start Eclipse w/ java
 echo Launching the Eclipse SmartHome demo runtime...
-java -Dosgi.clean=true -Declipse.ignoreApp=true -Dosgi.noShutdown=true -Djetty.port=%HTTP_PORT% -Djetty.home=. -Dlogback.configurationFile=configurations/logback.xml -Djava.security.auth.login.config=./etc/login.conf -Dorg.quartz.properties=./etc/quartz.properties -Dequinox.ds.block_timeout=240000 -Dequinox.scr.waitTimeOnBlock=60000 -Djava.awt.headless=true -Dfelix.fileinstall.active.level=4 -jar %EQUINOXJAR% %* -console 
+java -Dosgi.clean=true -Declipse.ignoreApp=true -Dosgi.noShutdown=true -Djetty.port=%HTTP_PORT% -Djetty.home=. -Dlogback.configurationFile=conf/logback.xml -Djava.security.auth.login.config=./etc/login.conf -Dorg.quartz.properties=./etc/quartz.properties -Dequinox.ds.block_timeout=240000 -Dequinox.scr.waitTimeOnBlock=60000 -Djava.awt.headless=true -Dfelix.fileinstall.active.level=4 -jar %EQUINOXJAR% %* -console 
