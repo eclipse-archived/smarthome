@@ -22,7 +22,7 @@ import org.junit.Test
  * 
  * @author Dennis Nobel - Initial contribution
  */
-class ManagedThingProviderOSGiTest extends OSGiTest {
+class ItemChannelLinkOSGiTest extends OSGiTest {
 
     ChannelUID CHANNEL_UID = new ChannelUID("binding:typeId:thingId:channelId")
     ItemChannelLink ITEM_CHANNEL_LINK = new ItemChannelLink("item", CHANNEL_UID)
@@ -39,9 +39,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        managedItemChannelLinkProvider.getItemChannelLinks().each {
-            managedItemChannelLinkProvider.removeItemChannelLink(it.getID())
-        }
+        managedItemChannelLinkProvider.getItemChannelLinks().each { managedItemChannelLinkProvider.removeItemChannelLink(it) }
     }
 
     @Test
@@ -58,5 +56,27 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 
         assertThat itemChannelLinkRegistry.getItemChannelLinks().size(), is(0)
         assertThat managedItemChannelLinkProvider.getItemChannelLinks().size(), is(0)
+    }
+
+    @Test
+    void 'assert isLinked returns true'() {
+        managedItemChannelLinkProvider.addItemChannelLink ITEM_CHANNEL_LINK
+        assertThat  itemChannelLinkRegistry.isLinked("item", CHANNEL_UID), is(true)
+    }
+
+    @Test
+    void 'assert isLinked returns false'() {
+        assertThat  itemChannelLinkRegistry.isLinked("item", CHANNEL_UID), is(false)
+    }
+
+    @Test
+    void 'assert getBoundItem items returns item'() {
+        managedItemChannelLinkProvider.addItemChannelLink ITEM_CHANNEL_LINK
+        assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(equalTo("item"))
+    }
+
+    @Test
+    void 'assert getBoundItem items returns null'() {
+        assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(null)
     }
 }
