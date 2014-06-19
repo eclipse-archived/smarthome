@@ -22,6 +22,7 @@ import org.eclipse.xtext.xbase.XAssignment
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext
 import org.eclipse.xtext.xbase.interpreter.impl.XbaseInterpreter
 import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
+import org.eclipse.xtext.common.types.JvmIdentifiableElement
 
 /**
  * The script interpreter handles the openHAB specific script components, which are not known
@@ -57,6 +58,13 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			super._invokeFeature(jvmField, featureCall, receiver, context, indicator)	
 		}
 	
+	}
+	
+	override protected invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall, Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
+		if (feature != null && feature.eIsProxy) {
+			throw new RuntimeException("The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
+		}
+		super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
 	}
 
 	def protected Type getStateOrCommand(String name) {
