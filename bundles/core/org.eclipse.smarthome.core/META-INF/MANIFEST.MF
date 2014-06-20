@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
-Export-Package: org.eclipse.smarthome.core.binding,
- org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.items,org.osgi.service.event,org.eclipse.smarthome.core.types",
+Export-Package: org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.items,org.osgi.service.event,org.eclipse.smarthome.core.types",
  org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.types,org.eclipse.smarthome.core.events",
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,

@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.core.binding.BindingConfigParseException;
-import org.eclipse.smarthome.core.binding.BindingConfigReader;
 import org.eclipse.smarthome.core.items.AbstractItemProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -29,6 +27,8 @@ import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
+import org.eclipse.smarthome.model.item.BindingConfigParseException;
+import org.eclipse.smarthome.model.item.BindingConfigReader;
 import org.eclipse.smarthome.model.items.ItemModel;
 import org.eclipse.smarthome.model.items.ModelBinding;
 import org.eclipse.smarthome.model.items.ModelGroupFunction;
@@ -328,8 +328,8 @@ public class GenericItemProvider extends AbstractItemProvider implements ModelRe
 			
 			if (localReader != null) {
 				try {
-					localReader.validateItemType(item, config);
-					localReader.processBindingConfiguration(modelName, item, config);
+					localReader.validateItemType(item.getType(), config);
+					localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config);
 				} catch (BindingConfigParseException e) {
 					logger.error("Binding configuration of type '" + bindingType
 						+ "' of item ‘" + item.getName() + "‘ could not be parsed correctly.", e);

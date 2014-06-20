@@ -18,27 +18,29 @@ Require-Bundle: org.eclipse.xtext,
  org.antlr.runtime,
  org.eclipse.xtext.common.types
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.formatting,
- org.eclipse.smarthome.model.scoping,
- org.eclipse.smarthome.model.validation,
- org.eclipse.smarthome.model.services,
+Export-Package: org.eclipse.smarthome.model,
+ org.eclipse.smarthome.model.formatting,
+ org.eclipse.smarthome.model.generator,
+ org.eclipse.smarthome.model.item,
  org.eclipse.smarthome.model.items,
  org.eclipse.smarthome.model.items.impl,
  org.eclipse.smarthome.model.items.util,
  org.eclipse.smarthome.model.parser.antlr,
  org.eclipse.smarthome.model.parser.antlr.internal,
+ org.eclipse.smarthome.model.scoping,
  org.eclipse.smarthome.model.serializer,
- org.eclipse.smarthome.model.generator,
- org.eclipse.smarthome.model
-Import-Package: org.apache.log4j,
- org.eclipse.smarthome.core.binding,
+ org.eclipse.smarthome.model.services,
+ org.eclipse.smarthome.model.validation
+Import-Package: org.apache.commons.lang,
+ org.apache.log4j,
+ org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.scriptengine,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.model.core,
+ org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
- org.slf4j,
- org.eclipse.xtext.xbase.lib
-Service-Component: OSGI-INF/genericitemprovider.xml
+ org.slf4j
+Service-Component: OSGI-INF/*

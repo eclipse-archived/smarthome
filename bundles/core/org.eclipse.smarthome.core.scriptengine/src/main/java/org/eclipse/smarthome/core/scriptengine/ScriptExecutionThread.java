@@ -45,7 +45,7 @@ public class ScriptExecutionThread extends Thread {
 			if (msg==null) {
 				logger.error("Error during the execution of rule '{}'", getName(), e.getCause());
 			} else {
-				logger.error("Error during the execution of rule '{}': {}", new String[] { getName(), msg });
+				logger.error("Error during the execution of rule '{}': {}", new Object[] { getName(), msg });
 			}
 		}
 	}

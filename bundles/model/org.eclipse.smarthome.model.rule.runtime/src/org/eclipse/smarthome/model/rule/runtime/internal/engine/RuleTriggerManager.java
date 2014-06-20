@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.smarthome.core.items.Item;
@@ -82,9 +83,9 @@ public class RuleTriggerManager {
 	private Map<String, Set<Rule>> updateEventTriggeredRules = Maps.newHashMap();
 	private Map<String, Set<Rule>> changedEventTriggeredRules = Maps.newHashMap();
 	private Map<String, Set<Rule>> commandEventTriggeredRules = Maps.newHashMap();
-	private List<Rule> systemStartupTriggeredRules = Lists.newArrayList();
-	private List<Rule> systemShutdownTriggeredRules = Lists.newArrayList();
-	private List<Rule> timerEventTriggeredRules = Lists.newArrayList();
+	private Set<Rule> systemStartupTriggeredRules = new CopyOnWriteArraySet<>();
+	private Set<Rule> systemShutdownTriggeredRules = new CopyOnWriteArraySet<>();
+	private Set<Rule> timerEventTriggeredRules = new CopyOnWriteArraySet<>();
 
 	// the scheduler used for timer events
 	private Scheduler scheduler;
@@ -315,11 +316,12 @@ public class RuleTriggerManager {
 				}
 				rules.add(rule);
 			} else if(t instanceof TimerTrigger) {
-				timerEventTriggeredRules.add(rule);
-				try {
-					createTimer(rule, (TimerTrigger) t);
-				} catch (SchedulerException e) {
-					logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
+				if(timerEventTriggeredRules.add(rule)) {
+					try {
+						createTimer(rule, (TimerTrigger) t);
+					} catch (SchedulerException e) {
+						logger.error("Cannot create timer for rule '{}': {}", rule.getName(), e.getMessage());
+					}
 				}
 			}
 		}
