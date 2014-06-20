@@ -1,5 +1,7 @@
 package org.eclipse.smarthome.core.items;
 
+import static org.eclipse.smarthome.core.internal.CoreActivator.getContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,7 +36,8 @@ public class ManagedItemProvider extends AbstractItemProvider {
 	
 	
 	public void setStorageService(StorageService storageService) {
-		this.itemStorage = storageService.getStorage(Item.class.getName());
+		this.itemStorage = 
+			storageService.getStorage(getContext(), Item.class.getName());
 	}
 
 	public void unsetStorageService(StorageService storageService) {
@@ -65,7 +68,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
 
 		String oldItemType = itemStorage.put(item.getName(), item.getType());
 		Item oldItem = null;
-		if(oldItemType!=null) {
+		if (oldItemType != null) {
 			oldItem = instantiateItem(oldItemType, item.getName());
 			notifyItemChangeListenersAboutRemovedItem(oldItem);
 		}
@@ -80,7 +83,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
 		}
 
 		String removedItemType = itemStorage.remove(itemName);
-		if (removedItemType!=null) {
+		if (removedItemType != null) {
 			Item removedItem = instantiateItem(removedItemType, itemName);
 			notifyItemChangeListenersAboutRemovedItem(removedItem);
 			return removedItem;

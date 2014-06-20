@@ -21,6 +21,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.Ignore
 
+
 /**
  * The {@link ManagedItemProviderOSGiTest} runs inside an 
  * OSGi container and tests the {@link ManagedItemProvider}.  
@@ -38,7 +39,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 	}
 
 	@After
-	void tearUp() {
+	void tearDown() {
 		unregisterService(itemProvider)
 	}
 
@@ -90,4 +91,5 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 						
 		assertThat itemProvider.getItems().size, is(0)
 	}
+	
 }
