@@ -94,7 +94,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
 		}
 	}
 	
-	override protected _assigneValueTo(JvmField jvmField, XAssignment assignment, Object value, IEvaluationContext context, CancelIndicator indicator) {
+	def dispatch protected assigneValueTo(JvmField jvmField, XAssignment assignment, Object value, IEvaluationContext context, CancelIndicator indicator) {
 		// Check if the JvmField is inferred
 		val sourceElement = jvmField.sourceElements.head
 		if (sourceElement != null) {

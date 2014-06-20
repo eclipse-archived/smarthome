@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="58">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="59">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.ibm.icu.base" version="52.1.0.v201404171520"/>
@@ -74,13 +74,6 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20140525021250/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.5.1.v201402030544"/>
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.5.3.v201402240820"/>
-<unit id="org.eclipse.xtend.sdk.feature.group" version="2.5.3.v201402240820"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.9.2.v20140203-1126"/>
-<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.jdt.feature.group" version="3.9.2.v20140221-1700"/>
 <unit id="org.eclipse.equinox.sdk.feature.group" version="3.9.0.v20140221-1852"/>
 <repository location="http://download.eclipse.org/releases/kepler/"/>
@@ -97,6 +90,13 @@
 <unit id="org.eclipse.sdk.ide" version="4.3.2.M20140221-1700"/>
 <unit id="org.eclipse.pde.feature.group" version="3.9.1.v20140221-1700"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.1.v201406120726"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.9.2.v20140203-1126"/>
+<unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.1.v201406120726"/>
+<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.0.v201405200714"/>
+<repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
 </location>
 </locations>
 </target>
