@@ -11,8 +11,13 @@
 package org.eclipse.smarthome.model.script;
 
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
+import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
 import org.eclipse.smarthome.model.script.scoping.ScriptImplicitlyImportedTypes;
 import org.eclipse.smarthome.model.script.scoping.ScriptImportSectionNamespaceScopeProvider;
+import org.eclipse.xtext.common.types.access.IJvmTypeProvider;
+import org.eclipse.xtext.common.types.access.reflect.ReflectionTypeProviderFactory;
+import org.eclipse.xtext.common.types.access.reflect.ReflectionTypeScopeProvider;
+import org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IScopeProvider;
@@ -25,6 +30,9 @@ import com.google.inject.name.Names;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
+ * 
+ * @author Oliver Libutzki - Initial contribution
+ * 
  */
 @SuppressWarnings("restriction")
 public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.AbstractScriptRuntimeModule {
@@ -48,6 +56,22 @@ public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.Abst
 	
 	public void configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(ScriptImportSectionNamespaceScopeProvider.class);
+	}
+	
+	@Override
+	public Class<? extends IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
+		return ReflectionTypeProviderFactory.class;
+	}
+
+	@Override
+	public Class<? extends AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
+		return ReflectionTypeScopeProvider.class;
+	}
+	
+	
+	@Override
+	public ClassLoader bindClassLoaderToInstance() {
+		return new ActionClassLoader(super.bindClassLoaderToInstance());
 	}
 	
 }
