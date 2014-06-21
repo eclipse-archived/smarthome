@@ -12,9 +12,11 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.junit.After
+import org.junit.Assert;
 import org.junit.Before
 import org.osgi.framework.BundleContext
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 /**
@@ -27,15 +29,15 @@ import org.osgi.framework.ServiceRegistration;
  */
 abstract class OSGiTest {
 
-    BundleContext bundleContext
-    Map<String, ServiceRegistration<?>> registeredServices = [:]
+	BundleContext bundleContext
+	Map<String, ServiceRegistration<?>> registeredServices = [:]
 
-    @Before
-    public void bindBundleContext() {
-        bundleContext = getBundleContext()
-        assertThat bundleContext, is(notNullValue())
-    }
-	
+	@Before
+	public void bindBundleContext() {
+		bundleContext = getBundleContext()
+		assertThat bundleContext, is(notNullValue())
+	}
+
 	/**
 	 * Returns the {@link BundleContext}, which is used for registration and unregistration of OSGi 
 	 * services. By default it uses the bundle context of the test class itself. This method can be overridden
@@ -48,31 +50,63 @@ abstract class OSGiTest {
 		return bundle?.getBundleContext()
 	}
 
-    /**
-     * Returns an OSGi service for the given class.
-     * 
-     * @param clazz class under which the OSGi service is registered
-     * @return OSGi service or null if no service can be found for the given class
-     */
-    protected <T> T getService(Class<T> clazz){
-        def serviceReference = bundleContext.getServiceReference(clazz.name)
-        return serviceReference ? bundleContext.getService(serviceReference) : null
-    }
+	/**
+	 * Returns an OSGi service for the given class.
+	 * 
+	 * @param clazz class under which the OSGi service is registered
+	 * @return OSGi service or null if no service can be found for the given class
+	 */
+	protected <T> T getService(Class<T> clazz){
+		def serviceReference = bundleContext.getServiceReference(clazz.name)
+		return serviceReference ? bundleContext.getService(serviceReference) : null
+	}
 
-    /**
-     * Registers the given object as OSGi service. The first interface is used as OSGi service 
-     * interface name.
-     * 
-     * @param service service to be registered
+	/**
+	 * Returns an OSGi service for the given class and the given filter.
+	 * 
+	 * @param clazz class under which the OSGi service is registered
+	 * @param filter 
+	 * @return OSGi service or null if no service can be found for the given class
+	 */
+	protected <T> T getService(Class<T> clazz, Closure<Boolean> filter){
+		def serviceReferences = bundleContext.getServiceReferences(clazz.name, null)
+		def filteredServiceReferences = serviceReferences.findAll(filter)
+
+		if (filteredServiceReferences.size() > 1) {
+			Assert.fail("More than 1 service matching the filter is registered.")
+		}
+		if (filteredServiceReferences.empty) {
+			null
+		} else {
+			bundleContext.getService(filteredServiceReferences.first())
+		}
+	}
+
+	/**
+	 * Returns an OSGi service for the given class and the given filter.
+	 * 
+	 * @param clazz class under which the OSGi service is registered
+	 * @param filter 
+	 * @return OSGi service or null if no service can be found for the given class
+	 */
+	protected <T> T getService(Class<T> clazz, Class<? extends T> implementationClass){
+		getService(clazz, {ServiceReference<?> serviceReference -> implementationClass.isAssignableFrom(bundleContext.getService(serviceReference).getClass())})
+	}
+
+	/**
+	 * Registers the given object as OSGi service. The first interface is used as OSGi service 
+	 * interface name.
+	 * 
+	 * @param service service to be registered
 	 * @param properties OSGi service properties
-     * @return service registration object
-     */
-    protected registerService(def service, Hashtable properties = [:]) {
-        def interfaceName = getInterfaceName(service)
-        assertThat interfaceName, is(notNullValue())
-        registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
-    }
-	
+	 * @return service registration object
+	 */
+	protected registerService(def service, Hashtable properties = [:]) {
+		def interfaceName = getInterfaceName(service)
+		assertThat interfaceName, is(notNullValue())
+		registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
+	}
+
 	/**
 	 * Registers the given object as OSGi service. The given interface name as String is used as OSGi service
 	 * interface name.
@@ -87,20 +121,20 @@ abstract class OSGiTest {
 		registeredServices.put(interfaceName, bundleContext.registerService(interfaceName, service, properties))
 	}
 
-    /**
-     * Unregisters an OSGi service by the given object, that was registered before. If the object is 
-     * a String the service is unregistered by the interface name. If the given service parameter is 
-     * the service itself the interface name is taken from the first interface of the service object.
-     * 
-     * @param service service or service interface name
-     * @return the service registration that was unregistered or null if no service could be found
-     */
-    protected unregisterService(def service) {
+	/**
+	 * Unregisters an OSGi service by the given object, that was registered before. If the object is 
+	 * a String the service is unregistered by the interface name. If the given service parameter is 
+	 * the service itself the interface name is taken from the first interface of the service object.
+	 * 
+	 * @param service service or service interface name
+	 * @return the service registration that was unregistered or null if no service could be found
+	 */
+	protected unregisterService(def service) {
 		def interfaceName = service instanceof String ?: getInterfaceName(service)
-        registeredServices.get(interfaceName)?.unregister()
-        registeredServices.remove(interfaceName)
-    }
-	
+		registeredServices.get(interfaceName)?.unregister()
+		registeredServices.remove(interfaceName)
+	}
+
 	/**
 	 * When this method is called it waits until the condition is fulfilled or the timeout is reached.
 	 * The condition is specified by a closure, that must return a boolean object. When the condition is 
@@ -119,7 +153,7 @@ abstract class OSGiTest {
 			sleep sleepTime
 		}
 	}
-	
+
 	/**
 	 * When this method is called it waits until the assertion is fulfilled or the timeout is reached.
 	 * The assertion is specified by a closure, that must throw an Exception, if the assertion is not fulfilled. 
@@ -144,7 +178,7 @@ abstract class OSGiTest {
 		}
 		assertion()
 	}
-	
+
 	/**
 	 * Returns the interface name for a given service object by choosing the first interface.
 	 * 
@@ -155,11 +189,11 @@ abstract class OSGiTest {
 		service.class.interfaces?.find({it})?.name
 	}
 
-    @After
-    public void unregisterMocks() {
-        registeredServices.each() { interfaceName, service ->
-            service.unregister()
-        }
-        registeredServices.clear()
-    }
+	@After
+	public void unregisterMocks() {
+		registeredServices.each() { interfaceName, service ->
+			service.unregister()
+		}
+		registeredServices.clear()
+	}
 }
