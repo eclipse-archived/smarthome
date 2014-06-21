@@ -14,6 +14,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
@@ -40,20 +41,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class is able to observe multiple folders for changes and notifies the model repository
- * about every change, so that it can update itself.
+ * This class is able to observe multiple folders for changes and notifies the
+ * model repository about every change, so that it can update itself.
  * 
- * @author Kai Kreuzer - Initial contribution and API, Fabio Marini
- *
+ * @author Kai Kreuzer - Initial contribution and API
+ * @author Fabio Marini - Refactoring to use WatchService
+ * 
  */
 public class FolderObserver implements ManagedService {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(FolderObserver.class);
 
-	/* the watch service  */
+	/* the watch service */
 	private WatchService watchService;
-	
+
 	/* the model repository is provided as a service */
 	private ModelRepository modelRepo = null;
 
@@ -85,29 +87,33 @@ public class FolderObserver implements ManagedService {
 			}
 		}
 
-		if (MapUtils.isNotEmpty(folderFileExtMap)) {
-			for (String path : folderFileExtMap.keySet()) {
-				String pathToWatch = ConfigDispatcher.getConfigFolder() + File.separator + path;
+		String pathToWatch = ConfigDispatcher.getConfigFolder();
+		if (StringUtils.isNotBlank(pathToWatch)
+				&& MapUtils.isNotEmpty(folderFileExtMap)) {
+			try {
+				watchService = FileSystems.getDefault().newWatchService();
 
-				Path toWatch = Paths.get(pathToWatch);
-				try {
-					watchService = toWatch.getFileSystem().newWatchService();
-					WatchQueueReader reader = new WatchQueueReader(
-							watchService, folderFileExtMap, modelRepo);
+				Set<String> folders = folderFileExtMap.keySet();
+				Iterator<String> iterator = folders.iterator();
+				while(iterator.hasNext()) {
+					Path dir = Paths.get(ConfigDispatcher.getConfigFolder() + File.separator + iterator.next());
+					
+					WatchKey key = dir.register(watchService,
+	                           ENTRY_CREATE,
+	                           ENTRY_DELETE,
+	                           ENTRY_MODIFY);
 
+					WatchQueueReader reader = new WatchQueueReader(key,
+							folderFileExtMap, modelRepo);
 					Thread qr = new Thread(reader, "Model Dir Watcher");
 					qr.start();
-
-					toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
-							ENTRY_DELETE);
-				} catch (IOException e) {
-					logger.error(
-							"Cannot activate folder watcher for folder '{}': ",
-							toWatch, e);
 				}
+
+			} catch (IOException e) {
+				logger.error(
+						"Cannot activate folder watcher for folder ", e);
 			}
 		}
-
 	}
 
 	private void stopWatchService() {
@@ -121,17 +127,17 @@ public class FolderObserver implements ManagedService {
 
 	private static class WatchQueueReader implements Runnable {
 
-		private WatchService watchService;
+		private WatchKey key;
 
 		private Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
 
 		private ModelRepository modelRepo = null;
 
-		public WatchQueueReader(WatchService watchService,
+		public WatchQueueReader(WatchKey key,
 				Map<String, String[]> folderFileExtMap,
 				ModelRepository modelRepo) {
 			super();
-			this.watchService = watchService;
+			this.key = key;
 			this.folderFileExtMap = folderFileExtMap;
 			this.modelRepo = modelRepo;
 		}
@@ -140,13 +146,6 @@ public class FolderObserver implements ManagedService {
 		@Override
 		public void run() {
 			for (;;) {
-				WatchKey key = null;
-				try {
-					key = watchService.take();
-				} catch (InterruptedException e) {
-					return;
-				}
-
 				for (WatchEvent<?> event : key.pollEvents()) {
 					WatchEvent.Kind<?> kind = event.kind();
 
@@ -157,7 +156,7 @@ public class FolderObserver implements ManagedService {
 					WatchEvent<Path> ev = (WatchEvent<Path>) event;
 					Path name = ev.context();
 
-					checkFolder(name.toString(), kind);
+					checkFile(name.toString(), kind);
 				}
 
 				key.reset();
@@ -165,13 +164,10 @@ public class FolderObserver implements ManagedService {
 		}
 
 		@SuppressWarnings("rawtypes")
-		private void checkFolder(String filename, Kind kind) {
-			String folder = getFolderByExtension(filename);
-
-			if (folder != null) {
-				if (modelRepo != null) {
-					File file = new File(FoldersUtility.getFolder(folder) + File.separator
-							+ filename);
+		private void checkFile(String filename, Kind kind) {
+			if (modelRepo != null) {
+				File file = getFolderByExtension(filename);
+				if (file != null) {
 					try {
 						if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
 							modelRepo.addOrRefreshModel(file.getName(),
@@ -188,18 +184,20 @@ public class FolderObserver implements ManagedService {
 			}
 		}
 
-		private String getFolderByExtension(String filename) {
-			if (StringUtils.isNotBlank(filename)  && MapUtils.isNotEmpty(folderFileExtMap)) {
+		private File getFolderByExtension(String filename) {
+			if (StringUtils.isNotBlank(filename)
+					&& MapUtils.isNotEmpty(folderFileExtMap)) {
 				Set<Entry<String, String[]>> entries = folderFileExtMap
 						.entrySet();
 				Iterator<Entry<String, String[]>> iterator = entries.iterator();
-				String extension = FoldersUtility.getExtension(filename);
+				String extension = getExtension(filename);
 
 				while (iterator.hasNext()) {
 					Entry<String, String[]> entry = iterator.next();
 
 					if (ArrayUtils.contains(entry.getValue(), extension)) {
-						return entry.getKey();
+						return new File(getFolder(entry.getKey())
+								+ File.separator + filename);
 					}
 				}
 			}
@@ -224,7 +222,7 @@ public class FolderObserver implements ManagedService {
 				String[] fileExts = ((String) config.get(foldername))
 						.split(",");
 
-				File folder = FoldersUtility.getFolder(foldername);
+				File folder = getFolder(foldername);
 				if (folder.exists() && folder.isDirectory()) {
 					folderFileExtMap.put(foldername, fileExts);
 				} else {
@@ -236,5 +234,32 @@ public class FolderObserver implements ManagedService {
 
 			initializeWatchService();
 		}
+	}
+
+	/**
+	 * Returns the {@link File} object for a given filename It builds the file's
+	 * full path
+	 * 
+	 * @param filename
+	 *            the file name to get the {@link File} for
+	 * @return the corresponding {@link File}
+	 */
+	public static File getFolder(String filename) {
+		File folder = new File(ConfigDispatcher.getConfigFolder()
+				+ File.separator + filename);
+
+		return folder;
+	}
+
+	/**
+	 * Returns the extension of the given file
+	 * 
+	 * @param filename
+	 *            the file name to get the extension
+	 * @return the file's extension
+	 */
+	public static String getExtension(String filename) {
+		String fileExt = filename.substring(filename.lastIndexOf(".") + 1);
+		return fileExt;
 	}
 }
