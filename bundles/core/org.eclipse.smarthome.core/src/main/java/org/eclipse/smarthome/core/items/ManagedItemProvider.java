@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package org.eclipse.smarthome.core.items;
 
 import java.util.ArrayList;
@@ -6,8 +13,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.internal.CoreActivator;
 import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageSelector;
+import org.eclipse.smarthome.core.storage.StorageSelector.StorageSelectionListener;
 import org.eclipse.smarthome.core.storage.StorageService;
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,69 +28,32 @@ import org.slf4j.LoggerFactory;
  * a {@link StorageService}. Items are being restored using the given
  * {@link ItemFactory}s.
  * 
- * @author Dennis Nobel - Initial contribution
+ * @author Dennis Nobel - Initial contribution, integrated StorageSelector
  * @author Thomas Eichstaedt-Engelen
  * @author Kai Kreuzer - improved return values
-*/
-public class ManagedItemProvider extends AbstractItemProvider {
+ */
+public class ManagedItemProvider extends AbstractItemProvider implements
+        StorageSelectionListener<String> {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(ManagedItemProvider.class);
 
-	private Collection<StorageService> storageServiceCandidates = new CopyOnWriteArrayList<StorageService>();
 	private Storage<String> itemStorage;
 	private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
-	
-	
-	public void addStorageService(StorageService storageService) {
-		storageServiceCandidates.add(storageService);
 
-		// small optimization - if there is just one StorageService available
-		// we don't have to select amongst others.
-		if (storageServiceCandidates.size() == 1) {
-			itemStorage = storageService.getStorage(Item.class.getName());
-		} else {
-			itemStorage = findStorageServiceByPriority();
-		}
+    private StorageSelector<String> storageSelector;
+	
+    public ManagedItemProvider() {
+        storageSelector = new StorageSelector<>(CoreActivator.getContext(),
+                Item.class.getName(), this);
+    }
+
+	public void addStorageService(StorageService storageService) {
+        storageSelector.addStorageService(storageService);
 	}
 
 	public void removeStorageService(StorageService storageService) {
-		storageServiceCandidates.remove(storageService);
-
-		// if there are still StorageService left, we have to select
-		// a new one to take over ...
-		if (storageServiceCandidates.size() > 0) {
-			itemStorage = findStorageServiceByPriority();
-		} else {
-			itemStorage = null;
-		}
-	}
-
-	/**
-	 * Returns a {@link Storage} returned by a {@link StorageService} with the
-	 * highest priority available in the OSGi container. In theory this should 
-	 * not be necessary if DS would have taken the {@code service.ranking} property
-	 * into account properly. Unfortunately it haven't during my tests. So this
-	 * method should be seen as workaround until somebody proofs that DS evaluates
-	 * the property correctly. 
-	 * 
-	 * @return a {@link Storage} created by the {@link StorageService} with the
-	 * highest priority (according to the OSGi container)
-	 */
-	private Storage<String> findStorageServiceByPriority() {
-		ServiceReference<?> reference = 
-			CoreActivator.getContext().getServiceReference(StorageService.class);
-		if (reference != null) {
-			StorageService service = 
-				(StorageService) CoreActivator.getContext().getService(reference);
-			Storage<String> storage = service.getStorage(Item.class.getName());
-
-			return storage;
-		}
-
-		// no service of type StorageService available
-		throw new IllegalStateException(
-			"There is no Service of type 'StorageService' available. This should not happen!");
+        storageSelector.removeStorageService(storageService);
 	}
 
 	public void addItemFactory(ItemFactory itemFactory) {
@@ -164,5 +135,10 @@ public class ManagedItemProvider extends AbstractItemProvider {
 				itemName, itemTypeName);
 			return null;
 	}
+
+    @Override
+    public void storageSelected(Storage<String> storage) {
+        this.itemStorage = storage;
+    }
 
 }

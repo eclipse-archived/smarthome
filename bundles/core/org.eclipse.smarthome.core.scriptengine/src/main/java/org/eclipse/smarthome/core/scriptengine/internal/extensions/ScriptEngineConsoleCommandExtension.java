@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.scriptengine.internal.extensions;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
@@ -62,8 +65,8 @@ public class ScriptEngineConsoleCommandExtension implements
 	}
 
 	@Override
-	public String getUsage() {
-		return "> <script to execute> - Executes a script";
+	public List<String> getUsages() {
+		return Collections.singletonList("> <script to execute> - Executes a script");
 	}
 	
 	public void setScriptEngine(ScriptEngine scriptEngine) {
