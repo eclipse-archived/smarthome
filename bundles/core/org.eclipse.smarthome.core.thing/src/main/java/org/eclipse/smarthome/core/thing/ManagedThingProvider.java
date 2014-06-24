@@ -31,15 +31,13 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Integrated Storage
  * 
  */
-public class ManagedThingProvider implements ThingProvider, StorageSelectionListener<Thing> {
+public class ManagedThingProvider extends AbstractThingProvider implements StorageSelectionListener<Thing> {
 
     private final static Logger logger = LoggerFactory.getLogger(ManagedThingProvider.class);
 
     private Storage<Thing> storage;
 
     private StorageSelector<Thing> storageSelector;
-
-    private List<ThingChangeListener> thingChangeListeners = new CopyOnWriteArrayList<>();
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -58,14 +56,9 @@ public class ManagedThingProvider implements ThingProvider, StorageSelectionList
         logger.info("Adding thing to managed thing provider '{}'.", thing.getUID());
         Thing oldThing = storage.put(thing.getUID().toString(), thing);
         if (oldThing != null) {
-            notifyThingChangeListenersAboutRemovedThing(oldThing);
+            notifyThingsChangeListenersAboutRemovedThing(oldThing);
         }
-        notifyThingChangeListenersAboutAddedThing(thing);
-    }
-
-    @Override
-    public void addThingChangeListener(ThingChangeListener listener) {
-        thingChangeListeners.add(listener);
+        notifyThingsChangeListenersAboutAddedThing(thing);
     }
 
     /**
@@ -117,31 +110,14 @@ public class ManagedThingProvider implements ThingProvider, StorageSelectionList
         logger.debug("Removing thing from managed thing provider '{}'.", uid);
         Thing removedThing = storage.remove(uid.toString());
         if (removedThing != null) {
-            notifyThingChangeListenersAboutRemovedThing(removedThing);
+            notifyThingsChangeListenersAboutRemovedThing(removedThing);
         }
         return removedThing;
     }
 
     @Override
-    public void removeThingChangeListener(ThingChangeListener listener) {
-        thingChangeListeners.remove(listener);
-    }
-
-    @Override
     public void storageSelected(Storage<Thing> storage) {
         this.storage = storage;
-    }
-
-    private void notifyThingChangeListenersAboutAddedThing(Thing thing) {
-        for (ThingChangeListener thingChangeListener : this.thingChangeListeners) {
-            thingChangeListener.thingAdded(this, thing);
-        }
-    }
-
-    private void notifyThingChangeListenersAboutRemovedThing(Thing thing) {
-        for (ThingChangeListener thingChangeListener : this.thingChangeListeners) {
-            thingChangeListener.thingRemoved(this, thing);
-        }
     }
 
     protected void addStorageService(StorageService storageService) {

@@ -60,7 +60,8 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
-        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
+		ThingUID bridgeUID = new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge")
+        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), bridgeUID, null, bridgeConfiguration)
         assertThat hueBridge, is(notNullValue())
 
 
@@ -70,7 +71,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             put(HueLightConfiguration.LIGHT_ID, "1")
             it
         }
-        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
+        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1", bridgeUID.getId()), hueBridge, lightConfiguration)
         assertThat hueLight, is(notNullValue())
 
         // wait for HueLightHandler to be registered

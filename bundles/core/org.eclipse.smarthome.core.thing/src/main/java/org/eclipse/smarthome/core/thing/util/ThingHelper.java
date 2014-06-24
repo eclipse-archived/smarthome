@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -22,6 +23,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 
 /**
  * {@link ThingHelper} provides a utility method to create and bind items.
@@ -132,6 +135,51 @@ public class ThingHelper {
 		return null;
 	}
 	
+	/**
+	 * Indicates whether two {@link Thing}s are technical equal.
+	 * 
+	 * @param a 
+	 * 			Thing object
+	 * @param b 
+	 * 			another Thing object
+	 * @return true whether a and b are equal, otherwise false
+	 */
+	public static boolean equals(Thing a, Thing b) {
+		if (!a.getUID().equals(b.getUID())) {
+			return false;
+		}
+		if (a.getName() == null && b.getName() != null) {
+			return false;
+		}
+		if (a.getName() != null && !a.getName().equals(b.getName())) {
+			return false;
+		}
+		// configuration
+		if (a.getConfiguration() == null && b.getConfiguration() != null) {
+			return false;
+		}
+		if (a.getConfiguration() != null && !a.getConfiguration().equals(b.getConfiguration())) {
+			return false;
+		}
+		// channels
+		List<Channel> channelsOfA = a.getChannels();
+		List<Channel> channelsOfB = b.getChannels();
+		if (channelsOfA.size() != channelsOfB.size()) {
+			return false;
+		}
+		if (!toString(channelsOfA).equals(toString(channelsOfB))) {
+			return false;
+		}
+		return true;
+	}
 	
+	private static String toString(List<Channel> channels) {
+		List<String> strings = new ArrayList<>(channels.size());
+		for (Channel channel : channels) {
+			strings.add(channel.getUID().toString() + '#' + channel.getAcceptedItemType());
+		}
+		Collections.sort(strings);
+		return Joiner.on(',').join(strings);
+	}
 	
 }

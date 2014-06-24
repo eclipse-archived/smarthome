@@ -68,4 +68,18 @@ public class Configuration {
     public boolean isProperlyConfigured() {
         return true;
     }
+    
+    @Override
+    public int hashCode() {
+    	return properties.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (this == obj)
+    		return true;
+    	if (!(obj instanceof Configuration))
+    		return false;
+    	return this.hashCode() == obj.hashCode();
+    }
 }
