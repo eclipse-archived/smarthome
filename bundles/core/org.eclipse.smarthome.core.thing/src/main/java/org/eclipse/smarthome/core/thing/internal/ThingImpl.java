@@ -53,6 +53,16 @@ public class ThingImpl implements Thing {
         this.thingTypeUID = thingTypeUID;
         this.channels = new ArrayList<>(0);
     }
+    
+    /**
+     * @param thingUID
+     * @throws IllegalArgumentException
+     */
+    public ThingImpl(ThingUID thingUID) throws IllegalArgumentException {
+    	this.uid = thingUID;
+    	this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
+    	this.channels = new ArrayList<>(0);
+    }
 
     /**
      * Adds the thing listener.
@@ -116,11 +126,15 @@ public class ThingImpl implements Thing {
 
     @Override
     public void setBridge(Bridge bridge) {
-        this.bridge = (BridgeImpl) bridge;
         if (bridge != null) {
+        	this.bridge = (BridgeImpl) bridge;
             this.bridge.addThing(this);
         } else {
-            this.bridge.removeThing(this);
+        	BridgeImpl oldBridge = this.bridge;
+        	this.bridge = null;
+        	if (oldBridge != null) {
+        		oldBridge.removeThing(this);
+        	}
         }
     }
 

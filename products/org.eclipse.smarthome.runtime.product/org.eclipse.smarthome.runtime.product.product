@@ -79,6 +79,8 @@
       <plugin id="org.eclipse.smarthome.model.script.runtime" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.sitemap.runtime" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.thing.runtime" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.ui" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.ui.webapp" autoStart="true" startLevel="0" />
    </configurations>

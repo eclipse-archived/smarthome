@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
 
 public class BridgeImpl extends ThingImpl implements Bridge {
 
@@ -21,6 +22,15 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
+    }
+    
+    
+    /**
+     * @param thingUID
+     * @throws IllegalArgumentException
+     */
+    public BridgeImpl(ThingUID thingUID) throws IllegalArgumentException {
+    	super(thingUID);
     }
 
     public void addThing(Thing thing) {

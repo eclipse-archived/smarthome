@@ -7,9 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import org.eclipse.smarthome.core.thing.internal.ThingRegistryImpl;
-
-
 /**
  * {@link ThingRegistryChangeListener} can be implemented to listen for things
  * beeing added or removed. The listener must be added and removed via

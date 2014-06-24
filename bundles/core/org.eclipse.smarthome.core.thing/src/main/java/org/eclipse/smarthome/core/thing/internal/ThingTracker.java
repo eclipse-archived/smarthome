@@ -21,7 +21,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 public interface ThingTracker {
 
     public enum ThingTrackerEvent {
-        THING_ADDED, THING_REMOVED, TRACKER_ADDED, TRACKER_REMOVED
+        THING_ADDED, THING_REMOVED, THING_UPDATED, TRACKER_ADDED, TRACKER_REMOVED
     }
 
     /**
@@ -47,5 +47,6 @@ public interface ThingTracker {
      *            thing tracker event
      */
     void thingRemoved(Thing thing, ThingTrackerEvent thingTrackerEvent);
+    
 
 }

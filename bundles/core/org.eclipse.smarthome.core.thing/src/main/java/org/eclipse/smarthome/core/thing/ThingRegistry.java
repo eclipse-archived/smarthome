@@ -2,13 +2,12 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.List;
 
-import org.eclipse.smarthome.core.thing.internal.ThingRegistryImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker;
 
 /**
  * {@link ThingRegistry} tracks all {@link Thing}s from different
  * {@link ThingProvider}s and provides access to them. The {@link ThingRegistry}
- * supports adding of listeners (see {@link ThingChangeListener}) and trackers
+ * supports adding of listeners (see {@link ThingsChangeListener}) and trackers
  * (see {@link ThingTracker}).
  * 
  * @author Dennis Nobel - Initial contribution
@@ -32,7 +31,7 @@ public interface ThingRegistry {
 	 *            thing UID
 	 * @return thing for a given UID or null if no thing was found
 	 */
-	public abstract Thing getByUID(String uid);
+	public abstract Thing getByUID(ThingUID uid);
 
 	/**
 	 * Returns all things.
