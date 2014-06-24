@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 
 /**
@@ -23,9 +24,17 @@ public class Channel {
 
     private ChannelUID uid;
 
+    private Configuration configuration;
+
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
+        this.uid = uid;
+        this.acceptedItemType = acceptedItemType;
+        this.configuration = configuration;
     }
 
     /**
@@ -44,5 +53,14 @@ public class Channel {
      */
     public ChannelUID getUID() {
         return this.uid;
+    }
+
+    /**
+     * Returns the channel configuration
+     * 
+     * @return channel configuration or null
+     */
+    public Configuration getConfiguration() {
+        return configuration;
     }
 }
