@@ -13,6 +13,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -71,7 +72,8 @@ public class FolderObserver implements ManagedService {
 	}
 
 	public void activate() {
-		initializeWatchService();
+		//the initialization is to do when the service configuration has been read and update. See ManagedService#update(Dictionary)
+		//initializeWatchService();
 	}
 
 	public void deactivate() {
@@ -95,13 +97,12 @@ public class FolderObserver implements ManagedService {
 
 				Set<String> folders = folderFileExtMap.keySet();
 				Iterator<String> iterator = folders.iterator();
-				while(iterator.hasNext()) {
-					Path dir = Paths.get(ConfigDispatcher.getConfigFolder() + File.separator + iterator.next());
-					
-					WatchKey key = dir.register(watchService,
-	                           ENTRY_CREATE,
-	                           ENTRY_DELETE,
-	                           ENTRY_MODIFY);
+				while (iterator.hasNext()) {
+					Path dir = Paths.get(ConfigDispatcher.getConfigFolder()
+							+ File.separator + iterator.next());
+
+					WatchKey key = dir.register(watchService, ENTRY_CREATE,
+							ENTRY_DELETE, ENTRY_MODIFY);
 
 					WatchQueueReader reader = new WatchQueueReader(key,
 							folderFileExtMap, modelRepo);
@@ -110,8 +111,7 @@ public class FolderObserver implements ManagedService {
 				}
 
 			} catch (IOException e) {
-				logger.error(
-						"Cannot activate folder watcher for folder ", e);
+				logger.error("Cannot activate folder watcher for folder ", e);
 			}
 		}
 	}
@@ -156,58 +156,21 @@ public class FolderObserver implements ManagedService {
 					WatchEvent<Path> ev = (WatchEvent<Path>) event;
 					Path name = ev.context();
 
-					checkFile(name.toString(), kind);
+					File toCheck = getFileByFileExtMap(folderFileExtMap,
+							name.toString());
+					if (toCheck != null) {
+						checkFile(modelRepo, toCheck, kind);
+					}
 				}
 
 				key.reset();
 			}
 		}
-
-		@SuppressWarnings("rawtypes")
-		private void checkFile(String filename, Kind kind) {
-			if (modelRepo != null) {
-				File file = getFolderByExtension(filename);
-				if (file != null) {
-					try {
-						if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-							modelRepo.addOrRefreshModel(file.getName(),
-									FileUtils.openInputStream(file));
-						} else if (kind == ENTRY_DELETE) {
-							modelRepo.removeModel(filename);
-						}
-					} catch (IOException e) {
-						logger.warn(
-								"Cannot open file '" + file.getAbsolutePath()
-										+ "' for reading.", e);
-					}
-				}
-			}
-		}
-
-		private File getFolderByExtension(String filename) {
-			if (StringUtils.isNotBlank(filename)
-					&& MapUtils.isNotEmpty(folderFileExtMap)) {
-				Set<Entry<String, String[]>> entries = folderFileExtMap
-						.entrySet();
-				Iterator<Entry<String, String[]>> iterator = entries.iterator();
-				String extension = getExtension(filename);
-
-				while (iterator.hasNext()) {
-					Entry<String, String[]> entry = iterator.next();
-
-					if (ArrayUtils.contains(entry.getValue(), extension)) {
-						return new File(getFolder(entry.getKey())
-								+ File.separator + filename);
-					}
-				}
-			}
-
-			return null;
-		}
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void updated(Dictionary config) throws ConfigurationException {
+	public synchronized void updated(Dictionary config)
+			throws ConfigurationException {
 		if (config != null) {
 			// make sure to clear the caches first
 			folderFileExtMap.clear();
@@ -232,8 +195,100 @@ public class FolderObserver implements ManagedService {
 				}
 			}
 
+			notifyUpdateToModelRepo();
 			initializeWatchService();
 		}
+	}
+
+	private void notifyUpdateToModelRepo() {
+		if (MapUtils.isNotEmpty(folderFileExtMap)) {
+			Iterator<String> iterator = folderFileExtMap.keySet().iterator();
+			while (iterator.hasNext()) {
+				String folderName = iterator.next();
+
+				final String[] validExtension = folderFileExtMap
+						.get(folderName);
+				if (validExtension != null && validExtension.length > 0) {
+					File folder = getFolder(folderName);
+
+					File[] files = folder.listFiles(new FileExtensionsFilter(
+							validExtension));
+					if (files != null && files.length > 0) {
+						for (File file : files) {
+							checkFile(modelRepo, file, ENTRY_CREATE);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected class FileExtensionsFilter implements FilenameFilter {
+
+		private String[] validExtensions;
+
+		public FileExtensionsFilter(String[] validExtensions) {
+			this.validExtensions = validExtensions;
+		}
+
+		@Override
+		public boolean accept(File dir, String name) {
+			if (validExtensions != null && validExtensions.length > 0) {
+				for (String extension : validExtensions) {
+					if (name.toLowerCase().endsWith("." + extension)) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static void checkFile(ModelRepository modelRepo, File file,
+			Kind kind) {
+		if (modelRepo != null && file != null) {
+			try {
+				synchronized (FolderObserver.class) {
+					if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
+							&& file != null) {
+						modelRepo.addOrRefreshModel(file.getName(),
+								FileUtils.openInputStream(file));
+					} else if (kind == ENTRY_DELETE) {
+						modelRepo.removeModel(file.getName());
+					}
+				}
+			} catch (IOException e) {
+				logger.warn("Cannot open file '" + file.getAbsolutePath()
+						+ "' for reading.", e);
+			}
+		}
+	}
+
+	private static File getFileByFileExtMap(
+			Map<String, String[]> folderFileExtMap, String filename) {
+		if (StringUtils.isNotBlank(filename)
+				&& MapUtils.isNotEmpty(folderFileExtMap)) {
+
+			String extension = getExtension(filename);
+
+			if (StringUtils.isNotBlank(extension)) {
+				Set<Entry<String, String[]>> entries = folderFileExtMap
+						.entrySet();
+				Iterator<Entry<String, String[]>> iterator = entries.iterator();
+				while (iterator.hasNext()) {
+					Entry<String, String[]> entry = iterator.next();
+
+					if (ArrayUtils.contains(entry.getValue(), extension)) {
+						return new File(getFolder(entry.getKey())
+								+ File.separator + filename);
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -260,6 +315,7 @@ public class FolderObserver implements ManagedService {
 	 */
 	public static String getExtension(String filename) {
 		String fileExt = filename.substring(filename.lastIndexOf(".") + 1);
+
 		return fileExt;
 	}
 }
