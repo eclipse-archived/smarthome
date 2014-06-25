@@ -20,7 +20,10 @@ public class ConfigActivator implements BundleActivator {
 	 * Called whenever the OSGi framework starts our bundle
 	 */
 	public void start(BundleContext bc) throws Exception {
-		configurationAdminTracker = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc, ConfigurationAdmin.class, null);
+        configurationAdminTracker = new ServiceTracker<ConfigurationAdmin, ConfigurationAdmin>(bc,
+                ConfigurationAdmin.class.getName(), null) {
+        	
+        };
 		configurationAdminTracker.open();
 	}
 

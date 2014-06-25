@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.thing.managedthingprovider">
+   <implementation class="org.eclipse.smarthome.core.thing.ManagedThingProvider"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.thing.ThingProvider"/>
+      <provide interface="org.eclipse.smarthome.core.thing.ManagedThingProvider"/>
+   </service>
+<reference bind="addStorageService" cardinality="1..n" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="dynamic" unbind="removeStorageService"/>
+<reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>
+</scr:component>

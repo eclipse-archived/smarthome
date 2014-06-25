@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.console.extensions;
 
+import java.util.List;
+
 import org.eclipse.smarthome.io.console.Console;
 
 /**
@@ -33,7 +35,7 @@ public interface ConsoleCommandExtension {
 	void execute(String[] args, Console console);
 	
 	/**
-	 * @return the help text for this extension
+	 * @return the help texts for this extension
 	 */
-	String getUsage();
+	List<String> getUsages();
 }

@@ -12,6 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.items.ItemFactory
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
@@ -31,14 +32,19 @@ import org.junit.Ignore
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
 	ManagedItemProvider itemProvider
+	ItemRegistry itemRegistry
 		
 	@Before
 	void setUp() {
 		itemProvider = getService(ManagedItemProvider)
+		itemRegistry = getService(ItemRegistry)
 	}
 
 	@After
-	void tearUp() {
+	void tearDown() {
+		itemProvider.getItems().each {
+			itemProvider.removeItem(it.name)
+		}
 		unregisterService(itemProvider)
 	}
 
@@ -89,5 +95,17 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 		assertThat result.name, is('Item')
 						
 		assertThat itemProvider.getItems().size, is(0)
+	}
+	
+	@Test
+	void 'assert two items with same name can not be added'() {
+
+		assertThat itemProvider.getItems().size, is(0)
+		
+		itemProvider.addItem new StringItem('Item')
+		itemProvider.addItem new StringItem('Item')
+
+		assertThat itemProvider.getItems().size(), is(1)
+		assertThat itemRegistry.getItems().size(), is(1)
 	}
 }
