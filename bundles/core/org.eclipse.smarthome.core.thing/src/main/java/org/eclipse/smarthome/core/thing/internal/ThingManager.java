@@ -18,13 +18,13 @@ import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ItemChannelBindingRegistry;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -58,7 +58,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public ThingHandler addingService(ServiceReference<ThingHandler> reference) {
-        	ThingUID thingId = getThingId(reference);
+            ThingUID thingId = getThingId(reference);
 
             logger.warn("Thing handler for thing '{}' added.", thingId);
 
@@ -77,11 +77,11 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public void removedService(ServiceReference<ThingHandler> reference, ThingHandler service) {
-        	ThingUID thingId = getThingId(reference);
+            ThingUID thingId = getThingId(reference);
             logger.warn("Thing handler for thing '{}' removed.", thingId);
             Thing thing = getThing(thingId);
-            if(thing != null) {
-            	handlerRemoved(thing, service);
+            if (thing != null) {
+                handlerRemoved(thing, service);
             }
             thingHandlers.remove(getThingId(reference));
         }
@@ -93,6 +93,10 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     private BundleContext bundleContext;
+
+    private EventPublisher eventPublisher;
+
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
@@ -106,12 +110,10 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public void channelUpdated(ChannelUID channelUID, State state) {
-            ItemChannelBindingRegistry itemChannelBindingRegistry = getItemChannelBindingRegistry();
-            String item = itemChannelBindingRegistry.getBoundItem(channelUID);
-            EventPublisher eventPublisher = (EventPublisher) bundleContext
-                    .getService(bundleContext.getServiceReference(EventPublisher.class
-                            .getName()));
-            eventPublisher.postUpdate(item, state);
+            String item = itemChannelLinkRegistry.getBoundItem(channelUID);
+            if (item != null) {
+                eventPublisher.postUpdate(item, state);
+            }
         }
     };
 
@@ -154,7 +156,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         for (Thing thing : this.things) {
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
-                if (isItemBoundToChannel(itemName, channel)) {
+                if (isLinked(itemName, channel)) {
                     logger.info(
                             "Delegating command '{}' for item '{}' to handler for channel '{}'",
                             command, itemName, channel.getUID());
@@ -174,7 +176,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         for (Thing thing : this.things) {
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
-                if (isItemBoundToChannel(itemName, channel)) {
+                if (isLinked(itemName, channel)) {
                     ThingHandler handler = thing.getHandler();
                     if (handler != null) {
                         logger.info(
@@ -233,20 +235,12 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     private ThingHandlerFactory findThingHandlerFactory(Thing thing) {
-    	for(ThingHandlerFactory factory : thingHandlerFactories) {
+        for (ThingHandlerFactory factory : thingHandlerFactories) {
             if (factory.supportsThingType(thing.getThingTypeUID())) {
-    			return factory;
-    		}
-    	}
-		return null;
-	}
-
-    private ItemChannelBindingRegistry getItemChannelBindingRegistry() {
-        ServiceReference<?> serviceReference = bundleContext
-                .getServiceReference(ItemChannelBindingRegistry.class.getName());
-        return (ItemChannelBindingRegistry) (serviceReference != null ? bundleContext
-                .getService(serviceReference) : null);
-
+                return factory;
+            }
+        }
+        return null;
     }
 
     private Thing getThing(ThingUID id) {
@@ -259,10 +253,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         return null;
     }
 
-    private boolean isItemBoundToChannel(String itemName, Channel channel) {
-        ItemChannelBindingRegistry itemChannelBindingRegistry = getItemChannelBindingRegistry();
-        return itemChannelBindingRegistry != null ? itemChannelBindingRegistry.isBound(itemName,
-                channel.getUID()) : false;
+    private boolean isLinked(String itemName, Channel channel) {
+        return itemChannelLinkRegistry.isLinked(itemName, channel.getUID());
     }
 
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
@@ -291,7 +283,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
 
-        logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
+        logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass()
+                .getSimpleName());
 
         thingHandlerFactories.add(thingHandlerFactory);
 
@@ -314,14 +307,30 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        logger.info("Thing handler factory '{}' removed",
-                thingHandlerFactory.getClass().getSimpleName());
+        logger.info("Thing handler factory '{}' removed", thingHandlerFactory.getClass()
+                .getSimpleName());
         thingHandlerFactories.remove(thingHandlerFactory);
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = (ThingRegistryImpl) thingRegistry;
         this.thingRegistry.addThingTracker(this);
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
+
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
