@@ -16,12 +16,16 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -72,7 +76,8 @@ public class FolderObserver implements ManagedService {
 	}
 
 	public void activate() {
-		//the initialization is to do when the service configuration has been read and update. See ManagedService#update(Dictionary)
+		// the initialization is to do when the service configuration has been
+		// read and update. See ManagedService#update(Dictionary)
 		//initializeWatchService();
 	}
 
@@ -95,20 +100,25 @@ public class FolderObserver implements ManagedService {
 			try {
 				watchService = FileSystems.getDefault().newWatchService();
 
-				Set<String> folders = folderFileExtMap.keySet();
-				Iterator<String> iterator = folders.iterator();
-				while (iterator.hasNext()) {
-					Path dir = Paths.get(ConfigDispatcher.getConfigFolder()
-							+ File.separator + iterator.next());
+				Files.walkFileTree(Paths.get(pathToWatch),
+						new SimpleFileVisitor<Path>() {
+							@Override
+							public FileVisitResult preVisitDirectory(Path dir,
+									BasicFileAttributes attrs)
+									throws IOException {
+								String folderName = dir.getFileName().toString();
+								if (folderFileExtMap.containsKey(folderName)) {
+									dir.register(watchService, ENTRY_CREATE,
+											ENTRY_DELETE, ENTRY_MODIFY);
+								}
+								return FileVisitResult.CONTINUE;
+							}
+						});
 
-					WatchKey key = dir.register(watchService, ENTRY_CREATE,
-							ENTRY_DELETE, ENTRY_MODIFY);
-
-					WatchQueueReader reader = new WatchQueueReader(key,
-							folderFileExtMap, modelRepo);
-					Thread qr = new Thread(reader, "Model Dir Watcher");
-					qr.start();
-				}
+				WatchQueueReader reader = new WatchQueueReader(watchService,
+						folderFileExtMap, modelRepo);
+				Thread qr = new Thread(reader, "Model Dir Watcher");
+				qr.start();
 
 			} catch (IOException e) {
 				logger.error("Cannot activate folder watcher for folder ", e);
@@ -127,17 +137,17 @@ public class FolderObserver implements ManagedService {
 
 	private static class WatchQueueReader implements Runnable {
 
-		private WatchKey key;
+		private WatchService watchService;
 
 		private Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
 
 		private ModelRepository modelRepo = null;
 
-		public WatchQueueReader(WatchKey key,
+		public WatchQueueReader(WatchService watchService,
 				Map<String, String[]> folderFileExtMap,
 				ModelRepository modelRepo) {
 			super();
-			this.key = key;
+			this.watchService = watchService;
 			this.folderFileExtMap = folderFileExtMap;
 			this.modelRepo = modelRepo;
 		}
@@ -146,6 +156,13 @@ public class FolderObserver implements ManagedService {
 		@Override
 		public void run() {
 			for (;;) {
+				WatchKey key = null;
+				try {
+					key = watchService.take();
+				} catch (InterruptedException e) {
+					return;
+				}
+
 				for (WatchEvent<?> event : key.pollEvents()) {
 					WatchEvent.Kind<?> kind = event.kind();
 
