@@ -3,16 +3,13 @@
    <feature url="features/org.eclipse.smarthome.feature.designer_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.designer" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
-   <feature url="features/org.eclipse.smarthome.feature.runtime_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime" version="0.7.0.qualifier">
-      <category name="org.eclipse.smarthome"/>
-   </feature>
    <feature url="features/org.eclipse.smarthome.feature.designer.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.designer.source" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
-   <feature url="features/org.eclipse.smarthome.feature.runtime.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.source" version="0.7.0.qualifier">
+   <feature url="features/org.eclipse.smarthome.feature.test_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.test" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
-   <feature url="features/org.eclipse.smarthome.feature.test_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.test" version="0.7.0.qualifier">
+   <feature url="features/org.eclipse.smarthome.feature.test.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.test.source" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
    <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">

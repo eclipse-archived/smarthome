@@ -5,6 +5,10 @@ Thanks for your interest in the Eclipse SmartHome project!
 Building and running the project is fairly easy if you follow the steps
 detailed below.
 
+Please note that Eclipse SmartHome is not a product itself, but a framework to build solutions on top.
+This means that what you build is primarily an artifact repository of OSGi bundles that can be used
+within smart home products. Besides this repository, a tool called "Designer" is available. The
+Designer can be used for editing configuration files with full IDE support.
 
 1. Prerequisites
 ================
@@ -36,20 +40,11 @@ To build Eclipse SmartHome from the sources, Maven takes care of everything:
 - run "mvn clean install" to compile and package all sources
 
 The build result will be available in the folder 
-smarthome/distribution/target. Both the runtime as well as
+smarthome/distribution/target. Both the repository as well as
 the designer zips are placed in there.
 
-
-4. Starting the demo runtime
-=======================
-
-- unzip the file eclipsesmarthome-incubation-0.x.0-runtime.zip to a local folder
-- launch the runtime with the "start.sh" (resp. "start.bat") script
-- check if everything has started correctly: http://localhost:8080/smarthome.app?sitemap=demo
-
-
-5. Starting the designer
+4. Starting the designer
 ========================
 
 - unzip the file eclipsesmarthome-incubation-0.x.0-designer-<platform>.zip to a local folder
-- run the executable „Eclipse-SmartHome-Designer.exe"
+- run the executable „Eclipse-SmartHome-Designer[.exe]"
