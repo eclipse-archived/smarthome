@@ -24,14 +24,14 @@ public interface ThingProvider {
 	Collection<Thing> getThings();
 	
 	/**
-	 * Adds a {@link ThingChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
+	 * Adds a {@link ThingsChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
 	 * @param listener The listener to be added
 	 */
-	public void addThingChangeListener(ThingChangeListener listener);
+	public void addThingsChangeListener(ThingsChangeListener listener);
 	
 	/**
-	 * Removes a {@link ThingChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
+	 * Removes a {@link ThingsChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
 	 * @param listener The listener to be removed.
 	 */
-	public void removeThingChangeListener(ThingChangeListener listener);
+	public void removeThingsChangeListener(ThingsChangeListener listener);
 }

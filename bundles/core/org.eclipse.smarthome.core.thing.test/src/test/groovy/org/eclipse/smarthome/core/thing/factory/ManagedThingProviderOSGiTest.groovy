@@ -15,10 +15,10 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
-import org.eclipse.smarthome.core.thing.ThingChangeListener
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.ThingsChangeListener
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
@@ -38,7 +38,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	ManagedThingProvider managedThingProvider
 	
-	ThingChangeListener thingChangeListener
+	ThingsChangeListener thingChangeListener
 	ThingHandlerFactory thingHandlerFactory
 	
 	final static String BINDIND_ID = "testBinding"
@@ -51,13 +51,13 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	void setup() {
 		managedThingProvider = getService ManagedThingProvider
 		assertThat managedThingProvider, is(notNullValue())
-		unregisterCurrentThingChangeListener()
+		unregisterCurrentThingsChangeListener()
 		unregisterCurrentThingHandlerFactory()
 	}
 	
 	@After
 	void teardown() {
-		unregisterCurrentThingChangeListener()
+		unregisterCurrentThingsChangeListener()
 		unregisterCurrentThingHandlerFactory()
 		managedThingProvider.getThings().each {
 			managedThingProvider.removeThing(it.getUID())
@@ -65,15 +65,15 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	}
 	
 	
-	private void registerThingChangeListener(ThingChangeListener thingChangeListener) {
-		unregisterCurrentThingChangeListener()
+	private void registerThingsChangeListener(ThingsChangeListener thingChangeListener) {
+		unregisterCurrentThingsChangeListener()
 		this.thingChangeListener = thingChangeListener
-		managedThingProvider.addThingChangeListener(this.thingChangeListener)
+		managedThingProvider.addThingsChangeListener(this.thingChangeListener)
 	}
 
-	private void unregisterCurrentThingChangeListener() {
+	private void unregisterCurrentThingsChangeListener() {
 		if (this.thingChangeListener != null) {
-			managedThingProvider.removeThingChangeListener(this.thingChangeListener)
+			managedThingProvider.removeThingsChangeListener(this.thingChangeListener)
 		}
 	}
 	
@@ -127,15 +127,15 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	
 	@Test
-	void 'assert that ThingChangeListener is notified about added thing'() {
+	void 'assert that ThingsChangeListener is notified about added thing'() {
 		AsyncResultWrapper<ThingProvider> thingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
 		AsyncResultWrapper<Thing> thingWrapper = new AsyncResultWrapper<Thing>()
-		registerThingChangeListener( [
+		registerThingsChangeListener( [
 			thingAdded : { ThingProvider provider, Thing thing ->
 				thingProviderWrapper.set(provider)
 				thingWrapper.set(thing)
 			}
-		] as ThingChangeListener)
+		] as ThingsChangeListener)
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
 		managedThingProvider.addThing(thing1)
 		
@@ -147,7 +147,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	}
 	
 	@Test
-	void 'assert that ThingChangeListener is notified about updated thing'() {
+	void 'assert that ThingsChangeListener is notified about updated thing'() {
 		AsyncResultWrapper<ThingProvider> addedThingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
 		AsyncResultWrapper<Thing> addedThingWrapper = new AsyncResultWrapper<Thing>()
 		AsyncResultWrapper<ThingProvider> removedThingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
@@ -156,7 +156,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
 		managedThingProvider.addThing(thing1)
 		
-		registerThingChangeListener( [
+		registerThingsChangeListener( [
 			thingAdded : { ThingProvider provider, Thing thing ->
 				addedThingProviderWrapper.set(provider)
 				addedThingWrapper.set(thing)
@@ -165,7 +165,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 				removedThingProviderWrapper.set(provider)
 				removedThingWrapper.set(thing)
 			}
-		] as ThingChangeListener)
+		] as ThingsChangeListener)
 		
 		def thing2 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
 		managedThingProvider.addThing(thing2)

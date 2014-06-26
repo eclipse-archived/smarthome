@@ -63,7 +63,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         String lightId = (String) configuration.get(HueLightConfiguration.LIGHT_ID);
 
         if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, bridge.getUID() + "Light" + lightId);
+            thingUID = new ThingUID(thingTypeUID, "Light" + lightId, bridge.getUID().getId());
         }
         return thingUID;
     }
