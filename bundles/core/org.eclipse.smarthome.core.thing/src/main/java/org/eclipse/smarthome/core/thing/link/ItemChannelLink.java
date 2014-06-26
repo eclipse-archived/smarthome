@@ -43,5 +43,30 @@ public class ItemChannelLink {
     public String toString() {
         return getID();
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+        	return false;
+        }
+        if (!(obj instanceof ItemChannelLink)) {
+        	return false;
+        }
+        ItemChannelLink other = (ItemChannelLink) obj;
+        if (!this.itemName.equals(other.itemName)) {
+        	return false;
+        }
+        if (!this.channelUID.equals(other.channelUID)) {
+        	return false;
+        }
+
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return (int)this.itemName.hashCode() *
+                this.channelUID.hashCode();
+    }
 
 }

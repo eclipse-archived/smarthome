@@ -14,11 +14,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingChangeListener;
 import org.eclipse.smarthome.core.thing.ThingProvider;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.ThingsChangeListener;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ import com.google.common.collect.Lists;
 /**
  * Default implementation of {@link ThingRegistry}.
  */
-public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
+public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class
 			.getName());
@@ -65,9 +67,9 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
 	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
 	 */
 	@Override
-	public Thing getByUID(String uid) {
+	public Thing getByUID(ThingUID uid) {
         for (Thing thing : getThings()) {
-			if (thing.getUID().toString().equals(uid)) {
+			if (thing.getUID().equals(uid)) {
 				return thing;
 			}
 		}
@@ -120,9 +122,22 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
 		if(things != null) {
 			things.remove(thing);
             notifyListenersAboutRemovedThing(thing);
+            // TODO some cleanup in order to remove dead references
+            thing.setBridge(null);
+            if (thing instanceof Bridge) {
+            	List<Thing> children = ((Bridge)thing).getThings();
+            	for (Thing child : children) {
+					child.setBridge(null);
+				}
+            }
 		}
 	}
 
+	@Override
+	public void thingUpdated(ThingProvider provider, Thing oldThing, Thing newThing) {
+		thingRemoved(provider, oldThing);
+		thingAdded(provider, newThing);
+	}
 
 	
 	private void notifyListenerAboutAllThingsAdded(ThingTracker thingTracker) {
@@ -145,7 +160,7 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
 			listener.thingAdded(thing);
 		}
 	}
-
+    
     private void notifyListenersAboutRemovedThing(Thing thing) {
 		for (ThingTracker thingTracker : thingTrackers) {
 			thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
@@ -159,7 +174,7 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
 		// only add this provider if it does not already exist
 		if(!thingMap.containsKey(thingProvider)) {
 			Collection<Thing> things = new CopyOnWriteArraySet<Thing>(thingProvider.getThings());
-			thingProvider.addThingChangeListener(this);
+			thingProvider.addThingsChangeListener(this);
 			thingMap.put(thingProvider, things);
             logger.debug("Thing provider '{}' has been added.", thingProvider.getClass().getName());
 		}
@@ -176,10 +191,35 @@ public class ThingRegistryImpl implements ThingChangeListener, ThingRegistry {
     protected void removeThingProvider(ThingProvider thingProvider) {
 		if(thingMap.containsKey(thingProvider)) {
 			thingMap.remove(thingProvider);
-			thingProvider.removeThingChangeListener(this);
+			thingProvider.removeThingsChangeListener(this);
             logger.debug("Thing provider '{}' has been removed.", thingProvider.getClass()
                     .getName());
 		}
 	}
+
+
+
+//	@Override
+//	public void allThingsChanged(ThingProvider provider,
+//			Collection<ThingUID> selectedOldThingUIDs) {
+//		if(selectedOldThingUIDs==null || selectedOldThingUIDs.isEmpty()) {
+//			selectedOldThingUIDs = new HashSet<ThingUID>();
+//            Collection<Thing> oldThings;
+//            oldThings = thingMap.get(provider);
+//			if(oldThings!=null && oldThings.size() > 0) {
+//				for(Thing oldThing : oldThings) {
+//					selectedOldThingUIDs.add(oldThing.getUID());
+//				}
+//			}
+//		}
+//
+//		Collection<Thing> things = new CopyOnWriteArrayList<>();
+//    	thingMap.put(provider, things);
+//    	things.addAll(provider.getThings());
+//
+//		for(ThingRegistryChangeListener listener : thingListeners) {
+//			listener.allItemsChanged(oldItemNames);
+//		}
+//	}
 
 }

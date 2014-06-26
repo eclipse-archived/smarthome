@@ -19,7 +19,6 @@ Require-Bundle: org.eclipse.smarthome.model.rule;visibility:=reexport,
  org.eclipse.xtext.xbase.ui,
  org.eclipse.smarthome.model.item.ui,
  org.eclipse.smarthome.model.script.ui,
- org.eclipse.smarthome.io.net,
  org.eclipse.smarthome.core
 Import-Package: com.google.common.base,
  com.google.common.collect,

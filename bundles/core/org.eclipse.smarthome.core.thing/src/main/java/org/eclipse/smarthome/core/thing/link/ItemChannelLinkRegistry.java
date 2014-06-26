@@ -100,6 +100,14 @@ public class ItemChannelLinkRegistry implements ItemChannelLinksChangeListener {
         }
     }
 
+	@Override
+	public void itemChannelLinkUpdated(ItemChannelLinkProvider provider,
+			ItemChannelLink oldItemChannelLink,
+			ItemChannelLink newItemChannelLink) {
+		itemChannelLinkRemoved(provider, oldItemChannelLink);
+		itemChannelLinkAdded(provider, newItemChannelLink);
+	}
+
     protected void addItemChannelLinkProvider(ItemChannelLinkProvider itemChannelLinkProvider) {
         // only add this provider if it does not already exist
         if (!itemChannelLinkMap.containsKey(itemChannelLinkProvider)) {

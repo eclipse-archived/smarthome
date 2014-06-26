@@ -25,7 +25,7 @@ public class ChannelTypeUID extends UID {
     }
 
     @Override
-    protected int getNumberOfSegments() {
+    protected int getMinimalNumberOfSegments() {
         return 2;
     }
 

@@ -16,6 +16,7 @@ import com.google.common.base.Joiner;
  * framework. A UID must always start with a binding ID.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @authoer Oliver Libutzki - Added possibility to define UIDs with variable amount of segments
  */
 public abstract class UID {
 
@@ -50,7 +51,7 @@ public abstract class UID {
         if (segments == null) {
             throw new IllegalArgumentException("Given segments argument must not be null.");
         }
-        int numberOfSegments = getNumberOfSegments();
+        int numberOfSegments = getMinimalNumberOfSegments();
         if (segments.length < numberOfSegments) {
             throw new IllegalArgumentException("UID must have at least " + numberOfSegments
                     + " segments.");
@@ -58,12 +59,17 @@ public abstract class UID {
         this.segments = segments;
     }
 
-    protected abstract int getNumberOfSegments();
+    
+    /**
+     * Specifies how many segments the UID has to have at least.
+     * 
+     * @return
+     */
+    protected abstract int getMinimalNumberOfSegments();
 
     protected String[] getSegments() {
         return this.segments;
     }
-
     protected String getSegment(int segment) {
         return this.segments[segment];
     }

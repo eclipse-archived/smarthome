@@ -1,0 +1,65 @@
+grammar org.eclipse.smarthome.model.thing.Thing with org.eclipse.xtext.common.Terminals
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate thing "http://www.eclipse.org/smarthome/model/Thing"
+
+ThingModel:
+	things+=(ModelThing|ModelBridge)*;
+
+// we add this rule in order to have a common superclass for types having properties
+ModelPropertyContainer:
+	ModelThing | ModelBridge | ModelChannel
+;
+
+ModelBridge returns ModelThing:
+	bridge?='Bridge' (id=UID | thingTypeId=ID thingId=ID)
+	'['
+		properties+=ModelProperty? (',' properties+=ModelProperty)*
+	']'
+	('{'
+		('Things:')?
+		things+=(ModelThing|ModelBridge)*
+		('Channels:'			
+		channels+=ModelChannel*
+		)?
+	'}')?
+;
+
+ModelThing:
+	(id=UID | thingTypeId=ID thingId=ID)
+	'['
+		properties+=ModelProperty? (',' properties+=ModelProperty)*
+	']'
+	('{'
+		('Channels:')?
+		channels+=ModelChannel*
+	'}')?
+;
+
+ModelChannel:
+	type=ModelItemType ':' id=ID
+	('['
+		properties+=ModelProperty (',' properties+=ModelProperty)*
+	']')?
+;
+
+ModelItemType :
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color'
+;
+
+ModelProperty:
+	key=ID '=' value=ValueType
+;
+
+UID:
+	ID (=> ':' ID)*
+;
+
+ValueType returns ecore::EString:
+	INT | STRING | FLOAT
+;
+
+terminal FLOAT returns ecore::EBigDecimal:
+	INT '.' INT
+;

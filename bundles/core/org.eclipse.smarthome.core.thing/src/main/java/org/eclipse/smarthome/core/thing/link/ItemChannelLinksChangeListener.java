@@ -39,4 +39,17 @@ public interface ItemChannelLinksChangeListener {
      */
     public void itemChannelLinkRemoved(ItemChannelLinkProvider provider,
             ItemChannelLink itemChannelLink);
+    
+    /**
+     * Notifies the listener that a single item channel link has been updated
+     * 
+     * @param provider
+     *            the concerned item channel link provider
+     * @param oldItemChannelLink
+     *            the item channel link before update
+     * @param newItemChannelLink
+     *            the item channel link after update
+     */
+    public void itemChannelLinkUpdated(ItemChannelLinkProvider provider,
+    		ItemChannelLink oldItemChannelLink, ItemChannelLink newItemChannelLink);
 }
