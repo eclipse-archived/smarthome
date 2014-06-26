@@ -44,7 +44,7 @@
 
 	<modules>
 		<module>bundles</module>
-        	<!--<module>binding</module>-->
+    	<module>binding</module>
 		<module>features</module>
 		<module>products</module>
 		<module>targetplatform</module>
