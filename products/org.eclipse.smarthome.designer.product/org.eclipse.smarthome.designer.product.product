@@ -33,7 +33,6 @@
    </plugins>
 
    <features>
-      <feature id="org.eclipse.smarthome.feature.dependencies.common"/>
       <feature id="org.eclipse.smarthome.feature.dependencies.designer"/>
       <feature id="org.eclipse.smarthome.feature.designer"/>
    </features>
