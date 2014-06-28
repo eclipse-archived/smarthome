@@ -15,6 +15,7 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -29,11 +30,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -44,6 +48,8 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * This class is able to observe multiple folders for changes and notifies the
@@ -76,9 +82,7 @@ public class FolderObserver implements ManagedService {
 	}
 
 	public void activate() {
-		// the initialization is to do when the service configuration has been
-		// read and update. See ManagedService#update(Dictionary)
-		//initializeWatchService();
+		initializeWatchService();
 	}
 
 	public void deactivate() {
@@ -106,7 +110,8 @@ public class FolderObserver implements ManagedService {
 							public FileVisitResult preVisitDirectory(Path dir,
 									BasicFileAttributes attrs)
 									throws IOException {
-								String folderName = dir.getFileName().toString();
+								String folderName = dir.getFileName()
+										.toString();
 								if (folderFileExtMap.containsKey(folderName)) {
 									dir.register(watchService, ENTRY_CREATE,
 											ENTRY_DELETE, ENTRY_MODIFY);
@@ -155,32 +160,38 @@ public class FolderObserver implements ManagedService {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
-			for (;;) {
-				WatchKey key = null;
-				try {
-					key = watchService.take();
-				} catch (InterruptedException e) {
-					return;
-				}
-
-				for (WatchEvent<?> event : key.pollEvents()) {
-					WatchEvent.Kind<?> kind = event.kind();
-
-					if (kind == OVERFLOW) {
-						continue;
+			try {
+				for (;;) {
+					WatchKey key = null;
+					try {
+						key = watchService.take();
+					} catch (InterruptedException e) {
+						return;
 					}
 
-					WatchEvent<Path> ev = (WatchEvent<Path>) event;
-					Path name = ev.context();
+					for (WatchEvent<?> event : key.pollEvents()) {
+						WatchEvent.Kind<?> kind = event.kind();
 
-					File toCheck = getFileByFileExtMap(folderFileExtMap,
-							name.toString());
-					if (toCheck != null) {
-						checkFile(modelRepo, toCheck, kind);
+						if (kind == OVERFLOW) {
+							continue;
+						}
+
+						WatchEvent<Path> ev = (WatchEvent<Path>) event;
+						Path name = ev.context();
+
+						File toCheck = getFileByFileExtMap(folderFileExtMap,
+								name.toString());
+						if (toCheck != null) {
+							checkFile(modelRepo, toCheck, kind);
+						}
 					}
+
+					key.reset();
 				}
 
-				key.reset();
+			} catch (ClosedWatchServiceException ecx) {
+				logger.error("ClosedWatchServiceException catched!", ecx);
+				Thread.currentThread().interrupt();
 			}
 		}
 	}
@@ -189,6 +200,10 @@ public class FolderObserver implements ManagedService {
 	public synchronized void updated(Dictionary config)
 			throws ConfigurationException {
 		if (config != null) {
+			// necessary to check removed models
+			Map<String, String[]> previousFolderFileExtMap = new ConcurrentHashMap<String, String[]>(
+					folderFileExtMap);
+
 			// make sure to clear the caches first
 			folderFileExtMap.clear();
 
@@ -202,7 +217,7 @@ public class FolderObserver implements ManagedService {
 				String[] fileExts = ((String) config.get(foldername))
 						.split(",");
 
-				File folder = getFolder(foldername);
+				File folder = getFile(foldername);
 				if (folder.exists() && folder.isDirectory()) {
 					folderFileExtMap.put(foldername, fileExts);
 				} else {
@@ -212,12 +227,14 @@ public class FolderObserver implements ManagedService {
 				}
 			}
 
-			notifyUpdateToModelRepo();
+			notifyUpdateToModelRepo(previousFolderFileExtMap);
 			initializeWatchService();
 		}
 	}
 
-	private void notifyUpdateToModelRepo() {
+	private void notifyUpdateToModelRepo(
+			Map<String, String[]> previousFolderFileExtMap) {
+		checkDeletedModels(previousFolderFileExtMap);
 		if (MapUtils.isNotEmpty(folderFileExtMap)) {
 			Iterator<String> iterator = folderFileExtMap.keySet().iterator();
 			while (iterator.hasNext()) {
@@ -226,7 +243,7 @@ public class FolderObserver implements ManagedService {
 				final String[] validExtension = folderFileExtMap
 						.get(folderName);
 				if (validExtension != null && validExtension.length > 0) {
-					File folder = getFolder(folderName);
+					File folder = getFile(folderName);
 
 					File[] files = folder.listFiles(new FileExtensionsFilter(
 							validExtension));
@@ -234,6 +251,47 @@ public class FolderObserver implements ManagedService {
 						for (File file : files) {
 							checkFile(modelRepo, file, ENTRY_CREATE);
 						}
+					}
+				}
+			}
+		}
+	}
+
+	private void checkDeletedModels(
+			Map<String, String[]> previousFolderFileExtMap) {
+		if (MapUtils.isNotEmpty(previousFolderFileExtMap)) {
+			List<String> modelsToRemove = new LinkedList<String>();
+			if (MapUtils.isNotEmpty(folderFileExtMap)) {
+				Set<String> folders = previousFolderFileExtMap.keySet();
+				for (String folder : folders) {
+					if (!folderFileExtMap.containsKey(folder)) {
+						Iterable<String> models = modelRepo
+								.getAllModelNamesOfType(folder);
+						if (models != null) {
+							modelsToRemove.addAll(Lists.newLinkedList(models));
+						}
+					}
+				}
+			} else {
+				if (MapUtils.isNotEmpty(folderFileExtMap)) {
+					Set<String> folders = folderFileExtMap.keySet();
+					for (String folder : folders) {
+						synchronized (FolderObserver.class) {
+							Iterable<String> models = modelRepo
+									.getAllModelNamesOfType(folder);
+							if (models != null) {
+								modelsToRemove.addAll(Lists
+										.newLinkedList(models));
+							}
+						}
+					}
+				}
+			}
+
+			if (CollectionUtils.isNotEmpty(modelsToRemove)) {
+				for (String modelToRemove : modelsToRemove) {
+					synchronized (FolderObserver.class) {
+						modelRepo.removeModel(modelToRemove);
 					}
 				}
 			}
@@ -298,7 +356,7 @@ public class FolderObserver implements ManagedService {
 					Entry<String, String[]> entry = iterator.next();
 
 					if (ArrayUtils.contains(entry.getValue(), extension)) {
-						return new File(getFolder(entry.getKey())
+						return new File(getFile(entry.getKey())
 								+ File.separator + filename);
 					}
 				}
@@ -309,14 +367,14 @@ public class FolderObserver implements ManagedService {
 	}
 
 	/**
-	 * Returns the {@link File} object for a given filename It builds the file's
-	 * full path
+	 * Returns the {@link File} object for the given filename. <br />
+	 * It must be contained in the configuration folder
 	 * 
 	 * @param filename
 	 *            the file name to get the {@link File} for
 	 * @return the corresponding {@link File}
 	 */
-	public static File getFolder(String filename) {
+	public static File getFile(String filename) {
 		File folder = new File(ConfigDispatcher.getConfigFolder()
 				+ File.separator + filename);
 
