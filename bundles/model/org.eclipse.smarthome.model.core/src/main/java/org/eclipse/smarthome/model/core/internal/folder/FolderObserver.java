@@ -190,8 +190,12 @@ public class FolderObserver implements ManagedService {
 				}
 
 			} catch (ClosedWatchServiceException ecx) {
-				logger.error("ClosedWatchServiceException catched!", ecx);
-				Thread.currentThread().interrupt();
+				logger.debug(
+						"ClosedWatchServiceException catched! {}. \n{} Stopping ",
+						ecx.getLocalizedMessage(), Thread.currentThread()
+								.getName());
+
+				return;
 			}
 		}
 	}
@@ -273,16 +277,13 @@ public class FolderObserver implements ManagedService {
 					}
 				}
 			} else {
-				if (MapUtils.isNotEmpty(folderFileExtMap)) {
-					Set<String> folders = folderFileExtMap.keySet();
-					for (String folder : folders) {
-						synchronized (FolderObserver.class) {
-							Iterable<String> models = modelRepo
-									.getAllModelNamesOfType(folder);
-							if (models != null) {
-								modelsToRemove.addAll(Lists
-										.newLinkedList(models));
-							}
+				Set<String> folders = previousFolderFileExtMap.keySet();
+				for (String folder : folders) {
+					synchronized (FolderObserver.class) {
+						Iterable<String> models = modelRepo
+								.getAllModelNamesOfType(folder);
+						if (models != null) {
+							modelsToRemove.addAll(Lists.newLinkedList(models));
 						}
 					}
 				}
