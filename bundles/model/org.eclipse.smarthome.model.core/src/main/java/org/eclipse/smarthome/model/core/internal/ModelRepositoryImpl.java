@@ -11,9 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -37,7 +38,7 @@ public class ModelRepositoryImpl implements ModelRepository {
 	private static final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
 	private final ResourceSet resourceSet;
 	
-	private final ListenerList listeners = new ListenerList();
+	private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();
 
 	public ModelRepositoryImpl() {
 		XtextResourceSet xtextResourceSet = new SynchronizedXtextResourceSet();
@@ -152,9 +153,8 @@ public class ModelRepositoryImpl implements ModelRepository {
 	}
 
 	private void notifyListeners(String name, EventType type) {
-		for(Object listener : listeners.getListeners()) {
-			ModelRepositoryChangeListener changeListener = (ModelRepositoryChangeListener) listener;
-			changeListener.modelChanged(name, type);
+		for(ModelRepositoryChangeListener listener : listeners) {
+			listener.modelChanged(name, type);
 		}
 	}
 
