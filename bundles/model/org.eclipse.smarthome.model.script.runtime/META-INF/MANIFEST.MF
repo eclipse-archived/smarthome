@@ -9,7 +9,7 @@ Service-Component: OSGI-INF/scriptengine.xml
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.inject,
- org.eclipse.core.runtime,
+ org.eclipse.core.runtime;registry="split",
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.resource,

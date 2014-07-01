@@ -6,7 +6,7 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.sitemap.runtime;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.inject,
- org.eclipse.core.runtime,
+ org.eclipse.core.runtime;registry="split",
  org.eclipse.smarthome.model.core.guice,
  org.eclipse.xtext.resource,
  org.eclipse.xtext.service
