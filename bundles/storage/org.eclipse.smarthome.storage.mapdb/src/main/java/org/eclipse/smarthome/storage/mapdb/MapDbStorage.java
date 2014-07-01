@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MapDbStorage<T> implements Storage<T> {
 
-	private static final String VALUE_SEPARATOR = "@@@";
+	private static final String TYPE_SEPARATOR = "@@@";
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(MapDbStorage.class);
@@ -85,7 +85,7 @@ public class MapDbStorage<T> implements Storage<T> {
 		try {
 			String valueTypeName = value.getClass().getName();
 			String valueAsString = mapper.writeValueAsString(value);
-			String concatValue = valueTypeName + VALUE_SEPARATOR + valueAsString;
+			String concatValue = valueTypeName + TYPE_SEPARATOR + valueAsString;
 			
 			logger.debug("serialized value '{}' to MapDB", concatValue);
 			return concatValue;
@@ -101,7 +101,7 @@ public class MapDbStorage<T> implements Storage<T> {
 	public T deserialize(String json) {
 		T value = null;
 		try {
-			String[] concatValue = json.split(VALUE_SEPARATOR);
+			String[] concatValue = json.split(TYPE_SEPARATOR);
 			String valueTypeName = concatValue[0];
 			String valueAsString = concatValue[1];
 
@@ -109,7 +109,7 @@ public class MapDbStorage<T> implements Storage<T> {
 				consumerContext.getBundle().loadClass(valueTypeName);
 			value = mapper.readValue(valueAsString, loadedValueType);
 		} catch (Exception e) {
-			logger.warn("Couldn't deserialize value '{}'", json);
+			logger.warn("Couldn't deserialize value '{}'. Root cause is: {}", json, e.getMessage());
 		}
 		
 		return value;

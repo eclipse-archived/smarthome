@@ -11,10 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem
-import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -33,7 +31,7 @@ class StorageServiceOSGiTest extends OSGiTest {
 	@Before
 	void setUp() {
 		storageService = getService(StorageService)
-		storage = storageService.getStorage(GenericItem.class, getBundleContext(), Item.class.getName());
+		storage = storageService.getStorage(getBundleContext(), 'TestStorage');
 	}
 
 	@After
@@ -49,17 +47,38 @@ class StorageServiceOSGiTest extends OSGiTest {
 
 		assertThat(storage.getKeys().size(), is(0))
 		
-		storage.put('Switch', new SwitchItem('SwitchItem'))
-		storage.put('String', new StringItem('StringItem'))
+		storage.put 'Key1', new TestDto('Key1', Calendar.getInstance().getTime());
+		storage.put 'Key2', new TestDto('Key2', Calendar.getInstance().getTime());
 		
 		assertThat(storage.getKeys().size(), is(2))
 		
-//		storage.remove 'String'		
-//		storage.remove 'Switch'
-//		
-//		assertThat(storage.getKeys().size(), is(0))
+		TestDto dto = storage.get 'Key1'
+		println dto
 		
-		storage.get 'String'
+		storage.remove 'Key1'		
+		storage.remove 'Key2'
+		
+		assertThat(storage.getKeys().size(), is(0))
+	}
+	
+	static class TestDto {
+		
+		String name
+		Date date
+		
+		public TestDto() {
+		}
+		
+		public TestDto(String name, Date date) {
+			this.name = name
+			this.date = date
+		}
+
+		@Override
+		public String toString() {
+			return "TestDto [name=" + name + ", date=" + date + "]";
+		}
+	
 	}
 	
 }
