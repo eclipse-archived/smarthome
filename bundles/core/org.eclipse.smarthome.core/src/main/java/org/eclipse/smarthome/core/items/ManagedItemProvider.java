@@ -68,6 +68,19 @@ public class ManagedItemProvider extends AbstractItemProvider {
             throw new IllegalArgumentException("Cannot add null Item.");
         }
 
+        PersistedItem persistedItem = createPeristedItem(item);
+        PersistedItem oldPersistedItem = itemStorage.put(item.getName(), persistedItem);
+        Item oldItem = null;
+        if (oldPersistedItem != null) {
+            oldItem = restoreItem(oldPersistedItem, item.getName());
+            notifyItemChangeListenersAboutRemovedItem(oldItem);
+        }
+        notifyItemChangeListenersAboutAddedItem(item);
+
+        return oldItem;
+    }
+
+    private PersistedItem createPeristedItem(Item item) {
         PersistedItem persistedItem;
         String itemType = toItemFactoryName(item);
 
@@ -81,15 +94,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
         } else {
             persistedItem = new PersistedItem(itemType, item.getGroupNames());
         }
-
-        PersistedItem oldPersistedItem = itemStorage.put(item.getName(), persistedItem);
-        Item oldItem = null;
-        if (oldPersistedItem != null) {
-            oldItem = restoreItem(oldPersistedItem, item.getName());
-            notifyItemChangeListenersAboutRemovedItem(oldItem);
-        }
-        notifyItemChangeListenersAboutAddedItem(item);
-        return oldItem;
+        return persistedItem;
     }
 
     /**
@@ -117,6 +122,38 @@ public class ManagedItemProvider extends AbstractItemProvider {
             return removedItem;
         }
         return null;
+    }
+
+    /**
+     * Updates an item and returns the old item instance.
+     * 
+     * @param item
+     *            item (must not be null)
+     * @return old item
+     * @throws IllegalArgumentException
+     *             is thrown, when the item is null, or there exists no item
+     *             with the given name
+     */
+    public Item updateItem(Item item) throws IllegalArgumentException {
+
+        if (item == null) {
+            throw new IllegalArgumentException("Cannot update null Item.");
+        }
+
+        String itemName = item.getName();
+
+        PersistedItem persistedItem = itemStorage.get(itemName);
+        if (persistedItem != null) {
+            Item oldItem = restoreItem(persistedItem, itemName);
+            PersistedItem peristedItem = createPeristedItem(item);
+            itemStorage.put(itemName, peristedItem);
+            notifyItemChangeListenersAboutUpdatedItem(oldItem, item);
+            return oldItem;
+        } else {
+            throw new IllegalArgumentException("Item with name " + item.getName()
+                    + " could not be found for update.");
+        }
+
     }
 
     /**
@@ -150,8 +187,11 @@ public class ManagedItemProvider extends AbstractItemProvider {
             item = createItem(persistedItem.itemType, itemName);
         }
 
-        if (item != null && persistedItem.groupNames != null) {
-            item.getGroupNames().addAll(persistedItem.groupNames);
+        List<String> groupNames = persistedItem.groupNames;
+        if (item != null && groupNames != null) {
+            for (String groupName : groupNames) {
+                item.addGroupName(groupName);
+            }
         }
 
         if (item == null) {
@@ -161,7 +201,6 @@ public class ManagedItemProvider extends AbstractItemProvider {
         }
         return item;
     }
-
 
     private GenericItem createItem(String itemType, String itemName) {
 

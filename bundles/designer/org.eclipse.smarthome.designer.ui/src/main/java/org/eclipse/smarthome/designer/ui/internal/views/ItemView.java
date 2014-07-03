@@ -143,6 +143,15 @@ public class ItemView extends ViewPart {
 				}
 			});
 		}
+
+        @Override
+        public void itemUpdated(Item oldItem, Item item) {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    viewer.refresh();
+                }
+            });
+        }
 	}
 
 	static class ViewLabelProvider extends LabelProvider {

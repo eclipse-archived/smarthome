@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.internal.items;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,6 +29,8 @@ import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface.
@@ -226,6 +229,7 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
 		for(ItemRegistryChangeListener listener : listeners) {
 			listener.itemRemoved(item);
 		}
+        removeFromGroupItems(item, item.getGroupNames());
 	}
 
     @Override
@@ -254,25 +258,17 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
 				genericItem.initialize();
 			}
 			
-			if(item instanceof GroupItem) {
-				// fill group with its members 
-				for(Item i : getItems()) {
-					if(i.getGroupNames().contains(item.getName())) {
-						((GroupItem)item).addMember(i);
-					}
-				}
-			}
+            if (item instanceof GroupItem) {
+                // fill group with its members
+                for (Item i : getItems()) {
+                    if (i.getGroupNames().contains(item.getName())) {
+                        ((GroupItem) item).addMember(i);
+                    }
+                }
+            }
+
 			// add the item to all relevant groups
-			for(String groupName : item.getGroupNames()) {
-				try {
-					Item groupItem = getItem(groupName);
-					if(groupItem instanceof GroupItem) {
-						((GroupItem)groupItem).addMember(item);
-					}
-				} catch (ItemNotFoundException e) {
-					// the group might not yet be registered, let's ignore this
-				}
-			}
+            addToGroupItems(item, item.getGroupNames());
 			return true;
 		} else {
 			logger.warn("Ignoring item '{}' as it does not comply with" +
@@ -280,4 +276,52 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
 			return false;
 		}
 	}
+
+    private void addToGroupItems(Item item, List<String> groupItemNames) {
+        for (String groupName : groupItemNames) {
+            try {
+                Item groupItem = getItem(groupName);
+                if (groupItem instanceof GroupItem) {
+                    ((GroupItem) groupItem).addMember(item);
+                }
+            } catch (ItemNotFoundException e) {
+                // the group might not yet be registered, let's ignore this
+            }
+        }
+    }
+
+    private void removeFromGroupItems(Item item, List<String> groupItemNames) {
+        for (String groupName : groupItemNames) {
+            try {
+                Item groupItem = getItem(groupName);
+                if (groupItem instanceof GroupItem) {
+                    ((GroupItem) groupItem).removeMember(item);
+                }
+            } catch (ItemNotFoundException e) {
+                // the group might not yet be registered, let's ignore this
+            }
+        }
+    }
+
+    @Override
+    public void itemUpdated(ItemProvider provider, Item oldItem, Item item) {
+        Collection<Item> items;
+        items = itemMap.get(provider);
+        if (items != null) {
+            items.remove(oldItem);
+            items.add(item);
+            for (ItemRegistryChangeListener listener : listeners) {
+                listener.itemUpdated(oldItem, item);
+            }
+
+            List<String> removedGroupItems = Lists.newArrayList(oldItem.getGroupNames());
+            List<String> addedGroupItems = Lists.newArrayList(item.getGroupNames());
+
+            removedGroupItems.removeAll(item.getGroupNames());
+            addedGroupItems.removeAll(oldItem.getGroupNames());
+
+            removeFromGroupItems(item, addedGroupItems);
+            addToGroupItems(item, addedGroupItems);
+        }
+    }
 }

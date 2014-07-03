@@ -321,4 +321,9 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 		private boolean isEnabled() {
 			return !"true".equalsIgnoreCase(System.getProperty("noRules"));
 		}
+
+		@Override
+		public void itemUpdated(Item oldItem, Item item) {
+			// nothing to do
+		}
 }

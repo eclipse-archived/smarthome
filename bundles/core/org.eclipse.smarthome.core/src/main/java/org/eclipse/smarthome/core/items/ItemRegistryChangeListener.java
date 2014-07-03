@@ -39,4 +39,14 @@ public interface ItemRegistryChangeListener {
 	 */
 	public void itemRemoved(Item item);
 	
+    /**
+     * Notifies the listener that a single item has been updated
+     * 
+     * @param oldItem
+     *            the item that has been updated
+     * @param oldItem
+     *            the item that has been updated
+     */
+    public void itemUpdated(Item oldItem, Item item);
+
 }
