@@ -30,8 +30,6 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 /**
  * This is the main implementing class of the {@link ItemRegistry} interface.
  * It keeps track of all declared items of all item providers and keeps their
@@ -310,18 +308,14 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
         if (items != null) {
             items.remove(oldItem);
             items.add(item);
+
+            removeFromGroupItems(oldItem, oldItem.getGroupNames());
+            addToGroupItems(item, item.getGroupNames());
+            
             for (ItemRegistryChangeListener listener : listeners) {
                 listener.itemUpdated(oldItem, item);
             }
 
-            List<String> removedGroupItems = Lists.newArrayList(oldItem.getGroupNames());
-            List<String> addedGroupItems = Lists.newArrayList(item.getGroupNames());
-
-            removedGroupItems.removeAll(item.getGroupNames());
-            addedGroupItems.removeAll(oldItem.getGroupNames());
-
-            removeFromGroupItems(item, addedGroupItems);
-            addToGroupItems(item, addedGroupItems);
         }
     }
 }
