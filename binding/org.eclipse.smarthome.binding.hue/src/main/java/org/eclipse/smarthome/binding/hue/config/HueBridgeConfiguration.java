@@ -17,7 +17,7 @@ import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
  */
 public class HueBridgeConfiguration {
 
-	public static final String IP_ADDRESS = "ipAddress";
+    public static final String IP_ADDRESS = "ipAddress";
 	public static final String USER_NAME = "userName";
 	public static final String BRIDGE_SERIAL_NUMBER = "bridgeSerialNumber";
 	

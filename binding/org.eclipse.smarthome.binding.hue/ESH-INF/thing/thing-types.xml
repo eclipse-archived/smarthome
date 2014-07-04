@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description.xsd">
+
+    <!-- Hue Bridge -->
+    <bridge-type id="bridge">
+        <label>Hue Bridge</label>
+        <description>The hue bridge represents the Philips hue bridge.</description>
+
+        <config-description>
+            <parameter name="ipAddress" type="text">
+                <context>network_address</context>
+                <label>Network Address</label>
+                <description>Network address of the hue bridge.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="userName" type="text">
+                <context>password</context>
+                <label>Username</label>
+                <description>Name of a registered hue bridge user, that allows to access the API.
+                </description>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+    <!-- Hue Light -->
+    <thing-type id="light">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Hue Light</label>
+        <description>The hue light represents the Philips hue bulb.</description>
+
+        <channels>
+            <channel id="color" typeId="color" />
+            <channel id="color_temperature" typeId="color_temperature" />
+        </channels>
+    </thing-type>
+
+    <!-- HUE Light Color Channel -->
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>HUE Light Color</label>
+        <description>The color channel allows to control the color of the hue bulb.
+            It is also possible to dim values and switch the bulb on and off.
+        </description>
+
+        <config-description>
+            <parameter name="lastDimValue" type="boolean" />
+        </config-description>
+    </channel-type>
+
+    <!-- HUE Light Color Temperature Channel -->
+    <channel-type id="color_temperature">
+        <item-type>Dimmer</item-type>
+        <label>HUE Light Color Temperature</label>
+        <description>The color temperature channel allows to set the color
+            temperature of the hue bulb from 0 (cold) to 100 (warm).</description>
+    </channel-type>
+
+</thing:thing-descriptions>

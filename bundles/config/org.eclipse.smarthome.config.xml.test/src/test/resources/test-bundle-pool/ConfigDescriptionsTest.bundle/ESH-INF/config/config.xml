@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 ../../../../../../../../org.eclipse.smarthome.config.xml/org.eclipse.smarthome.config-description.xsd ">
+
+	<!-- test dummy -->
+	<config-description uri="dummyConfig">
+		<parameter name="ip" type="text">
+			<context>network_address</context>
+			<label>Network Address</label>
+			<description>Network address of the hue bridge.</description>
+			<required>true</required>
+		</parameter>
+		<parameter name="username" type="text">
+			<context>password</context>
+			<label>Username</label>
+			<description>Name of a registered hue bridge user, that allows to
+				access the API.
+			</description>
+		</parameter>
+	</config-description>
+
+</config-description:config-descriptions>

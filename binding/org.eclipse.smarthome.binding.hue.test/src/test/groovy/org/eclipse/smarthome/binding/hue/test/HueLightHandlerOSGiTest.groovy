@@ -15,7 +15,6 @@ import nl.q42.jue.HttpClient.Result
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler
 import org.eclipse.smarthome.config.core.Configuration
@@ -27,6 +26,7 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.util.ThingHelper
@@ -36,14 +36,20 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
 
+
 /**
  * Tests for {@link HueLightHandler}.
  *
  * @author Oliver Libutzki - Initial contribution
+ * @author Michael Grammling - Initial contribution
  */
 class HueLightHandlerOSGiTest extends OSGiTest {
 
+    final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
+    final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "light")
+
     ManagedThingProvider managedThingProvider
+
 
     @Before
     void setUp() {
@@ -51,28 +57,48 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         assertThat managedThingProvider, is(notNullValue())
     }
 
-
-    @Test
-    void 'assert that HueLightHandler is registered and unregistered'() {
+    Bridge createBridge() {
         Configuration bridgeConfiguration = new Configuration().with {
             put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
             put(HueBridgeConfiguration.USER_NAME, "testUserName")
             put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
             it
         }
-		ThingUID bridgeUID = new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge")
-        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), bridgeUID, null, bridgeConfiguration)
+
+        Bridge hueBridge = managedThingProvider.createThing(
+                BRIDGE_THING_TYPE_UID,
+                new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge"),
+                null, bridgeConfiguration)
+
         assertThat hueBridge, is(notNullValue())
 
+        return hueBridge
+    }
 
-        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
-        assertThat hueLightHandler, is(nullValue())
+    Thing createLight(hueBridge) {
         Configuration lightConfiguration = new Configuration().with {
             put(HueLightConfiguration.LIGHT_ID, "1")
             it
         }
-        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1", bridgeUID.getId()), hueBridge, lightConfiguration)
+
+        Thing hueLight = managedThingProvider.createThing(
+                LIGHT_THING_TYPE_UID,
+                new ThingUID(LIGHT_THING_TYPE_UID, "Light1"),
+                hueBridge, lightConfiguration)
+
         assertThat hueLight, is(notNullValue())
+
+        return hueLight
+    }
+
+    @Test
+    void 'assert that HueLightHandler is registered and unregistered'() {
+        Bridge hueBridge = createBridge()
+
+        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
+        assertThat hueLightHandler, is(nullValue())
+
+        Thing hueLight = createLight(hueBridge)
 
         // wait for HueLightHandler to be registered
         waitForAssert({
@@ -81,7 +107,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         }, 10000)
 
         managedThingProvider.removeThing(hueLight.getUID())
-        hueLightHandler = getService(ThingHandler, HueLightHandler)
+
         // wait for HueLightHandler to be unregistered
         waitForAssert({
             hueLightHandler = getService(ThingHandler, HueLightHandler)
@@ -91,8 +117,6 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         managedThingProvider.removeThing(hueBridge.getUID())
     }
 
-
-	
 	@Test
 	void 'assert command for color channel: on'() {
 		def expectedBody = 
@@ -259,36 +283,23 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	}
 	
     private void assertSendCommand(String channel, Command command, String expectedBody) {
+        Bridge hueBridge = createBridge()
 
-        Configuration bridgeConfiguration = new Configuration().with {
-            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
-            put(HueBridgeConfiguration.USER_NAME, "testUserName")
-            put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
-            it
-        }
-        Bridge hueBridge = managedThingProvider.createThing(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID(), "testBridge"), null, bridgeConfiguration)
 		HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
 		assertThat hueLightHandler, is(nullValue())
-		Configuration lightConfiguration = new Configuration().with {
-        	put(HueLightConfiguration.LIGHT_ID, "1")
-        	it
-        }
-        Thing hueLight = managedThingProvider.createThing(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), new ThingUID(HueThingTypeProvider.LIGHT_THING_TYPE.getUID(), "Light1"), hueBridge, lightConfiguration)
+
+        Thing hueLight = createLight(hueBridge)
+
         try {
-			assertThat hueLight, is(notNullValue())
-	        assertThat hueBridge, is(notNullValue())
-	
-	
-	
 	        // wait for HueLightHandler to be registered
 	        waitForAssert({
 	            hueLightHandler = getService(ThingHandler, HueLightHandler)
 	            assertThat hueLightHandler, is(notNullValue())
 	        }, 10000)
-	
-	 
+
 	        def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
 	        def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
+
 	        MockedHttpClient mockedHttpClient =  [
 	            put: { String address, String body ->
 	                addressWrapper.set(address)
@@ -343,25 +354,23 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	                }
 	            }
 	        ] as MockedHttpClient
-	
+
 			installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
-	        
-	
-	        // Create items and channel bindings
+
+	        // create items and channel bindings
 	        ThingHelper thingHelper = new ThingHelper(bundleContext)
 	
 	        thingHelper.createAndBindItems(hueLight)
 	        def item = hueLight.getUID().toString().replace(":", "_") + "_" + channel
-	
-	
+
 	        EventPublisher eventPublisher = getService(EventPublisher)
 	        assertThat eventPublisher, is(notNullValue())
-			
+
 	        eventPublisher.postCommand(item, command)
-	
+
 	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
 	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
-	
+
 	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
 			assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
@@ -378,14 +387,19 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		assertThat actualResult, is(expectedResult)
 	}
 	
-	private void installHttpClientMock(HueBridgeHandler hueBridgeHandler, MockedHttpClient mockedHttpClient) {
+	private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
+            MockedHttpClient mockedHttpClient) {
+
 		// mock HttpClient
 		def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
 		hueBridgeField.accessible = true
 		def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+
 		def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
 		httpClientField.accessible = true
 		httpClientField.set(hueBridgeValue, mockedHttpClient)
+
 		hueBridgeHandler.initialize()
-	}
+    }
+
 }

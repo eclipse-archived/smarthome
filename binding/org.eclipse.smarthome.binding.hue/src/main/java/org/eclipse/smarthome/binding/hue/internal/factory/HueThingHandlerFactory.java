@@ -9,7 +9,7 @@ package org.eclipse.smarthome.binding.hue.internal.factory;
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.HueThingTypeProvider;
+import org.eclipse.smarthome.binding.hue.internal.HueBinding;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -31,11 +31,11 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             Bridge bridge) {
-        if (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID().equals(thingTypeUID)) {
+        if (HueBinding.BRIDGE_THING_TYPE_UID.equals(thingTypeUID)) {
             ThingUID bridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return createThing(thingTypeUID, bridgeUID, configuration, bridge);
         }
-        if (HueThingTypeProvider.LIGHT_THING_TYPE.getUID().equals(thingTypeUID)) {
+        if (HueBinding.LIGHT_THING_TYPE_UID.equals(thingTypeUID)) {
             ThingUID lightUID = getLightUID(thingTypeUID, thingUID, configuration, bridge);
             return createThing(thingTypeUID, lightUID, configuration, bridge);
         }
@@ -45,7 +45,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-        return HueThingTypeProvider.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+        return HueBinding.SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
     private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
@@ -63,16 +63,16 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         String lightId = (String) configuration.get(HueLightConfiguration.LIGHT_ID);
 
         if (thingUID == null) {
-            thingUID = new ThingUID(thingTypeUID, "Light" + lightId, bridge.getUID().getId());
+            thingUID = new ThingUID(thingTypeUID, bridge.getUID() + "Light" + lightId);
         }
         return thingUID;
     }
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
-        if (thing.getThingTypeUID().equals(HueThingTypeProvider.BRIDGE_THING_TYPE.getUID())) {
+        if (thing.getThingTypeUID().equals(HueBinding.BRIDGE_THING_TYPE_UID)) {
             return new HueBridgeHandler((Bridge) thing);
-        } else if (thing.getThingTypeUID().equals(HueThingTypeProvider.LIGHT_THING_TYPE.getUID())) {
+        } else if (thing.getThingTypeUID().equals(HueBinding.LIGHT_THING_TYPE_UID)) {
             return new HueLightHandler(thing);
         } else {
             return null;

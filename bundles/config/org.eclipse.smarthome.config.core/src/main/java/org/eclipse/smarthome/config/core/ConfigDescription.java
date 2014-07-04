@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  */
 public class ConfigDescription {
 
-    private String uri;
+    private URI uri;
     private List<ConfigDescriptionParameter> parameters;
 
 
@@ -38,9 +39,9 @@ public class ConfigDescription {
      * Creates a new instance of this class with the specified parameter.
      * 
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry}
-     * @throws IllegalArgumentException if the URI is null or empty
+     * @throws IllegalArgumentException if the URI is null
      */
-    public ConfigDescription(String uri) throws IllegalArgumentException {
+    public ConfigDescription(URI uri) throws IllegalArgumentException {
         this(uri, null);
     }
 
@@ -52,14 +53,12 @@ public class ConfigDescription {
      * 
      * @param parameters the description of a concrete configuration parameter
      *     (could be null or empty)
-     *  
-     * @throws IllegalArgumentException if the URI is null or empty
+     *
+     * @throws IllegalArgumentException if the URI is null
      */
-    public ConfigDescription(String uri, List<ConfigDescriptionParameter> parameters)
-            throws IllegalArgumentException {
-
-        if ((uri == null) || (uri.isEmpty())) {
-            throw new IllegalArgumentException("The URI must neither be null nor empty!");
+    public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
+        if (uri == null) {
+            throw new IllegalArgumentException("The URI must not be null!");
         }
 
         this.uri = uri;
@@ -67,7 +66,8 @@ public class ConfigDescription {
         if (parameters != null) {
             this.parameters = Collections.unmodifiableList(parameters);
         } else {
-            this.parameters = Collections.unmodifiableList(new ArrayList<ConfigDescriptionParameter>(0));
+            this.parameters = Collections.unmodifiableList(
+                    new ArrayList<ConfigDescriptionParameter>(0));
         }
     }
 
@@ -75,9 +75,9 @@ public class ConfigDescription {
      * Returns the URI of this description within the {@link ConfigDescriptionRegistry}.
      * The URI follows the syntax {@code 'scheme://<token>:<token>:...'}.
      *  
-     * @return the URI of this description (neither null, nor empty)
+     * @return the URI of this description (not null)
      */
-    public String getURI() {
+    public URI getURI() {
         return this.uri;
     }
 
@@ -90,6 +90,11 @@ public class ConfigDescription {
      */
     public List<ConfigDescriptionParameter> getParameters() {
         return this.parameters;
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigDescription [uri=" + uri + ", parameters=" + parameters + "]";
     }
 
 }

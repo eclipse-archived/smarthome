@@ -12,7 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription
-import org.eclipse.smarthome.config.core.ConfigDescriptionListener
+import org.eclipse.smarthome.config.core.ConfigDescriptionsChangeListener
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.test.OSGiTest
@@ -28,13 +28,16 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         configDescriptionRegistry = getService(ConfigDescriptionRegistry)
-        configDescription = new ConfigDescription("Dummy")
+        configDescription = new ConfigDescription(new URI("Dummy"))
         configDescriptionProviderMock = [
-            addConfigDescriptionListener: { def ConfigDescriptionListener listener ->
-                listener.configDescriptionAdded(configDescription)
+            addConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
+                listener.configDescriptionAdded(configDescriptionProviderMock, configDescription)
             },
-            removeConfigDescriptionListener: { def ConfigDescriptionListener listener ->
-                listener.configDescriptionRemoved(configDescription)
+            removeConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
+                listener.configDescriptionRemoved(configDescriptionProviderMock, configDescription)
+            },
+            getConfigDescriptions: {
+                -> [ configDescription ]
             }
         ] as ConfigDescriptionProvider
     }
@@ -48,7 +51,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(1)
-        assertThat configDescriptions[0].uri, is(equalTo("Dummy"))
+        assertThat configDescriptions[0].uri, is(equalTo(new URI("Dummy")))
 
         unregisterService configDescriptionProviderMock
 
@@ -60,8 +63,8 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         registerService configDescriptionProviderMock
 
-        def configDescription = configDescriptionRegistry.getConfigDescription("Dummy")
+        def configDescription = configDescriptionRegistry.getConfigDescription(new URI("Dummy"))
         assertThat configDescription, is(not(null))
-        assertThat configDescription.uri, is(equalTo("Dummy"))
+        assertThat configDescription.uri, is(equalTo(new URI("Dummy")))
     }
 }

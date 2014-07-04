@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import java.net.URI;
+
 import org.eclipse.smarthome.core.thing.Channel;
 
 
@@ -38,7 +40,7 @@ public class ChannelType extends AbstractDescriptionType {
      *     (must neither be null nor empty)
      * 
      * @param description the human readable description for the according type
-     *     (must neither be null nor empty)
+     *     (could be null or empty)
      *  
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * 
@@ -46,7 +48,7 @@ public class ChannelType extends AbstractDescriptionType {
      *     or the the meta information is null
      */
     public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            String configDescriptionURI) throws IllegalArgumentException {
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description, configDescriptionURI);
 
@@ -55,6 +57,11 @@ public class ChannelType extends AbstractDescriptionType {
         }
 
         this.itemType = itemType;
+    }
+
+    @Override
+    public ChannelTypeUID getUID() {
+        return (ChannelTypeUID) super.getUID();
     }
 
     /**
@@ -67,7 +74,8 @@ public class ChannelType extends AbstractDescriptionType {
     }
 
     @Override
-    public ChannelTypeUID getUID() {
-        return (ChannelTypeUID) super.getUID();
+    public String toString() {
+        return super.getUID().toString();
     }
+
 }

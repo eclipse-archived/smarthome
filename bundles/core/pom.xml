@@ -28,6 +28,10 @@
     <module>org.eclipse.smarthome.core.scriptengine</module>
     <module>org.eclipse.smarthome.core.transform</module>
     <module>org.eclipse.smarthome.core.transform.test</module>
+    <module>org.eclipse.smarthome.core.binding.xml</module>
+    <module>org.eclipse.smarthome.core.binding.xml.test</module>
+    <module>org.eclipse.smarthome.core.thing.xml</module>
+    <module>org.eclipse.smarthome.core.thing.xml.test</module>
   </modules>
 
 </project>

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeChangeListener;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
@@ -94,7 +93,7 @@ public class ThingTypeRegistry implements ThingTypeChangeListener {
     }
 	
 	@Override
-    public void thingTypeRemoved(ThingTypeProvider provider, Thing thingType) {
+    public void thingTypeRemoved(ThingTypeProvider provider, ThingType thingType) {
         Collection<ThingType> thingTypes = thingTypeMap.get(provider);
         if (thingTypes != null) {
             thingTypes.remove(thingType);

@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.config.core;
 
 
-
 /**
  * The {@link ConfigDescriptionParameter} class contains the description of a concrete
  * configuration parameter. Such parameter descriptions are collected within the
@@ -50,40 +49,14 @@ public class ConfigDescriptionParameter {
 
     }
 
-    /**
-     * The {@link Context} defines an enumeration of some specific context
-     * a configuration parameter can take. A context is usually used for
-     * specific input validation or user interfaces.
-     * 
-     * @author Michael Grammling - Initial Contribution
-     */
-    public enum Context {
-
-        /**
-         * The context for a network address (e.g. IPv4, IPv6, etc.).
-         */
-        NETWORK_ADDRESS,
-
-        /**
-         * The context for a password (hidden field).
-         */
-        PASSWORD,
-
-        /**
-         * The context for an email address.
-         */
-        EMAIL;
-
-    }
-
     private String name;
     private Type type;
 
-    private Context context;
-    private String label;
+    private String context;
     private boolean required;
-    private String description;
     private Object defaultValue;
+    private String label;
+    private String description;
 
 
     /**
@@ -103,7 +76,7 @@ public class ConfigDescriptionParameter {
      * 
      * @param name the name of the configuration parameter (must neither be null nor empty)
      * @param type the data type of the configuration parameter (must not be null)
-     * @param context the context of the configuration parameter (could be null)
+     * @param context the context of the configuration parameter (could be null or empty)
      * @param required the flag indicating if the configuration parameter has to be set or not
      * @param defaultValue the default value of the configuration parameter (could be null)
      * @param label a human readable label for the configuration parameter (could be null or empty)
@@ -113,7 +86,7 @@ public class ConfigDescriptionParameter {
      * @throws IllegalArgumentException if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type,
-            Context context, boolean required, Object defaultValue,
+            String context, boolean required, Object defaultValue,
             String label, String description) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
@@ -154,10 +127,20 @@ public class ConfigDescriptionParameter {
 
     /**
      * Returns the context of the configuration parameter.
+     * <p>
+     * The context defines an enumeration of some specific context a configuration parameter
+     * can take. A context is usually used for specific input validation or user interfaces.
+     * <p>
+     * <b>Predefined Values:</b>
+     * <code><pre>
+     * network_address
+     * password
+     * email
+     * <pre></code>
      * 
-     * @return the context of the configuration parameter (could be null)
+     * @return the context of the configuration parameter (could be null or empty)
      */
-    public Context getContext() {
+    public String getContext() {
         return this.context;
     }
 
@@ -195,6 +178,14 @@ public class ConfigDescriptionParameter {
      */
     public String getDescription() {
         return this.description;
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigDescriptionParameter [name=" + name + ", type=" + type
+                + ", context=" + context + ", required=" + required
+                + ", defaultValue=" + defaultValue + ", label=" + label
+                + ", description=" + description + "]";
     }
 
 }
