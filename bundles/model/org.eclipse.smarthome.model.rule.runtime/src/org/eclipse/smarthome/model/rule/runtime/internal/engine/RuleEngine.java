@@ -264,7 +264,6 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 						executedRules.add(rule);
 					} catch (ScriptExecutionException e) {
 						logger.error("Error during the execution of startup rule '{}': {}", new String[] { rule.getName(), e.getCause().getMessage() });
-						logger.debug("Error during the execution of startup rule", e);
 						executedRules.add(rule);
 					}
 				}
