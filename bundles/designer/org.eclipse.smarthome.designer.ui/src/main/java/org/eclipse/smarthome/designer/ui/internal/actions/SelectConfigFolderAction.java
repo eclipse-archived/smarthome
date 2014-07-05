@@ -61,7 +61,7 @@ public class SelectConfigFolderAction extends Action {
 	}
 
 	private boolean isValidConfigurationFolder(File dir) {
-		if(dir.isDirectory() && dir.getName().equals(ConfigDispatcher.getConfigFolder())) {
+		if(dir.isDirectory()) {
 			return true;
 		}
 		return false;
