@@ -21,13 +21,16 @@ import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * The content provider class is responsible for
  * providing objects to the view. It can wrap
  * existing objects in adapters or simply return
  * objects as-is. These objects may be sensitive
  * to the current input of the view, or ignore
  * it and always show the same content 
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ *
  */
 public class ViewContentProvider implements IStructuredContentProvider, 
 									   ITreeContentProvider {

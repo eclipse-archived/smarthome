@@ -16,7 +16,6 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.eclipse.smarthome.designer.core.config.ConfigurationFolderProvider;
 import org.eclipse.smarthome.designer.ui.UIActivator;
 import org.eclipse.swt.SWT;
@@ -25,6 +24,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * Action for choosing a configuration folder
+ * 
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class SelectConfigFolderAction extends Action {
 	
 	Viewer viewer;

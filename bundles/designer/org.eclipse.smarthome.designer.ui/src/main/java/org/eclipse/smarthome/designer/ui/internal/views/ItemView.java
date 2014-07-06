@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.designer.ui.internal.views;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
+import org.eclipse.smarthome.designer.core.CoreActivator;
 import org.eclipse.smarthome.designer.ui.UIActivator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -34,6 +36,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 
+/**
+*
+* @author Kai Kreuzer - Initial contribution and API
+*
+*/
 public class ItemView extends ViewPart {
 
 	/**
@@ -111,6 +118,11 @@ public class ItemView extends ViewPart {
 		private void initialize() {
 			registry = (ItemRegistry) UIActivator.itemRegistryTracker.getService();
 			if(registry!=null) {
+				try {
+					CoreActivator.updateFolderObserver();
+				} catch (IOException e) {
+					// something is wrong, so we won't reload the folders.
+				}
 				registry.addItemRegistryChangeListener(this);
 				invisibleRoot = new Object();
 				allItemsChanged(null);

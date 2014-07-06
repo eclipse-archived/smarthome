@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
@@ -40,60 +41,78 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides a mean to read any kind of configuration data from a config folder
- * file and dispatch it to the different bundles using the {@link ConfigurationAdmin} service.
+ * This class provides a mean to read any kind of configuration data from a
+ * config folder file and dispatch it to the different bundles using the
+ * {@link ConfigurationAdmin} service.
  * 
- * <p>The name of the configuration folder can be provided as a program argument "smarthome.configdir"
- * (default is "conf").
- * Configurations for OSGi services are kept in a subfolder that can be provided as a program argument
- * "smarthome.servicedir" (default is "services"). Any file in this folder with the extension .cfg will
- * be processed.</p>
+ * <p>
+ * The name of the configuration folder can be provided as a program argument
+ * "smarthome.configdir" (default is "conf"). Configurations for OSGi services
+ * are kept in a subfolder that can be provided as a program argument
+ * "smarthome.servicedir" (default is "services"). Any file in this folder with
+ * the extension .cfg will be processed.
+ * </p>
  * 
- * <p>The format of the configuration file is similar to a standard property file, with the
- * exception that the property name can be prefixed by the service pid of the {@link ManagedService}:</p>
- * <p>&lt;service-pid&gt;:&lt;property&gt;=&lt;value&gt;</p>
- * <p>In case the pid does not contain any ".", the default service pid namespace is prefixed, which can
- * be defined by the program argument "smarthome.servicepid" (default is "org.eclipse.smarthome").</p> 
- * <p>If no pid is defined in the property line, the default pid namespace will be used together with the
- * filename. E.g. if you have a file "security.cfg", the pid that will be used is 
- * "org.eclipse.smarthome.security".</p>
- * <p>Last but not least, a pid can be defined in the first line of a cfg file by prefixing it with "pid:",
- * e.g. "pid: com.acme.smarthome.security".
- *  
+ * <p>
+ * The format of the configuration file is similar to a standard property file,
+ * with the exception that the property name can be prefixed by the service pid
+ * of the {@link ManagedService}:
+ * </p>
+ * <p>
+ * &lt;service-pid&gt;:&lt;property&gt;=&lt;value&gt;
+ * </p>
+ * <p>
+ * In case the pid does not contain any ".", the default service pid namespace
+ * is prefixed, which can be defined by the program argument
+ * "smarthome.servicepid" (default is "org.eclipse.smarthome").
+ * </p>
+ * <p>
+ * If no pid is defined in the property line, the default pid namespace will be
+ * used together with the filename. E.g. if you have a file "security.cfg", the
+ * pid that will be used is "org.eclipse.smarthome.security".
+ * </p>
+ * <p>
+ * Last but not least, a pid can be defined in the first line of a cfg file by
+ * prefixing it with "pid:", e.g. "pid: com.acme.smarthome.security".
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class ConfigDispatcher {
 
 	private static final String PID_MARKER = "pid:";
 
-	private static final Logger logger = LoggerFactory.getLogger(ConfigDispatcher.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(ConfigDispatcher.class);
 
 	private static WatchService watchService;
-	
-	// by default, we use the "configurations" folder in the home directory, but this location
-	// might be changed in certain situations (especially when setting a config folder in the
+
+	// by default, we use the "configurations" folder in the home directory, but
+	// this location
+	// might be changed in certain situations (especially when setting a config
+	// folder in the
 	// SmartHome Designer).
 	private static String configFolder = ConfigConstants.MAIN_CONFIG_FOLDER;
-			
+
 	public void activate() {
 		initializeWatchService();
 		readDefaultConfig();
 		readConfigs();
 	}
-	
+
 	public void deactivate() {
 		stopWatchService();
 	}
 
 	/**
-	 * Returns the configuration folder path name. The main config folder 
-	 * <code>&lt;smarthome&gt;/configurations</code> could be overwritten by setting
-	 * the System property <code>smarthome.configdir</code>.
+	 * Returns the configuration folder path name. The main config folder
+	 * <code>&lt;smarthome&gt;/configurations</code> could be overwritten by
+	 * setting the System property <code>smarthome.configdir</code>.
 	 * 
 	 * @return the configuration folder path name
 	 */
 	public static String getConfigFolder() {
-		String progArg = System.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT);
+		String progArg = System
+				.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT);
 		if (progArg != null) {
 			return progArg;
 		} else {
@@ -102,10 +121,12 @@ public class ConfigDispatcher {
 	}
 
 	/**
-	 * Sets the configuration folder to use. Calling this method will automatically
-	 * trigger the loading and dispatching of the contained configuration files.
+	 * Sets the configuration folder to use. Calling this method will
+	 * automatically trigger the loading and dispatching of the contained
+	 * configuration files.
 	 * 
-	 * @param configFolder the path name to the new configuration folder
+	 * @param configFolder
+	 *            the path name to the new configuration folder
 	 */
 	public static void setConfigFolder(String configFolder) {
 		ConfigDispatcher.configFolder = configFolder;
@@ -113,7 +134,8 @@ public class ConfigDispatcher {
 	}
 
 	private static String getDefaultServiceConfigFile() {
-		String progArg = System.getProperty(ConfigConstants.SERVICECFG_PROG_ARGUMENT);
+		String progArg = System
+				.getProperty(ConfigConstants.SERVICECFG_PROG_ARGUMENT);
 		if (progArg != null) {
 			return progArg;
 		} else {
@@ -126,28 +148,31 @@ public class ConfigDispatcher {
 		try {
 			processConfigFile(defaultCfg);
 		} catch (IOException e) {
-			logger.warn("Could not process default config file '{}': {}", getDefaultServiceConfigFile(), e);
-		}			
+			logger.warn("Could not process default config file '{}': {}",
+					getDefaultServiceConfigFile(), e);
+		}
 	}
 
 	private void readConfigs() {
 		File dir = new File(getServiceConfigFolder());
-		if(dir.exists()) {
+		if (dir.exists()) {
 			File[] files = dir.listFiles();
-			for(File file : files) {
+			for (File file : files) {
 				try {
 					processConfigFile(file);
 				} catch (IOException e) {
-					logger.warn("Could not process config file '{}': {}", file.getName(), e);
-				}			
+					logger.warn("Could not process config file '{}': {}",
+							file.getName(), e);
+				}
 			}
 		} else {
-			logger.debug("Configuration folder '{}' does not exist.", dir.toString());
+			logger.debug("Configuration folder '{}' does not exist.",
+					dir.toString());
 		}
 	}
 
 	private static void initializeWatchService() {
-		if(watchService!=null) {
+		if (watchService != null) {
 			try {
 				watchService.close();
 			} catch (IOException e) {
@@ -155,21 +180,25 @@ public class ConfigDispatcher {
 			}
 		}
 		Path toWatch = Paths.get(getServiceConfigFolder());
-		if(toWatch.toFile().exists()) {
+		if (toWatch.toFile().exists()) {
 			try {
 				watchService = toWatch.getFileSystem().newWatchService();
-				WatchQueueReader reader = new WatchQueueReader(watchService, toWatch);
+				WatchQueueReader reader = new WatchQueueReader(watchService,
+						toWatch);
 				Thread qr = new Thread(reader, "Dir Watcher");
 				qr.start();
-				toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
+				toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
+						ENTRY_DELETE);
 			} catch (IOException e) {
-				logger.error("Cannot activate folder watcher for folder '{}': ", toWatch, e);
+				logger.error(
+						"Cannot activate folder watcher for folder '{}': ",
+						toWatch, e);
 			}
 		}
 	}
 
 	private void stopWatchService() {
-		if(watchService!=null) {
+		if (watchService != null) {
 			try {
 				watchService.close();
 			} catch (IOException e) {
@@ -180,7 +209,8 @@ public class ConfigDispatcher {
 	}
 
 	private static String getServiceConfigFolder() {
-		String progArg = System.getProperty(ConfigConstants.SERVICEDIR_PROG_ARGUMENT);
+		String progArg = System
+				.getProperty(ConfigConstants.SERVICEDIR_PROG_ARGUMENT);
 		if (progArg != null) {
 			return getConfigFolder() + "/" + progArg;
 		} else {
@@ -189,7 +219,8 @@ public class ConfigDispatcher {
 	}
 
 	private static String getServicePidNamespace() {
-		String progArg = System.getProperty(ConfigConstants.SERVICEPID_PROG_ARGUMENT);
+		String progArg = System
+				.getProperty(ConfigConstants.SERVICEPID_PROG_ARGUMENT);
 		if (progArg != null) {
 			return progArg;
 		} else {
@@ -198,58 +229,65 @@ public class ConfigDispatcher {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static void processConfigFile(File configFile) throws IOException, FileNotFoundException {
-		if(configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
+	private static void processConfigFile(File configFile) throws IOException,
+			FileNotFoundException {
+		if (configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
 			logger.debug("Ignoring file '{}'", configFile.getName());
 			return;
 		}
 		logger.debug("Processing config file '{}'", configFile.getName());
-		ConfigurationAdmin configurationAdmin = 
-			(ConfigurationAdmin) ConfigActivator.configurationAdminTracker.getService();
+		ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) ConfigActivator.configurationAdminTracker
+				.getService();
 		if (configurationAdmin != null) {
-			// we need to remember which configuration needs to be updated because values have changed.
+			// we need to remember which configuration needs to be updated
+			// because values have changed.
 			Map<Configuration, Dictionary> configsToUpdate = new HashMap<Configuration, Dictionary>();
-			
+
 			// also cache the already retrieved configurations for each pid
 			Map<Configuration, Dictionary> configMap = new HashMap<Configuration, Dictionary>();
 
 			String pid;
-			String filenameWithoutExt = StringUtils.substringBeforeLast(configFile.getName(), ".");
-			if(filenameWithoutExt.contains(".")) {
+			String filenameWithoutExt = StringUtils.substringBeforeLast(
+					configFile.getName(), ".");
+			if (filenameWithoutExt.contains(".")) {
 				// it is a fully qualified namespace
 				pid = filenameWithoutExt;
 			} else {
 				pid = getServicePidNamespace() + "." + filenameWithoutExt;
 			}
-			
-			List<String> lines = IOUtils.readLines(new FileInputStream(configFile));
-			if(lines.size() > 0 && lines.get(0).startsWith(PID_MARKER)) {
+
+			List<String> lines = IOUtils.readLines(new FileInputStream(
+					configFile));
+			if (lines.size() > 0 && lines.get(0).startsWith(PID_MARKER)) {
 				pid = lines.get(0).substring(PID_MARKER.length()).trim();
 			}
-			for(String line : lines) {					
+			for (String line : lines) {
 				String[] contents = parseLine(configFile.getPath(), line);
 				// no valid configuration line, so continue
-				if(contents==null) continue;
-				if(contents[0]!=null) {
+				if (contents == null)
+					continue;
+				if (contents[0] != null) {
 					pid = contents[0];
 				}
 				String property = contents[1];
 				String value = contents[2];
-				Configuration configuration = configurationAdmin.getConfiguration(pid, null);
-				if(configuration!=null) {
+				Configuration configuration = configurationAdmin
+						.getConfiguration(pid, null);
+				if (configuration != null) {
 					Dictionary configProperties = configMap.get(configuration);
-					if(configProperties==null) {
+					if (configProperties == null) {
 						configProperties = new Properties();
 						configMap.put(configuration, configProperties);
 					}
-					if(!value.equals(configProperties.get(property))) {
+					if (!value.equals(configProperties.get(property))) {
 						configProperties.put(property, value);
 						configsToUpdate.put(configuration, configProperties);
 					}
 				}
 			}
-			
-			for(Entry<Configuration, Dictionary> entry : configsToUpdate.entrySet()) {
+
+			for (Entry<Configuration, Dictionary> entry : configsToUpdate
+					.entrySet()) {
 				entry.getKey().update(entry.getValue());
 			}
 		}
@@ -260,69 +298,78 @@ public class ConfigDispatcher {
 		if (trimmedLine.startsWith("#") || trimmedLine.isEmpty()) {
 			return null;
 		}
-		
+
 		String pid = null; // no override of the pid
-		if (trimmedLine.substring(1).contains(":")) { 
-			 pid = StringUtils.substringBefore(line, ":");
-			 trimmedLine = trimmedLine.substring(pid.length() + 1);
-			 pid = pid.trim();
+		if (trimmedLine.substring(1).contains(":")) {
+			pid = StringUtils.substringBefore(line, ":");
+			trimmedLine = trimmedLine.substring(pid.length() + 1);
+			pid = pid.trim();
 		}
-		if(!trimmedLine.isEmpty() && trimmedLine.substring(1).contains("=")) {
+		if (!trimmedLine.isEmpty() && trimmedLine.substring(1).contains("=")) {
 			String property = StringUtils.substringBefore(trimmedLine, "=");
 			String value = trimmedLine.substring(property.length() + 1);
 			return new String[] { pid, property.trim(), value.trim() };
 		} else {
 			logger.warn("Could not parse line '{}'", line);
 			return null;
-		}		
+		}
 	}
 
 	private static class WatchQueueReader implements Runnable {
-		
+
 		private WatchService watchService;
-		
+
 		public WatchQueueReader(WatchService watchService, Path dir) {
 			this.watchService = watchService;
 		}
-		
+
 		@Override
 		public void run() {
-			for(;;) {
-				WatchKey key = null;
-				try {
-					key = watchService.take();
-				} catch(InterruptedException e) {
-					return;
-				}
-	 
-	            for (WatchEvent<?> event: key.pollEvents()) {
-	                WatchEvent.Kind<?> kind = event.kind();
-	 
-	                if (kind == OVERFLOW) {
-	                    continue;
-	                }
-	 
-	                // Context for directory entry event is the file name of entry
-	                WatchEvent<Path> ev = cast(event);
-	                Path name = ev.context();
-	 
-	                // print out event
-	                if(kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-	                	try {
-	                		processConfigFile(new File(getServiceConfigFolder() + File.separator + name.toString()));
-						} catch (IOException e) {
-							logger.warn("Could not process config file '{}': {}", name, e);
+			try {
+				for (;;) {
+					WatchKey key = null;				
+					try {
+						key = watchService.take();
+					} catch (InterruptedException e) {
+						return;
+					}
+	
+					for (WatchEvent<?> event : key.pollEvents()) {
+						WatchEvent.Kind<?> kind = event.kind();
+	
+						if (kind == OVERFLOW) {
+							continue;
 						}
-	                }
-	            }
-	            key.reset();
-			}
+	
+						// Context for directory entry event is the file name of
+						// entry
+						WatchEvent<Path> ev = cast(event);
+						Path name = ev.context();
+	
+						// print out event
+						if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
+							try {
+								processConfigFile(new File(getServiceConfigFolder()
+										+ File.separator + name.toString()));
+							} catch (IOException e) {
+								logger.warn(
+										"Could not process config file '{}': {}",
+										name, e);
+							}
+						}
+					}
+					key.reset();
+				}
+			} catch (ClosedWatchServiceException ecx) {
+				logger.debug("Terminated thread {}", Thread.currentThread().getName());
+				return;
+			}				
 		}
-		
+
 		@SuppressWarnings("unchecked")
-	    static <T> WatchEvent<T> cast(WatchEvent<?> event) {
-	        return (WatchEvent<T>)event;
-	    }
+		static <T> WatchEvent<T> cast(WatchEvent<?> event) {
+			return (WatchEvent<T>) event;
+		}
 
 	}
 }

@@ -18,6 +18,11 @@ import org.eclipse.ui.navigator.CommonNavigator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+*
+* @author Kai Kreuzer - Initial contribution and API
+*
+*/
 public class ConfigNavigator extends CommonNavigator {
 
 	private IResourceChangeListener changeListener;
