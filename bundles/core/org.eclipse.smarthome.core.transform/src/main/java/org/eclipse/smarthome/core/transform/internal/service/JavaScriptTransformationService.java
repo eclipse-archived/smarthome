@@ -36,6 +36,16 @@ public class JavaScriptTransformationService implements TransformationService {
 	static final Logger logger = 
 		LoggerFactory.getLogger(JavaScriptTransformationService.class);
 	
+	private ConfigDispatcher configDispatcher = null;
+	
+	public void setConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = configDispatcher;
+	}
+	
+	public void unsetConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = null;
+	}
+
 	/**
 	 * Transforms the input <code>source</code> by Java Script. It expects the
 	 * transformation rule to be read from a file which is stored under the
@@ -61,7 +71,7 @@ public class JavaScriptTransformationService implements TransformationService {
 		Reader reader;
 
 		try {
-			String path = ConfigDispatcher.getConfigFolder() 
+			String path = configDispatcher.getConfigFolder() 
 				+ File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME
 				+ File.separator + filename;
 			reader = new InputStreamReader(new FileInputStream(path));

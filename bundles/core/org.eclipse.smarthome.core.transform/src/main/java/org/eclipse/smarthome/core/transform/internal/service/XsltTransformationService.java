@@ -35,6 +35,16 @@ public class XsltTransformationService implements TransformationService {
 
 	static final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
 
+	private ConfigDispatcher configDispatcher = null;
+	
+	public void setConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = configDispatcher;
+	}
+	
+	public void unsetConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = null;
+	}
+	
 	/**
 	 * <p>
 	 * Transforms the input <code>source</code> by XSLT. It expects the transformation rule to be read from a file which
@@ -60,7 +70,7 @@ public class XsltTransformationService implements TransformationService {
 		Source xsl = null;
 
 		try {
-			String path = ConfigDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+			String path = configDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
 			xsl = new StreamSource(new File(path));
 		} catch (Exception e) {
 			String message = "opening file '" + filename + "' throws exception";

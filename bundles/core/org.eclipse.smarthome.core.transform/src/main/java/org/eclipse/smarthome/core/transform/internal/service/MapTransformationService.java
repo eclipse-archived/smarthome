@@ -32,6 +32,16 @@ public class MapTransformationService implements TransformationService {
 
 	static final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
 
+	private ConfigDispatcher configDispatcher = null;
+	
+	public void setConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = configDispatcher;
+	}
+	
+	public void unsetConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = null;
+	}
+
 	/**
 	 * <p>
 	 * Transforms the input <code>source</code> by mapping it to another string. It expects the mappings to be read from a file which
@@ -56,7 +66,7 @@ public class MapTransformationService implements TransformationService {
 
 		Reader reader = null;
 		try {
-			String path = ConfigDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+			String path = configDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
 			Properties properties = new Properties();
 			reader = new FileReader(path);
 			properties.load(reader);
