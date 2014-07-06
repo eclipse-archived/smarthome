@@ -40,3 +40,4 @@ Import-Package: com.google.common.collect,
  org.quartz.utils,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.model.rule.runtime.internal.RuleModelRuntimeActivator
+Export-Package: org.eclipse.smarthome.model.rule.runtime

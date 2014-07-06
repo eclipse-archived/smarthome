@@ -191,11 +191,7 @@ public class FolderObserver implements ManagedService {
 				}
 
 			} catch (ClosedWatchServiceException ecx) {
-				logger.debug(
-						"ClosedWatchServiceException catched! {}. \n{} Stopping ",
-						ecx.getLocalizedMessage(), Thread.currentThread()
-								.getName());
-
+				logger.debug("Terminated thread {}", Thread.currentThread().getName());
 				return;
 			}
 		}

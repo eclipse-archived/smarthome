@@ -38,6 +38,7 @@ import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.rule.jvmmodel.RulesJvmModelInferrer;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
+import org.eclipse.smarthome.model.rule.runtime.RuleEngine;
 import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeInjectorProvider;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.osgi.service.event.Event;
@@ -59,9 +60,9 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
-public class RuleEngine implements EventHandler, ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener {
+public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener, RuleEngine {
 
-		static private final Logger logger = LoggerFactory.getLogger(RuleEngine.class);
+		static private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 		
 		private ItemRegistry itemRegistry;
 		private ModelRepository modelRepository;
@@ -263,7 +264,7 @@ public class RuleEngine implements EventHandler, ItemRegistryChangeListener, Sta
 						script.execute(context);
 						executedRules.add(rule);
 					} catch (ScriptExecutionException e) {
-						logger.error("Error during the execution of startup rule '{}': {}", new String[] { rule.getName(), e.getCause().getMessage() });
+						logger.error("Error during the execution of startup rule '{}': {}", new Object[] { rule.getName(), e.getCause().getMessage() });
 						executedRules.add(rule);
 					}
 				}
