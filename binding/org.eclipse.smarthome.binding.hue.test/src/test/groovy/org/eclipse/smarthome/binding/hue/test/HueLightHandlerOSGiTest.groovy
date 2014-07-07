@@ -61,7 +61,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         Configuration bridgeConfiguration = new Configuration().with {
             put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
             put(HueBridgeConfiguration.USER_NAME, "testUserName")
-            put(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER, "testSerialNumber")
+            put(HueBridgeConfiguration.SERIAL_NUMBER, "testSerialNumber")
             it
         }
 
