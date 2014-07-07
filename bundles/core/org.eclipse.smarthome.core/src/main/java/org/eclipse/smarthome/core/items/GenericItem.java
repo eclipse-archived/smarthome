@@ -88,8 +88,30 @@ abstract public class GenericItem implements Item {
 	 * {@inheritDoc}
 	 */
 	public List<String> getGroupNames() {
-		return groupNames;
+        return Collections.unmodifiableList(groupNames);
 	}
+
+    /**
+     * Adds a group name to the generic item.
+     * 
+     * @param groupItemName
+     *            group item name to add
+     */
+    public void addGroupName(String groupItemName) {
+        if (!groupNames.contains(groupItemName)) {
+            groupNames.add(groupItemName);
+        }
+    }
+
+    /**
+     * Removes a group name from the generic
+     * 
+     * @param groupItemName
+     *            group item name to remove
+     */
+    public void removeGroupName(String groupItemName) {
+        groupNames.remove(groupItemName);
+    }
 
 	public void setEventPublisher(EventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;

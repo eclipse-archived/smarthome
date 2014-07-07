@@ -62,7 +62,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * @return the direct members of this {@link GroupItem}
 	 */
 	public List<Item> getMembers() {
-		return members;
+		return Collections.unmodifiableList(members);
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	public List<Item> getAllMembers() {
 		Set<Item> allMembers = new HashSet<Item>();
 		collectMembers(allMembers, members);
-		return new ArrayList<Item>(allMembers);
+		return Collections.unmodifiableList(new ArrayList<Item>(allMembers));
 	}
 	
 	private void collectMembers(Set<Item> allMembers, List<Item> members) {
@@ -89,7 +89,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 		}
 	}
 
-	public void addMember(Item item) {
+    public void addMember(Item item) {
 		members.add(item);
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;
@@ -97,7 +97,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 		}
 	}
 	
-	public void removeMember(Item item) {
+    public void removeMember(Item item) {
 		members.remove(item);
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;

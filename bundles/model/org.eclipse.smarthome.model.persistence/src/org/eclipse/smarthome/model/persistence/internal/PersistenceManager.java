@@ -40,7 +40,6 @@ import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.core.EventType;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
-import org.eclipse.smarthome.model.persistence.scoping.GlobalStrategies;
 import org.eclipse.smarthome.model.persistence.persistence.AllConfig;
 import org.eclipse.smarthome.model.persistence.persistence.CronStrategy;
 import org.eclipse.smarthome.model.persistence.persistence.GroupConfig;
@@ -48,6 +47,7 @@ import org.eclipse.smarthome.model.persistence.persistence.ItemConfig;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceConfiguration;
 import org.eclipse.smarthome.model.persistence.persistence.PersistenceModel;
 import org.eclipse.smarthome.model.persistence.persistence.Strategy;
+import org.eclipse.smarthome.model.persistence.scoping.GlobalStrategies;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobDetail;
@@ -456,6 +456,11 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 			logger.warn("Failed to delete cron jobs of group '{}'", persistModelName);
 		}
 	}
+
+    @Override
+    public void itemUpdated(Item oldItem, Item item) {
+        // not needed here
+    }
 		
 
 }
