@@ -13,15 +13,14 @@ import org.eclipse.smarthome.binding.hue.internal.handler.HueLightHandler;
  * Configuration class for {@link HueLightHandler}.
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
- * 
  */
 public class HueLightConfiguration {
+
+    public static final String LIGHT_ID = "lightId";
 
     /**
      * Light identifier
      */
     public String lightId;
-    
-    public static final String LIGHT_ID = "lightId";
 
 }

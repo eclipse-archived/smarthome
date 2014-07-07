@@ -19,8 +19,15 @@
             <parameter name="userName" type="text">
                 <context>password</context>
                 <label>Username</label>
-                <description>Name of a registered hue bridge user, that allows to access the API.
+                <description>
+                    Name of a registered hue bridge user, that allows to access the API.
                 </description>
+                <required>false</required>
+            </parameter>
+            <parameter name="serialNumber" type="text">
+                <label>Serial Number</label>
+                <description>Serial number of the hue bridge.</description>
+                <required>false</required>
             </parameter>
         </config-description>
     </bridge-type>
@@ -38,6 +45,14 @@
             <channel id="color" typeId="color" />
             <channel id="color_temperature" typeId="color_temperature" />
         </channels>
+
+        <config-description>
+            <parameter name="lightId" type="text">
+                <label>Light ID</label>
+                <description>The light identifier identifies one certain hue bulb.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
     </thing-type>
 
     <!-- HUE Light Color Channel -->

@@ -51,8 +51,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
             Configuration configuration) {
         if (thingUID == null) {
-            String serialNumber = (String) configuration
-                    .get(HueBridgeConfiguration.BRIDGE_SERIAL_NUMBER);
+            String serialNumber = (String) configuration.get(HueBridgeConfiguration.SERIAL_NUMBER);
             thingUID = new ThingUID(thingTypeUID, serialNumber);
         }
         return thingUID;
