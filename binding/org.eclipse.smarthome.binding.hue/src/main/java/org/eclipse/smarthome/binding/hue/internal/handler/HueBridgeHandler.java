@@ -86,6 +86,7 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         if (configuration.ipAddress != null && configuration.userName != null) {
         	if (bridge == null) {
         		bridge = new HueBridge(configuration.ipAddress);
+        		bridge.setTimeout(5000);
         	}
             try {
             	bridge.authenticate(configuration.userName);
