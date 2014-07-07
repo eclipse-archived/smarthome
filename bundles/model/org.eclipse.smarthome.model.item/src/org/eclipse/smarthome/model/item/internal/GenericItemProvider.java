@@ -131,7 +131,7 @@ public class GenericItemProvider extends AbstractItemProvider implements ModelRe
 					Item item = createItemFromModelItem(modelItem);
 					if (item != null) {
 						for (String groupName : modelItem.getGroups()) {
-							item.getGroupNames().add(groupName);
+                            ((GenericItem) item).addGroupName(groupName);
 						}
 						items.add(item);
 					}
