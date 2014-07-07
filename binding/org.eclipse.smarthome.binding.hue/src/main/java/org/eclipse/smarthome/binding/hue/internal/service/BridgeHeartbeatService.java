@@ -80,8 +80,7 @@ public class BridgeHeartbeatService {
                                         lightStatusListener.onLightStateChanged(bridge, fullLight);
                                     } catch (Exception e) {
                                         logger.error(
-                                                "An exception occurred while calling the BridgeHeartbeatListener",
-                                                e);
+                                                "An exception occurred while calling the BridgeHeartbeatListener", e);
                                     }
                                 }
                             }
@@ -115,13 +114,8 @@ public class BridgeHeartbeatService {
                         }
                     }
                 } catch (Exception e) {
-                    lastBridgeConnectionState = false;
-                    logger.debug("Connection to Hue Bridge {} lost.", bridge.getIPAddress());
-                    for (BridgeStatusListener bridgeStatusListener : bridgeStatusListeners) {
-                        bridgeStatusListener.onConnectionLost(bridge);
-                    }
+                    logger.debug("Error retrieving heartbeat from Hue Bridge {} lost.", bridge.getIPAddress(), e);
                 }
-
             }
         }
     };
@@ -138,14 +132,20 @@ public class BridgeHeartbeatService {
     }
 
     private boolean isEqual(State state1, State state2) {
-        return state1.getAlertMode().equals(state2.getAlertMode())
-                && state1.getBrightness() == state2.getBrightness()
-                && state1.getColorMode().equals(state2.getColorMode())
-                && state1.getColorTemperature() == state2.getColorTemperature()
-                && state1.getEffect().equals(state2.getEffect())
-                && state1.getHue() == state2.getHue()
-                && state1.getSaturation() == state2.getSaturation()
-                && state1.isOn() == state2.isOn();
+    	try {
+	    	return state1.getAlertMode().equals(state2.getAlertMode())
+	                && state1.isOn() == state2.isOn()
+   	                && state1.getEffect().equals(state2.getEffect())
+	                && state1.getBrightness() == state2.getBrightness()
+	                && state1.getColorMode().equals(state2.getColorMode())
+	                && state1.getColorTemperature() == state2.getColorTemperature()
+	                && state1.getHue() == state2.getHue()
+	                && state1.getSaturation() == state2.getSaturation();
+    	} catch(Exception e) {
+    		// if a device does not support color, the Jue library throws an NPE
+    		// when testing for color-related properties
+    		return true;
+    	}
     }
 
     public void initialize(HueBridge bridge) {

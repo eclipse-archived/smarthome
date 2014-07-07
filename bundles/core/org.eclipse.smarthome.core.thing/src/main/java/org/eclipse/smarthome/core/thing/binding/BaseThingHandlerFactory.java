@@ -73,11 +73,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
         ThingHandler thingHandler = createHandler(thing);
 
+        thingHandler.initialize();
+
         ServiceRegistration<ThingHandler> serviceRegistration = registerAsService(thing,
                 thingHandler);
         thingHandlers.put(thing.getUID().toString(), serviceRegistration);
-
-        thingHandler.initialize();
 
     }
 
