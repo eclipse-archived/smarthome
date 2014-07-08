@@ -167,6 +167,21 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * Creates a thing based on given thing type uid.
      * 
      * @param thingTypeUID
+     *            thing type uid (can not be null)
+     * @param thingUID
+     *            thingUID (can not be null)
+     * @param configuration
+     *            (can not be null)
+     * @return thing (can be null, if thing type is unknown)
+     */
+    protected Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID) {
+    	return createThing(thingTypeUID, configuration, thingUID, null);
+    }
+    
+    /**
+     * Creates a thing based on given thing type uid.
+     * 
+     * @param thingTypeUID
      *            thing type uid (should not be null)
      * @param thingUID
      *            thingUID (should not be null)
@@ -174,30 +189,16 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      *            (should not be null)
      * @param bridge
      *            (can be null)
-     * @return thing
+     * @return thing (can be null, if thing type is unknown)
      */
-    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration, Bridge bridge) {
+	public Thing createThing(ThingTypeUID thingTypeUID,
+			Configuration configuration, ThingUID thingUID, Bridge bridge) {
     	ThingType thingType = getThingTypeByUID(thingTypeUID);
-    	return ThingFactory.createThing(thingType, thingUID, configuration, bridge);
-    }
+    	if(thingType!=null) {
+    		return ThingFactory.createThing(thingType, thingUID, configuration, bridge);
+    	} else {
+    		return null;
+    	}
+	}
     
-    /**
-     * Creates a thing based on given thing type uid.
-     * 
-     * @param thingTypeUID
-     *            thing type uid (can not be null)
-     * @param thingUID
-     *            thingUID (can not be null)
-     * @param configuration
-     *            (can not be null)
-     * @return thing
-     */
-    protected Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID,
-    		Configuration configuration) {
-    	return createThing(thingTypeUID, thingUID, configuration, null);
-    }
-    
-    
-
 }

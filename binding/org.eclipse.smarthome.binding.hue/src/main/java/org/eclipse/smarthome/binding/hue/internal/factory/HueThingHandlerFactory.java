@@ -33,11 +33,11 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             Bridge bridge) {
         if (HueThingTypeProvider.BRIDGE_THING_TYPE.getUID().equals(thingTypeUID)) {
             ThingUID bridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
-            return createThing(thingTypeUID, bridgeUID, configuration, bridge);
+            return super.createThing(thingTypeUID, configuration, bridgeUID, bridge);
         }
         if (HueThingTypeProvider.LIGHT_THING_TYPE.getUID().equals(thingTypeUID)) {
             ThingUID lightUID = getLightUID(thingTypeUID, thingUID, configuration, bridge);
-            return createThing(thingTypeUID, lightUID, configuration, bridge);
+            return super.createThing(thingTypeUID, configuration, lightUID, bridge);
         }
         throw new IllegalArgumentException("The thing type " + thingTypeUID
                 + " is not supported by the hue binding.");
