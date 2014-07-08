@@ -47,6 +47,7 @@
     	<module>binding</module>
 		<module>features</module>
 		<module>products</module>
+        <module>tools</module>
 		<module>targetplatform</module>
 		<module>distribution</module>
 	</modules>
