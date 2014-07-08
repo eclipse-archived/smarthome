@@ -11,7 +11,9 @@
     <groupId>org.eclipse.smarthome.archetype</groupId>
     <artifactId>org.eclipse.smarthome.archetype.binding</artifactId>
     <name>Eclipse Smarthome Binding Archetype</name>
-
+    
+    <description>This is the Maven-Archetype for building new bindings for Eclipse SmartHome.</description>
+  
     <packaging>maven-archetype</packaging>
 
     <build>
