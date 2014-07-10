@@ -15,6 +15,8 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * This class controls all aspects of the application's execution
+ *
+ * @author Kai Kreuzer - Initial contribution and API
  */
 public class Application implements IApplication {
 

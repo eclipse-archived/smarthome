@@ -12,8 +12,6 @@ import org.eclipse.smarthome.model.core.ModelRepository;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -22,8 +20,6 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class RuleModelRuntimeActivator implements BundleActivator {
-
-	private final static Logger logger = LoggerFactory.getLogger(RuleModelRuntimeActivator.class);
 
 	public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
 	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;

@@ -52,10 +52,17 @@ public abstract class AbstractItemProvider implements ItemProvider {
         }
     }
 
+    protected void notifyItemChangeListenersAboutUpdatedItem(Item oldItem, Item item) {
+        for (ItemsChangeListener itemsChangeListener : itemsChangeListeners) {
+            itemsChangeListener.itemUpdated(this, oldItem, item);
+        }
+    }
+
     protected void notifyItemChangeListenersAboutAllItemsChanged(Collection<String> oldItemNames) {
         for (ItemsChangeListener itemsChangeListener : itemsChangeListeners) {
             itemsChangeListener.allItemsChanged(this, oldItemNames);
         }
     }
+
 
 }

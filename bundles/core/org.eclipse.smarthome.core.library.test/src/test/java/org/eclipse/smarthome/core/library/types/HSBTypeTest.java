@@ -40,8 +40,8 @@ public class HSBTypeTest {
 		compareValues("0,0,100", 255, 255, 255); // white
 		compareValues("120,100,100", 0, 255, 0); // green
 		compareValues("240,100,100", 0, 0, 255); // blue
-		compareValues("229,37,62", 100, 110, 158); // blueish
-		compareValues("316,69,47", 120, 37, 98); // purple
+		compareValues("229,37,62", 99, 110, 158); // blueish
+		compareValues("316,69,47", 119, 37, 97); // purple
 		compareValues("60,60,60", 153, 153, 61); // green
 		compareValues("300,100,40", 102, 0, 102);
 

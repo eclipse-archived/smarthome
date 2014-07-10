@@ -21,6 +21,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * The label provider class is responsible for
+ * providing labels to the view.
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class ViewLabelProvider extends LabelProvider {
 
 	private Map<String, Image> imageCache = new HashMap<String, Image>();

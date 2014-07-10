@@ -8,10 +8,11 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.model.ruleengine">
-   <implementation class="org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleEngine"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="false" name="org.eclipse.smarthome.model.ruleengine">
+   <implementation class="org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleEngineImpl"/>
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>
+      <provide interface="org.eclipse.smarthome.model.rule.runtime.RuleEngine"/>
    </service>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
    <property name="event.topics" type="String" value="smarthome/command/*"/>

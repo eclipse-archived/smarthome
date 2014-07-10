@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="64">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="65">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.codehaus.groovy21.feature.feature.group" version="2.8.0.xx-20130703-1600-e43-RELEASE"/>
@@ -96,10 +96,13 @@
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.1.v201406120726"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140519-0339"/>
 <unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.1.v201406120726"/>
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.1.v201406110919"/>
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.10.0.v20140519-0339"/>
+<repository location="http://download.eclipse.org/modeling/emf/emf/updates/releases/"/>
 </location>
 </locations>
 </target>

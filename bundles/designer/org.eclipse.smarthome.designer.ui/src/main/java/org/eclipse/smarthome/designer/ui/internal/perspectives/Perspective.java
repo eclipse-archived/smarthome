@@ -10,6 +10,11 @@ package org.eclipse.smarthome.designer.ui.internal.perspectives;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+/**
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class Perspective implements IPerspectiveFactory {
 
 	public void createInitialLayout(IPageLayout layout) {
