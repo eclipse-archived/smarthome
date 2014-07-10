@@ -14,7 +14,6 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.Light;
 import nl.q42.jue.StateUpdate;
 import nl.q42.jue.exceptions.ApiException;
-import nl.q42.jue.exceptions.UnauthorizedException;
 
 import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration;
 import org.eclipse.smarthome.binding.hue.internal.service.BridgeHeartbeatService;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
+ * @author Kai Kreuzer - improved state handling
  * 
  */
 public class HueBridgeHandler extends BaseBridgeHandler implements
@@ -88,18 +88,8 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         		bridge = new HueBridge(configuration.ipAddress);
         		bridge.setTimeout(5000);
         	}
-            try {
-            	bridge.authenticate(configuration.userName);
-            	bridgeHeartbeatService.initialize(bridge);
-                bridgeHeartbeatService.registerBridgeStatusListener(this);
-            } catch (IOException e) {
-                throw new RuntimeException("The Hue bridge on " + configuration.ipAddress
-                        + " cannot be reached.", e);
-            } catch (UnauthorizedException e) {
-                throw new RuntimeException("Authorization failed.", e);
-            } catch (ApiException e) {
-                throw new RuntimeException(e);
-            }
+        	bridgeHeartbeatService.initialize(bridge);
+            bridgeHeartbeatService.registerBridgeStatusListener(this);
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
         }
@@ -119,7 +109,17 @@ public class HueBridgeHandler extends BaseBridgeHandler implements
         updateStatus(ThingStatus.ONLINE);
     }
 
-    public BridgeHeartbeatService getBridgeHeartbeatService() {
+    @Override
+	public void onNotAuthenticated(HueBridge bridge) {
+        HueBridgeConfiguration configuration = getConfigAs(HueBridgeConfiguration.class);
+    	try {
+			bridge.authenticate(configuration.userName);
+		} catch (Exception e) {
+			logger.debug("Hue bridge is not authenticated - please add user '{}'.", configuration.userName);
+		}
+	}
+
+	public BridgeHeartbeatService getBridgeHeartbeatService() {
         if (bridgeHeartbeatService == null) {
             throw new RuntimeException("The heartbeat service for bridge " + bridge.getIPAddress()
                     + " has not been initialized.");

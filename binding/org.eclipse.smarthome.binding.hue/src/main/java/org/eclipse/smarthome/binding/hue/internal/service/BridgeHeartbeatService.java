@@ -15,11 +15,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import nl.q42.jue.Config;
+import nl.q42.jue.FullConfig;
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
 import nl.q42.jue.Light;
 import nl.q42.jue.State;
 import nl.q42.jue.exceptions.ApiException;
+import nl.q42.jue.exceptions.UnauthorizedException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,85 +54,78 @@ public class BridgeHeartbeatService {
 
         @Override
         public void run() {
-            if (isConnectionEstablished(bridge) && !lastBridgeConnectionState) {
-                logger.debug("Connection to Hue Bridge {} resumed.", bridge.getIPAddress());
+            try {
+            	FullConfig fullConfig = bridge.getFullConfig();
+	            if (!lastBridgeConnectionState) {
+	                logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
+	                for (BridgeStatusListener bridgeStatusListener : bridgeStatusListeners) {
+	                    lastBridgeConnectionState = true;
+	                    bridgeStatusListener.onConnectionResumed(bridge);
+	                }
+	            }
+	            if (lastBridgeConnectionState) {
+	                Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightsState);
+	                    for (final FullLight fullLight : fullConfig.getLights()) {
+	                        final String lightId = fullLight.getId();
+	                        if (lastLightStateCopy.containsKey(lightId)) {
+	                            final FullLight lastFullLight = lastLightStateCopy.remove(lightId);
+	                            final State lastFullLightState = lastFullLight.getState();
+	                            lastLightsState.put(lightId, fullLight);
+	                            if (!isEqual(lastFullLightState, fullLight.getState())) {
+	                                logger.debug("Status update for Hue light {} detected.", lightId);
+	                                for (LightStatusListener lightStatusListener : lightStatusListeners) {
+	                                    try {
+	                                        lightStatusListener.onLightStateChanged(bridge, fullLight);
+	                                    } catch (Exception e) {
+	                                        logger.error(
+	                                                "An exception occurred while calling the BridgeHeartbeatListener", e);
+	                                    }
+	                                }
+	                            }
+	                        } else {
+	                            lastLightsState.put(lightId, fullLight);
+	                            logger.debug("Hue light {} added.", lightId);
+	                            for (LightStatusListener lightStatusListener : lightStatusListeners) {
+	                                try {
+	                                    lightStatusListener.onLightAdded(bridge, fullLight);
+	                                } catch (Exception e) {
+	                                    logger.error(
+	                                            "An exception occurred while calling the BridgeHeartbeatListener",
+	                                            e);
+	                                }
+	                            }
+	                        }
+	                    }
+	                    // Check for removed lights
+	                    for (Entry<String, FullLight> fullLightEntry : lastLightStateCopy.entrySet()) {
+	                        lastLightsState.remove(fullLightEntry.getKey());
+	                        logger.debug("Hue light {} removed.", fullLightEntry.getKey());
+	                        for (LightStatusListener lightStatusListener : lightStatusListeners) {
+	                            try {
+	                                lightStatusListener.onLightRemoved(bridge,
+	                                        fullLightEntry.getValue());
+	                            } catch (Exception e) {
+	                                logger.error(
+	                                        "An exception occurred while calling the BridgeHeartbeatListener",
+	                                        e);
+	                            }
+	                        }
+	                    }
+	            }
+            } catch (UnauthorizedException|IllegalStateException e) {
                 for (BridgeStatusListener bridgeStatusListener : bridgeStatusListeners) {
-                    lastBridgeConnectionState = true;
-                    bridgeStatusListener.onConnectionResumed(bridge);
+                    lastBridgeConnectionState = false;
+                    bridgeStatusListener.onNotAuthenticated(bridge);
                 }
-            } else if (!isConnectionEstablished(bridge) && lastBridgeConnectionState) {
+	        } catch (Exception e) {
                 logger.debug("Connection to Hue Bridge {} lost.", bridge.getIPAddress());
                 for (BridgeStatusListener bridgeStatusListener : bridgeStatusListeners) {
                     lastBridgeConnectionState = false;
                     bridgeStatusListener.onConnectionLost(bridge);
                 }
-            }
-            if (lastBridgeConnectionState) {
-                Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightsState);
-                try {
-                    for (final FullLight fullLight : getFullLights()) {
-                        final String lightId = fullLight.getId();
-                        if (lastLightStateCopy.containsKey(lightId)) {
-                            final FullLight lastFullLight = lastLightStateCopy.remove(lightId);
-                            final State lastFullLightState = lastFullLight.getState();
-                            lastLightsState.put(lightId, fullLight);
-                            if (!isEqual(lastFullLightState, fullLight.getState())) {
-                                logger.debug("Status update for Hue light {} detected.", lightId);
-                                for (LightStatusListener lightStatusListener : lightStatusListeners) {
-                                    try {
-                                        lightStatusListener.onLightStateChanged(bridge, fullLight);
-                                    } catch (Exception e) {
-                                        logger.error(
-                                                "An exception occurred while calling the BridgeHeartbeatListener", e);
-                                    }
-                                }
-                            }
-                        } else {
-                            lastLightsState.put(lightId, fullLight);
-                            logger.debug("Hue light {} added.", lightId);
-                            for (LightStatusListener lightStatusListener : lightStatusListeners) {
-                                try {
-                                    lightStatusListener.onLightAdded(bridge, fullLight);
-                                } catch (Exception e) {
-                                    logger.error(
-                                            "An exception occurred while calling the BridgeHeartbeatListener",
-                                            e);
-                                }
-                            }
-                        }
-                    }
-                    // Check for removed lights
-                    for (Entry<String, FullLight> fullLightEntry : lastLightStateCopy.entrySet()) {
-                        lastLightsState.remove(fullLightEntry.getKey());
-                        logger.debug("Hue light {} removed.", fullLightEntry.getKey());
-                        for (LightStatusListener lightStatusListener : lightStatusListeners) {
-                            try {
-                                lightStatusListener.onLightRemoved(bridge,
-                                        fullLightEntry.getValue());
-                            } catch (Exception e) {
-                                logger.error(
-                                        "An exception occurred while calling the BridgeHeartbeatListener",
-                                        e);
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.debug("Error retrieving heartbeat from Hue Bridge {} lost.", bridge.getIPAddress(), e);
-                }
-            }
+	        }
         }
     };
-
-    private List<FullLight> getFullLights() throws IOException, ApiException {
-        final List<FullLight> fullLights = new ArrayList<>();
-
-        final List<Light> lights = bridge.getLights();
-        for (Light light : lights) {
-            fullLights.add(bridge.getLight(light));
-        }
-        return fullLights;
-
-    }
 
     private boolean isEqual(State state1, State state2) {
     	try {
