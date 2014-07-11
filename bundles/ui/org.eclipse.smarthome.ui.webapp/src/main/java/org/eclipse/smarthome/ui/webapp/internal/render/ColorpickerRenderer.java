@@ -7,17 +7,15 @@
  */
 package org.eclipse.smarthome.ui.webapp.internal.render;
 
-import java.awt.Color;
-
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.model.sitemap.Colorpicker;
+import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.webapp.internal.servlet.WebAppServlet;
 import org.eclipse.smarthome.ui.webapp.render.RenderException;
 import org.eclipse.smarthome.ui.webapp.render.WidgetRenderer;
-import org.eclipse.smarthome.model.sitemap.Colorpicker;
-import org.eclipse.smarthome.model.sitemap.Widget;
 
 /**
  * <p>This is an implementation of the {@link WidgetRenderer} interface, which
@@ -56,8 +54,7 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
 		String hexValue = "#ffffff";
 		if(state instanceof HSBType) {
 			HSBType hsbState = (HSBType) state;
-			Color color = hsbState.toColor();
-			hexValue = "#" + Integer.toHexString(color.getRGB()).substring(2);
+			hexValue = "#" + Integer.toHexString(hsbState.getRGB()).substring(2);
 		}
 		String label = getLabel(cp);
 		String purelabel = label;

@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -103,6 +102,21 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 	public PercentType getBlue() {
 		return toRGB()[2];
 	}
+	
+    /**
+     * Returns the RGB value representing the color in the default sRGB
+     * color model.
+     * (Bits 24-31 are alpha, 16-23 are red, 8-15 are green, 0-7 are blue).
+     * 
+     * @return the RGB value of the color in the default sRGB color model
+     */
+	public int getRGB() {
+		PercentType[] rgb = toRGB();
+        return  ((0xFF) << 24) |
+                ((convertPercentToByte(rgb[0]) & 0xFF) << 16) |
+                ((convertPercentToByte(rgb[1]) & 0xFF) << 8)  |
+                ((convertPercentToByte(rgb[2]) & 0xFF) << 0);		
+	}
 
 	public String toString() {
 		return getHue() + "," + getSaturation() + "," + getBrightness();
@@ -184,4 +198,9 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 	    }
 	    return new PercentType[] { red, green, blue};
 	}
+	
+	private int convertPercentToByte(PercentType percent) {
+		return percent.value.multiply(BigDecimal.valueOf(255)).divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP).intValue();
+	}
+
 }
