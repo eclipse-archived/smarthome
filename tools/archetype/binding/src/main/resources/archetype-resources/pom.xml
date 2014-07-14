@@ -4,9 +4,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome</groupId>
+    <groupId>${namespace}</groupId>
     <artifactId>binding</artifactId>
-    <version>${project.version}</version>
+    <version>@${version}</version>
   </parent>
 
   <properties>
@@ -18,7 +18,7 @@
   <artifactId>${rootArtifactId}</artifactId>
   <version>@${version}</version>
   
-  <name>Eclipse SmartHome ${bindingIdCamelCase} Binding</name>
+  <name>${bindingIdCamelCase} Binding</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>

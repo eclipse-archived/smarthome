@@ -8,6 +8,9 @@
 		<requiredProperty key="vendorName">
 			<defaultValue>Eclipse.org/SmartHome</defaultValue>
 		</requiredProperty>
+		<requiredProperty key="namespace">
+			<defaultValue>org.eclipse.smarthome</defaultValue>
+		</requiredProperty>
         <requiredProperty key="author">
 		</requiredProperty>
         <requiredProperty key="bindingId">
