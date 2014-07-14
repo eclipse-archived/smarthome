@@ -8,9 +8,11 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: com.google.common.collect,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,
- org.eclipse.smarthome.core.types
+ org.eclipse.smarthome.core.types,
+ org.slf4j
 Service-Component: OSGI-INF/*
 Export-Package: ${package},
  ${package}.handler

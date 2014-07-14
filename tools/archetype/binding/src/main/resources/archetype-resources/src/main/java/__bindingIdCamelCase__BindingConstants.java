@@ -19,7 +19,10 @@ public class ${bindingIdCamelCase}BindingConstants {
 
     public static final String BINDING_ID = "${bindingId}";
     
-    // List all Thing Type UIDs, related to the ${bindingIdCamelCase} Binding
-    public final static ThingTypeUID SAMPLE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "sample");
+    // List of all Thing Type UIDs
+    public final static ThingTypeUID THING_TYPE_SAMPLE = new ThingTypeUID(BINDING_ID, "sample");
+
+    // List of all Channel ids
+    public final static String CHANNEL_1 = "channel1");
 
 }
