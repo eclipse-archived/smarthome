@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -36,6 +37,7 @@ public class SwitchItem extends GenericItem {
 		acceptedDataTypes.add(UnDefType.class);
 
 		acceptedCommandTypes.add(OnOffType.class);
+		acceptedCommandTypes.add(RefreshType.class);
 	}
 	
 	public SwitchItem(String name) {

@@ -20,8 +20,9 @@ Import-Package: com.google.common.collect,
  org.apache.log4j,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.designer.ui,
- org.osgi.service.event,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.smarthome.model.core,
+ org.eclipse.xtext.xbase.lib,
+ org.osgi.service.event
 Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
  org.eclipse.smarthome.model.ui.contentassist,
  org.eclipse.smarthome.model.ui.quickfix,

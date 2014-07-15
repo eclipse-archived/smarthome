@@ -23,8 +23,13 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.smarthome.config.core.ConfigConstants;
 
+/**
+ * Action for choosing a configuration folder
+ * 
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class SelectConfigFolderAction extends Action {
 	
 	Viewer viewer;
@@ -62,11 +67,7 @@ public class SelectConfigFolderAction extends Action {
 
 	private boolean isValidConfigurationFolder(File dir) {
 		if(dir.isDirectory()) {
-			for(File file : dir.listFiles()) {
-				if(file.getName().equals(ConfigConstants.MAIN_CONFIG_FILENAME)) {
-					return true;
-				}
-			}
+			return true;
 		}
 		return false;
 	}

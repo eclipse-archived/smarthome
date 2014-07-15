@@ -7,21 +7,14 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
-import java.net.URL;
-import java.util.List;
-
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
-import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
-
-import com.google.inject.Inject;
 
 /**
  * This is a special class loader that tries to resolve classes from available {@link ActionService}s,
  * if the class cannot be resolved from the normal classpath.
  * 
- * @author Kai Kreuzer - Initial contribution and API
- * @author Oliver Libutzki - Xtext 2.5.0 migration
+ * @author Kai Kreuzer
  *
  */
 final public class ActionClassLoader extends ClassLoader {
@@ -30,13 +23,6 @@ final public class ActionClassLoader extends ClassLoader {
 		super(cl);
 	}
 
-	IActionServiceProvider actionServiceProvider;
-	
-	@Inject
-	public void setActionServiceProvider(IActionServiceProvider actionServiceProvider) {
-		this.actionServiceProvider = actionServiceProvider;
-	}
-	
 	@Override
 	public Class<?> loadClass(String name)
 			throws ClassNotFoundException {
@@ -44,9 +30,10 @@ final public class ActionClassLoader extends ClassLoader {
 			Class<?> clazz = getParent().loadClass(name);
 			return clazz;
 		} catch(ClassNotFoundException e) {
-			List<ActionService> services = actionServiceProvider.get();
+			Object[] services = ScriptActivator.actionServiceTracker.getServices();
 			if(services!=null) {
-				for(ActionService actionService : services) {
+				for(Object service : services) {
+					ActionService actionService = (ActionService) service;
 					if(actionService.getActionClassName().equals(name)) {
 						return actionService.getActionClass();
 					}
@@ -54,19 +41,5 @@ final public class ActionClassLoader extends ClassLoader {
 			}
 		}
 		throw new ClassNotFoundException();
-	}
-	
-	@Override
-	protected URL findResource(String name) {
-		List<ActionService> services = actionServiceProvider.get();
-		if(services!=null) {
-			for(ActionService actionService : services) {
-				URL url = actionService.getActionClass().getClassLoader().getResource(name);
-				if (url != null) {
-					return url;
-				}
-			}
-		}
-		return null;
 	}
 }

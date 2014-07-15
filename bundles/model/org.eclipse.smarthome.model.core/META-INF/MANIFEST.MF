@@ -1,17 +1,18 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Model Core
-Bundle-SymbolicName: org.eclipse.smarthome.model.core
+Bundle-SymbolicName: org.eclipse.smarthome.model.core;singleton:=true
 Bundle-Version: 0.7.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.model.core.internal.ModelCoreActivator
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
  com.google.common.collect,
- org.apache.commons.collections;version="3.2.0",
+ com.google.inject,
+ org.apache.commons.collections,
  org.apache.commons.io,
- org.apache.commons.lang;version="2.3.0",
- org.eclipse.core.runtime,
+ org.apache.commons.lang,
+ org.eclipse.core.runtime;registry="split",
  org.eclipse.emf.common.notify,
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
@@ -19,9 +20,11 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.config.core,
  org.eclipse.xtext.common.types.impl,
  org.eclipse.xtext.resource,
+ org.eclipse.xtext.resource.impl,
  org.osgi.framework,
  org.osgi.service.cm,
- org.slf4j;version="1.5.11"
+ org.slf4j
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/folderobserver.xml, OSGI-INF/modelrepository.xml
-Export-Package: org.eclipse.smarthome.model.core
+Export-Package: org.eclipse.smarthome.model.core,
+ org.eclipse.smarthome.model.core.guice

@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
+import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -32,6 +33,8 @@ public class DateTimeItem extends GenericItem {
 	static {
 		acceptedDataTypes.add((DateTimeType.class));
 		acceptedDataTypes.add(UnDefType.class);
+		
+		acceptedCommandTypes.add(RefreshType.class);
 	}
 	
 	public DateTimeItem(String name) {

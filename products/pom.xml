@@ -16,7 +16,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.eclipse.smarthome.runtime.product</module>
     <module>org.eclipse.smarthome.designer.product</module>
     <module>org.eclipse.smarthome.repo</module>
   </modules>

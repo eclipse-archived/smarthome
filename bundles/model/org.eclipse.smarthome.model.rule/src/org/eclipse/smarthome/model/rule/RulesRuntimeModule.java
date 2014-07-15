@@ -13,16 +13,17 @@ package org.eclipse.smarthome.model.rule;
 import org.eclipse.smarthome.model.rule.scoping.RulesImplicitlyImportedTypes;
 import org.eclipse.smarthome.model.script.interpreter.ScriptInterpreter;
 import org.eclipse.smarthome.model.script.scoping.ActionClassLoader;
-import org.eclipse.smarthome.model.script.scoping.ActionClasspathBasedTypeScopeProvider;
-import org.eclipse.smarthome.model.script.scoping.ActionClasspathTypeProviderFactory;
 import org.eclipse.smarthome.model.script.scoping.ScriptImportSectionNamespaceScopeProvider;
 import org.eclipse.smarthome.model.script.scoping.StateAndCommandProvider;
+import org.eclipse.xtext.common.types.access.IJvmTypeProvider;
+import org.eclipse.xtext.common.types.access.reflect.ReflectionTypeProviderFactory;
+import org.eclipse.xtext.common.types.access.reflect.ReflectionTypeScopeProvider;
+import org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
-import org.eclipse.xtext.xbase.scoping.XImportSectionNamespaceScopeProvider;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 
 import com.google.inject.Binder;
@@ -31,6 +32,9 @@ import com.google.inject.name.Names;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
+ * 
+ * @author Oliver Libutzki - Initial contribution
+ * 
  */
 @SuppressWarnings("restriction")
 public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.AbstractRulesRuntimeModule {
@@ -42,25 +46,7 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
 	public Class<StateAndCommandProvider> bindStateAndCommandProvider() {
 		return StateAndCommandProvider.class;
 	}
-	
-	/* we need this so that our pluggable actions can be resolved at design time */
-	@Override
-	public Class<? extends org.eclipse.xtext.common.types.access.IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
-		return ActionClasspathTypeProviderFactory.class;
-	}
-	
-	/* we need this so that our pluggable actions can be resolved when being parsed at runtime */
-	@Override
-	public Class<? extends org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
-		return ActionClasspathBasedTypeScopeProvider.class;
-	}
 
-	/* we need this so that our pluggable actions can be resolved when being executed at runtime */
-	@Override
-	public ClassLoader bindClassLoaderToInstance() {
-		return new ActionClassLoader(getClass().getClassLoader());
-	}
-	
 	@Override
 	public Class<? extends IGenerator> bindIGenerator() {
 		return NullGenerator.class;
@@ -72,6 +58,21 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
 	
 	public void configureIScopeProviderDelegate(Binder binder) {
 		binder.bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(ScriptImportSectionNamespaceScopeProvider.class);
+	}
+	
+	@Override
+	public Class<? extends IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
+		return ReflectionTypeProviderFactory.class;
+	}
+
+	@Override
+	public Class<? extends AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
+		return ReflectionTypeScopeProvider.class;
+	}
+	
+	@Override
+	public ClassLoader bindClassLoaderToInstance() {
+		return new ActionClassLoader(super.bindClassLoaderToInstance());
 	}
 	
 }

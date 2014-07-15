@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.emf.ecore.extension_parser">
+      <parser
+            class="org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+            type="script">
+      </parser>
+   </extension>
+   <extension
+         point="org.eclipse.xtext.extension_resourceServiceProvider">
+      <resourceServiceProvider
+            class="org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceServiceProvider"
+            uriExtension="script">
+      </resourceServiceProvider>
+   </extension>
+</plugin>

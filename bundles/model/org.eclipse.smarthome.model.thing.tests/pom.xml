@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>model</artifactId>
+    <version>0.7.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <bundle.symbolicName>org.eclipse.smarthome.model.thing.tests</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.model.thing.tests</bundle.namespace>
+  </properties>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome.model</groupId>
+  <artifactId>org.eclipse.smarthome.model.thing.tests</artifactId>
+
+  <name>Eclipse SmartHome Thing Model Tests</name>
+
+  <packaging>eclipse-test-plugin</packaging>
+
+  <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-surefire-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <configuration>
+                    <dependencies>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>org.eclipse.equinox.ds</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>org.eclipse.smarthome.model.core</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>org.eclipse.smarthome.model.thing.runtime</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>org.eclipse.smarthome.model.item.runtime</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                        <dependency>
+                            <type>eclipse-plugin</type>
+                            <artifactId>org.eclipse.smarthome.core</artifactId>
+                            <version>0.0.0</version>
+                        </dependency>
+                    </dependencies>
+                    <bundleStartLevel>
+                    	<bundle>
+                            <id>org.eclipse.equinox.ds</id>
+                            <level>1</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.core</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+							<id>org.eclipse.smarthome.core.thing</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.core.item.runtime</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.core.thing.runtime</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                    </bundleStartLevel>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

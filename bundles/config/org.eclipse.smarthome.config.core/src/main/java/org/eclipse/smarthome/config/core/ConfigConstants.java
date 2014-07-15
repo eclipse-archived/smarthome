@@ -21,12 +21,24 @@ public class ConfigConstants {
 	/** The program argument name for setting the main config directory path */
 	final static public String CONFIG_DIR_PROG_ARGUMENT = "smarthome.configdir";
 	
-	/** The program argument name for setting the main config file name */
-	final static public String CONFIG_FILE_PROG_ARGUMENT = "smarthome.configfile";
-	
+	/** The program argument name for setting the service config directory path */
+	final static public String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
+
+	/** The program argument name for setting the service pid namespace */
+	final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
+
+	/** The program argument name for setting the default services config file name */
+	final static public String SERVICECFG_PROG_ARGUMENT = "smarthome.servicecfg";
+
 	/** The main configuration directory name */
-	final static public String MAIN_CONFIG_FOLDER = "configurations"; 
+	final static public String MAIN_CONFIG_FOLDER = "conf"; 
 	
-	/** The default filename of the main configuration file */
-	final static public String MAIN_CONFIG_FILENAME = "smarthome.cfg";
+	/** The default folder name of the configuration folder of services */
+	final static public String SERVICES_FOLDER = "services";
+
+	/** The default namespace for service pids */
+	final static public String SERVICE_PID_NAMESPACE = "org.eclipse.smarthome";
+
+	/** The default services configuration filename */
+	final static public String SERVICE_CFG_FILE = "smarthome.cfg";
 }

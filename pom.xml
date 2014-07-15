@@ -32,7 +32,7 @@
 	<properties>
 		<tycho-version>0.20.0</tycho-version>
 		<tycho-groupid>org.eclipse.tycho</tycho-groupid>
-		<xtext-version>2.5.3</xtext-version>
+		<xtext-version>2.6.1</xtext-version>
         <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
         <maven.compiler.version>3.1</maven.compiler.version>
 		<groovy.eclipse.compiler.version>2.8.0-01</groovy.eclipse.compiler.version>
@@ -44,8 +44,10 @@
 
 	<modules>
 		<module>bundles</module>
+    	<module>binding</module>
 		<module>features</module>
 		<module>products</module>
+        <module>tools</module>
 		<module>targetplatform</module>
 		<module>distribution</module>
 	</modules>
@@ -223,6 +225,7 @@
 							<include>**/OSGI-INF/*.xml</include>
 						</includes>
 						<excludes>
+							<exclude>**/org/eclipse/smarthome/model/core/guice/AbstractGuiceAwareExecutableExtensionFactory.java</exclude>
 							<exclude>target/**</exclude>
 							<exclude>**/pom.xml</exclude>
 							<exclude>_*.java</exclude>

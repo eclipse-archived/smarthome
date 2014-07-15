@@ -20,6 +20,12 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
+/**
+ * Action for opening files
+ * 
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class OpenFileAction extends Action {
 
     /**

@@ -13,6 +13,11 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.navigator.CommonViewer;
 
+/**
+*
+* @author Kai Kreuzer - Initial contribution and API
+*
+*/
 public class ConfigNavigatorActionGroup extends ActionGroup {
 
 	private SelectConfigFolderAction selectConfigFolderAction;

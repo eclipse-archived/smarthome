@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+        xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+        targetNamespace="http://eclipse.org/smarthome/schemas/config-description/v1.0.0">
+
+	<xs:element name="config-descriptions">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="config-description" type="config-description:configDescription" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="config-description" type="config-description:configDescription"/>
+
+	<xs:complexType name="configDescription">
+		<xs:sequence>
+			<xs:element name="parameter" type="config-description:parameter" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="uri" type="xs:string" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="parameter">
+		<xs:all>
+			<xs:element name="context" type="xs:string" minOccurs="0"/>
+			<xs:element name="required" type="xs:boolean" default="false" minOccurs="0"/>
+			<xs:element name="default" type="xs:string" minOccurs="0"/>
+			<xs:element name="label" type="xs:string" minOccurs="0"/>
+			<xs:element name="description" type="xs:string" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="type" type="config-description:parameterType" use="required"/>
+	</xs:complexType>
+
+	<xs:simpleType name="parameterType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="text"/>
+			<xs:enumeration value="integer"/>
+			<xs:enumeration value="decimal"/>
+			<xs:enumeration value="boolean"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+    <xs:complexType name="configDescriptionRef">
+        <xs:attribute name="uri" type="xs:string" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

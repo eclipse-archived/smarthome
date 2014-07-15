@@ -18,18 +18,27 @@
   <modules>
     <module>org.eclipse.smarthome.model.core</module>
     <module>org.eclipse.smarthome.model.item</module>
+    <module>org.eclipse.smarthome.model.item.runtime</module>
     <module>org.eclipse.smarthome.model.item.ui</module>
     <module>org.eclipse.smarthome.model.persistence</module>
+    <module>org.eclipse.smarthome.model.persistence.runtime</module>
     <module>org.eclipse.smarthome.model.persistence.ui</module>
     <module>org.eclipse.smarthome.model.persistence.tests</module>
     <module>org.eclipse.smarthome.model.rule</module>
+    <module>org.eclipse.smarthome.model.rule.runtime</module>
     <module>org.eclipse.smarthome.model.rule.ui</module>
     <module>org.eclipse.smarthome.model.rule.tests</module>
     <module>org.eclipse.smarthome.model.script</module>
+    <module>org.eclipse.smarthome.model.script.runtime</module>
     <module>org.eclipse.smarthome.model.script.ui</module>
-   <module>org.eclipse.smarthome.model.script.tests</module> 
+    <module>org.eclipse.smarthome.model.script.tests</module> 
     <module>org.eclipse.smarthome.model.sitemap</module>
+    <module>org.eclipse.smarthome.model.sitemap.runtime</module>
     <module>org.eclipse.smarthome.model.sitemap.ui</module>
+    <module>org.eclipse.smarthome.model.thing</module>
+    <module>org.eclipse.smarthome.model.thing.runtime</module>
+    <module>org.eclipse.smarthome.model.thing.ui</module>
+    <module>org.eclipse.smarthome.model.thing.tests</module>
   </modules>
 
 </project>

@@ -16,11 +16,13 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.eclipse.smarthome.feature.dependencies.common</module>
+    <module>org.eclipse.smarthome.feature.runtime.core</module>
+    <module>org.eclipse.smarthome.feature.runtime.rest</module>
+    <module>org.eclipse.smarthome.feature.runtime.model</module>
+    <module>org.eclipse.smarthome.feature.runtime.ui</module>
+    <module>org.eclipse.smarthome.feature.runtime.binding</module>
     <module>org.eclipse.smarthome.feature.dependencies.designer</module>
-    <module>org.eclipse.smarthome.feature.dependencies.runtime</module>
     <module>org.eclipse.smarthome.feature.designer</module>
-    <module>org.eclipse.smarthome.feature.runtime</module>
     <module>org.eclipse.smarthome.feature.test</module>
   </modules>
 

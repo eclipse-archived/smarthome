@@ -7,9 +7,15 @@
  */
 package org.eclipse.smarthome.designer.core;
 
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Properties;
+
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -24,6 +30,9 @@ public class CoreActivator extends Plugin {
 	private static CoreActivator plugin;
 	
 	public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
+
+	/** Tracker for the ConfigurationAdmin service */
+	public static ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> configurationAdminTracker;
 	
 	/**
 	 * The constructor
@@ -40,7 +49,10 @@ public class CoreActivator extends Plugin {
 		plugin = this;
 		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(context, ActionService.class, null);
 		actionServiceTracker.open();
-	}
+
+        configurationAdminTracker = new ServiceTracker<>(context, ConfigurationAdmin.class.getName(), null);
+        configurationAdminTracker.open();
+}
 
 	/*
 	 * (non-Javadoc)
@@ -50,6 +62,21 @@ public class CoreActivator extends Plugin {
 		plugin = null;
 		super.stop(context);
 		actionServiceTracker.close();
+		configurationAdminTracker.close();
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void updateFolderObserver() throws IOException {
+		ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) CoreActivator.configurationAdminTracker.getService();
+		if (configurationAdmin != null) {
+			Configuration configuration;
+				configuration = configurationAdmin.getConfiguration("org.eclipse.smarthome.folder", null);
+			if (configuration != null) {
+				Dictionary configProperties = new Properties();
+				configProperties.put("items", "items");
+				configuration.update(configProperties);
+			}
+		}
 	}
 
 	/**

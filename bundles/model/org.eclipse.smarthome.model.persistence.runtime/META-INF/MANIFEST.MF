@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Persistence Runtime
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.7.0.qualifier
+Bundle-SymbolicName: org.eclipse.smarthome.model.persistence.runtime;singleton:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Import-Package: com.google.inject,
+ org.eclipse.core.runtime;registry="split",
+ org.eclipse.smarthome.model.core.guice,
+ org.eclipse.smarthome.model.persistence,
+ org.eclipse.xtext.resource,
+ org.eclipse.xtext.service

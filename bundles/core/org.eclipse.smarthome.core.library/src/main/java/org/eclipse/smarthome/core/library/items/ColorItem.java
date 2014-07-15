@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -42,6 +43,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
 			acceptedCommandTypes.add(IncreaseDecreaseType.class);
 			acceptedCommandTypes.add(PercentType.class);
 			acceptedCommandTypes.add(HSBType.class);
+			acceptedCommandTypes.add(RefreshType.class);
 		}
 		
 		public ColorItem(String name) {

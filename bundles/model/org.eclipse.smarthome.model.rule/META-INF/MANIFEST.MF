@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.xtext.xbase,
  org.eclipse.smarthome.model.item,
  org.eclipse.smarthome.model.script,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.xtext.xbase.lib,
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional
 Import-Package: com.google.common.collect,
  org.apache.commons.lang,
  org.apache.commons.logging,
@@ -43,6 +44,7 @@ Import-Package: com.google.common.collect,
  org.quartz,
  org.quartz.impl,
  org.quartz.impl.matchers,
+ org.quartz.spi,
  org.quartz.utils,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
@@ -57,5 +59,4 @@ Export-Package: org.eclipse.smarthome.model.rule,
  org.eclipse.smarthome.model.rule.formatting,
  org.eclipse.smarthome.model.rule.jvmmodel,
  org.eclipse.smarthome.model.rule.serializer
-Bundle-Activator: org.eclipse.smarthome.model.rule.internal.RuleModelActivator
-Service-Component: OSGI-INF/ruleengine.xml
+
