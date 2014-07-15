@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -42,6 +43,8 @@ public class RollershutterItem extends GenericItem {
 		acceptedCommandTypes.add(UpDownType.class);
 		acceptedCommandTypes.add(StopMoveType.class);
 		acceptedCommandTypes.add(PercentType.class);
+		
+		acceptedCommandTypes.add(RefreshType.class);
 	}
 	
 	public RollershutterItem(String name) {

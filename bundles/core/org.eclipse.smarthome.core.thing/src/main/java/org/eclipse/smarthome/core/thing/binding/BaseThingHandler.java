@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -20,6 +23,8 @@ import org.eclipse.smarthome.core.types.State;
  * @author Dennis Nobel - Initial contribution
  */
 public abstract class BaseThingHandler implements ThingHandler {
+
+	protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     private Thing thing;
 
