@@ -16,11 +16,11 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
-import org.eclipse.smarthome.core.thing.type.BridgeType;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.BridgeType
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
+import org.eclipse.smarthome.core.thing.type.ThingType
 import org.junit.Test
 
 class ThingFactoryTest {
@@ -28,7 +28,7 @@ class ThingFactoryTest {
 	@Test
 	void 'create simple Thing'() {
 
-		def thingType = new ThingType("bindingId", "thingTypeId", "label", "description", "manufacturer")
+		def thingType = new ThingType("bindingId", "thingTypeId", "label")
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -41,7 +41,7 @@ class ThingFactoryTest {
 	@Test
 	void 'create simple Bridge'() {
 
-		def thingType = new BridgeType("bindingId", "thingTypeId", "label", "description", "manufacturer")
+		def thingType = new BridgeType("bindingId", "thingTypeId", "label")
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -54,7 +54,7 @@ class ThingFactoryTest {
 
 		def bridge = BridgeBuilder.create(new ThingTypeUID("binding:bridge"), "1").build();
 
-		def thingType = new ThingType("bindingId", "thingTypeId", "label", "description", "manufacturer")
+		def thingType = new ThingType("bindingId", "thingTypeId", "label")
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridge)
@@ -71,7 +71,7 @@ class ThingFactoryTest {
 		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
 		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
 		
-		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", "description", "manufacturer", [channelDef1, channelDef2], null)
+		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null)
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)

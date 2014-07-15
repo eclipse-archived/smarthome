@@ -5,5 +5,5 @@
 	<classpathentry kind="src" path="src/test/groovy"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
-	<classpathentry kind="output" path="target/test-classes"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

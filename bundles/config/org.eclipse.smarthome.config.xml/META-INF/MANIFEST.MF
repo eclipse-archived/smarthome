@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Config XML
+Bundle-SymbolicName: org.eclipse.smarthome.config.xml
+Bundle-Version: 0.7.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.eclipse.smarthome.config.core,
+ org.osgi.framework,
+ org.osgi.util.tracker,
+ org.slf4j
+Bundle-Activator: org.eclipse.smarthome.config.xml.internal.Activator
+Export-Package: com.thoughtworks.xstream,
+ com.thoughtworks.xstream.converters,
+ com.thoughtworks.xstream.io,
+ org.eclipse.smarthome.config.xml,
+ org.eclipse.smarthome.config.xml.osgi,
+ org.eclipse.smarthome.config.xml.util
+Bundle-ClassPath: lib/xstream-1.4.7.jar,
+ .

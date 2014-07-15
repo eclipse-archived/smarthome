@@ -12,11 +12,9 @@ import org.eclipse.smarthome.core.thing.Thing;
 
 
 /**
- * The {@link ChannelDefinition} class defines a {@link Channel} of a
- * {@link org.eclipse.smarthome.core.thing.type.ThingType}.
+ * The {@link ChannelDefinition} class defines a {@link Channel} of a {@link ThingType}.
  * <p>
- * A {@link Channel} is part of a {@link Thing} that represents a functionality
- * of it.
+ * A {@link Channel} is part of a {@link Thing} that represents a functionality of it.
  * <p>
  * <b>Hint:</b> This class is immutable.
  * 
@@ -65,6 +63,11 @@ public class ChannelDefinition {
      */
     public ChannelType getType() {
         return this.type;
+    }
+
+    @Override
+    public String toString() {
+        return "ChannelDefinition [id=" + id + ", type=" + type + "]";
     }
 
 }

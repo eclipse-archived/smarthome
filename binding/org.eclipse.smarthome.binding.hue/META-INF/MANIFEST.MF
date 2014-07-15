@@ -25,5 +25,4 @@ Import-Package: com.google.common.collect,
  org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*
-Bundle-Activator: org.eclipse.smarthome.binding.hue.internal.HueActivator
 Require-Bundle: com.google.gson;bundle-version="2.2.0"

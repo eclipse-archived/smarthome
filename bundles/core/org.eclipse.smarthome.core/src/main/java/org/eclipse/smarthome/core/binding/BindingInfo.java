@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.binding;
 
+import java.net.URI;
+
 
 /**
  * The {@link BindingInfo} is a service interface each <i>Binding</i> has to implement
@@ -35,7 +37,7 @@ public interface BindingInfo {
      * Returns a human readable description for the binding
      * (e.g. "Discovers and controls HUE bulbs").
      * 
-     * @return a human readable description for the binding (must neither be null nor empty)
+     * @return a human readable description for the binding (could be null or empty)
      */
     String getDescription();
 
@@ -59,6 +61,6 @@ public interface BindingInfo {
      * 
      * @return the link to a concrete ConfigDescription (could be null)
      */
-    String getConfigDescriptionURI();
+    URI getConfigDescriptionURI();
 
 }

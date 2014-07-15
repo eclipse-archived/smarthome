@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 public interface ThingTypeChangeListener {
@@ -17,7 +16,7 @@ public interface ThingTypeChangeListener {
      * 
      * @param provider
      *            the concerned thing type provider
-     * @param thing
+     * @param thingType
      *            the thing type that has been added
      */
     public void thingTypeAdded(ThingTypeProvider provider, ThingType thingType);
@@ -27,8 +26,8 @@ public interface ThingTypeChangeListener {
      * 
      * @param provider
      *            the concerned thing type provider
-     * @param thing
+     * @param thingType
      *            the thing type that has been removed
      */
-    public void thingTypeRemoved(ThingTypeProvider provider, Thing thingType);
+    public void thingTypeRemoved(ThingTypeProvider provider, ThingType thingType);
 }

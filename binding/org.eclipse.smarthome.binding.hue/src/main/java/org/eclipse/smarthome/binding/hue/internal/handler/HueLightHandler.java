@@ -76,11 +76,8 @@ public class HueLightHandler extends BaseThingHandler implements
     public void dispose() {
         logger.debug("Handler disposes. Unregistering listener.");
         if (lightId != null) {
-            HueBridgeHandler hueBridgeHandler = getHueBridgeHandler();
-            if (hueBridgeHandler != null) {
-				final BridgeHeartbeatService bridgeHeartbeatService = hueBridgeHandler.getBridgeHeartbeatService();
-	            bridgeHeartbeatService.unregisterLightStatusListener(this);
-            }
+            final BridgeHeartbeatService bridgeHeartbeatService = getHueBridgeHandler().getBridgeHeartbeatService();
+            bridgeHeartbeatService.unregisterLightStatusListener(this);
             lightId = null;
         }
     }
@@ -101,8 +98,7 @@ public class HueLightHandler extends BaseThingHandler implements
             return;
         }
 
-        String channelId = channelUID.getId();
-		switch (channelId) {
+        switch (channelUID.getId()) {
 
         case CHANNEL_ID_COLOR_TEMPERATURE:
             if (command instanceof PercentType) {
@@ -132,7 +128,7 @@ public class HueLightHandler extends BaseThingHandler implements
             // TODO: support increase and decrease
             break;
         default:
-            logger.warn("Command send to an unknown channel id: " + channelId);
+            logger.warn("Command send to an unknown channel id: " + channelUID);
             break;
         }
 

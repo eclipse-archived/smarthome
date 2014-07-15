@@ -13,13 +13,12 @@ import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
  * Configuration class for {@link HueBridgeHandler}.
  * 
  * @author Dennis Nobel - Initial contribution of hue binding
- * 
  */
 public class HueBridgeConfiguration {
 
-	public static final String IP_ADDRESS = "ipAddress";
+    public static final String IP_ADDRESS = "ipAddress";
 	public static final String USER_NAME = "userName";
-	public static final String BRIDGE_SERIAL_NUMBER = "bridgeSerialNumber";
+	public static final String SERIAL_NUMBER = "serialNumber";
 	
     /**
      * IP address of the hue bridge
@@ -34,6 +33,6 @@ public class HueBridgeConfiguration {
     /**
      * Serial number of the hue bridge
      */
-    public String bridgeSerialNumber;
+    public String serialNumber;
 
 }

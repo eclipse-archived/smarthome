@@ -7,45 +7,46 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import java.util.Collection;
+
 
 /**
- * {@link ConfigDescriptionProvider} can be implemented and registered as an
- * OSGi service to provide {@link ConfigDescription}s. The
- * {@link ConfigDescriptionRegistry} tracks each
- * {@link ConfigDescriptionProvider} and registers a
- * {@link ConfigDescriptionListener}.
+ * The {@link ConfigDescriptionProvider} can be implemented and registered as an <i>OSGi</i>
+ * service to provide {@link ConfigDescription}s. The {@link ConfigDescriptionRegistry} tracks
+ * each {@link ConfigDescriptionProvider} and registers a {@link ConfigDescriptionsChangeListener}
+ * on each provider.
  * 
  * @author Dennis Nobel - Initial contribution
- * 
+ * @author Michael Grammling - Initial contribution
  */
 public interface ConfigDescriptionProvider {
 
     /**
-     * Adds a {@link ConfigDescriptionListener} to the
-     * {@link ConfigDescriptionProvider}. The implementation must call
-     * {@link ConfigDescriptionListener#configDescriptionAdded(ConfigDescription)}
-     * for each {@link ConfigDescription} that exists, before the listener was
-     * added. Whenever a new config description should be added the
-     * implementation must call
-     * {@link ConfigDescriptionListener#configDescriptionAdded(ConfigDescription)}
-     * , too.
+     * Provides a collection of {@link ConfigDescription}s.
      * 
-     * @param listener
-     *            listener
+     * @return the configuration descriptions provided by this provider (not null, could be empty)
      */
-    public void addConfigDescriptionListener(ConfigDescriptionListener listener);
+    Collection<ConfigDescription> getConfigDescriptions();
 
     /**
-     * Removes a {@link ConfigDescriptionListener} from the
-     * {@link ConfigDescriptionProvider}. The implementation must call
-     * {@link ConfigDescriptionListener#configDescriptionRemoved(ConfigDescription)}
-     * for each {@link ConfigDescription} that was added by the
-     * {@link ConfigDescriptionProvider}. Moreover the implementation must
-     * release all references to the listener and is not allowed to call the
-     * listener anymore.
+     * Adds a {@link ConfigDescriptionsChangeListener} which is notified, if there are changes concerning
+     * the {@link ConfigDescription}s provided by this {@link ConfigDescriptionProvider}.
+     * <p>
+     * This method returns silently if the specified listener is {@code null} or has already been
+     * registered before.
      * 
-     * @param listener
-     *            listener
+     * @param listener the listener to be added (could be null)
      */
-    public void removeConfigDescriptionListener(ConfigDescriptionListener listener);
+    void addConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener);
+
+    /**
+     * Removes a {@link ConfigDescriptionsChangeListener} from this {@link ConfigDescriptionProvider}.
+     * <p>
+     * This method returns silently if the specified listener is {@code null} or has not been
+     * registered before.
+     * 
+     * @param listener the listener to be removed (could be null)
+     */
+    void removeConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener);
+
 }

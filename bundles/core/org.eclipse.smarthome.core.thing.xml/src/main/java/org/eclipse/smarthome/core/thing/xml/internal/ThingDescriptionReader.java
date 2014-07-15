@@ -1,0 +1,78 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.core.thing.xml.internal;
+
+import java.util.List;
+
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
+import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
+import org.eclipse.smarthome.config.xml.util.NodeAttributes;
+import org.eclipse.smarthome.config.xml.util.NodeAttributesConverter;
+import org.eclipse.smarthome.config.xml.util.NodeList;
+import org.eclipse.smarthome.config.xml.util.NodeListConverter;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
+import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+
+import com.thoughtworks.xstream.XStream;
+
+
+/**
+ * The {@link ThingDescriptionReader} reads XML documents, which contain the
+ * {@code thing-description} XML tag, and converts them to {@link ThingDescriptionList}
+ * objects consisting of {@link ThingTypeXmlResult}, {@link BridgeTypeXmlResult} and
+ * {@link ChannelTypeXmlResult} objects.
+ * <p>
+ * This reader uses {@code XStream} and {@code StAX} to parse and convert the XML document.  
+ * 
+ * @author Michael Grammling - Initial Contribution
+ */
+public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
+
+    /**
+     * The default constructor of this class.
+     */
+    public ThingDescriptionReader() {
+        super.setClassLoader(ThingDescriptionReader.class.getClassLoader());
+    }
+
+    @Override
+    public void registerConverters(XStream xstream) {
+        xstream.registerConverter(new NodeAttributesConverter());
+        xstream.registerConverter(new NodeValueConverter());
+        xstream.registerConverter(new NodeListConverter());
+        xstream.registerConverter(new ThingDescriptionConverter());
+        xstream.registerConverter(new ThingTypeConverter());
+        xstream.registerConverter(new BridgeTypeConverter());
+        xstream.registerConverter(new ChannelTypeConverter());
+        xstream.registerConverter(new ConfigDescriptionConverter());
+        xstream.registerConverter(new ConfigDescriptionParameterConverter());
+    }
+
+    @Override
+    public void registerAliases(XStream xstream) {
+        xstream.alias("thing-descriptions", ThingDescriptionList.class);
+        xstream.alias("thing-type", ThingTypeXmlResult.class);
+        xstream.alias("bridge-type", BridgeTypeXmlResult.class);
+        xstream.alias("channel-type", ChannelTypeXmlResult.class);
+        xstream.alias("supported-bridge-type-refs", NodeList.class);
+        xstream.alias("bridge-type-ref", NodeAttributes.class);
+        xstream.alias("item-type", NodeValue.class);
+        xstream.alias("label", NodeValue.class);
+        xstream.alias("description", NodeValue.class);
+        xstream.alias("channels", NodeList.class);
+        xstream.alias("channel", NodeAttributes.class);
+        xstream.alias("config-descriptions", NodeList.class);
+        xstream.alias("config-description", ConfigDescription.class);
+        xstream.alias("config-description-ref", NodeAttributes.class);
+        xstream.alias("parameter", ConfigDescriptionParameter.class);
+    }
+
+}

@@ -7,15 +7,16 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
+import java.net.URI;
+
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.UID;
 
 
 /**
- * The {@link AbstractDescriptionType} class is the base class for a
- * {@link org.eclipse.smarthome.core.thing.type.ThingType}, a
- * {@link BridgeType} or a {@link ChannelType}. This class contains only
- * properties and methods accessing them.
+ * The {@link AbstractDescriptionType} class is the base class for a {@link ThingType},
+ * a {@link BridgeType} or a {@link ChannelType}. This class contains only properties
+ * and methods accessing them.
  * <p>
  * <b>Hint:</b> This class is immutable.
  * 
@@ -24,10 +25,11 @@ import org.eclipse.smarthome.core.thing.UID;
 public abstract class AbstractDescriptionType {
 
     private UID uid;
-    private String configDescriptionURI;
     private String label;
     private String description;
-    
+    private URI configDescriptionURI;
+
+
     /**
      * Creates a new instance of this class with the specified parameters.
      * 
@@ -38,7 +40,7 @@ public abstract class AbstractDescriptionType {
      *     (must neither be null nor empty)
      * 
      * @param description the human readable description for the according type
-     *     (must neither be null nor empty)
+     *     (could be null or empty)
      * 
      * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
      * 
@@ -46,7 +48,7 @@ public abstract class AbstractDescriptionType {
      *     or the the meta information is null
      */
     public AbstractDescriptionType(UID uid, String label, String description,
-            String configDescriptionURI) throws IllegalArgumentException {
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         if (uid == null) {
             throw new IllegalArgumentException("The UID must not be null");
@@ -56,10 +58,6 @@ public abstract class AbstractDescriptionType {
             throw new IllegalArgumentException("The label must neither be null nor empty!");
         }
 
-        if ((description == null) || (description.isEmpty())) {
-            throw new IllegalArgumentException("The description must neither be null nor empty!");
-        }
-
         this.uid = uid;
         this.label = label;
         this.description = description;
@@ -67,14 +65,31 @@ public abstract class AbstractDescriptionType {
     }
 
     /**
-     * Returns the unique identifier which identifies the according type within
-     * the overall system.
+     * Returns the unique identifier which identifies the according type within the overall system.
      * 
      * @return the unique identifier which identifies the according type within
      *     the overall system (neither null, nor empty)
      */
     public UID getUID() {
         return this.uid;
+    }
+
+    /**
+     * Returns the human readable label for the according type.
+     * 
+     * @return the human readable label for the according type (neither null, nor empty)
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Returns the human readable description for the according type.
+     * 
+     * @return the human readable description for the according type (could be null or empty)
+     */
+    public String getDescription() {
+        return this.description;
     }
 
     /**
@@ -92,28 +107,8 @@ public abstract class AbstractDescriptionType {
      * 
      * @return the link to a concrete ConfigDescription (could be null)
      */
-    public String getConfigDescriptionURI() {
+    public URI getConfigDescriptionURI() {
         return this.configDescriptionURI;
     }
-    
-
-    /**
-     * Returns the human readable label for the according type.
-     * 
-     * @return the human readable label for the according type (neither null, nor empty)
-     */
-    public String getLabel() {
-        return this.label;
-    }
-
-    /**
-     * Returns the human readable description for the according type.
-     * 
-     * @return the human readable description for the according type (neither null, nor empty)
-     */
-    public String getDescription() {
-        return this.description;
-    }
-
 
 }
