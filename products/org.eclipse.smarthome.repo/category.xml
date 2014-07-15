@@ -36,6 +36,12 @@
    <feature url="features/org.eclipse.smarthome.feature.runtime.ui.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.ui.source" version="0.7.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.binding_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.binding" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.binding.source_0.7.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.binding.source" version="0.7.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
    <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">
       <description>
          This category contains all Eclipse SmartHome features
