@@ -7,8 +7,9 @@
  */
 package ${package}.internal;
 
+import static ${package}.${bindingIdCamelCase}BindingConstants.*;
+
 import java.util.Collection;
-import ${package}.${bindingIdCamelCase}BindingConstants;
 import ${package}.handler.${bindingIdCamelCase}Handler;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -27,7 +28,7 @@ import com.google.common.collect.Lists;
  */
 public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory {
     
-    private final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(${bindingIdCamelCase}BindingConstants.SAMPLE_THING_TYPE_UID);
+    private final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(THING_TYPE_SAMPLE);
     
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -39,7 +40,7 @@ public class ${bindingIdCamelCase}HandlerFactory extends BaseThingHandlerFactory
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(${bindingIdCamelCase}BindingConstants.SAMPLE_THING_TYPE_UID)) {
+        if (thingTypeUID.equals(THING_TYPE_SAMPLE)) {
             return new ${bindingIdCamelCase}Handler(thing);
         }
 
