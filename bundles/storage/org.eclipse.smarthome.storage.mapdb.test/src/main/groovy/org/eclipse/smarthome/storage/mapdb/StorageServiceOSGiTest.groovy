@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.List;
+
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.storage.StorageService
@@ -43,42 +45,66 @@ class StorageServiceOSGiTest extends OSGiTest {
 	}
 
 	@Test
-	void 'assert getItems returns item from registered StorageService'() {
+	void 'assert elements are serialized and deserialized by the Storage'() {
 
-		assertThat(storage.getKeys().size(), is(0))
+		assertThat storage.getKeys().size(), is(0)
 		
-		storage.put 'Key1', new TestDto('Key1', Calendar.getInstance().getTime());
-		storage.put 'Key2', new TestDto('Key2', Calendar.getInstance().getTime());
+		storage.put 'Key1', new PersistedItem('String', ['LIGHT', 'GROUND_FLOOR']);
+		storage.put 'Key2', new PersistedItem('Number', ['TEMPERATURE', 'OUTSIDE']);
+		assertThat storage.getKeys().size(), is(2)
 		
-		assertThat(storage.getKeys().size(), is(2))
-		
-		TestDto dto = storage.get 'Key1'
-		println dto
+		PersistedItem pItem = storage.get 'Key1'
 		
 		storage.remove 'Key1'		
 		storage.remove 'Key2'
-		
-		assertThat(storage.getKeys().size(), is(0))
+		assertThat storage.getKeys().size(), is(0)
 	}
 	
-	static class TestDto {
+	@Test
+	void 'assert old element gets overwritten when new value is stored under an existing key'() {
+		PersistedItem pItem = null
 		
-		String name
-		Date date
+		assertThat storage.getKeys().size(), is(0)
 		
-		public TestDto() {
+		pItem = storage.put 'Key1', new PersistedItem('String', ['LIGHT', 'GROUND_FLOOR']);
+		assertThat storage.getKeys().size(), is(1)
+		assertThat pItem, is(null)
+		
+		pItem = storage.get 'Key1'		
+		assertThat pItem.itemType, is('String')
+		
+		pItem = storage.put 'Key1', new PersistedItem('Number', ['TEMPERATURE']);
+		assertThat storage.getKeys().size(), is(1)
+		assertThat pItem.itemType, is('String')
+		assertThat storage.get('Key1').itemType, is('Number')
+
+		storage.remove 'Key1'
+		assertThat storage.getKeys().size(), is(0)
+	}
+
+	
+	private class PersistedItem {
+
+		public String itemType;
+		public List<String> groupNames;
+		public String baseItemType;
+		
+		public PersistedItem(String itemType, List<String> groupNames) {
+			this(itemType, groupNames, null);
 		}
-		
-		public TestDto(String name, Date date) {
-			this.name = name
-			this.date = date
+
+		public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
+			this.itemType = itemType;
+			this.groupNames = groupNames;
+			this.baseItemType = baseItemType;
 		}
 
 		@Override
 		public String toString() {
-			return "TestDto [name=" + name + ", date=" + date + "]";
+			return "PersistedItem [itemType=$itemType, groupNames=$groupNames, baseItemType=$baseItemType]";
 		}
-	
+		
 	}
+	
 	
 }

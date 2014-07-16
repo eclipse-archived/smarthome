@@ -7,17 +7,17 @@
  */
 package org.eclipse.smarthome.storage.mapdb;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.mapdb.DB;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
@@ -33,7 +33,7 @@ public class MapDbStorage<T> implements Storage<T> {
 	private BundleContext consumerContext;
 	private Map<String, String> map;
 	
-	private transient ObjectMapper mapper = new ObjectMapper();
+	private transient Gson mapper = new Gson();
 	
 	
 	public MapDbStorage(DB db, BundleContext consumerContext, String name) {
@@ -82,32 +82,35 @@ public class MapDbStorage<T> implements Storage<T> {
 			throw new IllegalArgumentException("Cannot serialize NULL");
 		}
 		
-		try {
-			String valueTypeName = value.getClass().getName();
-			String valueAsString = mapper.writeValueAsString(value);
-			String concatValue = valueTypeName + TYPE_SEPARATOR + valueAsString;
-			
-			logger.debug("serialized value '{}' to MapDB", concatValue);
-			return concatValue;
-		} catch (IOException e) {
-			logger.warn("Couldn't serialize value '{}'. Root cause is: {}", value, e.getMessage());
-		}
+		String valueTypeName = value.getClass().getName();
+		String valueAsString = mapper.toJson(value);
+		String concatValue = valueTypeName + TYPE_SEPARATOR + valueAsString;
 		
-		return null;
+		logger.trace("serialized value '{}' to MapDB", concatValue);
+		return concatValue;
 	}
 	
 	
 	@SuppressWarnings("unchecked")
 	public T deserialize(String json) {
+		
+		if (json == null) {
+			// nothing to deserialize
+			return null;
+		}
+
+		String[] concatValue = json.split(TYPE_SEPARATOR);
+		String valueTypeName = concatValue[0];
+		String valueAsString = concatValue[1];
+		
 		T value = null;
 		try {
-			String[] concatValue = json.split(TYPE_SEPARATOR);
-			String valueTypeName = concatValue[0];
-			String valueAsString = concatValue[1];
-
+			// load required class within the given bundle context
 			Class<T> loadedValueType = (Class<T>)
 				consumerContext.getBundle().loadClass(valueTypeName);
-			value = mapper.readValue(valueAsString, loadedValueType);
+			
+			value = mapper.fromJson(valueAsString, loadedValueType);
+			logger.trace("deserialized value '{}' from MapDB", value);
 		} catch (Exception e) {
 			logger.warn("Couldn't deserialize value '{}'. Root cause is: {}", json, e.getMessage());
 		}

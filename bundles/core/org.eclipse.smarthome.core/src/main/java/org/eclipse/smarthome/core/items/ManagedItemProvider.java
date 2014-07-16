@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import static org.eclipse.smarthome.core.internal.CoreActivator.getContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -217,7 +219,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
     }
 
     protected void setStorageService(StorageService storageService) {
-        this.itemStorage = storageService.getStorage(Item.class.getName());
+        this.itemStorage = storageService.getStorage(getContext(), Item.class.getName());
     }
 
     protected void unsetStorageService(StorageService storageService) {

@@ -4,9 +4,7 @@ Bundle-Vendor: openHAB.org
 Bundle-Version: 0.7.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.codehaus.jackson;version="1.6.0",
- org.codehaus.jackson.map;version="1.6.0",
- org.eclipse.smarthome.core.storage,
+Import-Package: org.eclipse.smarthome.core.storage,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.event,
@@ -17,3 +15,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/mapdb-1.0.2.jar
 Service-Component: OSGI-INF/*
+Require-Bundle: com.google.gson;bundle-version="2.2.4"

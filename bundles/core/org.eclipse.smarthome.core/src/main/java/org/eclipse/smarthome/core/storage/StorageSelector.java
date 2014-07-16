@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.storage;
 
+import static org.eclipse.smarthome.core.internal.CoreActivator.getContext;
+
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -62,8 +64,7 @@ public class StorageSelector<T> {
         // small optimization - if there is just one StorageService available
         // we don't have to select amongst others.
         if (storageServiceCandidates.size() == 1) {
-            storageSelectionListener.storageSelected((Storage<T>) storageService
-                    .getStorage(this.storageName));
+            storageSelectionListener.storageSelected((Storage<T>) storageService.getStorage(getContext(), this.storageName));
         } else {
             storageSelectionListener.storageSelected(findStorageServiceByPriority());
         }
@@ -85,7 +86,7 @@ public class StorageSelector<T> {
         if (reference != null) {
             StorageService service = (StorageService) CoreActivator.getContext().getService(
                     reference);
-            Storage<T> storage = service.getStorage(this.storageName);
+            Storage<T> storage = service.getStorage(getContext(), this.storageName);
 
             return storage;
         }
