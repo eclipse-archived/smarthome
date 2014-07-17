@@ -21,6 +21,12 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     private transient List<Thing> things = new CopyOnWriteArrayList<>();
 
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    BridgeImpl() {
+    }
+    
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
     }

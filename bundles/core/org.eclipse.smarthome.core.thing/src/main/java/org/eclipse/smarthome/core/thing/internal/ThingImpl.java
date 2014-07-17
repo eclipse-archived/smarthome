@@ -42,7 +42,13 @@ public class ThingImpl implements Thing {
     private String name;
 
     private ThingTypeUID thingTypeUID;
-
+    
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    ThingImpl() {
+    }
+    
     /**
      * @param thingTypeUID
      * @param thingId
