@@ -32,12 +32,12 @@
     <repository>
       <id>repo.eclipse.org</id>
       <name>Eclipse SmartHome Repository - Releases</name>
-      <url>https://repo.eclipse.org/content/repositories/eclipsesmarthome-releases/</url>
+      <url>https://repo.eclipse.org/content/repositories/smarthome-releases/</url>
     </repository>
     <snapshotRepository>
       <id>repo.eclipse.org</id>
       <name>Eclipse SmartHome Repository - Snapshots</name>
-      <url>https://repo.eclipse.org/content/repositories/eclipsesmarthome-snapshots/</url>
+      <url>https://repo.eclipse.org/content/repositories/smarthome-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>
 
