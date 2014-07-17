@@ -27,6 +27,20 @@
 		</license>
 	</licenses>
 
+
+  <distributionManagement>
+    <repository>
+      <id>repo.eclipse.org</id>
+      <name>Eclipse SmartHome Repository - Releases</name>
+      <url>https://repo.eclipse.org/content/repositories/eclipsesmarthome-releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>repo.eclipse.org</id>
+      <name>Eclipse SmartHome Repository - Snapshots</name>
+      <url>https://repo.eclipse.org/content/repositories/eclipsesmarthome-snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+
 	<description>This is the Eclipse SmartHome project</description>
 
 	<properties>
