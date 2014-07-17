@@ -53,7 +53,3 @@ It is important to note that Eclipse SmartHome is not meant to reside on (or nea
 ## Things
 
 t.b.d.
-
-## Bindings
-
-t.b.d.
