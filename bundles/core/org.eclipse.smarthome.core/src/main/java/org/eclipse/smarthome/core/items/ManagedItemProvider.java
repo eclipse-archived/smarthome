@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import static org.eclipse.smarthome.core.internal.CoreActivator.getContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -38,23 +40,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
     private Storage<PersistedItem> itemStorage;
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
-    private class PersistedItem {
-
-        public PersistedItem(String itemType, List<String> groupNames) {
-            this(itemType, groupNames, null);
-        }
-
-        public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
-            this.itemType = itemType;
-            this.groupNames = groupNames;
-            this.baseItemType = baseItemType;
-        }
-
-        public String itemType;
-        public List<String> groupNames;
-        public String baseItemType;
-    }
-
+    
     public void addItemFactory(ItemFactory itemFactory) {
         itemFactories.add(itemFactory);
     }
@@ -62,6 +48,15 @@ public class ManagedItemProvider extends AbstractItemProvider {
     public void removeItemFactory(ItemFactory itemFactory) {
         itemFactories.remove(itemFactory);
     }
+    
+    protected void setStorageService(StorageService storageService) {
+        this.itemStorage = storageService.getStorage(getContext(), Item.class.getName());
+    }
+
+    protected void unsetStorageService(StorageService storageService) {
+        this.itemStorage = null;
+    }
+
 
     public Item addItem(Item item) {
         if (item == null) {
@@ -215,13 +210,23 @@ public class ManagedItemProvider extends AbstractItemProvider {
 
         return null;
     }
+    
+    
+    private class PersistedItem {
 
-    protected void setStorageService(StorageService storageService) {
-        this.itemStorage = storageService.getStorage(Item.class.getName());
+        public PersistedItem(String itemType, List<String> groupNames) {
+            this(itemType, groupNames, null);
+        }
+
+        public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
+            this.itemType = itemType;
+            this.groupNames = groupNames;
+            this.baseItemType = baseItemType;
+        }
+
+        public String itemType;
+        public List<String> groupNames;
+        public String baseItemType;
     }
-
-    protected void unsetStorageService(StorageService storageService) {
-        this.itemStorage = null;
-    }
-
+    
 }

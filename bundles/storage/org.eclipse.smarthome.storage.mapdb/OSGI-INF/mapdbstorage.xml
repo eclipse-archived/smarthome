@@ -8,11 +8,11 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.storage.volatilestorageservice">
-   <implementation class="org.eclipse.smarthome.core.internal.storage.VolatileStorageService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.storage.mapdb">
+   <implementation class="org.eclipse.smarthome.storage.mapdb.MapDbStorageService"/>
    
    <service>
       <provide interface="org.eclipse.smarthome.core.storage.StorageService"/>
    </service>
-	   
+		   
 </scr:component>

@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.storage;
 
+import org.osgi.framework.BundleContext;
+
 
 /**
  * The {@link StorageService} provides instances of {@link Storage}s
@@ -30,6 +32,6 @@ public interface StorageService {
 	 * @param name  the name of the {@link StorageService} to return
 	 * @return a ready to use {@link Storage}, never {@code null}
 	 */
-	<T> Storage<T> getStorage(String name);
+	<T> Storage<T> getStorage(BundleContext consumerContext, String name);
 	
 }
