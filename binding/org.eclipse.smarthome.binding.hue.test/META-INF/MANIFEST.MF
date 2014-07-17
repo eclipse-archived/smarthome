@@ -14,6 +14,7 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.osgi.service.device
 Require-Bundle: org.junit;bundle-version="4.0.0"

@@ -63,11 +63,11 @@ public interface Thing {
     ThingHandler getHandler();
 
     /**
-     * Gets the bridge.
+     * Gets the bridge UID.
      * 
-     * @return the bridge (can be null)
+     * @return the bridge UID (can be null)
      */
-    Bridge getBridge();
+    ThingUID getBridgeUID();
 
     /**
      * Sets the bridge.
@@ -75,7 +75,7 @@ public interface Thing {
      * @param bridge
      *            the new bridge
      */
-    void setBridge(Bridge bridge);
+    void setBridgeUID(ThingUID bridgeUID);
 
     /**
      * This method must be called when the state of channel was changed. All

@@ -12,7 +12,6 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
@@ -20,7 +19,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.ThingsChangeListener
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -49,6 +47,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	@Before
 	void setup() {
+		registerVolatileStorageService()
 		managedThingProvider = getService ManagedThingProvider
 		assertThat managedThingProvider, is(notNullValue())
 		unregisterCurrentThingsChangeListener()
@@ -186,26 +185,24 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		def expectedThingTypeUID = THING_TYPE_UID
 		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
 		def expectedConfiguration = new Configuration()
-		def expectedBridge = BridgeBuilder.create(THING_TYPE_UID, THING2_ID).build()
+		def expectedBridgeUID = new ThingUID(THING_TYPE_UID, THING2_ID)
 		
 		AsyncResultWrapper<Thing> thingResultWrapper = new AsyncResultWrapper<Thing>();
 		
 		registerThingHandlerFactory( [
-			supportsThingType: { ThingTypeUID thingTypeUID ->
-				true
-			},
-			createThing : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, Bridge bridge ->
+			supportsThingType: { ThingTypeUID thingTypeUID -> true },
+			createThing : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID ->
 				assertThat thingTypeUID, is(expectedThingTypeUID)
 				assertThat configuration, is(expectedConfiguration)
 				assertThat thingUID, is(expectedThingUID)
-				assertThat bridge, is(expectedBridge)
-				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridge).build()
+				assertThat bridgeUID, is(expectedBridgeUID)
+				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridgeUID).build()
 				thingResultWrapper.set(thing)
 				thing
 			}
 		] as ThingHandlerFactory)
-		
-		def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridge, expectedConfiguration)
+
+		def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedConfiguration)
 		waitForAssert{assertTrue thingResultWrapper.isSet}
 		assertThat thing, is(thingResultWrapper.wrappedObject)
 	}

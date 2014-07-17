@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -48,7 +47,7 @@ public class ThingFactory {
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID,
-            Configuration configuration, Bridge bridge) {
+            Configuration configuration, ThingUID bridgeUID) {
     	if (thingType == null) {
     		throw new IllegalArgumentException("The thingType should not be null.");
     	}
@@ -58,7 +57,7 @@ public class ThingFactory {
         List<Channel> channels = createChannels(thingType, thingUID);
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration)
-                .withChannels(channels).withBridge(bridge).build();
+                .withChannels(channels).withBridge(bridgeUID).build();
     }
 
     /**

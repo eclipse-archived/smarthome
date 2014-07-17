@@ -11,13 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.After
-import org.junit.Assert;
+import org.junit.Assert
 import org.junit.Before
 import org.osgi.framework.BundleContext
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.FrameworkUtil
+import org.osgi.framework.ServiceReference
+import org.osgi.framework.ServiceRegistration
 
 /**
  * {@link OSGiTest} is an abstract base class for OSGi based tests. It provides 
@@ -130,7 +131,7 @@ abstract class OSGiTest {
 	 * @return the service registration that was unregistered or null if no service could be found
 	 */
 	protected unregisterService(def service) {
-		def interfaceName = service instanceof String ?: getInterfaceName(service)
+		def interfaceName = service instanceof String ? service : getInterfaceName(service)
 		registeredServices.get(interfaceName)?.unregister()
 		registeredServices.remove(interfaceName)
 	}
@@ -187,6 +188,13 @@ abstract class OSGiTest {
 	 */
 	protected getInterfaceName(def service) {
 		service.class.interfaces?.find({it})?.name
+	}
+
+	/**
+	 * Registers a volatile storage service.
+	 */
+	protected void registerVolatileStorageService() {
+		registerService(new VolatileStorageService());
 	}
 
 	@After

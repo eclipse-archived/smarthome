@@ -13,11 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.storage.Storage;
-import org.eclipse.smarthome.core.storage.StorageSelector;
-import org.eclipse.smarthome.core.storage.StorageSelector.StorageSelectionListener;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.internal.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,20 +28,13 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Integrated Storage
  * 
  */
-public class ManagedThingProvider extends AbstractThingProvider implements StorageSelectionListener<Thing> {
+public class ManagedThingProvider extends AbstractThingProvider {
 
     private final static Logger logger = LoggerFactory.getLogger(ManagedThingProvider.class);
 
     private Storage<Thing> storage;
 
-    private StorageSelector<Thing> storageSelector;
-
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
-
-    public ManagedThingProvider() {
-        this.storageSelector = new StorageSelector<>(Activator.getContext(), Thing.class.getName(),
-                this);
-    }
 
     /**
      * Adds a things and informs all listeners.
@@ -76,13 +66,13 @@ public class ManagedThingProvider extends AbstractThingProvider implements Stora
      *            the configuration
      * @return the created thing
      */
-    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, Bridge bridge,
+    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
             Configuration configuration) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID,
-                        bridge);
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration,
+                        thingUID, bridgeUID);
                 addThing(thing);
                 return thing;
             }
@@ -115,21 +105,17 @@ public class ManagedThingProvider extends AbstractThingProvider implements Stora
         return removedThing;
     }
 
-    @Override
-    public void storageSelected(Storage<Thing> storage) {
-        this.storage = storage;
-    }
-
-    protected void addStorageService(StorageService storageService) {
-        this.storageSelector.addStorageService(storageService);
+    protected void setStorageService(StorageService storageService) {
+        this.storage = storageService.getStorage(Thing.class.getName(), this.getClass()
+                .getClassLoader());
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.add(thingHandlerFactory);
     }
 
-    protected void removeStorageService(StorageService storageService) {
-        this.storageSelector.removeStorageService(storageService);
+    protected void unsetStorageService(StorageService storageService) {
+        this.storage = null;
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {

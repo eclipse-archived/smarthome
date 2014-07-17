@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -59,12 +58,12 @@ public interface ThingHandlerFactory {
      *            configuration
      * @param thingUID
      *            thing uid, which can be null
-     * @param bridge
+     * @param bridgeUID
      *            bridge uid, which can be null
      * @return thing
      */
     Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
-            Bridge bridge);
+            ThingUID bridgeUID);
 
     /**
      * A thing with the given {@link Thing} UID was removed.

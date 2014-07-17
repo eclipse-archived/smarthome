@@ -16,7 +16,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -198,10 +197,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     @Override
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
-    	// TODO Workaround: find bridge by UID and set it
-    	if (thing.getBridge() != null) {
-    		thing.setBridge((Bridge) thingRegistry.getByUID(thing.getBridge().getUID()));
-    	}
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
         ThingHandler thingHandler = thingHandlers.get(thing.getUID());

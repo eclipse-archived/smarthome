@@ -38,7 +38,7 @@ public class ManagedItemProvider extends AbstractItemProvider {
     private Storage<PersistedItem> itemStorage;
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
-    private class PersistedItem {
+    public static class PersistedItem {
 
         public PersistedItem(String itemType, List<String> groupNames) {
             this(itemType, groupNames, null);
@@ -217,7 +217,8 @@ public class ManagedItemProvider extends AbstractItemProvider {
     }
 
     protected void setStorageService(StorageService storageService) {
-        this.itemStorage = storageService.getStorage(Item.class.getName());
+        this.itemStorage = storageService.getStorage(Item.class.getName(), this.getClass()
+                .getClassLoader());
     }
 
     protected void unsetStorageService(StorageService storageService) {

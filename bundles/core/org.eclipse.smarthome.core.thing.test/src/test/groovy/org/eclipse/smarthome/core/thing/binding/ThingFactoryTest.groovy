@@ -15,7 +15,6 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
@@ -52,14 +51,14 @@ class ThingFactoryTest {
 	@Test
 	void 'create Thing with Bridge'() {
 
-		def bridge = BridgeBuilder.create(new ThingTypeUID("binding:bridge"), "1").build();
+		def bridgeUID = new ThingUID("binding:bridge:1")
 
 		def thingType = new ThingType("bindingId", "thingTypeId", "label")
 		def configuration = new Configuration();
 
-		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridge)
+		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, bridgeUID)
 
-		assertThat thing.getBridge(), is(equalTo(bridge))
+		assertThat thing.getBridgeUID(), is(equalTo(bridgeUID))
 	}
 
 	@Test

@@ -11,10 +11,7 @@ import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.storage.Storage;
-import org.eclipse.smarthome.core.storage.StorageSelector;
-import org.eclipse.smarthome.core.storage.StorageSelector.StorageSelectionListener;
 import org.eclipse.smarthome.core.storage.StorageService;
-import org.eclipse.smarthome.core.thing.internal.Activator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,20 +23,13 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * 
  */
-public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider,
-        StorageSelectionListener<ItemChannelLink> {
+public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider {
 
     private final static Logger logger = LoggerFactory
             .getLogger(ManagedItemChannelLinkProvider.class);
 
     private Collection<ItemChannelLinksChangeListener> itemChannelLinksChangeListeners = new CopyOnWriteArrayList<>();
     private Storage<ItemChannelLink> storage;
-    private StorageSelector<ItemChannelLink> storageSelector;
-
-    public ManagedItemChannelLinkProvider() {
-        this.storageSelector = new StorageSelector<>(Activator.getContext(),
-                ItemChannelLink.class.getName(), this);
-    }
 
     /**
      * Adds an {@link ItemChannelLink}.
@@ -94,11 +84,6 @@ public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider,
         itemChannelLinksChangeListeners.remove(listener);
     }
 
-    @Override
-    public void storageSelected(Storage<ItemChannelLink> storage) {
-        this.storage = storage;
-    }
-
     private void notifyItemChannelLinksChangeListenerAboutAddedItemChannelLink(
             ItemChannelLink itemChannelLink) {
         for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
@@ -113,12 +98,13 @@ public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider,
         }
     }
 
-    protected void addStorageService(StorageService storageService) {
-        this.storageSelector.addStorageService(storageService);
+    protected void setStorageService(StorageService storageService) {
+        this.storage = storageService.getStorage(ItemChannelLink.class.getName(), this.getClass()
+                .getClassLoader());
     }
 
-    protected void removeStorageService(StorageService storageService) {
-        this.storageSelector.removeStorageService(storageService);
+    protected void unsetStorageService(StorageService storageService) {
+        this.storage = null;
     }
 
 }

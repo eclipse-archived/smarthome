@@ -14,17 +14,10 @@ import static org.junit.matchers.JUnitMatchers.*
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
-import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
-import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandler
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
-import org.eclipse.smarthome.test.OSGiTest
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 
 class ThingHelperTest {
@@ -85,7 +78,9 @@ class ThingHelperTest {
 
 		assertTrue ThingHelper.equals(thingA, thingB)
 
-		thingB.getChannels().add(new Channel(new ChannelUID("binding:type:thingId:channel3"), "itemType3"))
+		thingB.setChannels([
+			new Channel(new ChannelUID("binding:type:thingId:channel3"), "itemType3")
+		])
 
 		assertFalse ThingHelper.equals(thingA, thingB)
 	}

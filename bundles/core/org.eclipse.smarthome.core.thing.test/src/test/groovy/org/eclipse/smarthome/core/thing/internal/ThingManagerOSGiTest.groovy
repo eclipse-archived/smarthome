@@ -31,6 +31,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 	@Before
 	void setUp() {
+		registerVolatileStorageService()
 		managedThingProvider = getService(ManagedThingProvider)
 	}
 	

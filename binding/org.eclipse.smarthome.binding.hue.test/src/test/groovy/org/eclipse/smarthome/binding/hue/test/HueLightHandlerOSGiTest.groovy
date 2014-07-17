@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.util.ThingHelper
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
+import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
 import org.junit.Test
 
@@ -49,10 +50,12 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "light")
 
     ManagedThingProvider managedThingProvider
+    VolatileStorageService volatileStorageService = new VolatileStorageService()
 
 
     @Before
     void setUp() {
+        registerService(volatileStorageService)
         managedThingProvider = getService(ThingProvider, ManagedThingProvider)
         assertThat managedThingProvider, is(notNullValue())
     }
@@ -84,7 +87,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         Thing hueLight = managedThingProvider.createThing(
                 LIGHT_THING_TYPE_UID,
                 new ThingUID(LIGHT_THING_TYPE_UID, "Light1"),
-                hueBridge, lightConfiguration)
+                hueBridge.getUID(), lightConfiguration)
 
         assertThat hueLight, is(notNullValue())
 

@@ -32,6 +32,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     @Before
     void setup() {
+        registerVolatileStorageService()
         itemChannelLinkRegistry = getService ItemChannelLinkRegistry
         managedItemChannelLinkProvider = getService ManagedItemChannelLinkProvider
         assertThat managedItemChannelLinkProvider, is(notNullValue())
