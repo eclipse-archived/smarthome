@@ -83,6 +83,16 @@ public class ThingUID extends UID {
 	public ThingUID(String thingUID) {
         super(thingUID);
 	}
+	
+	/**
+	 * Instantiates a new thing UID.
+	 * 
+     * @param segments
+     *            segments (must not be null)
+	 */
+	public ThingUID(String... segments) {
+	    super(segments);
+	}
 
     /**
      * Returns the thing type id.

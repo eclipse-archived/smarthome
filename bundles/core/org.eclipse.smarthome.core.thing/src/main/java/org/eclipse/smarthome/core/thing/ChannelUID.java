@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -117,5 +118,14 @@ public class ChannelUID extends UID {
 	protected int getMinimalNumberOfSegments() {
 		return 4;
 	}
+
+	/**
+     * Returns the thing UID
+     * 
+     * @return the thing UID
+     */
+    public ThingUID getThingUID() {
+        return new ThingUID(Arrays.copyOfRange(getSegments(), 0, getSegments().length - 2));
+    }
 
 }

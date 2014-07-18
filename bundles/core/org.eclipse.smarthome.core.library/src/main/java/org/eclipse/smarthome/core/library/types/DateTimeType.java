@@ -13,11 +13,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
 
-public class DateTimeType implements PrimitiveType, State {
+public class DateTimeType implements PrimitiveType, State, Command {
 	
 	public final static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 

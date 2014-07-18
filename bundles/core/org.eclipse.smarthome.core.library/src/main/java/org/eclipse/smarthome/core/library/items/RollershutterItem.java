@@ -12,14 +12,14 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -58,7 +58,19 @@ public class RollershutterItem extends GenericItem {
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
 		return acceptedCommandTypes;
 	}
-	
+
+	public void send(UpDownType command) {
+		internalSend(command);
+	}
+
+	public void send(StopMoveType command) {
+		internalSend(command);
+	}
+
+	public void send(PercentType command) {
+		internalSend(command);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

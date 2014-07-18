@@ -10,11 +10,11 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
-import org.eclipse.smarthome.core.library.types.RefreshType;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -35,6 +35,7 @@ public class DateTimeItem extends GenericItem {
 		acceptedDataTypes.add(UnDefType.class);
 		
 		acceptedCommandTypes.add(RefreshType.class);
+		acceptedCommandTypes.add(DateTimeType.class);
 	}
 	
 	public DateTimeItem(String name) {
@@ -48,4 +49,9 @@ public class DateTimeItem extends GenericItem {
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
 		return acceptedCommandTypes;
 	}
+	
+	public void send(DateTimeType command) {
+		internalSend(command);
+	}
+
 }

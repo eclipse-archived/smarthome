@@ -5,10 +5,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.library.types;
+package org.eclipse.smarthome.core.types;
 
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.PrimitiveType;
 
 public enum RefreshType implements PrimitiveType, Command {
 	

@@ -10,11 +10,11 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.RefreshType;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -51,4 +51,9 @@ public class NumberItem extends GenericItem {
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
 		return acceptedCommandTypes;
 	}
+	
+	public void send(DecimalType command) {
+		internalSend(command);
+	}
+
 }

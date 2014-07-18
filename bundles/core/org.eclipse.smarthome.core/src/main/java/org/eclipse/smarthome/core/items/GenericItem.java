@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -129,6 +130,10 @@ abstract public class GenericItem implements Item {
 		this.state = state;
 		notifyListeners(oldState, state);
 	}
+
+    public void send(RefreshType command) {
+        internalSend(command);
+    }
 
 	private void notifyListeners(State oldState, State newState) {
 		// if nothing has changed, we send update notifications

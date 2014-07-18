@@ -10,12 +10,12 @@ package org.eclipse.smarthome.core.library.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
-import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -45,6 +45,10 @@ public class StringItem extends GenericItem {
 		super(CoreItemFactory.STRING, name);
 	}
 
+	public void send(StringType command) {
+		internalSend(command);
+	}
+	
 	public List<Class<? extends State>> getAcceptedDataTypes() {
 		return acceptedDataTypes;
 	}

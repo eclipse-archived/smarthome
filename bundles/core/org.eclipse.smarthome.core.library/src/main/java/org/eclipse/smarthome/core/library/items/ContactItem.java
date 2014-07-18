@@ -14,9 +14,9 @@ import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.library.types.RefreshType;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
@@ -41,10 +41,6 @@ public class ContactItem extends GenericItem {
 	
 	public ContactItem(String name) {
 		super(CoreItemFactory.CONTACT, name);
-	}
-
-	public void send(OpenClosedType command) {
-		internalSend(command);
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {
