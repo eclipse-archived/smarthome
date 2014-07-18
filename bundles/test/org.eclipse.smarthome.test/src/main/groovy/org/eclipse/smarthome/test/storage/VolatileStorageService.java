@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.internal.storage;
+package org.eclipse.smarthome.test.storage;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,5 +37,15 @@ public class VolatileStorageService implements StorageService {
 		}
 		return storages.get(name);
 	}
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @return
+     */
+    @Override
+    public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
+        return getStorage(name);
+    }
 	
 }

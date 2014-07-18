@@ -34,23 +34,24 @@ import com.google.common.collect.Lists;
  */
 public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
-    private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class
-			.getName());
+    private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
     private Collection<ThingRegistryChangeListener> thingListeners = new CopyOnWriteArraySet<>();
 
-	private Map<ThingProvider, Collection<Thing>> thingMap = new ConcurrentHashMap<>();
-	
+    private Map<ThingProvider, Collection<Thing>> thingMap = new ConcurrentHashMap<>();
+
     private List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
 
-
-
-    /* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#addThingRegistryChangeListener(org.eclipse.smarthome.core.thing.ThingRegistryChangeListener)
-	 */
-	@Override
-	public void addThingRegistryChangeListener(ThingRegistryChangeListener listener) {
-		thingListeners.add(listener);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.smarthome.core.thing.ThingRegistry#addThingRegistryChangeListener
+     * (org.eclipse.smarthome.core.thing.ThingRegistryChangeListener)
+     */
+    @Override
+    public void addThingRegistryChangeListener(ThingRegistryChangeListener listener) {
+        thingListeners.add(listener);
+    }
 
     /**
      * Adds a thing tracker.
@@ -58,43 +59,48 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
      * @param thingTracker
      *            the thing tracker
      */
-	public void addThingTracker(ThingTracker thingTracker) {
-		notifyListenerAboutAllThingsAdded(thingTracker);
-		thingTrackers.add(thingTracker);
-	}
+    public void addThingTracker(ThingTracker thingTracker) {
+        notifyListenerAboutAllThingsAdded(thingTracker);
+        thingTrackers.add(thingTracker);
+    }
 
-    /* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
-	 */
-	@Override
-	public Thing getByUID(ThingUID uid) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
+     */
+    @Override
+    public Thing getByUID(ThingUID uid) {
         for (Thing thing : getThings()) {
-			if (thing.getUID().equals(uid)) {
-				return thing;
-			}
-		}
-		return null;
-	}
+            if (thing.getUID().equals(uid)) {
+                return thing;
+            }
+        }
+        return null;
+    }
 
-    /* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#getThings()
-	 */
-	@Override
-	public List<Thing> getThings() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.smarthome.core.thing.ThingRegistry#getThings()
+     */
+    @Override
+    public List<Thing> getThings() {
         return Lists.newArrayList(Iterables.concat(thingMap.values()));
-	}
+    }
 
-
-
-
-
-    /* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.thing.ThingRegistry#removeThingRegistryChangeListener(org.eclipse.smarthome.core.thing.ThingRegistryChangeListener)
-	 */
-	@Override
-	public void removeThingRegistryChangeListener(ThingRegistryChangeListener listener) {
-		thingListeners.remove(listener);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.smarthome.core.thing.ThingRegistry#
+     * removeThingRegistryChangeListener
+     * (org.eclipse.smarthome.core.thing.ThingRegistryChangeListener)
+     */
+    @Override
+    public void removeThingRegistryChangeListener(ThingRegistryChangeListener listener) {
+        thingListeners.remove(listener);
+    }
 
     /**
      * Removes a thing tracker.
@@ -102,124 +108,150 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
      * @param thingTracker
      *            the thing tracker
      */
-	public void removeThingTracker(ThingTracker thingTracker) {
-		notifyListenerAboutAllThingsRemoved(thingTracker);
-		thingTrackers.remove(thingTracker);
-	}
+    public void removeThingTracker(ThingTracker thingTracker) {
+        notifyListenerAboutAllThingsRemoved(thingTracker);
+        thingTrackers.remove(thingTracker);
+    }
 
-	@Override
-	public void thingAdded(ThingProvider provider, Thing thing) {
-		Collection<Thing> things = thingMap.get(provider);
-		if (things != null) {
-			things.add(thing);
-            notifyListenersAboutAddedThing(thing);
-		}
-	}
-
-	@Override
-	public void thingRemoved(ThingProvider provider, Thing thing) {
-		Collection<Thing> things = thingMap.get(provider);
-		if(things != null) {
-			things.remove(thing);
-            notifyListenersAboutRemovedThing(thing);
-            // TODO some cleanup in order to remove dead references
-            thing.setBridge(null);
+    @Override
+    public void thingAdded(ThingProvider provider, Thing thing) {
+        Collection<Thing> things = thingMap.get(provider);
+        if (things != null) {
+            things.add(thing);
+            addThingToBridge(thing);
             if (thing instanceof Bridge) {
-            	List<Thing> children = ((Bridge)thing).getThings();
-            	for (Thing child : children) {
-					child.setBridge(null);
-				}
+                addThingsToBridge((Bridge) thing);
             }
-		}
-	}
+            notifyListenersAboutAddedThing(thing);
+        }
+    }
 
-	@Override
-	public void thingUpdated(ThingProvider provider, Thing oldThing, Thing newThing) {
-		thingRemoved(provider, oldThing);
-		thingAdded(provider, newThing);
-	}
+    @Override
+    public void thingRemoved(ThingProvider provider, Thing thing) {
+        Collection<Thing> things = thingMap.get(provider);
+        if (things != null) {
+            things.remove(thing);
+            ThingUID bridgeUID = thing.getBridgeUID();
+            if (bridgeUID != null) {
+                Thing bridge = this.getByUID(bridgeUID);
+                if (bridge instanceof BridgeImpl) {
+                    ((BridgeImpl) bridge).removeThing(thing);
+                }
+            }
+            notifyListenersAboutRemovedThing(thing);
+        }
+    }
 
-	
-	private void notifyListenerAboutAllThingsAdded(ThingTracker thingTracker) {
+    @Override
+    public void thingUpdated(ThingProvider provider, Thing oldThing, Thing newThing) {
+        thingRemoved(provider, oldThing);
+        thingAdded(provider, newThing);
+    }
+
+    private void notifyListenerAboutAllThingsAdded(ThingTracker thingTracker) {
         for (Thing thing : getThings()) {
-			thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
-		}
-	}
-	
+            thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
+        }
+    }
+
     private void notifyListenerAboutAllThingsRemoved(ThingTracker thingTracker) {
         for (Thing thing : getThings()) {
-			thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
-		}
-	}
-	
+            thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
+        }
+    }
+
     private void notifyListenersAboutAddedThing(Thing thing) {
-		for (ThingTracker thingTracker : thingTrackers) {
-			thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
-		}
-		for (ThingRegistryChangeListener listener : thingListeners) {
-			listener.thingAdded(thing);
-		}
-	}
-    
+        for (ThingTracker thingTracker : thingTrackers) {
+            thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
+        }
+        for (ThingRegistryChangeListener listener : thingListeners) {
+            listener.thingAdded(thing);
+        }
+    }
+
     private void notifyListenersAboutRemovedThing(Thing thing) {
-		for (ThingTracker thingTracker : thingTrackers) {
-			thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
-		}
-		for (ThingRegistryChangeListener listener : thingListeners) {
-			listener.thingRemoved(thing);
-		}
-	}
+        for (ThingTracker thingTracker : thingTrackers) {
+            thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
+        }
+        for (ThingRegistryChangeListener listener : thingListeners) {
+            listener.thingRemoved(thing);
+        }
+    }
 
     protected void addThingProvider(ThingProvider thingProvider) {
-		// only add this provider if it does not already exist
-		if(!thingMap.containsKey(thingProvider)) {
-			Collection<Thing> things = new CopyOnWriteArraySet<Thing>(thingProvider.getThings());
-			thingProvider.addThingsChangeListener(this);
-			thingMap.put(thingProvider, things);
+        // only add this provider if it does not already exist
+        if (!thingMap.containsKey(thingProvider)) {
+            Collection<Thing> things = new CopyOnWriteArraySet<Thing>(thingProvider.getThings());
+            thingProvider.addThingsChangeListener(this);
+            thingMap.put(thingProvider, things);
+            for (Thing thing : things) {
+                addThingToBridge(thing);
+                if (thing instanceof Bridge) {
+                    addThingsToBridge((Bridge) thing);
+                }
+            }
             logger.debug("Thing provider '{}' has been added.", thingProvider.getClass().getName());
-		}
-	}
+        }
+    }
 
+    private void addThingsToBridge(Bridge bridge) {
+        List<Thing> things = getThings();
+        for (Thing thing : things) {
+            ThingUID bridgeUID = thing.getBridgeUID();
+            if (bridgeUID != null && bridgeUID.equals(bridge.getUID())) {
+                if (bridge instanceof BridgeImpl && !bridge.getThings().contains(thing)) {
+                    ((BridgeImpl) bridge).addThing(thing);
+                }
+            }
+        }
+    }
 
+    private void addThingToBridge(Thing thing) {
+        ThingUID bridgeUID = thing.getBridgeUID();
+        if (bridgeUID != null) {
+            Thing bridge = this.getByUID(bridgeUID);
+            if (bridge instanceof BridgeImpl && !((Bridge) bridge).getThings().contains(thing)) {
+                ((BridgeImpl) bridge).addThing(thing);
+            }
+        }
+    }
 
     protected void deactivate(ComponentContext componentContext) {
-		for (ThingTracker thingTracker : thingTrackers) {
-			removeThingTracker(thingTracker);
-		}
-	}
+        for (ThingTracker thingTracker : thingTrackers) {
+            removeThingTracker(thingTracker);
+        }
+    }
 
     protected void removeThingProvider(ThingProvider thingProvider) {
-		if(thingMap.containsKey(thingProvider)) {
-			thingMap.remove(thingProvider);
-			thingProvider.removeThingsChangeListener(this);
+        if (thingMap.containsKey(thingProvider)) {
+            thingMap.remove(thingProvider);
+            thingProvider.removeThingsChangeListener(this);
             logger.debug("Thing provider '{}' has been removed.", thingProvider.getClass()
                     .getName());
-		}
-	}
+        }
+    }
 
-
-
-//	@Override
-//	public void allThingsChanged(ThingProvider provider,
-//			Collection<ThingUID> selectedOldThingUIDs) {
-//		if(selectedOldThingUIDs==null || selectedOldThingUIDs.isEmpty()) {
-//			selectedOldThingUIDs = new HashSet<ThingUID>();
-//            Collection<Thing> oldThings;
-//            oldThings = thingMap.get(provider);
-//			if(oldThings!=null && oldThings.size() > 0) {
-//				for(Thing oldThing : oldThings) {
-//					selectedOldThingUIDs.add(oldThing.getUID());
-//				}
-//			}
-//		}
-//
-//		Collection<Thing> things = new CopyOnWriteArrayList<>();
-//    	thingMap.put(provider, things);
-//    	things.addAll(provider.getThings());
-//
-//		for(ThingRegistryChangeListener listener : thingListeners) {
-//			listener.allItemsChanged(oldItemNames);
-//		}
-//	}
+    // @Override
+    // public void allThingsChanged(ThingProvider provider,
+    // Collection<ThingUID> selectedOldThingUIDs) {
+    // if(selectedOldThingUIDs==null || selectedOldThingUIDs.isEmpty()) {
+    // selectedOldThingUIDs = new HashSet<ThingUID>();
+    // Collection<Thing> oldThings;
+    // oldThings = thingMap.get(provider);
+    // if(oldThings!=null && oldThings.size() > 0) {
+    // for(Thing oldThing : oldThings) {
+    // selectedOldThingUIDs.add(oldThing.getUID());
+    // }
+    // }
+    // }
+    //
+    // Collection<Thing> things = new CopyOnWriteArrayList<>();
+    // thingMap.put(provider, things);
+    // things.addAll(provider.getThings());
+    //
+    // for(ThingRegistryChangeListener listener : thingListeners) {
+    // listener.allItemsChanged(oldItemNames);
+    // }
+    // }
 
 }

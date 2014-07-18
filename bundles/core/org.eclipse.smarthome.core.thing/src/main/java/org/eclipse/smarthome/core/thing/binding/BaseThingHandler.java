@@ -11,10 +11,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.types.State;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * {@link BaseThingHandler} provides as base implementation for the
@@ -27,6 +33,10 @@ public abstract class BaseThingHandler implements ThingHandler {
 	protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     private Thing thing;
+    protected ThingRegistry thingRegistry;
+    protected BundleContext bundleContext;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker thingRegistryServiceTracker;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -36,6 +46,32 @@ public abstract class BaseThingHandler implements ThingHandler {
      */
     public BaseThingHandler(Thing thing) {
         this.thing = thing;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void setBundleContext(final BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        thingRegistryServiceTracker = new ServiceTracker(this.bundleContext,
+                ThingRegistry.class.getName(), null) {
+            @Override
+            public Object addingService(final ServiceReference reference) {
+                thingRegistry = (ThingRegistry) bundleContext.getService(reference);
+                return thingRegistry;
+            }
+
+            @Override
+            public void removedService(final ServiceReference reference, final Object service) {
+                synchronized (BaseThingHandler.this) {
+                    thingRegistry = null;
+                }
+            }
+        };
+        thingRegistryServiceTracker.open();
+    }
+
+    public void unsetBundleContext(final BundleContext bundleContext) {
+        thingRegistryServiceTracker.close();
+        this.bundleContext = null;
     }
 
     @Override
@@ -101,6 +137,23 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void updateStatus(ThingStatus status) {
         if (thing.getStatus() != status) {
             thing.setStatus(status);
+        }
+    }
+
+    /**
+     * Returns the bridge of the thing.
+     * 
+     * @return returns the bridge of the thing or null if the thing has no
+     *         bridge
+     */
+    protected Bridge getBridge() {
+        ThingUID bridgeUID = thing.getBridgeUID();
+        synchronized (this) {
+            if (bridgeUID != null && thingRegistry != null) {
+                return (Bridge) thingRegistry.getByUID(bridgeUID);
+            } else {
+                return null;
+            }
         }
     }
 

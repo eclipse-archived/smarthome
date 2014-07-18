@@ -9,16 +9,17 @@ package org.eclipse.smarthome.core.storage;
 
 
 /**
- * The {@link StorageService} provides instances of {@link Storage}s
- * which are meant as a means for generic storage of key-value pairs.
- * You can think of different {@link StorageService}s that store these
- * key-value pairs differently. One can think of e.g in-memory or
- * in-database {@link Storage}s and many more. This {@link StorageService}
- * decides which kind of {@link Storage} is returned on request. It is
- * meant to be injected into service consumers with the need for storing
- * generic key-value pairs like the ManagedXXXProviders.
+ * The {@link StorageService} provides instances of {@link Storage}s which are
+ * meant as a means for generic storage of key-value pairs. You can think of
+ * different {@link StorageService}s that store these key-value pairs
+ * differently. One can think of e.g in-memory or in-database {@link Storage}s
+ * and many more. This {@link StorageService} decides which kind of
+ * {@link Storage} is returned on request. It is meant to be injected into
+ * service consumers with the need for storing generic key-value pairs like the
+ * ManagedXXXProviders.
  * 
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
+ * @author Dennis Nobel - Added second method with ClassLoader
  */
 public interface StorageService {
 	
@@ -32,4 +33,16 @@ public interface StorageService {
 	 */
 	<T> Storage<T> getStorage(String name);
 	
+    /**
+     * Returns the {@link Storage} with the given {@code name} and a given
+     * {@link ClassLoader}. If no {@link Storage} with this name exists a new
+     * initialized instance is returned.
+     * 
+     * @param name
+     *            the name of the {@link StorageService} to return
+     * @param classLoader
+     *            the class loader which should be used by the {@link Storage}
+     * @return a ready to use {@link Storage}, never {@code null}
+     */
+    <T> Storage<T> getStorage(String name, ClassLoader classLoader);
 }

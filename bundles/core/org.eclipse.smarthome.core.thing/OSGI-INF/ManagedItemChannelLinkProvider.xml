@@ -10,7 +10,7 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider">
    <implementation class="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider"/>
-   <reference bind="addStorageService" cardinality="1..n" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="dynamic" unbind="removeStorageService"/>
+   <reference bind="setStorageService" cardinality="1..1" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="static" unbind="unsetStorageService"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider"/>
       <provide interface="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider"/>

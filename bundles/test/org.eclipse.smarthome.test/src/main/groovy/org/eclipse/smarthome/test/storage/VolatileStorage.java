@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.internal.storage;
+package org.eclipse.smarthome.test.storage;
 
 import java.util.Collection;
 import java.util.Map;

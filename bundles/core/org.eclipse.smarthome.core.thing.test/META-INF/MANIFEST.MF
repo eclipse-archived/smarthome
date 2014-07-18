@@ -12,6 +12,7 @@ Import-Package: groovy.lang,
  org.codehaus.groovy.runtime.callsite,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
  org.osgi.framework
 Require-Bundle: org.junit;bundle-version="4.0.0"

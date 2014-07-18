@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -22,9 +21,11 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.State;
 
+import com.google.common.collect.ImmutableList;
+
 public class ThingImpl implements Thing {
 
-	volatile private BridgeImpl bridge;
+    private ThingUID bridgeUID;
 
     private List<Channel> channels;
 
@@ -32,16 +33,22 @@ public class ThingImpl implements Thing {
 
     private ThingUID uid;
 
-    volatile private ThingStatus status;
+    transient volatile private ThingStatus status;
 
-    volatile private ThingHandler thingHandler;
+    transient volatile private ThingHandler thingHandler;
 
-    volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
+    transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
     
     private String name;
 
     private ThingTypeUID thingTypeUID;
-
+    
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    ThingImpl() {
+    }
+    
     /**
      * @param thingTypeUID
      * @param thingId
@@ -82,12 +89,12 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public Bridge getBridge() {
-        return this.bridge;
+    public ThingUID getBridgeUID() {
+        return this.bridgeUID;
     }
 
     public List<Channel> getChannels() {
-        return channels;
+        return ImmutableList.copyOf(this.channels);
     }
 
     @Override
@@ -125,17 +132,8 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setBridge(Bridge bridge) {
-        if (bridge != null) {
-        	this.bridge = (BridgeImpl) bridge;
-            this.bridge.addThing(this);
-        } else {
-        	BridgeImpl oldBridge = this.bridge;
-        	this.bridge = null;
-        	if (oldBridge != null) {
-        		oldBridge.removeThing(this);
-        	}
-        }
+    public void setBridgeUID(ThingUID bridgeUID) {
+        this.bridgeUID = bridgeUID;
     }
 
     public void setChannels(List<Channel> channels) {
@@ -168,6 +166,31 @@ public class ThingImpl implements Thing {
     @Override
     public ThingTypeUID getThingTypeUID() {
         return this.thingTypeUID;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((uid == null) ? 0 : uid.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ThingImpl other = (ThingImpl) obj;
+        if (uid == null) {
+            if (other.uid != null)
+                return false;
+        } else if (!uid.equals(other.uid))
+            return false;
+        return true;
     }
 
 }

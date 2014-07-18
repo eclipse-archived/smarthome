@@ -136,7 +136,7 @@ public class HueLightHandler extends BaseThingHandler implements
 
 
     private HueBridgeHandler getHueBridgeHandler() {
-        Bridge bridge = getThing().getBridge();
+        Bridge bridge = getBridge();
         if (bridge == null) {
             return null;
         }

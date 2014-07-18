@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -18,12 +19,17 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 
 public class BridgeImpl extends ThingImpl implements Bridge {
 
-    private List<Thing> things = new CopyOnWriteArrayList<>();
+    private transient List<Thing> things = new CopyOnWriteArrayList<>();
 
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    BridgeImpl() {
+    }
+    
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
     }
-    
     
     /**
      * @param thingUID
@@ -35,21 +41,15 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     public void addThing(Thing thing) {
         things.add(thing);
-        if (thing.getBridge() == null || !thing.getBridge().getUID().equals(this.getUID())) {
-            thing.setBridge(this);
-        }
     }
 
     public void removeThing(Thing thing) {
         things.remove(thing);
-        if (thing.getBridge() != null) {
-            thing.setBridge(null);
-        }
     }
 
     @Override
     public List<Thing> getThings() {
-        return things;
+        return Collections.unmodifiableList(things);
     }
 
     @Override

@@ -40,6 +40,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
 
     @Before
     void setUp() {
+        registerVolatileStorageService()
         managedThingProvider = getService(ThingProvider, ManagedThingProvider)
         assertThat managedThingProvider, is(notNullValue())
     }

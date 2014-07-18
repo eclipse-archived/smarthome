@@ -95,7 +95,7 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
 		}
-		logger.debug("Creating thing for type '{}'.", thingTypeUID);
+		logger.debug("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
 		val configuration = modelThing.createConfiguration
 		val thingBuilder = if (modelThing.bridge) {
 				BridgeBuilder.create(thingUID)
@@ -105,7 +105,7 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 
 		thingBuilder.withConfiguration(configuration)
 		if (parentBridge != null) {
-			thingBuilder.withBridge(parentBridge)
+			thingBuilder.withBridge(parentBridge.UID)
 		}
 
 		val thingType = thingTypeUID.thingType
@@ -122,15 +122,10 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 	}
 
 	def private getParentPath(Bridge bridge) {
-		val List<String> bridgeIds = newArrayList
-		bridgeIds += bridge.UID.id
-		var currentBridge = bridge
-		while (currentBridge.bridge != null) {
-			currentBridge = currentBridge.bridge
-			bridgeIds += currentBridge.UID.id
-		}
-		bridgeIds.reverse
-	}
+      var bridgeIds = bridge.UID.bridgeIds
+      bridgeIds.add(bridge.UID.id)
+      return bridgeIds
+   }
 
 	def private List<Channel> createChannels(ThingUID thingUID, List<ModelChannel> modelChannels,
 		List<ChannelDefinition> channelDefinitions) {
@@ -174,14 +169,14 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 	override void modelChanged(String modelName, EventType type) {
 		if (modelName.endsWith("things")) {
 			switch type {
-				case ADDED: {
+				case EventType.ADDED: {
 					createThingsFromModel(modelName)
 					val things = thingsMap.get(modelName) ?: newArrayList
 					things.forEach [
 						notifyThingsChangeListenersAboutAddedThing
 					]
 				}
-				case MODIFIED: {
+				case EventType.MODIFIED: {
 					val oldThings = thingsMap.get(modelName) ?: newArrayList
 					val oldThingsUIDs = oldThings.map[UID].toList
 
@@ -208,7 +203,7 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 						]
 					]
 				}
-				case REMOVED: {
+				case EventType.REMOVED: {
 					val things = thingsMap.remove(modelName) ?: newArrayList
 					things.forEach [
 						notifyThingsChangeListenersAboutRemovedThing

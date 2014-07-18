@@ -10,9 +10,9 @@ package org.eclipse.smarthome.core.thing.binding.builder;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 
 import com.google.common.collect.Lists;
@@ -40,9 +40,9 @@ public class GenericThingBuilder<T extends GenericThingBuilder<T>> {
         return self();
     }
 
-    public T withBridge(Bridge bridge) {
-        if (bridge != null) {
-            this.thing.setBridge(bridge);
+    public T withBridge(ThingUID bridgeUID) {
+        if (bridgeUID != null) {
+            this.thing.setBridgeUID(bridgeUID);
         }
         return self();
     }

@@ -11,16 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.items.ItemFactory
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ManagedItemProvider
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
-import org.junit.Before
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
-import org.junit.Ignore
 
 /**
  * The {@link ManagedItemProviderOSGiTest} runs inside an 
@@ -36,6 +34,7 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 		
 	@Before
 	void setUp() {
+		registerVolatileStorageService()
 		itemProvider = getService(ManagedItemProvider)
 		itemRegistry = getService(ItemRegistry)
 	}
