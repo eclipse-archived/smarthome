@@ -125,7 +125,7 @@ public class ChannelUID extends UID {
      * @return the thing UID
      */
     public ThingUID getThingUID() {
-        return new ThingUID(Arrays.copyOfRange(getSegments(), 0, getSegments().length - 2));
+        return new ThingUID(Arrays.copyOfRange(getSegments(), 0, getSegments().length - 1));
     }
 
 }
