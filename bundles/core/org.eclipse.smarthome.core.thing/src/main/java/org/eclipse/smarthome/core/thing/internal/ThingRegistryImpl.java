@@ -185,6 +185,7 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
             thingProvider.addThingsChangeListener(this);
             thingMap.put(thingProvider, things);
             for (Thing thing : things) {
+                notifyListenersAboutAddedThing(thing);
                 addThingToBridge(thing);
                 if (thing instanceof Bridge) {
                     addThingsToBridge((Bridge) thing);
@@ -224,7 +225,10 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
     protected void removeThingProvider(ThingProvider thingProvider) {
         if (thingMap.containsKey(thingProvider)) {
-            thingMap.remove(thingProvider);
+            Collection<Thing> removedThings = thingMap.remove(thingProvider);
+            for (Thing thing : removedThings) {
+                notifyListenersAboutRemovedThing(thing);
+            }
             thingProvider.removeThingsChangeListener(this);
             logger.debug("Thing provider '{}' has been removed.", thingProvider.getClass()
                     .getName());
