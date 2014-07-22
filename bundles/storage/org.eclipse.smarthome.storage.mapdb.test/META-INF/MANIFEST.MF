@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for the openHAB MapDB Storage
+Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb.test
+Bundle-Version: 0.7.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Fragment-Host: org.eclipse.smarthome.storage.mapdb;bundle-version="0.7.0.qualifier"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: groovy.lang,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.test,
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0",
+ org.junit.matchers;version="4.0.0"
+Require-Bundle: org.junit;bundle-version="4.0.0"
