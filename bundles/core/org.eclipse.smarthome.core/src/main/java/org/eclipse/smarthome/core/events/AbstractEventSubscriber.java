@@ -68,10 +68,10 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
         if (itemName.isEmpty()) {
             return;   // we have received an empty item name
         }
-
+        String source = null;
         Object sourceObj = event.getProperty("source");
         if(sourceObj instanceof String) {
-            String source = (String) sourceObj;
+            source = (String) sourceObj;
             if(sourceFilterList.contains(source)) {
             	// we are not supposed to process this event
             	return;
@@ -90,7 +90,7 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
             if (newStateObj instanceof State) {
                 State newState = (State) newStateObj;
                 try {
-                    receiveUpdate(itemName, newState);
+                    receiveUpdate(itemName, newState, source);
                 } catch (Exception ex) {
                     this.logger.error("An error occured within the 'receiveUpdate' method"
                             + " of the event subscriber!", ex);
@@ -102,7 +102,7 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
                 Command command = (Command) commandObj;
 
                 try {
-                    receiveCommand(itemName, command);
+                    receiveCommand(itemName, command, source);
                 } catch (Exception ex) {
                     this.logger.error("An error occured within the 'receiveCommand' method"
                             + " of the event subscriber!", ex);
@@ -110,14 +110,62 @@ public abstract class AbstractEventSubscriber implements EventSubscriber, EventH
             }
         }
     }
-
+    
+    /**
+     * Callback method if a command was sent on the event bus. Default
+     * implementation delegates to
+     * {@link AbstractEventSubscriber#receiveCommand(String, Command)}.
+     * <p>
+     * Any exceptions, which may occur in this callback method, are caught and
+     * logged.
+     * <p>
+     * Hint: Do not block the reception of this event for long-term tasks. For
+     * long-term tasks create an own thread.
+     * 
+     * @param itemName
+     *            the item for which a command was sent (not null, not empty,
+     *            follows the item name specification)
+     * 
+     * @param command
+     *            the command that was sent (not null)
+     * @param source
+     *            source of the event (can be null)
+     */
+    protected void receiveCommand(String itemName, Command command, String source) {
+        receiveCommand(itemName, command);
+    }
+    
     /**
      * {@inheritDoc}
      */
     public void receiveCommand(String itemName, Command command) {
         // default implementation: do nothing
     }
-
+    
+    /**
+     * Callback method if a state update was sent on the event bus. Default
+     * implementation delegates to
+     * {@link AbstractEventSubscriber#receiveUpdate(String, State)}.
+     * <p>
+     * Any exceptions, which may occur in this callback method, are caught and
+     * logged.
+     * <p>
+     * Hint: Do not block the reception of this event for long-term tasks. For
+     * long-term tasks create an own thread.
+     * 
+     * @param itemName
+     *            the item for which a command was sent (not null, not empty,
+     *            follows the item name specification)
+     * 
+     * @param state
+     *            the state that was sent (not null)
+     * @param source
+     *            source of the event (can be null)
+     */
+    protected void receiveUpdate(String itemName, State newState, String source) {
+        receiveUpdate(itemName, newState);
+    }
+    
     /**
      * {@inheritDoc}
      */
