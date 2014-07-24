@@ -199,7 +199,8 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridgeUID).build()
 				thingResultWrapper.set(thing)
 				thing
-			}
+			},
+            registerHandler: {}
 		] as ThingHandlerFactory)
 
 		def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedConfiguration)

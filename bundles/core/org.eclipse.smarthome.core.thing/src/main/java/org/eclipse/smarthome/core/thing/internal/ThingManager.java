@@ -112,7 +112,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void channelUpdated(ChannelUID channelUID, State state) {
             String item = itemChannelLinkRegistry.getBoundItem(channelUID);
             if (item != null) {
-                eventPublisher.postUpdate(item, state);
+                eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }
     };
@@ -172,11 +172,11 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     @Override
-    public void receiveUpdate(String itemName, State newState) {
+    public void receiveUpdate(String itemName, State newState, String source) {
         for (Thing thing : this.things) {
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
-                if (isLinked(itemName, channel)) {
+                if (isLinked(itemName, channel) && !channel.getUID().toString().equals(source)) {
                     ThingHandler handler = thing.getHandler();
                     if (handler != null) {
                         logger.info(
