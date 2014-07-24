@@ -50,7 +50,7 @@ public class DimmerItem extends SwitchItem {
 	}
 
 	/* package */ DimmerItem(String type, String name) {
-		super(CoreItemFactory.DIMMER, name);
+		super(type, name);
 	}
 
 	public void send(PercentType command) {

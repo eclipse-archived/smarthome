@@ -45,7 +45,7 @@ public class SwitchItem extends GenericItem {
 	}
 
 	/* package */ SwitchItem(String type, String name) {
-		super(CoreItemFactory.SWITCH, name);
+		super(type, name);
 	}
 
 	public void send(OnOffType command) {
