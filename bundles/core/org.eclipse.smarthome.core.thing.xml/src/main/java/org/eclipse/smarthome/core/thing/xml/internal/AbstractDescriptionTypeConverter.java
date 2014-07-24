@@ -47,7 +47,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
      * Creates a new instance of this class with the specified parameter.
      * 
      * @param clazz the class of the result type (must not be null)
-     * @param type the name of the type (e.g. "thing-type", "bridge-type", "channel-type")
+     * @param type the name of the type (e.g. "thing-type", "channel-type")
      */
     public AbstractDescriptionTypeConverter(Class<T> clazz, String type) {
         super(clazz);

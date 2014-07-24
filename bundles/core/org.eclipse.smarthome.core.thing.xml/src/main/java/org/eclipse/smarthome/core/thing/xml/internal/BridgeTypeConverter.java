@@ -31,7 +31,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 public class BridgeTypeConverter extends ThingTypeConverter {
 
     public BridgeTypeConverter() {
-        super(BridgeTypeXmlResult.class, "bridge-type");
+        super(BridgeTypeXmlResult.class, "thing-type");
     }
 
     @Override
