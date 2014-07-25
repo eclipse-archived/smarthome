@@ -96,7 +96,6 @@
 <repository location="http://download.eclipse.org/modeling/emf/emf/updates/releases/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.codehaus.groovy.eclipse.feature.feature.group" version="2.9.0.xx-201407142235-e44-RELEASE"/>
 <unit id="org.codehaus.groovy23.feature.feature.group" version="2.9.0.xx-201407142235-e44-RELEASE"/>
 <repository location="http://dist.springsource.org/release/GRECLIPSE/e4.4/"/>
 </location>
