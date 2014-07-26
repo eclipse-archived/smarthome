@@ -41,7 +41,7 @@ class StorageServiceOSGiTest extends OSGiTest {
 		unregisterService(storageService)
 		
 		// clean up database files ...
-		new File('./etc/mapdb').deleteDir()
+		new File('./runtime').deleteDir()
 	}
 
 	@Test

@@ -9,6 +9,7 @@ package org.eclipse.smarthome.storage.mapdb;
 
 import java.io.File;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.mapdb.DB;
@@ -28,28 +29,34 @@ public class MapDbStorageService implements StorageService {
 	private static final Logger logger = 
 		LoggerFactory.getLogger(MapDbStorageService.class);
 
-	/** the folder name to store mapdb databases ({@code ./etc/mapdb} by default) */
-	private static final String DB_FOLDER_NAME = "etc/mapdb";
-	/** the name of the mapdb database ({@code storage.mapdb} by default) */
+	/** the name of the mapdb database ({@code storage.mapdb}) */
 	private static final String DB_FILE_NAME = "storage.mapdb";
 	
 	/** holds the local instance of the MapDB database */
     private DB db;
-    
+
+	/** the folder name to store mapdb databases ({@code ./mapdb} by default) */
+	private String dbFolderName = "mapdb";
+
     
 	public void activate() {
-		File folder = new File(DB_FOLDER_NAME);
+		String progArg = System.getProperty(ConfigConstants.USERDATA_DIR_PROG_ARGUMENT);
+		if(progArg!=null) {
+			dbFolderName = progArg + File.separator + dbFolderName;
+		}
+		File folder = new File(dbFolderName);
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
 
-		File dbFile = new File(DB_FOLDER_NAME, DB_FILE_NAME);
+		File dbFile = new File(dbFolderName, DB_FILE_NAME);
 		db = DBMaker.newFileDB(dbFile).closeOnJvmShutdown().make();
 		
-		logger.debug("Open (or create) MapDB file at '{}'.", dbFile.getAbsolutePath());
+		logger.debug("Opened MapDB file at '{}'.", dbFile.getAbsolutePath());
 	}
 	
 	public void deactivate() {
+		db.close();
 		logger.debug("Deactivated MapDB Storage Service.");
 	}	
 
