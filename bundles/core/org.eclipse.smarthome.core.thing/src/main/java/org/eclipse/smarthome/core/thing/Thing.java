@@ -91,7 +91,7 @@ public interface Thing {
     /**
      * Gets the configuration.
      * 
-     * @return the configuration (can be null)
+     * @return the configuration (not null)
      */
     Configuration getConfiguration();
 

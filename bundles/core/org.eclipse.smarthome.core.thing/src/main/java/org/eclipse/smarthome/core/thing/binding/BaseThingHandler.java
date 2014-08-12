@@ -23,10 +23,14 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * {@link BaseThingHandler} provides as base implementation for the
- * {@link ThingHandler} interface.
+ * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
+ * <p>
+ * The default behavior for {@link Thing} updates is to {@link #dispose()} this handler first,
+ * exchange the {@link Thing} and {@link #initialize()} it again. Override the method
+ * {@link #thingUpdated(Thing)} to change the default behavior. 
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -92,6 +96,13 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void initialize() {
         // can be overridden by subclasses
+    }
+
+    @Override
+    public void thingUpdated(Thing thing) {
+        dispose();
+        this.thing = thing;
+        initialize();
     }
 
     /**

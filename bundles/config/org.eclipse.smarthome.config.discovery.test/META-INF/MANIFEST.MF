@@ -13,7 +13,9 @@ Import-Package: groovy.lang,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
  org.hamcrest;core=split
 Require-Bundle: org.junit;bundle-version="4.0.0"

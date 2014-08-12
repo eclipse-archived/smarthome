@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.storage;
 
 
-
 /**
  * The {@link StorageService} provides instances of {@link Storage}s which are
  * meant as a means for generic storage of key-value pairs. You can think of

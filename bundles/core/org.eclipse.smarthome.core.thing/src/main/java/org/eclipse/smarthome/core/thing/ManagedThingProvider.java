@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Integrated Storage
- * 
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public class ManagedThingProvider extends AbstractThingProvider {
 
@@ -37,18 +37,22 @@ public class ManagedThingProvider extends AbstractThingProvider {
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     /**
-     * Adds a things and informs all listeners.
+     * Adds a thing and informs all listeners.
+     * <p>
+     * This method returns silently if the specified {@link Thing} is {@code null}.
      * 
      * @param thing
      *            thing that should be added.
      */
     public void addThing(Thing thing) {
-        logger.info("Adding thing to managed thing provider '{}'.", thing.getUID());
-        Thing oldThing = storage.put(thing.getUID().toString(), thing);
-        if (oldThing != null) {
-            notifyThingsChangeListenersAboutRemovedThing(oldThing);
+        if (thing != null) {
+            logger.info("Adding thing to managed thing provider '{}'.", thing.getUID());
+            Thing oldThing = storage.put(thing.getUID().toString(), thing);
+            if (oldThing != null) {
+                notifyThingsChangeListenersAboutRemovedThing(oldThing);
+            }
+            notifyThingsChangeListenersAboutAddedThing(thing);
         }
-        notifyThingsChangeListenersAboutAddedThing(thing);
     }
 
     /**
@@ -77,9 +81,8 @@ public class ManagedThingProvider extends AbstractThingProvider {
                 return thing;
             }
         }
-        logger.warn(
-                "Cannot create thing. No binding found that supports creating a thing for the thing type {}.",
-                thingTypeUID);
+        logger.warn("Cannot create thing. No binding found that supports creating a thing"
+                + " for the thing type {}.", thingTypeUID);
         return null;
     }
 
@@ -90,6 +93,8 @@ public class ManagedThingProvider extends AbstractThingProvider {
 
     /**
      * Removes a thing and informs all listeners.
+     * <p>
+     * This method returns {@code null} if the specified {@link ThingUID} is {@code null}.
      * 
      * @param uid
      *            UID of the thing that should be removed
@@ -97,25 +102,49 @@ public class ManagedThingProvider extends AbstractThingProvider {
      *         exists
      */
     public Thing removeThing(ThingUID uid) {
-        logger.debug("Removing thing from managed thing provider '{}'.", uid);
-        Thing removedThing = storage.remove(uid.toString());
-        if (removedThing != null) {
-            notifyThingsChangeListenersAboutRemovedThing(removedThing);
+        Thing removedThing = null;
+        if (uid != null) {
+            logger.debug("Removing thing from managed thing provider '{}'.", uid);
+            removedThing = storage.remove(uid.toString());
+            if (removedThing != null) {
+                notifyThingsChangeListenersAboutRemovedThing(removedThing);
+            }
         }
         return removedThing;
     }
 
-    protected void setStorageService(StorageService storageService) {
-        this.storage = storageService.getStorage(Thing.class.getName(), this.getClass()
-                .getClassLoader());
+    /**
+     * Updates a thing and informs all listeners.
+     * <p>
+     * This method returns silently if the specified {@link Thing} is {@code null}.
+     * 
+     * @param thing the thing to be updated
+     */
+    public void updateThing(Thing thing) {
+        if (thing != null) {
+            String thingUid = thing.getUID().toString();
+            if (storage.get(thingUid) != null) {
+                logger.debug("Updating thing on managed thing provider '{}'.", thingUid);
+                Thing oldThing = storage.put(thingUid, thing);
+                notifyThingsChangeListenersAboutUpdatedThing(oldThing, thing);
+            } else {
+                logger.warn("Cannot update the non existing thing on managed thing provider '{}'!",
+                        thingUid);
+            }
+        }
     }
 
-    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        this.thingHandlerFactories.add(thingHandlerFactory);
+    protected void setStorageService(StorageService storageService) {
+        this.storage = storageService.getStorage(
+                Thing.class.getName(), this.getClass().getClassLoader());
     }
 
     protected void unsetStorageService(StorageService storageService) {
         this.storage = null;
+    }
+
+    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+        this.thingHandlerFactories.add(thingHandlerFactory);
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {

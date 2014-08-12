@@ -70,6 +70,11 @@ public class ItemChannelBindingRegistry implements ThingRegistryChangeListener {
         }
 	}
 
+    @Override
+    public void thingUpdated(Thing thing) {
+        // nothing to do
+    }
+
     public void unbind(ChannelUID channelUID) {
         String boundItemName = getBoundItem(channelUID);
         if (boundItemName != null) {
@@ -92,6 +97,5 @@ public class ItemChannelBindingRegistry implements ThingRegistryChangeListener {
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
     }
-
 
 }

@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
  * thing, although it was added before the tracker was registered.
  * 
  * @author Dennis Nobel - Initial contribution 
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public interface ThingTracker {
 
@@ -28,10 +29,8 @@ public interface ThingTracker {
      * This method is called for every thing that exists in the
      * {@link ThingRegistryImpl} and for every added thing.
      * 
-     * @param thing
-     *            thing
-     * @param thingTrackerEvent
-     *            thing tracker event
+     * @param thing the thing which was added
+     * @param thingTrackerEvent the event that occurred
      */
     void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent);
 
@@ -41,12 +40,18 @@ public interface ThingTracker {
      * that exists in the {@link ThingRegistryImpl}, when the tracker is
      * unregistered.
      * 
-     * @param thing
-     *            thing
-     * @param thingTrackerEvent
-     *            thing tracker event
+     * @param thing the thing which was removed
+     * @param thingTrackerEvent the event that occurred
      */
     void thingRemoved(Thing thing, ThingTrackerEvent thingTrackerEvent);
-    
+
+    /**
+     * This method is called for every thing that was updated within the
+     * {@link ThingRegistryImpl}.
+     * 
+     * @param thing the thing which was updated
+     * @param thingTrackerEvent the event that occurred
+     */
+    void thingUpdated(Thing thing, ThingTrackerEvent thingTrackerEvent);
 
 }

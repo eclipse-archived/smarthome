@@ -15,4 +15,5 @@
       <provide interface="org.eclipse.smarthome.config.discovery.inbox.Inbox"/>
    </service>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
+   <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
 </scr:component>

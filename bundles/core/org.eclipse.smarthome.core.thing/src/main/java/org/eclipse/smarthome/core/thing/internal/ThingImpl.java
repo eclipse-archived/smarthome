@@ -23,13 +23,20 @@ import org.eclipse.smarthome.core.types.State;
 
 import com.google.common.collect.ImmutableList;
 
+/**
+ * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
+ * <p>
+ * This class is mutable.
+ * 
+ * @author Michael Grammling - Configuration could never be null but may be empty
+ */
 public class ThingImpl implements Thing {
 
     private ThingUID bridgeUID;
 
     private List<Channel> channels;
 
-    private Configuration configuration;
+    private Configuration configuration = new Configuration();
 
     private ThingUID uid;
 
@@ -140,10 +147,9 @@ public class ThingImpl implements Thing {
         this.channels = channels;
     }
 
-    public void setConfiguration(Configuration configuation) {
-        this.configuration = configuation;
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = (configuration == null) ? new Configuration() : configuration;
     }
-
 
     @Override
     public void setHandler(ThingHandler thingHandler) {
