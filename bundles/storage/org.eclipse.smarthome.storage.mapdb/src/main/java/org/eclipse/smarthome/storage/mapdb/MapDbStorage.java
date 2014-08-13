@@ -26,6 +26,7 @@ import com.google.gson.Gson;
  * data. 
  * 
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
+ * @author Alex Tugarev - Loading with Class.forName() if classLoader is null
  */
 public class MapDbStorage<T> implements Storage<T> {
 
@@ -143,8 +144,12 @@ public class MapDbStorage<T> implements Storage<T> {
 		T value = null;
 		try {
 			// load required class within the given bundle context
-			Class<T> loadedValueType = 
-				(Class<T>) classLoader.loadClass(valueTypeName);
+            Class<T> loadedValueType = null;
+            if (classLoader == null) {
+                loadedValueType = (Class<T>) Class.forName(valueTypeName);
+            } else {
+                loadedValueType = (Class<T>) classLoader.loadClass(valueTypeName);
+            }
 			
 			value = mapper.fromJson(valueAsString, loadedValueType);
 			logger.trace("deserialized value '{}' from MapDB", value);

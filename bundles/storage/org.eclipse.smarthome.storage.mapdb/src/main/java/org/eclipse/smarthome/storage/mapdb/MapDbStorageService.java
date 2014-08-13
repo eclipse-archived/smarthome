@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * data in the lightweight key-value-store <a href="http://www.mapdb.org">MapDB</a>. 
  * 
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
+ * @author Alex Tugarev - Added getStorage for name only
  */
 public class MapDbStorageService implements StorageService {
 
@@ -65,5 +66,10 @@ public class MapDbStorageService implements StorageService {
 	public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
 		return new MapDbStorage<T>(db, name, classLoader);
 	}
+
+    @Override
+    public <T> Storage<T> getStorage(String name) {
+        return getStorage(name, null);
+    }
 	
 }

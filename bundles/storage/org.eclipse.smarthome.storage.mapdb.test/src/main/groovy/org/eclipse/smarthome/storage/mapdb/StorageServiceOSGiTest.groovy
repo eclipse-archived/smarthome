@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.library.items.StringItem
+import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -23,6 +24,7 @@ import org.junit.Test
 
 /**
  * @author Thomas Eichstaedt-Engelen - Initial contribution
+ * @author Alex Tugarev - Added test for getStorage without classloader
  */
 class StorageServiceOSGiTest extends OSGiTest {
 
@@ -81,6 +83,14 @@ class StorageServiceOSGiTest extends OSGiTest {
 		storage.remove 'Key1'
 		assertThat storage.getKeys().size(), is(0)
 	}
+    
+    @Test
+    void 'assert storage works without classloader'() {
+        def storageWithoutClassloader = storageService.getStorage("storageWithoutClassloader")
+        storageWithoutClassloader.put("Key1", "Value")
+        
+        assertThat storageWithoutClassloader.get("Key1"), is(equalTo("Value"))
+    }
 
 	
 	private class PersistedItem {
