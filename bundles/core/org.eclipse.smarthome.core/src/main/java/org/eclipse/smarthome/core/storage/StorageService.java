@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.storage;
 
 
-
 /**
  * The {@link StorageService} provides instances of {@link Storage}s which are
  * meant as a means for generic storage of key-value pairs. You can think of
@@ -23,7 +22,17 @@ package org.eclipse.smarthome.core.storage;
  * @author Dennis Nobel - Added second method with ClassLoader
  */
 public interface StorageService {
-	
+    
+    /**
+     * Returns the {@link Storage} with the given {@code name}. If no
+     * {@link Storage} with this name exists a new initialized instance
+     * is returned.  
+     * 
+     * @param name  the name of the {@link StorageService} to return
+     * @return a ready to use {@link Storage}, never {@code null}
+     */
+    <T> Storage<T> getStorage(String name);
+    
     /**
      * Returns the {@link Storage} with the given {@code name} and a given
      * {@link ClassLoader}. If no {@link Storage} with this name exists a new
@@ -36,5 +45,4 @@ public interface StorageService {
      * @return a ready to use {@link Storage}, never {@code null}
      */
     <T> Storage<T> getStorage(String name, ClassLoader classLoader);
-    
 }
