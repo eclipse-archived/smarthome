@@ -42,11 +42,11 @@ import org.slf4j.LoggerFactory;
  * {@link ThingHandlerFactory}s and calls
  * {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that was
  * added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
- * as an {@link EventHandler} and subcribes to smarthome update and command
+ * as an {@link EventHandler} and subscribes to smarthome update and command
  * events.
  * 
  * @author Dennis Nobel - Initial contribution
- * 
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public class ThingManager extends AbstractEventSubscriber implements ThingTracker {
 
@@ -92,13 +92,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     }
 
+    private Logger logger = LoggerFactory.getLogger(ThingManager.class);
+
     private BundleContext bundleContext;
 
     private EventPublisher eventPublisher;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-
-    private Logger logger = LoggerFactory.getLogger(ThingManager.class);
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -115,6 +115,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }
+
     };
 
     private ThingRegistryImpl thingRegistry;
@@ -233,7 +234,22 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.info("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
-    
+
+    @Override
+    public void thingUpdated(Thing thing, ThingTrackerEvent thingTrackerEvent) {
+        if (thingTrackerEvent == ThingTrackerEvent.THING_UPDATED) {
+            ThingUID thingId = thing.getUID();
+            ThingHandler thingHandler = thingHandlers.get(thingId);
+            if (thingHandler != null) {
+                try {
+                    thingHandler.thingUpdated(thing);
+                } catch (Exception ex) {
+                    logger.error("Cannot send Thing updated event to ThingHandler '"
+                            + thingHandler + "'!", ex);
+                }
+            }
+        }
+    }
 
     private ThingHandlerFactory findThingHandlerFactory(Thing thing) {
         for (ThingHandlerFactory factory : thingHandlerFactories) {
@@ -283,9 +299,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-
-        logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass()
-                .getSimpleName());
+        logger.debug("Thing handler factory '{}' added",
+                thingHandlerFactory.getClass().getSimpleName());
 
         thingHandlerFactories.add(thingHandlerFactory);
 
@@ -308,8 +323,9 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        logger.info("Thing handler factory '{}' removed", thingHandlerFactory.getClass()
-                .getSimpleName());
+        logger.info("Thing handler factory '{}' removed",
+                thingHandlerFactory.getClass().getSimpleName());
+
         thingHandlerFactories.remove(thingHandlerFactory);
     }
 
@@ -338,7 +354,5 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         this.thingRegistry.removeThingTracker(this);
         this.thingRegistry = null;
     }
-
-
 
 }

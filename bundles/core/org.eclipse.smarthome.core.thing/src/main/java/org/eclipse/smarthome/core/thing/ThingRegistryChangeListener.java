@@ -11,26 +11,34 @@ package org.eclipse.smarthome.core.thing;
  * {@link ThingRegistryChangeListener} can be implemented to listen for things
  * beeing added or removed. The listener must be added and removed via
  * {@link ThingRegistry#addThingRegistryChangeListener(ThingRegistryChangeListener)}
- * and
- * {@link ThingRegistry#removeThingRegistryChangeListener(ThingRegistryChangeListener)}
- * .
+ * and {@link ThingRegistry#removeThingRegistryChangeListener(ThingRegistryChangeListener)}.
  * 
- * @author Dennis Nobel -
+ * @author Dennis Nobel - Initial Contribution
+ * @author Michael Grammling - Added dynamic configuration update
+ * 
  * @see ThingRegistry
  */
 public interface ThingRegistryChangeListener {
 
-	/**
-	 * Notifies the listener that a single thing has been added
-	 * 
-	 * @param thing the thing that has been added
-	 */
-	public void thingAdded(Thing thing);
-	
-	/**
-	 * Notifies the listener that a single thing has been removed
-	 * 
-	 * @param thing the thing that has been removed
-	 */
-	public void thingRemoved(Thing thing);
+    /**
+     * Notifies the listener that a single thing has been added.
+     * 
+     * @param thing the thing that has been added
+     */
+    public void thingAdded(Thing thing);
+
+    /**
+     * Notifies the listener that a single thing has been removed.
+     * 
+     * @param thing the thing that has been removed
+     */
+    public void thingRemoved(Thing thing);
+
+    /**
+     * Notifies the listener that a single thing has been updated.
+     * 
+     * @param thing the thing that has been updated
+     */
+    public void thingUpdated(Thing thing);
+
 }

@@ -31,6 +31,8 @@ import com.google.common.collect.Lists;
 
 /**
  * Default implementation of {@link ThingRegistry}.
+ * 
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
@@ -144,8 +146,26 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
 
     @Override
     public void thingUpdated(ThingProvider provider, Thing oldThing, Thing newThing) {
-        thingRemoved(provider, oldThing);
-        thingAdded(provider, newThing);
+        Collection<Thing> things = thingMap.get(provider);
+
+        if (things != null) {
+            things.remove(oldThing);
+            ThingUID bridgeUID = oldThing.getBridgeUID();
+            if (bridgeUID != null) {
+                Thing bridge = this.getByUID(bridgeUID);
+                if (bridge instanceof BridgeImpl) {
+                    ((BridgeImpl) bridge).removeThing(oldThing);
+                }
+            }
+
+            things.add(newThing);
+            addThingToBridge(newThing);
+            if (newThing instanceof Bridge) {
+                addThingsToBridge((Bridge) newThing);
+            }
+
+            notifyListenersAboutUpdatedThing(newThing);
+        }
     }
 
     private void notifyListenerAboutAllThingsAdded(ThingTracker thingTracker) {
@@ -161,20 +181,47 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
     }
 
     private void notifyListenersAboutAddedThing(Thing thing) {
-        for (ThingTracker thingTracker : thingTrackers) {
-            thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
-        }
-        for (ThingRegistryChangeListener listener : thingListeners) {
-            listener.thingAdded(thing);
-        }
+        notifyListeners(thing, ThingTrackerEvent.THING_ADDED);
     }
 
     private void notifyListenersAboutRemovedThing(Thing thing) {
+        notifyListeners(thing, ThingTrackerEvent.THING_REMOVED);
+    }
+
+    private void notifyListenersAboutUpdatedThing(Thing thing) {
+        notifyListeners(thing, ThingTrackerEvent.THING_UPDATED);
+    }
+
+    private void notifyListeners(Thing thing, ThingTrackerEvent event) {
         for (ThingTracker thingTracker : thingTrackers) {
-            thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
+            try {
+                switch (event) {
+                    case THING_ADDED:
+                        thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED); break;
+                    case THING_REMOVED:
+                        thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED); break;
+                    case THING_UPDATED:
+                        thingTracker.thingUpdated(thing, ThingTrackerEvent.THING_UPDATED); break;
+                    default: break;
+                }
+            } catch (Exception ex) {
+                logger.error("Could not inform the ThingTracker '" + thingTracker
+                        + "' about the '" + event.name() + "' event!", ex);
+            }
         }
+
         for (ThingRegistryChangeListener listener : thingListeners) {
-            listener.thingRemoved(thing);
+            try {
+                switch (event) {
+                    case THING_ADDED: listener.thingAdded(thing); break;
+                    case THING_REMOVED: listener.thingRemoved(thing); break;
+                    case THING_UPDATED: listener.thingUpdated(thing); break;
+                    default: break;
+                }
+            } catch (Exception ex) {
+                logger.error("Could not inform the ThingRegistryChangeListener '" + listener
+                        + "' about the '" + event.name() + "' event!", ex);
+            }
         }
     }
 
@@ -230,8 +277,7 @@ public class ThingRegistryImpl implements ThingsChangeListener, ThingRegistry {
                 notifyListenersAboutRemovedThing(thing);
             }
             thingProvider.removeThingsChangeListener(this);
-            logger.debug("Thing provider '{}' has been removed.", thingProvider.getClass()
-                    .getName());
+            logger.debug("Thing provider '{}' has been removed.", thingProvider.getClass().getName());
         }
     }
 

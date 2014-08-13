@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.types.State;
  * the {@link ThingHandler#handleCommand(Channel, Command)} method.
  * 
  * @author Dennis Nobel - Initial contribution and API
+ * @author Michael Grammling - Added dynamic configuration update
  */
 public interface ThingHandler {
 
@@ -57,8 +58,15 @@ public interface ThingHandler {
     void handleUpdate(ChannelUID channelUID, State newState);
 
     /**
-     * This method is called, before the handler is shut down. An
-     * implementing class can clean resources here.
+     * Notifies the handler about an updated {@link Thing}.
+     * 
+     * @param thing the {@link Thing}, that has been updated
+     */
+    void thingUpdated(Thing thing);
+
+    /**
+     * This method is called, before the handler is shut down.
+     * An implementing class can clean resources here.
      */
     void dispose();
 
