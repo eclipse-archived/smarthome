@@ -12,7 +12,8 @@ ModelPropertyContainer:
 	ModelThing | ModelBridge | ModelChannel
 ;
 
-ModelBridge returns ModelThing:
+ModelBridge returns ModelThing: 
+	{ModelBridge}
 	bridge?='Bridge' (id=UID | thingTypeId=ID thingId=ID)
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
@@ -56,10 +57,14 @@ UID:
 	ID ':' ID ':' ID (=> ':' ID)*
 ;
 
-ValueType returns ecore::EString:
-	INT | STRING | FLOAT
+ValueType returns ecore::EJavaObject:
+	STRING | NUMBER | BOOLEAN
 ;
 
-terminal FLOAT returns ecore::EBigDecimal:
-	INT '.' INT
+BOOLEAN returns ecore::EBoolean: 
+	'true' | 'false'
+;
+
+NUMBER returns ecore::EBigDecimal:
+	INT ('.' INT )?
 ;

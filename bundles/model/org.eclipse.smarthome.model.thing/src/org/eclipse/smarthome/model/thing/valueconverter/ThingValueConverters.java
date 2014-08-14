@@ -15,11 +15,12 @@ import com.google.inject.Inject;
 
 public class ThingValueConverters extends DefaultTerminalConverters {
 
-	@Inject
-	private ValueTypeToStringConverter valueTypeToStringConverter;
+    @Inject
+    private ValueTypeToStringConverter valueTypeToStringConverter;
 
-	 @ValueConverter(rule = "ValueType")
-	 public IValueConverter<String> ValueType() {
-	   return valueTypeToStringConverter;
-	 }
+    @ValueConverter(rule = "ValueType")
+    public IValueConverter<Object> ValueType() {
+        return valueTypeToStringConverter;
+    }
+
 }

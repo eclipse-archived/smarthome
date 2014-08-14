@@ -7,29 +7,61 @@
  */
 package org.eclipse.smarthome.model.thing.valueconverter;
 
+import java.math.BigDecimal;
+
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverterException;
-import org.eclipse.xtext.conversion.impl.STRINGValueConverter;
 import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.util.Strings;
 
-import com.google.inject.Inject;
-
-public class ValueTypeToStringConverter implements IValueConverter<String> {
-
-	@Inject
-	private STRINGValueConverter stringValueConverter;
+/**
+ * 
+ * @author Alex Tugarev
+ *
+ */
+public class ValueTypeToStringConverter implements IValueConverter<Object> {
 
 	@Override
-	public String toValue(String string, INode node) throws ValueConverterException {
-		if (string == null)
-			return null;
-		if (string.startsWith("\"") && string.endsWith("\"")) 
-			return stringValueConverter.toValue(string, node);
-		return string;
+	public Object toValue(String string, INode node) throws ValueConverterException {
+		if (string == null) {
+		    return null;
+		}
+		if (string.startsWith("\"") && string.endsWith("\"")) {
+	        try {
+	            return Strings.convertFromJavaString(string.substring(1, string.length() - 1), true);
+	        } catch (IllegalArgumentException e) {
+	            throw new ValueConverterException(e.getMessage(), node, e);
+	        }
+		}
+		if (string.equals("true") || string.equals("false")) {
+		    return Boolean.valueOf(string);
+		}
+		try {
+		    return new BigDecimal(string);
+        } catch (NumberFormatException e) {
+            throw new ValueConverterException("Number expected.", node, e);
+        }
 	}
 
 	@Override
-	public String toString(String value) throws ValueConverterException {
-		return stringValueConverter.toString(value);
+	public String toString(Object value) throws ValueConverterException {
+	    if (value == null) {
+	        throw new ValueConverterException("Value may not be null.", null, null);
+	    }
+		if (value instanceof String) {
+			return toEscapedString((String) value);
+		}
+		if (value instanceof BigDecimal) {
+			BigDecimal decimalValue = (BigDecimal) value;
+			return decimalValue.toPlainString();
+		}
+		if (value instanceof Boolean) {
+		    return ((Boolean) value).toString(); 
+		}
+		throw new ValueConverterException("Unknown value type: " + value.getClass().getSimpleName(), null, null);
 	}
+	
+    protected String toEscapedString(String value) {
+        return '"' + Strings.convertToJavaString(value, false) + '"';
+    }
 }
