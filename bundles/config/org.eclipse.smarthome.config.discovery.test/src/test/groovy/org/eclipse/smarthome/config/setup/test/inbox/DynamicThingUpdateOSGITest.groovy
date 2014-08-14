@@ -69,7 +69,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
     @After
     void cleanUp() {
-        managedThingProvider.getThings().each { managedThingProvider.removeThing(it.getUID()) }
+        managedThingProvider.all.each { managedThingProvider.remove(it.getUID()) }
     }
 
     ThingHandler createThingHandler(Thing thing) {
@@ -121,7 +121,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        managedThingProvider.addThing ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
         DiscoveryResult discoveryResult = new DiscoveryResult(THING_TYPE_UID, THING_UID).with {
@@ -146,7 +146,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        managedThingProvider.addThing ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
         DiscoveryResult discoveryResult = new DiscoveryResult(THING_TYPE_UID, THING_UID).with {
             label = "DummyLabel1"

@@ -36,9 +36,9 @@ class ScriptEngineOSGiTest extends OSGiTest {
 	void setUp() {
 		itemRegistry = getService(ItemRegistry)
 		itemProvider = [
-			getItems: {[new SwitchItem(ITEM_NAME)]},
-			addItemChangeListener: {def itemCHangeListener -> },
-			removeItemChangeListener: {def itemCHangeListener -> }] as ItemProvider
+			getAll: {[new SwitchItem(ITEM_NAME)]},
+			addProviderChangeListener: {def itemCHangeListener -> },
+			removeProviderChangeListener: {def itemCHangeListener -> }] as ItemProvider
 	}
 	
 	@Test

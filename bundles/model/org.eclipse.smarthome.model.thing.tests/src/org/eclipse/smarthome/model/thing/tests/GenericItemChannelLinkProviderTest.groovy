@@ -46,7 +46,7 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 
 	@Test
 	void 'test that an ItemChannelLink was created for a thing and an item'() {
-		def things = thingRegistry.things
+		def things = thingRegistry.all
 		assertThat things.size(), is(0)
 
 		String thingsModel =
@@ -57,14 +57,14 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 			}
 			'''
 		modelRepository.addOrRefreshModel(THINGS_TESTMODEL_NAME, new ByteArrayInputStream(thingsModel.bytes))
-		def actualThings = thingRegistry.things
+		def actualThings = thingRegistry.all
 
 		assertThat actualThings.size(), is(3)
 		
 		def items = itemRegistry.items
 		assertThat items.size(), is(0)
 		
-		def itemChannelLinks = itemChannelLinkRegistry.itemChannelLinks
+		def itemChannelLinks = itemChannelLinkRegistry.all
 		assertThat itemChannelLinks.size(), is(0)
 
 		String itemsModel =
@@ -76,7 +76,7 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 		
 		assertThat actualItems.size(), is(1)
 			
-		def actualItemChannelLinks = itemChannelLinkRegistry.itemChannelLinks
+		def actualItemChannelLinks = itemChannelLinkRegistry.all
 		assertThat actualItemChannelLinks.size(), is(1)
 		assertThat actualItemChannelLinks.first().toString(), is(equalTo("Light3Color -> hue:light:huebridge:bulb3:color"))
 	}

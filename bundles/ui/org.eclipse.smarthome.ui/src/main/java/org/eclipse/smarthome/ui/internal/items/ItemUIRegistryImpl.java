@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -586,21 +587,26 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void addItemRegistryChangeListener(
-			ItemRegistryChangeListener listener) {
-		if(itemRegistry!=null) {
-			itemRegistry.addItemRegistryChangeListener(listener);
+	public void addRegistryChangeListener(RegistryChangeListener<Item> listener) {
+		if (itemRegistry != null) {
+			itemRegistry.addRegistryChangeListener(listener);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void removeItemRegistryChangeListener(
-			ItemRegistryChangeListener listener) {
-			if(itemRegistry!=null) {
-				itemRegistry.removeItemRegistryChangeListener(listener);
-			}
+	public void removeRegistryChangeListener(RegistryChangeListener<Item> listener) {
+		if (itemRegistry != null) {
+			itemRegistry.removeRegistryChangeListener(listener);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Collection<Item> getAll() {
+		return itemRegistry.getAll();
 	}
 
 	/**
@@ -896,4 +902,5 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 			return this.value;
 		}
 	}
+
 }

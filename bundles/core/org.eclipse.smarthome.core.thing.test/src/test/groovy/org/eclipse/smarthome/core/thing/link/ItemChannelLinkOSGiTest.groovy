@@ -40,28 +40,28 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        managedItemChannelLinkProvider.getItemChannelLinks().each { managedItemChannelLinkProvider.removeItemChannelLink(it) }
+        managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getID()) }
     }
 
     @Test
     void 'assert ItemChannelLink is present in ItemChannelLinkRegistry when added to ManagedItemChannelLinkProvider'() {
-        assertThat itemChannelLinkRegistry.getItemChannelLinks().size(), is(0)
-        assertThat managedItemChannelLinkProvider.getItemChannelLinks().size(), is(0)
+        assertThat itemChannelLinkRegistry.getAll().size(), is(0)
+        assertThat managedItemChannelLinkProvider.getAll().size(), is(0)
 
-        managedItemChannelLinkProvider.addItemChannelLink ITEM_CHANNEL_LINK
+        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
 
-        assertThat  itemChannelLinkRegistry.getItemChannelLinks().size(), is(1)
-        assertThat  managedItemChannelLinkProvider.getItemChannelLinks().size(), is(1)
+        assertThat  itemChannelLinkRegistry.getAll().size(), is(1)
+        assertThat  managedItemChannelLinkProvider.getAll().size(), is(1)
 
-        managedItemChannelLinkProvider.removeItemChannelLink(ITEM_CHANNEL_LINK)
+        managedItemChannelLinkProvider.remove(ITEM_CHANNEL_LINK.getID())
 
-        assertThat itemChannelLinkRegistry.getItemChannelLinks().size(), is(0)
-        assertThat managedItemChannelLinkProvider.getItemChannelLinks().size(), is(0)
+        assertThat itemChannelLinkRegistry.getAll().size(), is(0)
+        assertThat managedItemChannelLinkProvider.getAll().size(), is(0)
     }
 
     @Test
     void 'assert isLinked returns true'() {
-        managedItemChannelLinkProvider.addItemChannelLink ITEM_CHANNEL_LINK
+        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
         assertThat  itemChannelLinkRegistry.isLinked("item", CHANNEL_UID), is(true)
     }
 
@@ -72,7 +72,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     @Test
     void 'assert getBoundItem items returns item'() {
-        managedItemChannelLinkProvider.addItemChannelLink ITEM_CHANNEL_LINK
+        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
         assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(equalTo("item"))
     }
 

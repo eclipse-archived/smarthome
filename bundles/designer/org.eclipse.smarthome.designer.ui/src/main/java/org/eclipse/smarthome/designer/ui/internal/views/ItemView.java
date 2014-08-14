@@ -123,7 +123,7 @@ public class ItemView extends ViewPart {
 				} catch (IOException e) {
 					// something is wrong, so we won't reload the folders.
 				}
-				registry.addItemRegistryChangeListener(this);
+				registry.addRegistryChangeListener(this);
 				invisibleRoot = new Object();
 				allItemsChanged(null);
 			}
@@ -140,7 +140,7 @@ public class ItemView extends ViewPart {
 			}
 		}
 
-		public void itemAdded(Item item) {
+		public void added(Item item) {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					viewer.refresh();
@@ -148,7 +148,7 @@ public class ItemView extends ViewPart {
 			});
 		}
 
-		public void itemRemoved(Item item) {
+		public void removed(Item item) {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 				public void run() {
 					viewer.refresh();
@@ -157,7 +157,7 @@ public class ItemView extends ViewPart {
 		}
 
         @Override
-        public void itemUpdated(Item oldItem, Item item) {
+        public void updated(Item oldItem, Item item) {
             PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
                 public void run() {
                     viewer.refresh();

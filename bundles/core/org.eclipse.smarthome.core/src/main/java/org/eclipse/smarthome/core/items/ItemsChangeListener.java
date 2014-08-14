@@ -9,6 +9,8 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
 
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+
 /**
  * This is a listener interface which should be implemented where ever item
  * providers or the item registry are used in order to be notified of any
@@ -17,7 +19,7 @@ import java.util.Collection;
  * @author Kai Kreuzer - Initial contribution and API
  * 
  */
-public interface ItemsChangeListener {
+public interface ItemsChangeListener extends ProviderChangeListener<Item>{
 
     /**
      * Notifies the listener that all items of a provider have changed and thus
@@ -30,36 +32,4 @@ public interface ItemsChangeListener {
      *            can be removed
      */
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames);
-
-    /**
-     * Notifies the listener that a single item has been added
-     * 
-     * @param provider
-     *            the concerned item provider
-     * @param item
-     *            the item that has been added
-     */
-    public void itemAdded(ItemProvider provider, Item item);
-
-    /**
-     * Notifies the listener that a single item has been removed
-     * 
-     * @param provider
-     *            the concerned item provider
-     * @param item
-     *            the item that has been removed
-     */
-    public void itemRemoved(ItemProvider provider, Item item);
-
-    /**
-     * Notifies the listener that a single item has been updated
-     * 
-     * @param provider
-     *            the concerned item provider
-     * @param oldItem
-     *            the item that has been updated
-     * @param oldItem
-     *            the item that has been updated
-     */
-    public void itemUpdated(ItemProvider provider, Item oldItem, Item item);
 }

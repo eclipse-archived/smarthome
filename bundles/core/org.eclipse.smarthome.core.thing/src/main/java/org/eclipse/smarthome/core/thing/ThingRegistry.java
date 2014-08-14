@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import java.util.List;
-
+import org.eclipse.smarthome.core.common.registry.Registry;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker;
 
 /**
@@ -20,16 +19,7 @@ import org.eclipse.smarthome.core.thing.internal.ThingTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki - Extracted ManagedThingProvider
  */
-public interface ThingRegistry {
-
-	/**
-	 * Adds a thing registry change listener.
-	 * 
-	 * @param listener
-	 *            the listener
-	 */
-	public abstract void addThingRegistryChangeListener(
-			ThingRegistryChangeListener listener);
+public interface ThingRegistry extends Registry<Thing>{
 
 	/**
 	 * Returns a thing for a given UID or null if no thing was found.
@@ -40,20 +30,5 @@ public interface ThingRegistry {
 	 */
 	public abstract Thing getByUID(ThingUID uid);
 
-	/**
-	 * Returns all things.
-	 * 
-	 * @return all things
-	 */
-	public abstract List<Thing> getThings();
-
-	/**
-	 * Removes a thing registry change listener.
-	 * 
-	 * @param listener
-	 *            the listener
-	 */
-	public abstract void removeThingRegistryChangeListener(
-			ThingRegistryChangeListener listener);
 
 }

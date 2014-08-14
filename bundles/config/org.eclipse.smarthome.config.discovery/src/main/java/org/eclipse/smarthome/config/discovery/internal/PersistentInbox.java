@@ -96,7 +96,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
                 if (updated) {
                     logger.debug("The configuration for thing '{}' is updated...", thingUID);
-                    this.managedThingProvider.updateThing(thing);
+                    this.managedThingProvider.update(thing);
                 }
             }
         }
@@ -195,7 +195,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public void thingAdded(Thing thing) {
+    public void added(Thing thing) {
         if (remove(thing.getUID())) {
             logger.debug("Discovery result removed from inbox, because it was added as a Thing"
                     + " to the ThingRegistry.");
@@ -203,12 +203,12 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     @Override
-    public void thingRemoved(Thing thing) {
+    public void removed(Thing thing) {
         // nothing to do
     }
 
     @Override
-    public void thingUpdated(Thing thing) {
+    public void updated(Thing oldThing, Thing thing) {
         // Attention: Do NOT fire an event back to the ThingRegistry otherwise circular
         // events are fired! This event was triggered by the 'add(DiscoveryResult)'
         // method within this class. -> NOTHING TO DO HERE
@@ -306,7 +306,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
-        this.thingRegistry.addThingRegistryChangeListener(this);
+        this.thingRegistry.addRegistryChangeListener(this);
     }
 
     protected void setManagedThingProvider(ManagedThingProvider thingProvider) {
@@ -319,7 +319,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry.removeThingRegistryChangeListener(this);
+        this.thingRegistry.removeRegistryChangeListener(this);
         this.thingRegistry = null;
     }
 

@@ -16,7 +16,6 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.ThingsChangeListener
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.types.Command
@@ -36,7 +35,6 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
 
     ManagedThingProvider managedThingProvider
-    ThingsChangeListener thingChangeListener
     ThingHandlerFactory thingHandlerFactory
 
     final static String BINDIND_ID = "testBinding"
@@ -54,8 +52,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
     @After
     void teardown() {
-        managedThingProvider.getThings().each {
-            managedThingProvider.removeThing(it.getUID())
+        managedThingProvider.getAll().each {
+            managedThingProvider.remove(it.getUID())
         }
     }
 
@@ -97,8 +95,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         def bridge = BridgeBuilder.create(new ThingUID("bindingId:type1:bridgeId")).build()
         def thing = ThingBuilder.create(new ThingUID("bindingId:type2:thingId")).withBridge(bridge.getUID()).build()
 
-        managedThingProvider.addThing(bridge)
-        managedThingProvider.addThing(thing)
+        managedThingProvider.add(bridge)
+        managedThingProvider.add(thing)
 
         def handler = thing.getHandler()
         assertThat handler, is(not(null))

@@ -45,7 +45,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
                 String subCommand = args[1];
                 switch (subCommand) {
                 case "list":
-                    list(console, itemChannelLinkRegistry.getItemChannelLinks());
+                    list(console, itemChannelLinkRegistry.getAll());
                     return;
                 case "add":
                     if (args.length > 3) {
@@ -72,7 +72,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
                     break;
                 }
             } else {
-                list(console, itemChannelLinkRegistry.getItemChannelLinks());
+                list(console, itemChannelLinkRegistry.getAll());
             }
             return;
         default:
@@ -89,21 +89,21 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     private void clear(Console console) {
-        Collection<ItemChannelLink> itemChannelLinks = managedItemChannelLinkProvider.getItemChannelLinks();
+        Collection<ItemChannelLink> itemChannelLinks = managedItemChannelLinkProvider.getAll();
         int numberOfLinks = itemChannelLinks.size();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
-            managedItemChannelLinkProvider.removeItemChannelLink(itemChannelLink);
+            managedItemChannelLinkProvider.remove(itemChannelLink.getID());
         }
         console.println(numberOfLinks + " links successfully removed.");
     }
 
     private void link(Console console, String itemName, ChannelUID channelUID) {
         ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUID);
-        managedItemChannelLinkProvider.addItemChannelLink(itemChannelLink);
+        managedItemChannelLinkProvider.add(itemChannelLink);
         console.println("Link " + itemChannelLink.toString() + "successfully added.");
     }
 
-    private void list(Console console, List<ItemChannelLink> itemChannelLinks) {
+    private void list(Console console, Collection<ItemChannelLink> itemChannelLinks) {
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
             console.println(itemChannelLink.toString());
         }
@@ -112,7 +112,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
     private void remove(Console console, String itemName, ChannelUID channelUID) {
         ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUID);
         ItemChannelLink removedItemChannelLink = managedItemChannelLinkProvider
-                .removeItemChannelLink(itemChannelLink);
+                .remove(itemChannelLink.getID());
         if (removedItemChannelLink != null) {
             console.println("Link " + itemChannelLink.toString() + "successfully removed.");
         } else {

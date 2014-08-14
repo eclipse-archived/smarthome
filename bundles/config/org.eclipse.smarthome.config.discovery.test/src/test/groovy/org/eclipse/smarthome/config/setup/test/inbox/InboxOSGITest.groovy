@@ -56,7 +56,7 @@ class InboxOSGITest extends OSGiTest {
         inboxListeners.each { inbox.removeInboxListener(it) }
         discoveryResults.clear()
         inboxListeners.clear()
-        managedThingProvider.getThings().each { managedThingProvider.removeThing(it.getUID())}
+        managedThingProvider.all.each { managedThingProvider.remove(it.getUID())}
     }
 
     private boolean addDiscoveryResult(DiscoveryResult discoveryResult) {
@@ -578,7 +578,7 @@ class InboxOSGITest extends OSGiTest {
 
         assertThat inbox.getAll().size(), is(1)
 
-        managedThingProvider.addThing ThingBuilder.create(thingTypeUID, "dummyThingId").build()
+        managedThingProvider.add ThingBuilder.create(thingTypeUID, "dummyThingId").build()
 
         assertThat inbox.getAll().size(), is(0)
     }
@@ -590,7 +590,7 @@ class InboxOSGITest extends OSGiTest {
         ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
         ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
 
-        managedThingProvider.addThing ThingBuilder.create(thingTypeUID, "dummyThingId").build()
+        managedThingProvider.add ThingBuilder.create(thingTypeUID, "dummyThingId").build()
 
 		Map<String, Object> props = new HashMap<>()
 		props.put("property1", "property1value1")

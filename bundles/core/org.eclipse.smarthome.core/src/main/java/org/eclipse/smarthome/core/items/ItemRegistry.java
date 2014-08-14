@@ -9,6 +9,8 @@ package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
 
+import org.eclipse.smarthome.core.common.registry.Registry;
+
 /**
  * The ItemRegistry is the central place, where items are kept in memory and their state
  * is permanently tracked. So any code that requires the current state of items should use
@@ -20,7 +22,7 @@ import java.util.Collection;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface ItemRegistry {
+public interface ItemRegistry extends Registry<Item> {
 
 	/**
 	 * This method retrieves a single item from the registry.
@@ -65,9 +67,5 @@ public interface ItemRegistry {
 	 * @return true, if the name is valid
 	 */
 	public boolean isValidItemName(String itemName);
-
-	public void addItemRegistryChangeListener(ItemRegistryChangeListener listener);
-	
-	public void removeItemRegistryChangeListener(ItemRegistryChangeListener listener);
 
 }

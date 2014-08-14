@@ -38,7 +38,7 @@ class GenericThingProviderTest extends OSGiTest {
 	@Test
 	void 'assert that things that are contained in things files are added to ThingRegistry'() {
 
-		def things = thingRegistry.things
+		def things = thingRegistry.getAll()
 		assertThat things.size(), is(0)
 
 		String model =
@@ -55,7 +55,7 @@ class GenericThingProviderTest extends OSGiTest {
 			}
 			'''
 		modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
-		def actualThings = thingRegistry.things
+		def actualThings = thingRegistry.getAll()
 
 		assertThat actualThings.size(), is(5)
 
@@ -136,7 +136,7 @@ class GenericThingProviderTest extends OSGiTest {
 	void 'assert that the things in an updated things file is registered in the ThingRegistry'() {
 		ThingRegistry thingRegistry = getService ThingRegistry
 		assertThat thingRegistry, is(notNullValue())
-		def things = thingRegistry.things
+		def things = thingRegistry.getAll()
 		assertThat things.size(), is(0)
 		ModelRepository modelRepository = getService ModelRepository
 		assertThat modelRepository, is(notNullValue())
@@ -165,7 +165,7 @@ class GenericThingProviderTest extends OSGiTest {
 			}
 			'''
 		modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(newModel.bytes))
-		def actualThings = thingRegistry.things
+		def actualThings = thingRegistry.getAll()
 
 		assertThat actualThings.size(), is(3)
 

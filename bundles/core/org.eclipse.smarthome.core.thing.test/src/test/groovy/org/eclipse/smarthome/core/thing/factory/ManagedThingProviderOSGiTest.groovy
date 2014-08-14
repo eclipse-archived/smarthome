@@ -12,12 +12,12 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.ThingsChangeListener
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
@@ -36,7 +36,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	ManagedThingProvider managedThingProvider
 	
-	ThingsChangeListener thingChangeListener
+	ProviderChangeListener<Thing> thingChangeListener
 	ThingHandlerFactory thingHandlerFactory
 	
 	final static String BINDIND_ID = "testBinding"
@@ -58,21 +58,21 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	void teardown() {
 		unregisterCurrentThingsChangeListener()
 		unregisterCurrentThingHandlerFactory()
-		managedThingProvider.getThings().each {
-			managedThingProvider.removeThing(it.getUID())
+		managedThingProvider.getAll().each {
+			managedThingProvider.remove(it.getUID())
 		} 
 	}
 	
 	
-	private void registerThingsChangeListener(ThingsChangeListener thingChangeListener) {
+	private void registerThingsChangeListener(ProviderChangeListener<Thing> thingChangeListener) {
 		unregisterCurrentThingsChangeListener()
 		this.thingChangeListener = thingChangeListener
-		managedThingProvider.addThingsChangeListener(this.thingChangeListener)
+		managedThingProvider.addProviderChangeListener(this.thingChangeListener)
 	}
 
 	private void unregisterCurrentThingsChangeListener() {
 		if (this.thingChangeListener != null) {
-			managedThingProvider.removeThingsChangeListener(this.thingChangeListener)
+			managedThingProvider.removeProviderChangeListener(this.thingChangeListener)
 		}
 	}
 	
@@ -91,36 +91,33 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	@Test
 	void 'assert that added thing is returned by getThings'() {
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing1)
-		def things = managedThingProvider.getThings()
+		managedThingProvider.add(thing1)
+		def things = managedThingProvider.getAll()
 		assertThat things.size(), is(1)
 		assertThat things.first(), is(thing1)
 		def thing2 = ThingBuilder.create(THING_TYPE_UID, THING2_ID).build()
-		managedThingProvider.addThing(thing2)
-		things = managedThingProvider.getThings()
+		managedThingProvider.add(thing2)
+		things = managedThingProvider.getAll()
 		assertThat things.size(), is(2)
 		assertThat things.getAt(0), is(thing1)
 		assertThat things.getAt(1), is(thing2)
 		
 	}
 	
-	@Test
-	void 'assert that twice added thing is returned once by getThings'() {
+	@Test(expected=IllegalArgumentException.class)
+	void 'assert that twice added thing throws exception'() {
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
 		def thing2 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing1)
-		managedThingProvider.addThing(thing2)
-		def things = managedThingProvider.getThings()
-		assertThat things.size(), is(1)
-		assertThat things.first(), is(thing2)
+		managedThingProvider.add(thing1)
+		managedThingProvider.add(thing2)
 	}
 	
 	@Test
 	void 'assert that removed thing is not returned by getThings'() {
 		def thing = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing)
-		managedThingProvider.removeThing(thing.getUID())
-		def things = managedThingProvider.getThings()
+		managedThingProvider.add(thing)
+		managedThingProvider.remove(thing.getUID())
+		def things = managedThingProvider.getAll()
 		assertThat things.size(), is(0)
 	}
 	
@@ -130,13 +127,13 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		AsyncResultWrapper<ThingProvider> thingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
 		AsyncResultWrapper<Thing> thingWrapper = new AsyncResultWrapper<Thing>()
 		registerThingsChangeListener( [
-			thingAdded : { ThingProvider provider, Thing thing ->
+			added : { ThingProvider provider, Thing thing ->
 				thingProviderWrapper.set(provider)
 				thingWrapper.set(thing)
 			}
-		] as ThingsChangeListener)
+		] as ProviderChangeListener<Thing>)
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing1)
+		managedThingProvider.add(thing1)
 		
 		waitForAssert{assertTrue thingProviderWrapper.isSet}
 		waitForAssert{assertTrue thingWrapper.isSet}
@@ -147,37 +144,32 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	
 	@Test
 	void 'assert that ThingsChangeListener is notified about updated thing'() {
-		AsyncResultWrapper<ThingProvider> addedThingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
-		AsyncResultWrapper<Thing> addedThingWrapper = new AsyncResultWrapper<Thing>()
-		AsyncResultWrapper<ThingProvider> removedThingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
-		AsyncResultWrapper<Thing> removedThingWrapper = new AsyncResultWrapper<Thing>()
+		AsyncResultWrapper<ThingProvider> updatedThingProviderWrapper = new AsyncResultWrapper<ThingProvider>()
+		AsyncResultWrapper<Thing> oldThingWrapper = new AsyncResultWrapper<Thing>()
+        AsyncResultWrapper<Thing> updatedThingWrapper = new AsyncResultWrapper<Thing>()
 		
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing1)
+		managedThingProvider.add(thing1)
 		
 		registerThingsChangeListener( [
-			thingAdded : { ThingProvider provider, Thing thing ->
-				addedThingProviderWrapper.set(provider)
-				addedThingWrapper.set(thing)
-		},
-			thingRemoved : { ThingProvider provider, Thing thing ->
-				removedThingProviderWrapper.set(provider)
-				removedThingWrapper.set(thing)
-			}
-		] as ThingsChangeListener)
+			added : {},
+            updated : { ThingProvider provider, Thing oldThing, Thing thing ->
+				updatedThingProviderWrapper.set(provider)
+                oldThingWrapper.set(oldThing)
+				updatedThingWrapper.set(thing)
+            }
+		] as ProviderChangeListener<Thing>)
 		
 		def thing2 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
-		managedThingProvider.addThing(thing2)
+		managedThingProvider.update(thing2)
 		
-		waitForAssert{assertTrue addedThingProviderWrapper.isSet}
-		waitForAssert{assertTrue addedThingWrapper.isSet}
-		waitForAssert{assertTrue removedThingProviderWrapper.isSet}
-		waitForAssert{assertTrue removedThingWrapper.isSet}
+		waitForAssert{assertTrue updatedThingProviderWrapper.isSet}
+		waitForAssert{assertTrue oldThingWrapper.isSet}
+		waitForAssert{assertTrue updatedThingWrapper.isSet}
 		
-		assertThat addedThingProviderWrapper.wrappedObject, is(managedThingProvider)
-		assertThat addedThingWrapper.wrappedObject, is(thing2)
-		assertThat removedThingProviderWrapper.wrappedObject, is(managedThingProvider)
-		assertThat removedThingWrapper.wrappedObject, is(thing1)
+		assertThat updatedThingProviderWrapper.wrappedObject, is(managedThingProvider)
+		assertThat oldThingWrapper.wrappedObject, is(thing1)
+		assertThat updatedThingWrapper.wrappedObject, is(thing2)
 	}
 	
 	@Test
