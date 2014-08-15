@@ -7,13 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
-import java.util.Collection;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.eclipse.smarthome.core.storage.Storage;
-import org.eclipse.smarthome.core.storage.StorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 
 /**
  * 
@@ -23,88 +17,21 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * 
  */
-public class ManagedItemChannelLinkProvider implements ItemChannelLinkProvider {
+public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String> implements ItemChannelLinkProvider {
 
-    private final static Logger logger = LoggerFactory
-            .getLogger(ManagedItemChannelLinkProvider.class);
-
-    private Collection<ItemChannelLinksChangeListener> itemChannelLinksChangeListeners = new CopyOnWriteArrayList<>();
-    private Storage<ItemChannelLink> storage;
-
-    /**
-     * Adds an {@link ItemChannelLink}.
-     * 
-     * @param itemChannelLink
-     *            item channel link
-     */
-    public void addItemChannelLink(ItemChannelLink itemChannelLink) {
-        logger.info("Adding item channel link to managed item channel link provider '{}'.",
-                itemChannelLink.toString());
-        ItemChannelLink oldItemChannelLink = storage.put(itemChannelLink.getID(), itemChannelLink);
-        if (oldItemChannelLink != null) {
-            notifyItemChannelLinksChangeListenerAboutRemovedItemChannelLink(oldItemChannelLink);
-        }
-        notifyItemChannelLinksChangeListenerAboutAddedItemChannelLink(itemChannelLink);
+    @Override
+    protected String getStorageName() {
+        return ItemChannelLink.class.getName();
     }
 
     @Override
-    public void addItemChannelLinksChangeListener(ItemChannelLinksChangeListener listener) {
-        itemChannelLinksChangeListeners.add(listener);
-    }
-
-    /**
-     * Returns all managed {@link ItemChannelLink}s.
-     * 
-     * @return all managed item channel links
-     */
-    @Override
-    public Collection<ItemChannelLink> getItemChannelLinks() {
-        return storage.getValues();
-    }
-
-    /**
-     * Removes an {@link ItemChannelLink}.
-     * 
-     * @param itemChannelLink
-     *            item channel link
-     * @return the removed item channel link or null if no link was removed
-     */
-    public ItemChannelLink removeItemChannelLink(ItemChannelLink itemChannelLink) {
-        logger.debug("Removing itemChannelLink from managed itemChannelLink provider '{}'.",
-                itemChannelLink.toString());
-        ItemChannelLink removedItemChannelLink = storage.remove(itemChannelLink.getID());
-        if (removedItemChannelLink != null) {
-            notifyItemChannelLinksChangeListenerAboutRemovedItemChannelLink(removedItemChannelLink);
-        }
-        return removedItemChannelLink;
+    protected String keyToString(String key) {
+        return key;
     }
 
     @Override
-    public void removeItemChannelLinksChangeListener(ItemChannelLinksChangeListener listener) {
-        itemChannelLinksChangeListeners.remove(listener);
-    }
-
-    private void notifyItemChannelLinksChangeListenerAboutAddedItemChannelLink(
-            ItemChannelLink itemChannelLink) {
-        for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
-            itemChannelLinksChangeListener.itemChannelLinkAdded(this, itemChannelLink);
-        }
-    }
-
-    private void notifyItemChannelLinksChangeListenerAboutRemovedItemChannelLink(
-            ItemChannelLink itemChannelLink) {
-        for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
-            itemChannelLinksChangeListener.itemChannelLinkRemoved(this, itemChannelLink);
-        }
-    }
-
-    protected void setStorageService(StorageService storageService) {
-        this.storage = storageService.getStorage(ItemChannelLink.class.getName(), this.getClass()
-                .getClassLoader());
-    }
-
-    protected void unsetStorageService(StorageService storageService) {
-        this.storage = null;
+    protected String getKey(ItemChannelLink element) {
+        return element.getID();
     }
 
 }

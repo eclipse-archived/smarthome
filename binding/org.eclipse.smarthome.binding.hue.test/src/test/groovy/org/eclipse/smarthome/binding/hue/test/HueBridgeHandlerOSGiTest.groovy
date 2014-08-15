@@ -70,7 +70,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
             assertThat hueBridgeHandler, is(notNullValue())
         }, 10000)
 
-        managedThingProvider.removeThing(hueBridge.getUID())
+        managedThingProvider.remove(hueBridge.getUID())
 
         // wait for HueBridgeHandler to be unregistered
         waitForAssert({

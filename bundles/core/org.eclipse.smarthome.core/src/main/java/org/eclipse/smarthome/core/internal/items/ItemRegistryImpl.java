@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -26,254 +25,138 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the main implementing class of the {@link ItemRegistry} interface.
- * It keeps track of all declared items of all item providers and keeps their
- * current state in memory. This is the central point where states are kept
- * and thus it is a core part for all stateful services.
+ * This is the main implementing class of the {@link ItemRegistry} interface. It
+ * keeps track of all declared items of all item providers and keeps their
+ * current state in memory. This is the central point where states are kept and
+ * thus it is a core part for all stateful services.
  * 
  * @author Kai Kreuzer - Initial contribution and API
- *
+ * 
  */
-public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
+public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegistry, ItemsChangeListener {
 
-	/** if an EventPublisher service is available, we provide it to all items, so that they can communicate over the bus */
-	protected EventPublisher eventPublisher;
-	
-	/** this is our local map in which we store all our items */
-	protected Map<ItemProvider, Collection<Item>> itemMap = new ConcurrentHashMap<ItemProvider, Collection<Item>>();
-	
-	/** to keep track of all item change listeners */
-	protected Collection<ItemRegistryChangeListener> listeners = new CopyOnWriteArraySet<ItemRegistryChangeListener>();
+    private static final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
-	public void activate(ComponentContext componentContext) {
-	}
-	
-	public void deactivate(ComponentContext componentContext) {
-		// first remove ourself as a listener from the item providers
-		for(ItemProvider provider : itemMap.keySet()) {
-			provider.removeItemChangeListener(this);
-		}
-		// then release all items
-		itemMap.clear();
-    }
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang.String)
-	 */
-    @Override
-	public Item getItem(String name) throws ItemNotFoundException {
-		for(Collection<Item> items : itemMap.values()) {
-			for(Item item : items) {
-				if(item.getName().equals(name)) {
-					return item;
-				}
-			}
-		}
-		throw new ItemNotFoundException(name);
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern(java.lang.String)
-	 */
-    @Override
-	public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException {
-		Collection<Item> items = getItems(name);
-		
-		if(items.isEmpty()) {
-			throw new ItemNotFoundException(name);
-		}
-		
-		if(items.size()>1) {
-			throw new ItemNotUniqueException(name, items);
-		}
-		
-		return items.iterator().next();
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
-	 */
-    @Override
-	public Collection<Item> getItems() {
-		Collection<Item> allItems = new ArrayList<Item>();
-		for(Collection<Item> items : itemMap.values()) {
-			allItems.addAll(items);
-		}
-		return allItems;
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.lang.String)
-	 */
-    @Override
-	public Collection<Item> getItems(String pattern) {
-		String regex = pattern.replace("?", ".?").replace("*", ".*?");
-		Collection<Item> matchedItems = new ArrayList<Item>();
-		for(Collection<Item> items : itemMap.values()) {
-			for(Item item : items) {
-				if(item.getName().matches(regex)) {
-					matchedItems.add(item);
-				}
-			}
-		}
-        return matchedItems;
-	}
-
-	public void addItemProvider(ItemProvider itemProvider) {
-		// only add this provider if it does not already exist
-		if(!itemMap.containsKey(itemProvider)) {
-			Collection<Item> items = new CopyOnWriteArraySet<Item>(itemProvider.getItems());
-			itemProvider.addItemChangeListener(this);
-        	itemMap.put(itemProvider, items);
-			logger.debug("Item provider '{}' has been added.", itemProvider.getClass().getSimpleName());
-			allItemsChanged(itemProvider, null);
-		}
-	}
+    /**
+     * if an EventPublisher service is available, we provide it to all items, so
+     * that they can communicate over the bus
+     */
+    protected EventPublisher eventPublisher;
 
     @Override
-	public boolean isValidItemName(String name) {
-		return name.matches("[a-zA-Z0-9_]*");
-	}
-
-	public void removeItemProvider(ItemProvider itemProvider) {
-		if(itemMap.containsKey(itemProvider)) {
-			allItemsChanged(itemProvider, null);
-
-			for(Item item : itemMap.get(itemProvider)) {
-				if(item instanceof GenericItem) {
-					((GenericItem) item).dispose();
-				}
-			}
-			itemMap.remove(itemProvider);
-
-			itemProvider.removeItemChangeListener(this);
-			logger.debug("Item provider '{}' has been removed.", itemProvider.getClass().getSimpleName());
-		}
-	}
-	
-	public void setEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-        for(Item item : getItems()) {
-            ((GenericItem)item).setEventPublisher(eventPublisher);
-        }
-	}
-	
-	public void unsetEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = null;
-        for(Item item : getItems()) {
-            ((GenericItem)item).setEventPublisher(null);
-        }
-	}
-
-    @Override
-	public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
-		// if the provider did not provide any old item names, we check if we
-		// know them and pass them further on to our listeners
-		if(oldItemNames==null || oldItemNames.isEmpty()) {
-			oldItemNames = new HashSet<String>();
+    public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
+        // if the provider did not provide any old item names, we check if we
+        // know them and pass them further on to our listeners
+        if (oldItemNames == null || oldItemNames.isEmpty()) {
+            oldItemNames = new HashSet<String>();
             Collection<Item> oldItems;
-            oldItems = itemMap.get(provider);
-			if(oldItems!=null && oldItems.size() > 0) {
-				for(Item oldItem : oldItems) {
-					oldItemNames.add(oldItem.getName());
-				}
-			}
-		}
-
-		Collection<Item> items = new CopyOnWriteArrayList<Item>();
-    	itemMap.put(provider, items);
-		for(Item item : provider.getItems()) {
-			if(initializeItem(item)) {
-				items.add(item);
-			}
-		}
-
-		for(ItemRegistryChangeListener listener : listeners) {
-			listener.allItemsChanged(oldItemNames);
-		}
-	}
-
-    @Override
-	public void itemAdded(ItemProvider provider, Item item) {
-        Collection<Item> items;
-        items = itemMap.get(provider);
-		if(items!=null) {
-			if(initializeItem(item)) {
-				items.add(item);
-			} else {
-				return;
-			}
-		}
-		for(ItemRegistryChangeListener listener : listeners) {
-			listener.itemAdded(item);
-		}
-	}
-
-    @Override
-	public void itemRemoved(ItemProvider provider, Item item) {
-        Collection<Item> items;
-        items = itemMap.get(provider);
-		if(items!=null) {
-			items.remove(item);
-		}
-		for(ItemRegistryChangeListener listener : listeners) {
-			listener.itemRemoved(item);
-		}
-        removeFromGroupItems(item, item.getGroupNames());
-	}
-
-    @Override
-	public void addItemRegistryChangeListener(ItemRegistryChangeListener listener) {
-		listeners.add(listener);
-	}
-
-    @Override
-	public void removeItemRegistryChangeListener(ItemRegistryChangeListener listener) {
-		listeners.remove(listener);
-	}
-
-	/**
-	 * an item should be initialized, which means that the event publisher is
-	 * injected and its implementation is notified that it has just been created,
-	 * so it can perform any task it needs to do after its creation.
-	 * 
-	 * @param item the item to initialize
-	 * @return false, if the item has no valid name
-	 */
-	private boolean initializeItem(Item item) {
-		if(isValidItemName(item.getName())) {
-			if(item instanceof GenericItem) {
-				GenericItem genericItem = (GenericItem) item;
-				genericItem.setEventPublisher(eventPublisher);
-				genericItem.initialize();
-			}
-			
-            if (item instanceof GroupItem) {
-                // fill group with its members
-                for (Item i : getItems()) {
-                    if (i.getGroupNames().contains(item.getName())) {
-                        ((GroupItem) item).addMember(i);
-                    }
+            oldItems = elementMap.get(provider);
+            if (oldItems != null && oldItems.size() > 0) {
+                for (Item oldItem : oldItems) {
+                    oldItemNames.add(oldItem.getName());
                 }
             }
+        }
 
-			// add the item to all relevant groups
-            addToGroupItems(item, item.getGroupNames());
-			return true;
-		} else {
-			logger.warn("Ignoring item '{}' as it does not comply with" +
-					" the naming convention.", item.getName());
-			return false;
-		}
-	}
+        Collection<Item> items = new CopyOnWriteArrayList<Item>();
+        elementMap.put(provider, items);
+        for (Item item : provider.getAll()) {
+            try {
+            	onAddElement(item);
+            	items.add(item);
+            } catch(IllegalArgumentException ex) {
+            	 logger.warn("Could not add item: " + ex.getMessage(), ex);
+            }
+        }
+
+        for (RegistryChangeListener<Item> listener : listeners) {
+            if(listener instanceof ItemRegistryChangeListener) {
+                ((ItemRegistryChangeListener)listener).allItemsChanged(oldItemNames);
+            }
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
+     * .String)
+     */
+    @Override
+    public Item getItem(String name) throws ItemNotFoundException {
+
+        for (Item item : getItems()) {
+            if (item.getName().equals(name)) {
+                return item;
+            }
+        }
+
+        throw new ItemNotFoundException(name);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
+     * (java.lang.String)
+     */
+    @Override
+    public Item getItemByPattern(String name) throws ItemNotFoundException, ItemNotUniqueException {
+        Collection<Item> items = getItems(name);
+
+        if (items.isEmpty()) {
+            throw new ItemNotFoundException(name);
+        }
+
+        if (items.size() > 1) {
+            throw new ItemNotUniqueException(name, items);
+        }
+
+        return items.iterator().next();
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
+     */
+    @Override
+    public Collection<Item> getItems() {
+        return getAll();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
+     * lang.String)
+     */
+    @Override
+    public Collection<Item> getItems(String pattern) {
+        String regex = pattern.replace("?", ".?").replace("*", ".*?");
+        Collection<Item> matchedItems = new ArrayList<Item>();
+
+        for (Item item : getItems()) {
+            if (item.getName().matches(regex)) {
+                matchedItems.add(item);
+            }
+        }
+
+        return matchedItems;
+    }
+
+    @Override
+    public boolean isValidItemName(String name) {
+        return name.matches("[a-zA-Z0-9_]*");
+    }
 
     private void addToGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
@@ -285,6 +168,41 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
             } catch (ItemNotFoundException e) {
                 // the group might not yet be registered, let's ignore this
             }
+        }
+    }
+
+    /**
+     * An item should be initialized, which means that the event publisher is
+     * injected and its implementation is notified that it has just been
+     * created, so it can perform any task it needs to do after its creation.
+     * 
+     * @param item
+     *            the item to initialize
+     * @throws IllegalArgumentException if the item has no valid name
+     */
+    private void initializeItem(Item item) throws IllegalArgumentException {
+        if (isValidItemName(item.getName())) {
+            if (item instanceof GenericItem) {
+                GenericItem genericItem = (GenericItem) item;
+                genericItem.setEventPublisher(eventPublisher);
+                genericItem.initialize();
+            }
+
+            if (item instanceof GroupItem) {
+                // fill group with its members
+                for (Item i : getItems()) {
+                    if (i.getGroupNames().contains(item.getName())) {
+                        ((GroupItem) item).addMember(i);
+                    }
+                }
+            }
+
+            // add the item to all relevant groups
+            addToGroupItems(item, item.getGroupNames());
+        } else {
+			throw new IllegalArgumentException("Ignoring item '"
+					+ item.getName() + "' as it does not comply with"
+					+ " the naming convention.");
         }
     }
 
@@ -302,20 +220,33 @@ public class ItemRegistryImpl implements ItemRegistry, ItemsChangeListener {
     }
 
     @Override
-    public void itemUpdated(ItemProvider provider, Item oldItem, Item item) {
-        Collection<Item> items;
-        items = itemMap.get(provider);
-        if (items != null) {
-            items.remove(oldItem);
-            items.add(item);
+    protected void onAddElement(Item element) throws IllegalArgumentException {
+        initializeItem(element);
+    }
 
-            removeFromGroupItems(oldItem, oldItem.getGroupNames());
-            addToGroupItems(item, item.getGroupNames());
-            
-            for (ItemRegistryChangeListener listener : listeners) {
-                listener.itemUpdated(oldItem, item);
-            }
+    @Override
+    protected void onRemoveElement(Item element) {
+        removeFromGroupItems(element, element.getGroupNames());
+    }
 
+    @Override
+    protected void onUpdateElement(Item oldItem, Item item) {
+        removeFromGroupItems(oldItem, oldItem.getGroupNames());
+        addToGroupItems(item, item.getGroupNames());
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setEventPublisher(eventPublisher);
         }
     }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setEventPublisher(null);
+        }
+    }
+
 }

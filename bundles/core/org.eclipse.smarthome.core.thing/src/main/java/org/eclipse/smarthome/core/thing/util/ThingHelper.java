@@ -74,8 +74,8 @@ public class ThingHelper {
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
-					managedItemProvider.addItem(item);
-                    managedItemChannelLinkProvider.addItemChannelLink(new ItemChannelLink(item
+					managedItemProvider.add(item);
+                    managedItemChannelLinkProvider.add(new ItemChannelLink(item
                             .getName(), channel.getUID()));
 				}
 			}

@@ -11,7 +11,6 @@ import java.util.Collection
 import java.util.List
 import java.util.Set
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.thing.AbstractThingProvider
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
@@ -23,7 +22,6 @@ import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
-import org.eclipse.smarthome.model.core.EventType
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener
 import org.eclipse.smarthome.model.thing.thing.ModelChannel
@@ -36,6 +34,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import java.util.Map
 import org.eclipse.smarthome.core.thing.util.ThingHelper
 import java.util.concurrent.ConcurrentHashMap
+import org.eclipse.smarthome.core.common.registry.AbstractProvider
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -43,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @author Oliver Libutzki - Initial contribution
  *
  */
-class GenericThingProvider extends AbstractThingProvider implements ModelRepositoryChangeListener {
+class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
 
 	private ModelRepository modelRepository
 
@@ -59,7 +58,7 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 		]
 	}
 
-	override Collection<Thing> getThings() {
+	override Collection<Thing> getAll() {
 		thingsMap.values.flatten.toList
 	}
 
@@ -166,17 +165,17 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 		this.modelRepository = null
 	}
 
-	override void modelChanged(String modelName, EventType type) {
+	override void modelChanged(String modelName, org.eclipse.smarthome.model.core.EventType type) {
 		if (modelName.endsWith("things")) {
 			switch type {
-				case EventType.ADDED: {
+				case org.eclipse.smarthome.model.core.EventType.ADDED: {
 					createThingsFromModel(modelName)
 					val things = thingsMap.get(modelName) ?: newArrayList
 					things.forEach [
-						notifyThingsChangeListenersAboutAddedThing
+						notifyListenersAboutAddedElement
 					]
 				}
-				case EventType.MODIFIED: {
+				case org.eclipse.smarthome.model.core.EventType.MODIFIED: {
 					val oldThings = thingsMap.get(modelName) ?: newArrayList
 					val oldThingsUIDs = oldThings.map[UID].toList
 
@@ -187,26 +186,26 @@ class GenericThingProvider extends AbstractThingProvider implements ModelReposit
 					val addedThings = currentThings.filter[!oldThingsUIDs.contains(UID)]
 
 					removedThings.forEach [
-						notifyThingsChangeListenersAboutRemovedThing
+						notifyListenersAboutRemovedElement
 					]
 					addedThings.forEach [
-						notifyThingsChangeListenersAboutAddedThing
+						notifyListenersAboutAddedElement
 					]
 					
 					currentThings.forEach[ newThing |
 						oldThings.forEach [ oldThing |
 							if (newThing.UID == oldThing.UID) {
 								if (!ThingHelper.equals(oldThing, newThing)) {
-									notifyThingsChangeListenersAboutUpdatedThing(oldThing, newThing)
+									notifyListenersAboutUpdatedElement(oldThing, newThing)
 								}
 							}
 						]
 					]
 				}
-				case EventType.REMOVED: {
+				case org.eclipse.smarthome.model.core.EventType.REMOVED: {
 					val things = thingsMap.remove(modelName) ?: newArrayList
 					things.forEach [
-						notifyThingsChangeListenersAboutRemovedThing
+						notifyListenersAboutRemovedElement
 					]
 				}
 			}

@@ -41,8 +41,8 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 
 	@After
 	void tearDown() {
-		itemProvider.getItems().each {
-			itemProvider.removeItem(it.name)
+		itemProvider.getAll().each {
+			itemProvider.remove(it.name)
 		}
 		unregisterService(itemProvider)
 	}
@@ -50,61 +50,58 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 	@Test
 	void 'assert getItems returns item from registered ManagedItemProvider'() {
 
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 		
-		itemProvider.addItem new SwitchItem('SwitchItem')
-		itemProvider.addItem new StringItem('StringItem')
+		itemProvider.add new SwitchItem('SwitchItem')
+		itemProvider.add new StringItem('StringItem')
 
-		def items = itemProvider.getItems()
-		assertThat items.size, is(2)
+		def items = itemProvider.getAll()
+		assertThat items.size(), is(2)
 		
-		itemProvider.removeItem 'StringItem'		
-		itemProvider.removeItem 'SwitchItem'
+		itemProvider.remove 'StringItem'		
+		itemProvider.remove 'SwitchItem'
 		
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 	}
 
 	@Test
-	void 'assert adding twice returns first value'() {
+	void 'updating existing item returns old value'() {
 
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 		
-		itemProvider.addItem new StringItem('Item')
-		def result = itemProvider.addItem new SwitchItem('Item')
+		itemProvider.add new StringItem('Item')
+		def result = itemProvider.update new SwitchItem('Item')
 
 		assertThat result.type, is("String")
 		
-		itemProvider.removeItem 'Item'
+		itemProvider.remove 'Item'
 		
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 	}
 
 	@Test
 	void 'assert removal returns old value'() {
 
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 		
-		itemProvider.addItem new StringItem('Item')
-		def result = itemProvider.removeItem 'Unknown'
+		itemProvider.add new StringItem('Item')
+		def result = itemProvider.remove 'Unknown'
 
 		assertNull result
 
-		result = itemProvider.removeItem 'Item'
+		result = itemProvider.remove 'Item'
 
 		assertThat result.name, is('Item')
 						
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 	}
 	
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	void 'assert two items with same name can not be added'() {
 
-		assertThat itemProvider.getItems().size, is(0)
+		assertThat itemProvider.getAll().size(), is(0)
 		
-		itemProvider.addItem new StringItem('Item')
-		itemProvider.addItem new StringItem('Item')
-
-		assertThat itemProvider.getItems().size(), is(1)
-		assertThat itemRegistry.getItems().size(), is(1)
+		itemProvider.add new StringItem('Item')
+		itemProvider.add new StringItem('Item')
 	}
 }

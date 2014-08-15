@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import java.util.Collection;
+import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * An item provider provides instances of {@link GenericItem}. These
@@ -17,16 +17,6 @@ import java.util.Collection;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public interface ItemProvider {
+public interface ItemProvider extends Provider<Item> {
 	
-	/**
-	 * Provides an array of items.
-	 * 
-	 * @return a collection of items
-	 */
-	Collection<Item> getItems();
-	
-	public void addItemChangeListener(ItemsChangeListener listener);
-	
-	public void removeItemChangeListener(ItemsChangeListener listener);
 }

@@ -110,11 +110,11 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		
 		public void setItemRegistry(ItemRegistry itemRegistry) {
 			this.itemRegistry = itemRegistry;
-			itemRegistry.addItemRegistryChangeListener(this);
+			itemRegistry.addRegistryChangeListener(this);
 		}
 		
 		public void unsetItemRegistry(ItemRegistry itemRegistry) {
-			itemRegistry.removeItemRegistryChangeListener(this);
+			itemRegistry.removeRegistryChangeListener(this);
 			this.itemRegistry = null;
 		}
 		
@@ -151,7 +151,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		/**
 		 * {@inheritDoc}
 		 */
-		public void itemAdded(Item item) {
+		public void added(Item item) {
 			internalItemAdded(item);
 			runStartupRules();
 		}
@@ -159,7 +159,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		/**
 		 * {@inheritDoc}
 		 */
-		public void itemRemoved(Item item) {
+		public void removed(Item item) {
 			if (item instanceof GenericItem) {
 				GenericItem genericItem = (GenericItem) item;
 				genericItem.removeStateChangeListener(this);
@@ -323,7 +323,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 		}
 
 		@Override
-		public void itemUpdated(Item oldItem, Item item) {
+		public void updated(Item oldItem, Item item) {
 			// nothing to do
 		}
 }

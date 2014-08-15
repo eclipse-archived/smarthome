@@ -7,31 +7,14 @@
  */
 package org.eclipse.smarthome.core.thing;
 
-import java.util.Collection;
+import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * The {@link ThingProvider} is responsible for providing things.
  * 
  * @author Oliver Libutzki - Initial contribution
- *
+ * @author Dennis Nobel - Changed interface to extend {@link Provider} interface
  */
-public interface ThingProvider {
+public interface ThingProvider extends Provider<Thing> {
 
-	/**
-	 * Provides a collection of things
-	 * @return the things provided by the {@link ThingProvider}
-	 */
-	Collection<Thing> getThings();
-	
-	/**
-	 * Adds a {@link ThingsChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
-	 * @param listener The listener to be added
-	 */
-	public void addThingsChangeListener(ThingsChangeListener listener);
-	
-	/**
-	 * Removes a {@link ThingsChangeListener} which is notified if there are changes concerning the things provides by the {@link ThingProvider}.
-	 * @param listener The listener to be removed.
-	 */
-	public void removeThingsChangeListener(ThingsChangeListener listener);
 }

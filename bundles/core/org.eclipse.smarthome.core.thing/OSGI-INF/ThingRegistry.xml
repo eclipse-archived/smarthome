@@ -13,6 +13,6 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.ThingRegistry"/>
    </service>
-   <reference bind="addThingProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.ThingProvider" name="ThingProvider" policy="dynamic" unbind="removeThingProvider"/>
+   <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.ThingProvider" name="ThingProvider" policy="dynamic" unbind="removeProvider"/>
    
 </scr:component>

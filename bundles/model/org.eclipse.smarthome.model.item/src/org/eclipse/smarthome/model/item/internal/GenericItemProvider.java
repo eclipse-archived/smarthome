@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.core.items.AbstractItemProvider;
+import org.eclipse.smarthome.core.common.registry.AbstractProvider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
 import org.eclipse.smarthome.core.types.State;
@@ -45,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API 
  * @author Thomas.Eichstaedt-Engelen
  */
-public class GenericItemProvider extends AbstractItemProvider implements ModelRepositoryChangeListener {
+public class GenericItemProvider extends AbstractProvider<Item> implements ModelRepositoryChangeListener, ItemProvider {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(GenericItemProvider.class);
@@ -112,7 +114,7 @@ public class GenericItemProvider extends AbstractItemProvider implements ModelRe
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Collection<Item> getItems() {
+	public Collection<Item> getAll() {
 		List<Item> items = new ArrayList<Item>();
 		for (String name : modelRepository.getAllModelNamesOfType("items")) {
 			items.addAll(getItemsFromModel(name));
@@ -351,7 +353,11 @@ public class GenericItemProvider extends AbstractItemProvider implements ModelRe
 	public void modelChanged(String modelName, EventType type) {
 		if (modelName.endsWith("items")) {
 			processBindingConfigsFromModel(modelName);
-			notifyItemChangeListenersAboutAllItemsChanged(null);
+			for (ProviderChangeListener<Item> listener : listeners) {
+				if(listener instanceof ItemsChangeListener) {
+					((ItemsChangeListener) listener).allItemsChanged(this, null);
+				}
+			}
 		}
 	}
 	

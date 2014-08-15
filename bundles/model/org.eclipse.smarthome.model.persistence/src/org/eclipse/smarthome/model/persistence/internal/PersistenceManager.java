@@ -131,12 +131,12 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 
 	public void setItemRegistry(ItemRegistry itemRegistry) {
 		this.itemRegistry = itemRegistry;
-		itemRegistry.addItemRegistryChangeListener(this);
+		itemRegistry.addRegistryChangeListener(this);
 		allItemsChanged(null);
 	}
 
 	public void unsetItemRegistry(ItemRegistry itemRegistry) {
-		itemRegistry.removeItemRegistryChangeListener(this);
+		itemRegistry.removeRegistryChangeListener(this);
 		this.itemRegistry = null;
 	}
 
@@ -332,11 +332,11 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 
 	public void allItemsChanged(Collection<String> oldItemNames) {
 		for(Item item : itemRegistry.getItems()) {
-			itemAdded(item);
+			added(item);
 		}
 	}
 
-	public void itemAdded(Item item) {
+	public void added(Item item) {
 		initialize(item);
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;
@@ -387,7 +387,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 		}		
 	}
 
-	public void itemRemoved(Item item) {
+	public void removed(Item item) {
 		if (item instanceof GenericItem) {
 			GenericItem genericItem = (GenericItem) item;
 			genericItem.removeStateChangeListener(this);
@@ -458,7 +458,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 	}
 
     @Override
-    public void itemUpdated(Item oldItem, Item item) {
+    public void updated(Item oldItem, Item item) {
         // not needed here
     }
 		

@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional
 Import-Package: org.apache.log4j,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.binding,

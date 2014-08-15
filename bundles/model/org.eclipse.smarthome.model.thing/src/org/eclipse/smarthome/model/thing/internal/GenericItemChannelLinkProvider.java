@@ -9,17 +9,15 @@ package org.eclipse.smarthome.model.thing.internal;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinksChangeListener;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
 
@@ -29,13 +27,10 @@ import org.eclipse.smarthome.model.item.BindingConfigReader;
  * @author Oliver Libutzki - Initial contribution
  *
  */
-public class GenericItemChannelLinkProvider implements BindingConfigReader, ItemChannelLinkProvider {
+public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader, ItemChannelLinkProvider {
 
-	private List<ItemChannelLinksChangeListener> itemChannelLinksChangeListeners = new CopyOnWriteArrayList<>();
-	
 	/** caches binding configurations. maps itemNames to {@link BindingConfig}s */
 	protected Map<String, ItemChannelLink> itemChannelLinkMap = new ConcurrentHashMap<>(new WeakHashMap<String, ItemChannelLink>());
-
 	
 	/** 
 	 * stores information about the context of items. The map has this content
@@ -75,9 +70,9 @@ public class GenericItemChannelLinkProvider implements BindingConfigReader, Item
 		itemNames.add(itemName);
 		ItemChannelLink oldItemChannelLink = itemChannelLinkMap.put(itemName, itemChannelLink);
 		if (oldItemChannelLink == null) {
-			notifyItemChannelLinksChangeListenerAboutAddedItemChannelLink(itemChannelLink);
+			notifyListenersAboutAddedElement(itemChannelLink);
 		} else {
-			notifyItemChannelLinksChangeListenerAboutUpdatedItemChannelLink(oldItemChannelLink, itemChannelLink);
+			notifyListenersAboutUpdatedElement(oldItemChannelLink, itemChannelLink);
 		}
 	}
 
@@ -88,44 +83,15 @@ public class GenericItemChannelLinkProvider implements BindingConfigReader, Item
 			for(String itemName : itemNames) {
 				// we remove all binding configurations for all items
 				ItemChannelLink removedItemChannelLink = itemChannelLinkMap.remove(itemName);
-				notifyItemChannelLinksChangeListenerAboutRemovedItemChannelLink(removedItemChannelLink);
+				notifyListenersAboutRemovedElement(removedItemChannelLink);
 			}
 			contextMap.remove(context);
 		}
 	}
 
 	@Override
-	public Collection<ItemChannelLink> getItemChannelLinks() {
+	public Collection<ItemChannelLink> getAll() {
 		return itemChannelLinkMap.values();
 	}
 
-	@Override
-	public void addItemChannelLinksChangeListener(
-			ItemChannelLinksChangeListener listener) {
-		itemChannelLinksChangeListeners.add(listener);
-	}
-
-	@Override
-	public void removeItemChannelLinksChangeListener(
-			ItemChannelLinksChangeListener listener) {
-		itemChannelLinksChangeListeners.remove(listener);
-	}
-	
-	protected void notifyItemChannelLinksChangeListenerAboutAddedItemChannelLink(ItemChannelLink itemChannelLink) {
-	    for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
-	    	itemChannelLinksChangeListener.itemChannelLinkAdded(this, itemChannelLink);
-	    }
-	}
-
-	protected void notifyItemChannelLinksChangeListenerAboutRemovedItemChannelLink(ItemChannelLink itemChannelLink) {
-	    for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
-	    	itemChannelLinksChangeListener.itemChannelLinkRemoved(this, itemChannelLink);
-	    }
-	}
-	
-	protected void notifyItemChannelLinksChangeListenerAboutUpdatedItemChannelLink(ItemChannelLink oldItemChannelLink, ItemChannelLink newItemChannelLink) {
-		for (ItemChannelLinksChangeListener itemChannelLinksChangeListener : this.itemChannelLinksChangeListeners) {
-			itemChannelLinksChangeListener.itemChannelLinkUpdated(this, oldItemChannelLink, newItemChannelLink);
-		}
-	}
 }

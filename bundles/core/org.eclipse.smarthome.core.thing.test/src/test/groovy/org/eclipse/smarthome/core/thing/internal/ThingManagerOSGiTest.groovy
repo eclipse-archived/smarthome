@@ -57,8 +57,8 @@ class ThingManagerOSGiTest extends OSGiTest {
 	
 	@After
 	void teardown() {
-		managedThingProvider.getThings().each {
-			managedThingProvider.removeThing(it.getUID())
+		managedThingProvider.getAll().each {
+			managedThingProvider.remove(it.getUID())
 		}
 	}
 
@@ -74,7 +74,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 		registerService(thingHandlerFactory)
 
-		managedThingProvider.addThing(THING)
+		managedThingProvider.add(THING)
 
 		waitForAssert {assertThat registerHandlerCalled, is(true)}
 	}
@@ -98,9 +98,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 		registerService(thingHandlerFactory)
 
-		managedThingProvider.addThing(THING)
+		managedThingProvider.add(THING)
 
-		managedThingProvider.removeThing(THING.getUID())
+		managedThingProvider.remove(THING.getUID())
 
 		waitForAssert {assertThat unregisterHandlerCalled, is(true)}
 	}
@@ -110,7 +110,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 		def registerHandlerCalled = false
 
-		managedThingProvider.addThing(THING)
+		managedThingProvider.add(THING)
 		assertThat THING.getStatus(), is(not(ThingStatus.ONLINE))
 
 		def thingHandler = [] as ThingHandler
@@ -133,8 +133,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def itemName = "name"
         def handleUpdateWasCalled = false
         
-        managedThingProvider.addThing(THING)
-        managedItemChannelLinkProvider.addItemChannelLink(new ItemChannelLink(itemName, CHANNEL_UID))
+        managedThingProvider.add(THING)
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             handleUpdate: { ChannelUID channelUID, State newState ->
                 handleUpdateWasCalled = true

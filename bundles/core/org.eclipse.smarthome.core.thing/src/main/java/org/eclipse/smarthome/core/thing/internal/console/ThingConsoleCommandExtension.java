@@ -42,7 +42,7 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
         String command = args[0];
         switch (command) {
         case COMMAND_THINGS:
-            Collection<Thing> things = thingRegistry.getThings();
+            Collection<Thing> things = thingRegistry.getAll();
             if(args.length > 1) {
                 String subCommand = args[1];
                 switch (subCommand) {
@@ -73,7 +73,7 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     private void removeThing(Console console, Collection<Thing> things, ThingUID thingUID) {
-        Thing removedThing = this.managedThingProvider.removeThing(thingUID);
+        Thing removedThing = this.managedThingProvider.remove(thingUID);
         if(removedThing!=null) {
         	console.println("Thing '" + thingUID + "' successfully removed.");
         } else {
@@ -84,7 +84,7 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
     private void removeAllThings(Console console, Collection<Thing> things) {
         int numberOfThings = things.size();
         for (Thing thing : things) {
-            managedThingProvider.removeThing(thing.getUID());
+            managedThingProvider.remove(thing.getUID());
         }
         console.println(numberOfThings + " things successfully removed.");
     }

@@ -109,7 +109,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(notNullValue())
         }, 10000)
 
-        managedThingProvider.removeThing(hueLight.getUID())
+        managedThingProvider.remove(hueLight.getUID())
 
         // wait for HueLightHandler to be unregistered
         waitForAssert({
@@ -117,7 +117,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(nullValue())
         }, 10000)
 
-        managedThingProvider.removeThing(hueBridge.getUID())
+        managedThingProvider.remove(hueBridge.getUID())
     }
 
 	@Test
@@ -377,8 +377,8 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
 			assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
-        	managedThingProvider.removeThing(hueLight.getUID())
-        	managedThingProvider.removeThing(hueBridge.getUID())
+        	managedThingProvider.remove(hueLight.getUID())
+        	managedThingProvider.remove(hueBridge.getUID())
         }
     }
 	
