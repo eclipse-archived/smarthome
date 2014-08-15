@@ -8,7 +8,6 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.smarthome.model.rule,
  org.eclipse.core.runtime,
- org.eclipse.xtext.junit4,
  org.eclipse.xtend.lib,
  com.google.guava,
  org.eclipse.xtext.xbase.lib

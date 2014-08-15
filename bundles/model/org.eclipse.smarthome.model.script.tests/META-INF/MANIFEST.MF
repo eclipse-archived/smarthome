@@ -10,8 +10,7 @@ Require-Bundle: org.eclipse.xtend.lib,
  com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.smarthome.model.script,
- org.eclipse.core.runtime,
- org.eclipse.xtext.junit4
+ org.eclipse.core.runtime
 Import-Package: groovy.lang,
  org.codehaus.groovy.reflection,
  org.codehaus.groovy.runtime,
