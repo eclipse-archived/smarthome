@@ -8,8 +8,10 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.smarthome.model.thing.thing.ThingPackage
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.smarthome.core.thing.ThingUID
-
-//import org.eclipse.xtext.validation.Check
+import javax.inject.Inject
+import org.eclipse.xtext.serializer.ISerializer
+import org.eclipse.xtext.EcoreUtil2
+import org.eclipse.xtext.resource.XtextResource
 
 /**
  * Custom validation rules. 
@@ -26,24 +28,24 @@ class ThingValidator extends AbstractThingValidator {
 			// We have to provide thingTypeId and a thingId
 			if (!thing.eIsSet(ThingPackage.Literals.MODEL_THING__THING_TYPE_ID)) {
 				if (thing.eIsSet(ThingPackage.Literals.MODEL_PROPERTY_CONTAINER__ID)) {
-					error("You have to provide a thing type ID and a thing ID in this format: <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_PROPERTY_CONTAINER__ID)
+					error("Provide a thing type ID and a thing ID in this format:\n <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_PROPERTY_CONTAINER__ID)
 				} else {
-					if (thing.eIsSet(ThingPackage.Literals.MODEL_THING__BRIDGE)) {
-						error("You have to provide a thing type ID and a thing ID in this format: <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_THING__BRIDGE)
+					if (thing.eIsSet(ThingPackage.Literals.MODEL_BRIDGE__BRIDGE)) {
+						error("Provide a thing type ID and a thing ID in this format:\n <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_BRIDGE__BRIDGE)
 					}
 				}
 			} else {
 				if (!thing.eIsSet(ThingPackage.Literals.MODEL_THING__THING_ID)) {
-					error("You have to provide a thing type ID and a thing ID in this format: <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_THING__THING_TYPE_ID)
+					error("Provide a thing type ID and a thing ID in this format:\n <thingTypeId> <thingId>", ThingPackage.Literals.MODEL_THING__THING_TYPE_ID)
 				}
 			}
-		} else {
+		} else { // thing in container 
 			if (thing.eIsSet(ThingPackage.Literals.MODEL_THING__THING_TYPE_ID) && thing.eIsSet(ThingPackage.Literals.MODEL_THING__THING_ID)) {
 				val thingTypeIdFeature = NodeModelUtils.findNodesForFeature(thing, ThingPackage.Literals.MODEL_THING__THING_TYPE_ID).head
 				val thingIdFeature = NodeModelUtils.findNodesForFeature(thing, ThingPackage.Literals.MODEL_THING__THING_ID).head
 				val startOffset = thingTypeIdFeature.offset
 				val endOffset = thingIdFeature.endOffset
-				getMessageAcceptor().acceptError("You have to provide a thing type UID and a thing ID in this format: <bindingId>:<thingTypeId>:<thingId>", thing, startOffset, endOffset - startOffset, null, null)
+				getMessageAcceptor().acceptError("Provide a thing UID in this format:\n <bindingId>:<thingTypeId>:<thingId>", thing, startOffset, endOffset - startOffset, null, null)
 			} else {
 				if (thing.id != null) {
 					try {
@@ -58,6 +60,6 @@ class ThingValidator extends AbstractThingValidator {
 	}
 	
 	def private isNested(ModelThing thing) {
-		thing.eContainingFeature == ThingPackage.Literals.MODEL_THING__THINGS
+		thing.eContainingFeature == ThingPackage.Literals.MODEL_BRIDGE__THINGS
 	}
 }

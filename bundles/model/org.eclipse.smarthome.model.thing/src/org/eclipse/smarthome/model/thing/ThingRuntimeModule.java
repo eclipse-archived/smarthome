@@ -13,10 +13,15 @@ import org.eclipse.xtext.conversion.IValueConverterService;
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
+@SuppressWarnings("restriction")
 public class ThingRuntimeModule extends org.eclipse.smarthome.model.thing.AbstractThingRuntimeModule {
 
 	@Override
 	public Class<? extends IValueConverterService> bindIValueConverterService() {
 		return ThingValueConverters.class;
 	}
+	
+    public Class<? extends org.eclipse.xtext.serializer.sequencer.ISyntacticSequencer> bindISyntacticSequencer() {
+        return org.eclipse.smarthome.model.thing.serializer.ThingSyntacticSequencerExtension.class;
+    }
 }

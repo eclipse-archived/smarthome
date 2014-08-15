@@ -34,6 +34,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import java.util.Map
 import org.eclipse.smarthome.core.thing.util.ThingHelper
 import java.util.concurrent.ConcurrentHashMap
+import org.eclipse.smarthome.model.thing.thing.ModelBridge
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 
 /**
@@ -96,7 +97,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		}
 		logger.debug("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
 		val configuration = modelThing.createConfiguration
-		val thingBuilder = if (modelThing.bridge) {
+		val thingBuilder = if (modelThing instanceof ModelBridge) {
 				BridgeBuilder.create(thingUID)
 			} else {
 				ThingBuilder.create(thingUID)
@@ -115,9 +116,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		val thing = thingBuilder.build
 		thingList += thing
 
-		modelThing.things.forEach [
-			createThing(thing as Bridge, thingList)
-		]
+		if (modelThing instanceof ModelBridge) {
+			modelThing.things.forEach [
+				createThing(thing as Bridge, thingList)
+			]
+		}
 	}
 
 	def private getParentPath(Bridge bridge) {
