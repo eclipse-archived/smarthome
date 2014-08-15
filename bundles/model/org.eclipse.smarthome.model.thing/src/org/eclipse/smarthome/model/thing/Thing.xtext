@@ -12,25 +12,26 @@ ModelPropertyContainer:
 	ModelThing | ModelBridge | ModelChannel
 ;
 
-ModelBridge returns ModelThing:
+ModelBridge returns ModelThing: 
+	{ModelBridge}
 	bridge?='Bridge' (id=UID | thingTypeId=ID thingId=ID)
-	'['
+	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
-	']'
+	']')?
 	('{'
 		('Things:')?
 		things+=(ModelThing|ModelBridge)*
-		('Channels:'			
+		('Channels:')?			
 		channels+=ModelChannel*
-		)?
+		
 	'}')?
 ;
 
 ModelThing:
-	(id=UID | thingTypeId=ID thingId=ID)
-	'['
+	('Thing')? (id=UID | thingTypeId=ID thingId=ID)
+	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
-	']'
+	']')?
 	('{'
 		('Channels:')?
 		channels+=ModelChannel*
@@ -45,7 +46,7 @@ ModelChannel:
 ;
 
 ModelItemType :
-	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color'
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | ID
 ;
 
 ModelProperty:
@@ -53,13 +54,17 @@ ModelProperty:
 ;
 
 UID:
-	ID (=> ':' ID)*
+	ID ':' ID ':' ID (=> ':' ID)*
 ;
 
-ValueType returns ecore::EString:
-	INT | STRING | FLOAT
+ValueType returns ecore::EJavaObject:
+	STRING | NUMBER | BOOLEAN
 ;
 
-terminal FLOAT returns ecore::EBigDecimal:
-	INT '.' INT
+BOOLEAN returns ecore::EBoolean: 
+	'true' | 'false'
+;
+
+NUMBER returns ecore::EBigDecimal:
+	INT ('.' INT )?
 ;
