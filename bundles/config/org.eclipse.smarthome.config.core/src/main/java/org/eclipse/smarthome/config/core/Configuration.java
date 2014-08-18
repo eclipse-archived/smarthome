@@ -19,12 +19,26 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+/**
+ * This class is a wrapper for configuration settings of {@link Thing}s.
+ * 
+ * @author Dennis Nobel - Initial API and contribution
+ * @author Kai Kreuzer - added constructors
+ */
 public class Configuration {
 
-    private Map<String, Object> properties = new HashMap<>();
+    final private Map<String, Object> properties;
 
     private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
+    public Configuration() {
+    	this(new HashMap<String, Object>());
+}
+    
+    public Configuration(Map<String, Object> properties) {
+		this.properties = properties;
+	}
+    
     public <T> T as(Class<T> configurationClass) {
         synchronized (this) {
 

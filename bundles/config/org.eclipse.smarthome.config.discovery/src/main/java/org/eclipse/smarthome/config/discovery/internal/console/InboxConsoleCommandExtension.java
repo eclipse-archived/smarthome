@@ -7,13 +7,16 @@
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
+import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
+import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.console.Console;
@@ -28,6 +31,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     private final static List<String> SUPPORTED_COMMANDS = Lists.newArrayList(COMMAND_INBOX);
 
     private Inbox inbox;
+	private ManagedThingProvider managedThingProvider;
 
     @Override
     public boolean canHandle(String[] args) {
@@ -40,7 +44,57 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
         String command = args[0];
         switch (command) {
         case COMMAND_INBOX:
-            printInboxEntries(console, inbox.getAll());
+            if(args.length > 1) {
+                String subCommand = args[1];
+                switch (subCommand) {
+                case "approve":
+                    if (args.length > 2) {
+                    	if(managedThingProvider!=null) {
+	                    	try {
+	                    		ThingUID thingUID = new ThingUID(args[2]);
+		                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
+		                    	if(results.isEmpty()) {
+		                            console.println("No matching inbox entry could be found.");
+		                    	}
+		                    	DiscoveryResult result = results.get(0);
+		                    	Configuration conf = new Configuration(result.getProperties());
+		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), null, conf);
+	                    	} catch(IllegalArgumentException e) {
+	                            console.println("'"+ args[2] + "' is no valid thing UID.");
+	                    	}
+                    	} else {
+                    		console.println("Cannot approve thing as managed thing provider is missing.");
+                    	}
+                    } else {
+                        console.println("Specify thing id to approve: inbox approve <thingUID>");
+                    }
+                    return;
+                case "ignore":
+                    if (args.length > 2) {
+                    	try {
+                    		ThingUID thingUID = new ThingUID(args[2]);
+	                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, DiscoveryResultFlag.NEW));
+	                    	if(results.isEmpty()) {
+	                            console.println("No matching inbox entry could be found.");
+	                    	}
+	                    	DiscoveryResult result = results.get(0);
+	                    	result.setFlag(DiscoveryResultFlag.IGNORED);
+	                    	inbox.add(result);
+                    	} catch(IllegalArgumentException e) {
+                            console.println("'"+ args[2] + "' is no valid thing UID.");
+                    	}
+                	} else {
+                		console.println("Cannot approve thing as managed thing provider is missing.");
+                	}
+                    return;
+                case "listignored":
+                    printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
+                    return;
+                default:
+                    break;
+                }
+            }
+            printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
             return;
         default:
             return;
@@ -66,7 +120,10 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     public List<String> getUsages() {
-        return Collections.singletonList("inbox - lists all inbox entries");
+        return Arrays.asList((new String[] { COMMAND_INBOX + " - lists all current inbox entries",
+        		COMMAND_INBOX + " listignored - lists all ignored inbox entries",
+        		COMMAND_INBOX + " approve <thingUID> - creates a thing for an inbox entry",
+        		COMMAND_INBOX + " ignore <thingUID> - ignores an inbox entry permanently" }));
     }
 
     protected void setInbox(Inbox inbox) {
@@ -77,4 +134,11 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
         this.inbox = null;
     }
 
+    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = managedThingProvider;
+    }
+
+    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = null;
+    }
 }

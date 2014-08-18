@@ -146,7 +146,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      *            thing handler
      */
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
-        logger.info("Removing handler and setting status to OFFLINE.", thing.getUID());
+        logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         ((ThingImpl) thing).removeThingListener(thingListener);
         thing.setHandler(null);
         thing.setStatus(ThingStatus.OFFLINE);
@@ -225,13 +225,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 if (thingHandlerFactory != null) {
                     unregisterHandler(thing, thingHandlerFactory);
                 } else {
-                    logger.info(
+                    logger.warn(
                             "Cannot unregister handler. No handler factory for thing '{}' found.",
                             thing.getUID());
                 }
             }
         }
-        logger.info("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
+        logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
 
