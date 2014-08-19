@@ -111,9 +111,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
                 discoveryService.forceDiscovery();
 
-                logger.debug("Discovery for Thing type '{}' forced on '{}'.", thingTypeUID,
-                        discoveryService.getClass().getName());
-
                 return true;
             } catch (Exception ex) {
                 logger.error("Cannot force discovery for Thing type '" + thingTypeUID

@@ -73,6 +73,19 @@ public final class InboxFilterCriteria {
     }
 
     /**
+     * Creates a new instance of this class with the specified parameters.
+     * 
+     * @param flag
+     *            the discovery result flag to be filtered (could be null)
+     */
+    public InboxFilterCriteria(DiscoveryResultFlag flag) {
+        this.bindingId = null;
+        this.thingTypeUID = null;
+        this.thingUID = null;
+        this.flag = flag;
+	}
+
+	/**
      * Returns the binding ID to be filtered.
      *
      * @return the binding ID to be filtered (could be null or empty)

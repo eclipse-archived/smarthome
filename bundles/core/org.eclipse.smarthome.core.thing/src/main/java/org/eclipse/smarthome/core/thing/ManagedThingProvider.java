@@ -60,7 +60,7 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
             }
         }
         logger.warn("Cannot create thing. No binding found that supports creating a thing"
-                + " for the thing type {}.", thingTypeUID);
+                + " of type {}.", thingTypeUID);
         return null;
     }
 
