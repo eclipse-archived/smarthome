@@ -84,14 +84,14 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         DiscoveryService discoveryService = getDiscoveryService(thingTypeUID);
         if (discoveryService != null) {
             try {
-                logger.debug("Force discovery for Thing type '{}' on '{}'...", thingTypeUID,
-                        discoveryService.getClass().getName());
+                logger.debug("Triggering scan for thing type '{}' on '{}'...", thingTypeUID,
+                        discoveryService.getClass().getSimpleName());
 
                 discoveryService.startScan(listener);
                 return true;
             } catch (Exception ex) {
                 logger.error("Cannot trigger scan for thing type '" + thingTypeUID
-                        + "' on '" + discoveryService.getClass().getName() + "'!", ex);
+                        + "' on '" + discoveryService.getClass().getSimpleName() + "'!", ex);
             }
         } else {
 	        logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);

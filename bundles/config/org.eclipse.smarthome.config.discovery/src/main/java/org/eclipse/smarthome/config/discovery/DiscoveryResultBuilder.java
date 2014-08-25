@@ -39,7 +39,7 @@ public class DiscoveryResultBuilder {
      * 
      * @return a new instance of a {@link DiscoveryResultBuilder}
      */
-    public DiscoveryResultBuilder create(ThingUID thingUID) {
+    public static DiscoveryResultBuilder create(ThingUID thingUID) {
     	return new DiscoveryResultBuilder(thingUID);
     }
     

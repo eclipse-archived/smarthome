@@ -5,25 +5,27 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.internal;
-
-import java.util.Collection;
+package org.eclipse.smarthome.binding.hue;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-import com.google.common.collect.Lists;
-
-
-public class HueBinding {
+/**
+ * The {@link YahooWeatherBinding} class defines common constants, which are 
+ * used across the whole binding.
+ * 
+ * @author Kai Kreuzer - Initial contribution
+ */
+public class HueBindingConstants {
 
     public static final String BINDING_ID = "hue";
-
+    
+    // List all Thing Type UIDs, related to the Hue Binding
     public final static ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "bridge");
-
     public final static ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "light");
 
-    public final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(
-            LIGHT_THING_TYPE_UID, BRIDGE_THING_TYPE_UID);
-
+    // List all channels
+    public static final String CHANNEL_TEMPERATURE = "temperature";
+    public static final String CHANNEL_HUMIDITY = "humidity";
+    public static final String CHANNEL_PRESSURE = "pressure";
 
 }
