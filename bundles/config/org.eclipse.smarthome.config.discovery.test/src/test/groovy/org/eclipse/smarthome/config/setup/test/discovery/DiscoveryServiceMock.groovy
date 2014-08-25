@@ -9,7 +9,9 @@ package org.eclipse.smarthome.config.setup.test.discovery
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
+import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceInfo
+import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 
@@ -43,22 +45,27 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
     }
 
     @Override
-    public void forceDiscovery() {
+    public void startScan() {
         if (faulty) {
             throw new Exception()
         }
 
         force = true
-        thingDiscovered(new DiscoveryResult(thingType, new ThingUID(thingType, 'abc')))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, 'abc')))
         discoveryFinished()
         force = false
     }
 
     @Override
-    public void abortForcedDiscovery() {
+    public void stopScan() {
         if (faulty) {
             throw new Exception()
         }
     }
+
+	@Override
+	protected boolean getBackgroundDiscoveryDefault() {
+		return false;
+	}
 
 }

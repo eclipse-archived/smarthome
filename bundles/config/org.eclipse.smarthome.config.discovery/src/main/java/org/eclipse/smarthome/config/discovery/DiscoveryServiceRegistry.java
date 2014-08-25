@@ -27,22 +27,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 public interface DiscoveryServiceRegistry {
 
     /**
-     * Returns the {@link DiscoveryServiceInfo} object (meta information) of a
-     * {@link DiscoveryService} for the specified {@code Thing} type by searching
-     * in the list of any monitored {@link DiscoveryService}s.
-     * <p>
-     * If the specified {@code Thing} type is {@code null} or empty, or no according
-     * {@link DiscoveryService} could be found, {@code null} is returned.
-     *
-     * @param thingTypeUID the Thing type UID which points to the according discovery service
-     *     (could be null or empty)
-     *
-     * @return the discovery service meta information or null, if no according discovery
-     *     service could be found
-     */
-    DiscoveryServiceInfo getDiscoveryInfo(ThingTypeUID thingTypeUID);
-
-    /**
      * Forces the associated {@link DiscoveryService} to start a discovery.
      * <p>
      * Returns {@code true}, if a {@link DiscoveryService} could be found and forced
@@ -51,11 +35,12 @@ public interface DiscoveryServiceRegistry {
      *
      * @param thingTypeUID the Thing type UID pointing to the discovery service to be forced
      *     to start a discovery
+     * @param listener a callback to inform about errors or termination, can be null
      *
      * @return true if a discovery service could be found and forced to start a discovery,
      *     otherwise false
      */
-    boolean forceDiscovery(ThingTypeUID thingTypeUID);
+    boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener);
 
     /**
      * Aborts a started discovery on a {@link DiscoveryService}.
@@ -70,7 +55,7 @@ public interface DiscoveryServiceRegistry {
      * @return true if a discovery service could be found and whose discovery could be
      *     aborted, otherwise false
      */
-    boolean abortForcedDiscovery(ThingTypeUID thingTypeUID);
+    boolean abortScan(ThingTypeUID thingTypeUID);
 
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.

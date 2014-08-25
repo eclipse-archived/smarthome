@@ -7,31 +7,32 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.Collection;
+
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+
 
 /**
  * The {@link DiscoveryService} is a service interface which each binding can implement
  * to provide an auto discovery process for one or more {@code Thing}s.
  * <p>
  * As an example, a typical discovery mechanism could scan the network for <i>UPnP</i>
- * devices if requested.
+ * devices, if requested.
  * <p>
  * A {@link DiscoveryService} must be able to finish its discovery process without any
  * user interaction.
  * <p>
  * <b>There are two different kind of executions:</b>
  * <ul>
- * <li><b>Auto-Discovery:</b> If this mode is enabled, the discovery process should automatically
- *   run in the background as long as this mode is disabled again. If the discovery process is
- *   enforced while the auto-discovery mode is disabled, the discovery process must still be
- *   active for a certain amount of time specified in its meta-information.</li>
- * <li><b>Forced-Discovery:</b> If the discovery process is enforced, the discovery process
- *   must be active for a certain amount of time specified in the meta-information. If the
- *   auto-discovery mode is disabled while the enforced discovery process is running, the
- *   certain amount of time must still be considered. An enforced discovery process can be
- *   aborted.</li>
+ * <li><b>Background discovery:</b> If this mode is enabled, the discovery process should 
+ *   run in the background as long as this mode is not disabled again.</li>
+ * <li><b>Active scan:</b> If an active scan is triggered, the the service should try to actively
+ *   query for new devices and should report new results within the defined scan timeout. An active
+ *   scan can be aborted.</li>
  * </ul>
  *
  * @author Michael Grammling - Initial Contribution.
+ * @author Kai Kreuzer - Refactored API
  *
  * @see DiscoveryListener
  * @see DiscoveryServiceRegistry
@@ -39,52 +40,61 @@ package org.eclipse.smarthome.config.discovery;
 public interface DiscoveryService {
 
     /**
-     * Returns the meta-information about this service.
+     * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.
      *
-     * @return the meta-information about this service (not null)
+     * @return the list of Thing types which are supported by the discovery service
+     *     (not null, could be empty)
      */
-    DiscoveryServiceInfo getInfo();
+    public Collection<ThingTypeUID> getSupportedThingTypes();
 
     /**
-     * Enables the auto discovery mode if {@code true} is set, otherwise it is disabled.
+     * Returns the amount of time in seconds after which an active scan ends.
+     *
+     * @return the scan timeout in seconds (>= 0).
+     */
+    public int getScanTimeout();
+
+    /**
+     * Enables the background discovery mode if {@code true} is set, otherwise it is disabled.
      * <p>
      * If enabled, any registered listener must be notified about {@link DiscoveryResult}s.
      *
-     * @param enabled true if the auto discovery mode should be enabled, otherwise false
+     * @param enabled true if the background discovery mode should be enabled, otherwise false
      */
-    void setAutoDiscoveryEnabled(boolean enabled);
+    void setBackgroundDiscoveryEnabled(boolean enabled);
 
     /**
-     * Returns {@code true} if the auto discovery mode is enabled, otherwise {@code false}.
+     * Returns {@code true} if the background discovery mode is enabled, otherwise {@code false}.
      *
-     * @return true if the auto discovery mode is enabled, otherwise false
+     * @return true if the background discovery mode is enabled, otherwise false
      */
-    boolean isAutoDiscoveryEnabled();
+    boolean isBackgroundDiscoveryEnabled();
 
     /**
-     * Forces this service to start a discovery process over a specific amount of time
-     * defined in the {@link DiscoveryServiceInfo}.<br>
-     * This method must not block any calls such as {@link #abortForceDiscovery()} and
+     * Triggers this service to start an active scan for new devices.<br>
+     * This method must not block any calls such as {@link #abortScan()} and
      * must return fast.
      * <p>
-     * If started, any registered listener must be notified about {@link DiscoveryResult}s.
+     * If started, any registered {@link DiscoveryListener} must be notified about {@link DiscoveryResult}s.
      * <p>
-     * This method returns silently, if the discovery process has already been started before.
+     * If there is already a scan running, it is aborted and a new scan is triggered.
+     * 
+     * @param listener a listener that is notified about errors or termination of the scan
      */
-    void forceDiscovery();
+    void startScan(ScanListener listener);
 
     /**
-     * Aborts an already started discovery process.<br>
-     * This method must not block any calls such as {@link #forceDiscovery()} and must
+     * Stops an active scan for devices.<br>
+     * This method must not block any calls such as {@link #startScan()} and must
      * return fast.
      * <p>
      * After this method returns, no further notifications about {@link DiscoveryResult}s
-     * are allowed to be sent to any registered listener, exceptional the auto discovery
+     * are allowed to be sent to any registered listener, exceptional the background discovery
      * mode is active.
      * <p>
-     * This method returns silently, if the discovery process has not been started before.
+     * This method returns silently, if the scan has not been started before.
      */
-    void abortForcedDiscovery();
+    void abortScan();
 
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.

@@ -104,6 +104,15 @@ public class ThingUID extends UID {
 	}
 
     /**
+     * Returns the thing type uid.
+     * 
+     * @return thing type uid
+     */
+    public ThingTypeUID getThingTypeUID() {
+        return new ThingTypeUID(getSegment(0), getSegment(0));
+	}
+    
+    /**
      * Returns the bridge ids.
      * 
      * @return list of bridge ids

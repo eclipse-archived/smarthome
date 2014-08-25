@@ -17,6 +17,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener
+import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
@@ -99,7 +100,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
 			properties = props
             it
@@ -133,7 +134,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -144,7 +145,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property2", "property2value2")
 		props.put("property3", "property3value1")
 
-        discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel2"
             properties = props
             it
@@ -174,14 +175,14 @@ class InboxOSGITest extends OSGiTest {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             it
         }
         assertTrue addDiscoveryResult(discoveryResult)
 
         ThingUID thingUID2 = new ThingUID(thingTypeUID, "dummyThingId2")
-        discoveryResult = new DiscoveryResult(thingTypeUID, thingUID2).with {
+        discoveryResult = new DiscoveryResultImpl(thingUID2).with {
             label = "DummyLabel2"
             it
         }
@@ -203,7 +204,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -231,7 +232,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -245,7 +246,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property2", "property2value2")
 		props.put("property3", "property3value1")
 		
-        DiscoveryResult discoveryResultUpdate = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResultUpdate = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel2"
             properties = props
             it
@@ -269,13 +270,13 @@ class InboxOSGITest extends OSGiTest {
         ThingTypeUID thingTypeUID = new ThingTypeUID("dummyBindingId", "dummyThingType")
         ThingUID thingUID = new ThingUID(thingTypeUID, "dummyThingId")
 
-        DiscoveryResult discoveryResult1 = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult1 = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             it
         }
         assertTrue addDiscoveryResult(discoveryResult1)
 
-        DiscoveryResult discoveryResult2 = new DiscoveryResult(thingTypeUID, new ThingUID(thingTypeUID, "dummyThingId2")).with {
+        DiscoveryResult discoveryResult2 = new DiscoveryResultImpl(new ThingUID(thingTypeUID, "dummyThingId2")).with {
             label = "DummyLabel2"
             flag = DiscoveryResultFlag.IGNORED
             it
@@ -283,13 +284,13 @@ class InboxOSGITest extends OSGiTest {
         assertTrue addDiscoveryResult(discoveryResult2)
 
         def thingTypeUID3 = new ThingTypeUID("dummyBindingId", "dummyThingType3")
-        DiscoveryResult discoveryResult3 = new DiscoveryResult(thingTypeUID3, new ThingUID(thingTypeUID3, "dummyThingId3")).with {
+        DiscoveryResult discoveryResult3 = new DiscoveryResultImpl(new ThingUID(thingTypeUID3, "dummyThingId3")).with {
             label = "DummyLabel3"
             it
         }
         assertTrue addDiscoveryResult(discoveryResult3)
 
-        DiscoveryResult discoveryResult4 = new DiscoveryResult(thingTypeUID, new ThingUID(thingTypeUID, "dummyThingId4")).with {
+        DiscoveryResult discoveryResult4 = new DiscoveryResultImpl(new ThingUID(thingTypeUID, "dummyThingId4")).with {
             label = "DummyLabel4"
             it
         }
@@ -374,7 +375,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
 			properties = props
             it
@@ -435,7 +436,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
 			properties = props
 			it
@@ -446,7 +447,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property2", "property2value2")
 		props.put("property3", "property3value1")
 
-        discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel2"
             properties = props
             it
@@ -507,7 +508,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-	        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+	        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -568,7 +569,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
             properties = props
             it
@@ -596,7 +597,7 @@ class InboxOSGITest extends OSGiTest {
 		props.put("property1", "property1value1")
 		props.put("property2", "property2value1")
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(thingTypeUID, thingUID).with {
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID).with {
             label = "DummyLabel1"
 			properties = props
             it

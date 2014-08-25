@@ -72,28 +72,6 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     }
 
     @Test
-    void 'assert that a not existing DiscoveryService is not found' () {
-        DiscoveryServiceInfo info
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(null)
-        assertNull(info)
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('bindingId','thingType'))
-        assertNull(info)
-    }
-
-    @Test
-    void 'assert that a known DiscoveryService is found' () {
-        DiscoveryServiceInfo info
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('anyBindingId','anyThingType'))
-        assertNotNull(info)
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('faultyBindingId','faultyThingType'))
-        assertNotNull(info)
-    }
-
-    @Test
     void 'assert that an not existing DiscoveryService can not be forced for a discovery' () {
         boolean state
 
@@ -121,7 +99,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery cannot be aborted for a not existing DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('bindingId','thingType'))
+        state = discoveryServiceRegistry.abortScan(new ThingTypeUID('bindingId','thingType'))
         assertFalse(state)
     }
 
@@ -129,7 +107,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery can be aborted for a known DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('anyBindingId','anyThingType'))
+        state = discoveryServiceRegistry.abortScan(new ThingTypeUID('anyBindingId','anyThingType'))
         assertTrue(state)
     }
 
@@ -137,7 +115,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery cannot be aborted for a faulty known DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('faultyBindingId','faultyThingType'))
+        state = discoveryServiceRegistry.abortScan(new ThingTypeUID('faultyBindingId','faultyThingType'))
         assertFalse(state)
     }
 

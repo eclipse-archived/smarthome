@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -15,8 +16,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceInfo;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
+import org.eclipse.smarthome.config.discovery.ScanListener;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * (synchronization).
  * 
  * @author Michael Grammling - Initial Contribution
+ * @author Kai Kreuzer - Refactored API
  * 
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
@@ -44,25 +46,25 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private List<DiscoveryService> discoveryServices = new CopyOnWriteArrayList<>();
 
     private Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
-
+    
     static final private Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
     @Override
-    public boolean abortForcedDiscovery(ThingTypeUID thingTypeUID) throws IllegalStateException {
+    public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
         DiscoveryService discoveryService = getDiscoveryService(thingTypeUID);
         if (discoveryService != null) {
             try {
-                logger.debug("Abort discovery for Thing type '{}' on '{}'...", thingTypeUID,
+                logger.debug("Abort scan for thing type '{}' on '{}'...", thingTypeUID,
                         discoveryService.getClass().getName());
 
-                discoveryService.abortForcedDiscovery();
+                discoveryService.abortScan();
 
-                logger.debug("Force discovery for Thing type '{}' aborted on '{}'.",
+                logger.debug("Scan for thing type '{}' aborted on '{}'.",
                         thingTypeUID, discoveryService.getClass().getName());
 
                 return true;
             } catch (Exception ex) {
-                logger.error("Cannot abort force discovery for Thing type '" + thingTypeUID
+                logger.error("Cannot abort scan for thing type '" + thingTypeUID
                         + "' on '" + discoveryService.getClass().getName() + "'!", ex);
             }
         }
@@ -78,59 +80,23 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public synchronized void discoveryErrorOccurred(DiscoveryService source, Exception exception) {
-        for (DiscoveryListener listener : this.listeners) {
-            try {
-                listener.discoveryErrorOccurred(source, exception);
-            } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '"
-                        + listener.getClass().getName() + "' on error occurred event!", ex);
-            }
-        }
-    }
-
-    @Override
-    public synchronized void discoveryFinished(DiscoveryService source) {
-        for (DiscoveryListener listener : this.listeners) {
-            try {
-                listener.discoveryFinished(source);
-            } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '"
-                        + listener.getClass().getName() + "' on discovery finished event!", ex);
-            }
-        }
-    }
-
-    @Override
-    public boolean forceDiscovery(ThingTypeUID thingTypeUID) throws IllegalStateException {
+    public boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener) throws IllegalStateException {
         DiscoveryService discoveryService = getDiscoveryService(thingTypeUID);
         if (discoveryService != null) {
             try {
                 logger.debug("Force discovery for Thing type '{}' on '{}'...", thingTypeUID,
                         discoveryService.getClass().getName());
 
-                discoveryService.forceDiscovery();
-
+                discoveryService.startScan(listener);
                 return true;
             } catch (Exception ex) {
-                logger.error("Cannot force discovery for Thing type '" + thingTypeUID
+                logger.error("Cannot trigger scan for thing type '" + thingTypeUID
                         + "' on '" + discoveryService.getClass().getName() + "'!", ex);
             }
         } else {
 	        logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);
         }
         return false;
-    }
-
-    @Override
-    public DiscoveryServiceInfo getDiscoveryInfo(ThingTypeUID thingTypeUID) {
-        DiscoveryService discoveryService = getDiscoveryService(thingTypeUID);
-
-        if (discoveryService != null) {
-            return discoveryService.getInfo();
-        }
-
-        return null;
     }
 
     @Override
@@ -171,12 +137,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         if (thingTypeUID != null) {
             for (DiscoveryService discoveryService : this.discoveryServices) {
-                DiscoveryServiceInfo discoveryInfo = discoveryService.getInfo();
-                if (discoveryInfo != null) {
-                    List<ThingTypeUID> discoveryThingTypes = discoveryInfo.getSupportedThingTypes();
-                    if(discoveryThingTypes.contains(thingTypeUID)) {
-                        return discoveryService;
-                    }
+            	Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();
+                if(discoveryThingTypes.contains(thingTypeUID)) {
+                    return discoveryService;
                 }
             }
         }
