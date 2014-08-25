@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
-import org.eclipse.smarthome.model.rule.runtime.internal.RuleModelRuntimeActivator;
+import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class RuleContextHelper {
 		}
 	    Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
 		// no evaluation context found, so create a new one
-		ScriptEngine scriptEngine = RuleModelRuntimeActivator.scriptEngineTracker.getService();
+		ScriptEngine scriptEngine = RuleRuntimeActivator.scriptEngineTracker.getService();
 		if(scriptEngine!=null) {
 		    IEvaluationContext evaluationContext = contextProvider.get();
 		    for(VariableDeclaration var : ruleModel.getVariables()) {
