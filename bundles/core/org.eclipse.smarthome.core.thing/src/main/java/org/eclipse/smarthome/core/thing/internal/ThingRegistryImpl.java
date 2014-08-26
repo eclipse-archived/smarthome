@@ -77,7 +77,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
 
     @Override
     protected void notifyListenersAboutRemovedElement(Thing element) {
-        super.notifyListenersAboutAddedElement(element);
+        super.notifyListenersAboutRemovedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_REMOVED);
     }
 
