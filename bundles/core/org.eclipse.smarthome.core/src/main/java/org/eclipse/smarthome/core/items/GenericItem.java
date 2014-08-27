@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
 
+import com.google.common.collect.ImmutableList;
+
 /** 
  * The abstract base class for all items. It provides all relevant logic
  * for the infrastructure, such as publishing updates to the event bus
@@ -89,7 +91,7 @@ abstract public class GenericItem implements Item {
 	 * {@inheritDoc}
 	 */
 	public List<String> getGroupNames() {
-        return Collections.unmodifiableList(groupNames);
+        return ImmutableList.copyOf(groupNames);
 	}
 
     /**
