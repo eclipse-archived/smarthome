@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -43,6 +46,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     
     private boolean backgroundDiscoveryEnabled = getBackgroundDiscoveryDefault();
 
+    private Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
+    
     final private Set<ThingTypeUID> supportedThingTypes;
     final private int timeout;
 
@@ -51,26 +56,39 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param supportedThingTypes the list of Thing types which are supported (must not be null)
+     * @param supportedThingTypes the list of Thing types which are supported (can be null)
      *
      * @param timeout the discovery timeout in seconds after which the discovery service
      *     automatically stops its forced discovery process (>= 0).
      *
-     * @throws IllegalArgumentException if the list of Thing types is null, or the timeout < 0
+     * @throws IllegalArgumentException if the timeout < 0
      */
     public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout)
             throws IllegalArgumentException {
 
         if (supportedThingTypes == null) {
-            throw new IllegalArgumentException("The supported Thing types must not be null!");
+        	this.supportedThingTypes = Collections.emptySet();
+        } else {
+            this.supportedThingTypes = supportedThingTypes;
         }
 
         if (timeout < 0) {
             throw new IllegalArgumentException("The timeout must be >= 0!");
         }
 
-        this.supportedThingTypes = supportedThingTypes;
         this.timeout = timeout;
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param timeout the discovery timeout in seconds after which the discovery service
+     *     automatically stops its forced discovery process (>= 0).
+     *
+     * @throws IllegalArgumentException if the timeout < 0
+     */
+    public AbstractDiscoveryService(int timeout) throws IllegalArgumentException {
+    	this(null, timeout);
     }
 
     /**
@@ -105,6 +123,11 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     @Override
     public void addDiscoveryListener(DiscoveryListener listener) {
+    	synchronized (cachedResults) {
+        	for(DiscoveryResult cachedResult : cachedResults.values()) {
+            	listener.thingDiscovered(this, cachedResult);
+            }
+		}
         discoveryListeners.add(listener);
     }
 
@@ -185,6 +208,9 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                                 + discoveryListener.getClass().getName() + ".", e);
             }
         }
+        synchronized (cachedResults) {
+            cachedResults.put(discoveryResult.getThingUID(), discoveryResult);
+		}
     }
 
     /**
@@ -210,6 +236,9 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                         "An error occurred while calling the discovery listener "
                                 + discoveryListener.getClass().getName() + ".", e);
             }
+        }
+        synchronized (cachedResults) {
+        	cachedResults.remove(thingUID);
         }
     }
 

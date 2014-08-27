@@ -99,12 +99,16 @@ public interface DiscoveryService {
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.
      * <p>
-     * When a {@link DiscoveryResult} could be created while the discovery process is active
-     * (e.g. by forcing the startup of the discovery process or while enabling the auto
-     * discovery mode), the specified listener is notified.
+     * Directly after registering the listener, it will receive 
+     * {@link DiscoveryListener#thingDiscovered(DiscoveryService, DiscoveryResult)} notifications
+     * about all devices that have been previously discovered by the service already (tracker behaviour).
+     * This is also done, if the listener has already been registered previously. 
      * <p>
-     * This method returns silently if the specified listener is {@code null}
-     * or has already been registered before.
+     * When a {@link DiscoveryResult} is created while the discovery process is active
+     * (e.g. by starting a scan or through the enabled background discovery mode), 
+     * the specified listener is notified.
+     * <p>
+     * This method returns silently if the specified listener is {@code null}.
      *
      * @param listener the listener to be added (could be null)
      */

@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +38,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 	private Set<UpnpDiscoveryParticipant> participants = new HashSet<>();
 	
 	public UpnpDiscoveryService() {
-		super(Collections.EMPTY_SET, 5);
+		super(5);
 	}
 
 	private UpnpService upnpService;
@@ -72,13 +71,9 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 	@Override
 	public void setBackgroundDiscoveryEnabled(boolean enabled) {
 		if(enabled) {
-			if(!isBackgroundDiscoveryEnabled()) {
-				upnpService.getRegistry().addListener(this);
-			}
+			upnpService.getRegistry().addListener(this);
 		} else {
-			if(isBackgroundDiscoveryEnabled()) {
-				upnpService.getRegistry().removeListener(this);
-			}
+			upnpService.getRegistry().removeListener(this);
 		}
 		super.setBackgroundDiscoveryEnabled(enabled);
 			
