@@ -11,7 +11,7 @@ public class ScriptRuntimeStandaloneSetup extends ScriptStandaloneSetup {
 	
 	public static void doSetup() {
 		if(injector==null) {
-			new ScriptRuntimeStandaloneSetup().createInjectorAndDoEMFRegistration();
+			injector = new ScriptRuntimeStandaloneSetup().createInjectorAndDoEMFRegistration();
 		}
 	}
 	
