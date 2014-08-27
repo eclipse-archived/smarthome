@@ -26,9 +26,6 @@ public class RulesStandaloneSetup extends RulesStandaloneSetupGenerated{
 	}
 	
 	static public Injector getInjector() {
-		if(injector==null) {
-			doSetup();
-		}
 		return injector;
 	}
 }

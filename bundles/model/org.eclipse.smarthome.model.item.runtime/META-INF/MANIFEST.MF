@@ -6,9 +6,7 @@ Bundle-Version: 0.7.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Eclipse.org/SmartHome
-Import-Package: com.google.inject,
- org.eclipse.core.runtime;registry="split",
- org.eclipse.smarthome.model.core.guice,
- org.eclipse.xtext.resource,
- org.eclipse.xtext.service
+Import-Package: org.osgi.framework,
+ org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.item
+Bundle-Activator: org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeActivator
