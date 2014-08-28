@@ -24,17 +24,14 @@ public interface ScanListener {
      * <p>
      * This signal is sent latest when the defined timeout for the 
      * scan has been reached.
-     *
-     * @param source the discovery service which is the source of this event (not null)
      */
-    void onFinished(DiscoveryService source);
+    void onFinished();
 
     /**
      * Invoked synchronously when the according scan has caused an error or has been aborted.
      *
-     * @param source the discovery service which is the source of this event (not null)
      * @param exception the error which occurred (could be null)
      */
-    void onErrorOccurred(DiscoveryService source, Exception exception);
+    void onErrorOccurred(Exception exception);
 
 }

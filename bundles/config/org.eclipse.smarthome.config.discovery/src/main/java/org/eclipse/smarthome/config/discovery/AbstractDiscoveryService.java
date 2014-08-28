@@ -97,7 +97,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * @return the list of Thing types which are supported by the discovery service
      *     (not null, could be empty)
      */
-    @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         return this.supportedThingTypes;
     }
@@ -108,22 +107,18 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @return the discovery timeout in seconds (>= 0).
      */
-    @Override
     public int getScanTimeout() {
         return this.timeout;
     }
 
-    @Override
     public void setBackgroundDiscoveryEnabled(boolean enabled) {
         this.backgroundDiscoveryEnabled = enabled;
     }
 
-    @Override
     public boolean isBackgroundDiscoveryEnabled() {
         return backgroundDiscoveryEnabled;
     }
 
-    @Override
     public void addDiscoveryListener(DiscoveryListener listener) {
     	synchronized (cachedResults) {
         	for(DiscoveryResult cachedResult : cachedResults.values()) {
@@ -133,12 +128,10 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
         discoveryListeners.add(listener);
     }
 
-    @Override
     public void removeDiscoveryListener(DiscoveryListener listener) {
         discoveryListeners.remove(listener);
     }
 
-    @Override
     public synchronized void startScan(ScanListener listener) {
         synchronized (this) {
 
@@ -167,12 +160,19 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
                 scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
             }
-
-            startScan();
+            try {
+                startScan();
+            } catch (Exception ex) {
+                if (scheduledStop != null) {
+                    scheduledStop.cancel(false);
+                    scheduledStop = null;
+                }
+                scanListener = null;
+                throw ex;
+            }
         }
     }
     
-    @Override
     public synchronized void abortScan() {
         synchronized (this) {        
             if (scheduledStop != null) {
@@ -181,7 +181,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             }
             if (scanListener != null) {
                 Exception e = new CancellationException("Scan has been aborted.");
-                scanListener.onErrorOccurred(this, e);
+                scanListener.onErrorOccurred(e);
                 scanListener = null;
             }    	
         }
@@ -199,7 +199,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected synchronized void stopScan() {
     	if(scanListener!=null) {
-    		scanListener.onFinished(this);
+    		scanListener.onFinished();
     		scanListener = null;
     	}
     }

@@ -27,36 +27,110 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 public interface DiscoveryServiceRegistry {
 
     /**
-     * Forces the associated {@link DiscoveryService} to start a discovery.
+     * Forces the associated {@link DiscoveryService}s to start a discovery.
      * <p>
-     * Returns {@code true}, if a {@link DiscoveryService} could be found and forced
-     * to start a discovery, otherwise {@code false}. If the discovery process has
-     * already been started before, {@code true} is returned.
+     * Returns {@code true}, if at least one {@link DiscoveryService} could be
+     * found and forced to start a discovery, otherwise {@code false}. If the
+     * discovery process has already been started before, {@code true} is
+     * returned.
      *
-     * @param thingTypeUID the Thing type UID pointing to the discovery service to be forced
-     *     to start a discovery
-     * @param listener a callback to inform about errors or termination, can be null
-     *
-     * @return true if a discovery service could be found and forced to start a discovery,
-     *     otherwise false
+     * @param thingTypeUID
+     *            the Thing type UID pointing to collection of discovery
+     *            services to be forced to start a discovery
+     * @param listener
+     *            a callback to inform about errors or termination, can be null.
+     *            If more than one discovery service is started, the
+     *            {@link ScanListener#onFinished()} callback is called after all
+     *            discovery services finished their scan. If one discovery
+     *            service raises an error, the method
+     *            {@link ScanListener#onErrorOccurred(Exception)} is called
+     *            directly. All other finished or error callbacks will be
+     *            ignored and not forwarded to the listener.
+     * @return true if a t least one discovery service could be found and forced
+     *         to start a discovery, otherwise false
      */
     boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener);
-
+    
     /**
-     * Aborts a started discovery on a {@link DiscoveryService}.
+     * Forces the associated {@link DiscoveryService}s to start a discovery for
+     * all thing types of the given binding id.
      * <p>
-     * Returns {@code true}, if a {@link DiscoveryService} could be found and whose
-     * discovery could be aborted, otherwise {@code false}. If the discovery process
-     * has not been started before, {@code true} is returned.
+     * Returns {@code true}, if a at least one {@link DiscoveryService} could be
+     * found and forced to start a discovery, otherwise {@code false}.
      *
-     * @param thingTypeUID the Thing type UID pointing to the discovery service whose discovery
-     *     should be aborted
+     * @param bindingId
+     *            the binding id pointing to one or more discovery services to
+     *            be forced to start a discovery
+     * @param listener
+     *            a callback to inform about errors or termination, can be null.
+     *            If more than one discovery service is started, the
+     *            {@link ScanListener#onFinished()} callback is called after all
+     *            discovery services finished their scan. If one discovery
+     *            service raises an error, the method
+     *            {@link ScanListener#onErrorOccurred(Exception)} is called
+     *            directly. All other finished or error callbacks will be ignored
+     *            and not forwarded to the listener.
      *
-     * @return true if a discovery service could be found and whose discovery could be
-     *     aborted, otherwise false
+     * @return true if a t least one discovery service could be found and forced
+     *         to start a discovery, otherwise false
+     */
+    boolean startScan(String bindingId, ScanListener listener);
+    
+    /**
+     * Aborts a started discovery on all {@link DiscoveryService}s for the given
+     * thing type.
+     * <p>
+     * Returns {@code true}, if at least one {@link DiscoveryService} could be
+     * found and all found discoveries could be aborted, otherwise {@code false}
+     * . If the discovery process has not been started before, {@code true} is
+     * returned.
+     *
+     * @param thingTypeUID
+     *            the Thing type UID whose discovery scans should be aborted
+     *
+     * @return true if at least one discovery service could be found and all
+     *         discoveries could be aborted, otherwise false
      */
     boolean abortScan(ThingTypeUID thingTypeUID);
+    
+    /**
+     * Aborts a started discovery on all {@link DiscoveryService}s for the given
+     * binding id.
+     * <p>
+     * Returns {@code true}, if at least one {@link DiscoveryService} could be
+     * found and all found discoveries could be aborted, otherwise {@code false}
+     * . If the discovery process has not been started before, {@code true} is
+     * returned.
+     *
+     * @param bindingId
+     *            the binding id whose discovery scans should be aborted
+     *
+     * @return true if at least one discovery service could be found and all
+     *         discoveries could be aborted, otherwise false
+     */
+    boolean abortScan(String bindingId);
+    
+    /**
+     * Returns true if the given thing type UID supports discovery, false
+     * otherwise.
+     * 
+     * @param thingTypeUID
+     *            thing type UID
+     * @return true if the given thing type UID supports discovery, false
+     *         otherwise
+     */
+    boolean supportsDiscovery(ThingTypeUID thingTypeUID);
 
+    /**
+     * Returns true if the given binding id supports discovery for at least one
+     * thing type.
+     * 
+     * @param bindingId
+     *            bindingId
+     * @return true if the given binding id supports discovery, false otherwise
+     */
+    boolean supportsDiscovery(String bindingId);
+    
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.
      * <p>

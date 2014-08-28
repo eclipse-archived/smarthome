@@ -41,15 +41,6 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
         thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, 'abc'), null, null, null))
     }
 
-    @Override
-    public void stopScan() {
-        if (faulty) {
-            throw new Exception()
-        } else {
-            super.stopScan()
-        }
-    }
-
 	@Override
 	protected boolean getBackgroundDiscoveryDefault() {
 		return true;
