@@ -109,7 +109,7 @@ public class ThingUID extends UID {
      * @return thing type uid
      */
     public ThingTypeUID getThingTypeUID() {
-        return new ThingTypeUID(getSegment(0), getSegment(0));
+        return new ThingTypeUID(getSegment(0), getSegment(1));
 	}
     
     /**

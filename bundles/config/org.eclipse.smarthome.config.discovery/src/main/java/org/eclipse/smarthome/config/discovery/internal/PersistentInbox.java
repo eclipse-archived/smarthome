@@ -121,7 +121,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Object configValue = config.get(propertyKey);
 
             if (((propertyValue == null) && (configValue != null))
-                    || (!propertyValue.equals(configValue))) {
+                    || (propertyValue != null && !propertyValue.equals(configValue))) {
 
                 // update value
                 config.put(propertyKey, propertyValue);

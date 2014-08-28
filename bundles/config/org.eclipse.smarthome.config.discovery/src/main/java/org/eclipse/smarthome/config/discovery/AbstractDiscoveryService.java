@@ -97,6 +97,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * @return the list of Thing types which are supported by the discovery service
      *     (not null, could be empty)
      */
+    @Override
     public Set<ThingTypeUID> getSupportedThingTypes() {
         return this.supportedThingTypes;
     }
@@ -107,6 +108,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @return the discovery timeout in seconds (>= 0).
      */
+    @Override
     public int getScanTimeout() {
         return this.timeout;
     }
@@ -138,41 +140,51 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     @Override
     public synchronized void startScan(ScanListener listener) {
-    	
-    	// we first stop any currently running scan and its scheduled stop call
-    	stopScan();
-    	if(scheduledStop!=null) {
-    		scheduledStop.cancel(false);
-    		scheduledStop = null;
-    	}
-    	
-    	this.scanListener = listener;
-    	
-    	// schedule an automatic call of stopScan when timeout is reached
-    	if(getScanTimeout() > 0) {
-			Runnable runnable = new Runnable() {
-				public void run() {
-					try {
-						stopScan();
-					} catch(Exception e) {
-						logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
-					}
-				}
-			};
-			
-			scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
-    	}
-    	
-    	startScan();
+        synchronized (this) {
+
+            // we first stop any currently running scan and its scheduled stop
+            // call
+            stopScan();
+            if (scheduledStop != null) {
+                scheduledStop.cancel(false);
+                scheduledStop = null;
+            }
+
+            this.scanListener = listener;
+
+            // schedule an automatic call of stopScan when timeout is reached
+            if (getScanTimeout() > 0) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            stopScan();
+                        } catch (Exception e) {
+                            logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                        }
+                    }
+                };
+
+                scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
+            }
+
+            startScan();
+        }
     }
     
     @Override
-    public void abortScan() {
-    	if(scanListener!=null) {
-    		Exception e = new CancellationException("Scan has been aborted.");
-    		scanListener.onErrorOccurred(this, e);
-    	}
-    	stopScan();
+    public synchronized void abortScan() {
+        synchronized (this) {        
+            if (scheduledStop != null) {
+                scheduledStop.cancel(false);
+                scheduledStop = null;
+            }
+            if (scanListener != null) {
+                Exception e = new CancellationException("Scan has been aborted.");
+                scanListener.onErrorOccurred(this, e);
+                scanListener = null;
+            }    	
+        }
     }
     
     /**

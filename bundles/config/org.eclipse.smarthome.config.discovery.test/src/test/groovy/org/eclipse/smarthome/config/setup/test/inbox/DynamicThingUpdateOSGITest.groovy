@@ -125,11 +125,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID).with {
-            label = "DummyLabel1"
-            properties = discoveryResultProps
-            it
-        }
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyLabel1")
+
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)
@@ -149,11 +146,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID).with {
-            label = "DummyLabel1"
-            properties = null
-            it
-        }
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], "DummyLabel")
+         
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)
