@@ -13,9 +13,6 @@ import nl.q42.jue.Light;
 import nl.q42.jue.StateUpdate;
 
 import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.service.BridgeHeartbeatService;
-import org.eclipse.smarthome.binding.hue.internal.service.LightStateConverter;
-import org.eclipse.smarthome.binding.hue.internal.service.LightStatusListener;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
@@ -56,6 +53,8 @@ public class HueLightHandler extends BaseThingHandler implements
 
     private Logger logger = LoggerFactory.getLogger(HueLightHandler.class);
 
+	private HueBridgeHandler bridgeHandler;
+
     public HueLightHandler(Thing hueLight) {
         super(hueLight);
     }
@@ -66,9 +65,6 @@ public class HueLightHandler extends BaseThingHandler implements
         final String configLightId = getConfigAs(HueLightConfiguration.class).lightId;
         if (configLightId != null) {
             lightId = configLightId;
-            final BridgeHeartbeatService bridgeHeartbeatService = getHueBridgeHandler()
-                    .getBridgeHeartbeatService();
-            bridgeHeartbeatService.registerLightStatusListener(this);
         }
     }
 
@@ -76,15 +72,20 @@ public class HueLightHandler extends BaseThingHandler implements
     public void dispose() {
         logger.debug("Handler disposes. Unregistering listener.");
         if (lightId != null) {
-            final BridgeHeartbeatService bridgeHeartbeatService = getHueBridgeHandler().getBridgeHeartbeatService();
-            bridgeHeartbeatService.unregisterLightStatusListener(this);
+            HueBridgeHandler bridgeHandler = getHueBridgeHandler();
+        	if(bridgeHandler!=null) {
+        		getHueBridgeHandler().unregisterLightStatusListener(this);
+        	}
             lightId = null;
         }
     }
 
     private Light getLight() {
         if (light == null) {
-            light = getHueBridgeHandler().getLightById(lightId);
+            HueBridgeHandler bridgeHandler = getHueBridgeHandler();
+        	if(bridgeHandler!=null) {
+        		light = bridgeHandler.getLightById(lightId);
+        	}
         }
         return light;
     }
@@ -135,17 +136,21 @@ public class HueLightHandler extends BaseThingHandler implements
     }
 
 
-    private HueBridgeHandler getHueBridgeHandler() {
-        Bridge bridge = getBridge();
-        if (bridge == null) {
-            return null;
-        }
-        ThingHandler handler = bridge.getHandler();
-        if (handler instanceof HueBridgeHandler) {
-            return (HueBridgeHandler) handler;
-        } else {
-            return null;
-        }
+    private synchronized HueBridgeHandler getHueBridgeHandler() {
+    	if(this.bridgeHandler==null) {
+	    	Bridge bridge = getBridge();
+	        if (bridge == null) {
+	            return null;
+	        }
+	        ThingHandler handler = bridge.getHandler();
+	        if (handler instanceof HueBridgeHandler) {
+	        	this.bridgeHandler = (HueBridgeHandler) handler;
+	        	this.bridgeHandler.registerLightStatusListener(this);
+	        } else {
+	            return null;
+	        }
+    	}
+        return this.bridgeHandler;
     }
 
     @Override
@@ -162,14 +167,14 @@ public class HueLightHandler extends BaseThingHandler implements
     }
 
     @Override
-    public void onLightRemoved(HueBridge bridge, Light light) {
+    public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
             dispose();
         }
     }
 
     @Override
-    public void onLightAdded(HueBridge bridge, Light light) {
+    public void onLightAdded(HueBridge bridge, FullLight light) {
         // do nothing
     }
 

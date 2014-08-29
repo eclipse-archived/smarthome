@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.internal.service;
+package org.eclipse.smarthome.binding.hue.internal.handler;
 
 import nl.q42.jue.State;
 import nl.q42.jue.StateUpdate;

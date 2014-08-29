@@ -19,13 +19,16 @@ public class HueBindingConstants {
 
     public static final String BINDING_ID = "hue";
     
+    // light model ids
+    public static final String MODEL_LCT001 = "LCT001";
+    
     // List all Thing Type UIDs, related to the Hue Binding
-    public final static ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "bridge");
-    public final static ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID(BINDING_ID, "light");
+    public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+    public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, MODEL_LCT001);
 
     // List all channels
-    public static final String CHANNEL_TEMPERATURE = "temperature";
-    public static final String CHANNEL_HUMIDITY = "humidity";
-    public static final String CHANNEL_PRESSURE = "pressure";
+    public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
+    public static final String CHANNEL_COLOR = "color";
+    public static final String CHANNEL_BRIGHTNESS = "brightness";
 
 }

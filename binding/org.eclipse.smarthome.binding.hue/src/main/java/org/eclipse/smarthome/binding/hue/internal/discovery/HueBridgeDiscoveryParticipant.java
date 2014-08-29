@@ -35,7 +35,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
 	@Override
 	public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
-		return Collections.singleton(BRIDGE_THING_TYPE_UID);
+		return Collections.singleton(THING_TYPE_BRIDGE);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 	@Override
 	public ThingUID getThingUID(RemoteDevice device) {
 		if(device.getDetails().getModelDetails().getModelName().startsWith("Philips hue bridge")) {
-			return new ThingUID(BRIDGE_THING_TYPE_UID, device.getDetails().getSerialNumber());
+			return new ThingUID(THING_TYPE_BRIDGE, device.getDetails().getSerialNumber());
 		} else {
 			return null;
 		}

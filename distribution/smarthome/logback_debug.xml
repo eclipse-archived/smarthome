@@ -14,7 +14,7 @@
 
 	<logger name="OSGi" level="WARN" />
 	<logger name="org.eclipse.jetty" level="WARN" />
-	<logger name="org.drools.SystemEventListener" level="INFO" />
+	<logger name="org.jupnp" level="INFO" />
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

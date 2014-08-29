@@ -30,3 +30,4 @@ Import-Package: com.google.common.collect,
  org.slf4j
 Service-Component: OSGI-INF/*
 Export-Package: org.eclipse.smarthome.binding.hue
+Require-Bundle: com.google.gson

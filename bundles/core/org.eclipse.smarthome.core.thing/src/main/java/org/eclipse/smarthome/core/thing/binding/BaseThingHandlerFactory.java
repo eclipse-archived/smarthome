@@ -34,8 +34,9 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
+    protected BundleContext bundleContext;
+
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
-    private BundleContext bundleContext;
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
 
     protected void activate(ComponentContext componentContext) {
@@ -145,8 +146,8 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * implementing caller can override this method to release specific
      * resources.
      * 
-     * @param thing
-     *            thing
+     * @param thingHandler
+     *            thing handler to be removed
      */
     protected void removeHandler(ThingHandler thingHandler) {
         // can be overridden

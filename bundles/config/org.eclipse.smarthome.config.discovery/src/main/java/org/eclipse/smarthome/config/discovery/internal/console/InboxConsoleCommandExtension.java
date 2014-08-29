@@ -59,9 +59,9 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 		                    	}
 		                    	DiscoveryResult result = results.get(0);
 		                    	Configuration conf = new Configuration(result.getProperties());
-		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), null, conf);
+		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
 	                    	} catch(IllegalArgumentException e) {
-	                            console.println("'"+ args[2] + "' is no valid thing UID.");
+	                            console.println(e.getMessage());
 	                    	}
                     	} else {
                     		console.println("Cannot approve thing as managed thing provider is missing.");

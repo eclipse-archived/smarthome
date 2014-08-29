@@ -47,7 +47,7 @@ import org.junit.Test
 class HueLightHandlerOSGiTest extends OSGiTest {
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-    final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "light")
+    final ThingTypeUID LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LCT001")
 
     ManagedThingProvider managedThingProvider
     VolatileStorageService volatileStorageService = new VolatileStorageService()
@@ -401,7 +401,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
 		httpClientField.accessible = true
 		httpClientField.set(hueBridgeValue, mockedHttpClient)
-
+		
+		def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
+		usernameField.accessible = true
+		usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(HueBridgeConfiguration.USER_NAME))
+		
 		hueBridgeHandler.initialize()
     }
 
