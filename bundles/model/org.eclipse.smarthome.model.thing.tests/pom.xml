@@ -80,6 +80,31 @@
                             <level>4</level>
                             <autoStart>true</autoStart>
                         </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.model.core</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.model.item</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.model.item.runtime</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.model.thing</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
+                        <bundle>
+                            <id>org.eclipse.smarthome.model.thing.runtime</id>
+                            <level>4</level>
+                            <autoStart>true</autoStart>
+                        </bundle>
                     </bundleStartLevel>
                 </configuration>
             </plugin>
