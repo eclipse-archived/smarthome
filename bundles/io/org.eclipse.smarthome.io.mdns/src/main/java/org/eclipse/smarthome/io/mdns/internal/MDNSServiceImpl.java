@@ -5,15 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.servicediscovery.internal;
+package org.eclipse.smarthome.io.mdns.internal;
 
 import java.io.IOException;
+import java.util.concurrent.Executors;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
-import org.eclipse.smarthome.io.servicediscovery.DiscoveryService;
-import org.eclipse.smarthome.io.servicediscovery.ServiceDescription;
+import org.eclipse.smarthome.io.mdns.MDNSService;
+import org.eclipse.smarthome.io.mdns.ServiceDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,27 +24,32 @@ import org.slf4j.LoggerFactory;
  * @author Victor Belov
  *
  */
-public class DiscoveryServiceImpl implements DiscoveryService {
+public class MDNSServiceImpl implements MDNSService {
 
-	private static Logger logger = LoggerFactory.getLogger(DiscoveryServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(MDNSServiceImpl.class);
 	private JmDNS jmdns;
 	
-	public DiscoveryServiceImpl() {
+	public MDNSServiceImpl() {
 	}
 	
 	/**
 	 * @{inheritDoc}
 	 */
-	public void registerService(ServiceDescription description) {
-		ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName, description.servicePort,
-				0, 0, description.serviceProperties);		
-		try {
-			logger.debug("Registering new service " + description.serviceType + " at port " + 
-					String.valueOf(description.servicePort));
-			jmdns.registerService(serviceInfo);
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
+	public void registerService(final ServiceDescription description) {
+		Runnable runnable = new Runnable() {
+			public void run() {
+				ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName, description.servicePort,
+						0, 0, description.serviceProperties);		
+				try {
+					logger.debug("Registering new service " + description.serviceType + " at port " + 
+							String.valueOf(description.servicePort));
+					jmdns.registerService(serviceInfo);
+				} catch (IOException e) {
+					logger.error(e.getMessage());
+				}
+			}
+		};
+		Executors.newSingleThreadExecutor().execute(runnable);
 	}
 
 	/**
@@ -67,7 +73,7 @@ public class DiscoveryServiceImpl implements DiscoveryService {
 	public void activate() {
 		try {
 			jmdns = JmDNS.create();
-			logger.info("mDNS service has been started");
+			logger.debug("mDNS service has been started");
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
@@ -77,7 +83,7 @@ public class DiscoveryServiceImpl implements DiscoveryService {
 		unregisterAllServices();
 		try {
 			jmdns.close();
-			logger.info("mDNS service has been stopped");
+			logger.debug("mDNS service has been stopped");
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}

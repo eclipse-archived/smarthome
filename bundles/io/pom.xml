@@ -24,7 +24,7 @@
     <module>org.eclipse.smarthome.io.rest</module>
     <module>org.eclipse.smarthome.io.rest.item</module>
     <module>org.eclipse.smarthome.io.rest.sitemap</module>
-    <module>org.eclipse.smarthome.io.servicediscovery</module>
+    <module>org.eclipse.smarthome.io.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
   </modules>
 

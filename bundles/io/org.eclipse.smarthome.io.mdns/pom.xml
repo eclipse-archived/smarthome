@@ -8,15 +8,15 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.servicediscovery</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.servicediscovery</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.io.mdns</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.io.mdns</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.io</groupId>
-  <artifactId>org.eclipse.smarthome.io.servicediscovery</artifactId>
+  <artifactId>org.eclipse.smarthome.io.mdns</artifactId>
 
-  <name>Eclipse SmartHome Service Discovery</name>
+  <name>Eclipse SmartHome mDNS Service</name>
 
   <packaging>eclipse-plugin</packaging>
 </project>

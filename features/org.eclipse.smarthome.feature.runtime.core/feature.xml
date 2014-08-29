@@ -118,7 +118,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.io.servicediscovery"
+         id="org.eclipse.smarthome.io.mdns"
          download-size="0"
          install-size="0"
          version="0.0.0"
