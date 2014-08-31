@@ -20,9 +20,9 @@ import javax.ws.rs.core.Application;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.io.mdns.MDNSService;
+import org.eclipse.smarthome.io.mdns.ServiceDescription;
 import org.eclipse.smarthome.io.rest.internal.resources.RootResource;
-import org.eclipse.smarthome.io.servicediscovery.DiscoveryService;
-import org.eclipse.smarthome.io.servicediscovery.ServiceDescription;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -55,7 +55,7 @@ public class RESTApplication extends Application {
 
 	private HttpService httpService;
 
-	private DiscoveryService discoveryService;
+	private MDNSService mdnsService;
 
 	static private EventPublisher eventPublisher;
 
@@ -95,12 +95,12 @@ public class RESTApplication extends Application {
 		return RESTApplication.itemRegistry;
 	}
 
-	public void setDiscoveryService(DiscoveryService discoveryService) {
-		this.discoveryService = discoveryService;
+	public void setMDNSService(MDNSService mdnsService) {
+		this.mdnsService = mdnsService;
 	}
 	
-	public void unsetDiscoveryService(DiscoveryService discoveryService) {
-		this.discoveryService = null;
+	public void unsetMDNSService(MDNSService mdnsService) {
+		this.mdnsService = null;
 	}
 
 	public void addRESTResource(RESTResource resource) {
@@ -121,16 +121,16 @@ public class RESTApplication extends Application {
 
  			logger.info("Started REST API at " + REST_SERVLET_ALIAS);
 
- 			if (discoveryService != null) {
+ 			if (mdnsService != null) {
  				mdnsName = bundleContext.getProperty("mdnsName");
  				if(mdnsName==null) { mdnsName = "smarthome"; }
  	        	try {
  	        		httpPort = Integer.parseInt(bundleContext.getProperty("jetty.port"));
- 	 				discoveryService.registerService(getDefaultServiceDescription());
+ 	 				mdnsService.registerService(getDefaultServiceDescription());
  	        	} catch(NumberFormatException e) {}
  	        	try {
  	        		httpSSLPort = Integer.parseInt(bundleContext.getProperty("jetty.port.ssl"));
- 	 				discoveryService.registerService(getSSLServiceDescription());
+ 	 				mdnsService.registerService(getSSLServiceDescription());
  	        	} catch(NumberFormatException e) {}
 			}
         } catch (ServletException se) {
@@ -146,9 +146,9 @@ public class RESTApplication extends Application {
             logger.info("Stopped REST API");
         }
         
-        if (discoveryService != null) {
- 			discoveryService.unregisterService(getDefaultServiceDescription());
-			discoveryService.unregisterService(getSSLServiceDescription()); 			
+        if (mdnsService != null) {
+ 			mdnsService.unregisterService(getDefaultServiceDescription());
+			mdnsService.unregisterService(getSSLServiceDescription()); 			
  		}
         restResources.clear();
 	}

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.servicediscovery;
+package org.eclipse.smarthome.io.mdns;
 
 
 /**
@@ -15,7 +15,7 @@ package org.eclipse.smarthome.io.servicediscovery;
  * @author Victor Belov
  * @author Kai Kreuzer - Initial contribution and API
  */
-public interface DiscoveryService {
+public interface MDNSService {
 	
 	/**
 	 * This method registers a service to be announced through Bonjour/MDNS

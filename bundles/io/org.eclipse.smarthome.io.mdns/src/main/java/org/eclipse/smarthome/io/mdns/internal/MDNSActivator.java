@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.servicediscovery.internal;
+package org.eclipse.smarthome.io.mdns.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -15,22 +15,22 @@ import org.slf4j.LoggerFactory;
 /**
  * Extension of the default OSGi bundle activator
  */
-public final class DiscoveryServiceActivator implements BundleActivator {
+public final class MDNSActivator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(DiscoveryServiceActivator.class);
+	private static Logger logger = LoggerFactory.getLogger(MDNSActivator.class);
 	
 	/**
 	 * Called whenever the OSGi framework starts our bundle
 	 */
 	public void start(BundleContext context) throws Exception {
-		logger.debug("Discovery service has been started.");
+		logger.debug("mDNS service has been started.");
 	}
 
 	/**
 	 * Called whenever the OSGi framework stops our bundle
 	 */
 	public void stop(BundleContext context) throws Exception {
-		logger.debug("Discovery service has been stopped.");
+		logger.debug("mDNS service has been stopped.");
 	}
 
 }
