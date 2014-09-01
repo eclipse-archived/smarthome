@@ -86,8 +86,8 @@
 <repository location="http://download.eclipse.org/eclipse/updates/4.4"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.1.v201406120726"/>
-<unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.1.v201406120726"/>
+<unit id="org.eclipse.xtend.sdk.feature.group" version="2.6.2.v201407030533"/>
+<unit id="org.eclipse.xtext.sdk.feature.group" version="2.6.2.v201407030533"/>
 <unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="2.6.1.v201406110919"/>
 <repository location="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
 </location>

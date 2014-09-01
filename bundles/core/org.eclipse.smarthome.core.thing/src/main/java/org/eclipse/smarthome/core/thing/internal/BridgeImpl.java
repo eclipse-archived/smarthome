@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -16,6 +15,8 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+
+import com.google.common.collect.ImmutableList;
 
 public class BridgeImpl extends ThingImpl implements Bridge {
 
@@ -49,7 +50,7 @@ public class BridgeImpl extends ThingImpl implements Bridge {
 
     @Override
     public List<Thing> getThings() {
-        return Collections.unmodifiableList(things);
+        return ImmutableList.copyOf(things);
     }
 
     @Override

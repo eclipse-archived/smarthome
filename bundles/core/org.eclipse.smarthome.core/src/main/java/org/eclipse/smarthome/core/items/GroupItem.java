@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +17,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 public class GroupItem extends GenericItem implements StateChangeListener {
 	
@@ -62,7 +63,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * @return the direct members of this {@link GroupItem}
 	 */
 	public List<Item> getMembers() {
-		return Collections.unmodifiableList(members);
+		return ImmutableList.copyOf(members);
 	}
 	
 	/**
@@ -75,7 +76,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	public List<Item> getAllMembers() {
 		Set<Item> allMembers = new HashSet<Item>();
 		collectMembers(allMembers, members);
-		return Collections.unmodifiableList(new ArrayList<Item>(allMembers));
+		return ImmutableList.copyOf(allMembers);
 	}
 	
 	private void collectMembers(Set<Item> allMembers, List<Item> members) {
