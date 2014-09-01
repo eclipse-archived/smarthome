@@ -9,7 +9,10 @@ package org.eclipse.smarthome.io.rest.sitemap.internal;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -28,7 +31,11 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.items.StateChangeListener;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.MediaTypeHelper;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.item.ItemResource;
@@ -77,6 +84,8 @@ public class SitemapResource implements RESTResource {
     protected static final String SITEMAP_FILEEXT = ".sitemap";
 
 	public static final String PATH_SITEMAPS = "sitemaps";
+
+	private static final long TIMEOUT_IN_MS = 30000;
     
 	@Context UriInfo uriInfo;
 
@@ -155,15 +164,21 @@ public class SitemapResource implements RESTResource {
 
 		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
 		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
+			if(headers.getRequestHeader("X-Atmosphere-Transport") != null) {
+				// Make the REST-API pseudo-compatible with openHAB 1.x
+				// The client asks Atmosphere for server push functionality,
+				// so we do a simply listening for changes on the appropriate items
+				blockUnlessChangeOccurs(sitemapname, pageId);
+			}
+			Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
 	    			new JSONWithPadding(getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build()), callback) : getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build());
-	    	throw new WebApplicationException(Response.ok(responseObject, responseType).build());
+	    	return Response.ok(responseObject, responseType).build();
 		} else {
 			throw new WebApplicationException(Response.notAcceptable(null).build());
 		}
     }
-	
-    static public PageBean getPageBean(String sitemapName, String pageId, URI uri) {
+
+	static public PageBean getPageBean(String sitemapName, String pageId, URI uri) {
 		Sitemap sitemap = getSitemap(sitemapName);
 		if(sitemap!=null) {
 			if(pageId.equals(sitemap.getName())) {
@@ -414,4 +429,117 @@ public class SitemapResource implements RESTResource {
         }
         return null;
     }
+	
+	private void blockUnlessChangeOccurs(String sitemapname, String pageId) {
+		Sitemap sitemap = getSitemap(sitemapname);
+		if(sitemap!=null) {
+			if(pageId.equals(sitemap.getName())) {
+				waitForChanges(sitemap.getChildren());
+			} else {
+				Widget pageWidget = itemUIRegistry.getWidget(sitemap, pageId);
+				if(pageWidget instanceof LinkableWidget) {
+					EList<Widget> children = itemUIRegistry.getChildren((LinkableWidget) pageWidget);
+					waitForChanges(children);
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method only returns when a change has occurred to any item on the page to display
+	 * or if the timeout is reached
+	 * 
+	 * @param widgets the widgets of the page to observe
+	 */
+	private boolean waitForChanges(EList<Widget> widgets) {
+		long startTime = (new Date()).getTime();
+		boolean timeout = false;
+		BlockingStateChangeListener listener = new BlockingStateChangeListener();
+		// let's get all items for these widgets
+		Set<GenericItem> items = getAllItems(widgets);
+		for(GenericItem item : items) {			
+			item.addStateChangeListener(listener);
+		}
+		while(!listener.hasChangeOccurred() && !timeout) {
+			timeout = (new Date()).getTime() - startTime > TIMEOUT_IN_MS;
+			try {
+				Thread.sleep(300);
+			} catch (InterruptedException e) {
+				timeout = true;
+				break;
+			}
+		}
+		for(GenericItem item : items) {
+			item.removeStateChangeListener(listener);
+		}
+		return !timeout;
+	}
+
+	/**
+	 * Collects all items that are represented by a given list of widgets
+	 * 
+	 * @param widgets the widget list to get the items for
+	 * @return all items that are represented by the list of widgets
+	 */
+	private Set<GenericItem> getAllItems(EList<Widget> widgets) {
+		Set<GenericItem> items = new HashSet<GenericItem>();
+		if(itemUIRegistry!=null) {
+			for(Widget widget : widgets) {
+				String itemName = widget.getItem();
+				if(itemName!=null) {
+					try {
+						Item item = itemUIRegistry.getItem(itemName);
+						if (item instanceof GenericItem) {
+							final GenericItem gItem = (GenericItem) item;
+							items.add(gItem);
+						}
+					} catch (ItemNotFoundException e) {
+						// ignore
+					}
+				} else {
+					if(widget instanceof Frame) {
+						items.addAll(getAllItems(((Frame) widget).getChildren()));
+					}
+				}
+			}
+		}
+		return items;
+	}
+
+	/**
+	 * This is a state change listener, which is merely used to determine, if a state
+	 * change has occurred on one of a list of items.
+	 * 
+	 * @author Kai Kreuzer - Initial contribution and API
+	 *
+	 */
+	private static class BlockingStateChangeListener implements StateChangeListener {
+		
+		private boolean changed = false;
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		public void stateChanged(Item item, State oldState, State newState) {
+			changed = true;
+		}
+
+		/**
+		 * determines, whether a state change has occurred since its creation
+		 * 
+		 * @return true, if a state has changed
+		 */
+		public boolean hasChangeOccurred() {
+			return changed;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public void stateUpdated(Item item, State state) {
+			// ignore if the state did not change
+		}
+	}
+
 }
+
