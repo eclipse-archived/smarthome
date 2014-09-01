@@ -133,9 +133,11 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 	        		}
 		        } catch (Exception e) {
 		        	if(bridge!=null) {
-			        	logger.debug("Connection to Hue Bridge {} lost.", bridge.getIPAddress());
-			        	lastBridgeConnectionState = false;
-		                onConnectionLost(bridge);
+	        			if(lastBridgeConnectionState) {
+				        	logger.debug("Connection to Hue Bridge {} lost.", bridge.getIPAddress());
+				        	lastBridgeConnectionState = false;
+			                onConnectionLost(bridge);
+	        			}
 		        	}
 		        }
         	} catch(Throwable t) {

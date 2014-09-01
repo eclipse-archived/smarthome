@@ -80,9 +80,9 @@ public class ThingFactory {
 
     private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {
         if (thingType instanceof BridgeType) {
-            return BridgeBuilder.create(thingType.getUID(), thingUID.getId());
+            return BridgeBuilder.create(thingUID);
         } else {
-            return ThingBuilder.create(thingType.getUID(), thingUID.getId());
+            return ThingBuilder.create(thingUID);
         }
     }
 

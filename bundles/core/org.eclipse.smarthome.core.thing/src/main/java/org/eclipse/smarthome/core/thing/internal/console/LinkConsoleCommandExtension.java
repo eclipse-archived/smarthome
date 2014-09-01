@@ -100,7 +100,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
     private void link(Console console, String itemName, ChannelUID channelUID) {
         ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUID);
         managedItemChannelLinkProvider.add(itemChannelLink);
-        console.println("Link " + itemChannelLink.toString() + "successfully added.");
+        console.println("Link " + itemChannelLink.toString() + " successfully added.");
     }
 
     private void list(Console console, Collection<ItemChannelLink> itemChannelLinks) {

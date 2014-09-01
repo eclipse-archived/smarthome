@@ -19,5 +19,6 @@ Import-Package: com.google.gson,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.jupnp.model.types,
  org.osgi.service.device
 Require-Bundle: org.junit;bundle-version="4.0.0"
