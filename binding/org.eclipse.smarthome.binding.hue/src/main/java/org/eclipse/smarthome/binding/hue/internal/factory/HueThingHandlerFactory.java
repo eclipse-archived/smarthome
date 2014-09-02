@@ -39,7 +39,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     public final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(
             HueBindingConstants.THING_TYPE_LCT001, HueBindingConstants.THING_TYPE_BRIDGE);
 
-    private ServiceRegistration<DiscoveryService> discoveryServiceReg;
+    private ServiceRegistration<?> discoveryServiceReg;
     
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
@@ -96,7 +96,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     private void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
     	HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
     	discoveryService.activate();
-    	this.discoveryServiceReg = bundleContext.registerService(DiscoveryService.class, discoveryService, new Hashtable<String, Object>());
+    	this.discoveryServiceReg = bundleContext.registerService(DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>());
     }
     
     @Override
