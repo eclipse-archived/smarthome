@@ -60,7 +60,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public ThingHandler addingService(ServiceReference<ThingHandler> reference) {
             ThingUID thingId = getThingId(reference);
 
-            logger.warn("Thing handler for thing '{}' added.", thingId);
+            logger.debug("Thing handler for thing '{}' added.", thingId);
 
             ThingHandler thingHandler = bundleContext.getService(reference);
             Thing thing = getThing(thingId);
@@ -131,7 +131,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      *            thing handler
      */
     public void handlerAdded(Thing thing, ThingHandler thingHandler) {
-        logger.info("Assigning handler and setting status to ONLINE.", thing.getUID());
+        logger.debug("Assigning handler and setting status to ONLINE.", thing.getUID());
         ((ThingImpl) thing).addThingListener(thingListener);
         thing.setHandler(thingHandler);
         thing.setStatus(ThingStatus.ONLINE);
