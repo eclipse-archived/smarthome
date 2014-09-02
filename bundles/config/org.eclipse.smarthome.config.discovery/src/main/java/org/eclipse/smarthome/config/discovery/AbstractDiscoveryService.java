@@ -7,9 +7,18 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,35 +33,178 @@ import org.slf4j.LoggerFactory;
  * {@link DiscoveryListener}s.
  * 
  * @author Oliver Libutzki - Initial contribution
+ * @author Kai Kreuzer - Refactored API
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final static Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
+	static protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
+
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
-    private boolean autoDiscoveryEnabled = false;
+    protected ScanListener scanListener = null;
+    
+    private boolean backgroundDiscoveryEnabled = getBackgroundDiscoveryDefault();
 
-    @Override
-    public void setAutoDiscoveryEnabled(boolean enabled) {
-        this.autoDiscoveryEnabled = enabled;
+    private Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
+    
+    final private Set<ThingTypeUID> supportedThingTypes;
+    final private int timeout;
+
+	private ScheduledFuture<?> scheduledStop;
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param supportedThingTypes the list of Thing types which are supported (can be null)
+     *
+     * @param timeout the discovery timeout in seconds after which the discovery service
+     *     automatically stops its forced discovery process (>= 0).
+     *
+     * @throws IllegalArgumentException if the timeout < 0
+     */
+    public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout)
+            throws IllegalArgumentException {
+
+        if (supportedThingTypes == null) {
+        	this.supportedThingTypes = Collections.emptySet();
+        } else {
+            this.supportedThingTypes = supportedThingTypes;
+        }
+
+        if (timeout < 0) {
+            throw new IllegalArgumentException("The timeout must be >= 0!");
+        }
+
+        this.timeout = timeout;
     }
 
-    @Override
-    public boolean isAutoDiscoveryEnabled() {
-        return autoDiscoveryEnabled;
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param timeout the discovery timeout in seconds after which the discovery service
+     *     automatically stops its forced discovery process (>= 0).
+     *
+     * @throws IllegalArgumentException if the timeout < 0
+     */
+    public AbstractDiscoveryService(int timeout) throws IllegalArgumentException {
+    	this(null, timeout);
     }
 
-    @Override
+    /**
+     * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.
+     *
+     * @return the list of Thing types which are supported by the discovery service
+     *     (not null, could be empty)
+     */
+    public Set<ThingTypeUID> getSupportedThingTypes() {
+        return this.supportedThingTypes;
+    }
+
+    /**
+     * Returns the amount of time in seconds after which the discovery service automatically
+     * stops its forced discovery process.
+     *
+     * @return the discovery timeout in seconds (>= 0).
+     */
+    public int getScanTimeout() {
+        return this.timeout;
+    }
+
+    public void setBackgroundDiscoveryEnabled(boolean enabled) {
+        this.backgroundDiscoveryEnabled = enabled;
+    }
+
+    public boolean isBackgroundDiscoveryEnabled() {
+        return backgroundDiscoveryEnabled;
+    }
+
     public void addDiscoveryListener(DiscoveryListener listener) {
+    	synchronized (cachedResults) {
+        	for(DiscoveryResult cachedResult : cachedResults.values()) {
+            	listener.thingDiscovered(this, cachedResult);
+            }
+		}
         discoveryListeners.add(listener);
     }
 
-    @Override
     public void removeDiscoveryListener(DiscoveryListener listener) {
         discoveryListeners.remove(listener);
     }
 
+    public synchronized void startScan(ScanListener listener) {
+        synchronized (this) {
+
+            // we first stop any currently running scan and its scheduled stop
+            // call
+            stopScan();
+            if (scheduledStop != null) {
+                scheduledStop.cancel(false);
+                scheduledStop = null;
+            }
+
+            this.scanListener = listener;
+
+            // schedule an automatic call of stopScan when timeout is reached
+            if (getScanTimeout() > 0) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            stopScan();
+                        } catch (Exception e) {
+                            logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                        }
+                    }
+                };
+
+                scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
+            }
+            try {
+                startScan();
+            } catch (Exception ex) {
+                if (scheduledStop != null) {
+                    scheduledStop.cancel(false);
+                    scheduledStop = null;
+                }
+                scanListener = null;
+                throw ex;
+            }
+        }
+    }
+    
+    public synchronized void abortScan() {
+        synchronized (this) {        
+            if (scheduledStop != null) {
+                scheduledStop.cancel(false);
+                scheduledStop = null;
+            }
+            if (scanListener != null) {
+                Exception e = new CancellationException("Scan has been aborted.");
+                scanListener.onErrorOccurred(e);
+                scanListener = null;
+            }    	
+        }
+    }
+    
     /**
+     * This method is called by the {@link #startScan(ScanListener))} implementation of the {@link AbstractDiscoveryService}.
+     * The abstract class schedules a call of {@link #stopScan()} after {@link #getScanTimeout()} 
+     * seconds. If this behavior is not appropriate, the {@link #startScan(ScanListener))} method should be overridden.
+     */
+    abstract protected void startScan();
+
+    /**
+     * This method cleans up after a scan, i.e. it removes listeners and other required operations.
+     */
+    protected synchronized void stopScan() {
+    	if(scanListener!=null) {
+    		scanListener.onFinished();
+    		scanListener = null;
+    	}
+    }
+    
+	/**
      * Notifies the registered {@link DiscoveryListener}s about a discovered device.
      * 
      * @param discoveryResult
@@ -68,8 +220,19 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                                 + discoveryListener.getClass().getName() + ".", e);
             }
         }
+        synchronized (cachedResults) {
+            cachedResults.put(discoveryResult.getThingUID(), discoveryResult);
+		}
     }
 
+    /**
+     * Defines, whether the default for this discovery service is to enable
+     * background discovery or not
+     * 
+     * @return <code>true</code>, if background discovery is enabled by default, otherwise <code>false</code>
+     */
+    abstract protected boolean getBackgroundDiscoveryDefault();
+    
     /**
      * Notifies the registered {@link DiscoveryListener}s about a removed device.
      * 
@@ -86,38 +249,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
                                 + discoveryListener.getClass().getName() + ".", e);
             }
         }
-    }
-
-    /**
-     * Notifies the registered {@link DiscoveryListener}s about an error.
-     * 
-     * @param exception
-     *            The exception which occurred.
-     */
-    protected void discoveryErrorOccurred(Exception exception) {
-        for (DiscoveryListener discoveryListener : discoveryListeners) {
-            try {
-                discoveryListener.discoveryErrorOccurred(this, exception);
-            } catch (Exception e) {
-                logger.error(
-                        "An error occurred while calling the discovery listener "
-                                + discoveryListener.getClass().getName() + ".", e);
-            }
-        }
-    }
-
-    /**
-     * Notifies the registered {@link DiscoveryListener}s about a completed discovery.
-     */
-    protected void discoveryFinished() {
-        for (DiscoveryListener discoveryListener : discoveryListeners) {
-            try {
-                discoveryListener.discoveryFinished(this);
-            } catch (Exception e) {
-                logger.error(
-                        "An error occurred while calling the discovery listener "
-                                + discoveryListener.getClass().getName() + ".", e);
-            }
+        synchronized (cachedResults) {
+        	cachedResults.remove(thingUID);
         }
     }
 

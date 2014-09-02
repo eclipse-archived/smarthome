@@ -8,8 +8,7 @@
 package org.eclipse.smarthome.config.setup.test.discovery
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService
-import org.eclipse.smarthome.config.discovery.DiscoveryResult
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceInfo
+import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 
@@ -28,37 +27,23 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
     int timeout
     boolean faulty
 
-    boolean force
-
-
     public DiscoveryServiceMock(thingType, timeout, faulty = false) {
-        this.thingType = thingType
-        this.timeout = timeout
+        super([thingType] as Set, timeout)     
+        this.thingType = thingType   
         this.faulty = faulty
     }
 
     @Override
-    public DiscoveryServiceInfo getInfo() {
-        return new DiscoveryServiceInfo([thingType], timeout)
-    }
-
-    @Override
-    public void forceDiscovery() {
+    public void startScan() {
         if (faulty) {
             throw new Exception()
         }
-
-        force = true
-        thingDiscovered(new DiscoveryResult(thingType, new ThingUID(thingType, 'abc')))
-        discoveryFinished()
-        force = false
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, 'abc'), null, null, null))
     }
 
-    @Override
-    public void abortForcedDiscovery() {
-        if (faulty) {
-            throw new Exception()
-        }
-    }
+	@Override
+	protected boolean getBackgroundDiscoveryDefault() {
+		return true;
+	}
 
 }

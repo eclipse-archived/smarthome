@@ -87,6 +87,20 @@ public interface Inbox {
     List<DiscoveryResult> getAll();
 
     /**
+     * Sets the flag for a given thingUID result.<br>
+     * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW}
+     * or has been marked as {@link DiscoveryResultFlag#IGNORED}. In the latter
+     * case the result object should be regarded as known by the system so that
+     * further processing should be skipped.
+     * <p>
+     * If the specified flag is {@code null}, {@link DiscoveryResultFlag.NEW}
+     * is set by default.
+     *
+     * @param flag the flag of the given thingUID result to be set (could be null)
+     */
+    public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag);
+    
+    /**
      * Adds an {@link InboxListener} to the listeners' registry.
      * <p>
      * When a {@link DiscoveryResult} is <i>ADDED</i>, <i>UPDATED</i> or <i>REMOVED</i>,

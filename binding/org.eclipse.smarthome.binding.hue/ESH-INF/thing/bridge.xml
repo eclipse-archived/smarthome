@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description.xsd">
+
+    <!-- Hue Bridge -->
+    <bridge-type id="bridge">
+        <label>Hue Bridge</label>
+        <description>The hue bridge represents the Philips hue bridge.</description>
+
+        <config-description>
+            <parameter name="ipAddress" type="text">
+                <context>network_address</context>
+                <label>Network Address</label>
+                <description>Network address of the hue bridge.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="userName" type="text">
+                <context>password</context>
+                <label>Username</label>
+                <description>
+                    Name of a registered hue bridge user, that allows to access the API.
+                </description>
+                <required>false</required>
+            </parameter>
+            <parameter name="serialNumber" type="text">
+                <label>Serial Number</label>
+                <description>Serial number of the hue bridge.</description>
+                <required>false</required>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+</thing:thing-descriptions>

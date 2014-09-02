@@ -46,25 +46,4 @@ public interface DiscoveryListener {
      */
     void thingRemoved(DiscoveryService source, ThingUID thingUID);
 
-    /**
-     * Invoked synchronously when the according discovery process has finished.
-     * <p>
-     * This method is only a result of an enforced discovery process. This signal
-     * is sent latest when the amount of time for the discovery process has been
-     * reached.
-     *
-     * @param source the discovery service which is the source of this event (not null)
-     */
-    void discoveryFinished(DiscoveryService source);
-
-    /**
-     * Invoked synchronously when the according discovery process has caused an error.
-     * <p>
-     * This method could only be a result of an enforced discovery process.
-     *
-     * @param source the discovery service which is the source of this event (not null)
-     * @param exception the error which occurred (could be null)
-     */
-    void discoveryErrorOccurred(DiscoveryService source, Exception exception);
-
 }

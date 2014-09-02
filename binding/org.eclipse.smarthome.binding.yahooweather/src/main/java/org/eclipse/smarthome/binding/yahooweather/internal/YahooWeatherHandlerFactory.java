@@ -7,7 +7,8 @@
  */
 package org.eclipse.smarthome.binding.yahooweather.internal;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 import org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants;
 import org.eclipse.smarthome.binding.yahooweather.handler.YahooWeatherHandler;
@@ -15,8 +16,6 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-
-import com.google.common.collect.Lists;
 
 /**
  * The {@link YahooWeatherHandlerFactory} is responsible for creating things and thing 
@@ -26,7 +25,7 @@ import com.google.common.collect.Lists;
  */
 public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
     
-    private final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
+    private final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Collections.singleton(YahooWeatherBindingConstants.THING_TYPE_WEATHER);
     
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {

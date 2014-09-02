@@ -12,15 +12,17 @@ import static org.junit.Assert.*
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryService
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceInfo
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
+import org.eclipse.smarthome.config.discovery.ScanListener
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
+import org.eclipse.smarthome.config.discovery.internal.DiscoveryServiceRegistryImpl
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.framework.ServiceRegistration
 
 
 /**
@@ -40,30 +42,40 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
 
     DiscoveryService discoveryServiceMock
     DiscoveryService discoveryServiceFaultyMock
-
     DiscoveryServiceRegistry discoveryServiceRegistry
-
+    List<ServiceRegistration<?>> serviceRegs = []
 
     @Before
-    void setup() {
+    void setUp() {
         registerVolatileStorageService()
 
         discoveryServiceMock = new DiscoveryServiceMock(
-                new ThingTypeUID('anyBindingId','anyThingType'), 10)
+                new ThingTypeUID('anyBindingId','anyThingType'), 1)
 
         discoveryServiceFaultyMock = new DiscoveryServiceMock(
-                new ThingTypeUID('faultyBindingId', 'faultyThingType'), 5, true)
+                new ThingTypeUID('faultyBindingId', 'faultyThingType'), 1, true)
 
-        registerService(discoveryServiceMock, DiscoveryService.class.name)
-        registerService(discoveryServiceFaultyMock, DiscoveryService.class.name)
+        serviceRegs.add(registerService(discoveryServiceMock, DiscoveryService.class.name))
+        serviceRegs.add(registerService(discoveryServiceFaultyMock, DiscoveryService.class.name))
 
         discoveryServiceRegistry = getService(DiscoveryServiceRegistry)
     }
 
     @After
     void cleanUp() {
-        unregisterService(discoveryServiceFaultyMock)
-        unregisterService(discoveryServiceMock)
+        discoveryServiceFaultyMock.abortScan()
+        discoveryServiceMock.abortScan()
+        
+        serviceRegs.each {
+            try {
+                it.unregister()
+            } catch(Exception ex) {
+            }
+        }
+        
+        ((DiscoveryServiceRegistryImpl)discoveryServiceRegistry).listeners.each {
+            discoveryServiceRegistry.removeDiscoveryListener(it)
+        }
 
         Inbox inbox = getService(Inbox)
 
@@ -72,32 +84,10 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     }
 
     @Test
-    void 'assert that a not existing DiscoveryService is not found' () {
-        DiscoveryServiceInfo info
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(null)
-        assertNull(info)
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('bindingId','thingType'))
-        assertNull(info)
-    }
-
-    @Test
-    void 'assert that a known DiscoveryService is found' () {
-        DiscoveryServiceInfo info
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('anyBindingId','anyThingType'))
-        assertNotNull(info)
-
-        info = discoveryServiceRegistry.getDiscoveryInfo(new ThingTypeUID('faultyBindingId','faultyThingType'))
-        assertNotNull(info)
-    }
-
-    @Test
     void 'assert that an not existing DiscoveryService can not be forced for a discovery' () {
         boolean state
 
-        state = discoveryServiceRegistry.forceDiscovery(new ThingTypeUID('bindingId','thingType'))
+        state = discoveryServiceRegistry.startScan(new ThingTypeUID('bindingId','thingType'), [] as ScanListener)
         assertFalse(state)
     }
 
@@ -105,7 +95,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a known DiscoveryService can be forced for a discovery' () {
         boolean state
 
-        state = discoveryServiceRegistry.forceDiscovery(new ThingTypeUID('anyBindingId','anyThingType'))
+        state = discoveryServiceRegistry.startScan(new ThingTypeUID('anyBindingId','anyThingType'), [onFinished: {}, onErrorOccurred: {}] as ScanListener)
         assertTrue(state)
     }
 
@@ -113,7 +103,7 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a faulty known DiscoveryService cannot be forced for a discovery' () {
         boolean state
 
-        state = discoveryServiceRegistry.forceDiscovery(new ThingTypeUID('faultyBindingId','faultyThingType'))
+        state = discoveryServiceRegistry.startScan(new ThingTypeUID('faultyBindingId','faultyThingType'), [] as ScanListener)
         assertFalse(state)
     }
 
@@ -121,59 +111,110 @@ class DiscoveryServiceRegistryOSGITest extends OSGiTest {
     void 'assert that a discovery cannot be aborted for a not existing DiscoveryService' () {
         boolean state
 
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('bindingId','thingType'))
+        state = discoveryServiceRegistry.abortScan(new ThingTypeUID('bindingId','thingType'))
         assertFalse(state)
     }
 
     @Test
     void 'assert that a discovery can be aborted for a known DiscoveryService' () {
+        def onErrorOccuredCalled = false
+        
         boolean state
-
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('anyBindingId','anyThingType'))
+        state = discoveryServiceRegistry.startScan(new ThingTypeUID('anyBindingId','anyThingType'), [
+            onErrorOccurred: {onErrorOccuredCalled = true}
+        ] as ScanListener)
         assertTrue(state)
-    }
-
-    @Test
-    void 'assert that a discovery cannot be aborted for a faulty known DiscoveryService' () {
-        boolean state
-
-        state = discoveryServiceRegistry.abortForcedDiscovery(new ThingTypeUID('faultyBindingId','faultyThingType'))
-        assertFalse(state)
+        
+        state = discoveryServiceRegistry.abortScan(new ThingTypeUID('anyBindingId','anyThingType'))
+        assertTrue(state)
+        
+        waitForAssert { assertTrue onErrorOccuredCalled }
     }
 
     @Test
     void 'assert that an added listener is notified about DiscoveryResults' () {
-        AsyncResultWrapper<Boolean> listenerResult = new AsyncResultWrapper<Boolean>()
-
+        AsyncResultWrapper<Boolean> scanListenerResult = new AsyncResultWrapper<Boolean>()
+        AsyncResultWrapper<DiscoveryResult> discoveryListenerResult = new AsyncResultWrapper<Boolean>()
         DiscoveryListener discoveryListenerMock = [
-            thingDiscovered: { DiscoveryService source, DiscoveryResult result -> },
-            discoveryFinished: { DiscoveryService source ->
-                listenerResult.set(true)
-            }
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result -> discoveryListenerResult.set result}            
         ] as DiscoveryListener
 
         discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
-        discoveryServiceRegistry.forceDiscovery(new ThingTypeUID('anyBindingId', 'anyThingType'))
+        discoveryServiceRegistry.startScan(new ThingTypeUID('anyBindingId', 'anyThingType'), [
+            onFinished: {scanListenerResult.set(Void.TYPE)},
+            onErrorOccurred: {}
+        ] as ScanListener)
 
-        assertTrue(listenerResult.isSet)
+        waitForAssert({ assertTrue scanListenerResult.isSet }, 2000)
+        assertTrue discoveryListenerResult.isSet
     }
 
     @Test
     void 'assert that a removed listener is not notified about DiscoveryResults anymore' () {
-        AsyncResultWrapper<Boolean> listenerResult = new AsyncResultWrapper<Boolean>()
-
+        AsyncResultWrapper<DiscoveryResult> discoveryResult = new AsyncResultWrapper<Boolean>()
+        boolean discoveryFinished = false;
+        
         DiscoveryListener discoveryListenerMock = [
-            thingDiscovered: { DiscoveryService source, DiscoveryResult result -> },
-            discoveryFinished: { DiscoveryService source ->
-                listenerResult.set(true)
-            }
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result -> discoveryResult.set(result)}
         ] as DiscoveryListener
 
         discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
         discoveryServiceRegistry.removeDiscoveryListener(discoveryListenerMock);
-        discoveryServiceRegistry.forceDiscovery(new ThingTypeUID('anyBindingId', 'anyThingType'))
+        discoveryServiceRegistry.startScan(new ThingTypeUID('anyBindingId', 'anyThingType'),  [
+            onFinished: { discoveryFinished = true },
+            onErrorOccurred: {}
+        ] as ScanListener)
 
-        assertFalse(listenerResult.isSet)
+        waitForAssert ({ assertTrue(discoveryFinished) }, 2000 )
+        assertFalse discoveryResult.isSet
+    }
+    
+    @Test
+    void 'assert that two discovery services are started' () {
+        def anotherDiscoveryServiceMock = new DiscoveryServiceMock(
+            new ThingTypeUID('anyBindingId','anyThingType'), 1)
+
+        serviceRegs.add(registerService(anotherDiscoveryServiceMock, DiscoveryService.class.name))
+    
+        def numberOfDiscoveredThings = 0;
+        AsyncResultWrapper<Boolean> listenerResult = new AsyncResultWrapper<Boolean>()
+        
+        DiscoveryListener discoveryListenerMock = [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result -> numberOfDiscoveredThings++}
+        ] as DiscoveryListener
+
+        discoveryServiceRegistry.addDiscoveryListener(discoveryListenerMock);
+        
+        discoveryServiceRegistry.startScan(new ThingTypeUID('anyBindingId', 'anyThingType'),  [
+            onFinished: {listenerResult.set(true)},
+            onErrorOccurred: {}
+        ] as ScanListener)
+        
+        waitForAssert ({ assertTrue(listenerResult.isSet) }, 2000 )
+        assertEquals 2, numberOfDiscoveredThings
+    }
+    
+    @Test
+    void 'assert start discovery for binding id works' () {
+
+        AsyncResultWrapper<Boolean> listenerResult = new AsyncResultWrapper<Boolean>()
+        
+        discoveryServiceRegistry.startScan('anyBindingId',  [
+            onFinished: {listenerResult.set(true)},
+            onErrorOccurred: {}
+        ] as ScanListener)
+        
+        waitForAssert ({ assertTrue(listenerResult.isSet) }, 2000 )
+    }
+    
+    @Test
+    void 'assert supportsDiscovery works' () {
+
+        assertTrue discoveryServiceRegistry.supportsDiscovery(new ThingTypeUID('anyBindingId', 'anyThingType'))
+        assertFalse discoveryServiceRegistry.supportsDiscovery(new ThingTypeUID('anyBindingId', 'unknownType'))
+        
+        assertTrue discoveryServiceRegistry.supportsDiscovery('anyBindingId')
+        assertFalse discoveryServiceRegistry.supportsDiscovery('unknownBindingId')
     }
 
 }

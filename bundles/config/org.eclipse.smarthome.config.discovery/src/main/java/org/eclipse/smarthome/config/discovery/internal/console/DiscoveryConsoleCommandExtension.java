@@ -65,7 +65,7 @@ public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension
     }
 
     private void runDiscovery(Console console, ThingTypeUID thingTypeUID) {
-		discoveryServiceRegistry.forceDiscovery(thingTypeUID);
+		discoveryServiceRegistry.startScan(thingTypeUID, null);
 	}
 
 	public List<String> getUsages() {

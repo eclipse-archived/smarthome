@@ -30,7 +30,21 @@ public class ThingUID extends UID {
     public ThingUID(ThingTypeUID thingTypeUID, String id) {
         super(thingTypeUID.getBindingId(), thingTypeUID.getId(), id);
     }
-    
+
+    /**
+     * Instantiates a new thing UID.
+     * 
+     * @param thingType
+     *            the thing type
+     * @param bridgeUID
+     *            the bridge UID through which the thing is accessed
+     * @param id
+     *            the id of the thing
+     */
+    public ThingUID(ThingTypeUID thingTypeUID, ThingUID bridgeUID, String id) {
+    	super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeUID.getBridgeIds(), bridgeUID.getId()));
+    }
+
     /**
      * Instantiates a new thing UID.
      * 
@@ -60,6 +74,12 @@ public class ThingUID extends UID {
     	return result;
     }
 
+    private static String[] getArray(String bindingId, String thingTypeId, String id, List<String> bridgeIds, String bridgeId) {
+    	List<String> allBridgeIds = new ArrayList<>(bridgeIds);
+    	allBridgeIds.add(bridgeId);
+    	return getArray(bindingId, thingTypeId, id, allBridgeIds.toArray(new String[0]));
+    }
+    
     /**
      * Instantiates a new thing UID.
      * 
@@ -103,6 +123,15 @@ public class ThingUID extends UID {
         return getSegment(1);
 	}
 
+    /**
+     * Returns the thing type uid.
+     * 
+     * @return thing type uid
+     */
+    public ThingTypeUID getThingTypeUID() {
+        return new ThingTypeUID(getSegment(0), getSegment(1));
+	}
+    
     /**
      * Returns the bridge ids.
      * 

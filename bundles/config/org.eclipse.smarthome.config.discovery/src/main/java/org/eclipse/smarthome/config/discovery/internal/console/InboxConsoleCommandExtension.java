@@ -16,6 +16,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
+import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -58,9 +59,9 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 		                    	}
 		                    	DiscoveryResult result = results.get(0);
 		                    	Configuration conf = new Configuration(result.getProperties());
-		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), null, conf);
+		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
 	                    	} catch(IllegalArgumentException e) {
-	                            console.println("'"+ args[2] + "' is no valid thing UID.");
+	                            console.println(e.getMessage());
 	                    	}
                     	} else {
                     		console.println("Cannot approve thing as managed thing provider is missing.");
@@ -73,13 +74,8 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
                     if (args.length > 2) {
                     	try {
                     		ThingUID thingUID = new ThingUID(args[2]);
-	                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, DiscoveryResultFlag.NEW));
-	                    	if(results.isEmpty()) {
-	                            console.println("No matching inbox entry could be found.");
-	                    	}
-	                    	DiscoveryResult result = results.get(0);
-	                    	result.setFlag(DiscoveryResultFlag.IGNORED);
-	                    	inbox.add(result);
+                    		PersistentInbox persistentInbox = (PersistentInbox) inbox;
+                    		persistentInbox.setFlag(thingUID, DiscoveryResultFlag.IGNORED);
                     	} catch(IllegalArgumentException e) {
                             console.println("'"+ args[2] + "' is no valid thing UID.");
                     	}

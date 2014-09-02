@@ -8,6 +8,7 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
+import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -124,11 +125,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
         
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
-        DiscoveryResult discoveryResult = new DiscoveryResult(THING_TYPE_UID, THING_UID).with {
-            label = "DummyLabel1"
-            properties = discoveryResultProps
-            it
-        }
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyLabel1")
+
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)
@@ -148,11 +146,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
 
         managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
 
-        DiscoveryResult discoveryResult = new DiscoveryResult(THING_TYPE_UID, THING_UID).with {
-            label = "DummyLabel1"
-            properties = null
-            it
-        }
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, [:], "DummyLabel")
+         
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)

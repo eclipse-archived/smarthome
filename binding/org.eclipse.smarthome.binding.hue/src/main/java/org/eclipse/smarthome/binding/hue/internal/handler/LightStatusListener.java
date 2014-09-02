@@ -5,11 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.internal.service;
+package org.eclipse.smarthome.binding.hue.internal.handler;
 
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
-import nl.q42.jue.Light;
 
 /**
  * The {@link LightStatusListener} is notified when a light status has changed or a light has been removed or added.
@@ -31,13 +30,13 @@ public interface LightStatusListener {
      * @param bridge The bridge the removed light was connected to.
      * @param light The light which is removed.
      */
-    public void onLightRemoved(HueBridge bridge, Light light);
+    public void onLightRemoved(HueBridge bridge, FullLight light);
 
     /**
      * This method us called whenever a light is added.
      * @param bridge The bridge the added light was connected to.
      * @param light The light which is added.
      */
-    public void onLightAdded(HueBridge bridge, Light light);
+    public void onLightAdded(HueBridge bridge, FullLight light);
 
 }

@@ -180,7 +180,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 if (isLinked(itemName, channel) && !channel.getUID().toString().equals(source)) {
                     ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        logger.info(
+                        logger.debug(
                                 "Delegating update '{}' for item '{}' to handler for channel '{}'",
                                 newState, itemName, channel.getUID());
                         try {
@@ -275,7 +275,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
-        logger.info("Creating handler for thing '{}'.", thing.getUID());
+        logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
             thingHandlerFactory.registerHandler(thing);
         } catch (Exception ex) {
@@ -284,7 +284,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     private void unregisterHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
-        logger.info("Removing handler for thing '{}'.", thing.getUID());
+        logger.debug("Removing handler for thing '{}'.", thing.getUID());
         try {
             thingHandlerFactory.unregisterHandler(thing);
         } catch (Exception ex) {

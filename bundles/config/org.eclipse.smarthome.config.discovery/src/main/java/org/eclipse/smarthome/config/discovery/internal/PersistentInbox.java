@@ -74,18 +74,23 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Thing thing = this.thingRegistry.getByUID(thingUID);
 
             if (thing == null) {
-                DiscoveryResult inboxResult = get(thingUID);
+            	DiscoveryResult inboxResult = get(thingUID);
 
                 if (inboxResult == null) {
-                    this.entries.add(result);
+                	this.entries.add(result);
                     notifyListeners(result, EventType.added);
                     logger.info("Added new thing '{}' to inbox.", thingUID);
                     return true;
                 } else {
-                    inboxResult.synchronize(result);
-                    notifyListeners(inboxResult, EventType.updated);
-                    logger.debug("Discovery result with thing '{}' in inbox was updated.", thingUID);
-                    return true;
+                    if(inboxResult instanceof DiscoveryResultImpl) {
+                    	DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
+                    	resultImpl.synchronize(result);
+                        notifyListeners(resultImpl, EventType.updated);
+                        logger.debug("Updated discovery result for '{}'.", thingUID);
+                        return true;
+                    } else {
+                        logger.warn("Cannot synchronize result with implementation class '{}'.", inboxResult.getClass().getName());
+                    }
                 }
             } else {
                 logger.debug("Discovery result with thing '{}' not added as inbox entry."
@@ -116,7 +121,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Object configValue = config.get(propertyKey);
 
             if (((propertyValue == null) && (configValue != null))
-                    || (!propertyValue.equals(configValue))) {
+                    || (propertyValue != null && !propertyValue.equals(configValue))) {
 
                 // update value
                 config.put(propertyKey, propertyValue);
@@ -132,16 +137,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (listener != null) {
             this.listeners.add(listener);
         }
-    }
-
-    @Override
-    public void discoveryErrorOccurred(DiscoveryService source, Exception exception) {
-        // nothing to do
-    }
-
-    @Override
-    public void discoveryFinished(DiscoveryService source) {
-        // nothing to do
     }
 
     @Override
@@ -165,7 +160,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     @Override
     public synchronized boolean remove(ThingUID thingUID) throws IllegalStateException {
         if (thingUID != null) {
-            DiscoveryResult discoveryResult = get(thingUID);
+        	DiscoveryResult discoveryResult = get(thingUID);
             if (discoveryResult != null) {
                 this.entries.remove(discoveryResult);
                 notifyListeners(discoveryResult, EventType.removed);
@@ -214,6 +209,17 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         // method within this class. -> NOTHING TO DO HERE
     }
 
+    @Override
+    public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag) {
+    	DiscoveryResult result = get(thingUID);
+    	if(result instanceof DiscoveryResultImpl) {
+    		DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) result;
+    		resultImpl.setFlag((flag == null) ? DiscoveryResultFlag.NEW : flag);
+    	} else {
+    		logger.warn("Cannot set flag for result of instance type '{}'", result.getClass().getName());
+    	}
+    }
+    
     /**
      * Returns the {@link DiscoveryResult} in this {@link Inbox} associated with
      * the specified {@code Thing} ID, or {@code null}, if no
