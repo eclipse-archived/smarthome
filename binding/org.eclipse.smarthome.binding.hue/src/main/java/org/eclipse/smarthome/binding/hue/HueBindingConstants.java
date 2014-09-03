@@ -10,7 +10,7 @@ package org.eclipse.smarthome.binding.hue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
- * The {@link YahooWeatherBinding} class defines common constants, which are 
+ * The {@link HueBindingConstants} class defines common constants, which are 
  * used across the whole binding.
  * 
  * @author Kai Kreuzer - Initial contribution
