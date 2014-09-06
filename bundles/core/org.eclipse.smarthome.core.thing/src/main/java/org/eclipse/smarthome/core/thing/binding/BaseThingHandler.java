@@ -139,6 +139,22 @@ public abstract class BaseThingHandler implements ThingHandler {
         thing.channelUpdated(channelUID, state);
     }
 
+	/**
+	 * 
+	 * Updates the state of the thing. Will use the thing UID to infer the
+	 * unique channel UID.
+	 * 
+	 * @param channel
+	 *            ID id of the channel, which was updated
+	 * @param state
+	 *            new state
+	 */
+	protected void updateState(String channelID, State state) {
+		ChannelUID channelUID = new ChannelUID(this.getThing().getUID(),
+				channelID);
+		updateState(channelUID, state);
+	}
+
     /**
      * Updates the status of the thing.
      * 

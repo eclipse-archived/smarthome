@@ -158,15 +158,25 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
                 if (isLinked(itemName, channel)) {
-                    logger.info(
-                            "Delegating command '{}' for item '{}' to handler for channel '{}'",
-                            command, itemName, channel.getUID());
-                    try {
-                        thing.getHandler().handleCommand(channel.getUID(), command);
-                    } catch (Exception ex) {
-                        logger.error("Exception occured while calling handler: " + ex.getMessage(),
-                                ex);
-                    }
+					ThingHandler handler = thing.getHandler();
+					if (handler != null) {
+						logger.info(
+								"Delegating command '{}' for item '{}' to handler for channel '{}'",
+								command, itemName, channel.getUID());
+						try {
+							handler.handleCommand(channel.getUID(), command);
+						} catch (Exception ex) {
+							logger.error(
+									"Exception occured while calling handler: "
+											+ ex.getMessage(), ex);
+						}
+					} else {
+						logger.warn(
+								"Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+								+ "because no handler is assigned. Maybe the binding is not installed or not "
+								+ "propertly initialized.",
+								command, itemName, channel.getUID());
+					}
                 }
             }
         }
@@ -190,7 +200,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                                     "Exception occured while calling handler: " + ex.getMessage(),
                                     ex);
                         }
-                    }
+                    } else {
+						logger.warn(
+								"Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+								+ "because no handler is assigned. Maybe the binding is not installed or not "
+								+ "propertly initialized.",
+								newState, itemName, channel.getUID());
+					}
                 }
             }
         }

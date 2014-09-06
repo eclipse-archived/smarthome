@@ -44,7 +44,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected ScanListener scanListener = null;
     
-    private boolean backgroundDiscoveryEnabled = getBackgroundDiscoveryDefault();
+    private boolean backgroundDiscoveryEnabled;
 
     private Map<ThingUID, DiscoveryResult> cachedResults = new HashMap<>();
     
@@ -52,7 +52,44 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     final private int timeout;
 
 	private ScheduledFuture<?> scheduledStop;
+	
+	/**
+	 * Creates a new instance of this class with the specified parameters.
+	 *
+	 * @param supportedThingTypes
+	 *            the list of Thing types which are supported (can be null)
+	 *
+	 * @param timeout
+	 *            the discovery timeout in seconds after which the discovery
+	 *            service automatically stops its forced discovery process (>=
+	 *            0).
+	 * 
+	 * @param backgroundDiscoveryEnabledByDefault
+	 *            defines, whether the default for this discovery service is to
+	 *            enable background discovery or not.
+	 *
+	 * @throws IllegalArgumentException
+	 *             if the timeout < 0
+	 */
+	public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes,
+			int timeout, boolean backgroundDiscoveryEnabledByDefault)
+			throws IllegalArgumentException {
 
+		if (supportedThingTypes == null) {
+			this.supportedThingTypes = Collections.emptySet();
+		} else {
+			this.supportedThingTypes = supportedThingTypes;
+		}
+
+		if (timeout < 0) {
+			throw new IllegalArgumentException("The timeout must be >= 0!");
+		}
+
+		this.timeout = timeout;
+
+		this.backgroundDiscoveryEnabled = backgroundDiscoveryEnabledByDefault;
+	}
+	
     /**
      * Creates a new instance of this class with the specified parameters.
      *
@@ -65,18 +102,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout)
             throws IllegalArgumentException {
-
-        if (supportedThingTypes == null) {
-        	this.supportedThingTypes = Collections.emptySet();
-        } else {
-            this.supportedThingTypes = supportedThingTypes;
-        }
-
-        if (timeout < 0) {
-            throw new IllegalArgumentException("The timeout must be >= 0!");
-        }
-
-        this.timeout = timeout;
+    	this(supportedThingTypes, timeout, true);
     }
 
     /**
@@ -111,9 +137,14 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
         return this.timeout;
     }
 
-    public void setBackgroundDiscoveryEnabled(boolean enabled) {
-        this.backgroundDiscoveryEnabled = enabled;
-    }
+	public void setBackgroundDiscoveryEnabled(boolean enabled) {
+		this.backgroundDiscoveryEnabled = enabled;
+		if (this.backgroundDiscoveryEnabled) {
+			startBackgroundDiscovery();
+		} else {
+			stopBackgroundDiscovery();
+		}
+	}
 
     public boolean isBackgroundDiscoveryEnabled() {
         return backgroundDiscoveryEnabled;
@@ -224,14 +255,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             cachedResults.put(discoveryResult.getThingUID(), discoveryResult);
 		}
     }
-
-    /**
-     * Defines, whether the default for this discovery service is to enable
-     * background discovery or not
-     * 
-     * @return <code>true</code>, if background discovery is enabled by default, otherwise <code>false</code>
-     */
-    abstract protected boolean getBackgroundDiscoveryDefault();
     
     /**
      * Notifies the registered {@link DiscoveryListener}s about a removed device.
@@ -254,4 +277,51 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
         }
     }
 
+	/**
+	 * Called on component activation, if the implementation of this class is an
+	 * OSGi declarative service and does not override the method. The method
+	 * implementation calls
+	 * {@link AbstractDiscoveryService#startBackgroundDiscovery()} if background
+	 * discovery is enabled by default.
+	 */
+	protected void activate() {
+		if (this.backgroundDiscoveryEnabled) {
+			startBackgroundDiscovery();
+		}
+	}
+
+	/**
+	 * Called on component deactivation, if the implementation of this class is
+	 * an OSGi declarative service and does not override the method. The method
+	 * implementation calls
+	 * {@link AbstractDiscoveryService#stopBackgroundDiscovery()} if background
+	 * discovery is enabled at the time of component deactivation.
+	 */
+	protected void deactivate() {
+		if (this.backgroundDiscoveryEnabled) {
+			stopBackgroundDiscovery();
+		}
+	}
+
+	/**
+	 * Can be overridden to start background discovery logic. This method is
+	 * called when
+	 * {@link AbstractDiscoveryService#setBackgroundDiscoveryEnabled(boolean)}
+	 * is called with true as parameter and when the component is being
+	 * activated (see {@link AbstractDiscoveryService#activate()}.
+	 */
+	protected void startBackgroundDiscovery() {
+		// can be overridden
+	}
+
+	/**
+	 * Can be overridden to stop background discovery logic. This method is
+	 * called when
+	 * {@link AbstractDiscoveryService#setBackgroundDiscoveryEnabled(boolean)}
+	 * is called with false as parameter and when the component is being
+	 * deactivated (see {@link AbstractDiscoveryService#deactivate()}.
+	 */
+	protected void stopBackgroundDiscovery() {
+		// can be overridden
+	}
 }

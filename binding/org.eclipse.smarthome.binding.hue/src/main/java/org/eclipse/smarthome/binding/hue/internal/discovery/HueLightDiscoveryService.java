@@ -102,11 +102,6 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 		// nothing to do
 	}
 
-	@Override
-	protected boolean getBackgroundDiscoveryDefault() {
-		return true;
-	}
-
 	private ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
 		ThingTypeUID thingTypeUID = null;

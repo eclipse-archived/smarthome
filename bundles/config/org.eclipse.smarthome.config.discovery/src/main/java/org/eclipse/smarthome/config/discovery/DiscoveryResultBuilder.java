@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
@@ -25,7 +26,7 @@ public class DiscoveryResultBuilder {
 	final private ThingUID thingUID;
 
 	private ThingUID bridgeUID;
-    private Map<String, Object> properties;
+    private Map<String, Object> properties = new HashMap<>();
     private String label;
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
@@ -44,12 +45,22 @@ public class DiscoveryResultBuilder {
     }
     
     /**
-     * Sets the properties of the desired result
+     * Adds properties to the desired result
      * @param properties of the desired result
      * @return the updated builder
      */
     public DiscoveryResultBuilder withProperties(Map<String, Object> properties) {
-        this.properties = properties;
+        this.properties.putAll(properties);
+        return this;
+    }
+    
+    /**
+     * Adds a property to the desired result
+     * @param property of the desired result
+     * @return the updated builder
+     */
+    public DiscoveryResultBuilder withProperty(String key, Object value) {
+        this.properties.put(key, value);
         return this;
     }
 

@@ -41,9 +41,4 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
         thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, 'abc'), null, null, null))
     }
 
-	@Override
-	protected boolean getBackgroundDiscoveryDefault() {
-		return true;
-	}
-
 }
