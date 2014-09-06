@@ -43,13 +43,15 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
 	private UpnpService upnpService;
 
+	@Override
 	protected void activate() {
-		setBackgroundDiscoveryEnabled(true);
+		super.activate();
 		startScan();
 	}
 
+	@Override
 	protected void deactivate() {
-		this.upnpService.getRegistry().removeListener(this);
+		super.deactivate();
 	}
 	
 	protected void setUpnpService(UpnpService upnpService) {
@@ -67,18 +69,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 	protected void removeUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
 		this.participants.remove(participant);
 	}
-
-	@Override
-	public void setBackgroundDiscoveryEnabled(boolean enabled) {
-		if(enabled) {
-			upnpService.getRegistry().addListener(this);
-		} else {
-			upnpService.getRegistry().removeListener(this);
-		}
-		super.setBackgroundDiscoveryEnabled(enabled);
-			
-	}
-
+	
 	@Override
 	public Set<ThingTypeUID> getSupportedThingTypes() {
 		Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
@@ -86,6 +77,16 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 			supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
 		}
 		return supportedThingTypes;
+	}
+	
+	@Override
+	protected void startBackgroundDiscovery() {
+		upnpService.getRegistry().addListener(this);
+	}
+	
+	@Override
+	protected void stopBackgroundDiscovery() {
+		upnpService.getRegistry().removeListener(this);
 	}
 	
 	@Override
@@ -103,12 +104,6 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 		if(!isBackgroundDiscoveryEnabled()) {
 			upnpService.getRegistry().removeListener(this);
 		}
-	}
-	@Override
-	protected boolean getBackgroundDiscoveryDefault() {
-		// UPnP can receive notifications in the background, so that it does not
-		// mean any additional system load
-		return true;
 	}
 
 	@Override
