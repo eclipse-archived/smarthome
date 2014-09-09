@@ -12,6 +12,9 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.thing.ChannelUID
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -29,10 +32,15 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
     ItemChannelLinkRegistry itemChannelLinkRegistry
+    ManagedThingProvider managedThingProvider
 
     @Before
     void setup() {
         registerVolatileStorageService()
+        managedThingProvider = getService ManagedThingProvider
+        managedThingProvider.add(ThingBuilder.create(CHANNEL_UID.getThingUID()).withChannels([
+            ChannelBuilder.create(CHANNEL_UID, "Color")
+        ]).build())
         itemChannelLinkRegistry = getService ItemChannelLinkRegistry
         managedItemChannelLinkProvider = getService ManagedItemChannelLinkProvider
         assertThat managedItemChannelLinkProvider, is(notNullValue())
@@ -41,6 +49,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     @After
     void teardown() {
         managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getID()) }
+        managedThingProvider.getAll().each { managedThingProvider.remove(it.getUID()) }
     }
 
     @Test
@@ -79,5 +88,33 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     @Test
     void 'assert getBoundItem items returns null'() {
         assertThat  itemChannelLinkRegistry.getBoundItem(CHANNEL_UID), is(null)
+    }
+
+    @Test
+    void 'assert getBoundChannels returns channel'() {
+        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
+        def boundChannels = itemChannelLinkRegistry.getBoundChannels("item")
+        assertThat boundChannels.size(), is(1)
+        assertThat boundChannels.first(), is(equalTo(ITEM_CHANNEL_LINK.getChannelUID()))
+    }
+
+    @Test
+    void 'assert getBoundChannels returns empty set'() {
+        def boundThings = itemChannelLinkRegistry.getBoundChannels("notExistingItem")
+        assertThat boundThings.isEmpty(), is(true)
+    }
+
+    @Test
+    void 'assert getBoundThings returns thing'() {
+        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
+        def boundThings = itemChannelLinkRegistry.getBoundThings("item")
+        assertThat boundThings.size(), is(1)
+        assertThat boundThings.first().UID, is(equalTo(CHANNEL_UID.getThingUID()))
+    }
+
+    @Test
+    void 'assert getBoundThings returns empty set'() {
+        def boundThings = itemChannelLinkRegistry.getBoundThings("notExistingItem")
+        assertThat boundThings.isEmpty(), is(true)
     }
 }
