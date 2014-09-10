@@ -10,6 +10,9 @@ package org.eclipse.smarthome.core.internal.events;
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_PREFIX;
 import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
 
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -31,6 +34,9 @@ import org.osgi.service.event.EventAdmin;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc and exception handling extended, Checkstyle compliance,
  *     thread-safety
+ * @author Michael Grammling - doPrivileged calls added, so that permissions to the internal
+ *     event bus are no longer needed (permissions should be added at some other place
+ *     in the future)
  */
 public class EventPublisherImpl implements EventPublisher {
 
@@ -48,7 +54,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void sendCommand(String itemName, Command command, String source)
+    public void sendCommand(final String itemName, final Command command, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -56,11 +62,18 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The command must not be null!");
         }
 
-        EventAdmin eventAdmin = this.eventAdmin;
+        final EventAdmin eventAdmin = this.eventAdmin;
         if (eventAdmin != null) {
             try {
-                eventAdmin.sendEvent(createCommandEvent(itemName, command, source));
-            } catch (Exception ex) {
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
+                    @Override
+                    public Void run() throws Exception {
+                        eventAdmin.sendEvent(createCommandEvent(itemName, command, source));
+                        return null;
+                    }
+                });
+            } catch (PrivilegedActionException pae) {
+                Exception ex = pae.getException();
                 throw new IllegalStateException("Cannot send the command!", ex);
             }
         } else {
@@ -71,7 +84,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void postCommand(String itemName, Command command, String source) 
+    public void postCommand(final String itemName, final Command command, final String source) 
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -79,11 +92,18 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The command must not be null!");
         }
 
-        EventAdmin eventAdmin = this.eventAdmin;
+        final EventAdmin eventAdmin = this.eventAdmin;
         if (eventAdmin != null) {
             try {
-                eventAdmin.postEvent(createCommandEvent(itemName, command, source));
-            } catch (Exception ex) {
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
+                    @Override
+                    public Void run() throws Exception {
+                        eventAdmin.postEvent(createCommandEvent(itemName, command, source));
+                        return null;
+                    }
+                });
+            } catch (PrivilegedActionException pae) {
+                Exception ex = pae.getException();
                 throw new IllegalStateException("Cannot post the command!", ex);
             }
         } else {
@@ -94,7 +114,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void postUpdate(String itemName, State newState, String source)
+    public void postUpdate(final String itemName, final State newState, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -102,11 +122,18 @@ public class EventPublisherImpl implements EventPublisher {
             throw new IllegalArgumentException("The state must not be null!");
         }
 
-        EventAdmin eventAdmin = this.eventAdmin;
+        final EventAdmin eventAdmin = this.eventAdmin;
         if (eventAdmin != null) {
             try {
-                eventAdmin.postEvent(createUpdateEvent(itemName, newState, source));
-            } catch (Exception ex) {
+                AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
+                    @Override
+                    public Void run() throws Exception {
+                        eventAdmin.postEvent(createUpdateEvent(itemName, newState, source));
+                        return null;
+                    }
+                });
+            } catch (PrivilegedActionException pae) {
+                Exception ex = pae.getException();
                 throw new IllegalStateException("Cannot post the update!", ex);
             }
         } else {
@@ -122,7 +149,7 @@ public class EventPublisherImpl implements EventPublisher {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("command", command);
-        if(source!=null) properties.put("source", source);
+        if (source != null) properties.put("source", source);
         return new Event(createTopic(EventType.COMMAND, itemName) , properties);
     }
 
@@ -130,26 +157,26 @@ public class EventPublisherImpl implements EventPublisher {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("state", newState);
-        if(source!=null) properties.put("source", source);
+        if (source != null) properties.put("source", source);
         return new Event(createTopic(EventType.UPDATE, itemName), properties);
     }
 
-	@Override
-	public void sendCommand(String itemName, Command command)
-			throws IllegalArgumentException, IllegalStateException {
-		sendCommand(itemName, command, null);
-	}
+    @Override
+    public void sendCommand(String itemName, Command command)
+            throws IllegalArgumentException, IllegalStateException {
+        sendCommand(itemName, command, null);
+    }
 
-	@Override
-	public void postCommand(String itemName, Command command)
-			throws IllegalArgumentException, IllegalStateException {
-		postCommand(itemName, command, null);
-	}
+    @Override
+    public void postCommand(String itemName, Command command)
+            throws IllegalArgumentException, IllegalStateException {
+        postCommand(itemName, command, null);
+    }
 
-	@Override
-	public void postUpdate(String itemName, State newState)
-			throws IllegalArgumentException, IllegalStateException {
-		postUpdate(itemName, newState, null);
-	}
+    @Override
+    public void postUpdate(String itemName, State newState)
+            throws IllegalArgumentException, IllegalStateException {
+        postUpdate(itemName, newState, null);
+    }
 
 }
