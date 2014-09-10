@@ -38,7 +38,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
      *            the thing tracker
      */
     public void addThingTracker(ThingTracker thingTracker) {
-        notifyTrackersAboutAllThingsAdded(thingTracker);
+        notifyTrackerAboutAllThingsAdded(thingTracker);
         thingTrackers.add(thingTracker);
     }
 
@@ -65,7 +65,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
      *            the thing tracker
      */
     public void removeThingTracker(ThingTracker thingTracker) {
-        notifyTrackersAboutAllThingsRemoved(thingTracker);
+        notifyTrackerAboutAllThingsRemoved(thingTracker);
         thingTrackers.remove(thingTracker);
     }
 
@@ -157,15 +157,15 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing> implements ThingR
         }
     }
 
-    private void notifyTrackersAboutAllThingsAdded(ThingTracker thingTracker) {
+    private void notifyTrackerAboutAllThingsAdded(ThingTracker thingTracker) {
         for (Thing thing : getAll()) {
-            notifyTrackers(thing, ThingTrackerEvent.THING_ADDED);
+            thingTracker.thingAdded(thing, ThingTrackerEvent.TRACKER_ADDED);
         }
     }
 
-    private void notifyTrackersAboutAllThingsRemoved(ThingTracker thingTracker) {
+    private void notifyTrackerAboutAllThingsRemoved(ThingTracker thingTracker) {
         for (Thing thing : getAll()) {
-            notifyTrackers(thing, ThingTrackerEvent.THING_REMOVED);
+            thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
         }
     }
 
