@@ -7,8 +7,14 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 
 
 /**
@@ -19,6 +25,28 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  * 
  */
 public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
+
+    private ThingRegistry thingRegistry;
+
+    /**
+     * Returns a set of bound channels for the given item name.
+     * 
+     * @param itemName
+     *            item name
+     * @return set of bound channels for the given item name
+     */
+    public Set<ChannelUID> getBoundChannels(String itemName) {
+
+        Set<ChannelUID> channelUIDs = new HashSet<>();
+
+        for (ItemChannelLink itemChannelLink : getAll()) {
+            if (itemChannelLink.getItemName().equals(itemName)) {
+                channelUIDs.add(itemChannelLink.getChannelUID());
+            }
+        }
+
+        return channelUIDs;
+    }
 
     /**
      * Returns the item name, which is bound to the given channel UID.
@@ -34,6 +62,28 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns a set of bound things for the given item name.
+     * 
+     * @param itemName
+     *            item name
+     * @return set of bound things for the given item name
+     */
+    public Set<Thing> getBoundThings(String itemName) {
+
+        Set<Thing> things = new HashSet<>();
+        Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
+
+        for (ChannelUID channelUID : boundChannels) {
+            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            if (thing != null) {
+                things.add(thing);
+            }
+        }
+
+        return things;
     }
 
     /**
@@ -56,5 +106,13 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
         }
 
         return false;
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 }
