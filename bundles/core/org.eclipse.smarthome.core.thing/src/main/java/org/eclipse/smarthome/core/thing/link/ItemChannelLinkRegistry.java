@@ -8,14 +8,13 @@
 package org.eclipse.smarthome.core.thing.link;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-
-import com.google.common.collect.Sets;
 
 
 /**
@@ -38,7 +37,7 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
      */
     public Set<ChannelUID> getBoundChannels(String itemName) {
 
-        Set<ChannelUID> channelUIDs = Sets.newHashSet();
+        Set<ChannelUID> channelUIDs = new HashSet<>();
 
         for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getItemName().equals(itemName)) {
@@ -74,7 +73,7 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
      */
     public Set<Thing> getBoundThings(String itemName) {
 
-        Set<Thing> things = Sets.newHashSet();
+        Set<Thing> things = new HashSet<>();
         Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
 
         for (ChannelUID channelUID : boundChannels) {
