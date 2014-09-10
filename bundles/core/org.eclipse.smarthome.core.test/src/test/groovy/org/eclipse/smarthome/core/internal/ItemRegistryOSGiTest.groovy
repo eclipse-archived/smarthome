@@ -48,7 +48,7 @@ class ItemRegistryOSGiTest extends OSGiTest {
 	@Test
 	void 'assert getItems returns item from registered ItemProvider'() {
 
-		assertThat itemRegistry.getItems().size, is(0)
+		assertThat itemRegistry.getItems().size(), is(0)
 
 		registerService itemProvider
 
@@ -58,7 +58,7 @@ class ItemRegistryOSGiTest extends OSGiTest {
 
 		unregisterService itemProvider
 
-		assertThat itemRegistry.getItems().size, is(0)
+		assertThat itemRegistry.getItems().size(), is(0)
 	}
 	
 	@Test

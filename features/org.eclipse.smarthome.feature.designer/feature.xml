@@ -51,7 +51,7 @@
       <import plugin="org.apache.commons.collections"/>
       <import plugin="org.slf4j.jul"/>
       <import plugin="org.slf4j.log4j"/>
-      <import plugin="javax.mail"/>
+      <import plugin="javax.mail.glassfish"/>
       <import plugin="org.apache.commons.httpclient"/>
       <import plugin="org.eclipse.xtext.common.types.ui"/>
       <import plugin="org.eclipse.compare"/>

@@ -44,7 +44,7 @@ class ScriptEngineOSGiTest extends OSGiTest {
 	@Test
 	def void testInterpreter() {
 		
-		assertThat itemRegistry.getItems().size, is(0)
+		assertThat itemRegistry.getItems().size(), is(0)
 		
 		registerService itemProvider
 		
