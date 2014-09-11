@@ -4,7 +4,7 @@ Eclipse SmartHome is a framework for building smart home solutions. As such, it 
 
 There are the following categories of bundles:
 
- - `config`: everything that is concerned with general configuration of the system like config files, xml parsing, etc.	
+ - `config`: everything that is concerned with general configuration of the system like config files, xml parsing, discovery, etc.	
  - `core`: the main bundles for the logical operation of the system - based on the abstract item and event concepts.
  - `io`: all kinds of optional functionality that have to do with i/o like console commands, audio support or http/rest communication
  - `model`: support for domain specific languages (DSLs) 
@@ -52,4 +52,13 @@ It is important to note that Eclipse SmartHome is not meant to reside on (or nea
 
 ## Things
 
-t.b.d.
+Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other managable source of information and functionality.
+From a user perspective, they are relevant for the setup and configuration process, but not for the operation.
+
+Things can have configuration properties, which can be optional or mandatory. Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.
+
+Things provide "channels", which represent the different functions they provide. Channels are linked to items, where such links are the glue between the virtual and the physical layer. Once such a link is established, a thing reacts on events sent for an item that is linked to one of its channels. Likewise, it actively sends out events for items linked to its channels.
+
+A special type of thing is a "bridge". Bridges are things that need to be added to the system in order to gain access to other things. A typical example of a bridge is an IP gateway for some non-IP based home automation system. 
+
+As many things can be automatically discovered, there are special mechanisms available that deal with the handling of [automatically discovered things](discovery.md).
