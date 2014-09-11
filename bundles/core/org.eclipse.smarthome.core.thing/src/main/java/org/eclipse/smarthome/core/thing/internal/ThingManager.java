@@ -78,7 +78,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         @Override
         public void removedService(ServiceReference<ThingHandler> reference, ThingHandler service) {
             ThingUID thingId = getThingId(reference);
-            logger.warn("Thing handler for thing '{}' removed.", thingId);
+            logger.debug("Thing handler for thing '{}' removed.", thingId);
             Thing thing = getThing(thingId);
             if (thing != null) {
                 handlerRemoved(thing, service);
@@ -131,10 +131,9 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      *            thing handler
      */
     public void handlerAdded(Thing thing, ThingHandler thingHandler) {
-        logger.debug("Assigning handler and setting status to ONLINE.", thing.getUID());
+        logger.debug("Assigning handler for thing '{}'.", thing.getUID());
         ((ThingImpl) thing).addThingListener(thingListener);
         thing.setHandler(thingHandler);
-        thing.setStatus(ThingStatus.ONLINE);
     }
 
     /**
@@ -160,7 +159,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 if (isLinked(itemName, channel)) {
 					ThingHandler handler = thing.getHandler();
 					if (handler != null) {
-						logger.info(
+						logger.debug(
 								"Delegating command '{}' for item '{}' to handler for channel '{}'",
 								command, itemName, channel.getUID());
 						try {
@@ -339,7 +338,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        logger.info("Thing handler factory '{}' removed",
+        logger.debug("Thing handler factory '{}' removed",
                 thingHandlerFactory.getClass().getSimpleName());
 
         thingHandlerFactories.remove(thingHandlerFactory);
