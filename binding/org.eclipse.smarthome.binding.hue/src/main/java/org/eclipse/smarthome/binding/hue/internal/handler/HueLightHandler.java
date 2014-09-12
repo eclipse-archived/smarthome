@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -61,10 +62,11 @@ public class HueLightHandler extends BaseThingHandler implements
 
     @Override
     public void initialize() {
-        logger.debug("Initializing hue light handler.");
+    	logger.debug("Initializing hue light handler.");
         final String configLightId = getConfigAs(HueLightConfiguration.class).lightId;
         if (configLightId != null) {
             lightId = configLightId;
+            super.initialize();
         }
     }
 
@@ -169,13 +171,15 @@ public class HueLightHandler extends BaseThingHandler implements
     @Override
     public void onLightRemoved(HueBridge bridge, FullLight light) {
         if (light.getId().equals(lightId)) {
-            dispose();
+        	getThing().setStatus(ThingStatus.OFFLINE);
         }
     }
 
     @Override
     public void onLightAdded(HueBridge bridge, FullLight light) {
-        // do nothing
+        if (light.getId().equals(lightId)) {
+        	getThing().setStatus(ThingStatus.ONLINE);
+        }
     }
 
 

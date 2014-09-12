@@ -96,6 +96,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void initialize() {
         // can be overridden by subclasses
+    	// standard behavior is to set the thing to ONLINE,
+    	// assuming no further initialization is necessary.
+    	this.thing.setStatus(ThingStatus.ONLINE);
     }
 
     @Override

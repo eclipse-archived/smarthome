@@ -55,6 +55,7 @@ public class YahooWeatherHandler extends BaseThingHandler {
     @Override
     public void initialize() {
         logger.debug("Initializing YahooWeather handler.");
+    	super.initialize();
 
         Configuration config = getThing().getConfiguration();
 
