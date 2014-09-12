@@ -49,6 +49,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     private static final int POLLING_FREQUENCY = 10; // in seconds
 
+	private static final String DEFAULT_USERNAME = "EclipseSmartHome";
+
 	private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
     private Map<String, FullLight> lastLightsState = new HashMap<>();
@@ -190,27 +192,21 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
         HueBridgeConfiguration configuration = getConfigAs(HueBridgeConfiguration.class);
 
+        if(configuration.userName==null) {
+        	getConfig().put(HueBridgeConfiguration.USER_NAME, DEFAULT_USERNAME);
+        }
+        
         if (configuration.ipAddress != null) {
         	if (bridge == null) {
         		bridge = new HueBridge(configuration.ipAddress);
         		bridge.setTimeout(5000);
         	}
-        	this.lastBridgeConnectionState = isConnectionEstablished(bridge);
         	onUpdate();
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
         }
     }
 
-    private boolean isConnectionEstablished(HueBridge bridge) {
-        try {
-            bridge.getLights();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
     private synchronized void onUpdate() {
     	if (bridge != null) {
 			if (pollingJob == null || pollingJob.isCancelled()) {
@@ -248,7 +244,13 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     	try {
 			bridge.authenticate(configuration.userName);
 		} catch (Exception e) {
-			logger.debug("Hue bridge {} is not authenticated - please add user '{}'.", configuration.ipAddress, configuration.userName);
+			logger.info("Hue bridge {} is not authenticated - please press the pairing button on the bridge.", configuration.ipAddress);
+			try {
+				bridge.link(configuration.userName, "gateway");
+				logger.info("User '{}' has been successfully added to Hue bridge.", configuration.userName);
+			} catch (Exception ex) {
+				logger.debug("Failed adding user '{}' to Hue bridge.", configuration.userName);
+			}
 		}
 	}
 
