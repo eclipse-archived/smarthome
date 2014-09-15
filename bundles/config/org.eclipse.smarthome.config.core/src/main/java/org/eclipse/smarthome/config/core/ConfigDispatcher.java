@@ -300,8 +300,9 @@ public class ConfigDispatcher {
 		}
 
 		String pid = null; // no override of the pid
-		if (trimmedLine.substring(1).contains(":")) {
-			pid = StringUtils.substringBefore(line, ":");
+		String key = StringUtils.substringBefore(trimmedLine, "=");
+		if (key.contains(":")) {
+			pid = StringUtils.substringBefore(key, ":");
 			trimmedLine = trimmedLine.substring(pid.length() + 1);
 			pid = pid.trim();
 		}

@@ -174,18 +174,20 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 	 * @param modelName the name of the persistence model without file extension
 	 */
 	private void startEventHandling(String modelName) {
-		PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
-		if(model!=null) {
-			persistenceConfigurations.put(modelName, model.getConfigs());
-			defaultStrategies.put(modelName, model.getDefaults());
-			for(PersistenceConfiguration config : model.getConfigs()) {
-				if(hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
-					for(Item item : getAllItems(config)) {
-						initialize(item);
+		if(modelRepository!=null) {
+			PersistenceModel model = (PersistenceModel) modelRepository.getModel(modelName + ".persist");
+			if(model!=null) {
+				persistenceConfigurations.put(modelName, model.getConfigs());
+				defaultStrategies.put(modelName, model.getDefaults());
+				for(PersistenceConfiguration config : model.getConfigs()) {
+					if(hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
+						for(Item item : getAllItems(config)) {
+							initialize(item);
+						}
 					}
 				}
+				createTimers(modelName);
 			}
-			createTimers(modelName);
 		}
 	}
 
@@ -423,7 +425,7 @@ public class PersistenceManager extends AbstractEventSubscriber implements Model
 			
 				        scheduler.scheduleJob(job, quartzTrigger);
 			
-						logger.debug("Scheduled strategy {} with cron expression {}", new String[] { jobKey.toString(), cronExpression });
+						logger.debug("Scheduled strategy {} with cron expression {}", new Object[] { jobKey.toString(), cronExpression });
 					} catch(SchedulerException e) {
 						logger.error("Failed to schedule job for strategy {} with cron expression {}", new String[] { jobKey.toString(), cronExpression }, e);
 					}
