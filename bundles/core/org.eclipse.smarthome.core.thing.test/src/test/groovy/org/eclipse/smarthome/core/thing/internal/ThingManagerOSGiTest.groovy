@@ -103,29 +103,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 		managedThingProvider.remove(THING.getUID())
 
 		waitForAssert {assertThat unregisterHandlerCalled, is(true)}
-	}
-
-	@Test
-	void 'ThingManager tracks handler for Thing'() {
-
-		def registerHandlerCalled = false
-
-		managedThingProvider.add(THING)
-		assertThat THING.getStatus(), is(not(ThingStatus.ONLINE))
-
-		def thingHandler = [] as ThingHandler
-		registerService(thingHandler,[
-			(ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
-			(ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
-		] as Hashtable)
-
-		assertThat THING.getStatus(), is(ThingStatus.ONLINE)
-
-		unregisterService(thingHandler)
-
-		assertThat THING.getStatus(), is(ThingStatus.OFFLINE)
-	}
-    
+	}    
 
     @Test
     void 'ThingManager does not delegate update events to its source'() {
