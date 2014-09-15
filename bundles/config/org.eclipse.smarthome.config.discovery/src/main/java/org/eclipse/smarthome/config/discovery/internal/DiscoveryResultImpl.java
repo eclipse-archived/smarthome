@@ -19,14 +19,19 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 
 public class DiscoveryResultImpl implements DiscoveryResult {
 
-    final private ThingUID bridgeUID;
-	final private ThingUID thingUID;
+    private ThingUID bridgeUID;
+	private ThingUID thingUID;
 	
     private Map<String, Object> properties;
     private DiscoveryResultFlag flag;
     private String label;
 
-
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    DiscoveryResultImpl() {
+    }
+    
     /**
      * Creates a new instance of this class with the specified parameters.
      * 
