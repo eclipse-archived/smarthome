@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -23,6 +22,8 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
+import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -48,6 +49,8 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added automated removing of entries
  * @author Michael Grammling - Added dynamic configuration updates
+ * @author Dennis Nobel - Added persistence support
+ * 
  */
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
@@ -60,12 +63,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
-    private List<DiscoveryResult> entries = new CopyOnWriteArrayList<>();
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
+    
+    private Storage<DiscoveryResult> discoveryResultStorage;
 
     @Override
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
@@ -77,7 +81,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             	DiscoveryResult inboxResult = get(thingUID);
 
                 if (inboxResult == null) {
-                	this.entries.add(result);
+                	discoveryResultStorage.put(result.getThingUID().toString(), result);
                     notifyListeners(result, EventType.added);
                     logger.info("Added new thing '{}' to inbox.", thingUID);
                     return true;
@@ -85,6 +89,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                     if(inboxResult instanceof DiscoveryResultImpl) {
                     	DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
                     	resultImpl.synchronize(result);
+                    	discoveryResultStorage.put(result.getThingUID().toString(), resultImpl);
                         notifyListeners(resultImpl, EventType.updated);
                         logger.debug("Updated discovery result for '{}'.", thingUID);
                         return true;
@@ -143,7 +148,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public List<DiscoveryResult> get(InboxFilterCriteria criteria) throws IllegalStateException {
         List<DiscoveryResult> filteredEntries = new ArrayList<>();
 
-        for (DiscoveryResult discoveryResult : this.entries) {
+        for (DiscoveryResult discoveryResult : this.discoveryResultStorage.getValues()) {
             if (matchFilter(discoveryResult, criteria)) {
                 filteredEntries.add(discoveryResult);
             }
@@ -162,9 +167,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (thingUID != null) {
         	DiscoveryResult discoveryResult = get(thingUID);
             if (discoveryResult != null) {
-                this.entries.remove(discoveryResult);
+                this.discoveryResultStorage.remove(thingUID.toString());
                 notifyListeners(discoveryResult, EventType.removed);
-
                 return true;
             }
         }
@@ -215,6 +219,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     	if(result instanceof DiscoveryResultImpl) {
     		DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) result;
     		resultImpl.setFlag((flag == null) ? DiscoveryResultFlag.NEW : flag);
+    		discoveryResultStorage.put(resultImpl.getThingUID().toString(), resultImpl);
+    		notifyListeners(resultImpl, EventType.updated);
     	} else {
     		logger.warn("Cannot set flag for result of instance type '{}'", result.getClass().getName());
     	}
@@ -233,11 +239,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      */
     private DiscoveryResult get(ThingUID thingUID) {
         if (thingUID != null) {
-            for (DiscoveryResult discoveryResult : this.entries) {
-                if (discoveryResult.getThingUID().equals(thingUID)) {
-                    return discoveryResult;
-                }
-            }
+            return discoveryResultStorage.get(thingUID.toString());
         }
 
         return null;
@@ -331,6 +333,14 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     protected void unsetManagedThingProvider(ManagedThingProvider thingProvider) {
         this.managedThingProvider = null;
+    }
+    
+    protected void setStorageService(StorageService storageService) {
+        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(), this.getClass().getClassLoader());
+    }
+    
+    protected void unsetStorageService(StorageService storageService) {
+        this.discoveryResultStorage = null;
     }
 
 }
