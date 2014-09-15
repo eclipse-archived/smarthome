@@ -46,10 +46,16 @@ public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension
                 switch (subCommand) {
                 case "start":
                     if (args.length > 2) {
-                    	ThingTypeUID thingTypeUID = new ThingTypeUID(args[2]);
-                        runDiscovery(console, thingTypeUID);
+                    	String arg2 = args[2];
+                    	if(arg2.contains(":")) {
+                    		ThingTypeUID thingTypeUID = new ThingTypeUID(arg2);
+                    		runDiscoveryForThingType(console, thingTypeUID);
+                    	} else {
+                    		runDiscoveryForBinding(console, arg2);
+                    	}
                     } else {
-                        console.println("Specify thing type id to discover: discovery start <thingTypeUID> (e.g. \"hue:bridge\")");
+						console.println("Specify thing type id or binding id to discover: discovery "
+								+ "start <thingTypeUID|bindingID> (e.g. \"hue:bridge\" or \"hue\")");
                     }
                     return;
                 default:
@@ -64,12 +70,16 @@ public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension
         }
     }
 
-    private void runDiscovery(Console console, ThingTypeUID thingTypeUID) {
+    private void runDiscoveryForThingType(Console console, ThingTypeUID thingTypeUID) {
 		discoveryServiceRegistry.startScan(thingTypeUID, null);
+	}
+    
+    private void runDiscoveryForBinding(Console console, String bindingId) {
+		discoveryServiceRegistry.startScan(bindingId, null);
 	}
 
 	public List<String> getUsages() {
-        return Collections.singletonList("discovery start <thingTypeUID> - runs a discovery on a given thing type");
+        return Collections.singletonList("discovery start <thingTypeUID|bindingID> - runs a discovery on a given thing type or binding");
     }
 
 	protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
