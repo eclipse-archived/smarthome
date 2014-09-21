@@ -7,7 +7,11 @@
  */
 package org.eclipse.smarthome.binding.yahooweather;
 
+import java.util.Set;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link YahooWeatherBinding} class defines common constants, which are 
@@ -27,4 +31,6 @@ public class YahooWeatherBindingConstants {
     public static final String CHANNEL_HUMIDITY = "humidity";
     public static final String CHANNEL_PRESSURE = "pressure";
 
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS =ImmutableSet.of(
+    		THING_TYPE_WEATHER);
 }
