@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.yahooweather.discover.DiscoverHome">
-   <implementation class="org.eclipse.smarthome.binding.yahooweather.discover.DiscoverHome"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.yahooweather.discovery.YahooWeatherDiscoveryService">
+   <implementation class="org.eclipse.smarthome.binding.yahooweather.discovery.YahooWeatherDiscoveryService"/>
    <service>
       <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
    </service>
