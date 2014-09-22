@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,8 +23,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the
@@ -105,7 +104,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
         
-        List<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
+        Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
         
         if (discoveryServicesForThingType.isEmpty()) {
             logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);
@@ -118,7 +117,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     public boolean abortScan(String bindingId) throws IllegalStateException {
         
-        List<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
+        Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
         
         if (discoveryServicesForBinding.isEmpty()) {
             logger.warn("No discovery service for binding '{}' found!", bindingId);
@@ -137,7 +136,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener) throws IllegalStateException {
-        List<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
+        Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
         
         if (discoveryServicesForThingType.isEmpty()) {
             logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);
@@ -149,7 +148,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     public boolean startScan(String bindingId, final ScanListener listener) throws IllegalStateException {
         
-        final List<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
+        final Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
 
         if (discoveryServicesForBinding.isEmpty()) {
             logger.warn("No discovery service for binding id '{}' found!", bindingId);
@@ -197,7 +196,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
     }
 
-    private boolean abortScans(List<DiscoveryService> discoveryServices) {
+    private boolean abortScans(Set<DiscoveryService> discoveryServices) {
         boolean allServicesAborted = true;
         
         for(DiscoveryService discoveryService : discoveryServices) {
@@ -220,7 +219,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return allServicesAborted;
     }
 
-    private boolean startScans(List<DiscoveryService> discoveryServices, ScanListener listener) {
+    private boolean startScans(Set<DiscoveryService> discoveryServices, ScanListener listener) {
         
         boolean atLeastOneDiscoveryServiceHasBeenStarted = false;
 
@@ -236,7 +235,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 }
             }
         } else {
-            if (startScan(discoveryServices.get(0), listener)) {
+            if (startScan(discoveryServices.iterator().next(), listener)) {
                 atLeastOneDiscoveryServiceHasBeenStarted = true;
             }
 
@@ -261,10 +260,10 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
     
     
-    private synchronized List<DiscoveryService> getDiscoveryServices(ThingTypeUID thingTypeUID)
+    private synchronized Set<DiscoveryService> getDiscoveryServices(ThingTypeUID thingTypeUID)
             throws IllegalStateException {
 
-        List<DiscoveryService> discoveryServices = Lists.newArrayList();
+        Set<DiscoveryService> discoveryServices = new HashSet<>();
 
         if (thingTypeUID != null) {
             for (DiscoveryService discoveryService : this.discoveryServices) {
@@ -278,10 +277,10 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return discoveryServices;
     }
     
-    private synchronized List<DiscoveryService> getDiscoveryServices(String bindingId)
+    private synchronized Set<DiscoveryService> getDiscoveryServices(String bindingId)
             throws IllegalStateException {
 
-        List<DiscoveryService> discoveryServices = Lists.newArrayList();
+        Set<DiscoveryService> discoveryServices = new HashSet<>();
 
         for (DiscoveryService discoveryService : this.discoveryServices) {
             Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();

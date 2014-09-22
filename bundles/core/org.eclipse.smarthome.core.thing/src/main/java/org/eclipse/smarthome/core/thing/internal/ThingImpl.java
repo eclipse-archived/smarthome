@@ -40,7 +40,7 @@ public class ThingImpl implements Thing {
 
     private ThingUID uid;
 
-    transient volatile private ThingStatus status;
+    transient volatile private ThingStatus status = ThingStatus.OFFLINE;
 
     transient volatile private ThingHandler thingHandler;
 

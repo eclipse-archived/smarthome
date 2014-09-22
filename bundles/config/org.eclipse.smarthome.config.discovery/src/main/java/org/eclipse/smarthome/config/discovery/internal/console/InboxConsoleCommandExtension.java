@@ -56,11 +56,12 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 		                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
 		                    	if(results.isEmpty()) {
 		                            console.println("No matching inbox entry could be found.");
+		                            return;
 		                    	}
 		                    	DiscoveryResult result = results.get(0);
 		                    	Configuration conf = new Configuration(result.getProperties());
 		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
-	                    	} catch(IllegalArgumentException e) {
+	                    	} catch(Exception e) {
 	                            console.println(e.getMessage());
 	                    	}
                     	} else {
