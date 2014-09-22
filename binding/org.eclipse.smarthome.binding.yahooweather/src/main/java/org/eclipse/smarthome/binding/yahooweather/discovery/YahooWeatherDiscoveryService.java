@@ -41,7 +41,7 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
 	private static final Logger logger = LoggerFactory.getLogger(YahooWeatherDiscoveryService.class);
 
 	public YahooWeatherDiscoveryService() {
-		super(YahooWeatherBindingConstants.SUPPORTED_THING_TYPES_UIDS,10,false);
+		super(YahooWeatherBindingConstants.SUPPORTED_THING_TYPES_UIDS,10);
 	}
 
 	public Set<ThingTypeUID> getSupportedThingTypes() {
@@ -154,8 +154,7 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
 	}
 
 	@Override
-	protected void activate() {
-		super.activate();
+	protected void startBackgroundDiscovery() {
 		discoverLocation();
 	}
 
