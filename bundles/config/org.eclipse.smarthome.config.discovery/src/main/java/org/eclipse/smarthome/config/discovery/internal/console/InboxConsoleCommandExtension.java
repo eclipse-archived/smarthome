@@ -87,6 +87,9 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
                 case "listignored":
                     printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
                     return;
+                case "clear":
+                	clearInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+                	return;	
                 default:
                     break;
                 }
@@ -113,6 +116,26 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
             Map<String, Object> properties = discoveryResult.getProperties();
             console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]",
                     flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
+           
+        }
+    }
+
+    private void clearInboxEntries(Console console, List<DiscoveryResult> discoveryResults) {
+
+    	if (discoveryResults.isEmpty()) {
+            console.println("No inbox entries found.");
+        }
+
+        for (DiscoveryResult discoveryResult : discoveryResults) {
+            ThingTypeUID thingTypeUID = discoveryResult.getThingTypeUID();
+            ThingUID thingUID = discoveryResult.getThingUID();
+            String label = discoveryResult.getLabel();
+            DiscoveryResultFlag flag = discoveryResult.getFlag();
+            ThingUID bridgeId = discoveryResult.getBridgeUID();
+            Map<String, Object> properties = discoveryResult.getProperties();
+            console.println(String.format("REMOVED [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]",
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
+            inbox.remove(thingUID);
         }
     }
 
@@ -120,6 +143,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
         return Arrays.asList((new String[] { COMMAND_INBOX + " - lists all current inbox entries",
         		COMMAND_INBOX + " listignored - lists all ignored inbox entries",
         		COMMAND_INBOX + " approve <thingUID> - creates a thing for an inbox entry",
+        		COMMAND_INBOX + " clear - clears all current inbox entries",
         		COMMAND_INBOX + " ignore <thingUID> - ignores an inbox entry permanently" }));
     }
 
