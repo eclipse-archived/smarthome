@@ -13,11 +13,23 @@
 
 	<xs:element name="config-description" type="config-description:configDescription"/>
 
+    <xs:simpleType name="idRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9-_]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="uriRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9-_]+(:[A-Za-z0-9-_]+){1,2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
 	<xs:complexType name="configDescription">
 		<xs:sequence>
 			<xs:element name="parameter" type="config-description:parameter" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
-		<xs:attribute name="uri" type="xs:string" use="optional"/>
+		<xs:attribute name="uri" type="config-description:uriRestrictionPattern" use="optional"/>
 	</xs:complexType>
 
 	<xs:complexType name="parameter">
@@ -42,7 +54,7 @@
 	</xs:simpleType>
 
     <xs:complexType name="configDescriptionRef">
-        <xs:attribute name="uri" type="xs:string" use="required"/>
+        <xs:attribute name="uri" type="config-description:uriRestrictionPattern" use="required"/>
     </xs:complexType>
 
 </xs:schema>

@@ -185,7 +185,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
         Map<String, String> attributes = this.attributeMapValidator.readValidatedAttributes(reader);
 
         // set automatically extracted URI for a possible 'config-description' section
-        context.put("config-description.uri", this.type + "://" + getUID(attributes, context));
+        context.put("config-description.uri", this.type + ":" + getUID(attributes, context));
 
         // read values
         List<?> nodes = (List<?>) context.convertAnother(context, List.class);

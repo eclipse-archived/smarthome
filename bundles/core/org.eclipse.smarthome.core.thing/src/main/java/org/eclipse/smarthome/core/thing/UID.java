@@ -56,6 +56,14 @@ public abstract class UID {
             throw new IllegalArgumentException("UID must have at least " + numberOfSegments
                     + " segments.");
         }
+        for (String segment : segments) {
+            if (!segment.matches("[A-Za-z0-9_-]*")) {
+                throw new IllegalArgumentException(
+                        "UID segment '"
+                                + segment
+                                + "' contains invalid characters. Each segment of the UID must match the pattern [A-Za-z0-9_-]*.");
+            }
+        }
         this.segments = segments;
     }
 

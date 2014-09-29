@@ -85,7 +85,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         String id = attributes.get("id");
 
         // set automatically extracted URI for a possible 'config-description' section
-        context.put("config-description.uri", "binding://" + id);
+        context.put("config-description.uri", "binding:" + id);
 
         // read values
         List<?> nodes = (List<?>) context.convertAnother(context, List.class);

@@ -64,7 +64,8 @@ class ConfigDescriptionsTest extends OSGiTest {
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 2)
         
-        ConfigDescription bridgeConfigDescription = configDescriptions.find { it.uri.equals(new URI("thing-type://hue:bridge")) }
+        ConfigDescription bridgeConfigDescription = configDescriptions.find {
+                it.uri.equals(new URI("thing-type:hue:bridge")) }
         assertThat bridgeConfigDescription, is(notNullValue())
         
         def parameters = bridgeConfigDescription.parameters
@@ -89,7 +90,8 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat description, is("Name of a registered hue bridge user, that allows to access the API.")
         }
         
-        ConfigDescription colorConfigDescription = configDescriptions.find { it.uri.equals(new URI("channel-type://hue:color")) }
+        ConfigDescription colorConfigDescription = configDescriptions.find {
+                it.uri.equals(new URI("channel-type:hue:color")) }
         assertThat colorConfigDescription, is(notNullValue())
         
         parameters = colorConfigDescription.parameters

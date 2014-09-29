@@ -11,18 +11,15 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
-import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 import org.eclipse.smarthome.test.OSGiTest
-import org.eclipse.smarthome.test.SyntheticBundleInstaller;
-import org.junit.After;
+import org.eclipse.smarthome.test.SyntheticBundleInstaller
+import org.junit.After
 import org.junit.Before
-import org.junit.Rule;
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.osgi.framework.Bundle
 
 class ConfigDescriptionsTest extends OSGiTest {
@@ -54,7 +51,8 @@ class ConfigDescriptionsTest extends OSGiTest {
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
         
-        ConfigDescription dummyConfigDescription = configDescriptions.find { it.uri.equals(new URI("dummyConfig")) }
+        ConfigDescription dummyConfigDescription = configDescriptions.find {
+                it.uri.equals(new URI("config:dummyConfig")) }
         assertThat dummyConfigDescription, is(notNullValue())
         
         def parameters = dummyConfigDescription.parameters
