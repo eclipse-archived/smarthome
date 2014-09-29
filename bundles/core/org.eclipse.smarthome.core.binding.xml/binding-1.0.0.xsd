@@ -18,7 +18,7 @@
                     <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
                 </xs:choice>
             </xs:sequence>
-            <xs:attribute name="id" type="xs:string" use="required"/>
+            <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         </xs:complexType>
     </xs:element>
 

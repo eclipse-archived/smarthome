@@ -22,10 +22,10 @@ import java.util.List;
  * <p>
  * The description is stored within the {@link ConfigDescriptionRegistry} under
  * the given URI. The URI has to follow the syntax
- * {@code 'scheme://<token>:<token>:...'}.
+ * {@code '<scheme>:<token>[:<token>]'} (e.g. {@code "binding:hue:bridge"}).
  * <p>
  * <b>Hint:</b> This class is immutable.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
  */
@@ -39,7 +39,7 @@ public class ConfigDescription {
      * Creates a new instance of this class with the specified parameter.
      * 
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry}
-     * @throws IllegalArgumentException if the URI is null
+     * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri) throws IllegalArgumentException {
         this(uri, null);
@@ -54,11 +54,18 @@ public class ConfigDescription {
      * @param parameters the description of a concrete configuration parameter
      *     (could be null or empty)
      *
-     * @throws IllegalArgumentException if the URI is null
+     * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
         if (uri == null) {
             throw new IllegalArgumentException("The URI must not be null!");
+        }
+        if (!uri.isAbsolute()) {
+            throw new IllegalArgumentException("The scheme is missing!");
+        }
+        if (!uri.isOpaque()) {
+            throw new IllegalArgumentException(
+                    "The scheme specific part (token) must not start with a slash ('/')!");
         }
 
         this.uri = uri;
@@ -73,7 +80,8 @@ public class ConfigDescription {
 
     /**
      * Returns the URI of this description within the {@link ConfigDescriptionRegistry}.
-     * The URI follows the syntax {@code 'scheme://<token>:<token>:...'}.
+     * The URI follows the syntax {@code '<scheme>:<token>[:<token>]'}
+     * (e.g. {@code "binding:hue:bridge"}).
      *  
      * @return the URI of this description (not null)
      */

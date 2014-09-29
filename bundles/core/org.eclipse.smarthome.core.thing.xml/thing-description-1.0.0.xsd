@@ -14,7 +14,7 @@
                 <xs:element name="bridge-type" type="thing-description:bridgeType"/>
                 <xs:element name="channel-type" type="thing-description:channelType"/>
             </xs:choice>
-            <xs:attribute name="bindingId" type="xs:string" use="required"/>
+            <xs:attribute name="bindingId" type="config-description:idRestrictionPattern" use="required"/>
         </xs:complexType>
     </xs:element>
 
@@ -29,7 +29,7 @@
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
             </xs:choice>
         </xs:sequence>
-        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="supportedBridgeTypeRefs">
@@ -39,7 +39,7 @@
     </xs:complexType>
 
     <xs:complexType name="bridgeTypeRef">
-        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="channels">
@@ -55,8 +55,8 @@
     </xs:complexType>
 
     <xs:complexType name="channel">
-        <xs:attribute name="id" type="xs:string" use="required"/>
-        <xs:attribute name="typeId" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="channelType">
@@ -69,7 +69,7 @@
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
             </xs:choice>
         </xs:sequence>
-        <xs:attribute name="id" type="xs:string" use="required"/>
+        <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
     </xs:complexType>
 
 </xs:schema>
