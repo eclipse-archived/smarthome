@@ -89,7 +89,6 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			var ThingUID tempthingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(tempthingUID.bindingId, tempthingUID.thingTypeId)
 			thingUID = new ThingUID(thingTypeUID, tempthingUID.getId(), parentBridge.parentPath)
-			
 		} else {
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
