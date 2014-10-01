@@ -16,7 +16,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -153,59 +152,59 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     @Override
     public void receiveCommand(String itemName, Command command) {
-        for (Thing thing : this.things) {
-            List<Channel> channels = thing.getChannels();
-            for (Channel channel : channels) {
-                if (isLinked(itemName, channel)) {
-					ThingHandler handler = thing.getHandler();
-					if (handler != null) {
-						logger.debug(
-								"Delegating command '{}' for item '{}' to handler for channel '{}'",
-								command, itemName, channel.getUID());
-						try {
-							handler.handleCommand(channel.getUID(), command);
-						} catch (Exception ex) {
-							logger.error(
-									"Exception occured while calling handler: "
-											+ ex.getMessage(), ex);
-						}
-					} else {
-						logger.warn(
-								"Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-								+ "because no handler is assigned. Maybe the binding is not installed or not "
-								+ "propertly initialized.",
-								command, itemName, channel.getUID());
-					}
+        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
+        for (ChannelUID channelUID : boundChannels) {
+            Thing thing = getThing(channelUID.getThingUID());
+            if (thing != null) {
+                ThingHandler handler = thing.getHandler();
+                if (handler != null) {
+                    logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
+                            itemName, channelUID);
+                    try {
+                        handler.handleCommand(channelUID, command);
+                    } catch (Exception ex) {
+                        logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                    }
+                } else {
+                    logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                            + "because no handler is assigned. Maybe the binding is not installed or not "
+                            + "propertly initialized.", command, itemName, channelUID);
                 }
+            } else {
+                logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                        + "because no thing with the UID '{}' could be found.", command, itemName, channelUID,
+                        channelUID.getThingUID());
             }
         }
     }
 
     @Override
     public void receiveUpdate(String itemName, State newState, String source) {
-        for (Thing thing : this.things) {
-            List<Channel> channels = thing.getChannels();
-            for (Channel channel : channels) {
-                if (isLinked(itemName, channel) && !channel.getUID().toString().equals(source)) {
+        Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
+        for (ChannelUID channelUID : boundChannels) {
+            // make sure an update event is not sent back to its source
+            if (!channelUID.toString().equals(source)) {
+                Thing thing = getThing(channelUID.getThingUID());
+                if (thing != null) {
                     ThingHandler handler = thing.getHandler();
                     if (handler != null) {
-                        logger.debug(
-                                "Delegating update '{}' for item '{}' to handler for channel '{}'",
-                                newState, itemName, channel.getUID());
+                        logger.debug("Delegating update '{}' for item '{}' to handler for channel '{}'", newState,
+                                itemName, channelUID);
                         try {
-                            handler.handleUpdate(channel.getUID(), newState);
+                            handler.handleUpdate(channelUID, newState);
                         } catch (Exception ex) {
-                            logger.error(
-                                    "Exception occured while calling handler: " + ex.getMessage(),
-                                    ex);
+                            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                         }
                     } else {
-						logger.warn(
-								"Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-								+ "because no handler is assigned. Maybe the binding is not installed or not "
-								+ "propertly initialized.",
-								newState, itemName, channel.getUID());
-					}
+                        logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                                + "because no handler is assigned. Maybe the binding is not installed or not "
+                                + "propertly initialized.", newState, itemName, channelUID);
+                    }
+
+                } else {
+                    logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                            + "because no thing with the UID '{}' could be found.", newState, itemName, channelUID,
+                            channelUID.getThingUID());
                 }
             }
         }
@@ -283,10 +282,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         }
 
         return null;
-    }
-
-    private boolean isLinked(String itemName, Channel channel) {
-        return itemChannelLinkRegistry.isLinked(itemName, channel.getUID());
     }
 
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
