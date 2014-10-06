@@ -7,17 +7,19 @@
  */
 package org.eclipse.smarthome.test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
@@ -26,20 +28,21 @@ import org.osgi.framework.BundleException;
 
 public class SyntheticBundleInstaller {
 
-    private static Class<?> clazz = SyntheticBundleInstaller.class;
     private static String bundlePoolPath = "/test-bundle-pool";
 
-    public static Bundle install(BundleContext bundleContext, String testBundleName) throws IOException, BundleException {
+    public static Bundle install(BundleContext bundleContext, String testBundleName)
+            throws Exception {
         String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
-        Path testbundleJar = createSyntheticBundle(bundleContext, bundlePath, testBundleName);
+        byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName);
 
-        String location = testbundleJar.toUri().toString();
-        Bundle bundle = bundleContext.installBundle(location);
-        bundle.start(Bundle.ACTIVE);
-        return bundle;
+        Bundle syntheticBundle = bundleContext.installBundle(testBundleName, new ByteArrayInputStream(
+                syntheticBundleBytes));
+        syntheticBundle.start(Bundle.ACTIVE);
+        return syntheticBundle;
     }
-    
-    public static void uninstall(BundleContext bundleContext, String testBundleName) throws BundleException {
+
+    public static void uninstall(BundleContext bundleContext, String testBundleName)
+            throws BundleException {
         Bundle[] bundles = bundleContext.getBundles();
         for (Bundle bundle : bundles) {
             if (testBundleName.equals(bundle.getSymbolicName())) {
@@ -48,40 +51,79 @@ public class SyntheticBundleInstaller {
         }
     }
 
-    private static Path createSyntheticBundle(BundleContext bundleContext, String bundlePath, String bundleName) throws IOException {
-        Path testbundleJar = Files.createTempFile(bundleName + "-", ".jar");
-        testbundleJar.toFile().deleteOnExit();
-        OutputStream outputStream = Files.newOutputStream(testbundleJar, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
+    private static byte[] createSyntheticBundle(Bundle bundle, String bundlePath,
+            String bundleName) throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Manifest manifest = getManifest(bundle, bundlePath);
+        JarOutputStream jarOutputStream = manifest != null ? new JarOutputStream(outputStream,
+                manifest) : new JarOutputStream(outputStream);
 
-        List<String> files = collectFilesFrom(bundleContext, bundlePath);
+        List<String> files = collectFilesFrom(bundle, bundlePath, bundleName);
         for (String file : files) {
-            addFileToArchive(bundleContext, bundlePath, file, zipOutputStream);
+            addFileToArchive(bundle, bundlePath, file, jarOutputStream);
         }
-        zipOutputStream.close();
-        outputStream.close();
-        return testbundleJar;
+        jarOutputStream.close();
+        return outputStream.toByteArray();
     }
 
-    private static void addFileToArchive(BundleContext bundleContext, String bundlePath, String fileInBundle, ZipOutputStream zipOutputStream) throws IOException {
+    private static void addFileToArchive(Bundle bundle, String bundlePath,
+            String fileInBundle, JarOutputStream jarOutputStream) throws IOException {
         String filePath = bundlePath + "/" + fileInBundle;
-        URL resource = bundleContext.getBundle().getResource(filePath);
+        URL resource = bundle.getResource(filePath);
         if (resource == null)
             return;
-        byte[] bytes = IOUtils.toByteArray(resource.openStream());
         ZipEntry zipEntry = new ZipEntry(fileInBundle);
-        zipOutputStream.putNextEntry(zipEntry);
-        zipOutputStream.write(bytes);
-        zipOutputStream.closeEntry();
+        jarOutputStream.putNextEntry(zipEntry);
+        IOUtils.copy(resource.openStream(), jarOutputStream);
+        jarOutputStream.closeEntry();
     }
 
-    private static List<String> collectFilesFrom(BundleContext bundleContext, String resourceFolder) {
-        // TODO make dynamic version of collecting resource files
+    private static List<String> collectFilesFrom(Bundle bundle, String bundlePath,
+            String bundleName) throws Exception {
         List<String> result = new ArrayList<>();
-        result.add("META-INF/MANIFEST.MF");
-        result.add("ESH-INF/binding/binding.xml");
-        result.add("ESH-INF/config/config.xml");
-        result.add("ESH-INF/thing/thing-types.xml");
+        URL url = getBaseURL(bundle, bundleName);
+        if (url != null) {
+            String path = url.getPath();
+            URI baseURI = url.toURI();
+            
+            List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties");
+            for (URL entryURL : list) {
+                String fileEntry = convertToFileEntry(baseURI, entryURL);
+                result.add(fileEntry);
+            }
+        }
         return result;
+    }
+
+    private static URL getBaseURL(Bundle bundle, String bundleName) {
+        Enumeration<URL> entries = bundle.findEntries("/", bundleName, true);
+        return entries != null ? entries.nextElement() : null;
+    }
+
+    private static List<URL> collectEntries(Bundle bundle, String path, String... filePatterns) {
+        List<URL> result = new ArrayList<>();
+        for (String filePattern : filePatterns) {
+            Enumeration<URL> entries = bundle.findEntries(path, filePattern, true);
+            if (entries != null) {
+                result.addAll(Collections.list(entries));
+            }
+        }
+        return result;
+    }
+
+    private static String convertToFileEntry(URI baseURI, URL entryURL) throws URISyntaxException {
+        URI entryURI = entryURL.toURI();
+        URI relativeURI = baseURI.relativize(entryURI);
+        String fileEntry = relativeURI.toString();
+        return fileEntry;
+    }
+
+    private static Manifest getManifest(Bundle bundle, String bundlePath)
+            throws IOException {
+        String filePath = bundlePath + "/" + "META-INF/MANIFEST.MF";
+        URL resource = bundle.getResource(filePath);
+        if (resource == null)
+            return null;
+        return new Manifest(resource.openStream());
     }
 }

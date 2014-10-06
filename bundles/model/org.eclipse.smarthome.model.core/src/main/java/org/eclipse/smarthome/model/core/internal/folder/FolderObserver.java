@@ -319,7 +319,7 @@ public class FolderObserver implements ManagedService {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static void checkFile(ModelRepository modelRepo, File file,
+	private static void checkFile(ModelRepository modelRepo, final File file,
 			Kind kind) {
 		if (modelRepo != null && file != null) {
 			try {
@@ -328,7 +328,7 @@ public class FolderObserver implements ManagedService {
 							&& file != null) {
 						modelRepo.addOrRefreshModel(file.getName(),
 								FileUtils.openInputStream(file));
-					} else if (kind == ENTRY_DELETE) {
+					} else if (kind == ENTRY_DELETE && file != null) {
 						modelRepo.removeModel(file.getName());
 					}
 				}

@@ -48,7 +48,7 @@ class BindingInfoTest extends OSGiTest {
 		
         def bindingInfos = bindingInfoRegistry.bindingInfos
         assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
-        BindingInfo bindingInfo = bindingInfos.head()
+        BindingInfo bindingInfo = bindingInfos.first()
         assertThat bindingInfo.id, is("hue")
         assertThat bindingInfo.configDescriptionURI, is(nullValue())
         assertThat bindingInfo.description, is("The hue Binding integrates the Philips hue system. It allows to control hue lights.")
@@ -71,7 +71,7 @@ class BindingInfoTest extends OSGiTest {
         
         def bindingInfos = bindingInfoRegistry.bindingInfos
         assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
-        BindingInfo bindingInfo = bindingInfos.head()
+        BindingInfo bindingInfo = bindingInfos.first()
         
         // uninstall test bundle
         bundle.uninstall();

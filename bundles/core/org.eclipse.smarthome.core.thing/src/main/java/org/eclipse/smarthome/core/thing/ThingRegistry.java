@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.thing.internal.ThingTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki - Extracted ManagedThingProvider
  */
-public interface ThingRegistry extends Registry<Thing>{
+public interface ThingRegistry extends Registry<Thing> {
 
 	/**
 	 * Returns a thing for a given UID or null if no thing was found.
@@ -29,6 +29,5 @@ public interface ThingRegistry extends Registry<Thing>{
 	 * @return thing for a given UID or null if no thing was found
 	 */
 	public abstract Thing getByUID(ThingUID uid);
-
 
 }

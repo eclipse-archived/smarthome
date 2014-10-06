@@ -14,7 +14,6 @@ import static org.junit.matchers.JUnitMatchers.*
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
-import org.eclipse.smarthome.config.core.ConfigDescriptionsChangeListener
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
@@ -30,15 +29,8 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
         configDescriptionRegistry = getService(ConfigDescriptionRegistry)
         configDescription = new ConfigDescription(new URI("config:Dummy"))
         configDescriptionProviderMock = [
-            addConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
-                listener.configDescriptionAdded(configDescriptionProviderMock, configDescription)
-            },
-            removeConfigDescriptionsChangeListener: { def ConfigDescriptionsChangeListener listener ->
-                listener.configDescriptionRemoved(configDescriptionProviderMock, configDescription)
-            },
-            getConfigDescriptions: {
-                -> [ configDescription ]
-            }
+            getConfigDescriptions: {p -> [configDescription]},
+            getConfigDescription: {p1,p2 -> configDescription }
         ] as ConfigDescriptionProvider
     }
 
