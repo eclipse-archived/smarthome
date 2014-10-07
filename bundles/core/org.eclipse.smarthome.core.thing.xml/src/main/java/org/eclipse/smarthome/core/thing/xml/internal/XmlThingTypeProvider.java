@@ -15,8 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;

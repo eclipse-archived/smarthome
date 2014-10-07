@@ -15,7 +15,7 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
-import org.eclipse.smarthome.core.common.ServiceBinder;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

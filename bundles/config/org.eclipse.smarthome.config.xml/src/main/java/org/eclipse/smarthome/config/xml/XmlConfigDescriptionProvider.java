@@ -20,8 +20,8 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
-import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 

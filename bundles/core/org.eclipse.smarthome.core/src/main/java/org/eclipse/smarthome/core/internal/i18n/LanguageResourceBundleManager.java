@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 
-import org.eclipse.smarthome.core.common.ResourceBundleClassLoader;
+import org.eclipse.smarthome.core.common.osgi.ResourceBundleClassLoader;
 import org.osgi.framework.Bundle;
 
 

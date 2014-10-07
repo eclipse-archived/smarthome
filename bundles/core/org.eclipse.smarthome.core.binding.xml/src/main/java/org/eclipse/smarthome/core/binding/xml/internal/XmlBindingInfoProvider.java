@@ -17,8 +17,8 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
-import org.eclipse.smarthome.core.common.ServiceBinder.Bind;
-import org.eclipse.smarthome.core.common.ServiceBinder.Unbind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
