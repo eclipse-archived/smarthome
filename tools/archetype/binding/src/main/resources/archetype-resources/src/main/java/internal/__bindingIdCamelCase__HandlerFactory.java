@@ -14,7 +14,6 @@ import java.util.Set;
 
 import ${package}.handler.${bindingIdCamelCase}Handler;
 
-import org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
