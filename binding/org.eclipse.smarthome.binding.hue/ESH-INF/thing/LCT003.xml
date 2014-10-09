@@ -4,14 +4,14 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Standard Hue Color Bulb with E27 socket (see http://www.everyhue.com/vanilla/discussion/47/model-ids/p1) -->
-    <thing-type id="LCT001">
+    <!-- Hue Color Spot with GU10 socket (see http://www.everyhue.com/vanilla/discussion/47/model-ids/p1) -->
+    <thing-type id="LCT003">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Hue Bulb</label>
-        <description>This is a standard Philips Hue bulb with E27 socket</description>
+        <label>Hue Bulb GU10</label>
+        <description>This is a Philips Hue spot with GU10 socket</description>
 
         <channels>
             <channel id="color" typeId="color" />

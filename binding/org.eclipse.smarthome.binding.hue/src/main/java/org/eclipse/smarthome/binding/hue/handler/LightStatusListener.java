@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.internal.handler;
+package org.eclipse.smarthome.binding.hue.handler;
 
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;

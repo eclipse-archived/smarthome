@@ -19,16 +19,28 @@ public class HueBindingConstants {
 
     public static final String BINDING_ID = "hue";
     
-    // light model ids
-    public static final String MODEL_LCT001 = "LCT001";
-    
     // List all Thing Type UIDs, related to the Hue Binding
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
-    public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, MODEL_LCT001);
+    public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
+    public final static ThingTypeUID THING_TYPE_LLC007 = new ThingTypeUID(BINDING_ID, "LLC007");
+    public final static ThingTypeUID THING_TYPE_LLC010 = new ThingTypeUID(BINDING_ID, "LLC010");
+    public final static ThingTypeUID THING_TYPE_LLC012 = new ThingTypeUID(BINDING_ID, "LLC012");
+    public final static ThingTypeUID THING_TYPE_LWL001 = new ThingTypeUID(BINDING_ID, "LWL001");
+    public final static ThingTypeUID THING_TYPE_LCT003 = new ThingTypeUID(BINDING_ID, "LCT003");
+    public final static ThingTypeUID THING_TYPE_LST001 = new ThingTypeUID(BINDING_ID, "LST001");
+    public final static ThingTypeUID THING_TYPE_LWB004 = new ThingTypeUID(BINDING_ID, "LWB004");
 
     // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
+
+    // Bridge config properties
+    public static final String HOST = "ipAddress";
+	public static final String USER_NAME = "userName";
+	public static final String SERIAL_NUMBER = "serialNumber";
+
+	// Light config properties
+    public static final String LIGHT_ID = "lightId";
 
 }

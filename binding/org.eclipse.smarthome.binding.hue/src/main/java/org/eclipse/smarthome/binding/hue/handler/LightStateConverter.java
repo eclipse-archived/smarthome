@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.hue.internal.handler;
+package org.eclipse.smarthome.binding.hue.handler;
 
 import nl.q42.jue.State;
 import nl.q42.jue.StateUpdate;
@@ -20,6 +20,8 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  * 
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki - Adjustments
+ * @author Kai Kreuzer - made code static
+ * @author Andre Fuechsel - added method for brightness 
  *
  */
 public class LightStateConverter {
@@ -36,7 +38,7 @@ public class LightStateConverter {
      *            HSB type
      * @return light state representing the {@link HSBType}.
      */
-    public StateUpdate toColorLightState(HSBType hsbType) {
+    public static StateUpdate toColorLightState(HSBType hsbType) {
         int hue = new Long(Math.round(hsbType.getHue().doubleValue() * hue_FACTOR)).intValue();
         int saturation = new Long(Math.round(hsbType.getSaturation().doubleValue()
                 * SATURATION_AND_BRIGHTNESS_FACTOR)).intValue();
@@ -55,7 +57,7 @@ public class LightStateConverter {
      *            on or off state
      * @return light state containing the 'on' value
      */
-    public StateUpdate toColorLightState(OnOffType onOffType) {
+    public static StateUpdate toColorLightState(OnOffType onOffType) {
         StateUpdate stateUpdate = new StateUpdate().setOn(OnOffType.ON.equals(onOffType));
         return stateUpdate;
     }
@@ -68,7 +70,7 @@ public class LightStateConverter {
      *            brightness represented as {@link PercentType}
      * @return light state containing the brightness and the 'on' value
      */
-    public StateUpdate toColorLightState(PercentType percentType) {
+    public static StateUpdate toColorLightState(PercentType percentType) {
         boolean on = percentType.equals(PercentType.ZERO) ? false : true;
 
         int brightness = new Long(Math.round(percentType.doubleValue()
@@ -85,7 +87,7 @@ public class LightStateConverter {
      *            color temperature represented as {@link PercentType}
      * @return light state containing the color temperature
      */
-    public StateUpdate toColorTemperatureLightState(PercentType percentType) {
+    public static StateUpdate toColorTemperatureLightState(PercentType percentType) {
         int colorTemperature = COLOR_TEMPERATURE_OFFSET
                 + (int) (COLOR_TEMPERATURE_FACTOR * percentType.intValue());
         StateUpdate stateUpdate = new StateUpdate().setColorTemperature(colorTemperature);
@@ -100,8 +102,21 @@ public class LightStateConverter {
      *            light state
      * @return percent type representing the color temperature
      */
-    public PercentType toColorTemperaturePercentType(State lightState) {
+    public static PercentType toColorTemperaturePercentType(State lightState) {
         int percent = (int) ((lightState.getColorTemperature() - COLOR_TEMPERATURE_OFFSET) / COLOR_TEMPERATURE_FACTOR);
+        return new PercentType(restrictToBounds(percent));
+    }
+
+    /**
+     * Transforms {@link HueLightState} into {@link PercentType} representing
+     * the brightness.
+     * 
+     * @param lightState
+     *            light state
+     * @return percent type representing the brightness
+     */
+    public static PercentType toBrightnessPercentType(State lightState) {
+        int percent = (int) (lightState.getBrightness() / SATURATION_AND_BRIGHTNESS_FACTOR);
         return new PercentType(restrictToBounds(percent));
     }
 
@@ -113,7 +128,7 @@ public class LightStateConverter {
      *            light state
      * @return HSB type representing the color
      */
-    public HSBType toHSBType(State lightState) {
+    public static HSBType toHSBType(State lightState) {
         int hue = lightState.getHue();
         int saturation = lightState.getSaturation();
         int brightness = lightState.getBrightness();
@@ -130,7 +145,7 @@ public class LightStateConverter {
         return hsbType;
     }
 
-    private int restrictToBounds(int percentValue) {
+    private static int restrictToBounds(int percentValue) {
         if (percentValue < 0) {
             return 0;
         } else if (percentValue > 100) {

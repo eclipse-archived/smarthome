@@ -7,19 +7,20 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.MODEL_LCT001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.BINDING_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
 
-import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration;
-import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler;
-import org.eclipse.smarthome.binding.hue.internal.handler.LightStatusListener;
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
+import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
+import org.eclipse.smarthome.binding.hue.handler.LightStatusListener;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -27,8 +28,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
@@ -56,7 +55,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	@Override
 	public Set<ThingTypeUID> getSupportedThingTypes() {
-		return ImmutableSet.copyOf(new ThingTypeUID[] { THING_TYPE_LCT001 });
+		return HueLightHandler.SUPPORTED_THING_TYPES;
 	}
 
 	@Override
@@ -66,16 +65,23 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	@Override
 	public void startScan() {
+	    List<FullLight> lights = hueBridgeHandler.getFullLights(); 
+        for (FullLight l : lights) {
+            onLightAddedInternal(l);
+        }
 	}
 
 	@Override
 	public void onLightAdded(HueBridge bridge, FullLight light) {
-		
-		ThingUID thingUID = getThingUID(light);
+        onLightAddedInternal(light);
+    }
+
+    private void onLightAddedInternal(FullLight light) {
+        ThingUID thingUID = getThingUID(light);
 		if(thingUID!=null) {
 			ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
 	        Map<String, Object> properties = new HashMap<>(1);
-	        properties.put(HueLightConfiguration.LIGHT_ID, light.getId());
+	        properties.put(LIGHT_ID, light.getId());
 	        DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID)
 	        		.withProperties(properties)
 	        		.withBridge(bridgeUID)
@@ -86,7 +92,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 		} else {
 			logger.debug("discovered unsupported light of type '{}' with id {}", light.getModelID(), light.getId());
 		}
-	}
+    }
 
 	@Override
 	public void onLightRemoved(HueBridge bridge, FullLight light) {
@@ -104,13 +110,10 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	private ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
-		ThingTypeUID thingTypeUID = null;
-		switch(light.getModelID()) {
-			case MODEL_LCT001 : thingTypeUID = THING_TYPE_LCT001; break; 
-		}
-		
-		if(thingTypeUID!=null) {
-		    String thingLightId = "Light" + light.getId();
+		ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID());
+				
+		if(getSupportedThingTypes().contains(thingTypeUID)) {
+		    String thingLightId = light.getId();
 		    ThingUID thingUID = new ThingUID(thingTypeUID, bridgeUID, thingLightId);
 			return thingUID;
 		} else {
