@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
-import static org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration.*;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -43,7 +42,7 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 		ThingUID uid = getThingUID(device);
 		if(uid!=null) {
 	        Map<String, Object> properties = new HashMap<>(2);
-	        properties.put(IP_ADDRESS, device.getDetails().getBaseURL().getHost());
+	        properties.put(HOST, device.getDetails().getBaseURL().getHost());
 	        properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
 
 	        DiscoveryResult result = DiscoveryResultBuilder.create(uid)

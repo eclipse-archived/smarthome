@@ -11,8 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
-import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
@@ -51,9 +51,9 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         assertThat hueBridgeHandler, is(nullValue())
 
         Configuration configuration = new Configuration().with {
-            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
-            put(HueBridgeConfiguration.USER_NAME, "testUserName")
-            put(HueBridgeConfiguration.SERIAL_NUMBER, "testSerialNumber")
+            put(HOST, "1.2.3.4")
+            put(USER_NAME, "testUserName")
+            put(SERIAL_NUMBER, "testSerialNumber")
             it
         }
 

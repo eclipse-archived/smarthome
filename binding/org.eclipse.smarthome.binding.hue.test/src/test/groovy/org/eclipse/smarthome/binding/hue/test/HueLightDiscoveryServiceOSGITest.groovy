@@ -15,11 +15,9 @@ import nl.q42.jue.FullLight
 import nl.q42.jue.Light
 import nl.q42.jue.HueBridge
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
-import org.eclipse.smarthome.binding.hue.config.HueLightConfiguration
-import org.eclipse.smarthome.binding.hue.internal.factory.HueThingHandlerFactory
-import org.eclipse.smarthome.binding.hue.internal.handler.HueBridgeHandler
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
+import org.eclipse.smarthome.binding.hue.internal.HueThingHandlerFactory
+import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoveryService
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
@@ -67,9 +65,9 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         assertThat hueBridgeHandler, is(nullValue())
 
         Configuration configuration = new Configuration().with {
-            put(HueBridgeConfiguration.IP_ADDRESS, "1.2.3.4")
-            put(HueBridgeConfiguration.USER_NAME, "testUserName")
-            put(HueBridgeConfiguration.SERIAL_NUMBER, "testSerialNumber")
+            put(HOST, "1.2.3.4")
+            put(USER_NAME, "testUserName")
+            put(SERIAL_NUMBER, "testSerialNumber")
             it
         }
 
@@ -131,10 +129,10 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
         resultWrapper.wrappedObject.with {
             assertThat flag, is (DiscoveryResultFlag.NEW)
-            assertThat thingUID.toString(), is("hue:LCT001:testBridge:Light" + light.id)
-            assertThat thingTypeUID, is (HueBindingConstants.THING_TYPE_LCT001)
+            assertThat thingUID.toString(), is("hue:LCT001:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_LCT001)
             assertThat bridgeUID, is(hueBridge.getUID())
-            assertThat properties.get(HueLightConfiguration.LIGHT_ID), is (light.id)
+            assertThat properties.get(LIGHT_ID), is (light.id)
         }
     }
 }

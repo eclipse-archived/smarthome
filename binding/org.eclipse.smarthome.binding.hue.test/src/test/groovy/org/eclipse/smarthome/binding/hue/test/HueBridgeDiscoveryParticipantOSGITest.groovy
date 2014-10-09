@@ -14,8 +14,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import java.util.Collections;
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants;
-import org.eclipse.smarthome.binding.hue.config.HueBridgeConfiguration
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueBridgeDiscoveryParticipant
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
@@ -73,7 +72,7 @@ class HueBridgeDiscoveryParticipantOSGITest extends OSGiTest {
 			new DeviceDetails(
 				"Some Device",
 				new ManufacturerDetails("Taiwan"),
-				new ModelDetails("§\$%&/"),
+				new ModelDetails("��\$%&/"),
 				"serial567",
 				"upc"))
 
@@ -99,10 +98,10 @@ class HueBridgeDiscoveryParticipantOSGITest extends OSGiTest {
 		discoveryParticipant.createResult(hueDevice).with {
 			assertThat flag, is (DiscoveryResultFlag.NEW)
 			assertThat thingUID, is(new ThingUID("hue:bridge:serial123"))
-			assertThat thingTypeUID, is (HueBindingConstants.THING_TYPE_BRIDGE)
+			assertThat thingTypeUID, is (THING_TYPE_BRIDGE)
 			assertThat bridgeUID, is(nullValue())
-            assertThat properties.get(HueBridgeConfiguration.IP_ADDRESS), is("1.2.3.4")
-            assertThat properties.get(HueBridgeConfiguration.SERIAL_NUMBER), is("serial123")
+            assertThat properties.get(HOST), is("1.2.3.4")
+            assertThat properties.get(SERIAL_NUMBER), is("serial123")
 		}
 
 	}
