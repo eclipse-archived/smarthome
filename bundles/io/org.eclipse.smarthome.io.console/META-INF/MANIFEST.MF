@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Name: Eclipse SmartHome Console
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.io.console.internal.ConsoleActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
@@ -20,5 +20,5 @@ Originally-Created-By: Apache Maven Bundle Plugin
 Service-Component: OSGI-INF/commandprovider.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.io.console,
- org.eclipse.smarthome.io.console.extensions
+Export-Package: org.eclipse.smarthome.io.console,org.eclipse.smarthome
+ .io.console.extensions

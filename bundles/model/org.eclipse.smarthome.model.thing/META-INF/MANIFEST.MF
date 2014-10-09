@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Model
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.thing; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
@@ -34,16 +34,12 @@ Import-Package: org.apache.log4j,
  org.slf4j
 Service-Component: OSGI-INF/*
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.thing,
- org.eclipse.smarthome.model.thing.services,
- org.eclipse.smarthome.model.thing.thing,
- org.eclipse.smarthome.model.thing.thing.impl,
- org.eclipse.smarthome.model.thing.thing.util,
- org.eclipse.smarthome.model.thing.serializer,
- org.eclipse.smarthome.model.thing.parser.antlr,
- org.eclipse.smarthome.model.thing.parser.antlr.internal,
- org.eclipse.smarthome.model.thing.validation,
- org.eclipse.smarthome.model.thing.scoping,
- org.eclipse.smarthome.model.thing.generator,
- org.eclipse.smarthome.model.thing.formatting
+Export-Package: org.eclipse.smarthome.model.thing,org.eclipse.smarthom
+ e.model.thing.services,org.eclipse.smarthome.model.thing.thing,org.ec
+ lipse.smarthome.model.thing.thing.impl,org.eclipse.smarthome.model.th
+ ing.thing.util,org.eclipse.smarthome.model.thing.serializer,org.eclip
+ se.smarthome.model.thing.parser.antlr,org.eclipse.smarthome.model.thi
+ ng.parser.antlr.internal,org.eclipse.smarthome.model.thing.validation
+ ,org.eclipse.smarthome.model.thing.scoping,org.eclipse.smarthome.mode
+ l.thing.generator,org.eclipse.smarthome.model.thing.formatting
 

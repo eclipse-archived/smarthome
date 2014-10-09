@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script UI
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.script.ui;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.smarthome.model.script;visibility:=reexport,
@@ -36,8 +36,8 @@ Import-Package: com.google.common.base,
  org.osgi.service.cm,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
- org.eclipse.smarthome.model.script.ui.contentassist.antlr,
- org.eclipse.smarthome.model.script.ui.internal,
- org.eclipse.smarthome.model.script.ui.quickfix
+Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,or
+ g.eclipse.smarthome.model.script.ui.contentassist.antlr,org.eclipse.s
+ marthome.model.script.ui.internal,org.eclipse.smarthome.model.script.
+ ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptUIActivator

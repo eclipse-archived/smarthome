@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.script;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext;visibility:=reexport,
@@ -45,21 +45,16 @@ Import-Package: com.google.common.base,
  org.quartz.utils,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.script,
- org.eclipse.smarthome.model.script.actions,
- org.eclipse.smarthome.model.script.engine,
- org.eclipse.smarthome.model.script.formatting,
- org.eclipse.smarthome.model.script.interpreter,
- org.eclipse.smarthome.model.script.jvmmodel,
- org.eclipse.smarthome.model.script.lib,
- org.eclipse.smarthome.model.script.parser.antlr,
- org.eclipse.smarthome.model.script.parser.antlr.internal,
- org.eclipse.smarthome.model.script.scoping,
- org.eclipse.smarthome.model.script.script,
- org.eclipse.smarthome.model.script.script.impl,
- org.eclipse.smarthome.model.script.script.util,
- org.eclipse.smarthome.model.script.serializer,
- org.eclipse.smarthome.model.script.services,
- org.eclipse.smarthome.model.script.validation
+Export-Package: org.eclipse.smarthome.model.script,org.eclipse.smartho
+ me.model.script.actions,org.eclipse.smarthome.model.script.engine,org
+ .eclipse.smarthome.model.script.formatting,org.eclipse.smarthome.mode
+ l.script.interpreter,org.eclipse.smarthome.model.script.jvmmodel,org.
+ eclipse.smarthome.model.script.lib,org.eclipse.smarthome.model.script
+ .parser.antlr,org.eclipse.smarthome.model.script.parser.antlr.interna
+ l,org.eclipse.smarthome.model.script.scoping,org.eclipse.smarthome.mo
+ del.script.script,org.eclipse.smarthome.model.script.script.impl,org.
+ eclipse.smarthome.model.script.script.util,org.eclipse.smarthome.mode
+ l.script.serializer,org.eclipse.smarthome.model.script.services,org.e
+ clipse.smarthome.model.script.validation
 Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .

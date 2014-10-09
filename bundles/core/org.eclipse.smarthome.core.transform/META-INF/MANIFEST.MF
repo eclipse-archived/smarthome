@@ -3,7 +3,7 @@ Private-Package: org.eclipse.smarthome.binding.http.internal
 Ignore-Package: org.eclipse.smarthome.binding.http.internal
 Bundle-Name: Eclipse SmartHome Transformation Service
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.core.transform.internal.TransformationActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
@@ -32,5 +32,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/regexservice.xml, OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
   OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/transformationaction.xml
 Bundle-ClassPath: .
-Export-Package: org.eclipse.smarthome.core.transform,
- org.eclipse.smarthome.core.transform.actions
+Export-Package: org.eclipse.smarthome.core.transform,org.eclipse.smart
+ home.core.transform.actions

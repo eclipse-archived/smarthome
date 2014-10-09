@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Persistence Model Tests
 Bundle-SymbolicName: org.eclipse.smarthome.model.persistence.tests
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.eclipse.smarthome.core.items,
@@ -14,7 +14,7 @@ Import-Package: org.eclipse.smarthome.core.items,
  org.joda.time,
  org.joda.time.base
 Require-Bundle: org.junit;bundle-version="4.0.0"
-Export-Package: org.eclipse.smarthome.model.persistence.extensions,
- org.eclipse.smarthome.model.persistence.tests
+Export-Package: org.eclipse.smarthome.model.persistence.extensions,org
+ .eclipse.smarthome.model.persistence.tests
 Bundle-ClassPath: .
 Fragment-Host: org.eclipse.smarthome.model.persistence

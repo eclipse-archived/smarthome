@@ -2,11 +2,11 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Script Engine
 Bundle-SymbolicName: org.eclipse.smarthome.core.scriptengine
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.core.scriptengine,
- org.eclipse.smarthome.core.scriptengine.action
+Export-Package: org.eclipse.smarthome.core.scriptengine,org.eclipse.sm
+ arthome.core.scriptengine.action
 Import-Package: com.google.common.base,
  org.apache.commons.lang,
  org.eclipse.emf.ecore.resource,

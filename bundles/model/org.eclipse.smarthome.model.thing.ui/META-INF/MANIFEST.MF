@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Thing Editor UI
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.thing.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.smarthome.model.thing;visibility:=reexport,
@@ -19,8 +19,8 @@ Require-Bundle: org.eclipse.smarthome.model.thing;visibility:=reexport,
 Import-Package: org.apache.log4j,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.thing.ui.quickfix,
- org.eclipse.smarthome.model.thing.ui.contentassist,
- org.eclipse.smarthome.model.thing.ui.contentassist.antlr,
- org.eclipse.smarthome.model.thing.ui.internal
+Export-Package: org.eclipse.smarthome.model.thing.ui.quickfix,org.ecli
+ pse.smarthome.model.thing.ui.contentassist,org.eclipse.smarthome.mode
+ l.thing.ui.contentassist.antlr,org.eclipse.smarthome.model.thing.ui.i
+ nternal
 Bundle-Activator: org.eclipse.smarthome.model.thing.ui.internal.ThingActivator

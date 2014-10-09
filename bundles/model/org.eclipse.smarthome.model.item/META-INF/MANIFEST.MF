@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Item Model
 Bundle-Vendor: openHABorg
-Bundle-Version: 0.7.0.qualifier
+Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.item;singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
@@ -18,19 +18,14 @@ Require-Bundle: org.eclipse.xtext,
  org.antlr.runtime,
  org.eclipse.xtext.common.types
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model,
- org.eclipse.smarthome.model.formatting,
- org.eclipse.smarthome.model.generator,
- org.eclipse.smarthome.model.item,
- org.eclipse.smarthome.model.items,
- org.eclipse.smarthome.model.items.impl,
- org.eclipse.smarthome.model.items.util,
- org.eclipse.smarthome.model.parser.antlr,
- org.eclipse.smarthome.model.parser.antlr.internal,
- org.eclipse.smarthome.model.scoping,
- org.eclipse.smarthome.model.serializer,
- org.eclipse.smarthome.model.services,
- org.eclipse.smarthome.model.validation
+Export-Package: org.eclipse.smarthome.model,org.eclipse.smarthome.mode
+ l.formatting,org.eclipse.smarthome.model.generator,org.eclipse.smarth
+ ome.model.item,org.eclipse.smarthome.model.items,org.eclipse.smarthom
+ e.model.items.impl,org.eclipse.smarthome.model.items.util,org.eclipse
+ .smarthome.model.parser.antlr,org.eclipse.smarthome.model.parser.antl
+ r.internal,org.eclipse.smarthome.model.scoping,org.eclipse.smarthome.
+ model.serializer,org.eclipse.smarthome.model.services,org.eclipse.sma
+ rthome.model.validation
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.smarthome.core.autoupdate,
