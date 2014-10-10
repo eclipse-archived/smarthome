@@ -7,13 +7,13 @@
  */
 package org.eclipse.smarthome.binding.hue.test
 
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
 import org.eclipse.smarthome.config.core.Configuration
@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -346,11 +347,15 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 							}
 						"""
 	                    new Result(body, 200)
-	                }
-	            }
+					}
+				}
 	        ] as MockedHttpClient
-
+	
 			installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
+			
+	        waitForAssert({
+	            assertThat hueLightHandler.getBridge().getStatus(), is(ThingStatus.ONLINE)
+	        }, 10000)
 
 	        // create items and channel bindings
 	        ThingHelper thingHelper = new ThingHelper(bundleContext)
@@ -362,10 +367,10 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        assertThat eventPublisher, is(notNullValue())
 						
 	        eventPublisher.postCommand(item, command)
-
+			
 	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
 	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
-
+			
 	        assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
 			assertJson(expectedBody, bodyWrapper.wrappedObject)
         } finally {
