@@ -234,7 +234,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         		bridge = new HueBridge((String) getConfig().get(HOST));
         		bridge.setTimeout(5000);
         	}
-        	pollingRunnable.run();
         	onUpdate();        	
         } else {
             logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
@@ -244,7 +243,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private synchronized void onUpdate() {
     	if (bridge != null) {
 			if (pollingJob == null || pollingJob.isCancelled()) {
-				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, POLLING_FREQUENCY, POLLING_FREQUENCY, TimeUnit.SECONDS);
+				pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, POLLING_FREQUENCY, TimeUnit.SECONDS);
 			}
     	}
     }
@@ -312,7 +311,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
         boolean result = lightStatusListeners.add(lightStatusListener);
         if (result) {
-            pollingRunnable.run();
         	onUpdate();
             // inform the listener initially about all lights and their states
             for (FullLight light : lastLightStates.values()) {

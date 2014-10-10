@@ -273,6 +273,9 @@ public class HueLightHandler extends BaseThingHandler implements
             updateState(new ChannelUID(getThing().getUID(),  CHANNEL_COLORTEMPERATURE), percentType);
             
             percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState()); 
+            if (!fullLight.getState().isOn()) {
+            	percentType = new PercentType(0);
+            }
             updateState(new ChannelUID(getThing().getUID(),  CHANNEL_BRIGHTNESS), percentType);
         }
 
