@@ -12,6 +12,7 @@ import java.util.Dictionary;
 import java.util.Properties;
 
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
@@ -28,7 +29,7 @@ public class CoreActivator extends Plugin {
 
 	// The shared instance
 	private static CoreActivator plugin;
-	
+
 	public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
 
 	/** Tracker for the ConfigurationAdmin service */
@@ -42,12 +43,16 @@ public class CoreActivator extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+	 * )
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(context, ActionService.class, null);
+		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(
+				context, ActionService.class, null);
 		actionServiceTracker.open();
 
         configurationAdminTracker = new ServiceTracker<>(context, ConfigurationAdmin.class.getName(), null);
@@ -56,7 +61,10 @@ public class CoreActivator extends Plugin {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+	 * 
+	 * @see
+	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+	 * )
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -81,10 +89,15 @@ public class CoreActivator extends Plugin {
 
 	/**
 	 * Returns the shared instance
-	 *
+	 * 
 	 * @return the shared instance
 	 */
 	public static CoreActivator getDefault() {
 		return plugin;
+	}
+
+	public static void setConfigFolder(String absolutePath) {
+		Properties props = System.getProperties();
+		props.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, absolutePath);
 	}
 }
