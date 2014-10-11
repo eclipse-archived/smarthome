@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.config.core;
 
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,15 +17,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchService;
-
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +30,8 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.internal.ConfigActivator;
+import org.eclipse.smarthome.core.service.AbstractWatchQueueReader;
+import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
@@ -77,63 +75,101 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class ConfigDispatcher {
+public class ConfigDispatcher extends AbstractWatchService implements IConfigDispatcherService {
 
 	private static final String PID_MARKER = "pid:";
 
-	private static final Logger logger = LoggerFactory
+	private final Logger logger = LoggerFactory
 			.getLogger(ConfigDispatcher.class);
-
-	private static WatchService watchService;
 
 	// by default, we use the "configurations" folder in the home directory, but
 	// this location
 	// might be changed in certain situations (especially when setting a config
 	// folder in the
 	// SmartHome Designer).
-	private static String configFolder = ConfigConstants.MAIN_CONFIG_FOLDER;
+	private String configFolder = ConfigConstants.MAIN_CONFIG_FOLDER;
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.core.service.AbstractWatchService#activate()
+	 */
+	@Override
 	public void activate() {
-		initializeWatchService();
+		super.activate();
 		readDefaultConfig();
 		readConfigs();
 	}
 
-	public void deactivate() {
-		stopWatchService();
-	}
-
-	/**
-	 * Returns the configuration folder path name. The main config folder
-	 * <code>&lt;smarthome&gt;/configurations</code> could be overwritten by
-	 * setting the System property <code>smarthome.configdir</code>.
-	 * 
-	 * @return the configuration folder path name
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.core.service.AbstractWatchService#getSourcePath()
 	 */
-	public static String getConfigFolder() {
+	@Override
+	protected String getSourcePath() {
 		String progArg = System
-				.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT);
+				.getProperty(ConfigConstants.SERVICEDIR_PROG_ARGUMENT);
 		if (progArg != null) {
-			return progArg;
+			return getConfigFolder() + File.separator + progArg;
 		} else {
-			return configFolder;
+			return getConfigFolder() + File.separator + ConfigConstants.SERVICES_FOLDER;
 		}
 	}
 
-	/**
-	 * Sets the configuration folder to use. Calling this method will
-	 * automatically trigger the loading and dispatching of the contained
-	 * configuration files.
-	 * 
-	 * @param configFolder
-	 *            the path name to the new configuration folder
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.core.service.AbstractWatchService#watchSubDirectories()
 	 */
-	public static void setConfigFolder(String configFolder) {
-		ConfigDispatcher.configFolder = configFolder;
-		initializeWatchService();
+	@Override
+	protected boolean watchSubDirectories() {
+		return false;
 	}
 
-	private static String getDefaultServiceConfigFile() {
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.core.service.AbstractWatchService#registerDirecotry(java.nio.file.Path)
+	 */
+	@Override
+	protected void registerDirecotry(Path subDir) throws IOException {
+		subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE,
+				ENTRY_MODIFY);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.core.service.AbstractWatchService#buildWatchQueueReader(java.nio.file.WatchService, java.nio.file.Path)
+	 */
+	@Override
+	protected AbstractWatchQueueReader buildWatchQueueReader(
+			WatchService watchService, Path toWatch) {
+		return new WatchQueueReader(watchService, toWatch);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.config.core.IConfigDispatcherService#getConfigFolder()
+	 */
+	public String getConfigFolder() {
+			String progArg = System
+					.getProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT);
+			if (progArg != null) {
+				return progArg;
+			} else {
+				return configFolder;
+			}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.smarthome.config.core.IConfigDispatcherService#setConfigFolder(java.lang.String)
+	 */
+	public void setConfigFolder(String configFolder) {
+		synchronized (ConfigDispatcher.class) {
+			this.configFolder = configFolder;
+			initializeWatchService();
+		}
+	}
+
+	private String getDefaultServiceConfigFile() {
 		String progArg = System
 				.getProperty(ConfigConstants.SERVICECFG_PROG_ARGUMENT);
 		if (progArg != null) {
@@ -154,7 +190,7 @@ public class ConfigDispatcher {
 	}
 
 	private void readConfigs() {
-		File dir = new File(getServiceConfigFolder());
+		File dir = new File(getSourcePath());
 		if (dir.exists()) {
 			File[] files = dir.listFiles();
 			for (File file : files) {
@@ -171,53 +207,6 @@ public class ConfigDispatcher {
 		}
 	}
 
-	private static void initializeWatchService() {
-		if (watchService != null) {
-			try {
-				watchService.close();
-			} catch (IOException e) {
-				logger.warn("Cannot deactivate folder watcher", e);
-			}
-		}
-		Path toWatch = Paths.get(getServiceConfigFolder());
-		if (toWatch.toFile().exists()) {
-			try {
-				watchService = toWatch.getFileSystem().newWatchService();
-				WatchQueueReader reader = new WatchQueueReader(watchService,
-						toWatch);
-				Thread qr = new Thread(reader, "Dir Watcher");
-				qr.start();
-				toWatch.register(watchService, ENTRY_CREATE, ENTRY_MODIFY,
-						ENTRY_DELETE);
-			} catch (IOException e) {
-				logger.error(
-						"Cannot activate folder watcher for folder '{}': ",
-						toWatch, e);
-			}
-		}
-	}
-
-	private void stopWatchService() {
-		if (watchService != null) {
-			try {
-				watchService.close();
-			} catch (IOException e) {
-				logger.warn("Cannot deactivate folder watcher", e);
-			}
-			watchService = null;
-		}
-	}
-
-	private static String getServiceConfigFolder() {
-		String progArg = System
-				.getProperty(ConfigConstants.SERVICEDIR_PROG_ARGUMENT);
-		if (progArg != null) {
-			return getConfigFolder() + "/" + progArg;
-		} else {
-			return getConfigFolder() + "/" + ConfigConstants.SERVICES_FOLDER;
-		}
-	}
-
 	private static String getServicePidNamespace() {
 		String progArg = System
 				.getProperty(ConfigConstants.SERVICEPID_PROG_ARGUMENT);
@@ -229,7 +218,7 @@ public class ConfigDispatcher {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static void processConfigFile(File configFile) throws IOException,
+	private void processConfigFile(File configFile) throws IOException,
 			FileNotFoundException {
 		if (configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
 			logger.debug("Ignoring file '{}'", configFile.getName());
@@ -293,7 +282,7 @@ public class ConfigDispatcher {
 		}
 	}
 
-	private static String[] parseLine(final String filePath, final String line) {
+	private String[] parseLine(final String filePath, final String line) {
 		String trimmedLine = line.trim();
 		if (trimmedLine.startsWith("#") || trimmedLine.isEmpty()) {
 			return null;
@@ -316,61 +305,24 @@ public class ConfigDispatcher {
 		}
 	}
 
-	private static class WatchQueueReader implements Runnable {
-
-		private WatchService watchService;
+	private class WatchQueueReader extends AbstractWatchQueueReader {
 
 		public WatchQueueReader(WatchService watchService, Path dir) {
-			this.watchService = watchService;
+			super(watchService, dir);
 		}
 
 		@Override
-		public void run() {
-			try {
-				for (;;) {
-					WatchKey key = null;				
-					try {
-						key = watchService.take();
-					} catch (InterruptedException e) {
-						return;
-					}
-	
-					for (WatchEvent<?> event : key.pollEvents()) {
-						WatchEvent.Kind<?> kind = event.kind();
-	
-						if (kind == OVERFLOW) {
-							continue;
-						}
-	
-						// Context for directory entry event is the file name of
-						// entry
-						WatchEvent<Path> ev = cast(event);
-						Path name = ev.context();
-	
-						// print out event
-						if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-							try {
-								processConfigFile(new File(getServiceConfigFolder()
-										+ File.separator + name.toString()));
-							} catch (IOException e) {
-								logger.warn(
-										"Could not process config file '{}': {}",
-										name, e);
-							}
-						}
-					}
-					key.reset();
+		protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind,
+				Path path) {
+			if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
+				try {
+					processConfigFile(new File(dir.toAbsolutePath()
+							+ File.separator + path.toString()));
+				} catch (IOException e) {
+					logger.warn(
+							"Could not process config file '{}': {}", path, e);
 				}
-			} catch (ClosedWatchServiceException ecx) {
-				logger.debug("Terminated thread {}", Thread.currentThread().getName());
-				return;
-			}				
+			}
 		}
-
-		@SuppressWarnings("unchecked")
-		static <T> WatchEvent<T> cast(WatchEvent<?> event) {
-			return (WatchEvent<T>) event;
-		}
-
 	}
 }

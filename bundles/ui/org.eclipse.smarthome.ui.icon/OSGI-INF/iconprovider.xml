@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.ui.icon.IconProvider"/>
    </service>
+   <reference bind="setConfigDispatcher" cardinality="1..1" interface="org.eclipse.smarthome.config.core.IConfigDispatcherService" name="ConfigDispatcher" policy="dynamic" unbind="unsetConfigDispatcher"/>
 </scr:component>

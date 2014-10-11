@@ -15,5 +15,6 @@
       <provide interface="org.eclipse.smarthome.core.transform.TransformationService"/>
    </service>
    <property name="smarthome.transform" type="String" value="JS"/>
+   <reference bind="setConfigDispatcher" cardinality="1..1" interface="org.eclipse.smarthome.config.core.IConfigDispatcherService" name="ConfigDispatcher" policy="dynamic" unbind="unsetConfigDispatcher"/>
     
 </scr:component>

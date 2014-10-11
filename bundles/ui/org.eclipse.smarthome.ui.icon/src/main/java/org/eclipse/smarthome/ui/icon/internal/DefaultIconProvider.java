@@ -25,6 +25,16 @@ import org.eclipse.smarthome.ui.icon.IconProvider;
  */
 public class DefaultIconProvider implements IconProvider {
 
+	private ConfigDispatcher configDispatcher = null;
+
+	public void setConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = configDispatcher;
+	}
+	
+	public void unsetConfigDispatcher(ConfigDispatcher configDispatcher) {
+		this.configDispatcher = null;
+	}
+
 	@Override
 	public boolean hasIcon(String iconName) {
 		File file = getIconFile(iconName);
@@ -46,7 +56,7 @@ public class DefaultIconProvider implements IconProvider {
 	}
 
 	private File getIconFile(String iconName) {
-		File folder = new File(ConfigDispatcher.getConfigFolder() + File.separator + "icons");
+		File folder = new File(configDispatcher.getConfigFolder() + File.separator + "icons");
 		File file = new File(folder, iconName + ".png");
 		if(file.exists()) {
 			return file;

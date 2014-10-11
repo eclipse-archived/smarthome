@@ -12,5 +12,8 @@
    <implementation class="org.eclipse.smarthome.config.core.ConfigDispatcher"/>
    
    <property name="service.pid" type="String" value="org.eclipse.smarthome.config.dispatcher"/>
-   
+   <service>
+      <provide interface="org.eclipse.smarthome.config.core.IConfigDispatcherService"/>
+   </service>
+
 </scr:component>
