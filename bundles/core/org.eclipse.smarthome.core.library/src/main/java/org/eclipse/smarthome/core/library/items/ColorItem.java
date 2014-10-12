@@ -72,11 +72,17 @@ import org.eclipse.smarthome.core.types.UnDefType;
 			if(currentState instanceof HSBType) {
 				DecimalType hue = ((HSBType) currentState).getHue();
 				PercentType saturation = ((HSBType) currentState).getSaturation();
+				PercentType brightness = ((HSBType) currentState).getBrightness();
 				// we map ON/OFF values to dark/bright, so that the hue and saturation values are not changed 
 				if(state==OnOffType.OFF) {
 					super.setState(new HSBType(hue, saturation, PercentType.ZERO));
 				} else if(state==OnOffType.ON) {
-					super.setState(new HSBType(hue, saturation, PercentType.HUNDRED));
+				    if(brightness.intValue() == 0) {
+                        super.setState(new HSBType(hue, saturation, PercentType.HUNDRED));
+                    } else {
+                        // if the state is already ON, brightness value is not changed
+                        super.setState(new HSBType(hue, saturation, brightness));
+                    }
 				} else if(state instanceof PercentType && !(state instanceof HSBType)) {
 					super.setState(new HSBType(hue, saturation, (PercentType) state));
 				} else {
