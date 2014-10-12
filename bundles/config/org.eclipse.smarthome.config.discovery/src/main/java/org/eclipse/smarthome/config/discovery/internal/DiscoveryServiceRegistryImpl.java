@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -164,6 +165,29 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     
     public boolean supportsDiscovery(String bindingId) {
         return !getDiscoveryServices(bindingId).isEmpty();
+    }
+    
+
+    @Override
+    public List<ThingTypeUID> getSupportedThingTypes() {
+        List<ThingTypeUID> thingTypeUIDs = new ArrayList<>();
+        for (DiscoveryService discoveryService : this.discoveryServices) {
+            thingTypeUIDs.addAll(discoveryService.getSupportedThingTypes());
+        }
+        return thingTypeUIDs;
+    }
+
+
+    @Override
+    public List<String> getSupportedBindings() {
+        List<String> bindings = new ArrayList<>();
+        for (DiscoveryService discoveryService : this.discoveryServices) {
+            Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
+            for (ThingTypeUID thingTypeUID : supportedThingTypes) {
+                bindings.add(thingTypeUID.getBindingId());
+            }
+        }
+        return bindings;
     }
 
     public synchronized void removeDiscoveryListener(DiscoveryListener listener)

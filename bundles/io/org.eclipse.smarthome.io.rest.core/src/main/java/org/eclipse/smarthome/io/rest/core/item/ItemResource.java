@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.item;
+package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,10 +31,13 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -41,12 +45,12 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.AbstractRESTResource;
 import org.eclipse.smarthome.io.rest.MediaTypeHelper;
 import org.eclipse.smarthome.io.rest.RESTApplication;
-import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.item.beans.GroupItemBean;
-import org.eclipse.smarthome.io.rest.item.beans.ItemBean;
-import org.eclipse.smarthome.io.rest.item.beans.ItemListBean;
+import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
+import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.io.rest.core.item.beans.ItemListBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,9 +66,10 @@ import com.sun.jersey.api.json.JSONWithPadding;
  * <p>This resource is registered with the Jersey servlet.</p>
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Dennis Nobel - Added methods for item management
  */
 @Path(ItemResource.PATH_ITEMS)
-public class ItemResource implements RESTResource {
+public class ItemResource extends AbstractRESTResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(ItemResource.class); 
 	
@@ -174,6 +179,46 @@ public class ItemResource implements RESTResource {
     		throw new WebApplicationException(404);
     	}
 	}
+    
+    @PUT @Path("/{itemname: [a-zA-Z_0-9]*}")
+	@Consumes(MediaType.TEXT_PLAIN)	
+	public Response createItem(@PathParam("itemname") String itemname, String itemType) {
+    	
+        ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
+        ItemFactory itemFactory = getService(ItemFactory.class);
+
+        GenericItem newItem = itemFactory.createItem(itemType, itemname);
+        if (newItem == null) {
+            logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
+                    itemType);
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        Item existingItem = getItem(itemname);
+
+        if (existingItem != null) {
+            managedItemProvider.update(newItem);
+        } else {
+            managedItemProvider.add(newItem);
+        }
+
+        return Response.ok().build();
+	}
+    
+    @DELETE
+    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response removeItem(@PathParam("itemname") String itemname) {
+
+        ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
+
+        if (managedItemProvider.remove(itemname) == null) {
+            logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+
+        return Response.ok().build();
+    }
 
     public static ItemBean createItemBean(Item item, boolean drillDown, String uriPath) {
     	ItemBean bean;

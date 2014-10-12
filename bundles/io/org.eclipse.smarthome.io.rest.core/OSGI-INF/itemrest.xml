@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.item">
-   <implementation class="org.eclipse.smarthome.io.rest.item.ItemResource"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.core.item">
+   <implementation class="org.eclipse.smarthome.io.rest.core.item.ItemResource"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>

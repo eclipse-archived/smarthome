@@ -8,15 +8,15 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.rest.item</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.rest.item</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.io.rest.core</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.io.rest.core</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.io</groupId>
-  <artifactId>org.eclipse.smarthome.io.rest.item</artifactId>
+  <artifactId>org.eclipse.smarthome.io.rest.core</artifactId>
 
-  <name>Eclipse SmartHome Item REST Interface</name>
+  <name>Eclipse SmartHome Core REST Interface</name>
 
   <packaging>eclipse-plugin</packaging>
 </project>

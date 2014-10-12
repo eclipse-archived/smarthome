@@ -22,7 +22,7 @@
     <module>org.eclipse.smarthome.io.net</module>
     <module>org.eclipse.smarthome.io.net.test</module>
     <module>org.eclipse.smarthome.io.rest</module>
-    <module>org.eclipse.smarthome.io.rest.item</module>
+    <module>org.eclipse.smarthome.io.rest.core</module>
     <module>org.eclipse.smarthome.io.rest.sitemap</module>
     <module>org.eclipse.smarthome.io.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
