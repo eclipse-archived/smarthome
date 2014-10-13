@@ -9,8 +9,6 @@ package org.eclipse.smarthome.designer.core.config;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Properties;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,11 +22,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.eclipse.smarthome.designer.core.CoreActivator;
 import org.eclipse.smarthome.designer.core.DesignerCoreConstants;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 import org.slf4j.Logger;
@@ -50,19 +45,21 @@ public class ConfigurationFolderProvider {
 			if(configFolder!=null) {
 				folder = project.getFolder("config");
 				folder.createLink(configFolder.toURI(), IResource.BACKGROUND_REFRESH|IResource.REPLACE, null);
-				ConfigDispatcher.setConfigFolder(configFolder.getAbsolutePath());
+				CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
 			}
 		}
 		return folder;
 	}
 	
 	static public synchronized void setRootConfigurationFolder(final File configFolder) throws CoreException {
-		ConfigDispatcher.setConfigFolder(configFolder.getAbsolutePath());
+		CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
+
 		try {
 			CoreActivator.updateFolderObserver();
 		} catch (IOException e) {
 			throw new CoreException(new Status(IStatus.ERROR, CoreActivator.PLUGIN_ID, e.getMessage()));
 		}
+
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				IProject project = projectCreator.createProject("config");

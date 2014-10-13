@@ -14,10 +14,10 @@ import java.io.Reader;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.transform.internal.TransformationActivator;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +56,7 @@ public class MapTransformationService implements TransformationService {
 
 		Reader reader = null;
 		try {
-			String path = ConfigDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+			String path = ConfigConstants.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
 			Properties properties = new Properties();
 			reader = new FileReader(path);
 			properties.load(reader);

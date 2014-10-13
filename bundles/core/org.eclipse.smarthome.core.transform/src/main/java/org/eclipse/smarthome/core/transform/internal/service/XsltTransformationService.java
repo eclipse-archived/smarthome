@@ -17,10 +17,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.transform.internal.TransformationActivator;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class XsltTransformationService implements TransformationService {
 
 	static final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
-
+	
 	/**
 	 * <p>
 	 * Transforms the input <code>source</code> by XSLT. It expects the transformation rule to be read from a file which
@@ -60,7 +60,7 @@ public class XsltTransformationService implements TransformationService {
 		Source xsl = null;
 
 		try {
-			String path = ConfigDispatcher.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+			String path = ConfigConstants.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
 			xsl = new StreamSource(new File(path));
 		} catch (Exception e) {
 			String message = "opening file '" + filename + "' throws exception";

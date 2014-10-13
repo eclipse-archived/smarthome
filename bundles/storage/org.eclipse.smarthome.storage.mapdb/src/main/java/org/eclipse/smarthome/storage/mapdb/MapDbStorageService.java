@@ -36,15 +36,12 @@ public class MapDbStorageService implements StorageService {
 	/** holds the local instance of the MapDB database */
     private DB db;
 
-	/** the folder name to store mapdb databases ({@code ./mapdb} by default) */
+	/** the folder name to store mapdb databases ({@code mapdb} by default) */
 	private String dbFolderName = "mapdb";
 
     
 	public void activate() {
-		String progArg = System.getProperty(ConfigConstants.USERDATA_DIR_PROG_ARGUMENT);
-		if(progArg!=null) {
-			dbFolderName = progArg + File.separator + dbFolderName;
-		}
+		dbFolderName = ConfigConstants.getUserDataFolder() + File.separator + dbFolderName;
 		File folder = new File(dbFolderName);
 		if (!folder.exists()) {
 			folder.mkdirs();
