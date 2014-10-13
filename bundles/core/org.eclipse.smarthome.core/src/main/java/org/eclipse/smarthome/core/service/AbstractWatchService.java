@@ -82,13 +82,13 @@ public abstract class AbstractWatchService {
 						@Override
 						public FileVisitResult preVisitDirectory(Path subDir,
 								BasicFileAttributes attrs) throws IOException {
-							registerDirecotry(subDir);
+							registerDirectory(subDir);
 							return FileVisitResult.CONTINUE;
 						}
 					});
 				} else {
 					watchService = toWatch.getFileSystem().newWatchService();
-					registerDirecotry(toWatch);
+					registerDirectory(toWatch);
 				}
 
 				AbstractWatchQueueReader reader = buildWatchQueueReader(
@@ -139,5 +139,5 @@ public abstract class AbstractWatchService {
 	 * @param subDir
 	 * @throws IOException
 	 */
-	protected abstract void registerDirecotry(Path subDir) throws IOException;
+	protected abstract void registerDirectory(Path subDir) throws IOException;
 }

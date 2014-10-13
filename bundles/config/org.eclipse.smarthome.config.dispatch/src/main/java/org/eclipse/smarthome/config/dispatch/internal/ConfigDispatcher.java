@@ -162,7 +162,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 	 * (java.nio.file.Path)
 	 */
 	@Override
-	protected void registerDirecotry(Path subDir) throws IOException {
+	protected void registerDirectory(Path subDir) throws IOException {
 		subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 	}
 

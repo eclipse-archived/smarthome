@@ -94,7 +94,7 @@ public class FolderObserver extends AbstractWatchService implements
 	}
 
 	@Override
-	protected void registerDirecotry(Path subDir) throws IOException {
+	protected void registerDirectory(Path subDir) throws IOException {
 		if (subDir != null && MapUtils.isNotEmpty(folderFileExtMap)) {
 			String folderName = subDir.getFileName().toString();
 			if (folderFileExtMap.containsKey(folderName)) {
