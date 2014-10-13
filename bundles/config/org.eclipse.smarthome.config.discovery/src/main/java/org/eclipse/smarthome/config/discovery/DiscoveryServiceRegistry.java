@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.List;
+
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 
@@ -159,5 +161,19 @@ public interface DiscoveryServiceRegistry {
      * @param listener the listener to be removed (could be null)
      */
     void removeDiscoveryListener(DiscoveryListener listener);
+    
+    /**
+     * Returns a list of thing types, that support discovery.
+     * 
+     * @return list of thing types, that support discovery
+     */
+    List<ThingTypeUID> getSupportedThingTypes();
+
+    /**
+     * Returns a list of bindings, that support discovery.
+     * 
+     * @return list of bindings, that support discovery
+     */
+    List<String> getSupportedBindings();
 
 }

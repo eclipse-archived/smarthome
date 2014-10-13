@@ -63,6 +63,8 @@ public class RESTApplication extends Application {
 
 	static private List<RESTResource> restResources = new ArrayList<RESTResource>();
 
+	private static BundleContext bundleContext;
+
 	public void setHttpService(HttpService httpService) {
 		this.httpService = httpService;
 	}
@@ -94,13 +96,17 @@ public class RESTApplication extends Application {
 	static public ItemRegistry getItemRegistry() {
 		return RESTApplication.itemRegistry;
 	}
-
+	
 	public void setMDNSService(MDNSService mdnsService) {
 		this.mdnsService = mdnsService;
 	}
 	
 	public void unsetMDNSService(MDNSService mdnsService) {
 		this.mdnsService = null;
+	}
+	
+	static public BundleContext getBundleContext() {
+		return RESTApplication.bundleContext;
 	}
 
 	public void addRESTResource(RESTResource resource) {
@@ -112,7 +118,8 @@ public class RESTApplication extends Application {
 	}
 
 	public void activate(BundleContext bundleContext) {			    
-        try {
+        RESTApplication.bundleContext = bundleContext;
+		try {
     		com.sun.jersey.spi.container.servlet.ServletContainer servletContainer =
     			       new ServletContainer(this);
     		

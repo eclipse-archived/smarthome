@@ -14,7 +14,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.smarthome.io.rest.item.beans.ItemBean;
+import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
 
 /**
  * This is a java bean that is used with JAXB to serialize widgets

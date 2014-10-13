@@ -38,7 +38,7 @@ import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.MediaTypeHelper;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.item.ItemResource;
+import org.eclipse.smarthome.io.rest.core.item.ItemResource;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.MappingBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.PageBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.SitemapBean;
