@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.config.core;
 
 /**
- * This class provides constants relevant for the configuration of openHAB
+ * This class provides constants relevant for the configuration of Eclipse SmartHome
  * 
  * @author Kai Kreuzer - Initial contribution and API
  *
@@ -21,24 +21,42 @@ public class ConfigConstants {
 	/** The program argument name for setting the main config directory path */
 	final static public String CONFIG_DIR_PROG_ARGUMENT = "smarthome.configdir";
 	
-	/** The program argument name for setting the service config directory path */
-	final static public String SERVICEDIR_PROG_ARGUMENT = "smarthome.servicedir";
+	/** The default main configuration directory name */
+	final static public String DEFAULT_CONFIG_FOLDER = "conf"; 
 
-	/** The program argument name for setting the service pid namespace */
-	final static public String SERVICEPID_PROG_ARGUMENT = "smarthome.servicepid";
+	/** The default user data directory name */
+	final static public String DEFAULT_USERDATA_FOLDER = "userdata"; 
 
-	/** The program argument name for setting the default services config file name */
-	final static public String SERVICECFG_PROG_ARGUMENT = "smarthome.servicecfg";
-
-	/** The main configuration directory name */
-	final static public String MAIN_CONFIG_FOLDER = "conf"; 
 	
-	/** The default folder name of the configuration folder of services */
-	final static public String SERVICES_FOLDER = "services";
+	/**
+ 	 * Returns the configuration folder path name. The main config folder 
+ 	 * <code>&lt;smarthome&gt;/config</code> can be overwritten by setting
+ 	 * the System property <code>smarthome.configdir</code>.
+ 	 * 
+ 	 * @return the configuration folder path name
+ 	 */
+	static public String getConfigFolder() {
+		String progArg = System.getProperty(CONFIG_DIR_PROG_ARGUMENT);
+		if (progArg != null) {
+			return progArg;
+		} else {
+			return DEFAULT_CONFIG_FOLDER;
+		}
+	}
 
-	/** The default namespace for service pids */
-	final static public String SERVICE_PID_NAMESPACE = "org.eclipse.smarthome";
-
-	/** The default services configuration filename */
-	final static public String SERVICE_CFG_FILE = "smarthome.cfg";
+	/**
+ 	 * Returns the user data folder path name. The main user data folder 
+ 	 * <code>&lt;smarthome&gt;/userdata</code> can be overwritten by setting
+ 	 * the System property <code>smarthome.userdata</code>.
+ 	 * 
+ 	 * @return the user data folder path name
+ 	 */
+	static public String getUserDataFolder() {
+		String progArg = System.getProperty(USERDATA_DIR_PROG_ARGUMENT);
+		if (progArg != null) {
+			return progArg;
+		} else {
+			return DEFAULT_USERDATA_FOLDER;
+		}
+	}
 }

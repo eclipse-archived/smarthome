@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.ui.icon.IconProvider;
 
 /**
@@ -46,7 +46,7 @@ public class DefaultIconProvider implements IconProvider {
 	}
 
 	private File getIconFile(String iconName) {
-		File folder = new File(ConfigDispatcher.getConfigFolder() + File.separator + "icons");
+		File folder = new File(ConfigConstants.getConfigFolder() + File.separator + "icons");
 		File file = new File(folder, iconName + ".png");
 		if(file.exists()) {
 			return file;

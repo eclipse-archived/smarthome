@@ -15,5 +15,5 @@
       <provide interface="org.eclipse.smarthome.core.transform.TransformationService"/>
    </service>
    <property name="smarthome.transform" type="String" value="XSLT"/>
-    
+   
 </scr:component>

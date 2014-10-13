@@ -18,10 +18,10 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.config.core.ConfigConstants;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.transform.internal.TransformationActivator;
-import org.eclipse.smarthome.config.core.ConfigDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class JavaScriptTransformationService implements TransformationService {
 		Reader reader;
 
 		try {
-			String path = ConfigDispatcher.getConfigFolder() 
+			String path = ConfigConstants.getConfigFolder() 
 				+ File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME
 				+ File.separator + filename;
 			reader = new InputStreamReader(new FileInputStream(path));
