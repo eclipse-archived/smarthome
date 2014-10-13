@@ -228,8 +228,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void processConfigFile(File configFile) throws IOException,
-			FileNotFoundException {
+	private void processConfigFile(File configFile) throws IOException, FileNotFoundException {
 		if (configFile.isDirectory() || !configFile.getName().endsWith(".cfg")) {
 			logger.debug("Ignoring file '{}'", configFile.getName());
 			return;
@@ -244,8 +243,8 @@ public class ConfigDispatcher extends AbstractWatchService {
 		Map<Configuration, Dictionary> configMap = new HashMap<Configuration, Dictionary>();
 
 		String pid;
-		String filenameWithoutExt = StringUtils.substringBeforeLast(
-				configFile.getName(), ".");
+		String filenameWithoutExt = 
+			StringUtils.substringBeforeLast(configFile.getName(), ".");
 		if (filenameWithoutExt.contains(".")) {
 			// it is a fully qualified namespace
 			pid = filenameWithoutExt;
@@ -253,18 +252,27 @@ public class ConfigDispatcher extends AbstractWatchService {
 			pid = getServicePidNamespace() + "." + filenameWithoutExt;
 		}
 
+		// configuration file contains a PID Marker
 		List<String> lines = IOUtils.readLines(new FileInputStream(configFile));
 		if (lines.size() > 0 && lines.get(0).startsWith(PID_MARKER)) {
 			pid = lines.get(0).substring(PID_MARKER.length()).trim();
 		}
+		
 		for (String line : lines) {
 			String[] contents = parseLine(configFile.getPath(), line);
 			// no valid configuration line, so continue
-			if (contents == null)
+			if (contents == null) {
 				continue;
+			}
+			
 			if (contents[0] != null) {
 				pid = contents[0];
+				// PID is not fully qualified, so prefix with namespace 
+				if (!pid.contains(".")) {
+					pid = getServicePidNamespace() + "." + pid;
+				}
 			}
+			
 			String property = contents[1];
 			String value = contents[2];
 			Configuration configuration = configAdmin.getConfiguration(pid,
