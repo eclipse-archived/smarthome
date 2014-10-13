@@ -17,9 +17,10 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
-
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.jupnp.model.meta.DeviceDetails;
+import org.jupnp.model.meta.ModelDetails;
 import org.jupnp.model.meta.RemoteDevice;
 
 
@@ -57,11 +58,19 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
 	@Override
 	public ThingUID getThingUID(RemoteDevice device) {
-		if(device.getDetails().getModelDetails().getModelName().startsWith("Philips hue bridge")) {
-			return new ThingUID(THING_TYPE_BRIDGE, device.getDetails().getSerialNumber());
-		} else {
-			return null;
+		DeviceDetails details = device.getDetails();
+		if(details != null) {
+			ModelDetails modelDetails = details.getModelDetails();
+			if(modelDetails != null) {
+				String modelName = modelDetails.getModelName();
+				if(modelName != null) {
+					if(modelName.startsWith("Philips hue bridge")) {
+						return new ThingUID(THING_TYPE_BRIDGE, details.getSerialNumber());
+					}
+				}
+			}
 		}
+		return null;
 	}
 
 }
