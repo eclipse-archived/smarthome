@@ -68,7 +68,7 @@ public class ThingTypeResource extends AbstractRESTResource {
         ConfigDescriptionRegistry configDescriptionRegistry = getService(ConfigDescriptionRegistry.class);
         try {
             ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(new URI(
-                    "thing-type://" + thingTypeUID.toString()));
+                    "thing-type", thingTypeUID.toString(), null));
             if (configDescription != null) {
                 List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
                         configDescription.getParameters().size());
