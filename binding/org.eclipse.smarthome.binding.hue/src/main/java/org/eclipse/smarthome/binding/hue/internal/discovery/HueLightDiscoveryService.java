@@ -110,7 +110,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
 	private ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
-		ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID());
+		ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID().replaceAll("[^a-zA-Z0-9_]", "_"));
 				
 		if(getSupportedThingTypes().contains(thingTypeUID)) {
 		    String thingLightId = light.getId();

@@ -19,6 +19,7 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_L
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_ZLL_LIGHT;
 
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class HueLightHandler extends BaseThingHandler implements
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(
             THING_TYPE_LCT001, THING_TYPE_LLC007, THING_TYPE_LLC010, THING_TYPE_LLC012,
-            THING_TYPE_LWL001, THING_TYPE_LST001, THING_TYPE_LCT003, THING_TYPE_LWB004);
+            THING_TYPE_LWL001, THING_TYPE_LST001, THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_ZLL_LIGHT);
 
 	private static final int DIM_STEPSIZE = 30;
 
