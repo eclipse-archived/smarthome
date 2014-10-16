@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -122,12 +123,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 			
 			for(Item item : members) {
 				if(acceptedDataTypes==null) {
-					acceptedDataTypes = item.getAcceptedDataTypes();
+					acceptedDataTypes = new ArrayList<>(item.getAcceptedDataTypes());
 				} else {
 					acceptedDataTypes.retainAll(item.getAcceptedDataTypes());
 				}
 			}
-			return acceptedDataTypes == null ? Collections.EMPTY_LIST : acceptedDataTypes;
+			return acceptedDataTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections.unmodifiableList(acceptedDataTypes);
 		}
 	}
 
@@ -147,12 +148,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 			
 			for(Item item : members) {
 				if(acceptedCommandTypes==null) {
-					acceptedCommandTypes = item.getAcceptedCommandTypes();
+					acceptedCommandTypes = new ArrayList<>(item.getAcceptedCommandTypes());
 				} else {
 					acceptedCommandTypes.retainAll(item.getAcceptedCommandTypes());
 				}
 			}
-			return acceptedCommandTypes == null ? Collections.EMPTY_LIST : acceptedCommandTypes;
+			return acceptedCommandTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections.unmodifiableList(acceptedCommandTypes);
 		}
 	}
 	

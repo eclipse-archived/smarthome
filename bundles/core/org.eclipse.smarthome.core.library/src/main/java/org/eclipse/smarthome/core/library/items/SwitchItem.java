@@ -8,13 +8,14 @@
 package org.eclipse.smarthome.core.library.items;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -53,11 +54,11 @@ public class SwitchItem extends GenericItem {
 	}
 
 	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return acceptedDataTypes;
+		return Collections.unmodifiableList(acceptedDataTypes);
 	}
 
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return acceptedCommandTypes;
+		return Collections.unmodifiableList(acceptedCommandTypes);
 	}
 	
 	@Override
