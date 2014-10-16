@@ -41,6 +41,7 @@ These chapters explain different technical aspects of the Eclipse SmartHome fram
 * [Overview](architecture/index.md) - This gives you an overview over the general concepts of Eclipse SmartHome. 
 * [XML Configuration](architecture/configuration.md) - A configuration and meta-data facility that is available throughout the system using XML.
 * [Extensions](architecture/extensions.md) - Introduction to existing extension mechanisms for solutions being based on Eclipse SmartHome 
+* [Internationalization](architecture/internationalization.md) - Internationalization support in Eclipse SmartHome 
  
 ## Development
 
