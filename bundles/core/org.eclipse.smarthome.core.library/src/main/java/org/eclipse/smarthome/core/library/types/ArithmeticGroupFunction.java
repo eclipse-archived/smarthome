@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -51,7 +51,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			if(items!=null && items.size()>0) {
 				for(Item item : items) {
 					if(!activeState.equals(item.getState())) {
@@ -68,7 +68,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;
@@ -85,7 +85,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 			}
 		}
 		
-		private int count(List<Item> items, State state) {
+		private int count(Set<Item> items, State state) {
 			int count = 0;
 			if(items!=null && state!=null) {
 				for(Item item : items) {
@@ -125,7 +125,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {	
+		public State calculate(Set<Item> items) {	
 			if(items!=null) {
 				for(Item item : items) {
 					if(activeState.equals(item.getState())) {
@@ -139,7 +139,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;
@@ -152,7 +152,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 			}
 		}
 		
-		private int count(List<Item> items, State state) {
+		private int count(Set<Item> items, State state) {
 			int count = 0;
 			if(items!=null && state!=null) {
 				for(Item item : items) {
@@ -179,7 +179,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 			super(activeValue, passiveValue);
 		}
 
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			State result = super.calculate(items);
 			State notResult = 
 				result.equals(activeState) ? passiveState : activeState;
@@ -202,7 +202,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 			super(activeValue, passiveValue);
 		}
 
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			State result = super.calculate(items);
 			State notResult = 
 				result.equals(activeState) ? passiveState : activeState;
@@ -224,7 +224,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			BigDecimal sum = BigDecimal.ZERO;
 			int count = 0;
 			if(items!=null) {
@@ -246,7 +246,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;
@@ -269,7 +269,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			BigDecimal sum = BigDecimal.ZERO;
 			if(items!=null) {
 				for(Item item : items) {
@@ -285,7 +285,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;
@@ -308,7 +308,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			if(items!=null && items.size()>0) {
 				BigDecimal min = null;
 				for(Item item : items) {
@@ -329,7 +329,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;
@@ -352,7 +352,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			if(items!=null && items.size()>0) {
 				BigDecimal max = null;
 				for(Item item : items) {
@@ -373,7 +373,7 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items, Class<? extends State> stateClass) {
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
 				return state;

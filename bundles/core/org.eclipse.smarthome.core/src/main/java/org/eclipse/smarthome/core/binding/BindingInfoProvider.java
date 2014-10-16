@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.core.binding;
 
-import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
 
 
 /**
@@ -37,9 +37,9 @@ public interface BindingInfoProvider {
      * Returns all binding information in the specified locale (language) this provider contains.
      * 
      * @param locale the locale to be used for the binding information (could be null)
-     * @return a localized list of all binding information this provider contains
+     * @return a localized set of all binding information this provider contains
      *     (not null, could be empty)
      */
-    Collection<BindingInfo> getBindingInfos(Locale locale);
+    Set<BindingInfo> getBindingInfos(Locale locale);
 
 }

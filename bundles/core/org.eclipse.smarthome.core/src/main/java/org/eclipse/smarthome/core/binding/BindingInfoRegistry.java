@@ -7,10 +7,11 @@
  */
 package org.eclipse.smarthome.core.binding;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -75,9 +76,9 @@ public class BindingInfoRegistry {
     /**
      * Returns all binding information this registry contains.
      * 
-     * @return a list of all binding information this registry contains (not null, could be empty)
+     * @return a set of all binding information this registry contains (not null, could be empty)
      */
-    public Collection<BindingInfo> getBindingInfos() {
+    public Set<BindingInfo> getBindingInfos() {
         return getBindingInfos(null);
     }
 
@@ -85,18 +86,18 @@ public class BindingInfoRegistry {
      * Returns all binding information in the specified locale (language) this registry contains.
      * 
      * @param locale the locale to be used for the binding information (could be null)
-     * @return a localized list of all binding information this registry contains
+     * @return a localized set of all binding information this registry contains
      *     (not null, could be empty)
      */
-    public Collection<BindingInfo> getBindingInfos(Locale locale) {
-        Collection<BindingInfo> allBindingInfos = new ArrayList<>(10);
+    public Set<BindingInfo> getBindingInfos(Locale locale) {
+        Set<BindingInfo> allBindingInfos = new HashSet<>(10);
 
         for (BindingInfoProvider bindingInfoProvider : this.bindingInfoProviders) {
-            Collection<BindingInfo> bindingInfos = bindingInfoProvider.getBindingInfos(locale);
+            Set<BindingInfo> bindingInfos = bindingInfoProvider.getBindingInfos(locale);
             allBindingInfos.addAll(bindingInfos);
         }
 
-        return Collections.unmodifiableCollection(allBindingInfos);
+        return Collections.unmodifiableSet(allBindingInfos);
     }
 
 }

@@ -7,7 +7,8 @@
  */
 package org.eclipse.smarthome.core.items;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -27,7 +28,7 @@ abstract public interface GroupFunction {
 	 * @param items the items to calculate a group state for
 	 * @return the calculated group state
 	 */
-	public State calculate(List<Item> items);
+	public State calculate(Set<Item> items);
 	
 	/**
 	 * Calculates the group state and returns it as a state of the requested type.
@@ -36,7 +37,7 @@ abstract public interface GroupFunction {
 	 * @param stateClass the type in which the state should be returned
 	 * @return the calculated group state of the requested type or null, if type is not supported
 	 */
-	public State getStateAs(List<Item> items, Class<? extends State> stateClass);
+	public State getStateAs(Set<Item> items, Class<? extends State> stateClass);
 
 	/**
 	 * This is the default group function that does nothing else than to check if all member items
@@ -50,11 +51,12 @@ abstract public interface GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State calculate(List<Item> items) {
+		public State calculate(Set<Item> items) {
 			if(items.size()>0) {
-				State state = items.get(0).getState(); 
-				for(int i=1; i<items.size(); i++) {
-					if(!state.equals(items.get(i).getState())) {
+				Iterator<Item> it = items.iterator();
+				State state = it.next().getState(); 
+				while(it.hasNext()) {
+					if(!state.equals(it.next().getState())) {
 						return UnDefType.UNDEF;
 					}
 				}
@@ -67,7 +69,7 @@ abstract public interface GroupFunction {
 		/**
 		 * @{inheritDoc
 		 */
-		public State getStateAs(List<Item> items,
+		public State getStateAs(Set<Item> items,
 				Class<? extends State> stateClass) {
 			State state = calculate(items);
 			if(stateClass.isInstance(state)) {
