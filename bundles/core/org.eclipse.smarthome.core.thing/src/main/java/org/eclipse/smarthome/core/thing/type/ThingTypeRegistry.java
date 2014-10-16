@@ -7,43 +7,50 @@
  */
 package org.eclipse.smarthome.core.thing.type;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingTypeChangeListener;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 /**
- * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered {@link ThingTypeProvider}s.
+ * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered
+ * {@link ThingTypeProvider}s.
  * 
  * @author Oliver Libutzki - Initial contribution
- *
+ * @author Dennis Nobel - Added locale support
  */
-public class ThingTypeRegistry implements ThingTypeChangeListener {
+public class ThingTypeRegistry {
+	
+    private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
+	
+    /**
+     * Returns all thing types.
+     * 
+     * @param locale
+     *            locale (can be null)
+     * @return all thing types
+     */
+    public List<ThingType> getThingTypes(Locale locale) {
+        List<ThingType> thingTypes = new ArrayList<>();
+        for (ThingTypeProvider thingTypeProvider : thingTypeProviders) {
+            thingTypes.addAll(thingTypeProvider.getThingTypes(locale));
+        }
+        return Collections.unmodifiableList(thingTypes);
+    }
 
-    private Logger logger = LoggerFactory.getLogger(ThingTypeRegistry.class
-			.getName());
-	
-	private Map<ThingTypeProvider, Collection<ThingType>> thingTypeMap = new ConcurrentHashMap<>();
-	
     /**
      * Returns all thing types.
      * 
      * @return all thing types
      */
 	public List<ThingType> getThingTypes() {
-        return Collections.unmodifiableList(Lists.newArrayList(Iterables.concat(thingTypeMap
-                .values())));
+        return getThingTypes((Locale) null);
     }
 	
     /**
@@ -51,9 +58,11 @@ public class ThingTypeRegistry implements ThingTypeChangeListener {
      * 
      * @param bindingId
      *            binding id
+     * @param locale
+     *            locale (can be null)
      * @return thing types for given binding id
      */
-	public List<ThingType> getThingTypes(String bindingId) {
+    public List<ThingType> getThingTypes(String bindingId, Locale locale) {
         List<ThingType> thingTypesForBinding = Lists.newArrayList();
 
         for (ThingType thingType : getThingTypes()) {
@@ -62,9 +71,40 @@ public class ThingTypeRegistry implements ThingTypeChangeListener {
             }
         }
 
-        return thingTypesForBinding;
+        return Collections.unmodifiableList(thingTypesForBinding);
     }
 
+    /**
+     * Returns thing types for a given binding id.
+     * 
+     * @param bindingId
+     *            binding id
+     * @return thing types for given binding id
+     */
+    public List<ThingType> getThingTypes(String bindingId) {
+        return getThingTypes(bindingId, null);
+    }
+
+    /**
+     * Returns a thing type for a given thing type UID.
+     * 
+     * @param thingTypeUID
+     *            thing type UID
+     * @param locale
+     *            locale (can be null)
+     * @return thing type for given UID or null if no thing type with this UID
+     *         was found
+     */
+    public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
+        for (ThingType thingType : getThingTypes()) {
+            if (thingType.getUID().equals(thingTypeUID)) {
+                return thingType;
+            }
+        }
+
+        return null;
+    }
+    
     /**
      * Returns a thing type for a given thing type UID.
      * 
@@ -74,51 +114,18 @@ public class ThingTypeRegistry implements ThingTypeChangeListener {
      *         was found
      */
     public ThingType getThingType(ThingTypeUID thingTypeUID) {
+        return getThingType(thingTypeUID, null);
+    }
 
-        for (ThingType thingType : getThingTypes()) {
-            if (thingType.getUID().equals(thingTypeUID)) {
-                return thingType;
-            }
-        }
-
-        return null;
-    }
-	
-	@Override
-    public void thingTypeAdded(ThingTypeProvider provider, ThingType thingType) {
-        Collection<ThingType> thingTypes = thingTypeMap.get(provider);
-        if (thingTypes != null) {
-            thingTypes.add(thingType);
-        }
-    }
-	
-	@Override
-    public void thingTypeRemoved(ThingTypeProvider provider, ThingType thingType) {
-        Collection<ThingType> thingTypes = thingTypeMap.get(provider);
-        if (thingTypes != null) {
-            thingTypes.remove(thingType);
-        }
-    }
-	
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
-        // only add this provider if it does not already exist
-        if (!thingTypeMap.containsKey(thingTypeProvider)) {
-            Collection<ThingType> thingTypes = new CopyOnWriteArraySet<>(
-                    thingTypeProvider.getThingTypes());
-            thingTypeProvider.addThingTypeChangeListener(this);
-            thingTypeMap.put(thingTypeProvider, thingTypes);
-            logger.debug("Thing type provider '{}' has been added.", thingTypeProvider.getClass()
-                    .getName());
+        if (thingTypeProvider != null) {
+            this.thingTypeProviders.add(thingTypeProvider);
         }
     }
-    
 
     protected void removeThingTypeProvider(ThingTypeProvider thingTypeProvider) {
-        if (thingTypeMap.containsKey(thingTypeProvider)) {
-            thingTypeMap.remove(thingTypeProvider);
-            thingTypeProvider.removeThingTypeChangeListener(this);
-            logger.debug("Thing type provider '{}' has been removed.", thingTypeProvider.getClass()
-                    .getName());
+        if (thingTypeProvider != null) {
+            this.thingTypeProviders.remove(thingTypeProvider);
         }
     }
 

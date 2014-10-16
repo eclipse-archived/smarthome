@@ -55,6 +55,14 @@
 			</includes>
 			<excludes />
 		</fileSet>
+		<!-- ESH-INF/i18n files -->
+		<fileSet filtered="true" packaged="false" encoding="UTF-8">
+			<directory>ESH-INF/i18n</directory>
+			<includes>
+				<include>*</include>
+			</includes>
+			<excludes />
+		</fileSet>		
 		<!-- OSGI-INF files -->
 		<fileSet filtered="true" packaged="false" encoding="UTF-8">
 			<directory>OSGI-INF</directory>

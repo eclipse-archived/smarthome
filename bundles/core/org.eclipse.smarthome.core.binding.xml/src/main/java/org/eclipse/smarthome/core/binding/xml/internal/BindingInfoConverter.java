@@ -107,7 +107,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         nodeIterator.assertEndOfType();
 
         // create object
-        bindingInfo = new BindingInfoImpl(id, name, description, author, configDescriptionURI);
+        bindingInfo = new BindingInfo(id, name, description, author, configDescriptionURI);
         bindingInfoXmlResult = new BindingInfoXmlResult(bindingInfo, configDescription);
 
         return bindingInfoXmlResult;

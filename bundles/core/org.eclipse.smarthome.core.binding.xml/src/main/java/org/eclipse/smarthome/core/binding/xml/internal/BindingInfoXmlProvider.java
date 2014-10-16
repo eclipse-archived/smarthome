@@ -7,26 +7,23 @@
  */
 package org.eclipse.smarthome.core.binding.xml.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.core.binding.BindingInfo;
+import org.eclipse.smarthome.core.binding.BindingInfoProvider;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+ 
 /**
- * The {@link BindingInfoXmlProvider} is is responsible managing any created
+ * The {@link BindingInfoXmlProvider} is responsible managing any created
  * objects by a {@link BindingInfoReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link BindingInfo} object as service
- * at the <i>OSGi</i> service registry.
+ * This implementation registers each {@link BindingInfo} object at the
+ * {@link XmlBindingInfoProvider} which is itself registered as
+ * {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
  * <p>
  * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult}
  * object, it is added to the {@link XmlConfigDescriptionProvider} which is itself
@@ -40,36 +37,33 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
     private Logger logger = LoggerFactory.getLogger(BindingInfoXmlProvider.class);
 
-    private BundleContext bundleContext;
     private Bundle bundle;
 
+    private XmlBindingInfoProvider bindingInfoProvider;
     private XmlConfigDescriptionProvider configDescriptionProvider;
 
-    private List<ServiceRegistration<?>> serviceRegistrationList;
 
-
-    public BindingInfoXmlProvider(BundleContext bundleContext, Bundle bundle,
+    public BindingInfoXmlProvider(Bundle bundle,
+            XmlBindingInfoProvider bindingInfoProvider,
             XmlConfigDescriptionProvider configDescriptionProvider)
             throws IllegalArgumentException {
 
-        if (bundleContext == null) {
-            throw new IllegalArgumentException("The BundleContext must not be null!");
-        }
-
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
+        }
+
+        if (bindingInfoProvider == null) {
+            throw new IllegalArgumentException("The XmlBindingInfoProvider must not be null!");
         }
 
         if (configDescriptionProvider == null) {
             throw new IllegalArgumentException("The XmlConfigDescriptionProvider must not be null!");
         }
 
-        this.bundleContext = bundleContext;
         this.bundle = bundle;
 
+        this.bindingInfoProvider = bindingInfoProvider;
         this.configDescriptionProvider = configDescriptionProvider;
-
-        this.serviceRegistrationList = new ArrayList<>(10);
     }
 
     @Override
@@ -86,16 +80,8 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
                 }
             }
 
-            try {
-                BindingInfo bindingInfo = bindingInfoXmlResult.getBindingInfo();
-    
-                ServiceRegistration<?> bindingInfoReg = this.bundleContext.registerService(
-                        BindingInfo.class.getName(), bindingInfo, null);
-        
-                this.serviceRegistrationList.add(bindingInfoReg);
-            } catch (Exception ex) {
-                this.logger.error("Could not register BindingInfo!", ex);
-            }
+            BindingInfo bindingInfo = bindingInfoXmlResult.getBindingInfo();
+            this.bindingInfoProvider.addBindingInfo(bundle, bindingInfo);
         }
     }
 
@@ -106,16 +92,7 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
     @Override
     public synchronized void release() {
-        for (int index = this.serviceRegistrationList.size() - 1; index >= 0; index--) {
-            try {
-                ServiceRegistration<?> bindingInfoReg = this.serviceRegistrationList.get(index);
-                bindingInfoReg.unregister();
-            } catch (Exception ex) {
-                this.logger.error("Could not unregister BindingInfo!", ex);
-            }
-        }
-
-        this.serviceRegistrationList.clear();
+        this.bindingInfoProvider.removeAllBindingInfos(this.bundle);
         this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
     }
 

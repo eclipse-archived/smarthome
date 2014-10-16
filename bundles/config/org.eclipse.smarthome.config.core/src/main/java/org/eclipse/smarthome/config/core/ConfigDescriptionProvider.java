@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.config.core;
 
+import java.net.URI;
 import java.util.Collection;
+import java.util.Locale;
 
 
 /**
@@ -24,29 +26,24 @@ public interface ConfigDescriptionProvider {
     /**
      * Provides a collection of {@link ConfigDescription}s.
      * 
-     * @return the configuration descriptions provided by this provider (not null, could be empty)
+     * @param locale
+     *            locale
+     * @return the configuration descriptions provided by this provider (not
+     *         null, could be empty)
      */
-    Collection<ConfigDescription> getConfigDescriptions();
+    Collection<ConfigDescription> getConfigDescriptions(Locale locale);
 
     /**
-     * Adds a {@link ConfigDescriptionsChangeListener} which is notified, if there are changes concerning
-     * the {@link ConfigDescription}s provided by this {@link ConfigDescriptionProvider}.
-     * <p>
-     * This method returns silently if the specified listener is {@code null} or has already been
-     * registered before.
+     * Provides a {@link ConfigDescription} for the given URI.
      * 
-     * @param listener the listener to be added (could be null)
-     */
-    void addConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener);
-
-    /**
-     * Removes a {@link ConfigDescriptionsChangeListener} from this {@link ConfigDescriptionProvider}.
-     * <p>
-     * This method returns silently if the specified listener is {@code null} or has not been
-     * registered before.
+     * @param uri
+     *            uri of the config description
+     * @param locale
+     *            locale
      * 
-     * @param listener the listener to be removed (could be null)
+     * @return config description or null if no config description could be
+     *         found
      */
-    void removeConfigDescriptionsChangeListener(ConfigDescriptionsChangeListener listener);
+    ConfigDescription getConfigDescription(URI uri, Locale locale);
 
 }

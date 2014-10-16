@@ -11,27 +11,75 @@ import java.net.URI;
 
 
 /**
- * The {@link BindingInfo} is a service interface each <i>Binding</i> has to implement
- * to provide general information. Each <i>Binding</i> has to register its implementation
- * as service at the <i>OSGi</i> service registry.
+ * The {@link BindingInfo} class contains general information about a binding.
+ * <p>
+ * Any binding information are provided by a {@link BindingInfoProvider} and
+ * can also be retrieved through the {@link BindingInfoRegistry}.
+ * <p>
+ * <b>Hint:</b> This class is immutable.
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public interface BindingInfo {
+public class BindingInfo {
+
+    private String id;
+    private String name;
+    private String description;
+    private String author;
+    private URI configDescriptionURI;
+
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param id the identifier for the binding (must neither be null, nor empty)
+     * @param name a human readable name for the binding (must neither be null, nor empty)
+     * @param description a human readable description for the binding (could be null or empty) 
+     * @param author the author of the binding (must neither be null, nor empty)
+     * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
+     *
+     * @throws IllegalArgumentException if the identifier, the name or the author is null or empty
+     */
+    public BindingInfo(String id, String name, String description, String author,
+            URI configDescriptionURI) throws IllegalArgumentException {
+
+        if ((id == null) || (id.isEmpty())) {
+            throw new IllegalArgumentException("The ID must neither be null nor empty!");
+        }
+
+        if ((name == null) || (name.isEmpty())) {
+            throw new IllegalArgumentException("The name must neither be null nor empty!");
+        }
+
+        if ((author == null) || (author.isEmpty())) {
+            throw new IllegalArgumentException("The author must neither be null nor empty!");
+        }
+
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.author = author;
+
+        this.configDescriptionURI = configDescriptionURI;
+    }
 
     /**
      * Returns an identifier for the binding (e.g. "hue").
      * 
-     * @return an identifier for the binding (must neither be null nor empty)
+     * @return an identifier for the binding (neither null, nor empty)
      */
-    String getId();
+    public String getId() {
+        return this.id;
+    }
 
     /**
      * Returns a human readable name for the binding (e.g. "HUE Binding").
      * 
-     * @return a human readable name for the binding (must neither be null nor empty)
+     * @return a human readable name for the binding (neither null, nor empty)
      */
-    String getName();
+    public String getName() {
+        return this.name;
+    }
 
     /**
      * Returns a human readable description for the binding
@@ -39,14 +87,18 @@ public interface BindingInfo {
      * 
      * @return a human readable description for the binding (could be null or empty)
      */
-    String getDescription();
+    public String getDescription() {
+        return this.description;
+    }
 
     /**
      * Returns the author of the binding (e.g. "Max Mustermann").
      * 
-     * @return the author of the binding (must neither be null, nor empty)
+     * @return the author of the binding (neither null, nor empty)
      */
-    String getAuthor();
+    public String getAuthor() {
+        return this.author;
+    }
 
     /**
      * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
@@ -54,13 +106,24 @@ public interface BindingInfo {
      * 
      * @return true if a link to a concrete ConfigDescription exists, otherwise false
      */
-    boolean hasConfigDescriptionURI();
+    public boolean hasConfigDescriptionURI() {
+        return (this.configDescriptionURI != null);
+    }
 
     /**
      * Returns the link to a concrete {@link ConfigDescription}.
      * 
      * @return the link to a concrete ConfigDescription (could be null)
      */
-    URI getConfigDescriptionURI();
+    public URI getConfigDescriptionURI() {
+        return this.configDescriptionURI;
+    }
+
+    @Override
+    public String toString() {
+        return "BindingInfoImpl [id=" + id + ", name=" + name
+                + ", description=" + description + ", author=" + author
+                + ", configDescriptionURI=" + configDescriptionURI + "]";
+    }
 
 }

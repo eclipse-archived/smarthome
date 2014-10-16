@@ -179,8 +179,10 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
                     numberOfParsedXmlDocuments++;
                 } catch (Exception ex) {
-                    this.logger.debug("The XML document '{}' in module '{}' is ignored because"
-                    		+ " it contains unknown content.", xmlDocumentFile, moduleName);
+                    this.logger
+                            .warn(String.format(
+                                    "The XML document '%s' in module '%s' could not be parsed: %s", xmlDocumentFile,
+                                    moduleName, ex.getLocalizedMessage()), ex);
                 }
             }
 

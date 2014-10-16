@@ -11,6 +11,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.storage,
@@ -23,9 +24,12 @@ Import-Package: com.google.common.base,
  org.osgi.service.event,
  org.osgi.util.tracker,
  org.slf4j
-Export-Package: org.eclipse.smarthome.core.thing,org.eclipse.smarthome
- .core.thing.binding,org.eclipse.smarthome.core.thing.binding.builder,
- org.eclipse.smarthome.core.thing.link,org.eclipse.smarthome.core.thin
- g.type,org.eclipse.smarthome.core.thing.util
+Export-Package: org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.thing.i18n,
+ org.eclipse.smarthome.core.thing.link,
+ org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.thing.util
 Service-Component: OSGI-INF/*
 Bundle-Activator: org.eclipse.smarthome.core.thing.internal.Activator

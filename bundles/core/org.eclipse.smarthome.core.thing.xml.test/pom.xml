@@ -37,6 +37,11 @@
 							<level>1</level>
 							<autoStart>true</autoStart>
 						</bundle>
+						<bundle>
+							<id>org.eclipse.smarthome.core</id>
+							<level>4</level>
+							<autoStart>true</autoStart>
+						</bundle>
 					</bundleStartLevel>
 				</configuration>
 			</plugin>

@@ -15,6 +15,7 @@ import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -39,15 +40,16 @@ public class Activator implements BundleActivator {
 
     private XmlDocumentBundleTracker<List<ConfigDescription>> configDescriptionTracker;
 
+    private ServiceBinder configDescriptionI18nProviderServiceBinder;
+
 
     @Override
     public void start(BundleContext context) throws Exception {
-        XmlConfigDescriptionProvider configDescriptionProvider =
-                new XmlConfigDescriptionProvider();
-
-        this.configDescriptionProviderReg = context.registerService(
-                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
-
+        XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
+        this.configDescriptionI18nProviderServiceBinder =
+                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder.open();
+        
         XmlDocumentReader<List<ConfigDescription>> configDescriptionReader =
                 new ConfigDescriptionReader();
 
@@ -56,16 +58,20 @@ public class Activator implements BundleActivator {
 
         this.configDescriptionTracker = new XmlDocumentBundleTracker<>(
                 context, XML_DIRECTORY, configDescriptionReader, configDescriptionProviderFactory);
-
         this.configDescriptionTracker.open();
+
+        this.configDescriptionProviderReg = context.registerService(
+                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        this.configDescriptionTracker.close();
-
         this.configDescriptionProviderReg.unregister();
         this.configDescriptionProviderReg = null;
+
+        this.configDescriptionTracker.close();
+
+        this.configDescriptionI18nProviderServiceBinder.close();
     }
 
 }

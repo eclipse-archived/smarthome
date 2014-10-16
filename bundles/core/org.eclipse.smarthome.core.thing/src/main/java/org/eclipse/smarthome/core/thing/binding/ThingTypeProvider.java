@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Collection;
+import java.util.Locale;
 
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 /**
@@ -22,27 +24,22 @@ public interface ThingTypeProvider {
     /**
      * Provides a collection of thing types
      * 
+     * @param locale
+     *            locale (can be null)
+     * 
      * @return the thing types provided by the {@link ThingTypeProvider}
      */
-    Collection<ThingType> getThingTypes();
+    Collection<ThingType> getThingTypes(Locale locale);
 
     /**
-     * Adds a {@link ThingTypeChangeListener} which is notified if there are
-     * changes concerning the thing types provided by the
-     * {@link ThingTypeProvider}.
+     * Provides a thing type for the given UID or null if no no type for the
+     * given UID exists.
      * 
-     * @param listener
-     *            The listener to be added
+     * @param locale
+     *            locale (can be null)
+     * @return thing type for the given UID or null if no no type for the given
+     *         UID exists
      */
-    public void addThingTypeChangeListener(ThingTypeChangeListener listener);
+    ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale);
 
-    /**
-     * Removes a {@link ThingTypeChangeListener} which is notified if there are
-     * changes concerning the thing types provided by the
-     * {@link ThingTypeProvider}.
-     * 
-     * @param listener
-     *            The listener to be removed.
-     */
-    public void removeThingTypeChangeListener(ThingTypeChangeListener listener);
 }

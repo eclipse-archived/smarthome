@@ -11,7 +11,6 @@ import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 
 
 /**
@@ -24,30 +23,31 @@ import org.osgi.framework.BundleContext;
 public class BindingInfoXmlProviderFactory
         implements XmlDocumentProviderFactory<BindingInfoXmlResult> {
 
-    private BundleContext bundleContext;
+    private XmlBindingInfoProvider bindingInfoProvider;
     private XmlConfigDescriptionProvider configDescriptionProvider;
 
 
-    public BindingInfoXmlProviderFactory(BundleContext bundleContext,
+    public BindingInfoXmlProviderFactory(
+            XmlBindingInfoProvider bindingInfoProvider,
             XmlConfigDescriptionProvider configDescriptionProvider)
             throws IllegalArgumentException {
 
-        if (bundleContext == null) {
-            throw new IllegalArgumentException("The BundleContext must not be null!");
+        if (bindingInfoProvider == null) {
+            throw new IllegalArgumentException("The XmlBindingInfoProvider must not be null!");
         }
 
         if (configDescriptionProvider == null) {
             throw new IllegalArgumentException("The XmlConfigDescriptionProvider must not be null!");
         }
 
-        this.bundleContext = bundleContext;
+        this.bindingInfoProvider = bindingInfoProvider;
         this.configDescriptionProvider = configDescriptionProvider;
     }
 
     @Override
     public XmlDocumentProvider<BindingInfoXmlResult> createDocumentProvider(Bundle bundle) {
         return new BindingInfoXmlProvider(
-                this.bundleContext, bundle, this.configDescriptionProvider);
+                bundle, this.bindingInfoProvider, this.configDescriptionProvider);
     }
 
 }
