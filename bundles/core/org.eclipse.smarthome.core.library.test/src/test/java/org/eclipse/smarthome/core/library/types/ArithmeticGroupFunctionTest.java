@@ -7,25 +7,22 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.eclipse.smarthome.core.library.items.DimmerItem;
-import org.eclipse.smarthome.core.library.items.SwitchItem;
-import org.eclipse.smarthome.core.library.types.ArithmeticGroupFunction;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.OpenClosedType;
-import org.junit.Before;
-import org.junit.Test;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.junit.Before;
+import org.junit.Test;
 
 
 /**
@@ -34,12 +31,12 @@ import org.eclipse.smarthome.core.types.UnDefType;
 public class ArithmeticGroupFunctionTest {
 	
 	private GroupFunction function;
-	private List<Item> items;
+	private Set<Item> items;
 	
 	
 	@Before
 	public void init() {
-		items = new ArrayList<Item>();
+		items = new HashSet<Item>();
 	}
 	
 

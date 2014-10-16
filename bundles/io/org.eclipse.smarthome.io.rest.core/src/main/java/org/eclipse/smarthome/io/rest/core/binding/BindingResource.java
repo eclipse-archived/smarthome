@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.binding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -44,7 +45,7 @@ public class BindingResource extends AbstractRESTResource {
 
         BindingInfoRegistry bindingInfoRegistry = getService(BindingInfoRegistry.class);
 
-        List<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos();
+        Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos();
         BindingInfoListBean bindingInfoListBean = convertToListBean(bindingInfos);
 
         return Response.ok(bindingInfoListBean).build();
@@ -56,7 +57,7 @@ public class BindingResource extends AbstractRESTResource {
                 bindingInfo.getDescription(), thingTypeBeans);
     }
 
-    private BindingInfoListBean convertToListBean(List<BindingInfo> bindingInfos) {
+    private BindingInfoListBean convertToListBean(Set<BindingInfo> bindingInfos) {
         List<BindingInfoBean> bindingInfoBeans = new ArrayList<>();
         for (BindingInfo bindingInfo : bindingInfos) {
             bindingInfoBeans.add(convertToBindingBean(bindingInfo));

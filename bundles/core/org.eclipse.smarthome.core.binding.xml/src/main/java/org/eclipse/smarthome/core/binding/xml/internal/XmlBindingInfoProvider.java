@@ -10,10 +10,12 @@ package org.eclipse.smarthome.core.binding.xml.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoProvider;
@@ -116,14 +118,14 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     }
 
     @Override
-    public synchronized Collection<BindingInfo> getBindingInfos(Locale locale) {
-        List<BindingInfo> allBindingInfos = new ArrayList<>(10);
+    public synchronized Set<BindingInfo> getBindingInfos(Locale locale) {
+        Set<BindingInfo> allBindingInfos = new HashSet<>(10);
 
-        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoList =
+        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoSet =
                 this.bundleBindingInfoMap.entrySet();
 
-        if (bindingInfoList != null) {
-            for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoList) {
+        if (bindingInfoSet != null) {
+            for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoSet) {
                 for (BindingInfo bindingInfo : bindingInfos.getValue()) {
                     BindingInfo localizedBindingInfo = createLocalizedBindingInfo(
                             bindingInfos.getKey(), bindingInfo, locale);
