@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.library.items;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.library.CoreItemFactory;
@@ -58,11 +59,11 @@ public class DimmerItem extends SwitchItem {
 	}
 	
 	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return acceptedDataTypes;
+		return Collections.unmodifiableList(acceptedDataTypes);
 	}
 
 	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return acceptedCommandTypes;
+		return Collections.unmodifiableList(acceptedCommandTypes);
 	}
 
 	/**
