@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.i18n.I18nProvider
 import org.eclipse.smarthome.test.OSGiTest
+import org.junit.After;
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
@@ -39,13 +40,21 @@ class I18nProviderOSGiTest extends OSGiTest {
 
     I18nProvider i18nProvider
 
+	Locale defaultLocale
 
     @Before
     void setUp() {
+		defaultLocale = Locale.getDefault();
+		Locale.setDefault(Locale.GERMAN);
         i18nProvider = getService(I18nProvider)
         assertThat i18nProvider, is(notNullValue())
     }
 
+	@After
+	void after() {
+		Locale.setDefault(defaultLocale)	
+	}
+	
     @Test
     void 'assert that getText without bundle is working properly'() {
         def text
@@ -61,7 +70,7 @@ class I18nProviderOSGiTest extends OSGiTest {
     @Test
     void 'assert that getText via bundle is working properly'() {
         def text
-
+		
         Bundle bundle = getBundleContext().bundle
 
         text = i18nProvider.getText(bundle, null, null, null)
