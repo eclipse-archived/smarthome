@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -22,6 +25,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.io.rest.AbstractRESTResource;
+import org.eclipse.smarthome.io.rest.MediaTypeHelper;
 import org.eclipse.smarthome.io.rest.core.binding.beans.BindingInfoBean;
 import org.eclipse.smarthome.io.rest.core.binding.beans.BindingInfoListBean;
 import org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource;
@@ -40,15 +44,19 @@ public class BindingResource extends AbstractRESTResource {
     UriInfo uriInfo;
 
     @GET
-    @Produces({ MediaType.WILDCARD })
-    public Response getAll() {
+    @Produces({"application/javascript", MediaType.APPLICATION_JSON})
+    public Response getAll(
+    		@Context HttpHeaders headers,
+    		@QueryParam("type") String type, 
+    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
 
         BindingInfoRegistry bindingInfoRegistry = getService(BindingInfoRegistry.class);
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos();
         BindingInfoListBean bindingInfoListBean = convertToListBean(bindingInfos);
 
-        return Response.ok(bindingInfoListBean).build();
+		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
+        return Response.ok(bindingInfoListBean, responseType).build();
     }
 
     private BindingInfoBean convertToBindingBean(BindingInfo bindingInfo) {

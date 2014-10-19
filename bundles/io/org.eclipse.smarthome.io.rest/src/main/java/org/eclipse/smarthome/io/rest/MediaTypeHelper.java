@@ -27,16 +27,14 @@ public class MediaTypeHelper {
 	 * Note that the explicit type parameter takes precedence over the accepted types.
 	 * 
 	 * @param acceptedTypes accepted media types
-	 * @param typeParam either "xml", "json", "jsonp" or null
+	 * @param typeParam either "json", "jsonp" or null
 	 * 
 	 * @return the media type to use for the response
 	 */
 	static public String getResponseMediaType(List<MediaType> acceptedTypes, String typeParam) {
 
 		// first check the explicit type parameter
-    	if("xml".equals(typeParam)) {
-    		return MediaType.APPLICATION_XML;
-    	} else if("json".equals(typeParam)) {
+    	if("json".equals(typeParam)) {
     		return MediaType.APPLICATION_JSON;
     	} else if("jsonp".equals(typeParam)) {
     		return APPLICATION_X_JAVASCRIPT;
@@ -44,9 +42,7 @@ public class MediaTypeHelper {
     	
 		// then check the accepted types
     	for(MediaType type : acceptedTypes) {
-    		if(type.isCompatible(MediaType.APPLICATION_XML_TYPE)) {
-    			return MediaType.APPLICATION_XML;
-    		} else if(type.isCompatible(MediaType.APPLICATION_JSON_TYPE)) {
+    		if(type.isCompatible(MediaType.APPLICATION_JSON_TYPE)) {
     			return MediaType.APPLICATION_JSON;
     		} else if(type.toString().equals(APPLICATION_X_JAVASCRIPT)) {
     			return APPLICATION_X_JAVASCRIPT;

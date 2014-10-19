@@ -15,7 +15,7 @@ import org.osgi.framework.BundleContext;
  * 
  * @author Dennis Nobel - Initial contribution
  */
-public abstract class AbstractRESTResource implements RESTResource{
+public abstract class AbstractRESTResource implements RESTResource {
 
     protected <T> T getService(Class<T> serviceInterface) {
         BundleContext bundleContext = RESTApplication.getBundleContext();

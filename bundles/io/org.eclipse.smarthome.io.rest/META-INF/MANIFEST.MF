@@ -6,16 +6,12 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.collect,
- com.sun.jersey.api.json,
- com.sun.jersey.core.osgi,
- com.sun.jersey.core.util,
- com.sun.jersey.spi.container.servlet,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
  javax.ws.rs.core,
+ javax.ws.rs.ext;version="1.1.1",
  org.apache.commons.lang,
- org.codehaus.jackson.map,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
@@ -29,7 +25,8 @@ Import-Package: com.google.common.collect,
  org.osgi.util.tracker,
  org.slf4j
 Bundle-ClassPath: .
-Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*,
+ OSGI-INF/rootresource.xml
 Export-Package: org.eclipse.smarthome.io.rest
+Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
 

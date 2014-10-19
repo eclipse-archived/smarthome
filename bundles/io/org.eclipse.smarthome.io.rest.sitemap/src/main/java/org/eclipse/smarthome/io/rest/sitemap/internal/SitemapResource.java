@@ -63,8 +63,6 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.api.json.JSONWithPadding;
-
 /**
  * <p>This class acts as a REST resource for sitemaps and provides different methods to interact with them,
  * like retrieving a list of all available sitemaps or just getting the widgets of a single page.</p>
@@ -126,8 +124,7 @@ public class SitemapResource implements RESTResource {
 		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
 		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
 		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(new SitemapListBean(getSitemapBeans(uriInfo.getAbsolutePathBuilder().build())), callback) : new SitemapListBean(getSitemapBeans(uriInfo.getAbsolutePathBuilder().build()));
+	    	Object responseObject = new SitemapListBean(getSitemapBeans(uriInfo.getAbsolutePathBuilder().build()));
 	    	return Response.ok(responseObject, responseType).build();
 		} else {
 			return Response.notAcceptable(null).build();
@@ -144,8 +141,7 @@ public class SitemapResource implements RESTResource {
 		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
 		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
 		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build()), callback) : getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build());
+	    	Object responseObject = getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build());
 	    	return Response.ok(responseObject, responseType).build();
 		} else {
 			return Response.notAcceptable(null).build();
@@ -170,8 +166,7 @@ public class SitemapResource implements RESTResource {
 				// so we do a simply listening for changes on the appropriate items
 				blockUnlessChangeOccurs(sitemapname, pageId);
 			}
-			Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build()), callback) : getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build());
+			Object responseObject = getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build());
 	    	return Response.ok(responseObject, responseType).build();
 		} else {
 			throw new WebApplicationException(Response.notAcceptable(null).build());

@@ -25,9 +25,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
@@ -67,8 +64,8 @@ public class ThingResource extends AbstractRESTResource {
     @POST
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(@PathParam("thingUID") String thingUID, String body) throws JsonParseException,
-            JsonMappingException, IOException {
+    public Response create(@PathParam("thingUID") String thingUID, String body) throws 
+           IOException {
 
         // TODO: Use ThingBean as method argument instead of String (be aware of class loader problems)
         ThingBean thingBean = parse(body);
@@ -221,14 +218,15 @@ public class ThingResource extends AbstractRESTResource {
         return null;
     }
 
-    private ThingBean parse(String body) throws IOException, JsonParseException, JsonMappingException {
+    private ThingBean parse(String body) throws IOException {
         // Deserialization of the bean works different compared to
         // serialization. It does not respect the xml annotations.
         // Therefore a valid json looks like this: { UID: 'a:b:c',
         // configuration: { key1: 'value', key2: 'value'} }.
-        ObjectMapper mapper = new ObjectMapper();
-        ThingBean thingBean = mapper.readValue(body, ThingBean.class);
-        return thingBean;
+
+//    	ThingBean thingBean = mapper.readValue(body, ThingBean.class);
+//        return thingBean;
+    	return null;
     }
 
 }

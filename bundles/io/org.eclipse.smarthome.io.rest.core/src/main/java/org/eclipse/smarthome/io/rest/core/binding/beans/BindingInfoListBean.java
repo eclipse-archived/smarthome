@@ -11,20 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * This is a java bean that is used with JAXB to serialize binding info object
- * lists to XML or JSON.
+ * lists to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *
  */
-@XmlRootElement(name = "bindings")
 public class BindingInfoListBean {
 
-    @XmlElement(name = "binding")
     public final List<BindingInfoBean> entries = new ArrayList<>();
 
     public BindingInfoListBean() {

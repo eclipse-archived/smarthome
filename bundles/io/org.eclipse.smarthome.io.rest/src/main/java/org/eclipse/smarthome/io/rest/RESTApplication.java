@@ -8,13 +8,11 @@
 package org.eclipse.smarthome.io.rest;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.ServletException;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -26,12 +24,8 @@ import org.eclipse.smarthome.io.rest.internal.resources.RootResource;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jersey.core.util.FeaturesAndProperties;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
 
 /**
  * This is the main component of the REST API; it gets all required services injected,
@@ -119,32 +113,21 @@ public class RESTApplication extends Application {
 
 	public void activate(BundleContext bundleContext) {			    
         RESTApplication.bundleContext = bundleContext;
-		try {
-    		com.sun.jersey.spi.container.servlet.ServletContainer servletContainer =
-    			       new ServletContainer(this);
-    		
-			httpService.registerServlet(REST_SERVLET_ALIAS,
-					servletContainer, getJerseyServletParams(), createHttpContext());
 
- 			logger.info("Started REST API at " + REST_SERVLET_ALIAS);
+		logger.info("Started REST API at " + REST_SERVLET_ALIAS);
 
- 			if (mdnsService != null) {
- 				mdnsName = bundleContext.getProperty("mdnsName");
- 				if(mdnsName==null) { mdnsName = "smarthome"; }
- 	        	try {
- 	        		httpPort = Integer.parseInt(bundleContext.getProperty("jetty.port"));
- 	 				mdnsService.registerService(getDefaultServiceDescription());
- 	        	} catch(NumberFormatException e) {}
- 	        	try {
- 	        		httpSSLPort = Integer.parseInt(bundleContext.getProperty("jetty.port.ssl"));
- 	 				mdnsService.registerService(getSSLServiceDescription());
- 	        	} catch(NumberFormatException e) {}
-			}
-        } catch (ServletException se) {
-            throw new RuntimeException(se);
-        } catch (NamespaceException se) {
-            throw new RuntimeException(se);
-        }
+		if (mdnsService != null) {
+			mdnsName = bundleContext.getProperty("mdnsName");
+			if(mdnsName==null) { mdnsName = "smarthome"; }
+        	try {
+        		httpPort = Integer.parseInt(bundleContext.getProperty("jetty.port"));
+ 				mdnsService.registerService(getDefaultServiceDescription());
+        	} catch(NumberFormatException e) {}
+        	try {
+        		httpSSLPort = Integer.parseInt(bundleContext.getProperty("jetty.port.ssl"));
+ 				mdnsService.registerService(getSSLServiceDescription());
+        	} catch(NumberFormatException e) {}
+		}
 	}
 	
 	public void deactivate() {
@@ -179,15 +162,6 @@ public class RESTApplication extends Application {
 		return restResources;
 	}
 
-	private Dictionary<String, String> getJerseyServletParams() {
-        Dictionary<String, String> jerseyServletParams = new Hashtable<String, String>();
-        jerseyServletParams.put("javax.ws.rs.Application", RESTApplication.class.getName());
-        // required because of bug http://java.net/jira/browse/JERSEY-361
-        jerseyServletParams.put(FeaturesAndProperties.FEATURE_XMLROOTELEMENT_PROCESSING, "true");
-
-        return jerseyServletParams;
-    }
-    
     private ServiceDescription getDefaultServiceDescription() {
     	Hashtable<String, String> serviceProperties = new Hashtable<String, String>();
 		serviceProperties.put("uri", REST_SERVLET_ALIAS);

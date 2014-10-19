@@ -54,8 +54,6 @@ import org.eclipse.smarthome.io.rest.core.item.beans.ItemListBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.api.json.JSONWithPadding;
-
 /**
  * <p>This class acts as a REST resource for items and provides different methods to interact with them,
  * like retrieving lists of items, sending commands to them or checking a single status.</p>
@@ -78,7 +76,7 @@ public class ItemResource extends AbstractRESTResource {
     
 	@Context UriInfo uriInfo;
 	@GET
-    @Produces( { MediaType.WILDCARD })
+    @Produces( { MediaType.APPLICATION_JSON })
     public Response getItems(
     		@Context HttpHeaders headers,
     		@QueryParam("type") String type, 
@@ -87,8 +85,7 @@ public class ItemResource extends AbstractRESTResource {
 
 		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
 		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(new ItemListBean(getItemBeans()), callback) : new ItemListBean(getItemBeans());
+	    	Object responseObject = new ItemListBean(getItemBeans());
 	    	return Response.ok(responseObject, responseType).build();
 		} else {
 			return Response.notAcceptable(null).build();
@@ -120,8 +117,7 @@ public class ItemResource extends AbstractRESTResource {
 
 		final String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
 		if(responseType!=null) {
-	    	final Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getItemDataBean(itemname), callback) : getItemDataBean(itemname);
+	    	final Object responseObject = getItemDataBean(itemname);
 	    	throw new WebApplicationException(Response.ok(responseObject, responseType).build());  
 	
 		} else {

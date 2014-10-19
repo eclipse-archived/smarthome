@@ -8,17 +8,9 @@
 package org.eclipse.smarthome.io.rest.internal.resources.beans;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import org.eclipse.smarthome.io.rest.internal.RESTActivator;
 
 /**
  * This is a java bean that is used with JAXB to define the root entry
@@ -27,28 +19,18 @@ import javax.xml.bind.annotation.XmlValue;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@XmlRootElement(name="smarthome")
-@XmlAccessorType(XmlAccessType.NONE)
 public class RootBean {
+	
+	final public String version = RESTActivator.getContext().getBundle().getVersion().toString(); 
 
-	final public Map<String, String> links = new HashMap<String, String>();
-    
-    @XmlElement(name = "link")
-    public MapEntry[] getMap() {
-        List<MapEntry> list = new ArrayList<MapEntry>();
-        for (Entry<String, String> entry : links.entrySet()) {
-            MapEntry mapEntry =new MapEntry();
-            mapEntry.type = entry.getKey();
-            mapEntry.value = entry.getValue();
-            list.add(mapEntry);
-        }
-        return list.toArray(new MapEntry[list.size()]);
-    }
+	final public List<Links> links = new ArrayList<Links>();
  
-    public static class MapEntry {
-        @XmlAttribute
-        public String type;
-        @XmlValue
-        public String value;
+    public static class Links {
+        public Links(String type, String url) {
+        	this.type = type;
+        	this.url = url;
+        }
+		public String type;
+        public String url;
     }
 }

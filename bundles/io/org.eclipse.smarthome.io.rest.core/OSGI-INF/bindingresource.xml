@@ -11,6 +11,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.binding.BindingResource">
    <implementation class="org.eclipse.smarthome.io.rest.core.binding.BindingResource"/>
    <service>
+      <provide interface="org.eclipse.smarthome.io.rest.core.binding.BindingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
 </scr:component>
