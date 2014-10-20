@@ -13,7 +13,7 @@ import java.util.List;
 import org.eclipse.smarthome.io.rest.internal.RESTActivator;
 
 /**
- * This is a java bean that is used with JAXB to define the root entry
+ * This is a java bean that is used to define the root entry
  * page of the REST interface.
  *  
  * @author Kai Kreuzer - Initial contribution and API

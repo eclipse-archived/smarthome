@@ -7,8 +7,9 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -29,18 +30,37 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.rest.AbstractRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultListBean;
 
 /**
  * This class acts as a REST resource for the inbox and is registered with the
  * Jersey servlet.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
 @Path("inbox")
-public class InboxResource extends AbstractRESTResource {
+public class InboxResource implements RESTResource {
+
+	private Inbox inbox;
+	private ManagedThingProvider managedThingProvider;
+	
+	protected void setInbox(Inbox inbox) {
+		this.inbox = inbox;
+	}
+
+	protected void unsetInbox(Inbox inbox) {
+		this.inbox = null;
+	}
+
+	protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
+		this.managedThingProvider = managedThingProvider;
+	}
+
+	protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
+		this.managedThingProvider = null;
+	}
 
     @Context
     private UriInfo uriInfo;
@@ -49,14 +69,12 @@ public class InboxResource extends AbstractRESTResource {
     @Path("/approve/{thingUID}")
     public Response approve(@PathParam("thingUID") String thingUID) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
-        Inbox inbox = getService(Inbox.class);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
             return Response.status(Status.BAD_REQUEST).build();
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
         managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
         return Response.ok().build();
     }
@@ -64,7 +82,6 @@ public class InboxResource extends AbstractRESTResource {
     @DELETE
     @Path("/{thingUID}")
     public Response delete(@PathParam("thingUID") String thingUID) {
-        Inbox inbox = getService(Inbox.class);
         inbox.remove(new ThingUID(thingUID));
         return Response.ok().build();
     }
@@ -72,25 +89,21 @@ public class InboxResource extends AbstractRESTResource {
     @GET
     @Produces({ MediaType.WILDCARD })
     public Response getAll() {
-
-        Inbox inbox = getService(Inbox.class);
-
         List<DiscoveryResult> discoveryResults = inbox.getAll();
-        DiscoveryResultListBean discoveryResultListBean = convertToListBean(discoveryResults);
+        Set<DiscoveryResultBean> discoveryResultBeans = convertToListBean(discoveryResults);
 
-        return Response.ok(discoveryResultListBean).build();
+        return Response.ok(discoveryResultBeans).build();
     }
 
     @POST
     @Path("/ignore/{thingUID}")
     public Response ignore(@PathParam("thingUID") String thingUID) {
-        Inbox inbox = getService(Inbox.class);
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.IGNORED);
         return Response.ok().build();
     }
 
-    private DiscoveryResultListBean convertToListBean(List<DiscoveryResult> discoveryResults) {
-        List<DiscoveryResultBean> discoveryResultBeans = new ArrayList<>();
+    private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
+        Set<DiscoveryResultBean> discoveryResultBeans = new HashSet<>();
         for (DiscoveryResult discoveryResult : discoveryResults) {
             ThingUID thingUID = discoveryResult.getThingUID();
             ThingUID bridgeUID = discoveryResult.getBridgeUID();
@@ -98,7 +111,7 @@ public class InboxResource extends AbstractRESTResource {
                     .toString() : null, discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult
                     .getProperties()));
         }
-        return new DiscoveryResultListBean(discoveryResultBeans);
+        return discoveryResultBeans;
     }
 
 }

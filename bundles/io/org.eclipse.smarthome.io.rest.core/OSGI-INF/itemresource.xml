@@ -14,4 +14,7 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.item.ItemResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
+   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
+   <reference bind="addItemFactory" cardinality="1..n" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="static" unbind="removeItemFactory"/>
+   <reference bind="setManagedItemProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="static" unbind="unsetManagedItemProvider"/>
 </scr:component>

@@ -25,8 +25,7 @@ Import-Package: com.google.common.collect,
  org.osgi.util.tracker,
  org.slf4j
 Bundle-ClassPath: .
-Service-Component: OSGI-INF/*,
- OSGI-INF/rootresource.xml
+Service-Component: OSGI-INF/*
 Export-Package: org.eclipse.smarthome.io.rest
 Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
 

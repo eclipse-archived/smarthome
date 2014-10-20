@@ -21,8 +21,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.ScanListener;
-import org.eclipse.smarthome.io.rest.AbstractRESTResource;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.BindingIdListBean;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,26 +30,37 @@ import org.slf4j.LoggerFactory;
  * Jersey servlet.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
 @Path("discovery")
-public class DiscoveryResource extends AbstractRESTResource {
+public class DiscoveryResource implements RESTResource {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryResource.class);
+
+    private DiscoveryServiceRegistry discoveryServiceRegistry;
+    
+    protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
+    	this.discoveryServiceRegistry = discoveryServiceRegistry;
+    }
+
+    protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
+    	this.discoveryServiceRegistry = null;
+    }
 
     @Context
     private UriInfo uriInfo;
 
     @GET
-    @Produces({ MediaType.WILDCARD })
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getDiscoveryServices() {
-        Collection<String> supportedBindings = getService(DiscoveryServiceRegistry.class).getSupportedBindings();
-        return Response.ok(new BindingIdListBean(supportedBindings)).build();
+        Collection<String> supportedBindings = discoveryServiceRegistry.getSupportedBindings();
+        return Response.ok(supportedBindings).build();
     }
 
     @POST
     @Path("/scan/{bindingId}")
     public Response scan(@PathParam("bindingId") final String bindingId) {
-        getService(DiscoveryServiceRegistry.class).startScan(bindingId, new ScanListener() {
+    	discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
             @Override
             public void onErrorOccurred(Exception exception) {
                 logger.error("Error occured while scanning for binding '{}': {}", bindingId, exception.getMessage(),

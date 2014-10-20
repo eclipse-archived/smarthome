@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.rest.core
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: javax.servlet,
+Import-Package: com.google.gson;version="2.2.4",
+ javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
  javax.ws.rs.core;version="2.0.0",

@@ -7,17 +7,14 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
 
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This is a java bean that is used with JAXB to serialize sitemaps
- * to XML or JSON.
+ * This is a java bean that is used with JAXB to serialize sitemaps to JSON.
  *  
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
  *
  */
-@XmlRootElement(name="sitemap")
 public class SitemapBean {
 
 	public String name;

@@ -7,27 +7,21 @@
  */
 package org.eclipse.smarthome.io.rest.core.binding;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
-import org.eclipse.smarthome.io.rest.AbstractRESTResource;
-import org.eclipse.smarthome.io.rest.MediaTypeHelper;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.binding.beans.BindingInfoBean;
-import org.eclipse.smarthome.io.rest.core.binding.beans.BindingInfoListBean;
 import org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
@@ -36,41 +30,55 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
  * Jersey servlet.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
 @Path("bindings")
-public class BindingResource extends AbstractRESTResource {
+public class BindingResource implements RESTResource {
+
+	private BindingInfoRegistry bindingInfoRegistry;
+	private ThingTypeResource thingTypeResource;
+	
+	protected void setBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
+		this.bindingInfoRegistry = bindingInfoRegistry;
+	}
+
+	protected void unsetBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
+		this.bindingInfoRegistry = null;
+	}
+
+	protected void setThingTypeResource(ThingTypeResource thingTypeResource) {
+		this.thingTypeResource = thingTypeResource;
+	}
+
+	protected void unsetThingTypeResource(ThingTypeResource thingTypeResource) {
+		this.thingTypeResource = null;
+	}
 
     @Context
     UriInfo uriInfo;
 
     @GET
-    @Produces({"application/javascript", MediaType.APPLICATION_JSON})
-    public Response getAll(
-    		@Context HttpHeaders headers,
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-
-        BindingInfoRegistry bindingInfoRegistry = getService(BindingInfoRegistry.class);
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAll() {
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos();
-        BindingInfoListBean bindingInfoListBean = convertToListBean(bindingInfos);
+        Set<BindingInfoBean> bindingInfoBeans = convertToListBean(bindingInfos);
 
-		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-        return Response.ok(bindingInfoListBean, responseType).build();
+        return Response.ok(bindingInfoBeans).build();
     }
 
     private BindingInfoBean convertToBindingBean(BindingInfo bindingInfo) {
-        List<ThingTypeBean> thingTypeBeans = new ThingTypeResource().getThingTypeBeans(bindingInfo.getId());
+        Set<ThingTypeBean> thingTypeBeans = thingTypeResource.getThingTypeBeans(bindingInfo.getId());
         return new BindingInfoBean(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
                 bindingInfo.getDescription(), thingTypeBeans);
     }
 
-    private BindingInfoListBean convertToListBean(Set<BindingInfo> bindingInfos) {
-        List<BindingInfoBean> bindingInfoBeans = new ArrayList<>();
+    private Set<BindingInfoBean> convertToListBean(Set<BindingInfo> bindingInfos) {
+        Set<BindingInfoBean> bindingInfoBeans = new HashSet<>();
         for (BindingInfo bindingInfo : bindingInfos) {
             bindingInfoBeans.add(convertToBindingBean(bindingInfo));
         }
-        return new BindingInfoListBean(bindingInfoBeans);
+        return bindingInfoBeans;
     }
 
 }

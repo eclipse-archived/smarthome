@@ -11,20 +11,15 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
 
 /**
- * This is a java bean that is used with JAXB to serialize widgets
- * to XML or JSON.
+ * This is a java bean that is used with JAXB to serialize widgets to JSON.
  *  
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
  *
  */
-@XmlRootElement(name="widget")
 public class WidgetBean {
 
 	public String widgetId;
@@ -37,7 +32,6 @@ public class WidgetBean {
 	public String valuecolor;
 
 	// widget-specific attributes
-	@XmlElement(name="mapping")
 	public List<MappingBean> mappings = new ArrayList<MappingBean>();
 	public Boolean switchSupport;
 	public Integer sendFrequency;
@@ -56,7 +50,6 @@ public class WidgetBean {
 
 
 	// only for frames, other linkable widgets link to a page
-	@XmlElement(name="widget")
 	public final List<WidgetBean> widgets = new ArrayList<WidgetBean>();
 	
 	public WidgetBean() {}

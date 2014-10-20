@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.internal.resources.RootResource"/>
    </service>
+   <reference bind="addRESTResource" cardinality="0..n" interface="org.eclipse.smarthome.io.rest.RESTResource" name="RESTResource" policy="dynamic" unbind="removeRESTResource"/>
 </scr:component>

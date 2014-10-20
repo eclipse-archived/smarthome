@@ -10,7 +10,9 @@ package org.eclipse.smarthome.io.rest.core.thing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -40,26 +42,44 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
-import org.eclipse.smarthome.io.rest.AbstractRESTResource;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingListBean;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
 
 /**
  * This class acts as a REST resource for things and is registered with the
  * Jersey servlet.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
 @Path("things")
-public class ThingResource extends AbstractRESTResource {
+public class ThingResource implements RESTResource {
 
     private static final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
     @Context
     private UriInfo uriInfo;
+
+	private BundleContext bundleContext;
+	private Gson gson = new Gson();
+
+	protected void activate(BundleContext bundleContext) {
+		this.bundleContext = bundleContext;
+	}
+
+	protected void deactivate(BundleContext bundleContext) {
+		this.bundleContext = null;
+	}
+
+    protected <T> T getService(Class<T> serviceInterface) {
+        return bundleContext.getService(bundleContext.getServiceReference(serviceInterface));
+    }
 
     @POST
     @Path("/{thingUID}")
@@ -86,15 +106,15 @@ public class ThingResource extends AbstractRESTResource {
     }
 
     @GET
-    @Produces({ MediaType.WILDCARD })
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
 
         ThingRegistry thingRegistry = getService(ThingRegistry.class);
 
         Collection<Thing> things = thingRegistry.getAll();
-        ThingListBean thingListBean = convertToListBean(things);
+        Set<ThingBean> thingBeans = convertToListBean(things);
 
-        return Response.ok(thingListBean).build();
+        return Response.ok(thingBeans).build();
     }
 
     @POST
@@ -187,13 +207,13 @@ public class ThingResource extends AbstractRESTResource {
         return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), boundItem);
     }
 
-    private ThingListBean convertToListBean(Collection<Thing> things) {
-        List<ThingBean> thingBeans = new ArrayList<>();
+    private Set<ThingBean> convertToListBean(Collection<Thing> things) {
+        Set<ThingBean> thingBeans = new HashSet<>();
         for (Thing thing : things) {
             ThingBean thingBean = convertToThingBean(thing);
             thingBeans.add(thingBean);
         }
-        return new ThingListBean(thingBeans);
+        return thingBeans;
     }
 
     private ThingBean convertToThingBean(Thing thing) {
@@ -224,9 +244,8 @@ public class ThingResource extends AbstractRESTResource {
         // Therefore a valid json looks like this: { UID: 'a:b:c',
         // configuration: { key1: 'value', key2: 'value'} }.
 
-//    	ThingBean thingBean = mapper.readValue(body, ThingBean.class);
-//        return thingBean;
-    	return null;
+    	ThingBean thingBean = gson.fromJson(body, ThingBean.class);
+        return thingBean;
     }
 
 }
