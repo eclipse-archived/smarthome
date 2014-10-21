@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
- * @author Andre Fuechsel - implemented getFullLights
+ * @author Andre Fuechsel - implemented getFullLights(), startSearch()
  * 
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
@@ -61,7 +61,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     private static final int POLLING_FREQUENCY = 10; // in seconds
 
-	private static final String DEFAULT_USERNAME = "EclipseSmartHome";
+    private static final String DEFAULT_USERNAME = "EclipseSmartHome";
 
 	private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
@@ -158,8 +158,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         	}
         }
 
-		private boolean isReachable(String ipAddress) {
-			try {
+        private boolean isReachable(String ipAddress) {
+            try {
 				// note that InetAddress.isReachable is unreliable, see
 				// http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
 				// That's why we do an HTTP access instead
@@ -212,9 +212,9 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     @Override
     public void dispose() {
         logger.debug("Handler disposed.");
-        if(pollingJob!=null && !pollingJob.isCancelled()) {
-        	pollingJob.cancel(true);
-        	pollingJob = null;
+        if (pollingJob != null && !pollingJob.isCancelled()) {
+            pollingJob.cancel(true);
+            pollingJob = null;
         }
         if (bridge != null) {
             bridge = null;
@@ -342,6 +342,16 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
         }
         return lights;
+    }
+
+    public void startSearch() {
+        if (bridge != null) {
+            try {
+                bridge.startSearch();
+            } catch (IOException | ApiException e) {
+                logger.error("Bridge cannot start search mode", e);
+            }
+        }
     }
 
     private boolean isEqual(State state1, State state2) {
