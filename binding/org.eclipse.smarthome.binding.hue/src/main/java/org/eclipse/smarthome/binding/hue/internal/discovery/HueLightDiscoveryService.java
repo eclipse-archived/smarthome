@@ -31,17 +31,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
- * to a paired hue bridge.
+ * to a paired hue bridge. The default search time for hue is 60 seconds. 
+ * 
+ * @author Kai Kreuzer - Initial contribution
+ * @author Andre Fuechsel - changed search timeout
  * 
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
     private final static Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
+    private final static int SEARCH_TIME = 60; 
+    
 	private HueBridgeHandler hueBridgeHandler;
 
     public HueLightDiscoveryService(HueBridgeHandler hueBridgeHandler) {
-        super(5);
+        super(SEARCH_TIME);
     	this.hueBridgeHandler = hueBridgeHandler;
     }
 
@@ -59,16 +64,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 	}
 
 	@Override
-	public int getScanTimeout() {
-		return 1;
-	}
-
-	@Override
 	public void startScan() {
 	    List<FullLight> lights = hueBridgeHandler.getFullLights(); 
-        for (FullLight l : lights) {
-            onLightAddedInternal(l);
-        }
+	    if (lights != null) {
+            for (FullLight l : lights) {
+                onLightAddedInternal(l);
+            }
+	    }
+        // search for unpaired lights
+        hueBridgeHandler.startSearch();
 	}
 
 	@Override

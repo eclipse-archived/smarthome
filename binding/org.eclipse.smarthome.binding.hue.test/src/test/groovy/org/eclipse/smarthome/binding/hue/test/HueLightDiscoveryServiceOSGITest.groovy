@@ -7,17 +7,16 @@
  */
 package org.eclipse.smarthome.binding.hue.test
 
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
-import java.lang.reflect.Field
 import nl.q42.jue.FullLight
-import nl.q42.jue.Light
-import nl.q42.jue.HueBridge
+import nl.q42.jue.MockedHttpClient
+import nl.q42.jue.HttpClient.Result
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
-import org.eclipse.smarthome.binding.hue.internal.HueThingHandlerFactory
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
+import org.eclipse.smarthome.binding.hue.internal.HueThingHandlerFactory
 import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoveryService
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.discovery.DiscoveryListener
@@ -25,12 +24,12 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag
 import org.eclipse.smarthome.config.discovery.DiscoveryService
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingTypeUID
+import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
-import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -42,6 +41,7 @@ import org.junit.Test
  * Tests for {@link HueLightDiscoveryService}.
  *
  * @author Kai Kreuzer - Initial contribution
+ * @author Andre Fuechsel - added test 'assert start search is called()'
  */
 class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
@@ -49,6 +49,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
     DiscoveryListener discoveryListener
 	ManagedThingProvider managedThingProvider
 	Bridge hueBridge
+    HueBridgeHandler hueBridgeHandler
 	HueLightDiscoveryService discoveryService
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
@@ -61,7 +62,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         managedThingProvider = getService(ThingProvider, ManagedThingProvider)
         assertThat managedThingProvider, is(notNullValue())
 
-        HueBridgeHandler hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
+        hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
         assertThat hueBridgeHandler, is(nullValue())
 
         Configuration configuration = new Configuration().with {
@@ -134,5 +135,65 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             assertThat bridgeUID, is(hueBridge.getUID())
             assertThat properties.get(LIGHT_ID), is (light.id)
         }
+    }
+	
+    @Test
+    void 'assert startSearch is called'() {
+        def searchHasBeenTriggered = false
+        def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
+        def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
+
+        MockedHttpClient mockedHttpClient =  [
+            put: { String address, String body ->
+                addressWrapper.set(address)
+                bodyWrapper.set(body)
+                new Result("", 200)
+            },
+            get: { String address ->
+                if (address.endsWith("testUserName/")) {
+                    def body = """
+						{"lights":{}}
+						"""
+                    new Result(body, 200)
+                }
+            },
+            post: { String address, String body ->
+                if (address.endsWith("lights")) {
+                    def bodyReturn = """
+						{"success": {"/lights": "Searching for new devices"}}
+						"""
+                    searchHasBeenTriggered = true
+                    new Result(bodyReturn, 200)
+                }
+            }
+        ] as MockedHttpClient
+
+        installHttpClientMock(hueBridgeHandler, mockedHttpClient)
+
+        waitForAssert({
+            assertThat hueBridge.getStatus(), is(ThingStatus.ONLINE)
+        }, 10000)
+
+        discoveryService.startScan();
+        waitForAssert{assertTrue searchHasBeenTriggered}
+    }
+
+    private void installHttpClientMock(HueBridgeHandler hueBridgeHandler,
+            MockedHttpClient mockedHttpClient) {
+
+        // mock HttpClient
+        def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
+        hueBridgeField.accessible = true
+        def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+
+        def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
+        httpClientField.accessible = true
+        httpClientField.set(hueBridgeValue, mockedHttpClient)
+
+        def usernameField = hueBridgeValue.getClass().getDeclaredField("username")
+        usernameField.accessible = true
+        usernameField.set(hueBridgeValue, hueBridgeHandler.config.get(USER_NAME))
+
+        hueBridgeHandler.initialize()
     }
 }
