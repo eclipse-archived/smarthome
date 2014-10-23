@@ -13,7 +13,7 @@ import java.util.List;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
+import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.util.tracker.BundleTracker;
 
 
@@ -30,7 +30,7 @@ import org.osgi.util.tracker.BundleTracker;
  * 
  * @author Michael Grammling - Initial Contribution
  */
-public abstract class ResolvedBundleTracker implements BundleListener {
+public abstract class ResolvedBundleTracker implements SynchronousBundleListener {
 
     private BundleContext bundleContext;
     private List<Bundle> trackedBundles;
