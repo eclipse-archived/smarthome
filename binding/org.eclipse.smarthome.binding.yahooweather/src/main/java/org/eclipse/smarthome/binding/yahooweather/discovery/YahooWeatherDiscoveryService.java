@@ -155,7 +155,12 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
 
 	@Override
 	protected void startBackgroundDiscovery() {
-		discoverLocation();
+	    new Thread(new Runnable() {
+            @Override
+            public void run() {
+                discoverLocation();
+            }
+        }).start();
 	}
 
 	@Override
