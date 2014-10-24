@@ -122,14 +122,12 @@ public class SitemapResource implements RESTResource {
     }
 
     @GET @Path("/{sitemapname: [a-zA-Z_0-9]*}/{pageid: [a-zA-Z_0-9]*}")
-	@Produces( { MediaType.WILDCARD })
+	@Produces(MediaType.APPLICATION_JSON)
     public Response getPageData(
     		@Context HttpHeaders headers,
     		@PathParam("sitemapname") String sitemapname,
-    		@PathParam("pageid") String pageId,
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
+    		@PathParam("pageid") String pageId) {
+		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
 		if(headers.getRequestHeader("X-Atmosphere-Transport") != null) {
 			// Make the REST-API pseudo-compatible with openHAB 1.x
@@ -296,10 +294,9 @@ public class SitemapResource implements RESTResource {
 				if(mapping.getCmd() != null) {
 					if(mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {
 						mappingBean.command = mapping.getCmd().substring(1, mapping.getCmd().length()-1);
+					} else {
+						mappingBean.command = mapping.getCmd();
 					}
-				}
-				else {
-					mappingBean.command = mapping.getCmd();
 				}
 				mappingBean.label = mapping.getLabel();
 				bean.mappings.add(mappingBean);
@@ -313,10 +310,9 @@ public class SitemapResource implements RESTResource {
 				if(mapping.getCmd() != null) {
 					if(mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {
 						mappingBean.command = mapping.getCmd().substring(1, mapping.getCmd().length()-1);
-					}
+					} else {
+						mappingBean.command = mapping.getCmd();
 				}
-				else {
-					mappingBean.command = mapping.getCmd();
 				}
     			mappingBean.label = mapping.getLabel();
     			bean.mappings.add(mappingBean);
