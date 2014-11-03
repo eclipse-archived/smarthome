@@ -26,6 +26,46 @@
       %license
    </license>
 
+   <includes
+         id="com.eclipsesource.jaxrs.connector.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.connector.feature.source"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.jersey.runtime.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.jersey.runtime.feature.source"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.gson.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.gson.feature.source"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.security.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.security.feature.source"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.sse.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.eclipsesource.jaxrs.provider.sse.feature.source"
+         version="0.0.0"/>
+
    <requires>
       <import feature="org.eclipse.smarthome.feature.runtime.core"/>
       <import feature="org.eclipse.smarthome.feature.runtime.model"/>

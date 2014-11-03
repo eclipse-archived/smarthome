@@ -9,18 +9,14 @@ package org.eclipse.smarthome.io.rest.core.discovery.beans;
 
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 
 /**
- * This is a java bean that is used with JAXB to serialize discovery results to
- * XML or JSON.
+ * This is a java bean that is used to serialize discovery results to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *
  */
-@XmlRootElement(name = "discoveryResult")
 public class DiscoveryResultBean {
 
     public String bridgeUID;

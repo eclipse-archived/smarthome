@@ -7,16 +7,13 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
 
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This is a java bean that is used with JAXB to serialize command mappings
- * to XML or JSON.
+ * This is a java bean that is used to serialize command mappings to JSON.
  *  
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@XmlRootElement(name="mapping")
 public class MappingBean {
 
 	public String command;

@@ -10,17 +10,12 @@ package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * This is a java bean that is used with JAXB to serialize page content
- * to XML or JSON.
+ * This is a java bean that is used to serialize page content to JSON.
  *  
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@XmlRootElement(name="page")
 public class PageBean {
 
 	public String id;
@@ -31,7 +26,6 @@ public class PageBean {
 	public PageBean parent;
 	public boolean leaf;
 	
-	@XmlElement(name="widget")
 	public List<WidgetBean> widgets = new ArrayList<WidgetBean>();
 	
 	public PageBean() {}

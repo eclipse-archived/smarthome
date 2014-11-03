@@ -11,6 +11,9 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.discovery.InboxResource">
    <implementation class="org.eclipse.smarthome.io.rest.core.discovery.InboxResource"/>
    <service>
+      <provide interface="org.eclipse.smarthome.io.rest.core.discovery.InboxResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
+   <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
+   <reference bind="setInbox" cardinality="1..1" interface="org.eclipse.smarthome.config.discovery.inbox.Inbox" name="Inbox" policy="static" unbind="unsetInbox"/>
 </scr:component>

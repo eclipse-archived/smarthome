@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.root">
+   <implementation class="org.eclipse.smarthome.io.rest.internal.resources.RootResource"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.io.rest.internal.resources.RootResource"/>
+   </service>
+   <reference bind="addRESTResource" cardinality="0..n" interface="org.eclipse.smarthome.io.rest.RESTResource" name="RESTResource" policy="dynamic" unbind="removeRESTResource"/>
+</scr:component>

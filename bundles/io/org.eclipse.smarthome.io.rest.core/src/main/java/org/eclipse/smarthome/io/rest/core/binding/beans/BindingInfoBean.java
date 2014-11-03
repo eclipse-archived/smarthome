@@ -7,34 +7,28 @@
  */
 package org.eclipse.smarthome.io.rest.core.binding.beans;
 
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Set;
 
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
 /**
- * This is a java bean that is used with JAXB to serialize binding info objects
- * to XML or JSON.
+ * This is a java bean that is used to serialize binding info objects to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *
  */
-@XmlRootElement(name = "binding")
 public class BindingInfoBean {
 
     public String author;
     public String description;
     public String id;
     public String name;
-    @XmlElement(name = "thingType")
-    public List<ThingTypeBean> thingTypes;
+    public Set<ThingTypeBean> thingTypes;
 
     public BindingInfoBean() {
     };
 
-    public BindingInfoBean(String id, String name, String author, String description, List<ThingTypeBean> thingTypes) {
+    public BindingInfoBean(String id, String name, String author, String description, Set<ThingTypeBean> thingTypes) {
         this.id = id;
         this.name = name;
         this.author = author;

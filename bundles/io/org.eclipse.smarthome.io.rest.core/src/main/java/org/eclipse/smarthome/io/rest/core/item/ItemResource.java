@@ -11,26 +11,25 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -45,16 +44,11 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
-import org.eclipse.smarthome.io.rest.AbstractRESTResource;
-import org.eclipse.smarthome.io.rest.MediaTypeHelper;
-import org.eclipse.smarthome.io.rest.RESTApplication;
+import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemListBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jersey.api.json.JSONWithPadding;
 
 /**
  * <p>This class acts as a REST resource for items and provides different methods to interact with them,
@@ -69,30 +63,58 @@ import com.sun.jersey.api.json.JSONWithPadding;
  * @author Dennis Nobel - Added methods for item management
  */
 @Path(ItemResource.PATH_ITEMS)
-public class ItemResource extends AbstractRESTResource {
+public class ItemResource implements RESTResource {
 
 	private static final Logger logger = LoggerFactory.getLogger(ItemResource.class); 
 	
 	/** The URI path to this resource */
     public static final String PATH_ITEMS = "items";
     
+	private ItemRegistry itemRegistry;
+	private EventPublisher eventPublisher;
+	private ManagedItemProvider managedItemProvider;
+	private Set<ItemFactory> itemFactories = new HashSet<>();
+	
+	protected void setItemRegistry(ItemRegistry itemRegistry) {
+		this.itemRegistry = itemRegistry;
+	}
+	
+	protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+		this.itemRegistry = null;
+	}
+
+	protected void setEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+	
+	protected void unsetEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = null;
+	}
+
+	protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+		this.managedItemProvider = managedItemProvider;
+	}
+	
+	protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+		this.managedItemProvider = null;
+	}
+
+	protected void addItemFactory(ItemFactory itemFactory) {
+		this.itemFactories.add(itemFactory);
+	}
+	
+	protected void removeItemFactory(ItemFactory itemFactory) {
+		this.itemFactories.remove(itemFactory);
+	}
+
 	@Context UriInfo uriInfo;
 	@GET
-    @Produces( { MediaType.WILDCARD })
-    public Response getItems(
-    		@Context HttpHeaders headers,
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getItems() {
+		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(new ItemListBean(getItemBeans()), callback) : new ItemListBean(getItemBeans());
-	    	return Response.ok(responseObject, responseType).build();
-		} else {
-			return Response.notAcceptable(null).build();
-		}
+    	Object responseObject = getItemBeans();
+    	return Response.ok(responseObject).build();
     }
 
     @GET @Path("/{itemname: [a-zA-Z_0-9]*}/state") 
@@ -112,21 +134,11 @@ public class ItemResource extends AbstractRESTResource {
     @GET @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Produces( { MediaType.WILDCARD })
     public Response  getItemData(
-    		@Context HttpHeaders headers,
-    		@PathParam("itemname") String itemname, 
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
+    		@PathParam("itemname") String itemname) {
+		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-		final String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-		if(responseType!=null) {
-	    	final Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getItemDataBean(itemname), callback) : getItemDataBean(itemname);
-	    	throw new WebApplicationException(Response.ok(responseObject, responseType).build());  
-	
-		} else {
-			throw new WebApplicationException(Response.notAcceptable(null).build());
-		}
+    	final Object responseObject = getItemDataBean(itemname);
+    	throw new WebApplicationException(Response.ok(responseObject).build());  
     }
     
     @PUT @Path("/{itemname: [a-zA-Z_0-9]*}/state")
@@ -137,7 +149,7 @@ public class ItemResource extends AbstractRESTResource {
     		State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
     		if(state!=null) {
     			logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-    			RESTApplication.getEventPublisher().postUpdate(itemname, state);
+    			eventPublisher.postUpdate(itemname, state);
     			return Response.ok().build();
     		} else {
     			logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(), value);
@@ -168,7 +180,7 @@ public class ItemResource extends AbstractRESTResource {
     		}
     		if(command!=null) {
     			logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
-    			RESTApplication.getEventPublisher().postCommand(itemname, command);
+    			eventPublisher.postCommand(itemname, command);
     			return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
     		} else {
     			logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(), value);
@@ -183,11 +195,12 @@ public class ItemResource extends AbstractRESTResource {
     @PUT @Path("/{itemname: [a-zA-Z_0-9]*}")
 	@Consumes(MediaType.TEXT_PLAIN)	
 	public Response createItem(@PathParam("itemname") String itemname, String itemType) {
-    	
-        ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
-        ItemFactory itemFactory = getService(ItemFactory.class);
 
-        GenericItem newItem = itemFactory.createItem(itemType, itemname);
+        GenericItem newItem = null;
+    	for(ItemFactory itemFactory : itemFactories) {
+    		newItem = itemFactory.createItem(itemType, itemname);
+    		if(newItem!=null) break;
+    	}
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     itemType);
@@ -209,8 +222,6 @@ public class ItemResource extends AbstractRESTResource {
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response removeItem(@PathParam("itemname") String itemname) {
-
-        ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
 
         if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
@@ -242,23 +253,19 @@ public class ItemResource extends AbstractRESTResource {
     	return bean;
     }
     
-    static public Item getItem(String itemname) {
-        ItemRegistry registry = RESTApplication.getItemRegistry();
-        if(registry!=null) {
-        	try {
-				Item item = registry.getItem(itemname);
-				return item;
-			} catch (ItemNotFoundException e) {
-				logger.debug(e.getMessage());
-			}
-        }
+    private Item getItem(String itemname) {
+    	try {
+			Item item = itemRegistry.getItem(itemname);
+			return item;
+		} catch (ItemNotFoundException e) {
+			logger.debug(e.getMessage());
+		}
         return null;
     }
 
 	private List<ItemBean> getItemBeans() {
 		List<ItemBean> beans = new LinkedList<ItemBean>();
-		ItemRegistry registry = RESTApplication.getItemRegistry();
-		for(Item item : registry.getItems()) {
+		for(Item item : itemRegistry.getItems()) {
 			beans.add(createItemBean(item, false, uriInfo.getBaseUri().toASCIIString()));
 		}
 		return beans;

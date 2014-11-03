@@ -11,6 +11,9 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource">
    <implementation class="org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource"/>
    <service>
+      <provide interface="org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
+   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
 </scr:component>

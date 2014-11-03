@@ -36,13 +36,11 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.io.rest.MediaTypeHelper;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.ItemResource;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.MappingBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.PageBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.SitemapBean;
-import org.eclipse.smarthome.io.rest.sitemap.internal.beans.SitemapListBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.WidgetBean;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.sitemap.Chart;
@@ -63,15 +61,9 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jersey.api.json.JSONWithPadding;
-
 /**
  * <p>This class acts as a REST resource for sitemaps and provides different methods to interact with them,
  * like retrieving a list of all available sitemaps or just getting the widgets of a single page.</p>
- * 
- * <p>The typical content types are XML or JSON.</p>
- * 
- * <p>This resource is registered with the Jersey servlet.</p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
@@ -89,96 +81,65 @@ public class SitemapResource implements RESTResource {
     
 	@Context UriInfo uriInfo;
 
-	static private ItemUIRegistry itemUIRegistry;
+	private ItemUIRegistry itemUIRegistry;
 
-	static private ModelRepository modelRepository;
+	private ModelRepository modelRepository;
 	
 	public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-		SitemapResource.itemUIRegistry = itemUIRegistry;
+		this.itemUIRegistry = itemUIRegistry;
 	}
 	
 	public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-		SitemapResource.itemUIRegistry = null;
+		this.itemUIRegistry = null;
 	}	
 	
-	static public ItemUIRegistry getItemUIRegistry() {
-		return itemUIRegistry;
-	}
-
 	public void setModelRepository(ModelRepository modelRepository) {
-		SitemapResource.modelRepository = modelRepository;
+		this.modelRepository = modelRepository;
 	}
 	
 	public void unsetModelRepository(ModelRepository modelRepository) {
-		SitemapResource.modelRepository = null;
+		this.modelRepository = null;
 	}
 	
-	static public ModelRepository getModelRepository() {
-		return modelRepository;
-	}
-
 	@GET
-    @Produces( { MediaType.WILDCARD })
-    public Response getSitemaps(
-    		@Context HttpHeaders headers,
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
-		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(new SitemapListBean(getSitemapBeans(uriInfo.getAbsolutePathBuilder().build())), callback) : new SitemapListBean(getSitemapBeans(uriInfo.getAbsolutePathBuilder().build()));
-	    	return Response.ok(responseObject, responseType).build();
-		} else {
-			return Response.notAcceptable(null).build();
-		}
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSitemaps() {
+		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+    	Object responseObject = getSitemapBeans(uriInfo.getAbsolutePathBuilder().build());
+    	return Response.ok(responseObject).build();
     }
 
 	@GET @Path("/{sitemapname: [a-zA-Z_0-9]*}")
-    @Produces( { MediaType.WILDCARD })
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getSitemapData(
     		@Context HttpHeaders headers,
     		@PathParam("sitemapname") String sitemapname, 
     		@QueryParam("type") String type, 
     		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
 		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
-		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-		if(responseType!=null) {
-	    	Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build()), callback) : getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build());
-	    	return Response.ok(responseObject, responseType).build();
-		} else {
-			return Response.notAcceptable(null).build();
-		}
+    	Object responseObject = getSitemapBean(sitemapname, uriInfo.getBaseUriBuilder().build());
+    	return Response.ok(responseObject).build();
     }
 
     @GET @Path("/{sitemapname: [a-zA-Z_0-9]*}/{pageid: [a-zA-Z_0-9]*}")
-	@Produces( { MediaType.WILDCARD })
+	@Produces(MediaType.APPLICATION_JSON)
     public Response getPageData(
     		@Context HttpHeaders headers,
     		@PathParam("sitemapname") String sitemapname,
-    		@PathParam("pageid") String pageId,
-    		@QueryParam("type") String type, 
-    		@QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
-		logger.debug("Received HTTP GET request at '{}' for media type '{}'.", new Object[] { uriInfo.getPath(), type });
+    		@PathParam("pageid") String pageId) {
+		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-		String responseType = MediaTypeHelper.getResponseMediaType(headers.getAcceptableMediaTypes(), type);
-		if(responseType!=null) {
-			if(headers.getRequestHeader("X-Atmosphere-Transport") != null) {
-				// Make the REST-API pseudo-compatible with openHAB 1.x
-				// The client asks Atmosphere for server push functionality,
-				// so we do a simply listening for changes on the appropriate items
-				blockUnlessChangeOccurs(sitemapname, pageId);
-			}
-			Object responseObject = responseType.equals(MediaTypeHelper.APPLICATION_X_JAVASCRIPT) ?
-	    			new JSONWithPadding(getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build()), callback) : getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build());
-	    	return Response.ok(responseObject, responseType).build();
-		} else {
-			throw new WebApplicationException(Response.notAcceptable(null).build());
+		if(headers.getRequestHeader("X-Atmosphere-Transport") != null) {
+			// Make the REST-API pseudo-compatible with openHAB 1.x
+			// The client asks Atmosphere for server push functionality,
+			// so we do a simply listening for changes on the appropriate items
+			blockUnlessChangeOccurs(sitemapname, pageId);
 		}
+		Object responseObject = getPageBean(sitemapname, pageId, uriInfo.getBaseUriBuilder().build());
+    	return Response.ok(responseObject).build();
     }
 
-	static public PageBean getPageBean(String sitemapName, String pageId, URI uri) {
+	private PageBean getPageBean(String sitemapName, String pageId, URI uri) {
 		Sitemap sitemap = getSitemap(sitemapName);
 		if(sitemap!=null) {
 			if(pageId.equals(sitemap.getName())) {
@@ -262,7 +223,7 @@ public class SitemapResource implements RESTResource {
     	return bean;
     }
     
-    static private PageBean createPageBean(String sitemapName, String title, String icon, String pageId, EList<Widget> children, boolean drillDown, boolean isLeaf, URI uri) {
+    private PageBean createPageBean(String sitemapName, String title, String icon, String pageId, EList<Widget> children, boolean drillDown, boolean isLeaf, URI uri) {
     	PageBean bean = new PageBean();
     	bean.id = pageId;
     	bean.title = title;
@@ -284,17 +245,21 @@ public class SitemapResource implements RESTResource {
 		return bean;
 	}
 
-	static private WidgetBean createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId) {
+	private WidgetBean createWidgetBean(String sitemapName, Widget widget, boolean drillDown, URI uri, String widgetId) {
 		// Test visibility
 		if(itemUIRegistry.getVisiblity(widget) == false)
 			return null;
 
     	WidgetBean bean = new WidgetBean();
     	if(widget.getItem()!=null) {
-    		Item item = ItemResource.getItem(widget.getItem());
-        	if(item!=null) {
-        		bean.item = ItemResource.createItemBean(item, false, UriBuilder.fromUri(uri).build().toASCIIString());
-        	}
+	    	try {
+				Item item = itemUIRegistry.getItem(widget.getItem());
+		    	if(item!=null) {
+		    		bean.item = ItemResource.createItemBean(item, false, UriBuilder.fromUri(uri).build().toASCIIString());
+		    	}
+			} catch (ItemNotFoundException e) {
+				logger.debug(e.getMessage());
+			}
     	}
     	bean.widgetId = widgetId;
     	bean.icon = itemUIRegistry.getIcon(widget);
@@ -329,10 +294,9 @@ public class SitemapResource implements RESTResource {
 				if(mapping.getCmd() != null) {
 					if(mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {
 						mappingBean.command = mapping.getCmd().substring(1, mapping.getCmd().length()-1);
+					} else {
+						mappingBean.command = mapping.getCmd();
 					}
-				}
-				else {
-					mappingBean.command = mapping.getCmd();
 				}
 				mappingBean.label = mapping.getLabel();
 				bean.mappings.add(mappingBean);
@@ -346,10 +310,9 @@ public class SitemapResource implements RESTResource {
 				if(mapping.getCmd() != null) {
 					if(mapping.getCmd().startsWith("\"") && mapping.getCmd().endsWith("\"")) {
 						mappingBean.command = mapping.getCmd().substring(1, mapping.getCmd().length()-1);
-					}
+					} else {
+						mappingBean.command = mapping.getCmd();
 				}
-				else {
-					mappingBean.command = mapping.getCmd();
 				}
     			mappingBean.label = mapping.getLabel();
     			bean.mappings.add(mappingBean);
@@ -406,7 +369,7 @@ public class SitemapResource implements RESTResource {
 		return bean;
 	}
 
-	private static boolean isLeaf(EList<Widget> children) {
+	private boolean isLeaf(EList<Widget> children) {
 		for(Widget w : children) {
 			if(w instanceof Frame) {
 				if(isLeaf(((Frame) w).getChildren())) {
@@ -422,7 +385,7 @@ public class SitemapResource implements RESTResource {
 		return true;
 	}
 
-	static public Sitemap getSitemap(String sitemapname) {
+	private Sitemap getSitemap(String sitemapname) {
         if(modelRepository!=null) {
 			Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapname + SITEMAP_FILEEXT);
 			return sitemap;
