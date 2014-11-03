@@ -45,11 +45,8 @@ import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 /**
  * This class acts as a REST resource for things and is registered with the
@@ -63,32 +60,21 @@ public class ThingResource implements RESTResource {
 
     private static final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ItemFactory itemFactory;
+    private ItemRegistry itemRegistry;
+    private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
+    private ManagedItemProvider managedItemProvider;
+    private ManagedThingProvider managedThingProvider;
+    private ThingRegistry thingRegistry;
+
     @Context
     private UriInfo uriInfo;
-
-	private BundleContext bundleContext;
-	private Gson gson = new Gson();
-
-	protected void activate(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
-	protected void deactivate(BundleContext bundleContext) {
-		this.bundleContext = null;
-	}
-
-    protected <T> T getService(Class<T> serviceInterface) {
-        return bundleContext.getService(bundleContext.getServiceReference(serviceInterface));
-    }
 
     @POST
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(@PathParam("thingUID") String thingUID, String body) throws 
-           IOException {
-
-        // TODO: Use ThingBean as method argument instead of String (be aware of class loader problems)
-        ThingBean thingBean = parse(body);
+    public Response create(@PathParam("thingUID") String thingUID, ThingBean thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
         ThingUID bridgeUID = null;
@@ -99,7 +85,6 @@ public class ThingResource implements RESTResource {
 
         Configuration configuration = new Configuration(thingBean.configuration);
 
-        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
         managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID, configuration);
 
         return Response.ok().build();
@@ -108,8 +93,6 @@ public class ThingResource implements RESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
-
-        ThingRegistry thingRegistry = getService(ThingRegistry.class);
 
         Collection<Thing> things = thingRegistry.getAll();
         Set<ThingBean> thingBeans = convertToListBean(things);
@@ -122,8 +105,6 @@ public class ThingResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     public Response link(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
             String itemName) {
-
-        ThingRegistry thingRegistry = getService(ThingRegistry.class);
 
         Thing thing = thingRegistry.getByUID(new ThingUID(thingUID));
         if (thing == null) {
@@ -138,30 +119,11 @@ public class ThingResource implements RESTResource {
             throw new WebApplicationException(404);
         }
 
-        ItemRegistry itemRegistry = getService(ItemRegistry.class);
         try {
             itemRegistry.getItem(itemName);
         } catch (ItemNotFoundException ex) {
-            ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
-            if (managedItemProvider == null) {
-                logger.error("Cannot create new item. ManagedItemProvider OSGi service was not found.");
-                return Response.serverError().build();
-            }
-
-            ItemFactory itemFactory = getService(ItemFactory.class);
-            if (itemFactory == null) {
-                logger.error("Cannot create new item. ItemFactory OSGi service was not found.");
-                return Response.serverError().build();
-            }
-
             GenericItem item = itemFactory.createItem(channel.getAcceptedItemType(), itemName);
             managedItemProvider.add(item);
-        }
-
-        ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
-        if (managedItemChannelLinkProvider == null) {
-            logger.error("Cannot link channel. ManagedItemChannelLinkProvider OSGi service was not found.");
-            return Response.serverError().build();
         }
 
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, new ChannelUID(new ThingUID(thingUID),
@@ -173,8 +135,6 @@ public class ThingResource implements RESTResource {
     @DELETE
     @Path("/{thingUID}")
     public Response remove(@PathParam("thingUID") String thingUID) {
-
-        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
 
         if (managedThingProvider.remove(new ThingUID(thingUID)) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
@@ -189,20 +149,74 @@ public class ThingResource implements RESTResource {
     public Response unlink(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
             String itemName) {
 
-        ItemChannelLinkRegistry itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
         String boundItem = itemChannelLinkRegistry.getBoundItem(channelUID);
 
         if (boundItem != null) {
-            ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
             managedItemChannelLinkProvider.remove(new ItemChannelLink(boundItem, channelUID).getID());
         }
 
         return Response.ok().build();
     }
 
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+    }
+
+    protected void setItemFactory(ItemFactory itemFactory) {
+        this.itemFactory = itemFactory;
+    }
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void setManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
+        this.managedItemChannelLinkProvider = managedItemChannelLinkProvider;
+    }
+
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = managedThingProvider;
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetItemChannelLinkRegistry() {
+        itemChannelLinkRegistry = null;
+        ;
+    }
+
+    protected void unsetItemFactory() {
+        itemFactory = null;
+    }
+
+    protected void unsetItemRegistry() {
+        itemRegistry = null;
+    }
+
+    protected void unsetManagedItemChannelLinkProvider() {
+        managedItemChannelLinkProvider = null;
+    }
+
+    protected void unsetManagedItemProvider() {
+        managedItemProvider = null;
+    }
+
+    protected void unsetManagedThingProvider() {
+        managedThingProvider = null;
+    }
+
+    protected void unsetThingRegistry() {
+        thingRegistry = null;
+    }
+
     private ChannelBean convertToChannelBean(Channel channel) {
-        ItemChannelLinkRegistry itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         String boundItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
         return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), boundItem);
     }
@@ -236,16 +250,6 @@ public class ThingResource implements RESTResource {
             }
         }
         return null;
-    }
-
-    private ThingBean parse(String body) throws IOException {
-        // Deserialization of the bean works different compared to
-        // serialization. It does not respect the xml annotations.
-        // Therefore a valid json looks like this: { UID: 'a:b:c',
-        // configuration: { key1: 'value', key2: 'value'} }.
-
-    	ThingBean thingBean = gson.fromJson(body, ThingBean.class);
-        return thingBean;
     }
 
 }

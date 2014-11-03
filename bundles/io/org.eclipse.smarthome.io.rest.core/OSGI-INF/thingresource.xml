@@ -14,4 +14,11 @@
       <provide interface="org.eclipse.smarthome.io.rest.core.thing.ThingResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
+   <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
+   <reference bind="setItemFactory" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemFactory" name="ItemFactory" policy="static" unbind="unsetItemFactory"/>
+   <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="static" unbind="unsetItemRegistry"/>
+   <reference bind="setManagedItemChannelLinkProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider" name="ManagedItemChannelLinkProvider" policy="static" unbind="unsetManagedItemChannelLinkProvider"/>
+   <reference bind="setManagedItemProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="static" unbind="unsetManagedItemProvider"/>
+   <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
+   <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
 </scr:component>
