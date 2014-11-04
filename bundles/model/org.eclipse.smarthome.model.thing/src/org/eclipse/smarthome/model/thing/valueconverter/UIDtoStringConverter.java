@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.model.thing.valueconverter;
 
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverterException;
 import org.eclipse.xtext.nodemodel.INode;
@@ -15,9 +16,11 @@ import org.eclipse.xtext.util.Strings;
 import com.google.common.base.Joiner;
 
 /**
+ * A {@link UIDtoStringConverter} is used to create {@link UID} string
+ * representations from an input string and vice versa. If a segment of the
+ * parsed {@link UID} string doesn't match the ID rule, it will be escaped.
  * 
  * @author Alex Tugarev
- *
  */
 public class UIDtoStringConverter implements IValueConverter<String> {
 
