@@ -17,10 +17,18 @@ public class ThingValueConverters extends DefaultTerminalConverters {
 
     @Inject
     private ValueTypeToStringConverter valueTypeToStringConverter;
+    
+    @Inject
+    private UIDtoStringConverter uidToStringConverter;
 
     @ValueConverter(rule = "ValueType")
     public IValueConverter<Object> ValueType() {
         return valueTypeToStringConverter;
+    }
+
+    @ValueConverter(rule = "UID")
+    public IValueConverter<String> UID() {
+        return uidToStringConverter;
     }
 
 }
