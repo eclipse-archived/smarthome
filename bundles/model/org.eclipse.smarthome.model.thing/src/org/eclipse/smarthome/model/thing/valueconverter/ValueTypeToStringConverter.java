@@ -15,9 +15,10 @@ import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.util.Strings;
 
 /**
+ * A {@link ValueTypeToStringConverter} is used to create a {@link String},
+ * {@link Boolean}, or {@link BigDecimal} from an input string and vice versa.
  * 
  * @author Alex Tugarev
- *
  */
 public class ValueTypeToStringConverter implements IValueConverter<Object> {
 

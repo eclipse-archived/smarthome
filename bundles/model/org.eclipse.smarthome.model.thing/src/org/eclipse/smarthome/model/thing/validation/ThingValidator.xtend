@@ -8,10 +8,6 @@ import org.eclipse.xtext.validation.Check
 import org.eclipse.smarthome.model.thing.thing.ThingPackage
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 import org.eclipse.smarthome.core.thing.ThingUID
-import javax.inject.Inject
-import org.eclipse.xtext.serializer.ISerializer
-import org.eclipse.xtext.EcoreUtil2
-import org.eclipse.xtext.resource.XtextResource
 
 /**
  * Custom validation rules. 

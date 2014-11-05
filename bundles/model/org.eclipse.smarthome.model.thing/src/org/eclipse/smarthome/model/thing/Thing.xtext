@@ -54,7 +54,11 @@ ModelProperty:
 ;
 
 UID:
-	ID ':' ID ':' ID (=> ':' ID)*
+	UID_SEGMENT ':' UID_SEGMENT ':' UID_SEGMENT (=> ':' UID_SEGMENT)*
+;
+
+UID_SEGMENT:
+	INT|ID|STRING
 ;
 
 ValueType returns ecore::EJavaObject:
