@@ -98,7 +98,7 @@ public class ThingFactory {
     private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID) {
         ChannelType type = channelDefinition.getType();
         Channel channel = ChannelBuilder.create(
-                new ChannelUID(thingUID, channelDefinition.getId()), type.getItemType()).build();
+                new ChannelUID(thingUID, channelDefinition.getId()), type.getItemType()).withDefaultTags(type.getTags()).build();
         return channel;
     }
 

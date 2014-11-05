@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 
 public class GroupItem extends GenericItem implements StateChangeListener {
@@ -199,13 +200,32 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	 * @{inheritDoc
 	 */
 	@Override
-	public String toString() {
-		return getName() + " (" +
-		"Type=" + getClass().getSimpleName() + ", " +
-		(baseItem != null ? "BaseType=" + baseItem.getClass().getSimpleName() + ", " : "") +
-		"Members=" + members.size() + ", " +
-		"State=" + getState() + ")";
-	}
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getName());
+        sb.append(" (");
+        sb.append("Type=");
+        sb.append(getClass().getSimpleName());
+        sb.append(", ");
+        if (getBaseItem() != null) {
+            sb.append("BaseType=");
+            sb.append(baseItem.getClass().getSimpleName());
+            sb.append(", ");
+        }
+        sb.append("Members=");
+        sb.append(members.size());
+        sb.append(", ");
+        sb.append("State=");
+        sb.append(getState());
+        if (!getTags().isEmpty()) {
+            sb.append(", ");
+            sb.append("Tags=[");
+            sb.append(Joiner.on(", ").join(getTags()));
+            sb.append("]");
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 
 	/**
 	 * @{inheritDoc
@@ -220,4 +240,5 @@ public class GroupItem extends GenericItem implements StateChangeListener {
 	public void stateUpdated(Item item, State state) {
 		setState(function.calculate(members));
 	}
+
 }

@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractManagedProvider;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution, added support for GroupItems
  * @author Thomas Eichstaedt-Engelen
  * @author Kai Kreuzer - improved return values
+ * @author Alex Tugarev - added tags
  */
 public class ManagedItemProvider extends AbstractManagedProvider<Item, String, PersistedItem> implements ItemProvider {
 
@@ -38,15 +41,26 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         public List<String> groupNames;
 
         public String itemType;
+        
+        public Set<String> tags;
 
         public PersistedItem(String itemType, List<String> groupNames) {
-            this(itemType, groupNames, null);
+            this(itemType, groupNames, null, null);
+        }
+
+        public PersistedItem(String itemType, List<String> groupNames, Set<String> tags) {
+            this(itemType, groupNames, null, tags);
         }
 
         public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
+            this(itemType, groupNames, baseItemType, null);
+        }
+
+        public PersistedItem(String itemType, List<String> groupNames, String baseItemType, Set<String> tags) {
             this.itemType = itemType;
             this.groupNames = groupNames;
             this.baseItemType = baseItemType;
+            this.tags = tags;
         }
     }
 
@@ -120,11 +134,20 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         } else {
             item = createItem(persistedItem.itemType, itemName);
         }
+        
+        if (item != null) {
+            List<String> groupNames = persistedItem.groupNames;
+            if (groupNames != null) {
+                for (String groupName : groupNames) {
+                    item.addGroupName(groupName);
+                }
+            }
 
-        List<String> groupNames = persistedItem.groupNames;
-        if (item != null && groupNames != null) {
-            for (String groupName : groupNames) {
-                item.addGroupName(groupName);
+            Set<String> tags = persistedItem.tags;
+            if (tags != null) {                
+                for (String tag : tags) {
+                    item.addTag(tag);
+                }
             }
         }
 
@@ -153,6 +176,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         } else {
             persistedItem = new PersistedItem(itemType, item.getGroupNames());
         }
+        persistedItem.tags = new HashSet<String>(item.getTags());
 
         return persistedItem;
     }

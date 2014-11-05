@@ -8,9 +8,11 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * <p>This interface defines the core features of an openHAB item.</p>
@@ -78,4 +80,36 @@ public interface Item {
 	 * @return list of item group names
 	 */
 	public List<String> getGroupNames();
+	
+	/**
+	 * Returns a set of tags. If the item is not tagged, an empty set is returned. 
+	 * 
+	 * @return set of tags.
+	 */
+	public Set<String> getTags();
+	
+	/**
+	 * Returns true if the item's tags contains the specific tag, otherwise false.
+	 * 
+	 * @param tag - a tag whose presence in the item's tags is to be tested.
+	 * @return true if the item's tags contains the specific tag, otherwise false.
+	 */
+	public boolean hasTag(String tag);
+	
+	/**
+	 * 
+	 * @param tag - a tag that is to be added to item's tags.
+	 */
+	public void addTag(String tag);
+	
+	/**
+	 * 
+	 * @param tag - a tag that is to be removed from item's tags. 
+	 */
+	public void removeTag(String tag);
+	
+	/**
+	 * Clears all tags of this item.
+	 */
+	public void removeAllTags();
 }

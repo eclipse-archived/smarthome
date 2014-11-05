@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 
@@ -17,6 +21,7 @@ import org.eclipse.smarthome.core.items.Item;
  * {@link Channel#getAcceptedItemType()} methods.
  * 
  * @author Dennis Nobel - Initial contribution and API
+ * @author Alex Tugarev - Extended about default tags
  */
 public class Channel {
 
@@ -26,15 +31,28 @@ public class Channel {
 
     private Configuration configuration;
 
+    private Set<String> defaultTags;    
+
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
+        this(uid, acceptedItemType, configuration, new HashSet<String>(0));
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
+        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0)
+                : defaultTags);
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration,
+            Set<String> defaultTags) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
+        this.defaultTags = Collections.<String> unmodifiableSet(new HashSet<String>(defaultTags));
     }
 
     /**
@@ -62,5 +80,14 @@ public class Channel {
      */
     public Configuration getConfiguration() {
         return configuration;
+    }
+    
+    /**
+     * Returns default tags of this channel.
+     * 
+     * @return default tags of this channel.
+     */
+    public Set<String> getDefaultTags() {
+        return defaultTags;
     }
 }

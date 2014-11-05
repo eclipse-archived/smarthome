@@ -26,6 +26,7 @@ import org.junit.Test
  * 
  * @author Thomas Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added tests for repeated addition and removal
+ * @author Andre Fuechsel - added tests for tags
  */
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
@@ -104,4 +105,39 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
 		itemProvider.add new StringItem('Item')
 		itemProvider.add new StringItem('Item')
 	}
+    
+    @Test 
+    void 'assert tags are stored and retrieve as well'() {
+        
+        assertThat itemProvider.getAll().size(), is(0)
+        
+        def item1 = new SwitchItem('SwitchItem1')
+        def item2 = new SwitchItem('SwitchItem2')
+        item1.addTag('tag1')
+        item1.addTag('tag2')
+        item2.addTag('tag3')
+        
+        itemProvider.add item1
+        itemProvider.add item2
+
+        def items = itemProvider.getAll()
+        assertThat items.size(), is(2)
+        
+        def result1 = itemProvider.remove 'SwitchItem1'
+        def result2 = itemProvider.remove 'SwitchItem2'
+        
+        assertThat result1.name, is('SwitchItem1')
+        assertThat result1.getTags().size(), is(2) 
+        assertThat result1.hasTag('tag1'), is(true) 
+        assertThat result1.hasTag('tag2'), is(true)
+        assertThat result1.hasTag('tag3'), is(false)
+        
+        assertThat result2.name, is('SwitchItem2')
+        assertThat result2.getTags().size(), is(1)
+        assertThat result2.hasTag('tag1'), is(false)
+        assertThat result2.hasTag('tag2'), is(false)
+        assertThat result2.hasTag('tag3'), is(true)
+
+        assertThat itemProvider.getAll().size(), is(0)
+    }
 }

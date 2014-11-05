@@ -64,8 +64,8 @@ class ThingFactoryTest {
 	@Test
 	void 'create Thing with Channels'() {
 
-		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", null)
-		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", null)
+		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", new HashSet([ "tag1", "tag2" ]), null)
+		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", new HashSet([ "tag3" ]), null)
 
 		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
 		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
@@ -78,5 +78,11 @@ class ThingFactoryTest {
 		assertThat thing.getChannels().size, is(2)
 		assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:ch1"))
 		assertThat thing.getChannels().get(0).getAcceptedItemType(), is(equalTo("Color"))
+        assertThat thing.getChannels().get(0).getDefaultTags().contains("tag1"), is(true)
+        assertThat thing.getChannels().get(0).getDefaultTags().contains("tag2"), is(true)
+        assertThat thing.getChannels().get(0).getDefaultTags().contains("tag3"), is(false)
+        assertThat thing.getChannels().get(1).getDefaultTags().contains("tag1"), is(false)
+        assertThat thing.getChannels().get(1).getDefaultTags().contains("tag2"), is(false)
+        assertThat thing.getChannels().get(1).getDefaultTags().contains("tag3"), is(true)
 	}
 }

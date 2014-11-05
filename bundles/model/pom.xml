@@ -20,6 +20,7 @@
     <module>org.eclipse.smarthome.model.item</module>
     <module>org.eclipse.smarthome.model.item.runtime</module>
     <module>org.eclipse.smarthome.model.item.ui</module>
+	<module>org.eclipse.smarthome.model.item.tests</module>
     <module>org.eclipse.smarthome.model.persistence</module>
     <module>org.eclipse.smarthome.model.persistence.runtime</module>
     <module>org.eclipse.smarthome.model.persistence.ui</module>
