@@ -73,6 +73,10 @@ class ThingTypesTest extends OSGiTest {
                 assertThat itemType, is("ColorItem")
                 assertThat label, is("HUE Lamp Color")
                 assertThat description, is("The color channel allows to control the color of the hue lamp. It is also possible to dim values and switch the lamp on and off.")
+                assertThat tags, is(notNullValue())
+                assertThat tags.contains("hue"), is(true)
+                assertThat tags.contains("ColorLamp"), is(true)
+                assertThat tags.contains("AmbientLamp"), is(false)
             }
 
             def colorTemperatureChannel = it.find { it.id.equals("color_temperature") } as ChannelDefinition
@@ -84,6 +88,10 @@ class ThingTypesTest extends OSGiTest {
                 assertThat itemType, is("DimmerItem")
                 assertThat label, is("HUE Lamp Color Temperature")
                 assertThat description, is("The color temperature channel allows to set the color temperature from 0 (cold) to 100 (warm).")
+                assertThat tags, is(notNullValue())
+                assertThat tags.contains("hue"), is(true)
+                assertThat tags.contains("AmbientLamp"), is(true)
+                assertThat tags.contains("ColorLamp"), is(false)
             }
         }
 

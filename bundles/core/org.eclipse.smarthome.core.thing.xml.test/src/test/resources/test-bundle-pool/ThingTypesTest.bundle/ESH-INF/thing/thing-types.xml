@@ -42,13 +42,16 @@
 
 	<!-- HUE Lamp Color Channel -->
 	<channel-type id="color">
-
 		<item-type>ColorItem</item-type>
 		<label>HUE Lamp Color</label>
 		<description>The color channel allows to control the color of the hue
 			lamp. It is also possible to dim values and switch the lamp on and
 			off.
 		</description>
+        <tags>
+          <tag>hue</tag>
+          <tag>ColorLamp</tag>
+        </tags>
 
 		<config-description>
 			<parameter name="lastDimValue" type="boolean" />
@@ -61,6 +64,10 @@
 		<label>HUE Lamp Color Temperature</label>
 		<description>The color temperature channel allows to set the color
 			temperature from 0 (cold) to 100 (warm).</description>
+        <tags>
+          <tag>hue</tag>
+          <tag>AmbientLamp</tag>
+        </tags>
 	</channel-type>
 
 </thing:thing-descriptions>

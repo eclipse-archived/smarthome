@@ -249,4 +249,37 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         }
     }
 
+    @Override
+    public Collection<Item> getItemsByTag(String... tags) {
+        List<Item> filteredItems = new ArrayList<Item>();
+        for (Item item : getItems()) {
+            if (itemHasTags(item, tags)) {
+                filteredItems.add(item); 
+            }
+        }
+        return filteredItems; 
+    }
+
+    private boolean itemHasTags(Item item, String... tags) {
+        for (String tag : tags) {
+            if (!item.hasTag(tag)) {
+                return false; 
+            }
+        }
+        return true; 
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
+        Collection<T> filteredItems = new ArrayList<T>();
+
+        Collection<Item> items = getItemsByTag(tags);
+        for (Item item : items) {
+            if (typeFilter.isInstance(item)) {
+                filteredItems.add((T) filteredItems);
+            }
+        }
+        return filteredItems;
+    }
 }

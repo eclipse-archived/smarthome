@@ -33,7 +33,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 	 * set to an empty string.
 	 * 
 	 * If the label contains a "[%format]" section, i.e.
-	 * “[%s]" for a string or "[%.3f]" for a decimal, this is replaced by the
+	 * "[%s]" for a string or "[%.3f]" for a decimal, this is replaced by the
 	 * current value of the item and padded by a "<span>" element.
 	 * 
 	 * @param w

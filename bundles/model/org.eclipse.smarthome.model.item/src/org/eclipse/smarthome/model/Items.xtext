@@ -11,6 +11,7 @@ ModelItem :
 	(label=STRING)?
 	('<' icon=(ID|STRING) '>')?
 	('(' groups+=ID (',' groups+=ID)* ')')? 
+	('[' tags+=ID (',' tags+=ID)* ']')?
 	('{' bindings+=ModelBinding (',' bindings+=ModelBinding)* '}')? 
 ;
 

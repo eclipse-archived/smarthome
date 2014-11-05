@@ -64,12 +64,19 @@
             <xs:element name="item-type" type="xs:string"/>
             <xs:element name="label" type="xs:string"/>
             <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="tags" type="thing-description:tags" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
             </xs:choice>
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="tags">
+        <xs:sequence>
+            <xs:element name="tag" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 
 </xs:schema>

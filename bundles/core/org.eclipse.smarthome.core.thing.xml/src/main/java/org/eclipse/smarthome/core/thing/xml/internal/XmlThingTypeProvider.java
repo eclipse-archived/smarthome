@@ -195,7 +195,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     bundle, channelType.getUID(), channelType.getDescription(), locale);
 
             ChannelType localizedChannelType = new ChannelType(channelType.getUID(),
-                    channelType.getItemType(), label, description,
+                    channelType.getItemType(), label, description, channelType.getTags(),
                     channelType.getConfigDescriptionURI());
 
             return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);

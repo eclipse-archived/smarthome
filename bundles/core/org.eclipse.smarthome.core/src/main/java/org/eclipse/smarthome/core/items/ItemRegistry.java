@@ -67,5 +67,27 @@ public interface ItemRegistry extends Registry<Item> {
 	 * @return true, if the name is valid
 	 */
 	public boolean isValidItemName(String itemName);
+	
+    /**
+     * Returns list of items which contains all of the given tags.
+     * 
+     * @param tags
+     *            - array of tags to be present on the returned items.
+     * @return list of items which contains all of the given tags.
+     */
+    public Collection<Item> getItemsByTag(String... tags);
+
+    /**
+     * Returns list of items which contains all of the given tags.
+     * 
+     * @param typeFilter
+     *            - subclass of {@link GenericItem} to filter the resulting list
+     *            for.
+     * @param tags
+     *            - array of tags to be present on the returned items.
+     * @return list of items which contains all of the given tags, which is
+     *         filtered by the given type filter.
+     */
+    public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags);
 
 }

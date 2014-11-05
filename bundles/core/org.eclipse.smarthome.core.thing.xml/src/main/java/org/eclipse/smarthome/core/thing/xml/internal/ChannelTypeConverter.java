@@ -8,10 +8,15 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -42,6 +47,32 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return (String) nodeIterator.nextValue("item-type", true);
     }
 
+    private Set<String> readTags(NodeIterator nodeIterator) throws ConversionException {
+        Set<String> tags = null;
+
+        List<?> tagsNode = nodeIterator.nextList("tags", false);
+
+        if (tagsNode != null) {
+            tags = new HashSet<>(tagsNode.size());
+
+            for (Object tagNodeObject : tagsNode) {
+                NodeValue tagNode = (NodeValue) tagNodeObject;
+
+                if ("tag".equals(tagNode.getNodeName())) {
+                    String tag = (String) tagNode.getValue();
+
+                    if (tag != null) {
+                        tags.add(tag);
+                    }
+                } else {
+                    throw new ConversionException("The 'tags' node must only contain 'tag' nodes!");
+                }
+            }
+        }
+
+        return tags; 
+    }
+
     @Override
     protected ChannelTypeXmlResult unmarshalType(
             HierarchicalStreamReader reader, UnmarshallingContext context,
@@ -52,6 +83,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
+        Set<String> tags = readTags(nodeIterator);
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
         ChannelType channelType = new ChannelType(
@@ -59,6 +91,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
                 itemType,
                 label,
                 description,
+                tags,
                 (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(

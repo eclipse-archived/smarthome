@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.core.thing.binding.builder;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -15,16 +18,19 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  * {@link ChannelBuilder} is responsible for creating {@link Channel}s.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Alex Tugarev - Extended about default tags
  */
 public class ChannelBuilder {
 
     private ChannelUID channelUID;
     private String acceptedItemType;
     private Configuration configuration;
+    private Set<String> defaultTags;
 
-    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType) {
+    private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
         this.acceptedItemType = acceptedItemType;
+        this.defaultTags = defaultTags;
     }
 
     /**
@@ -34,10 +40,10 @@ public class ChannelBuilder {
      *            channel UID
      * @param acceptedItemType
      *            item type that is accepted by this channel
-     * @return channe builder
+     * @return channel builder
      */
     public static ChannelBuilder create(ChannelUID channelUID, String acceptedItemType) {
-        return new ChannelBuilder(channelUID, acceptedItemType);
+        return new ChannelBuilder(channelUID, acceptedItemType, new HashSet<String>());
     }
 
     /**
@@ -51,13 +57,25 @@ public class ChannelBuilder {
         this.configuration = configuration;
         return this;
     }
-
+    
+    /**
+     * Appends default tags to the channel to build.
+     * 
+     * @param defaultTags
+     *            default tags
+     * @return channel builder
+     */
+    public ChannelBuilder withDefaultTags(Set<String> defaultTags) {
+        this.defaultTags = defaultTags;
+        return this;
+    }
+    
     /**
      * Builds and returns the channel.
      * 
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, acceptedItemType, configuration);
+        return new Channel(channelUID, acceptedItemType, configuration, defaultTags);
     }
 }
