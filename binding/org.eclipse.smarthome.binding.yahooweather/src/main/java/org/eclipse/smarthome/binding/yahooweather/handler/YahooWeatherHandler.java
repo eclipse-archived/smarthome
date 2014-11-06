@@ -22,6 +22,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -83,10 +84,12 @@ public class YahooWeatherHandler extends BaseThingHandler {
 		Runnable runnable = new Runnable() {
 			public void run() {
 				try {
-					updateWeatherData();
-	                updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
-	                updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
-	                updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
+					boolean success = updateWeatherData();
+					if(success) {
+		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
+		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
+		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
+					}
 				} catch(Exception e) {
 					logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
 				}
@@ -99,36 +102,43 @@ public class YahooWeatherHandler extends BaseThingHandler {
 	@Override
 	public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
-        	updateWeatherData();
-            switch (channelUID.getId()) {
-            case CHANNEL_TEMPERATURE:
-                updateState(channelUID, getTemperature());
-                break;
-            case CHANNEL_HUMIDITY:
-                updateState(channelUID, getHumidity());
-                break;
-            case CHANNEL_PRESSURE:
-                updateState(channelUID, getPressure());
-                break;
-            default:
-                logger.debug("Command received for an unknown channel: {}", channelUID.getId());
-                break;
-            }
+        	boolean success = updateWeatherData();
+        	if(success) { 
+	            switch (channelUID.getId()) {
+	            case CHANNEL_TEMPERATURE:
+	                updateState(channelUID, getTemperature());
+	                break;
+	            case CHANNEL_HUMIDITY:
+	                updateState(channelUID, getHumidity());
+	                break;
+	            case CHANNEL_PRESSURE:
+	                updateState(channelUID, getPressure());
+	                break;
+	            default:
+	                logger.debug("Command received for an unknown channel: {}", channelUID.getId());
+	                break;
+	            }
+        	}
         } else {
             logger.debug("Command {} is not supported for channel: {}", command, channelUID.getId());
         }
 	}
 
-	private synchronized void updateWeatherData() {
+	private synchronized boolean updateWeatherData() {
 		String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=" + unit; 
 		try {
 			URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             weatherData = IOUtils.toString(connection.getInputStream());
+        	updateStatus(ThingStatus.ONLINE);
+			return true;
 		} catch (MalformedURLException e) {
 			logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
+			return false;
 		} catch (IOException e) {
-			logger.error("Error accessing Yahoo weather: {}", e.getMessage());
+			logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
+			updateStatus(ThingStatus.OFFLINE);
+			return false;
 		}		
 	}
 
