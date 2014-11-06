@@ -169,7 +169,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 	        } catch (IOException e) {              
 	            return false;
 	        } catch (ApiException e) {
-	        	if(e.getMessage().contains("SocketTimeout")) {
+	        	if(e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")) {
 	        		return false;
 	        	} else {
 		        	// this seems to be only an authentication issue
