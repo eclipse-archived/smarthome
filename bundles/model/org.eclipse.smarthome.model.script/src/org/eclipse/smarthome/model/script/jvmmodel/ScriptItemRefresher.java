@@ -8,21 +8,33 @@
 package org.eclipse.smarthome.model.script.jvmmodel;
 
 import java.util.Collection;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link ScriptItemRefresher} is responsible for reloading script resources every time an item is added or removed.
+ *
  * @author Oliver Libutzki - Initial contribution
+ * @author Kai Kreuzer - added delayed execution
  *
  */
 public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
+	private static final Logger logger = LoggerFactory.getLogger(ScriptItemRefresher.class);
+
 	ModelRepository modelRepository;
 	private ItemRegistry itemRegistry;
+	private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledFuture<?> job;
 
 
 	public void setModelRepository(ModelRepository modelRepository) {
@@ -45,12 +57,12 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
 	@Override
 	public void added(Item element) {
-		modelRepository.reloadAllModelsOfType("script");
+		scheduleScriptRefresh();
 	}
 
 	@Override
 	public void removed(Item element) {
-		modelRepository.reloadAllModelsOfType("script");
+		scheduleScriptRefresh();
 	}
 
 	@Override
@@ -60,7 +72,23 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
 	@Override
 	public void allItemsChanged(Collection<String> oldItemNames) {
-		modelRepository.reloadAllModelsOfType("script");
+		scheduleScriptRefresh();
 	}
 	
+	private synchronized void scheduleScriptRefresh() {
+		if(job!=null && !job.isDone()) {
+			job.cancel(false);
+		}
+		job = scheduler.schedule(runnable, 1000, TimeUnit.SECONDS);
+	}
+	
+	Runnable runnable = new Runnable() {
+		public void run() {
+			try {
+				modelRepository.reloadAllModelsOfType("script");
+			} catch(Exception e) {
+				logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+			}
+		}
+	};
 }
