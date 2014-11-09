@@ -25,7 +25,7 @@ import org.eclipse.xtext.xbase.jvmmodel.IJvmModelAssociations
 import org.eclipse.xtext.common.types.JvmIdentifiableElement
 
 /**
- * The script interpreter handles the openHAB specific script components, which are not known
+ * The script interpreter handles ESH specific script components, which are not known
  * to the standard Xbase interpreter.
  * 
  * @author Kai Kreuzer - Initial contribution and API
