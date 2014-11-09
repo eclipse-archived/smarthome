@@ -26,6 +26,7 @@
     <module>org.eclipse.smarthome.io.rest.sitemap</module>
     <module>org.eclipse.smarthome.io.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
+    <module>org.eclipse.smarthome.io.transport.upnp</module>
   </modules>
 
 </project>
