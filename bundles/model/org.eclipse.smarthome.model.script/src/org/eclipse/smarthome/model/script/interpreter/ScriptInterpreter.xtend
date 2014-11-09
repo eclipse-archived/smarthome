@@ -37,38 +37,43 @@ public class ScriptInterpreter extends XbaseInterpreter {
 
 	@Inject
 	IItemRegistryProvider itemRegistryProvider
-	
+
 	@Inject
 	StateAndCommandProvider stateAndCommandProvider
-	
-	@Inject 
-	extension IJvmModelAssociations 
 
-	override protected _invokeFeature(JvmField jvmField, XAbstractFeatureCall featureCall, Object receiver, IEvaluationContext context, CancelIndicator indicator) {
+	@Inject
+	extension IJvmModelAssociations
+
+	override protected _invokeFeature(JvmField jvmField, XAbstractFeatureCall featureCall, Object receiver,
+		IEvaluationContext context, CancelIndicator indicator) {
+
 		// Check if the JvmField is inferred
 		val sourceElement = jvmField.sourceElements.head
 		if (sourceElement != null) {
 			val value = context.getValue(QualifiedName.create(jvmField.simpleName))
 			value ?: {
-					// Looks like we have an state, command or item field
-					val fieldName = jvmField.simpleName
-					fieldName.stateOrCommand ?: fieldName.item
+
+				// Looks like we have an state, command or item field
+				val fieldName = jvmField.simpleName
+				fieldName.stateOrCommand ?: fieldName.item
 			}
 		} else {
-			super._invokeFeature(jvmField, featureCall, receiver, context, indicator)	
+			super._invokeFeature(jvmField, featureCall, receiver, context, indicator)
 		}
-	
+
 	}
-	
-	override protected invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall, Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
+
+	override protected invokeFeature(JvmIdentifiableElement feature, XAbstractFeatureCall featureCall,
+		Object receiverObj, IEvaluationContext context, CancelIndicator indicator) {
 		if (feature != null && feature.eIsProxy) {
-			throw new RuntimeException("The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
+			throw new RuntimeException(
+				"The name '" + featureCall.toString() + "' cannot be resolved to an item or type.");
 		}
 		super.invokeFeature(feature, featureCall, receiverObj, context, indicator)
 	}
 
 	def protected Type getStateOrCommand(String name) {
-		for(Type type : stateAndCommandProvider.getAllTypes()) {
+		for (Type type : stateAndCommandProvider.getAllTypes()) {
 			if (type.toString == name) {
 				return type
 			}
@@ -83,18 +88,20 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			return null;
 		}
 	}
-	
+
 	override protected boolean eq(Object a, Object b) {
-		if(a instanceof Type && b instanceof Number) { 
-			return NumberExtensions.operator_equals( a as Type, b as Number);
-		} else if(a instanceof Number && b instanceof Type) {
-			return NumberExtensions.operator_equals( b as Type, a as Number);
+		if (a instanceof Type && b instanceof Number) {
+			return NumberExtensions.operator_equals(a as Type, b as Number);
+		} else if (a instanceof Number && b instanceof Type) {
+			return NumberExtensions.operator_equals(b as Type, a as Number);
 		} else {
 			return super.eq(a, b);
 		}
 	}
-	
-	def dispatch protected assigneValueTo(JvmField jvmField, XAssignment assignment, Object value, IEvaluationContext context, CancelIndicator indicator) {
+
+	override _assigneValueTo(JvmField jvmField, XAbstractFeatureCall assignment, Object value,
+		IEvaluationContext context, CancelIndicator indicator) {
+
 		// Check if the JvmField is inferred
 		val sourceElement = jvmField.sourceElements.head
 		if (sourceElement != null) {
@@ -104,5 +111,5 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			super._assigneValueTo(jvmField, assignment, value, context, indicator)
 		}
 	}
-	
+
 }
