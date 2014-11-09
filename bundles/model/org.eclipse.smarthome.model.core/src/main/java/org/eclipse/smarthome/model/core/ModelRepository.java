@@ -34,7 +34,7 @@ public interface ModelRepository {
 	 * Adds a model to the repository or refreshes it if it already exists
 	 * 
 	 * @param name the model name to add/refresh
-	 * @param inputStream an input stream with the model's content
+	 * @param inputStream an input stream with the model's content, optional if the file already exists
 	 * 
 	 * @return true, if it was successfully processed, false otherwise
 	 */
@@ -58,6 +58,8 @@ public interface ModelRepository {
 	 */
 	public Iterable<String> getAllModelNamesOfType(String modelType);
 
+	public void reloadAllModelsOfType(final String modelType);
+	
 	/**
 	 * Adds a change listener
 	 * 

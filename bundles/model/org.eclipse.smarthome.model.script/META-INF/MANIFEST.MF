@@ -22,6 +22,7 @@ Import-Package: com.google.common.base,
  org.apache.commons.lang,
  org.apache.commons.logging,
  org.apache.log4j,
+ org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
@@ -45,6 +46,7 @@ Import-Package: com.google.common.base,
  org.quartz.utils,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*
 Export-Package: org.eclipse.smarthome.model.script,org.eclipse.smartho
  me.model.script.actions,org.eclipse.smarthome.model.script.engine,org
  .eclipse.smarthome.model.script.formatting,org.eclipse.smarthome.mode

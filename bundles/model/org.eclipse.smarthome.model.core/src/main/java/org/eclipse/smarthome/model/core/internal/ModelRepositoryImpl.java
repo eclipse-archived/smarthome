@@ -9,6 +9,7 @@ package org.eclipse.smarthome.model.core.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+/**
+ * @author Oliver Libutzki - Added reloadAllModelsOfType method
+ *
+ */
 public class ModelRepositoryImpl implements ModelRepository {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
@@ -80,6 +85,10 @@ public class ModelRepositoryImpl implements ModelRepository {
 						try {
 							Map<String, String> options = new HashMap<String, String>();
 							options.put(XtextResource.OPTION_ENCODING, "UTF-8");
+							if (inputStream == null) {
+								logger.warn("Resource '{}' not found. You have to pass an inputStream to create the resource.", name);
+								return false;
+							}
 							resource.load(inputStream, options);
 							notifyListeners(name, EventType.ADDED);
 							return true;
@@ -95,7 +104,11 @@ public class ModelRepositoryImpl implements ModelRepository {
 				resource.unload();
 				try {
 					logger.info("Refreshing model '{}'", name);
-					resource.load(inputStream, Collections.EMPTY_MAP);
+					if (inputStream != null) {
+						resource.load(inputStream, Collections.EMPTY_MAP);
+					} else {
+						resource.load(Collections.EMPTY_MAP);
+					}
 					notifyListeners(name, EventType.MODIFIED);
 					return true;
 				} catch (IOException e) {
@@ -135,6 +148,25 @@ public class ModelRepositoryImpl implements ModelRepository {
 				public String apply(Resource from) {
 					return from.getURI().path();
 				}}));
+		}
+	}
+	
+
+	public void reloadAllModelsOfType(final String modelType) {
+		synchronized(resourceSet) {
+			// Make a copy to avoid ConcurrentModificationException
+			List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+			for (Resource resource : resourceListCopy) {
+				if(resource!=null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
+					if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
+						XtextResource xtextResource = (XtextResource)resource;
+						// It's not sufficient to discard the derived state. 
+						// The quick & dirts solution is to reparse the whole resource.
+						// We trigger this by dummy updating the resource.
+						xtextResource.update(1, 0, "");
+					}
+				}
+			}
 		}
 	}
 
