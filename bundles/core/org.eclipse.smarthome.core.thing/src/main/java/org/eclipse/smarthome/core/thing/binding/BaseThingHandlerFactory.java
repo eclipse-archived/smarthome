@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -30,6 +31,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * registration logic.
  * 
  * @author Dennis Nobel - Initial contribution
+ *  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
  * 
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
@@ -38,6 +40,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
+    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescritpionRegistryServiceTracker;
 
 	/**
 	 * Initializes the {@link BaseThingHandlerFactory}. If this method is
@@ -51,6 +54,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         this.bundleContext = componentContext.getBundleContext();
         thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
         thingTypeRegistryServiceTracker.open();
+        configDescritpionRegistryServiceTracker = new ServiceTracker<>(bundleContext,
+                ConfigDescriptionRegistry.class.getName(), null);
+        configDescritpionRegistryServiceTracker.open();
     }
 	
 	/**
@@ -72,6 +78,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             thingHandler.dispose();
         }
         thingTypeRegistryServiceTracker.close();
+        configDescritpionRegistryServiceTracker.close();
         this.bundleContext = null;
     }
 
@@ -224,10 +231,20 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             ThingUID thingUID, ThingUID bridgeUID) {
         ThingType thingType = getThingTypeByUID(thingTypeUID);
         if (thingType != null) {
-            return ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID);
+            Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
+                    getConfigDescriptionRegistry());
+            return thing;
         } else {
             return null;
         }
+    }
+    
+    protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
+        if (configDescritpionRegistryServiceTracker == null) {
+            throw new IllegalStateException(
+                    "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");
+        }
+        return configDescritpionRegistryServiceTracker.getService();
     }
     
 }
