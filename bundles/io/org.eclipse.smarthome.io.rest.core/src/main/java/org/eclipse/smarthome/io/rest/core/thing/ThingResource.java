@@ -12,12 +12,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -100,6 +102,18 @@ public class ThingResource implements RESTResource {
         return Response.ok(thingBeans).build();
     }
 
+    @GET
+    @Path("/{thingUID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByUID(@PathParam("thingUID") String thingUID) {
+        Thing thing = thingRegistry.getByUID((new ThingUID(thingUID)));
+        if (thing != null) {
+            return Response.ok(convertToThingBean(thing)).build();
+        } else {
+            return Response.noContent().build();
+        }
+    }
+
     @POST
     @Path("/{thingUID}/channels/{channelId}/link")
     @Consumes(MediaType.TEXT_PLAIN)
@@ -126,8 +140,11 @@ public class ThingResource implements RESTResource {
             managedItemProvider.add(item);
         }
 
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, new ChannelUID(new ThingUID(thingUID),
-                channelId)));
+        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
+
+        unlinkChannelIfAlreadyBound(channelUID);
+
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
 
         return Response.ok().build();
     }
@@ -155,6 +172,34 @@ public class ThingResource implements RESTResource {
         if (boundItem != null) {
             managedItemChannelLinkProvider.remove(new ItemChannelLink(boundItem, channelUID).getID());
         }
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{thingUID}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("thingUID") String thingUID, ThingBean thingBean) throws IOException {
+
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+        ThingUID bridgeUID = null;
+
+        if (thingBean.bridgeUID != null) {
+            bridgeUID = new ThingUID(thingBean.bridgeUID);
+        }
+
+        Thing thing = managedThingProvider.getOne(thingUIDObject);
+        if (thing == null) {
+            return Response.noContent().build();
+        }
+
+        thing.setBridgeUID(bridgeUID);
+
+        for (Entry<String, Object> entry : thingBean.configuration.entrySet()) {
+            thing.getConfiguration().put(entry.getKey(), entry.getValue());
+        }
+
+        managedThingProvider.update(thing);
 
         return Response.ok().build();
     }
@@ -250,6 +295,18 @@ public class ThingResource implements RESTResource {
             }
         }
         return null;
+    }
+
+    private void unlinkChannelIfAlreadyBound(ChannelUID channelUID) {
+        Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
+        for (ItemChannelLink link : links) {
+            if (link.getChannelUID().equals(channelUID)) {
+                logger.info(
+                        "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
+                        channelUID, link.getItemName());
+                managedItemChannelLinkProvider.remove(link.getID());
+            }
+        }
     }
 
 }

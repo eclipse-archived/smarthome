@@ -8,9 +8,11 @@
 package org.eclipse.smarthome.io.rest.core.binding;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -21,6 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 import org.eclipse.smarthome.io.rest.core.binding.beans.BindingInfoBean;
 import org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
@@ -59,24 +62,25 @@ public class BindingResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll() {
+    public Response getAll(@HeaderParam("Accept-Language") String language) {
+        Locale locale = LocaleUtil.getLocale(language);
 
-        Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos();
-        Set<BindingInfoBean> bindingInfoBeans = convertToListBean(bindingInfos);
+        Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
+        Set<BindingInfoBean> bindingInfoBeans = convertToListBean(bindingInfos, locale);
 
         return Response.ok(bindingInfoBeans).build();
     }
 
-    private BindingInfoBean convertToBindingBean(BindingInfo bindingInfo) {
-        Set<ThingTypeBean> thingTypeBeans = thingTypeResource.getThingTypeBeans(bindingInfo.getId());
+    private BindingInfoBean convertToBindingBean(BindingInfo bindingInfo, Locale locale) {
+        Set<ThingTypeBean> thingTypeBeans = thingTypeResource.getThingTypeBeans(bindingInfo.getId(), locale);
         return new BindingInfoBean(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
                 bindingInfo.getDescription(), thingTypeBeans);
     }
 
-    private Set<BindingInfoBean> convertToListBean(Set<BindingInfo> bindingInfos) {
+    private Set<BindingInfoBean> convertToListBean(Set<BindingInfo> bindingInfos, Locale locale) {
         Set<BindingInfoBean> bindingInfoBeans = new HashSet<>();
         for (BindingInfo bindingInfo : bindingInfos) {
-            bindingInfoBeans.add(convertToBindingBean(bindingInfo));
+            bindingInfoBeans.add(convertToBindingBean(bindingInfo, locale));
         }
         return bindingInfoBeans;
     }

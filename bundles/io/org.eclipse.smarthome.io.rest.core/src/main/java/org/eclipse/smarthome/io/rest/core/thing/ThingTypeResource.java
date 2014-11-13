@@ -12,9 +12,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -28,6 +30,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 import org.slf4j.Logger;
@@ -47,46 +50,50 @@ public class ThingTypeResource implements RESTResource {
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
-    
+
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
-    	this.thingTypeRegistry = thingTypeRegistry;
+        this.thingTypeRegistry = thingTypeRegistry;
     }
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
-    	this.thingTypeRegistry = null;
+        this.thingTypeRegistry = null;
     }
 
     protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-    	this.configDescriptionRegistry = configDescriptionRegistry;
+        this.configDescriptionRegistry = configDescriptionRegistry;
     }
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
-    	this.configDescriptionRegistry = null;
+        this.configDescriptionRegistry = null;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll() {
-        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes());
+    public Response getAll(@HeaderParam("Accept-Language") String language) {
+        Locale locale = LocaleUtil.getLocale(language);
+        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes(locale), locale);
         return Response.ok(thingTypeBeans).build();
     }
 
     @GET
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getByUID(@PathParam("thingTypeUID") String thingTypeUID) {
-        ThingType thingType = thingTypeRegistry.getThingType(new ThingTypeUID(thingTypeUID));
+    public Response getByUID(@PathParam("thingTypeUID") String thingTypeUID,
+            @HeaderParam("Accept-Language") String language) {
+        Locale locale = LocaleUtil.getLocale(language);
+        ThingType thingType = thingTypeRegistry.getThingType(new ThingTypeUID(thingTypeUID), locale);
         if (thingType != null) {
-            return Response.ok(convertToThingTypeBean(thingType)).build();
+            return Response.ok(convertToThingTypeBean(thingType, locale)).build();
         } else {
             return Response.noContent().build();
         }
     }
 
-    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(ThingTypeUID thingTypeUID) {
+    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(ThingTypeUID thingTypeUID,
+            Locale locale) {
         try {
-            ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(new URI(
-                    "thing-type", thingTypeUID.toString(), null));
+            ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(new URI("thing-type",
+                    thingTypeUID.toString(), null), locale);
             if (configDescription != null) {
                 List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
                         configDescription.getParameters().size());
@@ -106,23 +113,23 @@ public class ThingTypeResource implements RESTResource {
         return null;
     }
 
-    public Set<ThingTypeBean> getThingTypeBeans(String bindingId) {
+    public Set<ThingTypeBean> getThingTypeBeans(String bindingId, Locale locale) {
 
         List<ThingType> thingTypes = thingTypeRegistry.getThingTypes(bindingId);
-        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypes);
+        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypes, locale);
         return thingTypeBeans;
     }
 
-    private ThingTypeBean convertToThingTypeBean(ThingType thingType) {
+    private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                getConfigDescriptionParameterBeans(thingType.getUID()));
+                getConfigDescriptionParameterBeans(thingType.getUID(), locale));
     }
 
-    private Set<ThingTypeBean> convertToThingTypeBeans(List<ThingType> thingTypes) {
+    private Set<ThingTypeBean> convertToThingTypeBeans(List<ThingType> thingTypes, Locale locale) {
         Set<ThingTypeBean> thingTypeBeans = new HashSet<>();
 
         for (ThingType thingType : thingTypes) {
-            thingTypeBeans.add(convertToThingTypeBean(thingType));
+            thingTypeBeans.add(convertToThingTypeBean(thingType, locale));
         }
 
         return thingTypeBeans;

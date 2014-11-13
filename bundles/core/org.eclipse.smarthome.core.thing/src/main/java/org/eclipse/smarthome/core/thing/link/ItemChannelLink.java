@@ -68,5 +68,18 @@ public class ItemChannelLink {
         return (int)this.itemName.hashCode() *
                 this.channelUID.hashCode();
     }
+    
+    /**
+     * Returns the item channel link ID for a given item name and channel UID
+     * 
+     * @param itemName
+     *            item name
+     * @param channelUID
+     *            channel UID
+     * @return the item channel link ID
+     */
+    public static String getIDFor(String itemName, ChannelUID channelUID) {
+        return new ItemChannelLink(itemName, channelUID).getID();
+    }
 
 }

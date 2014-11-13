@@ -41,4 +41,14 @@ public interface ManagedProvider<E, K> extends Provider<E> {
      */
     E update(E element);
 
+    /**
+     * Returns an element for the given key or null if no element for the given
+     * key exists.
+     * 
+     * @param key
+     *            key
+     * @return returns element or null, if no element for the given key exists
+     */
+    E getOne(K key);
+
 }
