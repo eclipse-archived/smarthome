@@ -11,8 +11,12 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.type.BridgeType
@@ -61,6 +65,40 @@ class ThingFactoryTest {
 		assertThat thing.getBridgeUID(), is(equalTo(bridgeUID))
 	}
 
+    private List getChannelDefinitions(){
+        List channelDefinitions = new ArrayList<ChannelDefinition>()
+        def cd1 = new ChannelDefinition("channel1", new ChannelType(new ChannelTypeUID("channel:cd1"), "itemType", "channelLabel", "description", new HashSet<String>(), new URI("scheme", "channelType:cd1", null)))
+        def cd2 = new ChannelDefinition("channel2", new ChannelType(new ChannelTypeUID("channel:cd2"), "itemType2", "label2", "description22222", new HashSet<String>(), new URI("scheme", "channelType:cd2",null)))
+        channelDefinitions.add(cd1)
+        channelDefinitions.add(cd2)
+        return channelDefinitions;
+    }
+
+
+    @Test
+    void 'create Thing with Default values'(){
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), new URI("scheme", "thingType", null))
+        def configuration = new Configuration()
+        
+        def configDescriptionRegistry = new ConfigDescriptionRegistry() {
+            ConfigDescription getConfigDescription( URI uri) {
+                def parameters = [
+                    new ConfigDescriptionParameter("testProperty",
+                        ConfigDescriptionParameter.Type.TEXT, "context", false, "default", "label", "description")
+                ]
+                return new ConfigDescription(uri, parameters)
+            }
+        }
+    
+        def Thing thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, null, configDescriptionRegistry)
+        assertThat thing.configuration, is(not(null))
+        assertThat thing.configuration.get("testProperty"), is(not(null))
+        assertThat thing.configuration.get("testProperty"), is(equalTo("default"))
+        assertThat thing.channels.size, is(equalTo(2))
+        assertThat thing.channels[0].configuration.get("testProperty"), is(equalTo("default"))
+        assertThat thing.channels[1].configuration.get("testProperty"), is(equalTo("default"))
+    }
+	
 	@Test
 	void 'create Thing with Channels'() {
 

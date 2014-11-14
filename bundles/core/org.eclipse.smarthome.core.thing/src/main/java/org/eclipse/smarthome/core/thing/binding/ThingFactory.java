@@ -9,6 +9,9 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.List;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -30,6 +33,7 @@ import com.google.common.collect.Lists;
  * .
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
  */
 public class ThingFactory {
 
@@ -46,18 +50,55 @@ public class ThingFactory {
      *            (can be null)
      * @return thing
      */
-    public static Thing createThing(ThingType thingType, ThingUID thingUID,
-            Configuration configuration, ThingUID bridgeUID) {
-    	if (thingType == null) {
-    		throw new IllegalArgumentException("The thingType should not be null.");
-    	}
-    	if (thingUID == null) {
-    		throw new IllegalArgumentException("The thingUID should not be null.");
-    	}
-        List<Channel> channels = createChannels(thingType, thingUID);
+    public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration,
+            ThingUID bridgeUID) {
+        return createThing(thingType, thingUID, configuration, bridgeUID, null);
+    }
+    
+    /**
+     * Creates a thing based on a given thing type. It also creates the
+     * default-configuration given in the configDescriptions if the
+     * configDescriptionRegistry is not null
+     * 
+     * @param thingType
+     *            (should not be null)
+     * @param thingUID
+     *            (should not be null)
+     * @param configuration
+     *            (should not be null)
+     * @param bridgeUID
+     *            (can be null)
+     * @param configDescriptionRegistry
+     *            (can be null)
+     * @return thing
+     */
+    public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration,
+            ThingUID bridgeUID, ConfigDescriptionRegistry configDescriptionRegistry) {
+        if (thingType == null) {
+            throw new IllegalArgumentException("The thingType should not be null.");
+        }
+        if (thingUID == null) {
+            throw new IllegalArgumentException("The thingUID should not be null.");
+        }
 
-        return createThingBuilder(thingType, thingUID).withConfiguration(configuration)
-                .withChannels(channels).withBridge(bridgeUID).build();
+        if (configDescriptionRegistry != null) {
+            // Set default values to thing-configuration
+            ConfigDescription thingConfigDescription = configDescriptionRegistry.getConfigDescription(thingType
+                    .getConfigDescriptionURI());
+            if (thingConfigDescription != null) {
+                for (ConfigDescriptionParameter parameter : thingConfigDescription.getParameters()) {
+                    if (parameter.getDefault() != null && configuration.get(parameter.getName()) == null) {
+                        configuration.put(parameter.getName(), parameter.getDefault());
+                    }
+                }
+            }
+        }
+
+        List<Channel> channels = createChannels(thingType, thingUID, configDescriptionRegistry);
+
+        return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
+                .withBridge(bridgeUID).build();
+
     }
 
     /**
@@ -86,19 +127,38 @@ public class ThingFactory {
         }
     }
 
-    private static List<Channel> createChannels(ThingType thingType, ThingUID thingUID) {
+    private static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,
+            ConfigDescriptionRegistry configDescriptionRegistry) {
         List<Channel> channels = Lists.newArrayList();
         List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
-            channels.add(createChannel(channelDefinition, thingUID));
+            channels.add(createChannel(channelDefinition, thingUID, configDescriptionRegistry));
         }
         return channels;
     }
 
-    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID) {
+    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID,
+            ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = channelDefinition.getType();
-        Channel channel = ChannelBuilder.create(
-                new ChannelUID(thingUID, channelDefinition.getId()), type.getItemType()).withDefaultTags(type.getTags()).build();
+
+        ChannelBuilder channelBuilder = ChannelBuilder.create(new ChannelUID(thingUID, channelDefinition.getId()),
+                type.getItemType()).withDefaultTags(type.getTags());
+
+        // initializing channels with default-values
+        if (configDescriptionRegistry != null) {
+            ConfigDescription cd = configDescriptionRegistry.getConfigDescription(type.getConfigDescriptionURI());
+            if (cd != null) {
+                Configuration config = new Configuration();
+                for (ConfigDescriptionParameter param : cd.getParameters()) {
+                    if (param.getDefault() != null) {
+                        config.put(param.getName(), param.getDefault());
+                    }
+                }
+                channelBuilder = channelBuilder.withConfiguration(config);
+            }
+        }
+
+        Channel channel = channelBuilder.build();
         return channel;
     }
 

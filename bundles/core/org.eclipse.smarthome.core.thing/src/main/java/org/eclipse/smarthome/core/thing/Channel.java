@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.items.Item;
  * 
  * @author Dennis Nobel - Initial contribution and API
  * @author Alex Tugarev - Extended about default tags
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
  */
 public class Channel {
 
@@ -36,6 +37,7 @@ public class Channel {
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
+        this.configuration = new Configuration();
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
@@ -53,6 +55,9 @@ public class Channel {
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
         this.defaultTags = Collections.<String> unmodifiableSet(new HashSet<String>(defaultTags));
+        if (this.configuration==null){
+            this.configuration=new Configuration();
+        }
     }
 
     /**
