@@ -90,7 +90,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 					"Receiving a GENA subscription '{}' response for device '{}'",
 					sub.getService().getServiceId().getId(), device.getRoot()
 							.getIdentity().getUdn());
-
+			synchronized(participants) {
 			for (UpnpIOParticipant participant : participants.keySet()) {
 				if (participants.get(participant).equals(device.getRoot())) {
 					for (String stateVariable : values.keySet()) {
@@ -106,8 +106,9 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 							}
 						}
 					}
+					break;
 				}
-				break;
+			}
 			}
 		}
 
@@ -153,6 +154,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 	public void addSubscription(UpnpIOParticipant participant,
 			String serviceID, int duration) {
 
+		synchronized(participants) {
 		if (participant != null && serviceID != null) {
 			Device device = participants.get(participant);
 
@@ -204,6 +206,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 
 			}
 		}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -212,6 +215,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 
 		HashMap<String, String> resultMap = new HashMap<String, String>();
 
+		synchronized(participants) {
 		if (serviceID != null && actionID != null && participant != null) {
 
 			Device device = participants.get(participant);
@@ -299,6 +303,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 						"Could not find an upnp device for participant '{}'",
 						participant.getUDN());
 			}
+		}
 		}
 		return resultMap;
 	}
