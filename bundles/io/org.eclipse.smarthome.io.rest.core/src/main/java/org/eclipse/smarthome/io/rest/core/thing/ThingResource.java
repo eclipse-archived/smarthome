@@ -10,21 +10,23 @@ package org.eclipse.smarthome.io.rest.core.thing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -45,11 +47,8 @@ import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 /**
  * This class acts as a REST resource for things and is registered with the
@@ -63,34 +62,22 @@ public class ThingResource implements RESTResource {
 
     private static final Logger logger = LoggerFactory.getLogger(ThingResource.class);
 
+    private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ItemFactory itemFactory;
+    private ItemRegistry itemRegistry;
+    private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
+    private ManagedItemProvider managedItemProvider;
+    private ManagedThingProvider managedThingProvider;
+    private ThingRegistry thingRegistry;
+
     @Context
     private UriInfo uriInfo;
 
-	private BundleContext bundleContext;
-	private Gson gson = new Gson();
-
-	protected void activate(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
-	}
-
-	protected void deactivate(BundleContext bundleContext) {
-		this.bundleContext = null;
-	}
-
-    protected <T> T getService(Class<T> serviceInterface) {
-        return bundleContext.getService(bundleContext.getServiceReference(serviceInterface));
-    }
-
     @POST
-    @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(@PathParam("thingUID") String thingUID, String body) throws 
-           IOException {
+    public Response create(ThingBean thingBean) throws IOException {
 
-        // TODO: Use ThingBean as method argument instead of String (be aware of class loader problems)
-        ThingBean thingBean = parse(body);
-
-        ThingUID thingUIDObject = new ThingUID(thingUID);
+        ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
 
         if (thingBean.bridgeUID != null) {
@@ -99,7 +86,6 @@ public class ThingResource implements RESTResource {
 
         Configuration configuration = new Configuration(thingBean.configuration);
 
-        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
         managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID, configuration);
 
         return Response.ok().build();
@@ -109,12 +95,22 @@ public class ThingResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
 
-        ThingRegistry thingRegistry = getService(ThingRegistry.class);
-
         Collection<Thing> things = thingRegistry.getAll();
         Set<ThingBean> thingBeans = convertToListBean(things);
 
         return Response.ok(thingBeans).build();
+    }
+
+    @GET
+    @Path("/{thingUID}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getByUID(@PathParam("thingUID") String thingUID) {
+        Thing thing = thingRegistry.getByUID((new ThingUID(thingUID)));
+        if (thing != null) {
+            return Response.ok(convertToThingBean(thing)).build();
+        } else {
+            return Response.noContent().build();
+        }
     }
 
     @POST
@@ -123,49 +119,31 @@ public class ThingResource implements RESTResource {
     public Response link(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
             String itemName) {
 
-        ThingRegistry thingRegistry = getService(ThingRegistry.class);
-
         Thing thing = thingRegistry.getByUID(new ThingUID(thingUID));
         if (thing == null) {
             logger.info("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         Channel channel = findChannel(channelId, thing);
         if (channel == null) {
             logger.info("Received HTTP POST request at '{}' for the unknown channel '{}' of the thing '{}'",
                     uriInfo.getPath(), channel, thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
-        ItemRegistry itemRegistry = getService(ItemRegistry.class);
         try {
             itemRegistry.getItem(itemName);
         } catch (ItemNotFoundException ex) {
-            ManagedItemProvider managedItemProvider = getService(ManagedItemProvider.class);
-            if (managedItemProvider == null) {
-                logger.error("Cannot create new item. ManagedItemProvider OSGi service was not found.");
-                return Response.serverError().build();
-            }
-
-            ItemFactory itemFactory = getService(ItemFactory.class);
-            if (itemFactory == null) {
-                logger.error("Cannot create new item. ItemFactory OSGi service was not found.");
-                return Response.serverError().build();
-            }
-
             GenericItem item = itemFactory.createItem(channel.getAcceptedItemType(), itemName);
             managedItemProvider.add(item);
         }
 
-        ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
-        if (managedItemChannelLinkProvider == null) {
-            logger.error("Cannot link channel. ManagedItemChannelLinkProvider OSGi service was not found.");
-            return Response.serverError().build();
-        }
+        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, new ChannelUID(new ThingUID(thingUID),
-                channelId)));
+        unlinkChannelIfAlreadyBound(channelUID);
+
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
 
         return Response.ok().build();
     }
@@ -174,11 +152,9 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}")
     public Response remove(@PathParam("thingUID") String thingUID) {
 
-        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider.class);
-
         if (managedThingProvider.remove(new ThingUID(thingUID)) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         return Response.ok().build();
@@ -189,26 +165,108 @@ public class ThingResource implements RESTResource {
     public Response unlink(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
             String itemName) {
 
-        ItemChannelLinkRegistry itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
         String boundItem = itemChannelLinkRegistry.getBoundItem(channelUID);
 
         if (boundItem != null) {
-            ManagedItemChannelLinkProvider managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider.class);
             managedItemChannelLinkProvider.remove(new ItemChannelLink(boundItem, channelUID).getID());
         }
 
         return Response.ok().build();
     }
 
+    @PUT
+    @Path("/{thingUID}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response update(@PathParam("thingUID") String thingUID, ThingBean thingBean) throws IOException {
+
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+        ThingUID bridgeUID = null;
+
+        if (thingBean.bridgeUID != null) {
+            bridgeUID = new ThingUID(thingBean.bridgeUID);
+        }
+
+        Thing thing = managedThingProvider.get(thingUIDObject);
+        if (thing == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        thing.setBridgeUID(bridgeUID);
+
+        for (Entry<String, Object> entry : thingBean.configuration.entrySet()) {
+            thing.getConfiguration().put(entry.getKey(), entry.getValue());
+        }
+
+        managedThingProvider.update(thing);
+
+        return Response.ok().build();
+    }
+
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
+    }
+
+    protected void setItemFactory(ItemFactory itemFactory) {
+        this.itemFactory = itemFactory;
+    }
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void setManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
+        this.managedItemChannelLinkProvider = managedItemChannelLinkProvider;
+    }
+
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = managedThingProvider;
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetItemChannelLinkRegistry() {
+        itemChannelLinkRegistry = null;
+        ;
+    }
+
+    protected void unsetItemFactory() {
+        itemFactory = null;
+    }
+
+    protected void unsetItemRegistry() {
+        itemRegistry = null;
+    }
+
+    protected void unsetManagedItemChannelLinkProvider() {
+        managedItemChannelLinkProvider = null;
+    }
+
+    protected void unsetManagedItemProvider() {
+        managedItemProvider = null;
+    }
+
+    protected void unsetManagedThingProvider() {
+        managedThingProvider = null;
+    }
+
+    protected void unsetThingRegistry() {
+        thingRegistry = null;
+    }
+
     private ChannelBean convertToChannelBean(Channel channel) {
-        ItemChannelLinkRegistry itemChannelLinkRegistry = getService(ItemChannelLinkRegistry.class);
         String boundItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
         return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), boundItem);
     }
 
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
-        Set<ThingBean> thingBeans = new HashSet<>();
+        Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
             ThingBean thingBean = convertToThingBean(thing);
             thingBeans.add(thingBean);
@@ -238,14 +296,16 @@ public class ThingResource implements RESTResource {
         return null;
     }
 
-    private ThingBean parse(String body) throws IOException {
-        // Deserialization of the bean works different compared to
-        // serialization. It does not respect the xml annotations.
-        // Therefore a valid json looks like this: { UID: 'a:b:c',
-        // configuration: { key1: 'value', key2: 'value'} }.
-
-    	ThingBean thingBean = gson.fromJson(body, ThingBean.class);
-        return thingBean;
+    private void unlinkChannelIfAlreadyBound(ChannelUID channelUID) {
+        Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
+        for (ItemChannelLink link : links) {
+            if (link.getChannelUID().equals(channelUID)) {
+                logger.info(
+                        "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
+                        channelUID, link.getItemName());
+                managedItemChannelLinkProvider.remove(link.getID());
+            }
+        }
     }
 
 }

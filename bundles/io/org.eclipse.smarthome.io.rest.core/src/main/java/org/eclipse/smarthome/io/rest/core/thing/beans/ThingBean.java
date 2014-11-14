@@ -11,10 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 
@@ -25,18 +21,13 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
  * @author Dennis Nobel - Initial contribution
  *
  */
-@XmlRootElement(name = "thing")
 public class ThingBean {
 
     public String bridgeUID;
-    @XmlJavaTypeAdapter(MapAdapter.class)
     public Map<String, Object> configuration;
     public ThingStatus status;
-
     public String UID;
-
-    @XmlElement(name = "channel")
-    private List<ChannelBean> channels;
+    public List<ChannelBean> channels;
 
     public ThingBean() {
     }

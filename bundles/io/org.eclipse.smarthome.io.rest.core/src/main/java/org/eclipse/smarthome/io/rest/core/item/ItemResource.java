@@ -9,18 +9,21 @@ package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -110,10 +113,10 @@ public class ItemResource implements RESTResource {
 	@Context UriInfo uriInfo;
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItems() {
+    public Response getItems(@DefaultValue("false") @QueryParam("recursive") boolean recursive) {
 		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-    	Object responseObject = getItemBeans();
+    	Object responseObject = getItemBeans(recursive);
     	return Response.ok(responseObject).build();
     }
 
@@ -194,13 +197,20 @@ public class ItemResource implements RESTResource {
     
     @PUT @Path("/{itemname: [a-zA-Z_0-9]*}")
 	@Consumes(MediaType.TEXT_PLAIN)	
-	public Response createItem(@PathParam("itemname") String itemname, String itemType) {
+	public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
 
         GenericItem newItem = null;
-    	for(ItemFactory itemFactory : itemFactories) {
-    		newItem = itemFactory.createItem(itemType, itemname);
-    		if(newItem!=null) break;
-    	}
+        
+        if (itemType != null && itemType.equals("Group")) {
+            newItem = new GroupItem(itemname);
+        } else {
+            for (ItemFactory itemFactory : itemFactories) {
+                newItem = itemFactory.createItem(itemType, itemname);
+                if (newItem != null)
+                    break;
+            }
+        }
+        
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     itemType);
@@ -209,14 +219,80 @@ public class ItemResource implements RESTResource {
 
         Item existingItem = getItem(itemname);
 
-        if (existingItem != null) {
+        if (existingItem == null) {
+            managedItemProvider.add(newItem);
+        } else if(managedItemProvider.get(itemname) != null) {
             managedItemProvider.update(newItem);
         } else {
-            managedItemProvider.add(newItem);
+            logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
         return Response.ok().build();
 	}
+    
+    @PUT
+    @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
+    public Response addMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
+        try {
+            Item item = itemRegistry.getItem(itemName);
+
+            if (!(item instanceof GroupItem)) {
+                return Response.status(Status.NOT_FOUND).build();
+            }
+ 
+            GroupItem groupItem = (GroupItem) item;
+
+            Item memberItem = itemRegistry.getItem(memberItemName);
+            
+            if (!(memberItem instanceof GenericItem)) {
+                return Response.status(Status.NOT_FOUND).build();
+            }
+            
+            if(managedItemProvider.get(memberItemName) == null) {
+                return Response.status(Status.METHOD_NOT_ALLOWED).build();
+            }
+            
+            GenericItem genericMemberItem = (GenericItem) memberItem;
+            genericMemberItem.addGroupName(groupItem.getName());
+            managedItemProvider.update(genericMemberItem);
+            
+            return Response.ok().build();
+        } catch (ItemNotFoundException e) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+    }
+    
+    @DELETE @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
+    public Response removeMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
+        try {
+            Item item = itemRegistry.getItem(itemName);
+
+            if (!(item instanceof GroupItem)) {
+                return Response.status(Status.NOT_FOUND).build();
+            }
+            
+            GroupItem groupItem = (GroupItem) item;
+
+            Item memberItem = itemRegistry.getItem(memberItemName);
+            
+            if (!(memberItem instanceof GenericItem)) {
+                return Response.status(Status.NOT_FOUND).build();
+            }
+            
+            if(managedItemProvider.get(memberItemName) == null) {
+                return Response.status(Status.METHOD_NOT_ALLOWED).build();
+            }
+            
+            GenericItem genericMemberItem = (GenericItem) memberItem;
+            genericMemberItem.removeGroupName(groupItem.getName());
+            managedItemProvider.update(genericMemberItem);
+            
+            return Response.ok().build();
+        } catch (ItemNotFoundException e) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+    }
     
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}")
@@ -225,7 +301,7 @@ public class ItemResource implements RESTResource {
 
         if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         return Response.ok().build();
@@ -236,7 +312,7 @@ public class ItemResource implements RESTResource {
     	if(item instanceof GroupItem && drillDown) {
     		GroupItem groupItem = (GroupItem) item;
     		GroupItemBean groupBean = new GroupItemBean();
-    		Collection<ItemBean> members = new HashSet<ItemBean>();
+    		Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
     		for(Item member : groupItem.getMembers()) {
     			members.add(createItemBean(member, false, uriPath));
     		}
@@ -263,10 +339,10 @@ public class ItemResource implements RESTResource {
         return null;
     }
 
-	private List<ItemBean> getItemBeans() {
+	private List<ItemBean> getItemBeans(boolean recursive) {
 		List<ItemBean> beans = new LinkedList<ItemBean>();
 		for(Item item : itemRegistry.getItems()) {
-			beans.add(createItemBean(item, false, uriInfo.getBaseUri().toASCIIString()));
+			beans.add(createItemBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
 		}
 		return beans;
 	}

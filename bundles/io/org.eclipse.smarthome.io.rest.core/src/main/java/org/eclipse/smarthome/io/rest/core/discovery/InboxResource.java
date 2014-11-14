@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -71,7 +71,7 @@ public class InboxResource implements RESTResource {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
-            return Response.status(Status.BAD_REQUEST).build();
+            return Response.status(Status.NOT_FOUND).build();
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
@@ -82,8 +82,11 @@ public class InboxResource implements RESTResource {
     @DELETE
     @Path("/{thingUID}")
     public Response delete(@PathParam("thingUID") String thingUID) {
-        inbox.remove(new ThingUID(thingUID));
-        return Response.ok().build();
+        if(inbox.remove(new ThingUID(thingUID))) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Status.NOT_FOUND).build();
+        }
     }
 
     @GET
@@ -103,7 +106,7 @@ public class InboxResource implements RESTResource {
     }
 
     private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
-        Set<DiscoveryResultBean> discoveryResultBeans = new HashSet<>();
+        Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
         for (DiscoveryResult discoveryResult : discoveryResults) {
             ThingUID thingUID = discoveryResult.getThingUID();
             ThingUID bridgeUID = discoveryResult.getBridgeUID();

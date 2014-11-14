@@ -9,9 +9,6 @@ package org.eclipse.smarthome.io.rest.core.thing.beans;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
  * JSON.
@@ -19,10 +16,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Dennis Nobel - Initial contribution
  *
  */
-@XmlRootElement(name = "thingType")
 public class ThingTypeBean {
 
-    @XmlElement(name = "configParameter")
+    public List<ChannelDefinitionBean> channels;
     public List<ConfigDescriptionParameterBean> configParameters;
     public String description;
     public String label;
@@ -33,11 +29,12 @@ public class ThingTypeBean {
     }
 
     public ThingTypeBean(String UID, String label, String description,
-            List<ConfigDescriptionParameterBean> configParameters) {
+            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels) {
         this.UID = UID;
         this.label = label;
         this.description = description;
         this.configParameters = configParameters;
+        this.channels = channels;
     }
 
 }

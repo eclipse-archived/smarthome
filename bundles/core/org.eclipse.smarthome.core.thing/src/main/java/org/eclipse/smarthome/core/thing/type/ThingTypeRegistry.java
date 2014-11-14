@@ -96,7 +96,7 @@ public class ThingTypeRegistry {
      *         was found
      */
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-        for (ThingType thingType : getThingTypes()) {
+        for (ThingType thingType : getThingTypes(locale)) {
             if (thingType.getUID().equals(thingTypeUID)) {
                 return thingType;
             }
