@@ -76,10 +76,10 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
         return ImmutableList.copyOf(elements);
     }
     
-    public E getOne(K key) {
+    public E get(K key) {
 
         if (key == null) {
-            throw new IllegalArgumentException("Cannot update null element");
+            throw new IllegalArgumentException("Cannot get null element");
         }
 
         String keyAsString = keyToString(key);

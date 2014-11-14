@@ -14,7 +14,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  * {@link ItemChannelLink} defines a link between an {@link Item} and a
  * {@link Channel}.
  * 
- * @author Dennis Nobel - Initial contribution
+ * @author Dennis Nobel - Initial contribution, Added getIDFor method
  */
 public class ItemChannelLink {
 
@@ -36,7 +36,7 @@ public class ItemChannelLink {
     }
 
     public String getID() {
-        return itemName + " -> " + getChannelUID().toString();
+        return getIDFor(itemName, channelUID);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ItemChannelLink {
      * @return the item channel link ID
      */
     public static String getIDFor(String itemName, ChannelUID channelUID) {
-        return new ItemChannelLink(itemName, channelUID).getID();
+        return itemName + " -> " + channelUID.toString();
     }
 
 }

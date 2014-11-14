@@ -10,7 +10,7 @@ package org.eclipse.smarthome.io.rest.core.thing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -23,10 +23,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -74,11 +74,10 @@ public class ThingResource implements RESTResource {
     private UriInfo uriInfo;
 
     @POST
-    @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(@PathParam("thingUID") String thingUID, ThingBean thingBean) throws IOException {
+    public Response create(ThingBean thingBean) throws IOException {
 
-        ThingUID thingUIDObject = new ThingUID(thingUID);
+        ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
 
         if (thingBean.bridgeUID != null) {
@@ -123,14 +122,14 @@ public class ThingResource implements RESTResource {
         Thing thing = thingRegistry.getByUID(new ThingUID(thingUID));
         if (thing == null) {
             logger.info("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         Channel channel = findChannel(channelId, thing);
         if (channel == null) {
             logger.info("Received HTTP POST request at '{}' for the unknown channel '{}' of the thing '{}'",
                     uriInfo.getPath(), channel, thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         try {
@@ -155,7 +154,7 @@ public class ThingResource implements RESTResource {
 
         if (managedThingProvider.remove(new ThingUID(thingUID)) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         return Response.ok().build();
@@ -188,9 +187,9 @@ public class ThingResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Thing thing = managedThingProvider.getOne(thingUIDObject);
+        Thing thing = managedThingProvider.get(thingUIDObject);
         if (thing == null) {
-            return Response.noContent().build();
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         thing.setBridgeUID(bridgeUID);
@@ -267,7 +266,7 @@ public class ThingResource implements RESTResource {
     }
 
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
-        Set<ThingBean> thingBeans = new HashSet<>();
+        Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
             ThingBean thingBean = convertToThingBean(thing);
             thingBeans.add(thingBean);

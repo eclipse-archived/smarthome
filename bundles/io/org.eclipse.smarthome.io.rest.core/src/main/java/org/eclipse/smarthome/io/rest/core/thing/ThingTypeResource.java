@@ -27,10 +27,13 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
+import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 import org.slf4j.Logger;
@@ -122,7 +125,19 @@ public class ThingTypeResource implements RESTResource {
 
     private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                getConfigDescriptionParameterBeans(thingType.getUID(), locale));
+                getConfigDescriptionParameterBeans(thingType.getUID(), locale),
+                convertToChannelDefinitionBeans(thingType.getChannelDefinitions()));
+    }
+
+    private List<ChannelDefinitionBean> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions) {
+        List<ChannelDefinitionBean> channelDefinitionBeans = new ArrayList<>();
+        for (ChannelDefinition channelDefinition : channelDefinitions) {
+            ChannelType channelType = channelDefinition.getType();
+            ChannelDefinitionBean channelDefinitionBean = new ChannelDefinitionBean(channelDefinition.getId(),
+                    channelType.getLabel(), channelType.getDescription(), channelType.getTags());
+            channelDefinitionBeans.add(channelDefinitionBean);
+        }
+        return channelDefinitionBeans;
     }
 
     private Set<ThingTypeBean> convertToThingTypeBeans(List<ThingType> thingTypes, Locale locale) {

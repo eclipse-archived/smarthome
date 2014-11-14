@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.discovery;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -55,7 +55,7 @@ public class DiscoveryResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDiscoveryServices() {
         Collection<String> supportedBindings = discoveryServiceRegistry.getSupportedBindings();
-        return Response.ok(new HashSet<>(supportedBindings)).build();
+        return Response.ok(new LinkedHashSet<>(supportedBindings)).build();
     }
 
     @POST

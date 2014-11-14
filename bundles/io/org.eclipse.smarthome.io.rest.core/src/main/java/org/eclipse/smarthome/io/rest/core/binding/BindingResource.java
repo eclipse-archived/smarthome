@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.binding;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -78,7 +78,7 @@ public class BindingResource implements RESTResource {
     }
 
     private Set<BindingInfoBean> convertToListBean(Set<BindingInfo> bindingInfos, Locale locale) {
-        Set<BindingInfoBean> bindingInfoBeans = new HashSet<>();
+        Set<BindingInfoBean> bindingInfoBeans = new LinkedHashSet<>();
         for (BindingInfo bindingInfo : bindingInfos) {
             bindingInfoBeans.add(convertToBindingBean(bindingInfo, locale));
         }

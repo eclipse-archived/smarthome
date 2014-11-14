@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -196,7 +197,7 @@ public class ItemResource implements RESTResource {
     
     @PUT @Path("/{itemname: [a-zA-Z_0-9]*}")
 	@Consumes(MediaType.TEXT_PLAIN)	
-	public Response createItem(@PathParam("itemname") String itemname, String itemType) {
+	public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
 
         GenericItem newItem = null;
         
@@ -218,10 +219,13 @@ public class ItemResource implements RESTResource {
 
         Item existingItem = getItem(itemname);
 
-        if (existingItem != null) {
+        if (existingItem == null) {
+            managedItemProvider.add(newItem);
+        } else if(managedItemProvider.get(itemname) != null) {
             managedItemProvider.update(newItem);
         } else {
-            managedItemProvider.add(newItem);
+            logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
         return Response.ok().build();
@@ -234,15 +238,19 @@ public class ItemResource implements RESTResource {
             Item item = itemRegistry.getItem(itemName);
 
             if (!(item instanceof GroupItem)) {
-                return Response.status(Status.BAD_REQUEST).build();
+                return Response.status(Status.NOT_FOUND).build();
             }
-
+ 
             GroupItem groupItem = (GroupItem) item;
 
             Item memberItem = itemRegistry.getItem(memberItemName);
             
             if (!(memberItem instanceof GenericItem)) {
-                return Response.status(Status.BAD_REQUEST).build();
+                return Response.status(Status.NOT_FOUND).build();
+            }
+            
+            if(managedItemProvider.get(memberItemName) == null) {
+                return Response.status(Status.METHOD_NOT_ALLOWED).build();
             }
             
             GenericItem genericMemberItem = (GenericItem) memberItem;
@@ -251,7 +259,7 @@ public class ItemResource implements RESTResource {
             
             return Response.ok().build();
         } catch (ItemNotFoundException e) {
-            return Response.status(Status.BAD_REQUEST).build();
+            return Response.status(Status.NOT_FOUND).build();
         }
     }
     
@@ -261,15 +269,19 @@ public class ItemResource implements RESTResource {
             Item item = itemRegistry.getItem(itemName);
 
             if (!(item instanceof GroupItem)) {
-                return Response.status(Status.BAD_REQUEST).build();
+                return Response.status(Status.NOT_FOUND).build();
             }
-
+            
             GroupItem groupItem = (GroupItem) item;
 
             Item memberItem = itemRegistry.getItem(memberItemName);
-           
+            
             if (!(memberItem instanceof GenericItem)) {
-                return Response.status(Status.BAD_REQUEST).build();
+                return Response.status(Status.NOT_FOUND).build();
+            }
+            
+            if(managedItemProvider.get(memberItemName) == null) {
+                return Response.status(Status.METHOD_NOT_ALLOWED).build();
             }
             
             GenericItem genericMemberItem = (GenericItem) memberItem;
@@ -278,7 +290,7 @@ public class ItemResource implements RESTResource {
             
             return Response.ok().build();
         } catch (ItemNotFoundException e) {
-            return Response.status(Status.BAD_REQUEST).build();
+            return Response.status(Status.NOT_FOUND).build();
         }
     }
     
@@ -289,7 +301,7 @@ public class ItemResource implements RESTResource {
 
         if (managedItemProvider.remove(itemname) == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-            throw new WebApplicationException(404);
+            return Response.status(Status.NOT_FOUND).build();
         }
 
         return Response.ok().build();
@@ -300,7 +312,7 @@ public class ItemResource implements RESTResource {
     	if(item instanceof GroupItem && drillDown) {
     		GroupItem groupItem = (GroupItem) item;
     		GroupItemBean groupBean = new GroupItemBean();
-    		Collection<ItemBean> members = new HashSet<ItemBean>();
+    		Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
     		for(Item member : groupItem.getMembers()) {
     			members.add(createItemBean(member, false, uriPath));
     		}
