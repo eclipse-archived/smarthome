@@ -10,10 +10,9 @@ package org.eclipse.smarthome.io.rest.core.link;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -45,9 +44,8 @@ public class ItemChannelLinkResource implements RESTResource {
         return Response.ok(toBeans(links)).build();
     }
 
-    @POST
+    @PUT
     @Path("/{itemName}/{channelUID}")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response link(@PathParam("itemName") String itemName, @PathParam("channelUID") String channelUid) {
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, new ChannelUID(channelUid)));
         return Response.ok().build();
@@ -55,7 +53,6 @@ public class ItemChannelLinkResource implements RESTResource {
 
     @DELETE
     @Path("/{itemName}/{channelUID}")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response unlink(@PathParam("itemName") String itemName, @PathParam("channelUID") String channelUid) {
         managedItemChannelLinkProvider.remove(ItemChannelLink.getIDFor(itemName, new ChannelUID(channelUid)));
         return Response.ok().build();
