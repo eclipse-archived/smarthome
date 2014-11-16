@@ -17,11 +17,11 @@ import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
 import org.eclipse.smarthome.core.items.ItemsChangeListener
+import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
-import org.osgi.framework.BundleContext
 
 /**
  * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.  
@@ -37,6 +37,7 @@ class ItemRegistryOSGiTest extends OSGiTest {
 	def ITEM_NAME = "switchItem"
     def CAMERA_ITEM_NAME1 = "cameraItem1"
     def CAMERA_ITEM_NAME2 = "cameraItem2"
+    def CAMERA_ITEM_NAME3 = "cameraItem3"
     def CAMERA_TAG = "camera"
     def SENSOR_TAG = "sensor"
     def OTHER_TAG = "other"
@@ -46,32 +47,50 @@ class ItemRegistryOSGiTest extends OSGiTest {
 		itemRegistry = getService(ItemRegistry)
         def cameraItem1 = new SwitchItem(CAMERA_ITEM_NAME1)
         def cameraItem2 = new SwitchItem(CAMERA_ITEM_NAME2)
+        def cameraItem3 = new NumberItem(CAMERA_ITEM_NAME3)
         cameraItem1.addTag(CAMERA_TAG)
         cameraItem2.addTag(CAMERA_TAG)
         cameraItem2.addTag(SENSOR_TAG)
+        cameraItem3.addTag(CAMERA_TAG)
 		itemProvider = [
-			getAll: {[new SwitchItem(ITEM_NAME), cameraItem1, cameraItem2 ]}, 
+			getAll: {[new SwitchItem(ITEM_NAME), cameraItem1, cameraItem2, cameraItem3 ]}, 
 			addProviderChangeListener: {def icl -> itemsChangeListener = icl},
 			removeProviderChangeListener: {def icl -> itemsChangeListener = icl },
 			allItemsChanged: {}] as ItemProvider
 	}
 
-	@Test
-	void 'assert getItems returns item from registered ItemProvider'() {
+    @Test
+    void 'assert getItems returns item from registered ItemProvider'() {
 
-		assertThat itemRegistry.getItems().size(), is(0)
+        assertThat itemRegistry.getItems().size(), is(0)
 
-		registerService itemProvider
+        registerService itemProvider
 
-		def items = itemRegistry.getItems()
-		assertThat items.size(), is(3)
-		assertThat items.first().name, is(equalTo(ITEM_NAME))
+        def items = itemRegistry.getItems()
+        assertThat items.size(), is(4)
+        assertThat items.first().name, is(equalTo(ITEM_NAME))
 
-		unregisterService itemProvider
+        unregisterService itemProvider
 
-		assertThat itemRegistry.getItems().size(), is(0)
-	}
-	
+        assertThat itemRegistry.getItems().size(), is(0)
+    }
+    
+    @Test
+    void 'assert getItemsOfType returns item from registered ItemProvider'() {
+
+        assertThat itemRegistry.getItemsOfType("Switch").size(), is(0)
+
+        registerService itemProvider
+
+        def items = itemRegistry.getItemsOfType("Switch")
+        assertThat items.size(), is(3)
+        assertThat items.first().name, is(equalTo(ITEM_NAME))
+
+        unregisterService itemProvider
+
+        assertThat itemRegistry.getItems().size(), is(0)
+    }
+    
     @Test
     void 'assert getItemsByTag returns item from registered ItemProvider'() {
 
@@ -80,6 +99,24 @@ class ItemRegistryOSGiTest extends OSGiTest {
         registerService itemProvider
 
         def items = itemRegistry.getItemsByTag(CAMERA_TAG)
+        assertThat items.size(), is(3)
+        assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
+        assertThat items.get(1).name, is(equalTo(CAMERA_ITEM_NAME2))
+        assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME3))
+        
+        unregisterService itemProvider
+
+        assertThat itemRegistry.getItems().size(), is(0)
+    }
+
+    @Test
+    void 'assert getItemsByTagAndType returns item from registered ItemProvider'() {
+
+        assertThat itemRegistry.getItemsByTagAndType("Switch", CAMERA_TAG).size(), is(0)
+
+        registerService itemProvider
+
+        def items = itemRegistry.getItemsByTagAndType("Switch", CAMERA_TAG)
         assertThat items.size(), is(2)
         assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
         assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))

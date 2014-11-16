@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
+ * @author Andre Fuechsel - Added tag support
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
@@ -111,13 +112,15 @@ public class ItemResource implements RESTResource {
 	}
 
 	@Context UriInfo uriInfo;
-	@GET
+	
+    @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItems(@DefaultValue("false") @QueryParam("recursive") boolean recursive) {
-		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+    public Response getItems(@QueryParam("type") String type, @QueryParam("tags") String tags,
+            @DefaultValue("false") @QueryParam("recursive") boolean recursive) {
+        logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-    	Object responseObject = getItemBeans(recursive);
-    	return Response.ok(responseObject).build();
+        Object responseObject = getItemBeans(type, tags, recursive);
+        return Response.ok(responseObject).build();
     }
 
     @GET @Path("/{itemname: [a-zA-Z_0-9]*}/state") 
@@ -307,6 +310,50 @@ public class ItemResource implements RESTResource {
         return Response.ok().build();
     }
 
+    @PUT
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response addTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        
+        if(managedItemProvider.get(itemname) == null) {
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
+
+        item.addTag(tag);
+        managedItemProvider.update(item);
+
+        return Response.ok().build();
+    }
+    
+    @DELETE
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response removeTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
+
+        Item item = getItem(itemname);
+
+        if (item == null) {
+            logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        
+        if(managedItemProvider.get(itemname) == null) {
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
+
+        item.removeTag(tag);
+        managedItemProvider.update(item);
+
+        return Response.ok().build();
+    }
+
     public static ItemBean createItemBean(Item item, boolean drillDown, String uriPath) {
     	ItemBean bean;
     	if(item instanceof GroupItem && drillDown) {
@@ -325,6 +372,7 @@ public class ItemResource implements RESTResource {
     	bean.state = item.getState().toString();
     	bean.type = item.getClass().getSimpleName();
     	bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
+        bean.tags = item.getTags(); 
     	
     	return bean;
     }
@@ -333,19 +381,36 @@ public class ItemResource implements RESTResource {
     	try {
 			Item item = itemRegistry.getItem(itemname);
 			return item;
-		} catch (ItemNotFoundException e) {
-			logger.debug(e.getMessage());
+		} catch (ItemNotFoundException ignored) {
 		}
         return null;
     }
 
-	private List<ItemBean> getItemBeans(boolean recursive) {
-		List<ItemBean> beans = new LinkedList<ItemBean>();
-		for(Item item : itemRegistry.getItems()) {
-			beans.add(createItemBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
-		}
-		return beans;
-	}
+
+    private List<ItemBean> getItemBeans(String type, String tags, boolean recursive) {
+        List<ItemBean> beans = new LinkedList<ItemBean>();
+        Collection<Item> items; 
+        if (tags == null) {
+            if (type == null) {
+                items = itemRegistry.getItems(); 
+            } else {
+                items = itemRegistry.getItemsOfType(type); 
+            }
+        } else {
+            String[] tagList = tags.split(","); 
+            if (type == null) {
+                items = itemRegistry.getItemsByTag(tagList); 
+            } else {
+                items = itemRegistry.getItemsByTagAndType(type, tagList); 
+            }
+        }
+        if (items != null) {
+            for (Item item : items) {
+                beans.add(createItemBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
+            }
+        }
+        return beans;
+    }
 
 	private ItemBean getItemDataBean(String itemname) {
 		Item item = getItem(itemname);
