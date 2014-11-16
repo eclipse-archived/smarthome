@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.binding;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -90,7 +90,7 @@ public class BindingInfoRegistry {
      *     (not null, could be empty)
      */
     public Set<BindingInfo> getBindingInfos(Locale locale) {
-        Set<BindingInfo> allBindingInfos = new HashSet<>(10);
+        Set<BindingInfo> allBindingInfos = new LinkedHashSet<>(10);
 
         for (BindingInfoProvider bindingInfoProvider : this.bindingInfoProviders) {
             Set<BindingInfo> bindingInfos = bindingInfoProvider.getBindingInfos(locale);
