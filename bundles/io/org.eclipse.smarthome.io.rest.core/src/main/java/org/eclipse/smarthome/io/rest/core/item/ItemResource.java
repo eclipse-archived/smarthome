@@ -299,7 +299,6 @@ public class ItemResource implements RESTResource {
     
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response removeItem(@PathParam("itemname") String itemname) {
 
         if (managedItemProvider.remove(itemname) == null) {
@@ -312,7 +311,6 @@ public class ItemResource implements RESTResource {
 
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response addTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
 
         Item item = getItem(itemname);
@@ -334,7 +332,6 @@ public class ItemResource implements RESTResource {
     
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
-    @Consumes(MediaType.TEXT_PLAIN)
     public Response removeTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
 
         Item item = getItem(itemname);
