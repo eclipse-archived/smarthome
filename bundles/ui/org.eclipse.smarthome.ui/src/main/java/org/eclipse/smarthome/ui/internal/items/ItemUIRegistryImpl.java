@@ -560,7 +560,16 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 		}
 	}
 
-	/**
+	@Override
+    public Collection<Item> getItemsOfType(String type) {
+        if(itemRegistry!=null) {
+            return itemRegistry.getItemsOfType(type);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	public Collection<Item> getItems(String pattern) {
@@ -903,12 +912,29 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
-        return itemRegistry.getItemsByTag(tags); 
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTag(tags); 
+        } else {
+            return Collections.emptyList(); 
+        }
+    }
+
+    @Override
+    public Collection<Item> getItemsByTagAndType(String type, String... tags) {
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTagAndType(type, tags); 
+        } else {
+            return Collections.emptyList(); 
+        }
     }
 
     @Override
     public <T extends GenericItem> Collection<T> getItemsByTag(Class<T> typeFilter, String... tags) {
-        return itemRegistry.getItemsByTag(typeFilter, tags);
+        if (itemRegistry != null) {
+            return itemRegistry.getItemsByTag(typeFilter, tags);
+        } else {
+            return Collections.emptyList(); 
+        }
     }
 
 }

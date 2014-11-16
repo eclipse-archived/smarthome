@@ -132,6 +132,19 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         return getAll();
     }
 
+    @Override
+    public Collection<Item> getItemsOfType(String type) {
+        Collection<Item> matchedItems = new ArrayList<Item>();
+
+        for (Item item : getItems()) {
+            if (item.getType().equals(type)) {
+                matchedItems.add(item);
+            }
+        }
+
+        return matchedItems;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -281,5 +294,16 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             }
         }
         return filteredItems;
+    }
+
+    @Override
+    public Collection<Item> getItemsByTagAndType(String type, String... tags) {
+        List<Item> filteredItems = new ArrayList<Item>();
+        for (Item item : getItemsOfType(type)) {
+            if (itemHasTags(item, tags)) {
+                filteredItems.add(item); 
+            }
+        }
+        return filteredItems; 
     }
 }
