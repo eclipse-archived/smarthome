@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.osgi.framework.BundleContext;
@@ -30,6 +32,9 @@ import com.google.common.base.Joiner;
  * {@link ThingHelper} provides a utility method to create and bind items.
  * 
  * @author Oliver Libutzki - Initial contribution
+ * @author Benedikt Niehues - Fix ESH Bug 450236
+ *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
+ *         ThingTypeDescription
  */
 public class ThingHelper {
 
@@ -194,4 +199,7 @@ public class ThingHelper {
 		return Joiner.on(',').join(strings);
 	}
 	
+	public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {
+	    ((ThingImpl)thing).getChannelsMutable().addAll(channels);
+	}
 }

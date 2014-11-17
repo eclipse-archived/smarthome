@@ -29,6 +29,10 @@ import com.google.common.collect.ImmutableList;
  * This class is mutable.
  * 
  * @author Michael Grammling - Configuration could never be null but may be empty
+ * @author Benedikt Niehues - Fix ESH Bug 450236
+ *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
+ *         ThingType Description
+ * 
  */
 public class ThingImpl implements Thing {
 
@@ -102,6 +106,10 @@ public class ThingImpl implements Thing {
 
     public List<Channel> getChannels() {
         return ImmutableList.copyOf(this.channels);
+    }
+    
+    public List<Channel> getChannelsMutable() {
+        return this.channels;
     }
 
     @Override

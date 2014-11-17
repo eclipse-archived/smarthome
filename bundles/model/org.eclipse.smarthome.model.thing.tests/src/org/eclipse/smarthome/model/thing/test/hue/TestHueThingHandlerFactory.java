@@ -1,0 +1,101 @@
+/**
+ * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.model.thing.test.hue;
+
+
+import java.util.Set;
+
+import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+
+import com.google.common.collect.Sets;
+
+/**
+ * @author Benedikt Niehues - Fix ESH Bug 450236
+ *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
+ *         ThingType Description
+ */
+public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
+    
+    public static final String BINDING_ID = "hue";
+
+    
+    public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
+    public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
+    public final static ThingTypeUID THING_TYPE_TEST = new ThingTypeUID(BINDING_ID, "TEST");
+
+    public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_TYPES = Sets.newHashSet(THING_TYPE_BRIDGE);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST);
+    public final static Set<ThingTypeUID> SUPPORTED_TYPES = Sets.union(SUPPORTED_BRIDGE_TYPES, SUPPORTED_THING_TYPES);
+
+ // List all channels
+    public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
+    public static final String CHANNEL_COLOR = "color";
+    public static final String CHANNEL_BRIGHTNESS = "brightness";
+
+    // Bridge config properties
+    public static final String HOST = "ipAddress";
+    public static final String USER_NAME = "userName";
+    public static final String SERIAL_NUMBER = "serialNumber";
+
+    // Light config properties
+    public static final String LIGHT_ID = "lightId";
+    
+    @Override
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
+            ThingUID thingUID, ThingUID bridgeUID) {
+        if (SUPPORTED_BRIDGE_TYPES.contains(thingTypeUID)) {
+            ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
+            return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
+        }
+        if (SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
+            ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
+            return super.createThing(thingTypeUID, configuration, hueLightUID, bridgeUID);
+        }
+        throw new IllegalArgumentException("The thing type " + thingTypeUID
+                + " is not supported by the hue binding.");
+    }
+
+    @Override
+    public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        return SUPPORTED_TYPES.contains(thingTypeUID);
+    }
+
+    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
+            Configuration configuration) {
+        if (thingUID == null) {
+            String serialNumber = (String) configuration.get(SERIAL_NUMBER);
+            thingUID = new ThingUID(thingTypeUID, serialNumber);
+        }
+        return thingUID;
+    }
+
+    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
+            Configuration configuration, ThingUID bridgeUID) {
+        String lightId = (String) configuration.get(LIGHT_ID);
+
+        if (thingUID == null) {
+            thingUID = new ThingUID(thingTypeUID, lightId, bridgeUID.getId());
+        }
+        return thingUID;
+    }
+
+    @Override
+    protected ThingHandler createHandler(Thing thing) {
+        return null;
+    }
+    
+    
+    @Override
+    protected synchronized void removeHandler(ThingHandler thingHandler) {
+    }
+}

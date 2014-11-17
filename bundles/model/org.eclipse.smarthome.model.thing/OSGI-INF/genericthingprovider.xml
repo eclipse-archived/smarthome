@@ -15,4 +15,5 @@
       <provide interface="org.eclipse.smarthome.core.thing.ThingProvider"/>
    </service>
    <reference bind="setThingTypeRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="dynamic" unbind="unsetThingTypeRegistry"/>
+   <reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>
 </scr:component>

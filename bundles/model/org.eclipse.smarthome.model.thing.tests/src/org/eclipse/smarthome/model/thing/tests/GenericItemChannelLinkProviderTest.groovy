@@ -52,8 +52,8 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 		String thingsModel =
 			'''
 			Bridge hue:bridge:huebridge [ ipAddress = "192.168.3.84", userName = "19fc3fa6fc870a4280a55f21315631f" ] {
-				light bulb3 [ lightId = "3"	]
-				light bulb4 [ lightId = "3" ]
+				LCT001 bulb3 [ lightId = "3"	]
+				LCT001 bulb4 [ lightId = "3" ]
 			}
 			'''
 		modelRepository.addOrRefreshModel(THINGS_TESTMODEL_NAME, new ByteArrayInputStream(thingsModel.bytes))
@@ -69,7 +69,7 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 
 		String itemsModel =
 			'''
-			Color	Light3Color					"Light3 Color"		{ channel="hue:light:huebridge:bulb3:color" }
+			Color	Light3Color					"Light3 Color"		{ channel="hue:LCT001:huebridge:bulb3:color" }
 			'''
 		modelRepository.addOrRefreshModel(ITEMS_TESTMODEL_NAME, new ByteArrayInputStream(itemsModel.bytes))
 		def actualItems = itemRegistry.items
@@ -78,7 +78,7 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 			
 		def actualItemChannelLinks = itemChannelLinkRegistry.all
 		assertThat actualItemChannelLinks.size(), is(1)
-		assertThat actualItemChannelLinks.first().toString(), is(equalTo("Light3Color -> hue:light:huebridge:bulb3:color"))
+		assertThat actualItemChannelLinks.first().toString(), is(equalTo("Light3Color -> hue:LCT001:huebridge:bulb3:color"))
 	}
 	
 }
