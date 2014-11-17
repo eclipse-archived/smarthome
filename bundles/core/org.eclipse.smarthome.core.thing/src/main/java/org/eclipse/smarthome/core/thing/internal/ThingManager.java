@@ -220,7 +220,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
             if (thingHandlerFactory != null) {
                 registerHandler(thing, thingHandlerFactory);
             } else {
-                logger.info("Cannot register handler. No handler factory for thing '{}' found.",
+                logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
                         thing.getUID());
             }
         } else {
