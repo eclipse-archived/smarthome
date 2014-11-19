@@ -4,14 +4,14 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Philips Living Color Bloom (see http://www.everyhue.com/vanilla/discussion/47/model-ids/p1) -->
+    <!-- Philips Living Color Bloom (see http://www.developers.meethue.com/documentation/supported-lights1) -->
     <thing-type id="LLC012">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Philips Living Color Bloom</label>
-        <description>This is a Philips Living Color Bloom light</description>
+        <label>Philips Living Colors Bloom (v2)</label>
+        <description>This is a Philips Living Colors Bloom light</description>
 
         <channels>
             <channel id="color" typeId="color" />

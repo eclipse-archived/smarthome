@@ -12,10 +12,15 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLO
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLORTEMPERATURE;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT002;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT003;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC001;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC006;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC007;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC010;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC011;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC012;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC013;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
@@ -58,9 +63,10 @@ import com.google.common.collect.Sets;
 public class HueLightHandler extends BaseThingHandler implements
         LightStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(
-            THING_TYPE_LCT001, THING_TYPE_LLC007, THING_TYPE_LLC010, THING_TYPE_LLC012,
-            THING_TYPE_LWL001, THING_TYPE_LST001, THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_ZLL_LIGHT);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_LCT002,
+            THING_TYPE_LCT003, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007, THING_TYPE_LLC010,
+            THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001, THING_TYPE_LST001,
+            THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_ZLL_LIGHT);
 
 	private static final int DIM_STEPSIZE = 30;
 
