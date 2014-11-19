@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -35,7 +37,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
 	private static final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 	
-	private Set<UpnpDiscoveryParticipant> participants = new HashSet<>();
+	private Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
 	
 	public UpnpDiscoveryService() {
 		super(5);
@@ -64,6 +66,13 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
 	protected void addUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
 		this.participants.add(participant);
+		
+		if (upnpService != null) {
+			Collection<RemoteDevice> devices = upnpService.getRegistry().getRemoteDevices();
+			for(RemoteDevice device : devices) {
+				participant.createResult(device);
+			}
+		}
 	}
 
 	protected void removeUpnpDiscoveryParticipant(UpnpDiscoveryParticipant participant) {
