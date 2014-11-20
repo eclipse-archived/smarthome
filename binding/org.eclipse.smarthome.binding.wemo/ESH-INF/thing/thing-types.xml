@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="wemo"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+     <thing-type id="socket">
+        <label>WeMo Binding socket</label>
+        <description>Socket thing for WeMo Binding</description>
+
+        <channels>
+            <channel id="state" typeId="state"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+		<required>true</required>
+            </parameter>
+
+         </config-description>
+    </thing-type>
+
+     <thing-type id="insight">
+        <label>WeMo Binding INSIGHT socket</label>
+        <description>INSIGHT Socket thing for WeMo Binding</description>
+
+        <channels>
+            <channel id="state" typeId="state"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+		<required>true</required>
+            </parameter>
+
+         </config-description>
+    </thing-type>
+
+     <channel-type id="state">
+        <item-type>Switch</item-type>
+        <label>Binary State</label>
+        <description>Wemo Binding Channel for switching binary state of WeMo Device</description>
+    </channel-type>
+
+ 
+</thing:thing-descriptions>
