@@ -4,18 +4,17 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
     
-    <!-- Philips Living Colors Aura -->
+    <!-- Philips Living Colors Aura (see http://www.developers.meethue.com/documentation/supported-lights) -->
     <thing-type id="LLC007">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Philips Living Colors Aura</label>
+        <label>Philips Living Colors Gen3 Aura</label>
         <description>This is a Philips Living Colors Aura light</description>
 
         <channels>
             <channel id="color" typeId="color" />
-            <channel id="color_temperature" typeId="color_temperature" />
         </channels>
 
         <config-description>

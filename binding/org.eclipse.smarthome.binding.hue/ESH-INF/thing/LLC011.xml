@@ -4,18 +4,17 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Standard Hue Color Bulb with E27 socket (see http://www.developers.meethue.com/documentation/supported-lights) -->
-    <thing-type id="LCT001">
+    <!-- Philips Living Color Bloom (see http://www.developers.meethue.com/documentation/supported-lights) -->
+    <thing-type id="LLC011">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Hue Lamp</label>
-        <description>This is a standard Philips hue bulb with E27 socket (Hue bulb A19)</description>
+        <label>Philips Living Colors Bloom (v1)</label>
+        <description>This is a Philips Living Colors Bloom light</description>
 
         <channels>
             <channel id="color" typeId="color" />
-            <channel id="color_temperature" typeId="color_temperature" />
         </channels>
 
         <config-description>
