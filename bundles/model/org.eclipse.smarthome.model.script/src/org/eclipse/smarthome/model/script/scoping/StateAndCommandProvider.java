@@ -11,8 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
+import org.eclipse.smarthome.core.library.types.NextPreviousType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.OpenClosedType;
+import org.eclipse.smarthome.core.library.types.PlayPauseType;
+import org.eclipse.smarthome.core.library.types.RewindFastforwardType;
 import org.eclipse.smarthome.core.library.types.StopMoveType;
 import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
@@ -45,6 +48,12 @@ public class StateAndCommandProvider {
 		COMMANDS.add(IncreaseDecreaseType.DECREASE);
 		COMMANDS.add(StopMoveType.STOP);
 		COMMANDS.add(StopMoveType.MOVE);
+		COMMANDS.add(PlayPauseType.PLAY);
+		COMMANDS.add(PlayPauseType.PAUSE);
+		COMMANDS.add(NextPreviousType.NEXT);
+		COMMANDS.add(NextPreviousType.PREVIOUS);
+		COMMANDS.add(RewindFastforwardType.REWIND);
+		COMMANDS.add(RewindFastforwardType.FASTFORWARD);
 
 		STATES.add(UnDefType.UNDEF);
 		STATES.add(UnDefType.NULL);
@@ -54,6 +63,10 @@ public class StateAndCommandProvider {
 		STATES.add(UpDownType.DOWN);
 		STATES.add(OpenClosedType.OPEN);
 		STATES.add(OpenClosedType.CLOSED);
+		STATES.add(PlayPauseType.PLAY);
+		STATES.add(PlayPauseType.PAUSE);
+		STATES.add(RewindFastforwardType.REWIND);
+		STATES.add(RewindFastforwardType.FASTFORWARD);
 		
 		TYPES.addAll(COMMANDS);
 		TYPES.addAll(STATES);
