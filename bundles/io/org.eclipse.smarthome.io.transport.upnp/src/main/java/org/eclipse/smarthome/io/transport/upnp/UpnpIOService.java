@@ -7,17 +7,20 @@
  */
 package org.eclipse.smarthome.io.transport.upnp;
 
+import java.net.URL;
 import java.util.Map;
 
 /**
  * The {@link UpnpIOService} is an interface that described the
- * UPNP IO Service. It is complementary to the IODiscoveryService
+ * UPNP IO Service.
  * 
  * @author Karel Goderis - Initial contribution
+ * @author Kai Kreuzer - added descriptor url retrieval
  */
 public interface UpnpIOService {
 
-	/** Invoke an UPNP Action 
+	/** 
+	 * Invoke an UPNP Action 
 	 * 
 	 * @param participant - the participant to invoke the action for
 	 * @param serivceID - the UPNP service to invoke the action upon
@@ -27,7 +30,8 @@ public interface UpnpIOService {
 	public Map<String, String> invokeAction(UpnpIOParticipant participant,
 			String serviceID, String actionID, Map<String,String> inputs);
 	
-	/** Subscribe to a GENA subscription
+	/** 
+	 * Subscribe to a GENA subscription
 	 * 
 	 * @param participant - the participant to the subscription is for
 	 * @param serviceID - the UPNP service we want to subscribe to
@@ -35,11 +39,22 @@ public interface UpnpIOService {
 	 */
 	public void addSubscription(UpnpIOParticipant participant, String serviceID, int duration);
 	
-	/** Verify if the a participant is registered
+	/** 
+	 * Verify if the a participant is registered
 	 * 
 	 * @param participant - the participant whom's participation we want to verify
+	 * 
 	 * @return true of the participant is registered with the UpnpIOService
 	 */
 	public boolean isRegistered(UpnpIOParticipant participant);
+	
+	/**
+	 * Retrieves the descriptor url for the participant
+	 * 
+	 * @param participant - the participant whom's descriptor url is requested
+	 * 
+	 * @return the url of the descriptor as provided by the upnp device
+	 */
+	public URL getDescriptorURL(UpnpIOParticipant participant);
 
 }

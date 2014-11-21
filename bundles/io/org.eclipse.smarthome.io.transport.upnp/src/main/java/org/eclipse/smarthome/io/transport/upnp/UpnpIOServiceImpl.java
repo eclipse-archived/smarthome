@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.io.transport.upnp;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +22,11 @@ import org.jupnp.model.gena.GENASubscription;
 import org.jupnp.model.message.UpnpResponse;
 import org.jupnp.model.meta.Action;
 import org.jupnp.model.meta.Device;
+import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.model.meta.Service;
+import org.jupnp.model.state.StateVariableValue;
 import org.jupnp.model.types.UDAServiceId;
 import org.jupnp.model.types.UDN;
-import org.jupnp.model.state.StateVariableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * interface
  * 
  * @author Karel Goderis - Initial contribution
+ * @author Kai Kreuzer - added descriptor url retrieval
  */
 @SuppressWarnings("rawtypes")
 public class UpnpIOServiceImpl implements UpnpIOService {
@@ -315,6 +318,16 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 			return true;
 		} else {
 			return false;
+		}
+	}
+
+	@Override
+	public URL getDescriptorURL(UpnpIOParticipant participant) {
+		RemoteDevice device = upnpService.getRegistry().getRemoteDevice(new UDN(participant.getUDN()), true);
+		if(device!=null) {
+			return device.getIdentity().getDescriptorURL();
+		} else {
+			return null;
 		}
 	}
 
