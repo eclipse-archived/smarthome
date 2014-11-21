@@ -36,6 +36,7 @@ The following item types are currently available (alphabetical order):
   <tr><td>Dimmer</td><td>Item carrying a percentage value for dimmers</td><td>OnOff, IncreaseDecrease, Percent</td></tr>
   <tr><td>Group</td><td>Item to nest other items / collect them in groups</td><td>-</td></tr>
   <tr><td>Number</td><td>Stores values in number format</td><td>Decimal</td></tr>
+  <tr><td>Player</td><td>Allows to control players (e.g. audio players)</td><td>PlayPause, NextPrevious, RewindFastforward</td></tr>
   <tr><td>Rollershutter</td><td>Typically used for blinds</td><td>UpDown, StopMove, Percent</td></tr>
   <tr><td>String</td><td>Stores texts</td><td>String</td></tr>
   <tr><td>Switch</td><td>Typically used for lights (on/off)</td><td>OnOff</td></tr>

@@ -101,7 +101,7 @@ abstract public class GenericItem implements Item {
 	}
 
     /**
-     * Adds a group name to the generic item.
+     * Adds a group name to the {@link GenericItem}.
      * 
      * @param groupItemName
      *            group item name to add
@@ -113,7 +113,7 @@ abstract public class GenericItem implements Item {
     }
 
     /**
-     * Removes a group name from the generic
+     * Removes a group item name from the {@link GenericItem}.
      * 
      * @param groupItemName
      *            group item name to remove
@@ -133,6 +133,12 @@ abstract public class GenericItem implements Item {
 		}		
 	}
 	
+    /**
+     * Sets new state and notifies listeners.
+     * 
+     * @param state
+     *            new state of this item
+     */
 	public void setState(State state) {
 		State oldState = this.state;
 		this.state = state;

@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.ImageItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
+import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.StringItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -37,6 +38,7 @@ public class CoreItemFactory implements ItemFactory {
 	public static final String DATETIME      = "DateTime";
 	public static final String COLOR         = "Color";
 	public static final String IMAGE         = "Image";
+	public static final String PLAYER        = "Player";
 	
 	/**
 	 * @{inheritDoc}
@@ -51,6 +53,7 @@ public class CoreItemFactory implements ItemFactory {
 		if (itemTypeName.equals(DATETIME)) return new DateTimeItem(itemName);
 		if (itemTypeName.equals(COLOR)) return new ColorItem(itemName);
 		if (itemTypeName.equals(IMAGE)) return new ImageItem(itemName);
+		if (itemTypeName.equals(PLAYER)) return new PlayerItem(itemName);
 		else return null;
 	}
 	
@@ -59,7 +62,7 @@ public class CoreItemFactory implements ItemFactory {
 	 */
 	public String[] getSupportedItemTypes() {
 		return new String[] {
-				SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE
+			SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE, PLAYER
 		};
 	}
 
