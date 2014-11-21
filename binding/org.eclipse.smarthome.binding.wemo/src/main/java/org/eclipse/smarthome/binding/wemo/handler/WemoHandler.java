@@ -7,14 +7,14 @@
  */
 package org.eclipse.smarthome.binding.wemo.handler;
 
-import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.UDN;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.FRIENDLY_NAME;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.SERIAL_NUMBER;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.DESCRIPTOR_URL;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_STATE;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.UDN;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIGHT_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SOCKET_TYPE_UID;
 
 import java.io.OutputStream;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Set;
@@ -23,20 +23,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
-import org.eclipse.smarthome.config.discovery.*;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.binding.wemo.config.WemoConfiguration;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
+import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,20 +42,30 @@ import com.google.common.collect.Sets;
 
 /**
  * The {@link WemoHandler} is responsible for handling commands, which are
- * sent to one of the channels and to update theit states.
+ * sent to one of the channels and to update their states.
  * 
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Kai Kreuzer - some refactoring for performance and simplification
  */
-public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
+public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
-    private Logger logger = LoggerFactory.getLogger(WemoHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
     
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID, WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID);
 
+    private static String getRequestXML;
+    private static String setRequestXML;
+
+    static {
+    	try {
+    		getRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/GetRequest.xml"));
+    		setRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/SetRequest.xml"));
+    	} catch(Exception e) {
+    		logger.error("Cannot read XML files!", e);
+    	}
+    }
 
 	private UpnpIOService service;
-	
-	private DiscoveryServiceRegistry discoveryServiceRegistry;
 
 	/**
 	 * The default refresh interval in Seconds.
@@ -68,7 +75,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
 	private ScheduledFuture<?> refreshJob;
 
-    public WemoHandler(Thing thing, UpnpIOService upnpIOService, DiscoveryServiceRegistry discoveryServiceRegistry) {
+    public WemoHandler(Thing thing, UpnpIOService upnpIOService) {
 		super(thing);
 		
 		logger.debug("Create a WemoHandler for thing '{}'", getThing().getUID());
@@ -76,23 +83,17 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 		if (upnpIOService != null) {
 			this.service = upnpIOService;
 		} else {
-			logger.debug("Cannot set Status for thing '{}'. upnpIOService not set.");
-		}
-		if (discoveryServiceRegistry != null) {
-			this.discoveryServiceRegistry = discoveryServiceRegistry;
-			this.discoveryServiceRegistry.addDiscoveryListener(this);
-		} else {
-			logger.debug("Cannot set Status for thing '{}'. discoveryServiceRegistry not set.");
+			logger.debug("upnpIOService not set.");
 		}
     }
 
  
     @Override
 	public void initialize() {
-		WemoConfiguration configuration = getConfigAs(WemoConfiguration.class);
+		Configuration configuration = getConfig();
     	
-    	if (configuration.udn != null) {
-        	logger.debug("Initializing WemoHandler for UDN '{}'", configuration.udn);
+    	if (configuration.get(UDN) != null) {
+        	logger.debug("Initializing WemoHandler for UDN '{}'", configuration.get(UDN));
 			onSubscription();
 			onUpdate();
 		} else {
@@ -100,8 +101,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 		}
     			
     	if (getThing().getStatus() == ThingStatus.OFFLINE) {
-    		logger.debug("Setting status for thing '{}' to ONLINE", getThing()
-					.getUID());
+    		logger.debug("Setting status for thing '{}' to ONLINE", getThing().getUID());
     		getThing().setStatus(ThingStatus.ONLINE);
     	}
     	startAutomaticRefresh();
@@ -117,42 +117,16 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 			getThing().setStatus(ThingStatus.OFFLINE);
 		}
     }
-
-	@Override
-	public void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
-		logger.debug("Configuration for thing '{}' found: serialNumber '{}'", getThing().getConfiguration().get(SERIAL_NUMBER));
-		logger.debug("Properties for thing '{}' found: serialNumber '{}'", result.getProperties().get(SERIAL_NUMBER));
-		if (getThing().getConfiguration().get(SERIAL_NUMBER)
-				.equals(result.getProperties().get(SERIAL_NUMBER))) {
-			logger.debug("Discovered serialNumber '{}' for thing '{}'", result
-					.getProperties().get(SERIAL_NUMBER), getThing().getUID());
-			getThing().getConfiguration().put(UDN,
-					result.getProperties().get(UDN));
-			getThing().getConfiguration().put(FRIENDLY_NAME,
-					result.getProperties().get(FRIENDLY_NAME));
-			logger.debug("Setting status for thing '{}' to ONLINE", getThing()
-					.getUID());
-			getThing().setStatus(ThingStatus.ONLINE);
-			onSubscription();
-			onUpdate();
-		}
-	}
-
-	@Override
-	public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
-		logger.debug("Setting status for thing '{}' to OFFLINE", getThing()
-				.getUID());
-		getThing().setStatus(ThingStatus.OFFLINE);
-	}
 	
     private void startAutomaticRefresh() {
     	
     	Runnable runnable = new Runnable() {
 			public void run() {
 				try {
-			    	if (getThing().getStatus().equals(ThingStatus.ONLINE)) {
-				    	logger.debug("Refresh for ThingType = '{}' started", getThing().getThingTypeUID().getId());
-		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_STATE), getWemoState(new ChannelUID(getThing().getUID(), CHANNEL_STATE)));
+			    	logger.debug("Refreshing thing '{}'", getThing().getUID());
+			    	State state = getWemoState(new ChannelUID(getThing().getUID(), CHANNEL_STATE));
+			    	if(state != null) {
+			    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_STATE), state);
 			    	}
 				} catch(Exception e) {
 					logger.debug("Exception occurred during Refresh: {}", e);
@@ -167,17 +141,15 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 	public void handleCommand(ChannelUID channelUID, Command command) {
     	logger.debug("Command '{}' received for channel '{}'", command, channelUID);
         if(channelUID.getId().equals(CHANNEL_STATE)) {
-        	if (command instanceof OnOffType){
+        	if (command instanceof OnOffType) {
         		try {
     				boolean onOff = OnOffType.ON.equals(command);
     				logger.debug("command '{}' transformed to '{}'", command, onOff); 
     				String wemoCallResponse = wemoCall(channelUID,
     						"urn:Belkin:service:basicevent:1#SetBinaryState",
-    						IOUtils.toString(
-    								getClass().getResourceAsStream("SetRequest.xml"))
-    								.replace("{{state}}", onOff ? "1" : "0"));
+    						setRequestXML.replace("{{state}}", onOff ? "1" : "0"));
 
-    				logger.debug("Wemo setOn = {}", wemoCallResponse);
+    				logger.trace("WeMo setOn = {}", wemoCallResponse);
     				
     			} catch (Exception e) {
     				logger.error("Failed to send command '{}' for device '{}' ", command, getThing().getUID(), e);
@@ -216,18 +188,17 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 			
 			String endpoint = "/upnp/control/basicevent1";
 
-			String wemoDescriptorURL = (String) getThing().getConfiguration().get(DESCRIPTOR_URL);
+			URL wemoDescriptorURL = service.getDescriptorURL(this);
 
 			if (wemoDescriptorURL != null) {
 				logger.debug("WeMo descriptorURL found as '{}' ", wemoDescriptorURL);
-				String wemoLocation = StringUtils.substringBefore(wemoDescriptorURL, "/setup.xml");
+				String wemoLocation = StringUtils.substringBefore(wemoDescriptorURL.toString(), "/setup.xml");
 				
 				if (wemoLocation != null && endpoint != null) {
 					logger.debug("item '{}' is located at '{}'", getThing().getUID(), wemoLocation);
 					URL url = new URL(wemoLocation + endpoint);
-					Socket wemoSocket = new Socket(InetAddress.getByName(url.getHost()), url.getPort());
-
-					try {
+					try (Socket wemoSocket = new Socket()) {
+						wemoSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 2000);
 						OutputStream wemoOutputStream = wemoSocket.getOutputStream();
 						StringBuffer wemoStringBuffer = new StringBuffer();
 						wemoStringBuffer.append("POST " + url + " HTTP/1.1\r\n");
@@ -239,17 +210,19 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 						wemoOutputStream.write(content.getBytes());
 						wemoOutputStream.flush();
 						String wemoCallResponse = IOUtils.toString(wemoSocket.getInputStream());
+						getThing().setStatus(ThingStatus.ONLINE);
 						return wemoCallResponse;
-
-					} finally {
-						wemoSocket.close();
-						}
-					
+					} catch(Exception e) {
+						logger.debug("Could not send request to WeMo device '{}': {}", getThing().getUID(), e.getMessage());
+						getThing().setStatus(ThingStatus.OFFLINE);
+					}
+					return null;
 				} else {
 					return null;
-				}
-				
+				}		
 			} else {
+				// device was not found in the upnp registry
+				getThing().setStatus(ThingStatus.OFFLINE);
 				return null;
 			}
 			
@@ -266,14 +239,12 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
 			try {
 				stateRequest = wemoCall(channelUID,
-						"urn:Belkin:service:basicevent:1#GetBinaryState",
-						IOUtils.toString(getClass().getResourceAsStream(
-								"GetRequest.xml")));
-
-				returnState = StringUtils.substringBetween(stateRequest, "<BinaryState>", "</BinaryState>");
-				logger.debug("New binary state '{}' for device '{}' received", returnState, getThing().getUID() );
-				
-				
+						"urn:Belkin:service:basicevent:1#GetBinaryState", getRequestXML);
+				if(stateRequest != null) {
+					returnState = StringUtils.substringBetween(stateRequest, "<BinaryState>", "</BinaryState>");
+					
+					logger.debug("New binary state '{}' for device '{}' received", returnState, getThing().getUID() );
+				}
 			} catch (Exception e) {
 				logger.error("Failed to get binary state for device '{}'", getThing().getUID(), e);
 			}
@@ -283,8 +254,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 				newState = returnState.equals("0") ? OnOffType.OFF : OnOffType.ON;
 				return newState;
 		} else {
-			State newState = UnDefType.UNDEF;
-			return newState;
+			return null;
 		}
 	}
 

@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
      <thing-type id="socket">
-        <label>WeMo Binding socket</label>
-        <description>Socket thing for WeMo Binding</description>
+        <label>WeMo Switch</label>
+        <description>This is a standard WeMo Switch</description>
 
         <channels>
             <channel id="state" typeId="state"/>
@@ -23,8 +23,8 @@
     </thing-type>
 
      <thing-type id="insight">
-        <label>WeMo Binding INSIGHT socket</label>
-        <description>INSIGHT Socket thing for WeMo Binding</description>
+        <label>WeMo Insight Switch</label>
+        <description>This is a WeMo Insight Switch with energy measurement</description>
 
         <channels>
             <channel id="state" typeId="state"/>
@@ -34,17 +34,15 @@
             <parameter name="udn" type="text">
                 <label>Unique Device Name</label>
                 <description>The UDN identifies the WeMo Device</description>
-		<required>true</required>
-            </parameter>
-
+				<required>true</required>
+        	</parameter>
          </config-description>
     </thing-type>
 
      <channel-type id="state">
         <item-type>Switch</item-type>
-        <label>Binary State</label>
-        <description>Wemo Binding Channel for switching binary state of WeMo Device</description>
+        <label>Switch</label>
+        <description>This channel turns the power on or off</description>
     </channel-type>
-
  
 </thing:thing-descriptions>

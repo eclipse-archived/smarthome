@@ -27,4 +27,7 @@ public class WemoBindingConstants {
     // List of all Channel ids
     public final static String CHANNEL_STATE = "state";
 
+    // List of thing configuration properties
+	public static final String UDN = "udn";
+
 }

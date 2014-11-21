@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.binding.wemo.internal;
 
 
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
+
 import java.util.Set;
 
 import org.eclipse.smarthome.binding.wemo.handler.WemoHandler;
@@ -15,27 +17,24 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.UDN;
-
 /**
  * The {@link WemoHandlerFactory} is responsible for creating things and thing 
  * handlers.
  * 
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Kai Kreuzer - some refactoring for performance and simplification
  */
 public class WemoHandlerFactory extends BaseThingHandlerFactory {
     
 	private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
 	private UpnpIOService upnpIOService;
-	private DiscoveryServiceRegistry discoveryServiceRegistry;
 
 	public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WemoHandler.SUPPORTED_THING_TYPES);
 	
@@ -52,7 +51,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
         if (WemoHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
         	logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'",thing.getUID(),thing.getConfiguration().get(UDN));
-            return new WemoHandler(thing, upnpIOService, discoveryServiceRegistry);
+            return new WemoHandler(thing, upnpIOService);
         }
 
         return null;
@@ -66,11 +65,4 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 		this.upnpIOService = null;
 	}
     
-    protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry = discoveryServiceRegistry;
-    }
-    
-    protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-    	this.discoveryServiceRegistry = null;
-    }
 }

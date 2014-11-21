@@ -5,14 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.eclipse.smarthome.binding.wemo.discovery;
 
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.UDN;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.FRIENDLY_NAME;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.SERIAL_NUMBER;
-import static org.eclipse.smarthome.binding.wemo.config.WemoConfiguration.DESCRIPTOR_URL;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * removed Wemo devices. It uses the central {@link UpnpDiscoveryService}.
  * 
  * @author Hans-Jörg Merk - Initial contribution
+ * @author Kai Kreuzer - some refactoring for performance and simplification
  * 
  */
 public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
@@ -51,19 +47,19 @@ public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
 	public DiscoveryResult createResult(RemoteDevice device) {
 		ThingUID uid = getThingUID(device);
 		if(uid!=null) {
-	        Map<String, Object> properties = new HashMap<>(4);
-	        properties.put(FRIENDLY_NAME, device.getDetails().getFriendlyName());
+			String label = "WeMo Device";
+			try {
+				label = "WeMo " + device.getDetails().getModelDetails().getModelName();
+			} catch(Exception e) {}
+			
+			Map<String, Object> properties = new HashMap<>(4);
+	        properties.put("label", label);
 	        properties.put(UDN, device.getIdentity().getUdn().getIdentifierString());
-	        properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
-	        properties.put(DESCRIPTOR_URL, device.getIdentity().getDescriptorURL().toString());
 
 	        DiscoveryResult result = DiscoveryResultBuilder.create(uid)
 					.withProperties(properties)
-					.withLabel(device.getDetails().getFriendlyName())
+					.withLabel(label)
 					.build();
-	        logger.debug("Created a DiscoveryResult for device '{}' with serialNumber '{}'",
-	        		device.getDetails().getFriendlyName(),device
-	        		.getDetails().getSerialNumber());
 	        return result;
 		} else {
 			return null;
