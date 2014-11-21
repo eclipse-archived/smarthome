@@ -19,6 +19,7 @@
     <module>org.eclipse.smarthome.binding.hue</module>
     <module>org.eclipse.smarthome.binding.hue.test</module>
     <module>org.eclipse.smarthome.binding.yahooweather</module>
+    <module>org.eclipse.smarthome.binding.wemo</module>
   </modules>
 
   <build>
