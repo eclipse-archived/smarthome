@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -31,6 +30,7 @@ import com.google.common.base.Joiner;
  * {@link ThingHelper} provides a utility method to create and bind items.
  * 
  * @author Oliver Libutzki - Initial contribution
+ * @author Andre Fuechsel - graceful creation of items and links
  */
 public class ThingHelper {
 
