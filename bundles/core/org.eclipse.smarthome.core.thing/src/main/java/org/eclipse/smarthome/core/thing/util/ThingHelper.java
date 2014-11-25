@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -74,14 +75,32 @@ public class ThingHelper {
 				if (item == null) {
 					logger.error("The item of type '{}' has not been created by the ItemFactory '{}'.", acceptedItemType, itemFactory.getClass().getName());
 				} else {
-					managedItemProvider.add(item);
-                    managedItemChannelLinkProvider.add(new ItemChannelLink(item
-                            .getName(), channel.getUID()));
+                    createItemIfNecessary(managedItemProvider, item);
+                    createLinkIfNecessary(managedItemChannelLinkProvider, item, channel);
 				}
 			}
 		}
 	}
 	
+    private void createItemIfNecessary(ManagedItemProvider managedItemProvider, GenericItem item) {
+        if (managedItemProvider.get(item.getName()) == null) {
+            managedItemProvider.add(item);
+        } else {
+            logger.warn("Item {} exists and will be reused.", item.getName());
+        }
+    }
+
+    private void createLinkIfNecessary(
+            ManagedItemChannelLinkProvider managedItemChannelLinkProvider, GenericItem item,
+            Channel channel) {
+        ItemChannelLink itemChannelLink = new ItemChannelLink(item.getName(), channel.getUID());
+        if (managedItemChannelLinkProvider.get(itemChannelLink.getID()) == null) {
+            managedItemChannelLinkProvider.add(itemChannelLink);
+        } else {
+            logger.warn("Link {} exists and will be resused.", itemChannelLink.getID());
+        }
+    }
+
     private String toItemName(Channel channel) {
         String channelUID = channel.getUID().toString();
         String itemName = channelUID.replaceAll("[^a-zA-Z0-9_]", "_");
