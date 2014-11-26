@@ -36,11 +36,16 @@ import org.eclipse.smarthome.core.thing.util.ThingHelper
 import java.util.concurrent.ConcurrentHashMap
 import org.eclipse.smarthome.model.thing.thing.ModelBridge
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
  * 
  * @author Oliver Libutzki - Initial contribution
+ * @author niehues - Fix ESH Bug 450236
+ *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
+ *         ThingType Description
  *
  */
 class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
@@ -50,6 +55,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	private ThingTypeRegistry thingTypeRegistry
 
 	private Map<String, Collection<Thing>> thingsMap = new ConcurrentHashMap
+
+	private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<ThingHandlerFactory>()
 
 	private static final Logger logger = LoggerFactory.getLogger(GenericThingProvider)
 
@@ -82,21 +89,35 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		}
 	}
 
-	def private void createThing(ModelThing modelThing, Bridge parentBridge, List<Thing> thingList) {
+	def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList) {
 		var ThingTypeUID thingTypeUID = null
 		var ThingUID thingUID = null
+		var ThingUID bridgeUID = null
 		if (parentBridge != null) {
 			val bindingId = parentBridge.thingTypeUID.bindingId
 			val thingTypeId = modelThing.thingTypeId
 			val thingId = modelThing.thingId
 			thingTypeUID = new ThingTypeUID(bindingId, thingTypeId)
 			thingUID = new ThingUID(thingTypeUID, thingId, parentBridge.parentPath)
+			bridgeUID = parentBridge.UID
 		} else {
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
 		}
 		logger.debug("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
 		val configuration = modelThing.createConfiguration
+		val uid = thingUID
+		if (thingList.exists[UID.equals(uid)]) {
+			//the thing is already in the list and nothing will be done!
+			logger.debug("Thing already exists {}", uid.toString)
+			return
+		}
+		if (!isSupportedByThingHandlerFactroy(thingTypeUID)) {
+			logger.debug("For Thing with uid: {} is no ThingHandlerFactory registered", uid)
+			return
+		}
+		val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, configuration, thingUID, bridgeUID)
+		
 		val thingBuilder = if (modelThing instanceof ModelBridge) {
 				BridgeBuilder.create(thingUID)
 			} else {
@@ -113,14 +134,75 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		val channels = createChannels(thingUID, modelThing.channels, thingType?.channelDefinitions ?: newArrayList)
 		thingBuilder.withChannels(channels)
 
-		val thing = thingBuilder.build
-		thingList += thing
+		var thing = thingBuilder.build
+
+		//ask the ThingHandlerFactories for a thing
+		if (thingFromHandler != null) {
+			//If a thingHandlerFactory could create a thing, merge the content of the modelThing to it
+			thingFromHandler.merge(thing)
+		}
+
+		thingList += thingFromHandler ?: thing
 
 		if (modelThing instanceof ModelBridge) {
+			val bridge = (thingFromHandler ?: thing) as Bridge
 			modelThing.things.forEach [
-				createThing(thing as Bridge, thingList)
+				createThing(bridge as Bridge, thingList)
 			]
 		}
+	}
+	
+	def private boolean isSupportedByThingHandlerFactroy(ThingTypeUID thingTypeUID) {
+		for(ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
+			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	def private Thing getThingFromThingHandlerFactories(ThingTypeUID thingTypeUID, Configuration configuration,
+		ThingUID thingUID, ThingUID bridgeUID) {
+		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
+			logger.debug("searching thingHandlerFactory for thingType: {}" , thingTypeUID)
+			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
+				return thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+			}
+		}
+		null
+	}
+
+	def dispatch void merge(Thing targetThing, Thing sourceThing) {
+		targetThing.bridgeUID=sourceThing.bridgeUID
+		targetThing.configuration.merge(sourceThing.configuration)
+		targetThing.merge(sourceThing.channels)
+		
+		
+	}
+
+	def dispatch void merge(Configuration target, Configuration source) {
+		source.keySet.forEach [
+			target.put(it, source.get(it))
+		]
+	}
+
+	def dispatch void merge(Thing targetThing, List<Channel> source) {
+		val List<Channel> channelsToAdd = newArrayList()
+		source.forEach [ sourceChannel |
+			val targetChannels = targetThing.channels.filter[it.UID.equals(sourceChannel.UID)]
+			targetChannels.forEach[
+				merge(sourceChannel)
+			]
+			if (targetChannels.empty){
+				channelsToAdd.add(sourceChannel)
+			}
+		]
+		//add the channels only defined in source list to the target list
+		ThingHelper.addChannelsToThing(targetThing, channelsToAdd)
+	}
+
+	def dispatch void merge(Channel target, Channel source) {
+		target.configuration.merge(source.configuration)
 	}
 
 	def private getParentPath(Bridge bridge) {
@@ -223,4 +305,30 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		this.thingTypeRegistry = null
 	}
 
+	def protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+		logger.debug("ThingHandlerFactory added {}", thingHandlerFactory)
+		this.thingHandlerFactories.add(thingHandlerFactory);
+		thingHandlerFactoryAdded()
+	}
+	
+
+	def protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+		this.thingHandlerFactories.remove(thingHandlerFactory);
+		thingHandlerFactoryRemoved()
+	}
+	
+	def thingHandlerFactoryRemoved() {
+		updateThings()
+	}
+	
+	def thingHandlerFactoryAdded() {
+		updateThings()
+	}
+	
+	def updateThings(){
+		thingsMap.keySet.forEach[
+			createThingsFromModel
+		]
+	}
+	
 }
