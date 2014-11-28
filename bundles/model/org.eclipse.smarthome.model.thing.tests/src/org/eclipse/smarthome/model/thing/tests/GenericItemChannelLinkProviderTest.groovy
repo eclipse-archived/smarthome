@@ -46,8 +46,6 @@ class GenericItemChannelLinkProviderTest extends OSGiTest {
 	void tearDown() {
 		modelRepository.removeModel(THINGS_TESTMODEL_NAME)
 		modelRepository.removeModel(ITEMS_TESTMODEL_NAME)
-        // workaround, as ItemChannelLinkRegistry won't be notified remove ModelRepository.removeModel() 
-        ((GenericItemChannelLinkProvider) itemChannelLinkProvider).removeConfigurations(ITEMS_TESTMODEL_NAME);
 	}
 
 	@Test

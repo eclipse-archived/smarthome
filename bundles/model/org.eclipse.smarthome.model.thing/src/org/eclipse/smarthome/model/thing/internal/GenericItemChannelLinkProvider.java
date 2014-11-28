@@ -17,6 +17,9 @@ import org.eclipse.smarthome.core.common.registry.AbstractProvider;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider;
+import org.eclipse.smarthome.model.core.EventType;
+import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
 import org.eclipse.smarthome.model.item.BindingConfigParseException;
 import org.eclipse.smarthome.model.item.BindingConfigReader;
 
@@ -30,7 +33,7 @@ import com.google.common.collect.Lists;
  * @author Alex Tugarev - Added parsing of multiple Channel UIDs 
  *
  */
-public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader, ItemChannelLinkProvider {
+public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader, ItemChannelLinkProvider, ModelRepositoryChangeListener {
 
 	/** caches binding configurations. maps itemNames to {@link BindingConfig}s */
 	protected Map<String, Set<ItemChannelLink>> itemChannelLinkMap = new ConcurrentHashMap<>();
@@ -40,6 +43,9 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 	 * structure: context -> Set of Item names
 	 */ 
 	protected Map<String, Set<String>> contextMap = new ConcurrentHashMap<>();
+	
+	@SuppressWarnings("unused")
+    private ModelRepository modelRepository = null;
 	
 	@Override
 	public String getBindingType() {
@@ -114,5 +120,29 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 	public Collection<ItemChannelLink> getAll() {
 		return Lists.newLinkedList(Iterables.concat(itemChannelLinkMap.values()));
 	}
+	
+    public void setModelRepository(ModelRepository modelRepository) {
+        this.modelRepository = modelRepository;
+        modelRepository.addModelRepositoryChangeListener(this);
+    }
 
+    public void unsetModelRepository(ModelRepository modelRepository) {
+        modelRepository.removeModelRepositoryChangeListener(this);
+        this.modelRepository = null;
+    }
+
+    @Override
+    public void modelChanged(String modelName, EventType type) {
+        if (modelName.endsWith("items")) {
+            switch (type) {
+            case ADDED:
+                break;
+            case MODIFIED:
+                break;
+            case REMOVED:
+                removeConfigurations(modelName);
+                break;
+            }
+        }
+    }
 }
