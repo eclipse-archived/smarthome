@@ -9,6 +9,7 @@ package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -46,14 +47,9 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 	private UpnpService upnpService;
 
 	@Override
-	protected void activate() {
-		super.activate();
+	protected void activate(Map<String, Object> configProperties) {
+		super.activate(configProperties);
 		startScan();
-	}
-
-	@Override
-	protected void deactivate() {
-		super.deactivate();
 	}
 	
 	protected void setUpnpService(UpnpService upnpService) {

@@ -13,31 +13,44 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 
 /**
- * The {@link DiscoveryService} is a service interface which each binding can implement
- * to provide an auto discovery process for one or more {@code Thing}s.
+ * The {@link DiscoveryService} is a service interface which each binding can
+ * implement to provide an auto discovery process for one or more {@code Thing}
+ * s.
  * <p>
- * As an example, a typical discovery mechanism could scan the network for <i>UPnP</i>
- * devices, if requested.
+ * As an example, a typical discovery mechanism could scan the network for
+ * <i>UPnP</i> devices, if requested.
  * <p>
- * A {@link DiscoveryService} must be able to finish its discovery process without any
- * user interaction.
+ * A {@link DiscoveryService} must be able to finish its discovery process
+ * without any user interaction.
  * <p>
  * <b>There are two different kind of executions:</b>
  * <ul>
- * <li><b>Background discovery:</b> If this mode is enabled, the discovery process should 
- *   run in the background as long as this mode is not disabled again.</li>
- * <li><b>Active scan:</b> If an active scan is triggered, the the service should try to actively
- *   query for new devices and should report new results within the defined scan timeout. An active
- *   scan can be aborted.</li>
+ * <li><b>Background discovery:</b> If this mode is enabled, the discovery
+ * process should run in the background as long as this mode is not disabled
+ * again. Background discovery can be enabled and disabled and is configured
+ * through the configuration admin. The implementation class that registers an
+ * OSGi service must define a PID and has to react on configuration changes for
+ * it. See also
+ * {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED}.</li>
+ * <li><b>Active scan:</b> If an active scan is triggered, the the service
+ * should try to actively query for new devices and should report new results
+ * within the defined scan timeout. An active scan can be aborted.</li>
  * </ul>
  *
  * @author Michael Grammling - Initial Contribution.
  * @author Kai Kreuzer - Refactored API
- *
+ * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
+ * 
  * @see DiscoveryListener
  * @see DiscoveryServiceRegistry
  */
 public interface DiscoveryService {
+
+    /**
+     * Configuration property for enabling the auto discovery feature of a
+     * DiscoveryService.
+     */
+    static final String CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED = "backgroundDiscovery.enabled";
 
     /**
      * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.
@@ -53,15 +66,6 @@ public interface DiscoveryService {
      * @return the scan timeout in seconds (>= 0).
      */
     public int getScanTimeout();
-
-    /**
-     * Enables the background discovery mode if {@code true} is set, otherwise it is disabled.
-     * <p>
-     * If enabled, any registered listener must be notified about {@link DiscoveryResult}s.
-     *
-     * @param enabled true if the background discovery mode should be enabled, otherwise false
-     */
-    void setBackgroundDiscoveryEnabled(boolean enabled);
 
     /**
      * Returns {@code true} if the background discovery mode is enabled, otherwise {@code false}.
