@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Oliver Libutzki - Initial contribution
  * @author Kai Kreuzer - Refactored API
+ * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
@@ -136,15 +137,6 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
     public int getScanTimeout() {
         return this.timeout;
     }
-
-	public void setBackgroundDiscoveryEnabled(boolean enabled) {
-		this.backgroundDiscoveryEnabled = enabled;
-		if (this.backgroundDiscoveryEnabled) {
-			startBackgroundDiscovery();
-		} else {
-			stopBackgroundDiscovery();
-		}
-	}
 
     public boolean isBackgroundDiscoveryEnabled() {
         return backgroundDiscoveryEnabled;
@@ -282,12 +274,51 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 	 * OSGi declarative service and does not override the method. The method
 	 * implementation calls
 	 * {@link AbstractDiscoveryService#startBackgroundDiscovery()} if background
-	 * discovery is enabled by default.
+	 * discovery is enabled by default and not overridden by the configuration.
+	 * 
+	 * @param configProperties configuration properties
 	 */
-	protected void activate() {
+	protected void activate(Map<String, Object> configProperties) {
+	    if(configProperties != null) {
+	        Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+	        if(property != null) {
+	            this.backgroundDiscoveryEnabled = getAutoDiscoveryEnabled(property);
+	        }
+	    }
 		if (this.backgroundDiscoveryEnabled) {
 			startBackgroundDiscovery();
+			logger.debug("Background discovery for discovery service '{}' enabled.", this.getClass().getName());
 		}
+	}
+
+    /**
+     * Called when the configuration for the discovery service is changed. If
+     * background discovery should be enabled and is currently disabled, the
+     * method {@link AbstractDiscoveryService#startBackgroundDiscovery()} is
+     * called. If background discovery should be disabled and is currently
+     * enabled, the method
+     * {@link AbstractDiscoveryService#stopBackgroundDiscovery()} is called. In
+     * all other cases, nothing happens.
+     * 
+     * @param configProperties
+     *            configuration properties
+     */
+	protected void modified(Map<String, Object> configProperties) {
+	    if(configProperties != null) {
+	        Object property = configProperties.get(DiscoveryService.CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED);
+            if(property != null) {
+                boolean enabled = getAutoDiscoveryEnabled(property);
+
+                if(this.backgroundDiscoveryEnabled && !enabled) {
+                    stopBackgroundDiscovery();
+                    logger.debug("Background discovery for discovery service '{}' disabled.", this.getClass().getName());
+                } else if(!this.backgroundDiscoveryEnabled && enabled) {
+                    startBackgroundDiscovery();
+                    logger.debug("Background discovery for discovery service '{}' enabled.", this.getClass().getName());
+                }
+                this.backgroundDiscoveryEnabled = enabled;
+            }
+        }
 	}
 
 	/**
@@ -323,5 +354,15 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 	 */
 	protected void stopBackgroundDiscovery() {
 		// can be overridden
+	}
+	
+	private boolean getAutoDiscoveryEnabled(Object autoDiscoveryEnabled) {
+	    if(autoDiscoveryEnabled instanceof String) {
+	        return Boolean.valueOf((String)autoDiscoveryEnabled);
+	    } else if(autoDiscoveryEnabled == Boolean.TRUE) {
+	        return true;
+	    } else {
+	        return false;
+	    }
 	}
 }
