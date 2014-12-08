@@ -9,7 +9,6 @@ package org.eclipse.smarthome.io.rest.core.item;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -48,8 +46,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -351,28 +349,6 @@ public class ItemResource implements RESTResource {
         return Response.ok().build();
     }
 
-    public static ItemBean createItemBean(Item item, boolean drillDown, String uriPath) {
-    	ItemBean bean;
-    	if(item instanceof GroupItem && drillDown) {
-    		GroupItem groupItem = (GroupItem) item;
-    		GroupItemBean groupBean = new GroupItemBean();
-    		Collection<ItemBean> members = new LinkedHashSet<ItemBean>();
-    		for(Item member : groupItem.getMembers()) {
-    			members.add(createItemBean(member, false, uriPath));
-    		}
-    		groupBean.members = members.toArray(new ItemBean[members.size()]);
-    		bean = groupBean;
-    	} else {
-    		 bean = new ItemBean();
-    	}
-    	bean.name = item.getName();
-    	bean.state = item.getState().toString();
-    	bean.type = item.getClass().getSimpleName();
-    	bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
-        bean.tags = item.getTags(); 
-    	
-    	return bean;
-    }
     
     private Item getItem(String itemname) {
     	try {
@@ -403,7 +379,7 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(createItemBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
+                beans.add(BeanMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
             }
         }
         return beans;
@@ -412,7 +388,7 @@ public class ItemResource implements RESTResource {
 	private ItemBean getItemDataBean(String itemname) {
 		Item item = getItem(itemname);
 		if(item!=null) {
-			return createItemBean(item, true, uriInfo.getBaseUri().toASCIIString());
+			return BeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri().toASCIIString());
 		} else {
 			logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
 			throw new WebApplicationException(404);

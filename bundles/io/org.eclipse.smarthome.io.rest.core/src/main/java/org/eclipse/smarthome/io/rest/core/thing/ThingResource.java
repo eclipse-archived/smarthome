@@ -8,10 +8,8 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -45,15 +43,15 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class acts as a REST resource for things and is registered with the
  * Jersey servlet.
- *
+ * 
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
@@ -107,7 +105,7 @@ public class ThingResource implements RESTResource {
     public Response getByUID(@PathParam("thingUID") String thingUID) {
         Thing thing = thingRegistry.getByUID((new ThingUID(thingUID)));
         if (thing != null) {
-            return Response.ok(convertToThingBean(thing)).build();
+            return Response.ok(BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry)).build();
         } else {
             return Response.noContent().build();
         }
@@ -260,31 +258,13 @@ public class ThingResource implements RESTResource {
         thingRegistry = null;
     }
 
-    private ChannelBean convertToChannelBean(Channel channel) {
-        String boundItem = itemChannelLinkRegistry.getBoundItem(channel.getUID());
-        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), boundItem);
-    }
-
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
         Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            ThingBean thingBean = convertToThingBean(thing);
+            ThingBean thingBean = BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry);
             thingBeans.add(thingBean);
         }
         return thingBeans;
-    }
-
-    private ThingBean convertToThingBean(Thing thing) {
-        List<ChannelBean> channelBeans = new ArrayList<>();
-        for (Channel channel : thing.getChannels()) {
-            ChannelBean channelBean = convertToChannelBean(channel);
-            channelBeans.add(channelBean);
-        }
-
-        String thingUID = thing.getUID().toString();
-        String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
-
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration());
     }
 
     private Channel findChannel(String channelId, Thing thing) {

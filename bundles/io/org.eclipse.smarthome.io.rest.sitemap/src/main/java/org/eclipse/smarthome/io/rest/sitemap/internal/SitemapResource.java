@@ -37,7 +37,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.StateChangeListener;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.item.ItemResource;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.MappingBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.PageBean;
 import org.eclipse.smarthome.io.rest.sitemap.internal.beans.SitemapBean;
@@ -255,7 +255,7 @@ public class SitemapResource implements RESTResource {
 	    	try {
 				Item item = itemUIRegistry.getItem(widget.getItem());
 		    	if(item!=null) {
-		    		bean.item = ItemResource.createItemBean(item, false, UriBuilder.fromUri(uri).build().toASCIIString());
+                    bean.item = BeanMapper.mapItemToBean(item, false, UriBuilder.fromUri(uri).build().toASCIIString());
 		    	}
 			} catch (ItemNotFoundException e) {
 				logger.debug(e.getMessage());
