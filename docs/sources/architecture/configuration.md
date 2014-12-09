@@ -29,12 +29,18 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
             http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
       <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}://bindingID:...">
-        <parameter name="String" type="{text|integer|decimal|boolean}">
-          <context>{network_address|password|email}</context>
+        <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}">
+          <context>{network-address|password|password-create|color|date|datetime|email|month|week|time|tel|url|item|thing|group|tag|service}</context>
           <required>{true|false}</required>
           <default>String</default>
           <label>String</label>
           <description>String</description>
+          <options>
+            <option value="String">String</option>
+          </options>
+          <filter>
+            <criteria name="String">String</criteria>
+          </filter>
         </parameter>
       </config-description>
 
@@ -52,11 +58,22 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
   <tr><td>parameter</td><td>The description of a concrete configuration parameter (optional).</td></tr>
   <tr><td>parameter.name</td><td>The name of the configuration parameter (mandatory).</td></tr>
   <tr><td>parameter.type</td><td>The data type of the configuration parameter (mandatory).</td></tr>
+  <tr><td>parameter.min</td><td>The minimal value for numeric types, or the minimal length of strings, or the minimal number of selected options (optional).</td></tr>
+  <tr><td>parameter.max</td><td>The maximum value for numeric types, or the maximum length of strings, or the maximum number of selected options (optional).</td></tr>
+  <tr><td>parameter.step</td><td>The value granularity for a numeric value (optional).</td></tr>
+  <tr><td>parameter.pattern</td><td>The regular expression for a text type (optional).</td></tr>
+  <tr><td>parameter.required</td><td>Specifies whether the value is required (optional).</td></tr>
+  <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
+  <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
   <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
-  <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (optional, default: false).</td></tr>
+  <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human readable label for the configuration parameter (optional).</td></tr>
   <tr><td>description</td><td>A human readable description for the configuration parameter (optional).</td></tr>
+  <tr><td>option</td><td>The element definition of a static selection list (optional).</td></tr>
+  <tr><td>option.value</td><td>The value of the selection list element.</td></tr>
+  <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
+  <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
 </table>
 
 The full XML schema for configuration descriptions is specified in the [ESH config description XSD](http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd) file.
@@ -77,21 +94,18 @@ The following code gives an example for one configuration description.
         xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
             http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
-      <parameter name="ipAddress" type="text">
-        <context>network_address</context>
+      <parameter name="ipAddress" type="text" pattern="[0-9]{3}.[0-9]{3}.[0-9]{3}.[0-9]{3}" required="true">
+        <context>network-address</context>
         <label>Network Address</label>
         <description>Network address of the device.</description>
-        <required>true</required>
       </parameter>
 
-      <parameter name="userName" type="text">
+      <parameter name="userName" type="text" required="true">
         <label>User Name</label>
-        <required>true</required>
       </parameter>
 
-      <parameter name="password" type="text">
+      <parameter name="password" type="text" min="8" max="35" required="false">
         <context>password</context>
-        <required>false</required>
       </parameter>
 
     </config-description:config-description>
