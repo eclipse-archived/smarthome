@@ -15,13 +15,13 @@
 
     <xs:simpleType name="idRestrictionPattern">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Za-z0-9-_]+"/>
+            <xs:pattern value="[A-Za-z0-9\-_]+"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="uriRestrictionPattern">
         <xs:restriction base="xs:string">
-            <xs:pattern value="[A-Za-z0-9-_]+(:[A-Za-z0-9-_]+){1,2}"/>
+            <xs:pattern value="[A-Za-z0-9\-_]+(:[A-Za-z0-9\-_]+){1,2}"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -35,14 +35,52 @@
 	<xs:complexType name="parameter">
 		<xs:all>
 			<xs:element name="context" type="xs:string" minOccurs="0"/>
+			 <!-- deprecated element "required" -->
 			<xs:element name="required" type="xs:boolean" default="false" minOccurs="0"/>
 			<xs:element name="default" type="xs:string" minOccurs="0"/>
 			<xs:element name="label" type="xs:string" minOccurs="0"/>
 			<xs:element name="description" type="xs:string" minOccurs="0"/>
+			<xs:element name="options" type="config-description:optionsType" minOccurs="0"/>
+			<xs:element name="filter" type="config-description:filterType" minOccurs="0"/>
 		</xs:all>
 		<xs:attribute name="name" type="xs:string" use="required"/>
 		<xs:attribute name="type" type="config-description:parameterType" use="required"/>
+		<xs:attribute name="min" type="xs:decimal"/>
+		<xs:attribute name="max" type="xs:decimal"/>
+		<xs:attribute name="step" type="xs:decimal"/>
+		<xs:attribute name="pattern" type="xs:string"/>
+		<xs:attribute name="required" type="xs:boolean"/>
+		<xs:attribute name="readOnly" type="xs:boolean"/>
+		<xs:attribute name="multiple" type="xs:boolean"/>
 	</xs:complexType>
+
+	<xs:complexType name="optionsType">
+		<xs:sequence>
+			<xs:element name="option" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="value" type="xs:string" use="required" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="filterType">
+		<xs:sequence>
+			<xs:element name="criteria" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:simpleContent>
+						<xs:extension base="xs:string">
+							<xs:attribute name="name" type="xs:string" use="required" />
+						</xs:extension>
+					</xs:simpleContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>	
 
 	<xs:simpleType name="parameterType">
 		<xs:restriction base="xs:string">

@@ -62,17 +62,20 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
     </channels>
 
     <config-description>
-        <parameter name="location" type="text">
+        <parameter name="location" type="text" required="true">
             <label>Location</label>
             <description>Location for the weather information.
                 Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
             </description>
-            <required>true</required>
         </parameter>
         <parameter name="unit" type="text">
             <label>Unit</label>
             <description>Specifies the unit of the data. Valid values are "us" or "metric".</description>
             <default>metric</default>
+            <options>
+              <option value="metric">metric</option>
+              <option value="us">us</option>
+            </options>
         </parameter>
         <parameter name="refresh" type="integer">
             <label>Refresh interval</label>
