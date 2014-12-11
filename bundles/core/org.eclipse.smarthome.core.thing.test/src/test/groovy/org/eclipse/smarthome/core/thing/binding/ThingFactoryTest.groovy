@@ -26,6 +26,12 @@ import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.junit.Test
 
+
+/**
+ * ThingFactoryTest is a test for the ThingFactory class.
+ * 
+ * @author Dennis Nobel - Initial contribution, added test for different default types
+ */
 class ThingFactoryTest {
 
 	@Test
@@ -97,6 +103,35 @@ class ThingFactoryTest {
         assertThat thing.channels.size, is(equalTo(2))
         assertThat thing.channels[0].configuration.get("testProperty"), is(equalTo("default"))
         assertThat thing.channels[1].configuration.get("testProperty"), is(equalTo("default"))
+    }
+    
+    @Test
+    void 'create Thing with different default value types'(){
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, new URI("scheme", "thingType", null))
+        def configuration = new Configuration()
+        
+        def configDescriptionRegistry = new ConfigDescriptionRegistry() {
+            ConfigDescription getConfigDescription( URI uri) {
+                def parameters = [
+                    new ConfigDescriptionParameter("p1",
+                        ConfigDescriptionParameter.Type.BOOLEAN, "context", false, "true", "label", "description"),
+                    new ConfigDescriptionParameter("p2",
+                        ConfigDescriptionParameter.Type.INTEGER, "context", false, "5", "label", "description"),
+                    new ConfigDescriptionParameter("p3",
+                        ConfigDescriptionParameter.Type.DECIMAL, "context", false, "2.3", "label", "description"),
+                    new ConfigDescriptionParameter("p4",
+                        ConfigDescriptionParameter.Type.DECIMAL, "context", false, "invalid", "label", "description")
+                ]
+                return new ConfigDescription(uri, parameters)
+            }
+        }
+    
+        def Thing thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration, null, configDescriptionRegistry)
+        assertThat thing.configuration, is(not(null))
+        assertThat thing.configuration.get("p1"), is(equalTo(true))
+        assertThat thing.configuration.get("p2").compareTo(new BigDecimal("5")), is(0)
+        assertThat thing.configuration.get("p3").compareTo(new BigDecimal("2.3")), is(0)
+        assertThat thing.configuration.get("p4"), is(null)
     }
 	
 	@Test

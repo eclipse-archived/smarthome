@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.yahooweather.handler;
 import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -42,8 +43,8 @@ public class YahooWeatherHandler extends BaseThingHandler {
     private Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
     private String location;
-    private String unit = "c"; // use metric system as default
-    private int refresh = 60; // refresh every minute as default 
+    private String unit;
+    private BigDecimal refresh; 
     
     private String weatherData = null;
     
@@ -66,7 +67,7 @@ public class YahooWeatherHandler extends BaseThingHandler {
         }
         
         try {
-        	refresh = Integer.parseInt((String)config.get("refresh"));
+        	refresh = (BigDecimal) config.get("refresh");
         } catch(Exception e) {
         	// let's ignore it and go for the default
         }
@@ -96,7 +97,7 @@ public class YahooWeatherHandler extends BaseThingHandler {
 			}
 		};
 		
-		refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh, TimeUnit.SECONDS);
+		refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh.intValue(), TimeUnit.SECONDS);
 	}
 
 	@Override

@@ -7,10 +7,12 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -25,6 +27,8 @@ import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -37,6 +41,8 @@ import com.google.common.collect.Lists;
  */
 public class ThingFactory {
 
+    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
+    
     /**
      * Creates a thing based on a given thing type.
      * 
@@ -87,8 +93,12 @@ public class ThingFactory {
                     .getConfigDescriptionURI());
             if (thingConfigDescription != null) {
                 for (ConfigDescriptionParameter parameter : thingConfigDescription.getParameters()) {
-                    if (parameter.getDefault() != null && configuration.get(parameter.getName()) == null) {
-                        configuration.put(parameter.getName(), parameter.getDefault());
+                    String defaultValue = parameter.getDefault();
+                    if (defaultValue != null && configuration.get(parameter.getName()) == null) {
+                        Object value = getDefaultValueAsCorrectType(parameter.getType(), defaultValue);
+                        if (value != null) {
+                            configuration.put(parameter.getName(), value);
+                        }
                     }
                 }
             }
@@ -150,8 +160,12 @@ public class ThingFactory {
             if (cd != null) {
                 Configuration config = new Configuration();
                 for (ConfigDescriptionParameter param : cd.getParameters()) {
-                    if (param.getDefault() != null) {
-                        config.put(param.getName(), param.getDefault());
+                    String defaultValue = param.getDefault();
+                    if (defaultValue != null) {
+                        Object value = getDefaultValueAsCorrectType(param.getType(), defaultValue);
+                        if(value != null) {
+                            config.put(param.getName(), value);
+                        }
                     }
                 }
                 channelBuilder = channelBuilder.withConfiguration(config);
@@ -160,6 +174,28 @@ public class ThingFactory {
 
         Channel channel = channelBuilder.build();
         return channel;
+    }
+
+    private static Object getDefaultValueAsCorrectType(Type parameterType, String defaultValue) {
+        try {
+            switch (parameterType) {
+            case TEXT:
+                return defaultValue;
+            case BOOLEAN:
+                return Boolean.parseBoolean(defaultValue);
+            case INTEGER:
+                return new BigDecimal(defaultValue);
+            case DECIMAL:
+                return new BigDecimal(defaultValue);
+            default:
+                return null;
+            }
+        } catch (NumberFormatException ex) {
+            logger.warn(
+                    "Could not parse default value '" + defaultValue + "' as type '" + parameterType + "': "
+                            + ex.getMessage(), ex);
+            return null;
+        }
     }
 
 }
