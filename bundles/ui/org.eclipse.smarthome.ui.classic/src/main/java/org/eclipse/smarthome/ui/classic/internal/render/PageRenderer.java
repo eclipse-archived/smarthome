@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PageRenderer extends AbstractWidgetRenderer {
 
-	private final static Logger logger = LoggerFactory.getLogger(PageRenderer.class);
+	private final Logger logger = LoggerFactory.getLogger(PageRenderer.class);
 
 	List<WidgetRenderer> widgetRenderers = new ArrayList<WidgetRenderer>();
 

@@ -39,7 +39,7 @@ public class IconServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 2880642275858634578L;
 
-	private static final Logger logger = LoggerFactory.getLogger(IconServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(IconServlet.class);
 
 	private static final String SERVLET_NAME = "/images";
 	

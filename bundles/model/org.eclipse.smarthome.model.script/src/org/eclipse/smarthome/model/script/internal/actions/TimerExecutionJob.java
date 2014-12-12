@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimerExecutionJob implements Job {
 
-	static final private Logger logger = LoggerFactory.getLogger(TimerExecutionJob.class);
+	private final Logger logger = LoggerFactory.getLogger(TimerExecutionJob.class);
 	
 	private Procedure0 procedure;
 	private TimerImpl timer;

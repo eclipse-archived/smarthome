@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TTSServiceMacOS implements TTSService {
 
-	private static final Logger logger = LoggerFactory.getLogger(TTSServiceMacOS.class);
+	private final Logger logger = LoggerFactory.getLogger(TTSServiceMacOS.class);
 	
 	/**
 	 * {@inheritDoc}

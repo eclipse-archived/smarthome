@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleRuntimeActivator implements BundleActivator {
 
-	private final static Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
+	private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
 	
 	public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
 	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;

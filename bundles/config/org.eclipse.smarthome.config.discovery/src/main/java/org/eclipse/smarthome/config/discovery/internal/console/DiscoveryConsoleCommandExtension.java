@@ -32,7 +32,7 @@ import com.google.common.collect.Lists;
  */
 public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension {
 
-    private final static Logger logger = LoggerFactory.getLogger(DiscoveryConsoleCommandExtension.class);
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryConsoleCommandExtension.class);
     
     private DiscoveryServiceRegistry discoveryServiceRegistry;
 

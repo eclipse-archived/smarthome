@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MultimediaActivator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(MultimediaActivator.class); 
+	private final Logger logger = LoggerFactory.getLogger(MultimediaActivator.class); 
 	
 	private static BundleContext context;
 	

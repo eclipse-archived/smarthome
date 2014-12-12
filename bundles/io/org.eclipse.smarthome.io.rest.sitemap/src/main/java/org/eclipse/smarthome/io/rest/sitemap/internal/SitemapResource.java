@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
 @Path(SitemapResource.PATH_SITEMAPS)
 public class SitemapResource implements RESTResource {
 
-	private static final Logger logger = LoggerFactory.getLogger(SitemapResource.class); 
+	private final Logger logger = LoggerFactory.getLogger(SitemapResource.class); 
 
     protected static final String SITEMAP_FILEEXT = ".sitemap";
 

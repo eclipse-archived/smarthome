@@ -62,7 +62,7 @@ import com.google.inject.Injector;
 @SuppressWarnings("restriction")
 public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener, RuleEngine {
 
-		static private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
+		private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 		
 		private ItemRegistry itemRegistry;
 		private ModelRepository modelRepository;

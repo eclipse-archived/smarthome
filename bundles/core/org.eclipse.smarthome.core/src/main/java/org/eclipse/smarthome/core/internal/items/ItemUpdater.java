@@ -33,7 +33,7 @@ public class ItemUpdater extends AbstractEventSubscriber {
         getSourceFilterList().clear();
     }
 
-	private static final Logger logger = LoggerFactory.getLogger(ItemUpdater.class);
+	private final Logger logger = LoggerFactory.getLogger(ItemUpdater.class);
 	
 	protected ItemRegistry itemRegistry;
 	

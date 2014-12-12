@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RESTActivator implements BundleActivator {
 
-    private static final Logger logger = LoggerFactory.getLogger(RESTActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(RESTActivator.class);
 
 	private static BundleContext context;
 	

@@ -21,7 +21,7 @@ public abstract class AbstractProvider<E> implements Provider<E> {
         ADDED, REMOVED, UPDATED;
     }
 
-    protected static final Logger logger = LoggerFactory.getLogger(AbstractProvider.class);
+    protected final Logger logger = LoggerFactory.getLogger(AbstractProvider.class);
     protected List<ProviderChangeListener<E>> listeners = new CopyOnWriteArrayList<>();
 
     @Override

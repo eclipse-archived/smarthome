@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("restriction")
 public class ScriptExecution {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScriptExecution.class);
-
 	/**
 	 * Calls a script which must be located in the configurations/scripts folder.
 	 * 
@@ -84,6 +82,7 @@ public class ScriptExecution {
 	 * @throws ScriptExecutionException if an error occurs during the execution
 	 */
 	public static Timer createTimer(AbstractInstant instant, Procedure0 closure) {
+		Logger logger = LoggerFactory.getLogger(ScriptExecution.class);
 		JobKey jobKey = new JobKey(instant.toString() + ": " + closure.toString());
         Trigger trigger = newTrigger().startAt(instant.toDate()).build();
 		Timer timer = new TimerImpl(jobKey, trigger.getKey(), instant);

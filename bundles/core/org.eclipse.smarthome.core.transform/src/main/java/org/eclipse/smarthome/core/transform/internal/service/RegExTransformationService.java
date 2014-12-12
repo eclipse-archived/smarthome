@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RegExTransformationService implements TransformationService {
 
-	static final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
+	private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
 
 	/**
 	 * @{inheritDoc

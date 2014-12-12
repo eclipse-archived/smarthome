@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimerImpl implements Timer {
 
-	private static final Logger logger = LoggerFactory.getLogger(TimerImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(TimerImpl.class);
 
 	// the scheduler used for timer events
 	public static Scheduler scheduler;
@@ -40,7 +40,7 @@ public class TimerImpl implements Timer {
 		 try {
 			scheduler = StdSchedulerFactory.getDefaultScheduler();
 		} catch (SchedulerException e) {
-	     logger.error("initializing scheduler throws exception", e);
+			LoggerFactory.getLogger(TimerImpl.class).error("initializing scheduler throws exception", e);
 		}
 	}
 	

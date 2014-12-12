@@ -32,7 +32,7 @@ import org.xml.sax.InputSource;
  */
 public class XPathTransformationService implements TransformationService {
 
-	static final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
+	private final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
 
 	/**
 	 * @{inheritDoc

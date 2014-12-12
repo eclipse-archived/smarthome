@@ -78,7 +78,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 	
 	private static final String ICON_NONE = "none";
 
-	private final static Logger logger = LoggerFactory.getLogger(ItemUIRegistryImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(ItemUIRegistryImpl.class);
 	
 	/* the file extension of the images */
 	protected static final String IMAGE_EXT = ".png";

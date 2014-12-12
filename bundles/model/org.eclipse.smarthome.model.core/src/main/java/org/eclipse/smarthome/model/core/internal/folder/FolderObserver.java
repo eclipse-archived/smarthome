@@ -39,7 +39,6 @@ import org.eclipse.smarthome.core.service.AbstractWatchService;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
@@ -54,9 +53,6 @@ import com.google.common.collect.Lists;
  */
 public class FolderObserver extends AbstractWatchService implements
 		ManagedService {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(FolderObserver.class);
 
 	/* the model repository is provided as a service */
 	private ModelRepository modelRepo = null;
@@ -265,7 +261,7 @@ public class FolderObserver extends AbstractWatchService implements
 					}
 				}
 			} catch (IOException e) {
-				logger.warn("Cannot open file '" + file.getAbsolutePath()
+				LoggerFactory.getLogger(FolderObserver.class).warn("Cannot open file '" + file.getAbsolutePath()
 						+ "' for reading.", e);
 			}
 		}

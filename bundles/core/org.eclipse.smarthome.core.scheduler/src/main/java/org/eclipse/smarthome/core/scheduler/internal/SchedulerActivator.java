@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class SchedulerActivator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(SchedulerActivator.class); 
+	private final Logger logger = LoggerFactory.getLogger(SchedulerActivator.class); 
 	
 	private static BundleContext context;
 	

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegistry, ItemsChangeListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
     /**
      * if an EventPublisher service is available, we provide it to all items, so

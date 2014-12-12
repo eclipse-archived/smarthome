@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistItemsJob implements Job {
 
-	private static final Logger logger = LoggerFactory.getLogger(PersistItemsJob.class);
+	private final Logger logger = LoggerFactory.getLogger(PersistItemsJob.class);
 		
 	public static final String JOB_DATA_PERSISTMODEL = "model";
 	public static final String JOB_DATA_STRATEGYNAME = "strategy";

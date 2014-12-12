@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Transformation {
-
-	static private final Logger logger = LoggerFactory.getLogger(Transformation.class);
 	
 	/**
 	 * Applies a transformation of a given type with some function to a value.
@@ -38,6 +36,7 @@ public class Transformation {
 	public static String transform(String type, String function, String value) {
 		String result;
 		TransformationService service = TransformationHelper.getTransformationService(TransformationActivator.getContext(), type);
+		Logger logger = LoggerFactory.getLogger(Transformation.class);
 		if(service!=null) {
 			try {
 				result = service.transform(function, value);

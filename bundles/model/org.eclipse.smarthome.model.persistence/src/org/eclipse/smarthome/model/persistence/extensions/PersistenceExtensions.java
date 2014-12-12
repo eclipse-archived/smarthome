@@ -18,15 +18,14 @@ import java.util.Map;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.persistence.FilterCriteria;
+import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.persistence.HistoricItem;
 import org.eclipse.smarthome.core.persistence.PersistenceService;
 import org.eclipse.smarthome.core.persistence.QueryablePersistenceService;
-import org.eclipse.smarthome.core.persistence.FilterCriteria.Ordering;
 import org.eclipse.smarthome.core.types.State;
 import org.joda.time.base.AbstractInstant;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** 
@@ -39,9 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PersistenceExtensions implements ManagedService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(PersistenceExtensions.class);
-	
+		
 	private static Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
 	private static String defaultService = null; 
 	
@@ -70,7 +67,7 @@ public class PersistenceExtensions implements ManagedService {
 		if (service != null) {
 			service.store(item);
 		} else {
-			logger.warn("There is no persistence service registered with the name '{}'", serviceName);
+			LoggerFactory.getLogger(PersistenceExtensions.class).warn("There is no persistence service registered with the name '{}'", serviceName);
 		}
 	} 
 
@@ -125,7 +122,7 @@ public class PersistenceExtensions implements ManagedService {
 				return null;
 			}
 		} else {
-			logger.warn("There is no queryable persistence service registered with the name '{}'", serviceName);
+			LoggerFactory.getLogger(PersistenceExtensions.class).warn("There is no queryable persistence service registered with the name '{}'", serviceName);
 			return null;
 		}
 	} 
@@ -399,7 +396,7 @@ public class PersistenceExtensions implements ManagedService {
 			filter.setOrdering(Ordering.ASCENDING);
 			return qService.query(filter);
 		} else {
-			logger.warn("There is no queryable persistence service registered with the name '{}'", serviceName);
+			LoggerFactory.getLogger(PersistenceExtensions.class).warn("There is no queryable persistence service registered with the name '{}'", serviceName);
 			return Collections.emptySet();
 		}
 	}
@@ -412,7 +409,7 @@ public class PersistenceExtensions implements ManagedService {
 		if(defaultService!=null) {
 			return true;
 		} else {
-			logger.warn("No default persistence service is configured in smarthome.cfg!");
+			LoggerFactory.getLogger(PersistenceExtensions.class).warn("No default persistence service is configured in smarthome.cfg!");
 			return false;
 		}
 	}

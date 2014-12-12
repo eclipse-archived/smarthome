@@ -19,7 +19,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
@@ -34,9 +33,6 @@ import com.google.common.collect.Maps;
  *
  */
 public class BusEvent {
-
-	static private final Logger logger = LoggerFactory.getLogger(BusEvent.class);
-
 
 	/**
 	 * Sends a command for a specified item to the event bus.
@@ -81,7 +77,7 @@ public class BusEvent {
 				Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandString);
 				publisher.sendCommand(itemName, command);
 			} catch (ItemNotFoundException e) {
-				logger.warn("Item '" + itemName + "' does not exist.");
+				LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
 			}
 		}
 		return null;
@@ -144,7 +140,7 @@ public class BusEvent {
 				State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateString);
 				publisher.postUpdate(itemName, state);
 			} catch (ItemNotFoundException e) {
-				logger.warn("Item '" + itemName + "' does not exist.");
+				LoggerFactory.getLogger(BusEvent.class).warn("Item '" + itemName + "' does not exist.");
 			}
 		}
 		return null;

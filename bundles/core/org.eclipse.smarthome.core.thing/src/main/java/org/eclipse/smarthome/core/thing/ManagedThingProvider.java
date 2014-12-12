@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, ThingUID> implements ThingProvider {
 
-    private final static Logger logger = LoggerFactory.getLogger(ManagedThingProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(ManagedThingProvider.class);
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 

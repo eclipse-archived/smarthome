@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CmdServlet extends BaseServlet {
 
-	private static final Logger logger = LoggerFactory.getLogger(CmdServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(CmdServlet.class);
 
 	public static final String SERVLET_NAME = "CMD";
 

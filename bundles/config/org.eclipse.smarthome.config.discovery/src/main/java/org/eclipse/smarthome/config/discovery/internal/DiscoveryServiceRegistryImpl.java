@@ -101,7 +101,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     private Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
     
-    static final private Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
     public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
         

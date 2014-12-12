@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MDNSServiceImpl implements MDNSService {
 
-	private static Logger logger = LoggerFactory.getLogger(MDNSServiceImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(MDNSServiceImpl.class);
 	private JmDNS jmdns;
 	
 	public MDNSServiceImpl() {

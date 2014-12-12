@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class ItemRuntimeActivator implements BundleActivator {
 
-	private final static Logger logger = LoggerFactory
+	private final Logger logger = LoggerFactory
 			.getLogger(ItemRuntimeActivator.class);
 
 	@Override

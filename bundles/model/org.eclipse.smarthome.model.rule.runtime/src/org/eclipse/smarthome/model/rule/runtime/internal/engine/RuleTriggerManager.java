@@ -68,7 +68,7 @@ import com.google.inject.Injector;
  */
 public class RuleTriggerManager {
 
-	private static final Logger logger = LoggerFactory.getLogger(RuleTriggerManager.class);
+	private final Logger logger = LoggerFactory.getLogger(RuleTriggerManager.class);
 	
 	public enum TriggerTypes {
 		UPDATE,		// fires whenever a status update is received for an item 

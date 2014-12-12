@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class ViewContentProvider implements IStructuredContentProvider, 
 									   ITreeContentProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(ViewContentProvider.class); 
+	private final Logger logger = LoggerFactory.getLogger(ViewContentProvider.class); 
 	
 	private IFolder configRootFolder;
 

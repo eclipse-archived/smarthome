@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableList;
 public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider<E> implements ManagedProvider<E, K> {
 
     private Storage<PE> storage;
-    protected static final Logger logger = LoggerFactory.getLogger(AbstractManagedProvider.class);
+    protected final Logger logger = LoggerFactory.getLogger(AbstractManagedProvider.class);
     
     public void add(E element) {
 

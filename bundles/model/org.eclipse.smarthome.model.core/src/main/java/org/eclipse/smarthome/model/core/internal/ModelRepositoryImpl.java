@@ -40,7 +40,7 @@ import com.google.common.collect.Lists;
  */
 public class ModelRepositoryImpl implements ModelRepository {
 	
-	private static final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
 	private final ResourceSet resourceSet;
 	
 	private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();

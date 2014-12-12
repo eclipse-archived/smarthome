@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
-    private final static Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
 	static protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 

@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SitemapProviderImpl implements SitemapProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(SitemapProviderImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(SitemapProviderImpl.class);
 	
 	private ModelRepository modelRepo = null;
 	

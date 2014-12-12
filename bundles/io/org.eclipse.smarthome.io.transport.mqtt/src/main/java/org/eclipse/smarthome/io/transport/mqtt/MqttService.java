@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MqttService implements ManagedService {
 
-	private static Logger logger = LoggerFactory.getLogger(MqttService.class);
+	private final Logger logger = LoggerFactory.getLogger(MqttService.class);
 
 	private ConcurrentHashMap<String, MqttBrokerConnection> brokerConnections = new ConcurrentHashMap<String, MqttBrokerConnection>();
 

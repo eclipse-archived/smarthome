@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MapTransformationService implements TransformationService {
 
-	static final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
+	private final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
 
 	protected WatchService watchService = null;
 	

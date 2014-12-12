@@ -46,12 +46,9 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger(HttpUtil.class);
-	
 	/** {@link Pattern} which matches the credentials out of an URL */ 
 	private static final Pattern URL_CREDENTIALS_PATTERN = Pattern.compile("http://(.*?):(.*?)@.*");
 	
-
 	/**
 	 * Executes the given <code>url</code> with the given <code>httpMethod</code>.
 	 * Furthermore the <code>http.proxyXXX</code> System variables are read and
@@ -117,7 +114,7 @@ public class HttpUtil {
 				try {
 					proxyPort = Integer.valueOf(proxyPortString);
 				} catch(NumberFormatException e) {
-					logger.warn("'{}' is not a valid proxy port - using port 80 instead");
+					LoggerFactory.getLogger(HttpUtil.class).warn("'{}' is not a valid proxy port - using port 80 instead");
 				}
 			}
 			proxyUser = System.getProperty("http.proxyUser");
@@ -180,6 +177,7 @@ public class HttpUtil {
 			client.getState().setCredentials(AuthScope.ANY, credentials);			
 		}
 
+		Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 		if (logger.isDebugEnabled()) {
 			try {
 				logger.debug("About to execute '" + method.getURI().toString() + "'");
@@ -235,7 +233,7 @@ public class HttpUtil {
 				URL url = new URL(urlString);
 				givenHost = url.getHost();
 			} catch (MalformedURLException e) {
-				logger.error("the given url {} is malformed", urlString);
+				LoggerFactory.getLogger(HttpUtil.class).error("the given url {} is malformed", urlString);
 			}
 			
 			String[] hosts = nonProxyHosts.split("\\|");

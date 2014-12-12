@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WebAppServlet extends BaseServlet {
 
-	private static final Logger logger = LoggerFactory.getLogger(WebAppServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(WebAppServlet.class);
 
 	/** timeout for polling requests in milliseconds; if no state changes during this time, 
 	 *  an empty response is returned.

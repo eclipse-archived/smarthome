@@ -29,9 +29,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecUtil {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ExecUtil.class);
-
 	private static final String CMD_LINE_DELIMITER = "@@";
 
 	/**
@@ -53,6 +50,7 @@ public class ExecUtil {
 	 * @see http://www.peterfriese.de/running-applescript-from-java/
 	 */
 	public static void executeCommandLine(String commandLine) {
+		Logger logger = LoggerFactory.getLogger(ExecUtil.class);
 		try {
 			if (commandLine.contains(CMD_LINE_DELIMITER)) {
 				String[] cmdArray = commandLine.split(CMD_LINE_DELIMITER);
@@ -118,6 +116,7 @@ public class ExecUtil {
 		executor.setStreamHandler(streamHandler);
 		executor.setWatchdog(watchdog);
 
+		Logger logger = LoggerFactory.getLogger(ExecUtil.class);
 		try {
 			executor.execute(cmdLine, resultHandler);
 			logger.debug("executed commandLine '{}'", commandLine);

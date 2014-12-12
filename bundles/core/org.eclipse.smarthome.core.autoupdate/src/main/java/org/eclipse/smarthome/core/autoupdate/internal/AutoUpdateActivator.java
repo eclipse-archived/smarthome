@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class AutoUpdateActivator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(AutoUpdateActivator.class); 
+	private final Logger logger = LoggerFactory.getLogger(AutoUpdateActivator.class); 
 	
 	/**
 	 * Called whenever the OSGi framework starts our bundle

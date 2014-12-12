@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ScriptItemRefresher implements ItemRegistryChangeListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(ScriptItemRefresher.class);
+	private final Logger logger = LoggerFactory.getLogger(ScriptItemRefresher.class);
 
 	ModelRepository modelRepository;
 	private ItemRegistry itemRegistry;

@@ -29,7 +29,7 @@ import com.google.common.collect.Lists;
  */
 public class TestHueThingTypeProvider implements ThingTypeProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestHueThingTypeProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(TestHueThingTypeProvider.class);
     private static final Map<ThingTypeUID, ThingType> thingTypes = new HashMap<ThingTypeUID, ThingType>();
 
     public TestHueThingTypeProvider() {

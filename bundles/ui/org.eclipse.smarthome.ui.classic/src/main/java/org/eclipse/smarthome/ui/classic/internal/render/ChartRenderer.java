@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ChartRenderer extends AbstractWidgetRenderer {
 	
-	static final private Logger logger = LoggerFactory.getLogger(ChartRenderer.class);
+	private final Logger logger = LoggerFactory.getLogger(ChartRenderer.class);
 	
 	/**
 	 * {@inheritDoc}

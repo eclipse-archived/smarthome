@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
-	private final static Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
+	private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
 	/* the file extension of the images */
 	protected static final String IMAGE_EXT = ".png";

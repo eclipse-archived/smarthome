@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
+	private final Logger logger = LoggerFactory.getLogger(UpnpDiscoveryService.class);
 	
 	private Set<UpnpDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
 	
