@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AutoUpdateBinding extends AbstractEventSubscriber {
 
-	private static final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
+	private final Logger logger = LoggerFactory.getLogger(AutoUpdateBinding.class);
 	
 	protected ItemRegistry itemRegistry;
 

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RulesItemRefresher implements ItemRegistryChangeListener {
 
-	private static final Logger logger = LoggerFactory.getLogger(RulesItemRefresher.class);
+	private final Logger logger = LoggerFactory.getLogger(RulesItemRefresher.class);
 	
 	ModelRepository modelRepository;
 	private ItemRegistry itemRegistry;

@@ -26,12 +26,9 @@ import org.eclipse.smarthome.designer.core.CoreActivator;
 import org.eclipse.smarthome.designer.core.DesignerCoreConstants;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConfigurationFolderProvider {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ConfigurationFolderProvider.class);
 	
 	private static IFolder folder; 
 	
@@ -87,7 +84,7 @@ public class ConfigurationFolderProvider {
 				if(file!=null && file.isDirectory()) {
 					return file;
 				} else {
-					logger.warn("'{}' is no valid directory.", folderPath);
+					LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("'{}' is no valid directory.", folderPath);
 				}
 			}
 		}
@@ -104,6 +101,6 @@ public class ConfigurationFolderProvider {
 				return;
 			}
 		} catch (BackingStoreException e) {}
-		logger.warn("Could not save folder '{}' to preferences.", folderPath);
+		LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("Could not save folder '{}' to preferences.", folderPath);
 	}
 }

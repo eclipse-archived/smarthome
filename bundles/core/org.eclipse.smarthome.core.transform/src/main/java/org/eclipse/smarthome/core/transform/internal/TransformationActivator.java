@@ -24,7 +24,7 @@ public final class TransformationActivator implements BundleActivator {
 
 	public static final String TRANSFORM_FOLDER_NAME = "transform";
 	
-	private static Logger logger = LoggerFactory.getLogger(TransformationActivator.class);
+	private final Logger logger = LoggerFactory.getLogger(TransformationActivator.class);
 	
 	private static BundleContext context;
 	

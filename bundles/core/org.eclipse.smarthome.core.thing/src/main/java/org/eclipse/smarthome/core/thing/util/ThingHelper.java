@@ -39,7 +39,7 @@ import com.google.common.base.Joiner;
  */
 public class ThingHelper {
 
-	private final static Logger logger = LoggerFactory.getLogger(ThingHelper.class);
+	private final Logger logger = LoggerFactory.getLogger(ThingHelper.class);
 	
 	private BundleContext bundleContext;
 	

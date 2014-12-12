@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
 
-	private static final Logger logger = LoggerFactory.getLogger(ItemResource.class); 
+	private final Logger logger = LoggerFactory.getLogger(ItemResource.class); 
 	
 	/** The URI path to this resource */
     public static final String PATH_ITEMS = "items";

@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ConsoleInterpreter {
 
-	protected final static Logger logger = LoggerFactory.getLogger(ConsoleInterpreter.class);	
 	/**
 	 * This method simply takes a list of arguments, where the first one is treated
 	 * as the console command (such as "update", "send" etc.). The following entries
@@ -49,6 +48,7 @@ public class ConsoleInterpreter {
 		String arg = args[0];
 		boolean handledByExtension = false;
 		Iterator<ConsoleCommandExtension> extensionIterator = consoleCommandExtensions.iterator();
+		Logger logger = LoggerFactory.getLogger(ConsoleInterpreter.class);
 		
 		while (!handledByExtension && extensionIterator.hasNext()) {
 			ConsoleCommandExtension consoleCommandExtension = extensionIterator.next();

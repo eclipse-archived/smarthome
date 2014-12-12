@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MapDbStorageService implements StorageService {
 
-	private static final Logger logger = 
+	private final Logger logger = 
 		LoggerFactory.getLogger(MapDbStorageService.class);
 
 	/** the name of the mapdb database ({@code storage.mapdb}) */

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 @Path("discovery")
 public class DiscoveryResource implements RESTResource {
 
-    private static final Logger logger = LoggerFactory.getLogger(DiscoveryResource.class);
+    private final Logger logger = LoggerFactory.getLogger(DiscoveryResource.class);
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     

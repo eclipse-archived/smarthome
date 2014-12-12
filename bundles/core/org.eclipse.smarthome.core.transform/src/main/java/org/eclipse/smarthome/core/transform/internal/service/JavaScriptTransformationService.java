@@ -32,9 +32,6 @@ import org.slf4j.LoggerFactory;
  * @author Pauli Anttila
  */
 public class JavaScriptTransformationService implements TransformationService {
-
-	static final Logger logger = 
-		LoggerFactory.getLogger(JavaScriptTransformationService.class);
 	
 	/**
 	 * Transforms the input <code>source</code> by Java Script. It expects the
@@ -50,7 +47,7 @@ public class JavaScriptTransformationService implements TransformationService {
 	 *            the input to transform
 	 */
 	public String transform(String filename, String source) throws TransformationException {
-
+		Logger logger = LoggerFactory.getLogger(JavaScriptTransformationService.class);
 		if (filename == null || source == null) {
 			throw new TransformationException(
 				"the given parameters 'filename' and 'source' must not be null");

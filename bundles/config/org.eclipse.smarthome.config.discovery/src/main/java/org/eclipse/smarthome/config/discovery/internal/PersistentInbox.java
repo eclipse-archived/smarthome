@@ -61,7 +61,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         added, removed, updated
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
+    private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
 

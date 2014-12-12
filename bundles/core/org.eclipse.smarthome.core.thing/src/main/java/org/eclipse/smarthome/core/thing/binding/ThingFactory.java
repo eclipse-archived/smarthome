@@ -27,7 +27,6 @@ import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
@@ -41,8 +40,6 @@ import com.google.common.collect.Lists;
  */
 public class ThingFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
-    
     /**
      * Creates a thing based on a given thing type.
      * 
@@ -191,7 +188,7 @@ public class ThingFactory {
                 return null;
             }
         } catch (NumberFormatException ex) {
-            logger.warn(
+        	LoggerFactory.getLogger(ThingFactory.class).warn(
                     "Could not parse default value '" + defaultValue + "' as type '" + parameterType + "': "
                             + ex.getMessage(), ex);
             return null;

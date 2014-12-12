@@ -27,7 +27,7 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
         ADDED, REMOVED, UPDATED;
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
+    private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();

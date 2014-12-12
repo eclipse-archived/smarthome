@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("rawtypes")
 public class UpnpIOServiceImpl implements UpnpIOService {
 
-	private static final Logger logger = LoggerFactory
+	private final Logger logger = LoggerFactory
 			.getLogger(UpnpIOServiceImpl.class);
 
 	private UpnpService upnpService;

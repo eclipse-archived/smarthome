@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 public class TransformationHelper {
 
-	private static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
-
 	/**
 	 * Queries the OSGi service registry for a service that provides a transformation service of
 	 * a given transformation type (e.g. REGEX, XSLT, etc.)
@@ -28,6 +26,7 @@ public class TransformationHelper {
 	 */
 	static public TransformationService getTransformationService(BundleContext context, String transformationType) {
 		if(context!=null) {
+			Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
 			String filter = "(smarthome.transform=" + transformationType + ")";
 			try {
 				Collection<ServiceReference<TransformationService>> refs = context.getServiceReferences(TransformationService.class, filter);

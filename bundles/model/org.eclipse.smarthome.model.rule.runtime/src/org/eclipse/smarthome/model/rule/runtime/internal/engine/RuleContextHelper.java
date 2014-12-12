@@ -32,8 +32,6 @@ import com.google.inject.Provider;
 @SuppressWarnings("restriction")
 public class RuleContextHelper {
 
-	private static final Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
-	
 	/**
 	 * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the same model (= rule file).
 	 * 
@@ -41,7 +39,8 @@ public class RuleContextHelper {
 	 * @return the evaluation context
 	 */
 	public static synchronized IEvaluationContext getContext(Rule rule, Injector injector) {
-	    RuleModel ruleModel = (RuleModel) rule.eContainer();
+		Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
+		RuleModel ruleModel = (RuleModel) rule.eContainer();
 
 	    // check if a context already exists on the resource
 	    for(Adapter adapter : ruleModel.eAdapters()) {

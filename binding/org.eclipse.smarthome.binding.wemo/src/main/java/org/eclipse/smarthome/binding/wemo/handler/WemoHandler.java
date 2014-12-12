@@ -49,7 +49,7 @@ import com.google.common.collect.Sets;
  */
 public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
-    private static final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
     
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID, WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID);
 
@@ -61,7 +61,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
     		getRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/GetRequest.xml"));
     		setRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/SetRequest.xml"));
     	} catch(Exception e) {
-    		logger.error("Cannot read XML files!", e);
+    		LoggerFactory.getLogger(WemoHandler.class).error("Cannot read XML files!", e);
     	}
     }
 

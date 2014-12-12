@@ -57,7 +57,7 @@ public class ProxyServlet extends HttpServlet {
 	/** the alias for this servlet */
 	public static final String PROXY_ALIAS = "proxy";
 
-	private static final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(ProxyServlet.class);
 
 	private static final long serialVersionUID = -4716754591953017793L;
 	

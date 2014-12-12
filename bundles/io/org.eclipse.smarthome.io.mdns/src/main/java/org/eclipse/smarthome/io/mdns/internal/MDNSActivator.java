@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class MDNSActivator implements BundleActivator {
 
-	private static Logger logger = LoggerFactory.getLogger(MDNSActivator.class);
+	private final Logger logger = LoggerFactory.getLogger(MDNSActivator.class);
 	
 	/**
 	 * Called whenever the OSGi framework starts our bundle

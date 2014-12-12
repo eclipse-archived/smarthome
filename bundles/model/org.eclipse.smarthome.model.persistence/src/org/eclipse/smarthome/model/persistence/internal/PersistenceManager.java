@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PersistenceManager extends AbstractEventSubscriber implements ModelRepositoryChangeListener, ItemRegistryChangeListener, StateChangeListener {
 	
-	private static final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
+	private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
 	private static PersistenceManager instance;
 	

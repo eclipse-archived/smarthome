@@ -38,7 +38,7 @@ import com.google.gson.JsonParser;
 
 public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
 
-	private static final Logger logger = LoggerFactory.getLogger(YahooWeatherDiscoveryService.class);
+	private final Logger logger = LoggerFactory.getLogger(YahooWeatherDiscoveryService.class);
 
 	public YahooWeatherDiscoveryService() {
 		super(YahooWeatherBindingConstants.SUPPORTED_THING_TYPES_UIDS,10);

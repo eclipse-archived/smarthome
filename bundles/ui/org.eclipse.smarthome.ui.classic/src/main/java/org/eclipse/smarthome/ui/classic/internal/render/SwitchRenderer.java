@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SwitchRenderer extends AbstractWidgetRenderer {
 
-	private static final Logger logger = LoggerFactory.getLogger(SwitchRenderer.class);
+	private final Logger logger = LoggerFactory.getLogger(SwitchRenderer.class);
 	
 	/**
 	 * {@inheritDoc}

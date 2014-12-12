@@ -32,7 +32,7 @@ public class MapDbStorage<T> implements Storage<T> {
 
 	private static final String TYPE_SEPARATOR = "@@@";
 
-	private static final Logger logger = 
+	private final Logger logger = 
 		LoggerFactory.getLogger(MapDbStorage.class);
 	
 	private DB db;

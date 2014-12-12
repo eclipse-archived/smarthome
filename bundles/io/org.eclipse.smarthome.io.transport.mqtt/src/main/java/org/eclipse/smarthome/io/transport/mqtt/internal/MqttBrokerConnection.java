@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MqttBrokerConnection implements MqttCallback {
 
-	private static Logger logger = LoggerFactory.getLogger(MqttBrokerConnection.class);
+	private final Logger logger = LoggerFactory.getLogger(MqttBrokerConnection.class);
 
 	private static final int RECONNECT_FREQUENCY = 60000;
 

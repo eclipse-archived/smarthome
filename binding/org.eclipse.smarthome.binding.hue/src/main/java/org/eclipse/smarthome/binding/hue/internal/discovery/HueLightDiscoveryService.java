@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
-    private final static Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
+    private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
     private final static int SEARCH_TIME = 60; 
     

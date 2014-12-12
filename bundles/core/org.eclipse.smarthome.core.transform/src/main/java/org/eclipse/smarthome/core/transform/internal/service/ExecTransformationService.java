@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ExecTransformationService implements TransformationService {
 
-	static final Logger logger = 
+	private final Logger logger = 
 		LoggerFactory.getLogger(ExecTransformationService.class);
 
 	/**

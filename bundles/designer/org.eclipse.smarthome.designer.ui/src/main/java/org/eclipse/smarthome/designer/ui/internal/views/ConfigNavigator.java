@@ -27,7 +27,7 @@ public class ConfigNavigator extends CommonNavigator {
 
 	private IResourceChangeListener changeListener;
 	
-	private final static Logger logger = LoggerFactory.getLogger(ConfigNavigator.class);
+	private final Logger logger = LoggerFactory.getLogger(ConfigNavigator.class);
 	
 	@Override
 	protected Object getInitialInput() {

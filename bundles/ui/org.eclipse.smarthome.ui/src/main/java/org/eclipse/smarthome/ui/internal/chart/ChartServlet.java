@@ -57,7 +57,7 @@ public class ChartServlet extends HttpServlet implements ManagedService {
 
 	private static final long serialVersionUID = 7700873790924746422L;
 
-	private static final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
+	private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
 	protected String providerName = "default";
 	

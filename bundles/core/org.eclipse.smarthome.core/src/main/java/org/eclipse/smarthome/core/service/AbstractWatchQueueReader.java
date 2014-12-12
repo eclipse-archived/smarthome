@@ -30,7 +30,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 	/**
 	 * Default logger for ESH Watch Services
 	 */
-	protected static final Logger logger = LoggerFactory
+	protected final Logger logger = LoggerFactory
 			.getLogger(AbstractWatchQueueReader.class);
 
 	protected WatchService watchService;

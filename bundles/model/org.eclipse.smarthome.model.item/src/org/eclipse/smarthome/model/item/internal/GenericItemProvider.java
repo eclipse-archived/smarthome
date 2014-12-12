@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public class GenericItemProvider extends AbstractProvider<Item> implements ModelRepositoryChangeListener, ItemProvider {
 
-	private static final Logger logger = 
+	private final Logger logger = 
 		LoggerFactory.getLogger(GenericItemProvider.class);
 	
 	/** to keep track of all binding config readers */

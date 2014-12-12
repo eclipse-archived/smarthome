@@ -62,7 +62,7 @@ import com.xeiam.xchart.StyleManager.LegendPosition;
 
 public class DefaultChartProvider implements ChartProvider {
 
-	private static final Logger logger = LoggerFactory.getLogger(DefaultChartProvider.class);
+	private final Logger logger = LoggerFactory.getLogger(DefaultChartProvider.class);
 
 	protected static final Color[] LINECOLORS = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA,
 			Color.ORANGE, Color.CYAN, Color.PINK, Color.DARK_GRAY, Color.YELLOW };

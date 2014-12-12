@@ -66,7 +66,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private static final String ITEM_TYPE_GROUP = "Group";
 
-    private static final Logger logger = LoggerFactory.getLogger(ManagedItemProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(ManagedItemProvider.class);
 
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 

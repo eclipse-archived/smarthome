@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("restriction")
 public class ScriptExecutionThread extends Thread {
 
-	static private final Logger logger = LoggerFactory.getLogger(ScriptExecutionThread.class);
+	private final Logger logger = LoggerFactory.getLogger(ScriptExecutionThread.class);
 
 	private Script script;
 	private IEvaluationContext context;

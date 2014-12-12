@@ -32,7 +32,7 @@ import com.google.inject.Injector;
  */
 public class ExecuteRuleJob implements Job {
 
-	private static final Logger logger = LoggerFactory.getLogger(ExecuteRuleJob.class);
+	private final Logger logger = LoggerFactory.getLogger(ExecuteRuleJob.class);
 		
 	public static final String JOB_DATA_RULEMODEL = "model";
 	public static final String JOB_DATA_RULENAME = "rule";
