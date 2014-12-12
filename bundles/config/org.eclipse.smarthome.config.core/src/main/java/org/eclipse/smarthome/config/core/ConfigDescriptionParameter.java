@@ -54,7 +54,7 @@ public class ConfigDescriptionParameter {
 
     private String context;
     private boolean required;
-    private Object defaultValue;
+    private String defaultValue;
     private String label;
     private String description;
 
@@ -86,7 +86,7 @@ public class ConfigDescriptionParameter {
      * @throws IllegalArgumentException if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type,
-            String context, boolean required, Object defaultValue,
+            String context, boolean required, String defaultValue,
             String label, String description) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
@@ -158,7 +158,7 @@ public class ConfigDescriptionParameter {
      * 
      * @return the default value of the configuration parameter (could be null)
      */
-    public Object getDefault() {
+    public String getDefault() {
         return this.defaultValue;
     }
 
