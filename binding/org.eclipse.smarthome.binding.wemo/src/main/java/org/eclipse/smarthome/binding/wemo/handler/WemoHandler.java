@@ -172,15 +172,15 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_ONTOTAL), onTotal);
 				    		}
 
-					    	int power = Integer.valueOf(splitInsightParams[7]);
-					    	State currentPower = new DecimalType(power/1000.0); // recalculate mW to W
+					    	BigDecimal power = new BigDecimal(splitInsightParams[7]);
+					    	State currentPower = new DecimalType(power.divide(new BigDecimal(1000))); // recalculate mW to W
 					    	if(currentPower != null) {
 								logger.debug("New InsightParam currentPower '{}' for device '{}' received", currentPower, getThing().getUID() );
 					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_CURRENTPOWER), currentPower);
 				    		}
 
-					    	int todayKWH = Integer.valueOf(splitInsightParams[8]);
-					    	State todayPower = new DecimalType(todayKWH*1.6666667e-8); // recalculate mw to KWH
+					    	BigDecimal todayKWH = new BigDecimal(splitInsightParams[8]);
+					    	State todayPower = new DecimalType(todayKWH.multiply(new BigDecimal(1.6666667e-8))); // recalculate mw to KWH
 					    	if(todayPower != null) {
 							logger.debug("New InsightParam todayPower '{}' for device '{}' received", todayPower, getThing().getUID() );
 					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_TODAYKWH), todayPower);
