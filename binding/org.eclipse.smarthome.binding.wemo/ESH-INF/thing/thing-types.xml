@@ -28,6 +28,46 @@
 
         <channels>
             <channel id="state" typeId="state"/>
+            <channel id="currentPower" typeId="currentPower"/>
+            <channel id="todayKWH" typeId="todayKWH"/>
+            <channel id="totalKWH" typeId="totalKWH"/>
+            <channel id="lastOnFor" typeId="lastOnFor"/>
+            <channel id="onToday" typeId="onToday"/>
+            <channel id="onTotal" typeId="onTotal"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+				<required>true</required>
+        	</parameter>
+         </config-description>
+    </thing-type>
+
+     <thing-type id="lightswitch">
+        <label>WeMo Light Switch</label>
+        <description>This is a WeMo LightSwitch</description>
+
+        <channels>
+            <channel id="state" typeId="state"/>
+        </channels>
+
+        <config-description>
+            <parameter name="udn" type="text">
+                <label>Unique Device Name</label>
+                <description>The UDN identifies the WeMo Device</description>
+				<required>true</required>
+        	</parameter>
+         </config-description>
+    </thing-type>
+
+     <thing-type id="motion">
+        <label>WeMo Motion</label>
+        <description>This is a WeMo MotionSensor</description>
+
+        <channels>
+            <channel id="state" typeId="state"/>
         </channels>
 
         <config-description>
@@ -43,6 +83,42 @@
         <item-type>Switch</item-type>
         <label>Switch</label>
         <description>This channel turns the power on or off</description>
+    </channel-type>
+
+     <channel-type id="currentPower">
+        <item-type>Number</item-type>
+        <label>Current consumption</label>
+        <description>This channel measures actual power consumption</description>
+    </channel-type>
+
+     <channel-type id="todayKWH">
+        <item-type>Number</item-type>
+        <label>Today's consumption</label>
+        <description>This channel measures daily power consumption</description>
+    </channel-type>
+
+     <channel-type id="totalKWH">
+        <item-type>Number</item-type>
+        <label>Total consumption</label>
+        <description>This channel measures total power consumption</description>
+    </channel-type>
+
+     <channel-type id="lastOnFor">
+        <item-type>Number</item-type>
+        <label>Seconds on last activation</label>
+        <description>This channel measures how long the device has been switched on last</description>
+    </channel-type>
+
+     <channel-type id="onToday">
+        <item-type>Number</item-type>
+        <label>Seconds on today</label>
+        <description>This channel measures how long the device has been switched on today</description>
+    </channel-type>
+
+     <channel-type id="onTotal">
+        <item-type>Number</item-type>
+        <label>Seconds on total</label>
+        <description>This channel measures how long the device has been switched on totally</description>
     </channel-type>
  
 </thing:thing-descriptions>
