@@ -23,11 +23,16 @@ public class WemoBindingConstants {
     public final static ThingTypeUID WEMO_SOCKET_TYPE_UID = new ThingTypeUID(BINDING_ID, "socket");
     public final static ThingTypeUID WEMO_INSIGHT_TYPE_UID = new ThingTypeUID(BINDING_ID, "insight");
     public final static ThingTypeUID WEMO_LIGHTSWITCH_TYPE_UID = new ThingTypeUID(BINDING_ID, "lightswitch");
+    public final static ThingTypeUID WEMO_MOTION_TYPE_UID = new ThingTypeUID(BINDING_ID, "motion");
 
     // List of all Channel ids
     public final static String CHANNEL_STATE = "state";
 
     // List of thing configuration properties
 	public static final String UDN = "udn";
+    public final static String CHANNEL_CURRENTPOWER = "currentPower";
+    public final static String CHANNEL_LASTONFOR = "lastOnFor";
+    public final static String CHANNEL_ONTODAY = "onToday";
+    public final static String CHANNEL_ONTOTAL = "onTotal";
 
 }

@@ -8,12 +8,18 @@
 package org.eclipse.smarthome.binding.wemo.handler;
 
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_STATE;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_CURRENTPOWER;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_LASTONFOR;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTODAY;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTOTAL;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.UDN;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIGHT_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_MOTION_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SOCKET_TYPE_UID;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -24,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -44,20 +51,23 @@ import com.google.common.collect.Sets;
  * The {@link WemoHandler} is responsible for handling commands, which are
  * sent to one of the channels and to update their states.
  * 
- * @author Hans-Jörg Merk - Initial contribution
+ * @author Hans-Jörg Merk - Initial contribution; Added support for WeMo Insight energy measurement
  * @author Kai Kreuzer - some refactoring for performance and simplification
  */
+
 public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
     
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID, WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID, WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID, WEMO_MOTION_TYPE_UID);
 
+    private static String getInsightParamsXML;
     private static String getRequestXML;
     private static String setRequestXML;
 
     static {
     	try {
+    		getInsightParamsXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/GetInsightParams.xml"));
     		getRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/GetRequest.xml"));
     		setRequestXML = IOUtils.toString(WemoHandler.class.getResourceAsStream("/org/eclipse/smarthome/binding/wemo/internal/SetRequest.xml"));
     	} catch(Exception e) {
@@ -124,9 +134,56 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 			public void run() {
 				try {
 			    	logger.debug("Refreshing thing '{}'", getThing().getUID());
-			    	State state = getWemoState(new ChannelUID(getThing().getUID(), CHANNEL_STATE));
-			    	if(state != null) {
-			    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_STATE), state);
+			    	
+			    	if (getThing().getThingTypeUID().getId().equals("insight")) {
+			    		String insightParams = getInsightParams(new ChannelUID(getThing().getUID(), CHANNEL_STATE));
+						logger.debug("New insightParams '{}' for device '{}' received", insightParams, getThing().getUID() );
+
+						if(insightParams != null) {
+							
+							String [] splitInsightParams = insightParams.split("\\|");
+							
+							if(splitInsightParams[0] != null) {
+								OnOffType binaryState = null;
+						    	binaryState = splitInsightParams[0].equals("0") ? OnOffType.OFF : OnOffType.ON;
+						    	if(binaryState != null) {
+									logger.debug("New InsightParam binaryState '{}' for device '{}' received", binaryState, getThing().getUID() );
+						    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_STATE), binaryState);
+						    	}
+							}
+
+							State lastOnFor = DecimalType.valueOf(splitInsightParams[2]);
+					    	if(lastOnFor != null) {
+								logger.debug("New InsightParam lastOnFor '{}' for device '{}' received", lastOnFor, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_LASTONFOR), lastOnFor);
+				    		}
+							
+							State onToday = DecimalType.valueOf(splitInsightParams[3]);
+					    	if(onToday != null) {
+								logger.debug("New InsightParam onToday '{}' for device '{}' received", onToday, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_ONTODAY), onToday);
+				    		}
+							
+							State onTotal = DecimalType.valueOf(splitInsightParams[4]);
+					    	if(onTotal != null) {
+								logger.debug("New InsightParam onTotal '{}' for device '{}' received", onTotal, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_ONTOTAL), onTotal);
+				    		}
+
+					    	BigDecimal currentMW = new BigDecimal(splitInsightParams[7]);
+					    	State currentPower = new DecimalType(currentMW.divide(new BigDecimal(1000))); // recalculate mW to W
+					    	if(currentPower != null) {
+								logger.debug("New InsightParam currentPower '{}' for device '{}' received", currentPower, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_CURRENTPOWER), currentPower);
+				    		}
+						}
+			    		
+			    	} else {
+				    	State state = getWemoState(new ChannelUID(getThing().getUID(), CHANNEL_STATE));
+						logger.debug("State '{}' for device '{}' received", state, getThing().getUID() );
+				    	if(state != null) {
+				    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_STATE), state);
+			    		}
 			    	}
 				} catch(Exception e) {
 					logger.debug("Exception occurred during Refresh: {}", e);
@@ -188,6 +245,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 			
 			String endpoint = "/upnp/control/basicevent1";
 
+			if (soapMethod.contains("insight")) {
+				endpoint = "/upnp/control/insight1";
+			}
+
 			URL wemoDescriptorURL = service.getDescriptorURL(this);
 
 			if (wemoDescriptorURL != null) {
@@ -236,7 +297,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 	private State getWemoState(ChannelUID channelUID) {
 		String stateRequest = null;
 		String returnState = null;
-
+		
 			try {
 				stateRequest = wemoCall(channelUID,
 						"urn:Belkin:service:basicevent:1#GetBinaryState", getRequestXML);
@@ -252,10 +313,30 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 			if (returnState != null) {
 				OnOffType newState = null;
 				newState = returnState.equals("0") ? OnOffType.OFF : OnOffType.ON;
+				logger.debug("New state '{}' for device '{}' received", newState, getThing().getUID() );
 				return newState;
 		} else {
 			return null;
 		}
+	}
+	
+	private String getInsightParams(ChannelUID channelUID) {
+		String insightParamsRequest = null;
+		String returnInsightParams = null;
+		
+		try {
+			insightParamsRequest = wemoCall(channelUID,
+					"urn:Belkin:service:insight:1#GetInsightParams", getInsightParamsXML);
+			if(insightParamsRequest != null) {
+				
+				returnInsightParams = StringUtils.substringBetween(insightParamsRequest, "<InsightParams>", "</InsightParams>");
+				logger.debug("New raw InsightParams '{}' for device '{}' received", returnInsightParams, getThing().getUID() );
+				return returnInsightParams;
+			}
+		} catch (Exception e) {
+			logger.error("Failed to get InsightParams for device '{}'", getThing().getUID(), e);
+		}
+		return null;
 	}
 
 }
