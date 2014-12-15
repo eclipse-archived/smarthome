@@ -32,7 +32,7 @@ public class WemoBindingConstants {
 	public static final String UDN = "udn";
     public final static String CHANNEL_CURRENTPOWER = "currentPower";
     public final static String CHANNEL_TODAYKWH = "todayKWH";
-    public final static String CHANNEL_TOTALMW = "totalMW";
+    public final static String CHANNEL_TOTALKWH = "totalKWH";
     public final static String CHANNEL_LASTONFOR = "lastOnFor";
     public final static String CHANNEL_ONTODAY = "onToday";
     public final static String CHANNEL_ONTOTAL = "onTotal";

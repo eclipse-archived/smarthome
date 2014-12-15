@@ -30,7 +30,7 @@
             <channel id="state" typeId="state"/>
             <channel id="currentPower" typeId="currentPower"/>
             <channel id="todayKWH" typeId="todayKWH"/>
-            <channel id="totalMW" typeId="totalMW"/>
+            <channel id="totalKWH" typeId="totalKWH"/>
             <channel id="lastOnFor" typeId="lastOnFor"/>
             <channel id="onToday" typeId="onToday"/>
             <channel id="onTotal" typeId="onTotal"/>
@@ -97,7 +97,7 @@
         <description>This channel measures daily power consumption</description>
     </channel-type>
 
-     <channel-type id="totalMW">
+     <channel-type id="totalKWH">
         <item-type>Number</item-type>
         <label>Total consumption</label>
         <description>This channel measures total power consumption</description>

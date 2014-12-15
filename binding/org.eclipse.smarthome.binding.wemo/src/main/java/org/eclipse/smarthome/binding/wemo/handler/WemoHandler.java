@@ -13,7 +13,7 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_LA
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTODAY;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTOTAL;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_TODAYKWH;
-import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_TOTALMW;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_TOTALKWH;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.UDN;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIGHT_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
@@ -172,25 +172,25 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_ONTOTAL), onTotal);
 				    		}
 
-					    	BigDecimal power = new BigDecimal(splitInsightParams[7]);
-					    	State currentPower = new DecimalType(power.divide(new BigDecimal(1000))); // recalculate mW to W
+					    	BigDecimal currentMW = new BigDecimal(splitInsightParams[7]);
+					    	State currentPower = new DecimalType(currentMW.divide(new BigDecimal(1000))); // recalculate mW to W
 					    	if(currentPower != null) {
 								logger.debug("New InsightParam currentPower '{}' for device '{}' received", currentPower, getThing().getUID() );
 					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_CURRENTPOWER), currentPower);
 				    		}
 
-					    	BigDecimal todayKWH = new BigDecimal(splitInsightParams[8]);
-					    	State todayPower = new DecimalType(todayKWH.multiply(new BigDecimal(1.6666667e-8))); // recalculate mw to KWH
-					    	if(todayPower != null) {
-							logger.debug("New InsightParam todayPower '{}' for device '{}' received", todayPower, getThing().getUID() );
-					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_TODAYKWH), todayPower);
+					    	BigDecimal todayMWmin = new BigDecimal(splitInsightParams[8]);
+					    	State todayKWH = new DecimalType(todayMWmin.divide(new BigDecimal(1000000/60))); // recalculate mWmin to kWh
+					    	if(todayKWH != null) {
+							logger.debug("New InsightParam todayPower '{}' for device '{}' received", todayKWH, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_TODAYKWH), todayKWH);
 				    		}
 
-					    	BigDecimal totalMW = new BigDecimal(splitInsightParams[9]);
-					    	State totalPower = new DecimalType(totalMW.divide(new BigDecimal(1000))); // recalculate mW to W
-					    	if(totalPower != null) {
-								logger.debug("New InsightParam totalPower '{}' for device '{}' received", totalPower, getThing().getUID() );
-					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_TOTALMW), totalPower);
+					    	BigDecimal totalMWmin = new BigDecimal(splitInsightParams[9]);
+					    	State totalKWH = new DecimalType(totalMWmin.divide(new BigDecimal(1000000/60))); // recalculate mWmin to kWh
+					    	if(totalKWH != null) {
+								logger.debug("New InsightParam totalPower '{}' for device '{}' received", totalKWH, getThing().getUID() );
+					    		updateState(new ChannelUID(getThing().getUID(), CHANNEL_TOTALKWH), totalKWH);
 				    		}
 						}
 			    		
