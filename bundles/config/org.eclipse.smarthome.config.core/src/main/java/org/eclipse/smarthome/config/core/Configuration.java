@@ -29,7 +29,7 @@ public class Configuration {
 
     final private Map<String, Object> properties;
 
-    private final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
     	this(new HashMap<String, Object>());
