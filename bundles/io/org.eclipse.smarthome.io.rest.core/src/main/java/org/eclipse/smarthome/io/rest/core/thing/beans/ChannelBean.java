@@ -10,8 +10,7 @@ package org.eclipse.smarthome.io.rest.core.thing.beans;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This is a java bean that is used with JAXB to serialize channels to XML or
- * JSON.
+ * This is a java bean that is used with JAX-RS to serialize channels to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *

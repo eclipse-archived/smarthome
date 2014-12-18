@@ -15,6 +15,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -22,6 +23,12 @@ import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
 
+/**
+ * The ConfigDescriptionsTest is a test for loading of configuration description from XML documents.
+ * 
+ * @author Alex Tugarev - Initial contribution; Extended tests for options and filters
+ *
+ */
 class ConfigDescriptionsTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "ConfigDescriptionsTest.bundle"
@@ -56,25 +63,69 @@ class ConfigDescriptionsTest extends OSGiTest {
         assertThat dummyConfigDescription, is(notNullValue())
         
         def parameters = dummyConfigDescription.parameters
-        assertThat parameters.size(), is(2)
+        assertThat parameters.size(), is(5)
         
-        def ipParameter = parameters.find { it.name.equals("ip") }
+        ConfigDescriptionParameter ipParameter = parameters.find { it.name.equals("ip") }
         assertThat ipParameter, is(notNullValue())
         assertThat ipParameter.type, is(Type.TEXT)
         ipParameter.with {
-            assertThat context, is("network_address")
+            assertThat context, is("network-address")
             assertThat label, is("Network Address")
             assertThat description, is("Network address of the hue bridge.")
+            assertThat pattern, is("[0-9]{3}.[0-9]{3}.[0-9]{3}.[0-9]{3}")
             assertThat required, is(true)
+            assertThat multiple, is(false)
+            assertThat readOnly, is(true)
         }
         
-        def usernameParameter = parameters.find { it.name.equals("username") }
+        ConfigDescriptionParameter usernameParameter = parameters.find { it.name.equals("username") }
         assertThat usernameParameter, is(notNullValue())
         assertThat usernameParameter.type, is(Type.TEXT)
         usernameParameter.with {
             assertThat context, is("password")
             assertThat label, is("Username")
+            assertThat required, is(false)
+            assertThat multiple, is(false)
+            assertThat readOnly, is(false)
             assertThat description, is("Name of a registered hue bridge user, that allows to access the API.")
+        }
+        
+        ConfigDescriptionParameter userPassParameter = parameters.find { it.name.equals("user-pass") }
+        assertThat userPassParameter, is(notNullValue())
+        assertThat userPassParameter.type, is(Type.TEXT)
+        userPassParameter.with {
+            assertThat min, is(8 as BigDecimal)
+            assertThat max, is(16 as BigDecimal)
+            assertThat required, is(true)
+            assertThat multiple, is(false)
+            assertThat readOnly, is(false)
+            assertThat context, is("password")
+            assertThat label, is("Password")
+        }
+        
+        ConfigDescriptionParameter listParameter = parameters.find { it.name.equals("list") }
+        assertThat listParameter, is(notNullValue())
+        assertThat listParameter.type, is(Type.TEXT)
+        listParameter.with {
+            assertThat required, is(false)
+            assertThat multiple, is(true)
+            assertThat readOnly, is(false)
+            assertThat min, is(2 as BigDecimal)
+            assertThat max, is(3 as BigDecimal)
+            assertThat options, is(notNullValue())
+            assertThat options.join(", "), is("ParameterOption [value=\"key1\", label=\"label1\"], ParameterOption [value=\"key2\", label=\"label2\"]")
+        }
+        
+        ConfigDescriptionParameter colorItemParameter = parameters.find { it.name.equals("color-alarming-light") }
+        assertThat colorItemParameter, is(notNullValue())
+        assertThat colorItemParameter.type, is(Type.TEXT)
+        colorItemParameter.with {
+            assertThat required, is(false)
+            assertThat multiple, is(true)
+            assertThat readOnly, is(false)
+            assertThat context, is("item")
+            assertThat filterCriteria, is(notNullValue())
+            assertThat filterCriteria.join(", "), is("FilterCriteria [name=\"tags\", value=\"alarm, light\"], FilterCriteria [name=\"type\", value=\"color\"], FilterCriteria [name=\"binding-id\", value=\"hue\"]")
         }
         
         // uninstall test bundle

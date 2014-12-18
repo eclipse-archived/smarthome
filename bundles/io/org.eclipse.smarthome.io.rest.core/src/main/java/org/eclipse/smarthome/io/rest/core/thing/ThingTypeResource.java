@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -26,6 +27,8 @@ import javax.ws.rs.core.Response;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.FilterCriteria;
+import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -35,6 +38,8 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
+import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
+import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterOptionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,10 +107,22 @@ public class ThingTypeResource implements RESTResource {
                         configDescription.getParameters().size());
                 for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
                     ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
-                            configDescriptionParameter.getName(), configDescriptionParameter.getType(),
-                            configDescriptionParameter.getContext(), configDescriptionParameter.isRequired(),
+                            configDescriptionParameter.getName(), 
+                            configDescriptionParameter.getType(),
+                            configDescriptionParameter.getMinimum(),
+                            configDescriptionParameter.getMaximum(),
+                            configDescriptionParameter.getStepSize(),
+                            configDescriptionParameter.getPattern(),
+                            configDescriptionParameter.isRequired(),
+                            configDescriptionParameter.isReadOnly(),
+                            configDescriptionParameter.isMultiple(),
+                            configDescriptionParameter.getContext(), 
                             String.valueOf(configDescriptionParameter.getDefault()),
-                            configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription());
+                            configDescriptionParameter.getLabel(), 
+                            configDescriptionParameter.getDescription(),
+                            createBeansForOptions(configDescriptionParameter.getOptions()),
+                            createBeansForCriteria(configDescriptionParameter.getFilterCriteria())
+                            );
                     configDescriptionParameterBeans.add(configDescriptionParameterBean);
                 }
                 return configDescriptionParameterBeans;
@@ -114,6 +131,26 @@ public class ThingTypeResource implements RESTResource {
             logger.error(ex.getMessage(), ex);
         }
         return null;
+    }
+
+    private List<FilterCriteriaBean> createBeansForCriteria(List<FilterCriteria> filterCriteria) {
+        if (filterCriteria == null)
+            return null;
+        List<FilterCriteriaBean> result = new LinkedList<FilterCriteriaBean>();
+        for (FilterCriteria criteria : filterCriteria) {
+            result.add(new FilterCriteriaBean(criteria.getName(), criteria.getValue()));
+        }
+        return result;
+    }
+
+    private List<ParameterOptionBean> createBeansForOptions(List<ParameterOption> options) {
+        if (options == null)
+            return null;
+        List<ParameterOptionBean> result = new LinkedList<ParameterOptionBean>();
+        for (ParameterOption option : options) {
+            result.add(new ParameterOptionBean(option.getValue(), option.getLabel()));
+        }
+        return result;
     }
 
     public Set<ThingTypeBean> getThingTypeBeans(String bindingId, Locale locale) {

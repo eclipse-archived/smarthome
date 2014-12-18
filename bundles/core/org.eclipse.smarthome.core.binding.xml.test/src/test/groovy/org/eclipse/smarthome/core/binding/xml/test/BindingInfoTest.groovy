@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.core.binding.BindingInfo
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry
 import org.eclipse.smarthome.test.OSGiTest
@@ -25,11 +27,14 @@ class BindingInfoTest extends OSGiTest {
     static final String TEST_BUNDLE_NAME = "BundleInfoTest.bundle"
 	
     BindingInfoRegistry bindingInfoRegistry
+    ConfigDescriptionRegistry configDescriptionRegistry
 
 	@Before
 	void setUp() {
 		bindingInfoRegistry = getService(BindingInfoRegistry)
         assertThat bindingInfoRegistry, is(notNullValue())
+        configDescriptionRegistry = getService(ConfigDescriptionRegistry)
+        assertThat configDescriptionRegistry, is(notNullValue())
 	}
     
     @After
@@ -38,7 +43,7 @@ class BindingInfoTest extends OSGiTest {
     }
 	
 	@Test
-	void 'assert that BindingInfo was read'() {
+	void 'assert that BindingInfo is read properly'() {
 		def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.bindingInfos.size()
 		
@@ -50,7 +55,7 @@ class BindingInfoTest extends OSGiTest {
         assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
         BindingInfo bindingInfo = bindingInfos.first()
         assertThat bindingInfo.id, is("hue")
-        assertThat bindingInfo.configDescriptionURI, is(nullValue())
+        assertThat bindingInfo.configDescriptionURI, is(URI.create("binding:hue"))
         assertThat bindingInfo.description, is("The hue Binding integrates the Philips hue system. It allows to control hue lights.")
         assertThat bindingInfo.name, is("hue Binding")
         assertThat bindingInfo.author, is("Deutsche Telekom AG")
@@ -61,7 +66,7 @@ class BindingInfoTest extends OSGiTest {
 	}
     
     @Test
-    void 'assert that BindingInfo was removed after the bundle was uninstalled'() {
+    void 'assert that BindingInfo is removed after the bundle was uninstalled'() {
         def bundleContext = getBundleContext()
         def initialNumberOfBindingInfos = bindingInfoRegistry.bindingInfos.size()
         
@@ -84,6 +89,37 @@ class BindingInfoTest extends OSGiTest {
             for (BindingInfo bindingInfo_ in bindingInfos) {
                 assertThat bindingInfo_.id, is(not(bindingInfo.id))
             }
+        }
+    }
+    
+    @Test
+    void 'assert that config with options and filter are properly read'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfBindingInfos = bindingInfoRegistry.bindingInfos.size()
+        
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+        
+        def bindingInfos = bindingInfoRegistry.bindingInfos
+        assertThat bindingInfos.size(), is(initialNumberOfBindingInfos + 1)
+        BindingInfo bindingInfo = bindingInfos.first()
+        
+        URI configDescriptionURI = bindingInfo.getConfigDescriptionURI();
+        def configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI)
+        def parameters = configDescription.getParameters()
+        assertThat parameters.size(), is(2)
+        
+        ConfigDescriptionParameter listParameter = parameters.find { it.name.equals("list") }
+        assertThat listParameter, is(notNullValue())
+        listParameter.with {
+            assertThat options.join(", "), is("ParameterOption [value=\"key1\", label=\"label1\"], ParameterOption [value=\"key2\", label=\"label2\"]")
+        }
+        
+        ConfigDescriptionParameter lightParameter = parameters.find { it.name.equals("color-alarming-light") }
+        assertThat lightParameter, is(notNullValue())
+        lightParameter.with {
+            assertThat filterCriteria.join(", "), is("FilterCriteria [name=\"tags\", value=\"alarm, light\"], FilterCriteria [name=\"type\", value=\"color\"], FilterCriteria [name=\"binding-id\", value=\"hue\"]")
         }
     }
 }

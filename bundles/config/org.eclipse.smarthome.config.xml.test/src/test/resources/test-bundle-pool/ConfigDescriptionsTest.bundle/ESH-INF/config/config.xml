@@ -1,24 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config-description:config-descriptions
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0 ../../../../../../../../org.eclipse.smarthome.config.xml/org.eclipse.smarthome.config-description.xsd ">
 
 	<!-- test dummy -->
 	<config-description uri="config:dummyConfig">
-		<parameter name="ip" type="text">
-			<context>network_address</context>
+
+		<parameter name="ip" type="text" pattern="[0-9]{3}.[0-9]{3}.[0-9]{3}.[0-9]{3}" required="true" readOnly="true">
+			<context>network-address</context>
 			<label>Network Address</label>
 			<description>Network address of the hue bridge.</description>
-			<required>true</required>
+			<required>true</required><!-- deprecated -->
 		</parameter>
+
 		<parameter name="username" type="text">
 			<context>password</context>
 			<label>Username</label>
-			<description>Name of a registered hue bridge user, that allows to
-				access the API.
+			<description>Name of a registered hue bridge user, that allows to access the API.
 			</description>
 		</parameter>
+		    
+		<!-- password with min 8, max 16 characters -->
+		<parameter name="user-pass" type="text" min="8" max="16" required="true">
+			<context>password</context>
+			<label>Password</label>
+			<required>true</required><!-- deprecated -->
+		</parameter>
+		
+		<!-- a static selection list allowing multiple selections with min 2 max 3 items -->
+	    <parameter name="list" type="text" multiple="true" min="2" max="3">
+	        <options>
+	            <option value="key1">label1</option>
+	            <option value="key2">label2</option>
+	        </options>
+	    </parameter>
+	     
+	    <!-- a selection list of color items that have the tags "alarm" and "light" -->
+	    <parameter name="color-alarming-light" type="text" multiple="true">
+	        <context>item</context>
+	        <filter>
+	            <criteria name="tags">alarm, light</criteria>
+	            <criteria name="type">color</criteria>
+	            <criteria name="binding-id">hue</criteria>
+	        </filter>
+		</parameter>
+		
 	</config-description>
 
 </config-description:config-descriptions>
