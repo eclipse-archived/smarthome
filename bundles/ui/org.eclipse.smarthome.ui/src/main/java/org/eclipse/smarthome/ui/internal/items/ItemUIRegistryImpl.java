@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
@@ -30,6 +29,7 @@ import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
+import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
@@ -207,7 +207,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 		if (itemType.equals(ContactItem.class)) {
 			return SitemapFactory.eINSTANCE.createText();
 		}
-		if (itemType.equals(RollershutterItem.class)) {
+		if (itemType.equals(DateTimeItem.class)) {
+			return SitemapFactory.eINSTANCE.createText();
+		}
+ 		if (itemType.equals(RollershutterItem.class)) {
 			return SitemapFactory.eINSTANCE.createSwitch();
 		}
 		if (itemType.equals(StringItem.class)) {
