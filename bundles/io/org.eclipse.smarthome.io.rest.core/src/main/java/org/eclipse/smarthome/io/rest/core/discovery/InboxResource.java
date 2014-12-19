@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
+import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**
  * This class acts as a REST resource for the inbox and is registered with the
@@ -108,11 +109,7 @@ public class InboxResource implements RESTResource {
     private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
         Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
         for (DiscoveryResult discoveryResult : discoveryResults) {
-            ThingUID thingUID = discoveryResult.getThingUID();
-            ThingUID bridgeUID = discoveryResult.getBridgeUID();
-            discoveryResultBeans.add(new DiscoveryResultBean(thingUID.toString(), bridgeUID != null ? bridgeUID
-                    .toString() : null, discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult
-                    .getProperties()));
+            discoveryResultBeans.add(BeanMapper.mapDiscoveryResultToBean(discoveryResult));
         }
         return discoveryResultBeans;
     }

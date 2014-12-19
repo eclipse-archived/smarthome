@@ -24,6 +24,8 @@
     <module>org.eclipse.smarthome.io.rest</module>
     <module>org.eclipse.smarthome.io.rest.core</module>
     <module>org.eclipse.smarthome.io.rest.core.test</module>
+    <module>org.eclipse.smarthome.io.rest.sse</module>
+    <module>org.eclipse.smarthome.io.rest.sse.test</module>
     <module>org.eclipse.smarthome.io.rest.sitemap</module>
     <module>org.eclipse.smarthome.io.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
