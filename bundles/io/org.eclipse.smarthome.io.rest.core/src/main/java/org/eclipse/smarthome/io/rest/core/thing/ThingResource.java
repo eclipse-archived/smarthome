@@ -233,7 +233,6 @@ public class ThingResource implements RESTResource {
 
     protected void unsetItemChannelLinkRegistry() {
         itemChannelLinkRegistry = null;
-        ;
     }
 
     protected void unsetItemFactory() {

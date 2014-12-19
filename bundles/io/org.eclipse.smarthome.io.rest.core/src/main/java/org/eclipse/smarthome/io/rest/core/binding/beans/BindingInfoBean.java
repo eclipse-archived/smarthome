@@ -26,7 +26,7 @@ public class BindingInfoBean {
     public Set<ThingTypeBean> thingTypes;
 
     public BindingInfoBean() {
-    };
+    }
 
     public BindingInfoBean(String id, String name, String author, String description, Set<ThingTypeBean> thingTypes) {
         this.id = id;

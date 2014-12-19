@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
+import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
@@ -35,6 +36,7 @@ import org.osgi.framework.Bundle;
  * 
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added locale support
+ * @author Alex Tugarev - Extended for pattern and options
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
@@ -207,25 +209,62 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     private ConfigDescriptionParameter getLocalizedConfigDescriptionParameter(
             Bundle bundle, ConfigDescription configDescription,
-            ConfigDescriptionParameter configDescriptionParameter, Locale locale) {
+            ConfigDescriptionParameter parameter, Locale locale) {
 
+        URI configDescriptionURI = configDescription.getURI();
+        String parameterName = parameter.getName();
+        
         String label = this.configDescriptionI18nUtil.getParameterLabel(
-                bundle, configDescription.getURI(), configDescriptionParameter.getName(),
-                configDescriptionParameter.getLabel(), locale);
+                bundle, configDescriptionURI, parameterName,
+                parameter.getLabel(), locale);
 
         String description = this.configDescriptionI18nUtil.getParameterDescription(bundle,
-                configDescription.getURI(), configDescriptionParameter.getName(),
-                configDescriptionParameter.getDescription(), locale);
+                configDescriptionURI, parameterName,
+                parameter.getDescription(), locale);
 
-        ConfigDescriptionParameter localizedConfigDescriptionParameter =
+        String pattern = this.configDescriptionI18nUtil.getParameterPattern(bundle,
+                configDescriptionURI, parameterName,
+                parameter.getPattern(), locale);
+
+        List<ParameterOption> options = getLocalizedOptions(parameter.getOptions(), bundle,
+                configDescriptionURI, parameterName, locale);
+
+        ConfigDescriptionParameter localizedParameter =
                 new ConfigDescriptionParameter(
-                        configDescriptionParameter.getName(),
-                        configDescriptionParameter.getType(),
-                        configDescriptionParameter.getContext(),
-                        configDescriptionParameter.isRequired(),
-                        configDescriptionParameter.getDefault(), label, description);
+                        parameterName,
+                        parameter.getType(),
+                        parameter.getMinimum(),
+                        parameter.getMaximum(),
+                        parameter.getStepSize(),
+                        pattern,
+                        parameter.isRequired(),
+                        parameter.isReadOnly(),
+                        parameter.isMultiple(), 
+                        parameter.getContext(),
+                        parameter.getDefault(), 
+                        label, 
+                        description,
+                        options,
+                        parameter.getFilterCriteria());
 
-        return localizedConfigDescriptionParameter;
+        return localizedParameter;
+    }
+    
+    private List<ParameterOption> getLocalizedOptions(List<ParameterOption> originalOptions,
+            Bundle bundle, URI configDescriptionURI, String parameterName, Locale locale) {
+        if (originalOptions == null || originalOptions.isEmpty())
+            return originalOptions;
+
+        List<ParameterOption> localizedOptions = new ArrayList<ParameterOption>();
+        for (ParameterOption option : originalOptions) {
+
+            String localizedLabel = this.configDescriptionI18nUtil.getParameterOptionLabel(bundle,
+                    configDescriptionURI, parameterName, /* key */option.getValue(), 
+                    /* fallback */ option.getLabel(), locale);
+            ParameterOption localizedOption = new ParameterOption(option.getValue(), localizedLabel);
+            localizedOptions.add(localizedOption);
+        }
+        return localizedOptions;
     }
 
 }

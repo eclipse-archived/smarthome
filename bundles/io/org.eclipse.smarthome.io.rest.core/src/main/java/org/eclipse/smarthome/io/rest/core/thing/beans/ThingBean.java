@@ -15,8 +15,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 
 /**
- * This is a java bean that is used with JAXB to serialize things to XML or
- * JSON.
+ * This is a java bean that is used with JAX-RS to serialize things to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *

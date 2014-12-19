@@ -10,7 +10,7 @@
 
 		<config-description>
 			<parameter name="ip" type="text">
-				<context>network_address</context>
+				<context>network-address</context>
 				<label>Network Address</label>
 				<description>Network address of the hue bridge.</description>
 				<required>true</required>
@@ -38,6 +38,37 @@
 			<channel id="color" typeId="color" />
 			<channel id="color_temperature" typeId="color_temperature" />
 		</channels>
+	</thing-type>
+	
+	
+	<!-- Dummy thing type -->
+	<thing-type id="dummy">
+		<label>Dummy thing</label>
+		
+		<config-description>
+			
+			<parameter name="unit" type="text">
+				<label>Unit</label>
+				<description>Specifies the unit of the data. Valid values are "us" or "metric".</description>
+				<default>metric</default>
+				
+				<options>
+					<option value="us">US</option>
+					<option value="metric">Metric</option>
+				</options>
+			</parameter>
+			
+			<parameter name="color-alarming-light" type="text" multiple="true">
+		        <context>item</context>
+		        <filter>
+		            <criteria name="tags">alarm, light</criteria>
+		            <criteria name="type">color</criteria>
+		            <criteria name="binding-id">hue</criteria>
+		        </filter>
+			</parameter>
+			
+		</config-description>
+		
 	</thing-type>
 
 	<!-- HUE Lamp Color Channel -->

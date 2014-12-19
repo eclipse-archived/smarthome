@@ -10,8 +10,7 @@ package org.eclipse.smarthome.io.rest.core.thing.beans;
 import java.util.List;
 
 /**
- * This is a java bean that is used with JAXB to serialize things to XML or
- * JSON.
+ * This is a java bean that is used with JAX-RS to serialize things to JSON.
  * 
  * @author Dennis Nobel - Initial contribution
  *

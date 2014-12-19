@@ -23,6 +23,12 @@ import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
+/**
+ * The ConfigDescriptionsTest is a test for loading of configuration description from XML documents.
+ *
+ * @author Alex Tugarev - Initial contribution; Extended tests for options and filters
+ *
+ */
 class ConfigDescriptionI18nTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "yahooweather.bundle"
@@ -63,21 +69,30 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         unit.description = Spezifiziert die Einheit der Daten. Valide Werte sind 'us' und 'metric'
         refresh.label = Aktualisierungsintervall
         refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
+        question.pattern = Wie ist das Wetter in [\\w]*?
+        question.options = München, Köln
         """, asString(config))
 
 
     }
 
     String asString(final ConfigDescription self) {
-        def location = self.getParameters().find { it.getName().equals("location") } as ConfigDescriptionParameter
+        ConfigDescriptionParameter location = self.getParameters().find { it.getName().equals("location") }
         def location_label = location.getLabel()
         def location_description = location.getDescription()
-        def unit = self.getParameters().find { it.getName().equals("unit") } as ConfigDescriptionParameter
+       
+        ConfigDescriptionParameter unit = self.getParameters().find { it.getName().equals("unit") }
         def unit_label = unit.getLabel()
         def unit_description = unit.getDescription()
-        def refresh = self.getParameters().find { it.getName().equals("refresh") } as ConfigDescriptionParameter
+        
+        ConfigDescriptionParameter refresh = self.getParameters().find { it.getName().equals("refresh") }
         def refresh_label = refresh.getLabel()
         def refresh_description = refresh.getDescription()
+        
+        ConfigDescriptionParameter question = self.getParameters().find { it.getName().equals("question") }
+        def pattern = question.getPattern()
+        def options = question.getOptions().collect { it.getLabel() }.join(", ")
+        
         return """
         location.label = ${location_label}
         location.description = ${location_description}
@@ -85,6 +100,8 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         unit.description = ${unit_description}
         refresh.label = ${refresh_label}
         refresh.description = ${refresh_description}
+        question.pattern = ${pattern}
+        question.options = ${options}
         """
     }
 }

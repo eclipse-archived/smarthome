@@ -9,6 +9,7 @@ package org.eclipse.smarthome.config.core.i18n;
 
 import java.net.URI;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
@@ -20,13 +21,23 @@ import org.osgi.framework.Bundle;
  * text is not a constant.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Alex Tugarev - Extended for pattern and option label
  */
 public class ConfigDescriptionI18nUtil {
 
     private I18nProvider i18nProvider;
     
+    private static final Pattern delimiter = Pattern.compile("[:=\\s]");
+    
     public ConfigDescriptionI18nUtil(I18nProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
+    }
+    
+    public String getParameterPattern(Bundle bundle, URI configDescriptionURI, String parameterName,
+            String defaultPattern, Locale locale) {
+        String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern) : inferKey(
+                configDescriptionURI, parameterName, "pattern");
+        return i18nProvider.getText(bundle, key, defaultPattern, locale);
     }
 
     public String getParameterDescription(Bundle bundle, URI configDescriptionURI, String parameterName,
@@ -42,10 +53,28 @@ public class ConfigDescriptionI18nUtil {
                 configDescriptionURI, parameterName, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
+    
+    public String getParameterOptionLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String optionValue, String defaultOptionLabel,
+            Locale locale) {
+        if (!isValidPropertyKey(optionValue))
+            return defaultOptionLabel;
+        
+        String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel) : inferKey(
+                configDescriptionURI, parameterName, "option." + optionValue);
+        
+        return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
+    }
 
     private String inferKey(URI configDescriptionURI, String parameterName, String lastSegment) {
         String uri = configDescriptionURI.getSchemeSpecificPart().replace(":", ".");
         return configDescriptionURI.getScheme() + ".config." + uri + "." + parameterName + "." + lastSegment;
     }
-
+    
+    private boolean isValidPropertyKey(String key) {
+        if (key != null) {
+            return !delimiter.matcher(key).find();
+        }
+        return false;
+    }
+    
 }

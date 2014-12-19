@@ -8,9 +8,11 @@
 package org.eclipse.smarthome.config.xml.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.xstream.converters.ConversionException;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 
@@ -23,20 +25,23 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * same name.
  * 
  * @author Michael Grammling - Initial Contribution
+ * @author Alex Tugarev - Extended for options and filter criteria
  */
 public class ConverterValueMap {
 
     private HierarchicalStreamReader reader;
-    private Map<String, String> valueMap;
+    private Map<String, Object> valueMap;
+    private UnmarshallingContext context;
 
 
     /**
      * Creates a new instance of this class with the specified parameter.
      * 
      * @param reader the reader to be used to read-in all children (must not be null)
+     * @param context 
      */
-    public ConverterValueMap(HierarchicalStreamReader reader) {
-        this(reader, -1);
+    public ConverterValueMap(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        this(reader, -1, context);
     }
 
     /**
@@ -44,10 +49,11 @@ public class ConverterValueMap {
      * 
      * @param reader the reader to be used to read-in all children (must not be null)
      * @param numberOfValues the number of children to be read-in (< 0 = until end of section)
+     * @param context 
      * 
      * @throws ConversionException if not all children could be read-in
      */
-    public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues)
+    public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context)
             throws ConversionException {
 
         if (numberOfValues < -1) {
@@ -55,7 +61,8 @@ public class ConverterValueMap {
         }
 
         this.reader = reader;
-        this.valueMap = readValueMap(this.reader, numberOfValues);
+        this.context = context;
+        this.valueMap = readValueMap(this.reader, numberOfValues, this.context);
     }
 
     /**
@@ -63,18 +70,8 @@ public class ConverterValueMap {
      * 
      * @return the key-value map containing all read-in children (not null, could be empty)
      */
-    public Map<String, String> getValueMap() {
+    public Map<String, Object> getValueMap() {
         return this.valueMap;
-    }
-
-    /**
-     * Reads-in all simple children in a key-value map and returns it.
-     * 
-     * @param reader the reader to be used to read-in all children (must not be null)
-     * @return the key-value map containing all read-in children (not null, could be empty)
-     */
-    public static Map<String, String> readValueMap(HierarchicalStreamReader reader) {
-        return readValueMap(reader, -1);
     }
 
     /**
@@ -82,20 +79,27 @@ public class ConverterValueMap {
      * 
      * @param reader the reader to be used to read-in the children (must not be null)
      * @param numberOfValues the number of children to be read in (< 0 = until end of section)
+     * @param context 
      * 
      * @return the key-value map containing the read-in children (not null, could be empty)
      * 
      * @throws ConversionException if not all children could be read-in
      */
-    public static Map<String, String> readValueMap(
-            HierarchicalStreamReader reader, int numberOfValues) throws ConversionException {
+    public static Map<String, Object> readValueMap(
+            HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context) throws ConversionException {
 
-        Map<String, String> valueMap = new HashMap<>((numberOfValues >= 0) ? numberOfValues : 10);
+        Map<String, Object> valueMap = new HashMap<>((numberOfValues >= 0) ? numberOfValues : 10);
         int counter = 0;
 
         while (reader.hasMoreChildren() && ((counter < numberOfValues) || (numberOfValues == -1))) {
             reader.moveDown();
-            valueMap.put(reader.getNodeName(), reader.getValue());
+            if (reader.hasMoreChildren()) {
+                List<?> list = (List<?>) context.convertAnother(context, List.class);
+                valueMap.put(reader.getNodeName(), list);
+            }
+            else {
+                valueMap.put(reader.getNodeName(), reader.getValue());
+            }
             reader.moveUp();
             counter++;
         }
@@ -154,9 +158,9 @@ public class ConverterValueMap {
      * @return the text associated with the specified name of the child's node (could be null)
      */
     public String getString(String nodeName, String defaultValue) {
-        String value = this.valueMap.get(nodeName);
+        Object value = this.valueMap.get(nodeName);
 
-        if (value != null) {
+        if (value instanceof String) {
             // fixes a formatting problem with line breaks in text
             return ((String) value).replaceAll("\\n\\s*", " ").trim();
         }
@@ -183,10 +187,10 @@ public class ConverterValueMap {
      * @return the boolean associated with the specified name of the child's node (could be null)
      */
     public Boolean getBoolean(String nodeName, Boolean defaultValue) {
-        String value = this.valueMap.get(nodeName);
+        Object value = this.valueMap.get(nodeName);
 
         if (value != null) {
-            return Boolean.parseBoolean(value);
+            return Boolean.parseBoolean(value.toString());
         }
 
         return defaultValue;
@@ -219,11 +223,11 @@ public class ConverterValueMap {
      * @throws ConversionException if the value could not be converted to a numeric value
      */
     public Integer getInteger(String nodeName, Integer defaultValue) throws ConversionException {
-        String value = this.valueMap.get(nodeName);
+        Object value = this.valueMap.get(nodeName);
 
         if (value != null) {
             try {
-                return Integer.parseInt(value);
+                return Integer.parseInt(value.toString());
             } catch (NumberFormatException nfe) {
                 throw new ConversionException("The value '" + value
                         + "' cannot be converted to a numeric value!", nfe);

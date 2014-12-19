@@ -53,7 +53,7 @@ class ConfigDescriptionsTest extends OSGiTest {
 	}
 	
 	@Test
-	void 'assert that ConfigDescriptions were loaded properly'() {
+	void 'assert that ConfigDescriptions are loaded properly'() {
 		def bundleContext = getBundleContext()
         def initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size()
 		
@@ -62,7 +62,7 @@ class ConfigDescriptionsTest extends OSGiTest {
 		assertThat bundle, is(notNullValue())
 		
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
-        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 2)
+        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 3)
         
         ConfigDescription bridgeConfigDescription = configDescriptions.find {
                 it.uri.equals(new URI("thing-type:hue:bridge")) }
@@ -75,7 +75,7 @@ class ConfigDescriptionsTest extends OSGiTest {
         assertThat ipParameter, is(notNullValue())
         assertThat ipParameter.type, is(Type.TEXT)
         ipParameter.with {
-            assertThat context, is("network_address")
+            assertThat context, is("network-address")
             assertThat label, is("Network Address")
             assertThat description, is("Network address of the hue bridge.")
             assertThat required, is(true)
@@ -105,4 +105,37 @@ class ConfigDescriptionsTest extends OSGiTest {
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)
 	}
+    
+    
+    @Test
+    void 'assert that parameters with options and filters are loaded properly'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size()
+        
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+        
+        def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
+        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 3)
+        
+        ConfigDescription bridgeConfigDescription = configDescriptions.find {
+                it.uri.equals(new URI("thing-type:hue:dummy")) }
+        assertThat bridgeConfigDescription, is(notNullValue())
+        
+        def parameters = bridgeConfigDescription.parameters
+        assertThat parameters.size(), is(2)
+        
+        ConfigDescriptionParameter unitParameter = parameters.find { it.name.equals("unit") }
+        assertThat unitParameter, is(notNullValue())
+        unitParameter.with {
+            assertThat options.join(", "), is("ParameterOption [value=\"us\", label=\"US\"], ParameterOption [value=\"metric\", label=\"Metric\"]")
+        }
+        
+        ConfigDescriptionParameter lightParameter = parameters.find { it.name.equals("color-alarming-light") }
+        assertThat lightParameter, is(notNullValue())
+        lightParameter.with {
+            assertThat filterCriteria.join(", "), is("FilterCriteria [name=\"tags\", value=\"alarm, light\"], FilterCriteria [name=\"type\", value=\"color\"], FilterCriteria [name=\"binding-id\", value=\"hue\"]")
+        }
+    }
 }

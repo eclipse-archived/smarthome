@@ -9,4 +9,26 @@
 		allows to control hue lights.</description>
 	<author>Deutsche Telekom AG</author>
 	
+	
+	<!-- Dummy config -->
+	<config-description>
+			
+	    <parameter name="list" type="text" multiple="true" min="2" max="3">
+	        <options>
+	            <option value="key1">label1</option>
+	            <option value="key2">label2</option>
+	        </options>
+	    </parameter>
+		
+		<parameter name="color-alarming-light" type="text" multiple="true">
+	        <context>item</context>
+	        <filter>
+	            <criteria name="tags">alarm, light</criteria>
+	            <criteria name="type">color</criteria>
+	            <criteria name="binding-id">hue</criteria>
+	        </filter>
+		</parameter>
+		
+	</config-description>
+	
 </binding:binding>
