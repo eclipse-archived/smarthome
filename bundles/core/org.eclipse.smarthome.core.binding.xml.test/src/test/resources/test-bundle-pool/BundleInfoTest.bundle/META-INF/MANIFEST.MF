@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synthetic Test Bundle
-Bundle-SymbolicName: LoadingBundleInfoTest.bundle;singleton:=true
+Bundle-SymbolicName: BundleInfoTest.bundle;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
