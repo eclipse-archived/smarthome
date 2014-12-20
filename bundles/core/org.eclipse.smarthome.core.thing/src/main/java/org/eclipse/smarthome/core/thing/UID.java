@@ -16,12 +16,21 @@ import com.google.common.base.Joiner;
  * framework. A UID must always start with a binding ID.
  * 
  * @author Dennis Nobel - Initial contribution
- * @authoer Oliver Libutzki - Added possibility to define UIDs with variable amount of segments
+ * @author Oliver Libutzki - Added possibility to define UIDs with variable amount of segments
+ * @author Jochen Hiller - Bugfix 455434: added default constructor, object is now mutable
  */
 public abstract class UID {
 
     private static final String SEPARATOR = ":";
-    private final String[] segments;
+    private String[] segments;
+
+    /**
+     * Default constructor in package scope only. Will allow to instantiate this
+     * class by reflection. Not intended to be used for normal instantiation. 
+     */
+    UID() {
+        this.segments = null;
+    }
 
     /**
      * Parses a UID for a given string. The UID must be in the format

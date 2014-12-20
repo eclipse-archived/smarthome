@@ -15,8 +15,17 @@ import java.util.List;
  * {@link ChannelUID} represents a unique identifier for channels.
  * 
  * @author Oliver Libutzki - Initital contribution
+ * @author Jochen Hiller - Bugfix 455434: added default constructor
  */
 public class ChannelUID extends UID {
+
+    /**
+     * Default constructor in package scope only. Will allow to instantiate this
+     * class by reflection. Not intended to be used for normal instantiation.
+     */
+    ChannelUID() {
+        super();
+    }
 
     public ChannelUID(String channelUid) {
         super(channelUid);
