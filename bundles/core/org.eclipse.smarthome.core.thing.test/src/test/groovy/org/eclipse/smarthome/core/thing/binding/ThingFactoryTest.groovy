@@ -21,11 +21,13 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.junit.Test
-
 
 /**
  * ThingFactoryTest is a test for the ThingFactory class.
@@ -74,8 +76,8 @@ class ThingFactoryTest {
 
     private List getChannelDefinitions(){
         List channelDefinitions = new ArrayList<ChannelDefinition>()
-        def cd1 = new ChannelDefinition("channel1", new ChannelType(new ChannelTypeUID("channel:cd1"), "itemType", "channelLabel", "description", new HashSet<String>(), new URI("scheme", "channelType:cd1", null)))
-        def cd2 = new ChannelDefinition("channel2", new ChannelType(new ChannelTypeUID("channel:cd2"), "itemType2", "label2", "description22222", new HashSet<String>(), new URI("scheme", "channelType:cd2",null)))
+        def cd1 = new ChannelDefinition("channel1", new ChannelType(new ChannelTypeUID("channel:cd1"), false, "itemType", "channelLabel", "description", "category", new HashSet<String>(), null, new URI("scheme", "channelType:cd1", null)))
+        def cd2 = new ChannelDefinition("channel2", new ChannelType(new ChannelTypeUID("channel:cd2"), false, "itemType2", "label2", "description22222", "category", new HashSet<String>(), null, new URI("scheme", "channelType:cd2",null)))
         channelDefinitions.add(cd1)
         channelDefinitions.add(cd2)
         return channelDefinitions;
@@ -84,7 +86,7 @@ class ThingFactoryTest {
 
     @Test
     void 'create Thing with Default values'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), new URI("scheme", "thingType", null))
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), null, new URI("scheme", "thingType", null))
         def configuration = new Configuration()
         
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -138,13 +140,13 @@ class ThingFactoryTest {
 	@Test
 	void 'create Thing with Channels'() {
 
-		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), "Color", "label", "description", new HashSet([ "tag1", "tag2" ]), null)
-		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), "Dimmer", "label", "description", new HashSet([ "tag3" ]), null)
+		ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), false, "Color", "label", "description", "category", new HashSet([ "tag1", "tag2" ]), null, null)
+		ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), false, "Dimmer", "label", "description", "category", new HashSet([ "tag3" ]), null, null)
 
 		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
 		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
 		
-		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null)
+		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null, null)
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -159,4 +161,30 @@ class ThingFactoryTest {
         assertThat thing.getChannels().get(1).getDefaultTags().contains("tag2"), is(false)
         assertThat thing.getChannels().get(1).getDefaultTags().contains("tag3"), is(true)
 	}
+    
+    @Test
+    void 'create Thing with channels groups'() {
+
+        ChannelType channelType1 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId1"), false, "Color", "label", "description", "category", new HashSet([ "tag1", "tag2" ]), null, null)
+        ChannelType channelType2 = new ChannelType(new ChannelTypeUID("bindingId:channelTypeId2"), false, "Dimmer", "label", "description", "category", new HashSet([ "tag3" ]), null, null)
+
+        ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
+        ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
+        
+        ChannelGroupType channelGroupType1 = new ChannelGroupType(new ChannelGroupTypeUID("bindingid:groupTypeId1"), false, "label", "description", [channelDef1, channelDef2])
+        ChannelGroupType channelGroupType2 = new ChannelGroupType(new ChannelGroupTypeUID("bindingid:groupTypeId2"), false, "label", "description", [channelDef1])
+        
+        ChannelGroupDefinition channelGroupDef1 = new ChannelGroupDefinition("group1", channelGroupType1)
+        ChannelGroupDefinition channelGroupDef2 = new ChannelGroupDefinition("group2", channelGroupType2)
+        
+        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, [channelGroupDef1, channelGroupDef2], null)
+        def configuration = new Configuration();
+
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
+
+        assertThat thing.getChannels().size, is(3)
+        assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch1"))
+        assertThat thing.getChannels().get(1).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch2"))
+        assertThat thing.getChannels().get(2).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group2#ch1"))
+    }
 }

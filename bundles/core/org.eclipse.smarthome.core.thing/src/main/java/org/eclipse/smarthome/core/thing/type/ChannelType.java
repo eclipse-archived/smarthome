@@ -12,7 +12,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.types.StateDescription;
 
 
 /**
@@ -26,9 +28,13 @@ import org.eclipse.smarthome.core.thing.Channel;
  * @author Michael Grammling - Initial Contribution
  */
 public class ChannelType extends AbstractDescriptionType {
-
-    private String itemType;
-    private Set<String> tags;
+    
+    private final boolean advanced;
+    private final String itemType;
+    private final Set<String> tags;
+    private final String category;
+    private final StateDescription state;
+    private final URI configDescriptionURI;
 
 
     /**
@@ -37,6 +43,8 @@ public class ChannelType extends AbstractDescriptionType {
      * @param uid the unique identifier which identifies this Channel type within
      *     the overall system (must neither be null, nor empty)
      *
+     * @param advanced true if this channel type contains advanced features, otherwise false
+     * 
      * @param itemType the item type of this Channel type, e.g. {@code ColorItem}
      *     (must neither be null nor empty)
      *
@@ -46,30 +54,42 @@ public class ChannelType extends AbstractDescriptionType {
      * @param description the human readable description for the according type
      *     (could be null or empty)
      *
+     * @param category the category of this Channel type, e.g. {@code TEMPERATURE}
+     *     (could be null or empty)
+     *
      * @param tags all tags of this {@link ChannelType}, e.g. {@code Alarm}
      *     (could be null or empty)
+     *
+     * @param state the restrictions of an item state which gives information how to interpret it
+     *     (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException if the UID or the item type is null or empty,
      *     or the the meta information is null
      */
-    public ChannelType(ChannelTypeUID uid, String itemType, String label, String description,
-            Set<String> tags, URI configDescriptionURI) throws IllegalArgumentException {
+    public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label,
+            String description, String category, Set<String> tags, StateDescription state,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, label, description, configDescriptionURI);
+        super(uid, label, description);
 
         if ((itemType == null) || (itemType.isEmpty())) {
             throw new IllegalArgumentException("The item type must neither be null nor empty!");
         }
 
         this.itemType = itemType;
-
+        this.configDescriptionURI = configDescriptionURI;
+        
         if (tags != null) {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(tags));
         } else {
             this.tags = Collections.unmodifiableSet(new HashSet<String>(0));
         }
+        
+        this.advanced = advanced;
+        this.category = category;
+        this.state = state;
     }
 
     @Override
@@ -98,6 +118,55 @@ public class ChannelType extends AbstractDescriptionType {
     @Override
     public String toString() {
         return super.getUID().toString();
+    }
+
+    /**
+     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
+     * otherwise {@code false}. 
+     * 
+     * @return true if a link to a concrete ConfigDescription exists, otherwise false
+     */
+    public boolean hasConfigDescriptionURI() {
+        return (this.configDescriptionURI != null);
+    }
+
+    /**
+     * Returns the link to a concrete {@link ConfigDescription}.
+     * 
+     * @return the link to a concrete ConfigDescription (could be null)
+     */
+    public URI getConfigDescriptionURI() {
+        return this.configDescriptionURI;
+    }
+
+    /**
+     * Returns the restrictions of an item state which gives information how to interpret it.
+     * 
+     * @return the restriction of an item state which gives information how to interpret it
+     *     (could be null)
+     */
+    public StateDescription getState() {
+        return state;
+    }
+
+    /**
+     * Returns {@code true} if this channel type contains advanced functionalities
+     * which should be typically not shown in the basic view of user interfaces,
+     * otherwise {@code false}.
+     * 
+     * @return true if this channel type contains advanced functionalities, otherwise false
+     */
+    public boolean isAdvanced() {
+        return advanced;
+    }
+
+    /**
+     * Returns the category of this {@link ChannelType}, e.g. {@code TEMPERATURE}.
+     * 
+     * @return the category of this Channel type, e.g. {@code TEMPERATURE} (could be null or empty)
+     */
+    public String getCategory() {
+        return category;
     }
 
 }

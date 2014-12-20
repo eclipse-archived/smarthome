@@ -40,15 +40,15 @@ public class BridgeTypeConverter extends ThingTypeConverter {
             Map<String, String> attributes, NodeIterator nodeIterator)
             throws ConversionException {
 
-        BridgeTypeXmlResult thingTypeXmlResult = new BridgeTypeXmlResult(
+        BridgeTypeXmlResult bridgeTypeXmlResult = new BridgeTypeXmlResult(
                 new ThingTypeUID(super.getUID(attributes, context)),
                 super.readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator),
                 super.readDescription(nodeIterator),
-                super.readChannelTypeDefinitions(nodeIterator),
+                super.getChannelTypeReferenceObjects(nodeIterator),
                 super.getConfigDescriptionObjects(nodeIterator));
 
-        return thingTypeXmlResult;
+        return bridgeTypeXmlResult;
     }
 
 }

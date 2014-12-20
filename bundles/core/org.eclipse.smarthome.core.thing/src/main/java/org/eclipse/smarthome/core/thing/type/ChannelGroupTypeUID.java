@@ -11,37 +11,35 @@ import org.eclipse.smarthome.core.thing.UID;
 
 
 /**
- * The {@link ChannelTypeUID} represents a unique identifier for channel types.
+ * The {@link ChannelGroupTypeUID} represents a unique identifier for channel group types.
  * 
- * @author Dennis Nobel - Initial contribution
- * @author Dennis Nobel - Javadoc added
+ * @author Michael Grammling - Initial contribution.
  */
-public class ChannelTypeUID extends UID {
-
+public class ChannelGroupTypeUID extends UID {
 
     /**
      * Creates a new instance of this class with the specified parameter.
      * 
-     * @param channelUid the UID for the channel
+     * @param channelGroupUid the UID for the channel group
      */
-    public ChannelTypeUID(String channelUid) {
-        super(channelUid);
+    public ChannelGroupTypeUID(String channelGroupUid) {
+        super(channelGroupUid);
     }
 
     /**
      * Creates a new instance of this class with the specified parameter.
      * 
      * @param bindingId the binding ID (must neither be null, nor empty)
-     * @param id the identifier of the channel (must neither be null, nor empty)
+     * @param id the identifier of the channel group (must neither be null, nor empty)
      */
-    public ChannelTypeUID(String bindingId, String id) {
+    public ChannelGroupTypeUID(String bindingId, String id) {
         super(bindingId, id);
     }
 
     /**
-     * Returns the identifier of the channel.
+     * Returns the identifier of the channel group.
      * 
-     * @return the identifier of the channel (neither null, nor empty)
+     * @return the identifier of the channel group (neither null, nor empty)
      */
     public String getId() {
         return getSegment(1);

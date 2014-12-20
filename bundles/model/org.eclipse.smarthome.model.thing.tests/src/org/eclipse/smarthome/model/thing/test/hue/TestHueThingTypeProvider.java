@@ -36,19 +36,19 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         logger.debug("TestHueThingTypeProvider created");
         try {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, new BridgeType(
-                    TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", null, null));
-            ChannelType ctColor = new ChannelType(new ChannelTypeUID("hue:LCT001:color"), "Color", "colorLabel",
-                    "description", null, new URI("hue", "LCT001:color", null));
+                    TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", null, null, null));
+            ChannelType ctColor = new ChannelType(new ChannelTypeUID("hue:LCT001:color"), false, "Color", "colorLabel",
+                    "description", null, null, null, new URI("hue", "LCT001:color", null));
             ChannelDefinition color = new ChannelDefinition("color", ctColor);
             ChannelType ctColorTemperature = new ChannelType(new ChannelTypeUID("hue:LCT001:color_temperature"),
-                    "Dimmer", "colorTemperatureLabel", "description", null, new URI("hue",
+                    false, "Dimmer", "colorTemperatureLabel", "description", null, null, null, new URI("hue",
                             "LCT001:color_temperature", null));
             ChannelDefinition colorTemp = new ChannelDefinition("color_temperature", ctColorTemperature);
             thingTypes.put(
                     TestHueThingHandlerFactory.THING_TYPE_LCT001,
                     new ThingType(TestHueThingHandlerFactory.THING_TYPE_LCT001, Lists
                             .newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()), "LCT001",
-                            "Hue LAMP", Lists.newArrayList(color, colorTemp), new URI("hue", "LCT001", null)));
+                            "Hue LAMP", Lists.newArrayList(color, colorTemp), null, new URI("hue", "LCT001", null)));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

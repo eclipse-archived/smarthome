@@ -9,6 +9,8 @@ package org.eclipse.smarthome.io.rest.core.thing.beans;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.core.types.StateDescription;
+
 /**
  * This is a java bean that is used to serialize channel definitions.
  * 
@@ -20,16 +22,20 @@ public class ChannelDefinitionBean {
     public String id;
     public String label;
     public Set<String> tags;
+    private String category;
+    private StateDescription stateDescription;
 
     public ChannelDefinitionBean() {
 
     }
 
-    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags) {
+    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category, StateDescription stateDescription) {
         this.description = description;
         this.label = label;
         this.id = id;
         this.tags = tags;
+        this.category = category;
+        this.stateDescription = stateDescription;
     }
 
     public String getDescription() {
@@ -48,4 +54,11 @@ public class ChannelDefinitionBean {
         return tags;
     }
 
+    public String getCategory() {
+        return category;
+    }
+    
+    public StateDescription getStateDescription() {
+        return stateDescription;
+    }
 }

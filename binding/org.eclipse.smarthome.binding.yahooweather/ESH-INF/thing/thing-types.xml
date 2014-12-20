@@ -44,17 +44,26 @@
         <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
+        <category>Temperature</category>
+        <state readOnly="true">
+        </state>
     </channel-type>
 
     <channel-type id="humidity">
         <item-type>Number</item-type>
         <label>Humidity</label>
         <description>Current humidity in %</description>
+        <category>Humidity</category>
+        <state readOnly="true" pattern="%d %%">
+        </state>
     </channel-type>
 
     <channel-type id="pressure">
         <item-type>Number</item-type>
         <label>Pressure</label>
         <description>Current pressure in millibar (metric) or inches of mercury (us)</description>
+        <category>Pressure</category>
+        <state readOnly="true">
+        </state>
     </channel-type>
 </thing:thing-descriptions>

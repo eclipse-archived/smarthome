@@ -91,6 +91,12 @@ XML file (thing-types.xml):
         <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
+        <state pattern="%s Value">
+              <options>
+                  <option value="OPTION1">Option 1</option>
+                  <option value="OPTION2">Option 2</option>
+              </options>
+            </state>
     </channel-type>
 </thing:thing-descriptions>
 
@@ -105,6 +111,9 @@ thing-type.config.yahooweather.weather.location.description = Ort der Wetterinfo
 
 channel-type.yahooweather.temperature.label = Temperatur
 channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (metrisch) oder Grad Fahrenheit (us)
+channel-type.yahooweather.temperature.pattern = %s Wert
+channel-type.yahooweather.temperature.option.OPTION1 = Option Nummer 1
+channel-type.yahooweather.temperature.option.OPTION2 = Option Nummer 2
 ```
 
 So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label`.

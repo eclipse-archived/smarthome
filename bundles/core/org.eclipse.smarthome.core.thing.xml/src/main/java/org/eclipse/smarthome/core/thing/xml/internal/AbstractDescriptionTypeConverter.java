@@ -38,7 +38,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  */
 public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarshaller<T> {
 
-    private ConverterAttributeMapValidator attributeMapValidator;
+    protected ConverterAttributeMapValidator attributeMapValidator;
 
     private String type;
 
@@ -180,7 +180,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
             throws ConversionException;
 
     @Override
-    public final Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         // read attributes
         Map<String, String> attributes = this.attributeMapValidator.readValidatedAttributes(reader);
 

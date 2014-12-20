@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.xml.util;
 
+import java.util.Map;
+
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
@@ -27,7 +29,10 @@ public class NodeValueConverter extends GenericUnmarshaller<NodeValue> {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        return new NodeValue(reader.getNodeName(), reader.getValue());
+        Map<String, String> attributes =
+                ConverterAttributeMapValidator.readValidatedAttributes(reader, null);
+
+        return new NodeValue(reader.getNodeName(), attributes, reader.getValue());
     }
 
 }

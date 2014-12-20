@@ -11,17 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
-import org.eclipse.smarthome.core.thing.type.BridgeType
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition
+import org.eclipse.smarthome.core.thing.type.AbstractDescriptionType
+import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore;
 import org.junit.Test
 import org.osgi.framework.Bundle
 
@@ -52,7 +49,7 @@ class ThingTypeI18nTest extends OSGiTest {
         assertThat bundle, is(notNullValue())
 
         def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN)
-        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 1)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
 
         def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
         assertThat weatherType, is(notNullValue())
@@ -62,7 +59,53 @@ class ThingTypeI18nTest extends OSGiTest {
         """, asString(weatherType))
     }
     
-    String asString(final ThingType self) {
+    @Test
+    void 'assert that channel group type was localized'() {
+        
+        def bundleContext = getBundleContext()
+        def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
+
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+
+        def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        
+        def weatherGroupType = thingTypes.find { it.toString().equals("yahooweather:weather-with-group") } as ThingType
+        assertThat weatherGroupType, is(notNullValue())
+        assertEquals("""
+        label = Wetterinformation mit Gruppe
+        description = Wetterinformation mit Gruppe Beschreibung
+        """, asString(weatherGroupType.channelGroupDefinitions[0].type))
+    }
+    
+    @Test
+    void 'assert that channel type was localized'() {
+        
+        def bundleContext = getBundleContext()
+        def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
+
+        // install test bundle
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+
+        def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        
+        def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
+        def temperatureChannelType = weatherType.channelDefinitions.find { it.getId().equals("temperature")}.type as ChannelType
+        
+        assertEquals("""
+        label = Temperatur
+        description = Temperaturwert
+        pattern = %d Grad Celsius
+        option = Mein String
+        """, asString(temperatureChannelType))
+    }
+    
+    
+    String asString(final AbstractDescriptionType self) {
         def label = self.label
         def description = self.description
         return """
@@ -71,5 +114,16 @@ class ThingTypeI18nTest extends OSGiTest {
         """
     }
     
-
+    String asString(final ChannelType self) {
+        def label = self.label
+        def description = self.description
+        def pattern = self.state.pattern
+        def option = self.state.options[0].label
+        return """
+        label = ${label}
+        description = ${description}
+        pattern = ${pattern}
+        option = ${option}
+        """
+    }
 }
