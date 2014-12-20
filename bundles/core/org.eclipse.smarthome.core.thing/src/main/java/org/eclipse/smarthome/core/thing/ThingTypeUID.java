@@ -13,8 +13,17 @@ package org.eclipse.smarthome.core.thing;
  * {@link ThingTypeUID} represents a unique identifier for thing types.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Jochen Hiller - Bugfix 455434: added default constructor
  */
 public class ThingTypeUID extends UID {
+
+    /**
+     * Default constructor in package scope only. Will allow to instantiate this
+     * class by reflection. Not intended to be used for normal instantiation.
+     */
+    ThingTypeUID() {
+        super();
+    }
 
     public ThingTypeUID(String uid) {
         super(uid);
