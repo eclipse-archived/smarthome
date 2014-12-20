@@ -16,8 +16,17 @@ import java.util.List;
  * {@link ThingUID} represents a unique identifier for things.
  *  
  * @author Dennis Nobel - Initial contribution
+ * @author Jochen Hiller - Bugfix 455434: added default constructor
  */
 public class ThingUID extends UID {
+
+    /**
+     * Default constructor in package scope only. Will allow to instantiate this
+     * class by reflection. Not intended to be used for normal instantiation.
+     */
+    ThingUID() {
+        super();
+    }
 
     /**
      * Instantiates a new thing UID.
