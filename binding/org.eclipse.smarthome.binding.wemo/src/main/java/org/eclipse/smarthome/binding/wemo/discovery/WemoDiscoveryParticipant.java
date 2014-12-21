@@ -89,13 +89,13 @@ public class WemoDiscoveryParticipant implements UpnpDiscoveryParticipant {
 					if(modelName.startsWith("LightSwitch")) {
 						logger.debug("Discovered a WeMo LightSwitch thing with serialNumber '{}'",
 								device.getDetails().getSerialNumber());
-						return new ThingUID(WEMO_INSIGHT_TYPE_UID, device
+						return new ThingUID(WEMO_LIGHTSWITCH_TYPE_UID, device
 								.getDetails().getSerialNumber());
 					}
 					if(modelName.startsWith("Motion")) {
 						logger.debug("Discovered a WeMo Motion thing with serialNumber '{}'",
 								device.getDetails().getSerialNumber());
-						return new ThingUID(WEMO_INSIGHT_TYPE_UID, device
+						return new ThingUID(WEMO_MOTION_TYPE_UID, device
 								.getDetails().getSerialNumber());
 					}
 				}
