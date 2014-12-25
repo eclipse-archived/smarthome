@@ -11,7 +11,6 @@ IF %ARGC% NEQ 2 (
 	exit /B 1
 )
 
-mvn archetype:generate -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding -DarchetypeVersion=0.8.0-SNAPSHOT -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%2 -Dpackage=org.eclipse.smarthome.binding.%2 -DarchetypeCatalog='file://../archetype-catalog.xml' -Dversion=0.8.0-SNAPSHOT -DbindingId=%2 -DbindingIdCamelCase=%1
-
+mvn archetype:generate -N -DarchetypeGroupId=org.eclipse.smarthome.archetype -DarchetypeArtifactId=org.eclipse.smarthome.archetype.binding -DarchetypeVersion=0.8.0-SNAPSHOT -DgroupId=org.eclipse.smarthome.binding -DartifactId=org.eclipse.smarthome.binding.%2 -Dpackage=org.eclipse.smarthome.binding.%2 -DarchetypeCatalog='file://../archetype-catalog.xml' -Dversion=0.8.0-SNAPSHOT -DbindingId=%2 -DbindingIdCamelCase=%1
 
 ENDLOCAL
