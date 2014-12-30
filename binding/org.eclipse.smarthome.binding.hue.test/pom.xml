@@ -8,8 +8,8 @@
 	<name>Eclipse SmartHome hue Binding Tests</name>
 
 	<parent>
-		<groupId>org.eclipse.smarthome</groupId>
-		<artifactId>binding</artifactId>
+		<groupId>org.eclipse.smarthome.binding</groupId>
+		<artifactId>pom</artifactId>
 		<version>0.8.0-SNAPSHOT</version>
 	</parent>
 
