@@ -4,15 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>binding</artifactId>
+    <groupId>org.eclipse.smarthome.binding</groupId>
+    <artifactId>pom</artifactId>
     <version>0.8.0-SNAPSHOT</version>
   </parent>
-
-  <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.binding.yahooweather</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.binding.yahooweather</bundle.namespace>
-  </properties>
 
   <groupId>org.eclipse.smarthome.binding</groupId>
   <artifactId>org.eclipse.smarthome.binding.yahooweather</artifactId>
