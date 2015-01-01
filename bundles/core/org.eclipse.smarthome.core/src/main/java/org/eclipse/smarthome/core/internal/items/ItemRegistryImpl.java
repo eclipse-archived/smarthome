@@ -168,7 +168,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
 
     @Override
     public boolean isValidItemName(String name) {
-        return name.matches("[a-zA-Z0-9_]*");
+        return name.matches("[a-zA-Z0-9_#]*");
     }
 
     private void addToGroupItems(Item item, List<String> groupItemNames) {
