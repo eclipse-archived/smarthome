@@ -41,7 +41,7 @@ public class ItemUtil {
      */
     public static boolean isValidItemName(String itemName) {
         if ((itemName != null) && (!itemName.isEmpty())) {
-            return itemName.matches("[a-zA-Z0-9_]*");
+            return itemName.matches("[a-zA-Z0-9_#]*");
         }
 
         return false;
