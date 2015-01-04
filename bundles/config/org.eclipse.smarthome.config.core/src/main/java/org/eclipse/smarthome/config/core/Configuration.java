@@ -8,11 +8,18 @@
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,20 +56,54 @@ public class Configuration {
                 logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
                 return null;
             }
-            Field[] declaredFields = configurationClass.getDeclaredFields();
-            for (Field field : declaredFields) {
-                Object value = this.get(field.getName());
-                if (value != null) {
-                    try {
-                        field.set(configuration, value);
-                    } catch (IllegalArgumentException | IllegalAccessException ex) {
-                        logger.warn("Could not set field value for field '" + field.getName()
-                                + "': " + ex.getMessage(), ex);
+
+            List<Field> fields = getAllFields(configurationClass);
+            for (Field field : fields) {
+                String fieldName = field.getName();
+                String typeName = field.getType().getSimpleName();
+                String configValue = ObjectUtils.toString(properties.get(fieldName), null);
+
+                try {
+                    Object value = null;
+                    if (configValue != null) {
+                        if (typeName.equalsIgnoreCase("BigDecimal")) {
+                            value = NumberUtils.createBigDecimal(configValue);
+                        } else if (typeName.equalsIgnoreCase("Float")) {
+                            value = NumberUtils.createFloat(configValue);
+                        } else if (typeName.equalsIgnoreCase("Double")) {
+                            value = NumberUtils.createDouble(configValue);
+                        } else if (typeName.equalsIgnoreCase("Long")) {
+                            value = NumberUtils.createLong(configValue);
+                        } else if (typeName.equalsIgnoreCase("Integer")) {
+                            value = NumberUtils.createInteger(configValue);
+                        } else if (typeName.equalsIgnoreCase("Boolean")) {
+                            value = BooleanUtils.toBoolean(configValue);
+                        } else {
+                            value = configValue;
+                        }
                     }
+                    logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
+                            configurationClass.getName());
+
+                    FieldUtils.writeField(configuration, fieldName, value, true);
+                } catch (Exception ex) {
+                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
                 }
             }
+
             return configuration;
         }
+    }
+
+    private List<Field> getAllFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<Field>();
+
+        while (clazz != null) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
+        }
+
+        return fields;
     }
 
     public Object get(Object key) {
