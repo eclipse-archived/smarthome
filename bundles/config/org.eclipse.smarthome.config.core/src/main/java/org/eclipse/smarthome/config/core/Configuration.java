@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,9 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @author Dennis Nobel - Initial API and contribution
  * @author Kai Kreuzer - added constructors
+ * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
  */
 public class Configuration {
 
@@ -61,25 +60,19 @@ public class Configuration {
             for (Field field : fields) {
                 String fieldName = field.getName();
                 String typeName = field.getType().getSimpleName();
-                String configValue = ObjectUtils.toString(properties.get(fieldName), null);
+                Object value = properties.get(fieldName);
 
                 try {
-                    Object value = null;
-                    if (configValue != null) {
-                        if (typeName.equalsIgnoreCase("BigDecimal")) {
-                            value = NumberUtils.createBigDecimal(configValue);
-                        } else if (typeName.equalsIgnoreCase("Float")) {
-                            value = NumberUtils.createFloat(configValue);
+                    if (value != null && value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
+                        BigDecimal bdValue = (BigDecimal) value;
+                        if (typeName.equalsIgnoreCase("Float")) {
+                            value = bdValue.floatValue();
                         } else if (typeName.equalsIgnoreCase("Double")) {
-                            value = NumberUtils.createDouble(configValue);
+                            value = bdValue.doubleValue();
                         } else if (typeName.equalsIgnoreCase("Long")) {
-                            value = NumberUtils.createLong(configValue);
+                            value = bdValue.longValue();
                         } else if (typeName.equalsIgnoreCase("Integer")) {
-                            value = NumberUtils.createInteger(configValue);
-                        } else if (typeName.equalsIgnoreCase("Boolean")) {
-                            value = BooleanUtils.toBoolean(configValue);
-                        } else {
-                            value = configValue;
+                            value = bdValue.intValue();
                         }
                     }
                     logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
