@@ -25,6 +25,8 @@ import org.jupnp.model.meta.Device;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.model.meta.Service;
 import org.jupnp.model.state.StateVariableValue;
+import org.jupnp.model.types.DeviceType;
+import org.jupnp.model.types.ServiceId;
 import org.jupnp.model.types.UDAServiceId;
 import org.jupnp.model.types.UDN;
 import org.slf4j.Logger;
@@ -176,14 +178,12 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 
 				Device[] embedded = device.getEmbeddedDevices();
 
-				Service subService = device.findService(new UDAServiceId(
-						serviceID));
+				Service subService = findService(device, serviceID);
 				if (subService == null) {
 					// service not on the root device, we search the embedded
 					// devices as well
 					for (Device aDevice : embedded) {
-						subService = aDevice.findService(new UDAServiceId(
-								serviceID));
+						subService = findService(aDevice, serviceID);
 						if (subService != null) {
 							break;
 						}
@@ -236,8 +236,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 
 			if (device != null) {
 
-				Service service = device
-						.findService(new UDAServiceId(serviceID));
+				Service service = findService(device, serviceID);
 				if (service != null) {
 
 					Action action = service.getAction(actionID);
@@ -331,4 +330,17 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 		}
 	}
 
+	private Service findService(Device device, String serviceID) {
+		Service service = null;
+
+		String namespace = device.getType().getNamespace();
+		if (namespace.equals(UDAServiceId.DEFAULT_NAMESPACE)
+				|| namespace.equals(UDAServiceId.BROKEN_DEFAULT_NAMESPACE)) {
+			service = device.findService(new UDAServiceId(serviceID));
+		} else {
+			service = device.findService(new ServiceId(namespace, serviceID));
+		}
+
+		return service;
+	}
 }
