@@ -8,11 +8,16 @@
 package org.eclipse.smarthome.config.core;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +29,7 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @author Dennis Nobel - Initial API and contribution
  * @author Kai Kreuzer - added constructors
+ * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
  */
 public class Configuration {
 
@@ -49,20 +55,48 @@ public class Configuration {
                 logger.error("Could not create configuration instance: " + ex.getMessage(), ex);
                 return null;
             }
-            Field[] declaredFields = configurationClass.getDeclaredFields();
-            for (Field field : declaredFields) {
-                Object value = this.get(field.getName());
-                if (value != null) {
-                    try {
-                        field.set(configuration, value);
-                    } catch (IllegalArgumentException | IllegalAccessException ex) {
-                        logger.warn("Could not set field value for field '" + field.getName()
-                                + "': " + ex.getMessage(), ex);
+
+            List<Field> fields = getAllFields(configurationClass);
+            for (Field field : fields) {
+                String fieldName = field.getName();
+                String typeName = field.getType().getSimpleName();
+                Object value = properties.get(fieldName);
+
+                try {
+                    if (value != null && value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
+                        BigDecimal bdValue = (BigDecimal) value;
+                        if (typeName.equalsIgnoreCase("Float")) {
+                            value = bdValue.floatValue();
+                        } else if (typeName.equalsIgnoreCase("Double")) {
+                            value = bdValue.doubleValue();
+                        } else if (typeName.equalsIgnoreCase("Long")) {
+                            value = bdValue.longValue();
+                        } else if (typeName.equalsIgnoreCase("Integer")) {
+                            value = bdValue.intValue();
+                        }
                     }
+                    logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
+                            configurationClass.getName());
+
+                    FieldUtils.writeField(configuration, fieldName, value, true);
+                } catch (Exception ex) {
+                    logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
                 }
             }
+
             return configuration;
         }
+    }
+
+    private List<Field> getAllFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<Field>();
+
+        while (clazz != null) {
+            fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
+        }
+
+        return fields;
     }
 
     public Object get(Object key) {
