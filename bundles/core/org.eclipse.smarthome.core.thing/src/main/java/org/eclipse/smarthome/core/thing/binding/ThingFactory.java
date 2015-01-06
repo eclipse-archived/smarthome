@@ -25,6 +25,8 @@ import org.eclipse.smarthome.core.thing.binding.builder.GenericThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ import com.google.common.collect.Lists;
  * {@link ThingFactory} helps to create thing based on a given {@link ThingType}
  * .
  * 
- * @author Dennis Nobel - Initial contribution
+ * @author Dennis Nobel - Initial contribution, added support for channel groups
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
  */
 public class ThingFactory {
@@ -139,17 +141,27 @@ public class ThingFactory {
         List<Channel> channels = Lists.newArrayList();
         List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
-            channels.add(createChannel(channelDefinition, thingUID, configDescriptionRegistry));
+            channels.add(createChannel(channelDefinition, thingUID, null, configDescriptionRegistry));
+        }
+        List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
+        for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+            ChannelGroupType channelGroupType = channelGroupDefinition.getType();
+            List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
+            for (ChannelDefinition channelDefinition : channelGroupChannelDefinitions) {
+                channels.add(createChannel(channelDefinition, thingUID, channelGroupDefinition.getId(),
+                        configDescriptionRegistry));
+            }
         }
         return channels;
     }
 
-    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID,
+    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID, String groupId,
             ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = channelDefinition.getType();
 
-        ChannelBuilder channelBuilder = ChannelBuilder.create(new ChannelUID(thingUID, channelDefinition.getId()),
-                type.getItemType()).withDefaultTags(type.getTags());
+        ChannelBuilder channelBuilder = ChannelBuilder.create(
+                new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType()).withDefaultTags(
+                type.getTags());
 
         // initializing channels with default-values
         if (configDescriptionRegistry != null) {

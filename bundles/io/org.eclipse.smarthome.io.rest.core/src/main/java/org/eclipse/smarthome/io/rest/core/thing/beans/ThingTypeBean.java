@@ -18,6 +18,7 @@ import java.util.List;
 public class ThingTypeBean {
 
     public List<ChannelDefinitionBean> channels;
+    public List<ChannelGroupDefinitionBean> channelGroups;
     public List<ConfigDescriptionParameterBean> configParameters;
     public String description;
     public String label;
@@ -28,12 +29,13 @@ public class ThingTypeBean {
     }
 
     public ThingTypeBean(String UID, String label, String description,
-            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels) {
+            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels, List<ChannelGroupDefinitionBean> channelGroups) {
         this.UID = UID;
         this.label = label;
         this.description = description;
         this.configParameters = configParameters;
         this.channels = channels;
+        this.channelGroups = channelGroups;
     }
 
 }

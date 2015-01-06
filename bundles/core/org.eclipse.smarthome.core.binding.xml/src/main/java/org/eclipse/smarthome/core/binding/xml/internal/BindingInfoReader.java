@@ -12,13 +12,12 @@ import java.util.List;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.FilterCriteria;
-import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
 import org.eclipse.smarthome.config.xml.FilterCriteriaConverter;
-import org.eclipse.smarthome.config.xml.ParameterOptionConverter;
 import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeAttributesConverter;
+import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
@@ -51,7 +50,6 @@ public class BindingInfoReader extends XmlDocumentReader<BindingInfoXmlResult> {
         xstream.registerConverter(new BindingInfoConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
-        xstream.registerConverter(new ParameterOptionConverter());
         xstream.registerConverter(new FilterCriteriaConverter());        
     }
 
@@ -64,8 +62,8 @@ public class BindingInfoReader extends XmlDocumentReader<BindingInfoXmlResult> {
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
-        xstream.alias("options", List.class);
-        xstream.alias("option", ParameterOption.class);
+        xstream.alias("options", NodeList.class);
+        xstream.alias("option", NodeValue.class);
         xstream.alias("filter", List.class);
         xstream.alias("criteria", FilterCriteria.class);        
     }

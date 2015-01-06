@@ -37,8 +37,21 @@
 		<channels>
 			<channel id="color" typeId="color" />
 			<channel id="color_temperature" typeId="color_temperature" />
+            <channel id="alarm" typeId="alarm" />
 		</channels>
 	</thing-type>
+    
+    <!-- HUE Lamp with Group -->
+    <thing-type id="lamp-with-group">
+
+        <label>HUE Lamp</label>
+        <description>My own great HUE Lamp.</description>
+
+        <channel-groups>
+            <channel-group id="lampgroup" typeId="lampgroup" />
+        </channel-groups>
+    </thing-type>
+    
 
 	<!-- HUE Lamp Color Channel -->
 	<channel-type id="color">
@@ -49,7 +62,7 @@
 			off.
 		</description>
         <tags>
-          <tag>hue</tag>
+          <tag>Hue</tag>
           <tag>ColorLamp</tag>
         </tags>
 
@@ -65,9 +78,38 @@
 		<description>The color temperature channel allows to set the color
 			temperature from 0 (cold) to 100 (warm).</description>
         <tags>
-          <tag>hue</tag>
+          <tag>Hue</tag>
           <tag>AmbientLamp</tag>
         </tags>
 	</channel-type>
 
+    <!-- Alarm Channel -->
+    <channel-type id="alarm">
+        <item-type>Number</item-type>
+        <label>Alarm System</label>
+        <description>The light blinks if alarm is set.</description>
+        <category>ALARM</category>
+        <tags>
+            <tag>Hue</tag>
+            <tag>AlarmSystem</tag>
+        </tags>
+        <state min="0" max="100.0" step="10.0" pattern="%d Peek" readOnly="true">
+            <options>
+                <option value="SOUND">My great sound.</option>
+                <option value="LIGHT"/>
+            </options>
+        </state>
+    </channel-type>
+    
+    <!-- Channel Group -->
+    <channel-group-type id="lampgroup" advanced="true">
+        <label>Alarm System</label>
+        <description>The alarm system.</description>
+        <channels>
+            <channel id="color" typeId="color" />
+            <channel id="color_temperature" typeId="color_temperature" />
+            <channel id="alarm" typeId="alarm" />
+        </channels>
+    </channel-group-type>
+    
 </thing:thing-descriptions>

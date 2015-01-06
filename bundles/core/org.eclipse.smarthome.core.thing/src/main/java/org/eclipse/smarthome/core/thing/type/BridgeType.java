@@ -16,8 +16,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
  * The {@link BridgeType} describes a concrete type of a {@link Bridge}.
- * A {@link BridgeType} inherits a {@link org.eclipse.smarthome.core.thing.type.ThingType}
- * and signals a parent-child relation.
+ * A {@link BridgeType} inherits a {@link ThingType} and signals a parent-child relation.
  * <p>
  * This description is used as template definition for the creation of the
  * according concrete {@link Bridge} object.
@@ -34,7 +33,7 @@ public class BridgeType extends ThingType {
     public BridgeType(String bindingId, String thingTypeId, String label)
             throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
     }
 
     /**
@@ -53,6 +52,9 @@ public class BridgeType extends ThingType {
      *     (could be null or empty)
      * 
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
+     *
+     * @param channelGroupDefinitions the channel groups defining the channels this Bridge
+     *     type provides (could be null or empty)
      * 
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      * 
@@ -61,11 +63,11 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
             String label, String description, List<ChannelDefinition> channelDefinitions,
-            URI configDescriptionURI)
+            List<ChannelGroupDefinition> channelGroupDefinitions, URI configDescriptionURI)
             throws IllegalArgumentException {
 
         super(uid, supportedBridgeTypeUIDs, label, description,
-                channelDefinitions, configDescriptionURI);
+                channelDefinitions, channelGroupDefinitions, configDescriptionURI);
     }
 
 }

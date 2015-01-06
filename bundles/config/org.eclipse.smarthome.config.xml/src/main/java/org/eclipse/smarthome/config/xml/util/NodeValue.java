@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.xml.util;
 
+import java.util.Map;
+
 
 /**
  * The {@link NodeValue} class contains the node name and its according value for an XML tag.
@@ -21,6 +23,7 @@ package org.eclipse.smarthome.config.xml.util;
 public class NodeValue implements NodeName {
 
     private String nodeName;
+    private Map<String, String> attributes;
     private Object value;
 
 
@@ -28,16 +31,21 @@ public class NodeValue implements NodeName {
      * Creates a new instance of this class with the specified parameters.
      * 
      * @param nodeName the name of the node this object belongs to (must neither be null, nor empty)
+     * @param attributes the attributes of the node this object belongs to (could be null or empty)
      * @param value the value of the node this object belongs to (could be null or empty)
+     *
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
-    public NodeValue(String nodeName, Object value) throws IllegalArgumentException {
+    public NodeValue(String nodeName, Map<String, String> attributes, Object value)
+            throws IllegalArgumentException {
+
         if ((nodeName == null) || (nodeName.isEmpty())) {
             throw new IllegalArgumentException(
                     "The name of the node must neither be null nor empty!");
         }
 
         this.nodeName = nodeName;
+        this.attributes = attributes;
         this.value = formatText(value);
     }
 
@@ -56,9 +64,18 @@ public class NodeValue implements NodeName {
     }
 
     /**
-     * Returns the value of the node
+     * Returns the attributes of the node.
+     * 
+     * @return the attributes of the node (could be null or empty)
+     */
+    public Map<String, String> getAttributes() {
+        return this.attributes;
+    }
+
+    /**
+     * Returns the value of the node.
      *
-     * @return the value of the node (could be null or empty).
+     * @return the value of the node (could be null or empty)
      */
     public Object getValue() {
         return this.value;

@@ -8,17 +8,18 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.types.StateDescription;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -41,10 +42,28 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
     public ChannelTypeConverter() {
         super(ChannelTypeXmlResult.class, "channel-type");
+
+        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
+                { "id", "true" },
+                { "advanced", "false" }});
+    }
+
+    private boolean isAdvanced(Map<String, String> attributes, boolean defaultValue) {
+        String advancedFlag = attributes.get("advanced");
+
+        if (advancedFlag != null) {
+            return Boolean.parseBoolean(advancedFlag);
+        }
+
+        return defaultValue;
     }
 
     private String readItemType(NodeIterator nodeIterator) throws ConversionException {
         return (String) nodeIterator.nextValue("item-type", true);
+    }
+
+    private String readCategory(NodeIterator nodeIterator) throws ConversionException {
+        return (String) nodeIterator.nextValue("category", false);
     }
 
     private Set<String> readTags(NodeIterator nodeIterator) throws ConversionException {
@@ -73,6 +92,20 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
         return tags; 
     }
 
+    private StateDescription readStateDescription(NodeIterator nodeIterator) {
+        Object nextNode = nodeIterator.next();
+
+        if (nextNode != null) {
+            if (nextNode instanceof StateDescription) {
+                return (StateDescription) nextNode;
+            }
+
+            nodeIterator.revert();
+        }
+
+        return null;
+    }
+
     @Override
     protected ChannelTypeXmlResult unmarshalType(
             HierarchicalStreamReader reader, UnmarshallingContext context,
@@ -80,18 +113,27 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             throws ConversionException {
 
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(super.getUID(attributes, context));
+        boolean advanced = isAdvanced(attributes, false);
+
         String itemType = readItemType(nodeIterator);
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
+        String category = readCategory(nodeIterator);
         Set<String> tags = readTags(nodeIterator);
+
+        StateDescription stateDescription = readStateDescription(nodeIterator);
+
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
         ChannelType channelType = new ChannelType(
                 channelTypeUID,
+                advanced,
                 itemType,
                 label,
                 description,
+                category,
                 tags,
+                stateDescription,
                 (URI) configDescriptionObjects[0]);
 
         ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(

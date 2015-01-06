@@ -49,7 +49,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bundle, is(notNullValue())
 
         def thingTypes = thingTypeProvider.getThingTypes(null)
-        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 3)
 
         def bridgeType = thingTypes.find { it.toString().equals("hue:bridge") } as BridgeType
         assertThat bridgeType, is(notNullValue())
@@ -63,7 +63,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat thingType.supportedBridgeTypeUIDs.size(), is(1)
         assertThat thingType.supportedBridgeTypeUIDs.head(), is("hue:bridge")
         thingType.channelDefinitions.with {
-            assertThat size(), is(2)
+            assertThat size(), is(3)
             def colorChannel = it.find { it.id.equals("color") } as ChannelDefinition
             assertThat colorChannel, is(notNullValue())
             def colorChannelType = colorChannel.type
@@ -74,9 +74,10 @@ class ThingTypesTest extends OSGiTest {
                 assertThat label, is("HUE Lamp Color")
                 assertThat description, is("The color channel allows to control the color of the hue lamp. It is also possible to dim values and switch the lamp on and off.")
                 assertThat tags, is(notNullValue())
-                assertThat tags.contains("hue"), is(true)
+                assertThat tags.contains("Hue"), is(true)
                 assertThat tags.contains("ColorLamp"), is(true)
                 assertThat tags.contains("AmbientLamp"), is(false)
+                assertThat tags.contains("AlarmSystem"), is(false)
             }
 
             def colorTemperatureChannel = it.find { it.id.equals("color_temperature") } as ChannelDefinition
@@ -89,9 +90,35 @@ class ThingTypesTest extends OSGiTest {
                 assertThat label, is("HUE Lamp Color Temperature")
                 assertThat description, is("The color temperature channel allows to set the color temperature from 0 (cold) to 100 (warm).")
                 assertThat tags, is(notNullValue())
-                assertThat tags.contains("hue"), is(true)
+                assertThat tags.contains("Hue"), is(true)
                 assertThat tags.contains("AmbientLamp"), is(true)
                 assertThat tags.contains("ColorLamp"), is(false)
+                assertThat tags.contains("AlarmSystem"), is(false)
+            }
+
+            def alarmChannel = it.find { it.id.equals("alarm") } as ChannelDefinition
+            assertThat alarmChannel, is(notNullValue())
+            def alarmChannelType = alarmChannel.type
+            assertThat alarmChannelType, is(notNullValue())
+            alarmChannelType.with {
+                assertThat it.toString(), is("hue:alarm")
+                assertThat itemType, is("Number")
+                assertThat label, is("Alarm System")
+                assertThat description, is("The light blinks if alarm is set.")
+                assertThat tags, is(notNullValue())
+                assertThat tags.contains("Hue"), is(true)
+                assertThat tags.contains("AlarmSystem"), is(true)
+                assertThat tags.contains("AmbientLamp"), is(false)
+                assertThat tags.contains("ColorLamp"), is(false)
+                assertThat category, is(equalTo("ALARM"))
+                assertThat state.minimum.compareTo(new BigDecimal(0)), is(0)
+                assertThat state.maximum.compareTo(new BigDecimal(100)), is(0)
+                assertThat state.step.compareTo(new BigDecimal(10)), is(0)
+                assertThat state.pattern, is(equalTo("%d Peek"))
+                assertThat state.readOnly, is(true)
+                assertThat state.options.size(), is(2)
+                assertThat state.options[0].value, is(equalTo("SOUND"))
+                assertThat state.options[0].label, is(equalTo("My great sound."))
             }
         }
 
@@ -110,7 +137,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bundle, is(notNullValue())
 
         def thingTypes = thingTypeProvider.getThingTypes(null)
-        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
+        assertThat thingTypes.size(), is(initialNumberOfThingTypes + 3)
 
         // uninstall test bundle
         bundle.uninstall();
@@ -119,4 +146,5 @@ class ThingTypesTest extends OSGiTest {
         thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes)
     }
+
 }
