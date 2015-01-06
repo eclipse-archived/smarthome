@@ -71,7 +71,7 @@ public class Configuration {
                             value = bdValue.doubleValue();
                         } else if (typeName.equalsIgnoreCase("Long")) {
                             value = bdValue.longValue();
-                        } else if (typeName.equalsIgnoreCase("Integer")) {
+                        } else if (typeName.equalsIgnoreCase("Integer") || typeName.equalsIgnoreCase("int")) {
                             value = bdValue.intValue();
                         }
                     }
