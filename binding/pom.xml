@@ -8,8 +8,8 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome</groupId>
-  <artifactId>binding</artifactId>
+  <groupId>org.eclipse.smarthome.binding</groupId>
+  <artifactId>pom</artifactId>
 
   <name>Eclipse SmartHome Bindings</name>
 

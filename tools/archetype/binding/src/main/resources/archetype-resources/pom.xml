@@ -4,15 +4,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>${namespace}</groupId>
-    <artifactId>binding</artifactId>
+    <groupId>${namespace}.binding</groupId>
+    <artifactId>pom</artifactId>
     <version>@${version}</version>
   </parent>
-
-  <properties>
-    <bundle.symbolicName>${rootArtifactId}</bundle.symbolicName>
-    <bundle.namespace>${package}</bundle.namespace>
-  </properties>
 
   <groupId>@${groupId}</groupId>
   <artifactId>${rootArtifactId}</artifactId>
