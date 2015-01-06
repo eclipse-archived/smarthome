@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.xml;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.ConverterValueMap;
 import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
@@ -115,8 +117,7 @@ public class ConfigDescriptionParameterConverter
         String description = valueMap.getString("description");
         
         // read options and filter criteria
-        @SuppressWarnings("unchecked")
-        List<ParameterOption> options = (List<ParameterOption>) valueMap.getObject("options");
+        List<ParameterOption> options = readParameterOptions(valueMap.getObject("options"));
         @SuppressWarnings("unchecked")
         List<FilterCriteria> filterCriteria = (List<FilterCriteria>) valueMap.getObject("filter");
         
@@ -126,6 +127,23 @@ public class ConfigDescriptionParameterConverter
                 defaultValue, label, description, options, filterCriteria);
 
         return configDescriptionParam;
+    }
+
+    private List<ParameterOption> readParameterOptions(Object rawNodeValueList) {
+        if (rawNodeValueList instanceof List<?>) {
+            List<?> list = (List<?>) rawNodeValueList;
+            List<ParameterOption> result = new ArrayList<>();
+            for (Object object : list) {
+                if (object instanceof NodeValue) {
+                    NodeValue nodeValue = (NodeValue) object;
+                    String value = nodeValue.getAttributes().get("value");
+                    String label = nodeValue.getValue().toString();
+                    result.add(new ParameterOption(value, label));
+                }
+            }
+            return result;
+        }
+        return null;
     }
 
 }

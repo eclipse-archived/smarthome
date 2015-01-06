@@ -14,11 +14,34 @@
 		</channels>
 
     </thing-type>
+    
+    <!-- YahooWeather Binding with group -->
+    <thing-type id="weather-with-group">
+        <label>Weather Information with Group</label>
+
+        <channel-groups>
+            <channel-group id="group" typeId="group" />
+        </channel-groups>
+
+    </thing-type>
 
     <channel-type id="temperature">
         <item-type>Number</item-type>
         <label>Temperature</label>
         <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
+        <state pattern="%d degree Celsius">
+            <options>
+                <option value="VALUE">My label</option>
+            </options>
+        </state>
     </channel-type>
-
+    
+    <!-- Channel Group -->
+    <channel-group-type id="group">
+        <label>Alarm System</label>
+        <description>The alarm system.</description>
+        <channels>
+        </channels>
+    </channel-group-type>
+    
 </thing:thing-descriptions>

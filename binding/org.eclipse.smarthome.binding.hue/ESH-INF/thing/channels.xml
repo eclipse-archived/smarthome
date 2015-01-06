@@ -11,10 +11,7 @@
         <description>The color channel allows to control the color of a light.
             It is also possible to dim values and switch the light on and off.
         </description>
-
-        <config-description>
-            <parameter name="lastDimValue" type="boolean" />
-        </config-description>
+        <category>ColorLight</category>
     </channel-type>
 
     <!-- Brightness Channel -->
@@ -24,10 +21,7 @@
         <description>The brightness channel allows to control the brightness of a light.
             It is also possible to switch the light on and off.
         </description>
-
-        <config-description>
-            <parameter name="lastDimValue" type="boolean" />
-        </config-description>
+        <category>DimmableLight</category>
     </channel-type>
 
     <!-- Color Temperature Channel -->
@@ -36,6 +30,7 @@
         <label>Color Temperature</label>
         <description>The color temperature channel allows to set the color
             temperature of a light from 0 (cold) to 100 (warm).</description>
+        <category>ColorLight</category>
     </channel-type>
 
 </thing:thing-descriptions>

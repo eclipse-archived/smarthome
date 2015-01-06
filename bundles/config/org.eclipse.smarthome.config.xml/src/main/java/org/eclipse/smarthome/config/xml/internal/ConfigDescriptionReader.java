@@ -16,9 +16,12 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
 import org.eclipse.smarthome.config.xml.FilterCriteriaConverter;
-import org.eclipse.smarthome.config.xml.ParameterOptionConverter;
 import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeAttributesConverter;
+import org.eclipse.smarthome.config.xml.util.NodeList;
+import org.eclipse.smarthome.config.xml.util.NodeListConverter;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
+import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 
 import com.thoughtworks.xstream.XStream;
@@ -45,10 +48,11 @@ public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescri
 
     @Override
     public void registerConverters(XStream xstream) {
+        xstream.registerConverter(new NodeValueConverter());
+        xstream.registerConverter(new NodeListConverter());
         xstream.registerConverter(new NodeAttributesConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
-        xstream.registerConverter(new ParameterOptionConverter());
         xstream.registerConverter(new FilterCriteriaConverter());
     }
 
@@ -58,8 +62,8 @@ public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescri
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
-        xstream.alias("options", List.class);
-        xstream.alias("option", ParameterOption.class);
+        xstream.alias("options", NodeList.class);
+        xstream.alias("option", NodeValue.class);
         xstream.alias("filter", List.class);
         xstream.alias("criteria", FilterCriteria.class);
     }

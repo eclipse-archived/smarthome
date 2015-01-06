@@ -66,10 +66,19 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     }
 
     @SuppressWarnings("unchecked")
-    protected List<NodeAttributes> readChannelTypeDefinitions(NodeIterator nodeIterator)
+    protected List<NodeAttributes>[] getChannelTypeReferenceObjects(NodeIterator nodeIterator)
             throws ConversionException {
 
-        return (List<NodeAttributes>) nodeIterator.nextList("channels", false);
+        List<NodeAttributes> channelTypeReferences = null;
+        List<NodeAttributes> channelGroupTypeReferences = null;
+
+        channelTypeReferences = (List<NodeAttributes>) nodeIterator.nextList("channels", false);
+        if (channelTypeReferences == null) {
+            channelGroupTypeReferences =
+                    (List<NodeAttributes>) nodeIterator.nextList("channel-groups", false);
+        }
+
+        return new List[] { channelTypeReferences, channelGroupTypeReferences };
     }
 
     @Override
@@ -83,7 +92,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
                 readSupportedBridgeTypeUIDs(nodeIterator, context),
                 super.readLabel(nodeIterator),
                 super.readDescription(nodeIterator),
-                readChannelTypeDefinitions(nodeIterator),
+                getChannelTypeReferenceObjects(nodeIterator),
                 super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;

@@ -30,8 +30,9 @@ public class NodeAttributesConverter extends GenericUnmarshaller<NodeAttributes>
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         String nodeName = reader.getNodeName();
-        Map<String, String> attributes = ConverterAttributeMapValidator.readValidatedAttributes(
-                reader, null);
+
+        Map<String, String> attributes =
+                ConverterAttributeMapValidator.readValidatedAttributes(reader, null);
 
         return new NodeAttributes(nodeName, attributes);
     }

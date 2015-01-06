@@ -21,7 +21,8 @@ import com.google.common.base.Joiner;
  */
 public abstract class UID {
 
-    private static final String SEPARATOR = ":";
+    public static final String SEGMENT_PATTERN = "[A-Za-z0-9_-]*";
+    public static final String SEPARATOR = ":";
     private String[] segments;
 
     /**
@@ -65,18 +66,13 @@ public abstract class UID {
             throw new IllegalArgumentException("UID must have at least " + numberOfSegments
                     + " segments.");
         }
-        for (String segment : segments) {
-            if (!segment.matches("[A-Za-z0-9_-]*")) {
-                throw new IllegalArgumentException(
-                        "UID segment '"
-                                + segment
-                                + "' contains invalid characters. Each segment of the UID must match the pattern [A-Za-z0-9_-]*.");
-            }
+        for (int i = 0; i < segments.length; i++) {
+            String segment = segments[i];
+            validateSegment(segment, i, segments.length);
         }
         this.segments = segments;
     }
 
-    
     /**
      * Specifies how many segments the UID has to have at least.
      * 
@@ -89,6 +85,15 @@ public abstract class UID {
     }
     protected String getSegment(int segment) {
         return this.segments[segment];
+    }
+    
+    protected void validateSegment(String segment, int index, int length) {
+        if (!segment.matches(SEGMENT_PATTERN)) {
+            throw new IllegalArgumentException(
+                    "UID segment '"
+                            + segment
+                            + "' contains invalid characters. Each segment of the UID must match the pattern [A-Za-z0-9_-]*.");
+        }
     }
 
     /**

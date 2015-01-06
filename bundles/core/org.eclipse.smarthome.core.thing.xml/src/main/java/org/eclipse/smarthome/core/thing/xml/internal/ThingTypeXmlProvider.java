@@ -18,6 +18,7 @@ import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentBundleTracker;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.Bundle;
@@ -37,11 +38,15 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * {@link ConfigDescriptionProvider} which is itself registered as service at the <i>OSGi</i>
  * service registry.
  * <p>
- * The {@link ThingTypeXmlProvider} uses an internal cache consisting of {@link #thingTypes} and
- * {@link #channelTypes}. This cache is used to merge the {@link ChannelType} definitions with the
- * {@link ThingTypeXmlResult} objects to create a valid {@link ThingType}. After the merge process
- * has finished, the cache is cleared again. The merge process is started when
- * {@link #addingFinished()} is invoked from the according {@link XmlDocumentBundleTracker}. 
+ * The {@link ThingTypeXmlProvider} uses an internal cache consisting of {@link #thingTypeRefs},
+ * {@link #channelGroupTypeRefs}, {@link #channelGroupTypes} and {@link #channelTypes}.
+ * This cache is used to merge first the {@link ChannelType} definitions with the
+ * {@link ChannelGroupTypeXmlResult} objects to create valid {@link ChannelGroupType} objects.
+ * After that the {@link ChannelType} and the {@link ChannelGroupType} definitions are used
+ * to merge with the {@link ThingTypeXmlResult} objects to create valid {@link ThingType} objects.
+ * After the merge process has been finished, the cache is cleared again.
+ * The merge process is started when {@link #addingFinished()} is invoked from the according
+ * {@link XmlDocumentBundleTracker}. 
  * 
  * @author Michael Grammling - Initial Contribution
  * 
@@ -55,7 +60,10 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private XmlConfigDescriptionProvider configDescriptionProvider;
     private XmlThingTypeProvider thingTypeProvider;
 
-    private List<ThingTypeXmlResult> thingTypes;
+    // temporary cache
+    private List<ThingTypeXmlResult> thingTypeRefs;
+    private List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
+    private Map<String, ChannelGroupType> channelGroupTypes;
     private Map<String, ChannelType> channelTypes;
 
 
@@ -79,7 +87,9 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         this.configDescriptionProvider = configDescriptionProvider;
         this.thingTypeProvider = thingTypeProvider;
 
-        this.thingTypes = new ArrayList<>(10);
+        this.thingTypeRefs = new ArrayList<>(10);
+        this.channelGroupTypeRefs = new ArrayList<>(10);
+        this.channelGroupTypes = new HashMap<>(10);
         this.channelTypes = new HashMap<>(10);
     }
 
@@ -90,7 +100,10 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
                 if (type instanceof ThingTypeXmlResult) {
                     ThingTypeXmlResult typeResult = (ThingTypeXmlResult) type;
                     addConfigDescription(typeResult.getConfigDescription());
-                    this.thingTypes.add(typeResult);
+                    this.thingTypeRefs.add(typeResult);
+                } else if (type instanceof ChannelGroupTypeXmlResult) {
+                    ChannelGroupTypeXmlResult typeResult = (ChannelGroupTypeXmlResult) type;
+                    this.channelGroupTypeRefs.add(typeResult);
                 } else if (type instanceof ChannelTypeXmlResult) {
                     ChannelTypeXmlResult typeResult = (ChannelTypeXmlResult) type;
                     addConfigDescription(typeResult.getConfigDescription());
@@ -116,12 +129,22 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
 
     @Override
     public synchronized void addingFinished() {
-        for (ThingTypeXmlResult type : this.thingTypes) {
-            this.thingTypeProvider.addThingType(this.bundle, type.toThingType(this.channelTypes));
+        // create channel group types
+        for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
+            this.channelGroupTypes.put(type.getUID().toString(),
+                    type.toChannelGroupType(this.channelTypes));
+        }
+
+        // create thing and bridge types
+        for (ThingTypeXmlResult type : this.thingTypeRefs) {
+            this.thingTypeProvider.addThingType(this.bundle,
+                    type.toThingType(this.channelGroupTypes, this.channelTypes));
         }
 
         // release temporary cache
-        this.thingTypes.clear();
+        this.thingTypeRefs.clear();
+        this.channelGroupTypeRefs.clear();
+        this.channelGroupTypes.clear();
         this.channelTypes.clear();
     }
 

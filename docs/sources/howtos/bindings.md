@@ -56,11 +56,9 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
 <thing-type id="weather">
     <label>Weather Information</label>
     <description>Provides various weather data from the Yahoo service</description>
-
     <channels>
         <channel id="temperature" typeId="temperature" />
     </channels>
-
     <config-description>
         <parameter name="location" type="text" required="true">
             <label>Location</label>
@@ -89,8 +87,14 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
     <item-type>Number</item-type>
     <label>Temperature</label>
     <description>Current temperature in degrees celsius (metric) or fahrenheit (us)</description>
+    <category>Temperature</category>
+    <state readOnly="true" />
 </channel-type>
 ```
+
+The channel type definition allows to specify a category and additional meta information for the state of the linked item. Together with the definition of the `readOnly` attribute, user interfaces get an idea how to render an item for this channel. For example a channel with the category `Temperature` which is readable only, indicates that this is a sensor for temperature. In that case the user inteface can render an according icon and a label for the current value. If the `readOnly` flag is set to `false` (which is the default value), the user interface could render a slider to change the temperature, because this means it is temperature actuator. Restrictions of the state like the minimum or maximum value can also be specified. 
+
+In order to give user interfaces a chance to render good default UIs for things, the binding should specify as much meta data as possible. For a complete list of possible configuration options and categories please see the [Thing Definition](../architecture/thing-definition.md#channels) section.
 
 ## The ThingHandlerFactory
 
