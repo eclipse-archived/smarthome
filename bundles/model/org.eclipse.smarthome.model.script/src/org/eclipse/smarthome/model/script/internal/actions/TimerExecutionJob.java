@@ -24,9 +24,6 @@ import org.slf4j.LoggerFactory;
 public class TimerExecutionJob implements Job {
 
 	private final Logger logger = LoggerFactory.getLogger(TimerExecutionJob.class);
-	
-	private Procedure0 procedure;
-	private TimerImpl timer;
 
 	/**
 	 * Runs the configured closure of this job
@@ -35,25 +32,10 @@ public class TimerExecutionJob implements Job {
 	 */
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		logger.debug("Executing timer '{}'", context.getJobDetail().getKey().toString());
+		Procedure0 procedure = (Procedure0) context.getJobDetail().getJobDataMap().get("procedure");
+		TimerImpl timer = (TimerImpl) context.getJobDetail().getJobDataMap().get("timer");
 		procedure.apply();
 		timer.setTerminated(true);
 	}
 
-	/**
-	 * Sets the closure for this job
-	 * 
-	 * @param procedure a closure without parameters
-	 */
-	public void setProcedure(Procedure0 procedure) {
-		this.procedure = procedure;
-	}
-
-	/** 
-	 * Sets the {@link TimerImpl} instance that corresponds to this job.
-	 * 
-	 * @param timer the associated timer instance
-	 */
-	public void setTimer(TimerImpl timer) {
-		this.timer = timer;
-	}
 }
