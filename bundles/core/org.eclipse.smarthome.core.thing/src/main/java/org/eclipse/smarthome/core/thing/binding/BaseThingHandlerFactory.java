@@ -100,6 +100,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     @Override
     public void registerHandler(Thing thing) {
         ThingHandler thingHandler = createHandler(thing);
+        if (thingHandler == null) {
+            throw new IllegalStateException(this.getClass().getSimpleName()
+                    + " could not create a handler for the thing '" + thing.getUID() + "'.");
+        }
         if (thingHandler instanceof BaseThingHandler) {
         	if(bundleContext == null) {
         		throw new IllegalStateException("Base thing handler factory has not been properly initialized. Did you forget to call super.activate()?");
