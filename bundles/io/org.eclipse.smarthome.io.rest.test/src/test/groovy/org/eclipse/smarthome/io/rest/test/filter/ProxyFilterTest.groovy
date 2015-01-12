@@ -30,11 +30,11 @@ class ProxyFilterTest {
 
     private static final String TEST_PROTO_2 = "http";
 
-    private static final String TEST_HOST = "telecom.de";
+    private static final String TEST_HOST = "eclipse.org";
 
-    private static final String TEST_HOST_WITH_PORT = "telecom.de:8081";
+    private static final String TEST_HOST_WITH_PORT = "eclipse.org:8081";
 
-    private static final String INVALID_HOST = "://afsdssdh\\///";
+    private static final String INVALID_HOST = "://sometext\\///";
 
     private static final String DEFAULT_REQUEST_URI = "http://localhost:8080/rest/test";
 
