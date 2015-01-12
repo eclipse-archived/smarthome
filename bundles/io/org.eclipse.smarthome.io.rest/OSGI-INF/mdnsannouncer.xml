@@ -8,7 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.io.rest.mdns">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" configuration-policy="optional" deactivate="deactivate" name="org.eclipse.smarthome.mdns">
    <implementation class="org.eclipse.smarthome.io.rest.internal.MDNSAnnouncer"/>
-   <reference bind="setMDNSService" cardinality="0..1" interface="org.eclipse.smarthome.io.mdns.MDNSService" name="MDNSService" policy="dynamic" unbind="unsetMDNSService"/>
+   <property name="service.pid" type="String" value="org.eclipse.smarthome.mdns"/>
+   <reference bind="setMDNSService" cardinality="1..1" interface="org.eclipse.smarthome.io.mdns.MDNSService" name="MDNSService" policy="dynamic" unbind="unsetMDNSService"/>
 </scr:component>

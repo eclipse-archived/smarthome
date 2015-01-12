@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.internal;
 
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.smarthome.io.mdns.MDNSService;
 import org.eclipse.smarthome.io.mdns.ServiceDescription;
@@ -38,18 +39,20 @@ public class MDNSAnnouncer {
 		this.mdnsService = null;
 	}
 	
-	public void activate(BundleContext bundleContext) {			    
-		if (mdnsService != null) {
-			mdnsName = bundleContext.getProperty("mdnsName");
-			if(mdnsName==null) { mdnsName = "smarthome"; }
-        	try {
-        		httpPort = Integer.parseInt(bundleContext.getProperty("jetty.port"));
- 				mdnsService.registerService(getDefaultServiceDescription());
-        	} catch(NumberFormatException e) {}
-        	try {
-        		httpSSLPort = Integer.parseInt(bundleContext.getProperty("jetty.port.ssl"));
- 				mdnsService.registerService(getSSLServiceDescription());
-        	} catch(NumberFormatException e) {}
+	public void activate(BundleContext bundleContext, Map<String, Object> properties) {
+		if(!"false".equalsIgnoreCase((String) properties.get("enabled"))) {
+			if (mdnsService != null) {
+				mdnsName = bundleContext.getProperty("mdnsName");
+				if(mdnsName==null) { mdnsName = "smarthome"; }
+	        	try {
+	        		httpPort = Integer.parseInt(bundleContext.getProperty("org.osgi.service.http.port"));
+	 				mdnsService.registerService(getDefaultServiceDescription());
+	        	} catch(NumberFormatException e) {}
+	        	try {
+	        		httpSSLPort = Integer.parseInt(bundleContext.getProperty("org.osgi.service.http.port.secure"));
+	 				mdnsService.registerService(getSSLServiceDescription());
+	        	} catch(NumberFormatException e) {}
+			}
 		}
 	}
 	
