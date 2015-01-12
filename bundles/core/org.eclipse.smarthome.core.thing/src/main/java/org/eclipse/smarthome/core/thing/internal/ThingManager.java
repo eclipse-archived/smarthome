@@ -139,7 +139,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      */
     public void handlerAdded(Thing thing, ThingHandler thingHandler) {
         logger.debug("Assigning handler for thing '{}'.", thing.getUID());
-        ((ThingImpl) thing).addThingListener(thingListener);
         thing.setHandler(thingHandler);
     }
 
@@ -153,7 +152,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      */
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
-        ((ThingImpl) thing).removeThingListener(thingListener);
         thing.setHandler(null);
         thing.setStatus(ThingStatus.OFFLINE);
     }
@@ -222,16 +220,11 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
+        ((ThingImpl)thing).addThingListener(thingListener);
         this.thingLinkManager.thingAdded(thing);
         ThingHandler thingHandler = thingHandlers.get(thing.getUID());
         if (thingHandler == null) {
-            ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing);
-            if (thingHandlerFactory != null) {
-                registerHandler(thing, thingHandlerFactory);
-            } else {
-                logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
-                        thing.getUID());
-            }
+            registerHandler(thing);
         } else {
             logger.debug("Handler for thing '{}' already exists.", thing.getUID());
             handlerAdded(thing, thingHandler);
@@ -255,23 +248,49 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
             }
         }
         this.thingLinkManager.thingRemoved(thing);
+        ((ThingImpl)thing).removeThingListener(thingListener);
         logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
 
     @Override
     public void thingUpdated(Thing thing, ThingTrackerEvent thingTrackerEvent) {
-        if (thingTrackerEvent == ThingTrackerEvent.THING_UPDATED) {
-            ThingUID thingId = thing.getUID();
-            ThingHandler thingHandler = thingHandlers.get(thingId);
-            if (thingHandler != null) {
-                try {
-                    thingHandler.thingUpdated(thing);
-                } catch (Exception ex) {
-                    logger.error("Cannot send Thing updated event to ThingHandler '"
-                            + thingHandler + "'!", ex);
-                }
+
+        ThingUID thingUID = thing.getUID();
+        Thing oldThing = getThing(thingUID);
+        if (oldThing != null) {
+            this.things.remove(oldThing);
+        }
+
+        things.add(thing);
+        ((ThingImpl) thing).addThingListener(thingListener);
+        thingLinkManager.thingUpdated(thing);
+
+        ThingHandler thingHandler = thingHandlers.get(thingUID);
+        if (thingHandler != null) {
+            try {
+                thing.setHandler(thingHandler);
+                thingHandler.thingUpdated(thing);
+            } catch (Exception ex) {
+                logger.error("Cannot send Thing updated event to ThingHandler '" + thingHandler + "'!", ex);
             }
+        } else {
+            registerHandler(thing); 
+        }
+
+        if (oldThing != null) {
+            oldThing.setHandler(null);
+            ((ThingImpl) oldThing).removeThingListener(this.thingListener);
+        }
+    }
+
+    private void registerHandler(Thing thing) {
+        ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing);
+        if (thingHandlerFactory != null) {
+            registerHandler(thing, thingHandlerFactory);
+        } else {
+            logger.debug("Not registering a handler at this point since no handler factory for thing '{}' found.",
+                    thing.getUID());
         }
     }
 

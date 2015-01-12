@@ -13,11 +13,11 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.DecimalType
+import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
-import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -30,6 +30,9 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.event.Event
+import org.osgi.service.event.EventConstants
+import org.osgi.service.event.EventHandler
 
 class ThingManagerOSGiTest extends OSGiTest {
 
@@ -43,7 +46,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     
     def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
     
-	def THING = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
+	Thing THING = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
 
     EventPublisher eventPublisher
     
@@ -134,6 +137,51 @@ class ThingManagerOSGiTest extends OSGiTest {
         eventPublisher.postUpdate(itemName, new DecimalType(10), CHANNEL_UID.toString())
         waitFor {handleUpdateWasCalled == true}
         assertThat handleUpdateWasCalled, is(false) 
+    }
+    
+    @Test
+    void 'ThingManager handles updates correctly'() {
 
+        def itemName = "name"
+        def handleUpdateWasCalled = false
+        def thingUpdatedWasCalled = false
+        
+        managedThingProvider.add(THING)
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
+        def thingHandler = [
+            handleUpdate: { ChannelUID channelUID, State newState ->
+                handleUpdateWasCalled = true
+            },
+            thingUpdated: {
+                thingUpdatedWasCalled = true
+            }
+        ] as ThingHandler
+        
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
+        
+        Event event = null
+        registerService([ 
+            handleEvent: { Event e ->
+                event = e;
+        }] as EventHandler,[
+            (EventConstants.EVENT_TOPIC): 'smarthome/update/*'
+        ] as Hashtable)
+        
+        // thing manager registered a listener, that delegates the update to the OSGi event bus
+        THING.channelUpdated(CHANNEL_UID, new StringType("Value"))
+        waitForAssert { assertThat event, is(not(null)) }
+        waitForAssert { assertThat event.getProperty("state"), is(equalTo("Value")) }
+        
+        event = null
+        def thing = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
+        managedThingProvider.update(thing)
+        
+        thing.channelUpdated(CHANNEL_UID, new StringType("Value"))
+        waitForAssert { assertThat event, is(not(null)) }
+        waitForAssert { assertThat event.getProperty("state"), is(equalTo("Value")) }
+        waitForAssert { assertThat thingUpdatedWasCalled, is(true) }
     }
 }
