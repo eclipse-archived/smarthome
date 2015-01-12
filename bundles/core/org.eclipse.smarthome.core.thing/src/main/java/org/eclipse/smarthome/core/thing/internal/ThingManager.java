@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -98,6 +100,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private EventPublisher eventPublisher;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    
+    private ItemThingLinkRegistry itemThingLinkRegistry;
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -109,17 +113,21 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         @Override
         public void channelUpdated(ChannelUID channelUID, State state) {
-            String item = itemChannelLinkRegistry.getBoundItem(channelUID);
-            if (item != null) {
+            Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
+            for (String item : items) {
                 eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }
 
     };
 
+    private ItemRegistry itemRegistry;
+    
     private ThingRegistryImpl thingRegistry;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
+
+    private ThingLinkManager thingLinkManager;
 
     /**
      * Method is called when a {@link ThingHandler} is added.
@@ -214,6 +222,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
+        this.thingLinkManager.thingAdded(thing);
         ThingHandler thingHandler = thingHandlers.get(thing.getUID());
         if (thingHandler == null) {
             ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing);
@@ -245,6 +254,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 }
             }
         }
+        this.thingLinkManager.thingRemoved(thing);
         logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
@@ -303,6 +313,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void activate(ComponentContext componentContext) {
+        this.thingLinkManager = new ThingLinkManager(itemRegistry, thingRegistry, itemChannelLinkRegistry, itemThingLinkRegistry);
+        this.thingLinkManager.startListening();
         this.bundleContext = componentContext.getBundleContext();
         this.thingHandlerTracker = new ThingHandlerTracker(this.bundleContext);
         this.thingHandlerTracker.open();
@@ -330,6 +342,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void deactivate(ComponentContext componentContext) {
         this.thingHandlerTracker.close();
+        this.thingLinkManager.stopListening();
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
@@ -363,6 +376,22 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry.removeThingTracker(this);
         this.thingRegistry = null;
+    }
+    
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+    
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
+    
+    protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
+        this.itemThingLinkRegistry = itemThingLinkRegistry;
+    }
+    
+    protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
+        this.itemThingLinkRegistry = null;
     }
 
 }

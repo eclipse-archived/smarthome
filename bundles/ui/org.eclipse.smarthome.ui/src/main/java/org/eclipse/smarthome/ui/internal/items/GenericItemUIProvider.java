@@ -7,15 +7,18 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.model.core.ModelRepository;
-import org.eclipse.smarthome.ui.items.ItemUIProvider;
-import org.eclipse.smarthome.model.items.ModelItem;
 import org.eclipse.smarthome.model.items.ItemModel;
+import org.eclipse.smarthome.model.items.ModelItem;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.items.ItemUIProvider;
 
 public class GenericItemUIProvider implements ItemUIProvider {
 
 	private ModelRepository modelRepository = null;
+	private ItemRegistry itemRegistry = null;
 
 	public void setModelRepository(ModelRepository modelRepository) {
 		this.modelRepository = modelRepository;
@@ -24,6 +27,14 @@ public class GenericItemUIProvider implements ItemUIProvider {
 	public void unsetModelRepository(ModelRepository modelRepository) {
 		this.modelRepository = null;
 	}
+	
+	public void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+	
+	public void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
 
 	public String getIcon(String itemName) {
 		ModelItem item = getItem(itemName);
@@ -31,8 +42,11 @@ public class GenericItemUIProvider implements ItemUIProvider {
 	}
 
 	public String getLabel(String itemName) {
-		ModelItem item = getItem(itemName);
-		return item != null ? item.getLabel() : null;
+	    if(itemRegistry != null) {
+	        Item item = itemRegistry.get(itemName);
+	        return item != null ? item.getLabel() : null;
+	    }
+		return null;
 	}
 
 	public Widget getWidget(String itemName) {

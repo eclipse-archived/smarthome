@@ -75,7 +75,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
         if (result != null) {
             ThingUID thingUID = result.getThingUID();
-            Thing thing = this.thingRegistry.getByUID(thingUID);
+            Thing thing = this.thingRegistry.get(thingUID);
 
             if (thing == null) {
             	DiscoveryResult inboxResult = get(thingUID);

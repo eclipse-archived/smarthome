@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -322,7 +323,7 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
-        item.addTag(tag);
+        ((ActiveItem) item).addTag(tag);
         managedItemProvider.update(item);
 
         return Response.ok().build();
@@ -343,12 +344,11 @@ public class ItemResource implements RESTResource {
             return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
-        item.removeTag(tag);
+        ((ActiveItem) item).removeTag(tag);
         managedItemProvider.update(item);
 
         return Response.ok().build();
     }
-
     
     private Item getItem(String itemname) {
     	try {

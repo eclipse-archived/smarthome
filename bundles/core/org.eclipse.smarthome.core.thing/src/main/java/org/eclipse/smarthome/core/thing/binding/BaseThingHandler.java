@@ -7,11 +7,14 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -180,10 +183,47 @@ public abstract class BaseThingHandler implements ThingHandler {
         ThingUID bridgeUID = thing.getBridgeUID();
         synchronized (this) {
             if (bridgeUID != null && thingRegistry != null) {
-                return (Bridge) thingRegistry.getByUID(bridgeUID);
+                return (Bridge) thingRegistry.get(bridgeUID);
             } else {
                 return null;
             }
+        }
+    }
+    
+    
+    /**
+     * Returns a set of linked items for a given channel ID.
+     * 
+     * @param channelId
+     *            channel ID (must not be null)
+     * @return set of linked items
+     * @throws IllegalArgumentException
+     *             if no channel with the given ID exists
+     */
+    protected Set<Item> getLinkedItems(String channelId) {
+        Channel channel = thing.getChannel(channelId);
+        if (channel != null) {
+            return channel.getLinkedItems();
+        } else {
+            throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
+        }
+    }
+    
+    /**
+     * Returns whether at least on item is linked for the given channel ID.
+     * 
+     * @param channelId
+     *            channel ID (must not be null)
+     * @return true if at least one item is linked, false otherwise
+     * @throws IllegalArgumentException
+     *             if no channel with the given ID exists
+     */
+    protected boolean isLinked(String channelId) {
+        Channel channel = thing.getChannel(channelId);
+        if (channel != null) {
+            return channel.isLinked();
+        } else {
+            throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
         }
     }
 

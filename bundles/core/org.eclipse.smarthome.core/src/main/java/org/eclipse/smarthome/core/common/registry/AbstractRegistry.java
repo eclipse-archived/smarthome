@@ -28,7 +28,7 @@ import com.google.common.collect.Iterables;
  * @param <E>
  *            type of the element
  */
-public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, Registry<E> {
+public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {
         ADDED, REMOVED, UPDATED;
@@ -38,6 +38,8 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
+
+    protected ManagedProvider<E,K> managedProvider;
 
     @Override
     public void added(Provider<E> provider, E element) {
@@ -93,6 +95,33 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
             }
         }
     }
+    
+    @Override
+    public void add(E element) {
+        if (this.managedProvider != null) {
+            this.managedProvider.add(element);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
+    }
+    
+    @Override
+    public E update(E element) {
+        if(this.managedProvider != null) {
+            return this.managedProvider.update(element);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
+    }
+    
+    @Override
+    public E remove(K key) {
+        if(this.managedProvider != null) {
+            return this.managedProvider.remove(key);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
+    }
 
     protected void notifyListeners(E oldElement, E element, EventType eventType) {
         for (RegistryChangeListener<E> listener : this.listeners) {
@@ -133,6 +162,7 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
         notifyListeners(oldElement, element, EventType.UPDATED);
     }
 
+    @SuppressWarnings("unchecked")
     protected void addProvider(Provider<E> provider) {
         // only add this provider if it does not already exist
         if (!elementMap.containsKey(provider)) {
@@ -150,6 +180,9 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
                 }
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
+            if(provider instanceof ManagedProvider) {
+                this.managedProvider = (ManagedProvider<E,K>) provider;
+            }
         }
     }
 
@@ -222,6 +255,10 @@ public abstract class AbstractRegistry<E> implements ProviderChangeListener<E>, 
             provider.removeProviderChangeListener(this);
 
             logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
+            
+            if(this.managedProvider == provider) {
+                this.managedProvider = null;
+            }
         }
     }
 

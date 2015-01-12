@@ -77,7 +77,7 @@ public class ItemChannelLinkResource implements RESTResource {
     private Collection<ItemChannelLinkBean> toBeans(Collection<ItemChannelLink> links){
         Collection<ItemChannelLinkBean> beans = new ArrayList<>();
         for (ItemChannelLink link : links) {
-            ItemChannelLinkBean bean = new ItemChannelLinkBean(link.getItemName(), link.getChannelUID().toString());
+            ItemChannelLinkBean bean = new ItemChannelLinkBean(link.getItemName(), link.getUID().toString());
             beans.add(bean);
         }
         return beans;

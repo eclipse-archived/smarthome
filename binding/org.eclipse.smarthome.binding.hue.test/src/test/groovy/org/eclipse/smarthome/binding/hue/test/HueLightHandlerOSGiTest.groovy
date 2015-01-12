@@ -29,7 +29,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
-import org.eclipse.smarthome.core.thing.util.ThingHelper
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -358,9 +358,12 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        }, 10000)
 
 	        // create items and channel bindings
-	        ThingHelper thingHelper = new ThingHelper(bundleContext)
+	        ThingSetupManager thingSetupManager = getService(ThingSetupManager)
 	
-	        thingHelper.createAndBindItems(hueLight)
+	        hueLight.getChannels().each {
+                thingSetupManager.enableChannel(it.UID)
+            }
+            
 	        def item = hueLight.getUID().toString().replace(":", "_") + "_" + channel
 
 	        EventPublisher eventPublisher = getService(EventPublisher)

@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.internal.ThingListener;
@@ -31,6 +32,18 @@ public interface Thing {
      * @return the channels
      */
     List<Channel> getChannels();
+    
+    /**
+     * Gets the channel for the given id or null if no channel with the id
+     * exists.
+     * 
+     * @param channelId
+     *            channel ID
+     * 
+     * @return the channel for the given id or null if no channel with the id
+     *         exists
+     */
+    Channel getChannel(String channelId);
 
     /**
      * Gets the status.
@@ -101,21 +114,6 @@ public interface Thing {
      * @return the uid
      */
     ThingUID getUID();
-    
-    /**
-     * Sets the name.
-     * 
-     * @param name
-     *            the new name
-     */
-    void setName(String name);
-    
-    /**
-     * Gets the name.
-     * 
-     * @return the name (can be null)
-     */
-    String getName();
 
     /**
      * Gets the thing type UID.
@@ -123,4 +121,19 @@ public interface Thing {
      * @return the thing type UID
      */
     ThingTypeUID getThingTypeUID();
+    
+    /**
+     * Returns the group item, which is linked to the thing or null if no item is
+     * linked.
+     * 
+     * @return group item , which is linked to the thing or null
+     */
+    GroupItem getLinkedItem();
+    
+    /**
+     * Returns whether the thing is linked to an item.
+     * 
+     * @return true if thing is linked, false otherwise.
+     */
+    public boolean isLinked();
 }

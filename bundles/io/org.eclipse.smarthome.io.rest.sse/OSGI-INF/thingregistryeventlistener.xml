@@ -10,7 +10,6 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sse.listeners.thing">
    <implementation class="org.eclipse.smarthome.io.rest.sse.internal.listeners.ThingRegistryEventListener"/>
-   <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
    <reference bind="setSseResource" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.sse.SseResource" name="SseResource" policy="static" unbind="unsetSseResource"/>
 </scr:component>

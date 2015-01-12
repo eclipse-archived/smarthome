@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -28,8 +29,8 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
@@ -44,9 +45,9 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 @Path("inbox")
 public class InboxResource implements RESTResource {
 
+    private ThingSetupManager thingSetupManager;
 	private Inbox inbox;
-	private ManagedThingProvider managedThingProvider;
-	
+
 	protected void setInbox(Inbox inbox) {
 		this.inbox = inbox;
 	}
@@ -55,20 +56,21 @@ public class InboxResource implements RESTResource {
 		this.inbox = null;
 	}
 
-	protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
-		this.managedThingProvider = managedThingProvider;
-	}
-
-	protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
-		this.managedThingProvider = null;
-	}
-
+	protected void setThingSetupManager(ThingSetupManager thignSetupManager) {
+        this.thingSetupManager = thignSetupManager;
+    }
+	
+	protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = null;
+    }
+    
     @Context
     private UriInfo uriInfo;
 
     @POST
     @Path("/approve/{thingUID}")
-    public Response approve(@PathParam("thingUID") String thingUID) {
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response approve(@PathParam("thingUID") String thingUID, String label) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
@@ -76,7 +78,7 @@ public class InboxResource implements RESTResource {
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
+        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(), label != null && !label.isEmpty() ? label : null);
         return Response.ok().build();
     }
 

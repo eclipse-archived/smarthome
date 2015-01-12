@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -49,10 +50,10 @@ public class ThingImpl implements Thing {
     transient volatile private ThingHandler thingHandler;
 
     transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
-    
-    private String name;
 
     private ThingTypeUID thingTypeUID;
+
+    transient volatile private GroupItem linkedItem;
     
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -108,6 +109,16 @@ public class ThingImpl implements Thing {
         return ImmutableList.copyOf(this.channels);
     }
     
+    @Override
+    public Channel getChannel(String channelId) {
+        for (Channel channel : this.channels) {
+            if(channel.getUID().getId().equals(channelId)) {
+                return channel;
+            }
+        }
+        return null;
+    }
+    
     public List<Channel> getChannelsMutable() {
         return this.channels;
     }
@@ -130,11 +141,6 @@ public class ThingImpl implements Thing {
     public ThingStatus getStatus() {
         return status;
     }
-    
-    @Override
-    public String getName() {
-		return name;
-	}
 
     /**
      * Removes the thing listener.
@@ -171,17 +177,26 @@ public class ThingImpl implements Thing {
     public void setStatus(ThingStatus status) {
         this.status = status;
     }
-    
-    @Override
-    public void setName(String name) {
-    	this.name = name;
-    }
 
     @Override
     public ThingTypeUID getThingTypeUID() {
         return this.thingTypeUID;
     }
 
+    public void setLinkedItem(GroupItem groupItem) {
+        this.linkedItem = groupItem;
+    }
+
+    @Override
+    public GroupItem getLinkedItem() {
+        return this.linkedItem;
+    }
+
+    @Override
+    public boolean isLinked() {
+        return getLinkedItem() != null;
+    }
+    
     @Override
     public int hashCode() {
         final int prime = 31;

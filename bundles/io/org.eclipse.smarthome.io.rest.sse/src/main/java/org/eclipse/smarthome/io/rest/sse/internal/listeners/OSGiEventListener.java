@@ -34,11 +34,11 @@ public class OSGiEventListener extends AbstractEventSubscriber {
 
     @Override
     public void receiveCommand(String itemName, Command command) {
-        sseResource.broadcastEvent(itemName, EventType.COMMAND, command.format("%s"));
+        sseResource.broadcastEvent(itemName, EventType.COMMAND, command.toString());
     }
 
     @Override
     public void receiveUpdate(String itemName, State newState) {
-        sseResource.broadcastEvent(itemName, EventType.UPDATE, newState.format("%s"));
+        sseResource.broadcastEvent(itemName, EventType.UPDATE, newState.toString());
     }
 }

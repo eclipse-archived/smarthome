@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 
@@ -115,6 +116,35 @@ public class ThingTypeRegistry {
      */
     public ThingType getThingType(ThingTypeUID thingTypeUID) {
         return getThingType(thingTypeUID, null);
+    }
+    
+    public ChannelType getChannelType(ChannelUID channelUID) {
+        return getChannelType(channelUID, null);
+    }
+    
+    public ChannelType getChannelType(ChannelUID channelUID, Locale locale) {
+        ThingType thingType = this.getThingType(channelUID.getThingTypeUID(), locale);
+        if (thingType != null) {
+            if (!channelUID.isInGroup()) {
+                for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
+                    if (channelDefinition.getId().equals(channelUID.getId())) {
+                        return channelDefinition.getType();
+                    }
+                }
+            } else {
+                List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
+                for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                    if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
+                        for (ChannelDefinition channelDefinition : channelGroupDefinition.getType().getChannelDefinitions()) {
+                            if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
+                                return channelDefinition.getType();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {

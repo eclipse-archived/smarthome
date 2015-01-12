@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.beans;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -18,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "channel")
 public class ChannelBean {
 
-    public String boundItem;
+    public List<String> linkedItems;
 
     public String id;
 
@@ -27,10 +29,10 @@ public class ChannelBean {
     public ChannelBean() {
     }
 
-    public ChannelBean(String id, String itemType, String boundItem) {
-        this.itemType = itemType;
+    public ChannelBean(String id, String itemType, List<String> linkedItems) {
         this.id = id;
-        this.boundItem = boundItem;
+        this.itemType = itemType;
+        this.linkedItems = linkedItems;
     }
 
 }

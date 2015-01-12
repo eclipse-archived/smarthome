@@ -48,10 +48,6 @@ import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
-import org.eclipse.smarthome.ui.icon.IconProvider;
-import org.eclipse.smarthome.ui.internal.UIActivator;
-import org.eclipse.smarthome.ui.items.ItemUIProvider;
-import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
 import org.eclipse.smarthome.model.sitemap.Group;
 import org.eclipse.smarthome.model.sitemap.LinkableWidget;
@@ -62,6 +58,10 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.icon.IconProvider;
+import org.eclipse.smarthome.ui.internal.UIActivator;
+import org.eclipse.smarthome.ui.items.ItemUIProvider;
+import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -490,10 +490,10 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 	 * {@inheritDoc}
 	 */
 	public EList<Widget> getChildren(LinkableWidget w) {
-		if(w instanceof Group && ((LinkableWidget)w).getChildren().isEmpty()) {
+		if(w instanceof Group && w.getChildren().isEmpty()) {
 			return getDynamicGroupChildren((Group) w);
 		} else {
-			return ((LinkableWidget)w).getChildren();
+			return w.getChildren();
 		}
 	}
 	
@@ -967,6 +967,47 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         } else {
             return Collections.emptyList(); 
         }
+    }
+
+    @Override
+    public void add(Item element) {
+        if (itemRegistry != null) {
+            itemRegistry.add(element);  
+        }
+    }
+
+    @Override
+    public Item update(Item element) {
+        if (itemRegistry != null) {
+            return itemRegistry.update(element);  
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Item remove(String key) {
+        if (itemRegistry != null) {
+            return itemRegistry.remove(key);  
+        } else {
+            return null;
+        }
+    }
+
+    public Item get(String key) {
+        if (itemRegistry != null) {
+            return itemRegistry.get(key);
+        } else {
+            return null;
+        }
+    }
+
+    public void remove(String itemName, boolean recursive) {
+
+        if (itemRegistry != null) {
+            itemRegistry.remove(itemName, recursive);
+        }
+
     }
 
 }
