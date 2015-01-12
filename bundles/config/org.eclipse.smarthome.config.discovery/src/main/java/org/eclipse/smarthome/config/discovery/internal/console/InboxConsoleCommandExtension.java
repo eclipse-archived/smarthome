@@ -78,7 +78,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
                     		console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
                     	}
                     } else {
-                        console.println("Specify thing id to approve: inbox approve <thingUID>");
+                        console.println("Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
                     }
                     return;
                 case "ignore":
@@ -152,7 +152,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     public List<String> getUsages() {
         return Arrays.asList((new String[] { COMMAND_INBOX + " - lists all current inbox entries",
         		COMMAND_INBOX + " listignored - lists all ignored inbox entries",
-        		COMMAND_INBOX + " approve <thingUID> - creates a thing for an inbox entry",
+        		COMMAND_INBOX + " approve <thingUID> <fullSetup - true|false> - creates a thing for an inbox entry",
         		COMMAND_INBOX + " clear - clears all current inbox entries",
         		COMMAND_INBOX + " ignore <thingUID> - ignores an inbox entry permanently" }));
     }

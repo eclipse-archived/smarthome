@@ -119,7 +119,7 @@ public class ThingResource implements RESTResource {
 
         Thing thing = thingRegistry.get(new ThingUID(thingUID));
         if (thing == null) {
-            logger.info("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            logger.warn("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
             return Response.status(Status.NOT_FOUND).build();
         }
 
@@ -278,7 +278,7 @@ public class ThingResource implements RESTResource {
         Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
         for (ItemChannelLink link : links) {
             if (link.getUID().equals(channelUID)) {
-                logger.info(
+                logger.debug(
                         "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
                         channelUID, link.getItemName());
                 managedItemChannelLinkProvider.remove(link.getID());

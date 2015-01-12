@@ -56,8 +56,8 @@ public class InboxResource implements RESTResource {
 		this.inbox = null;
 	}
 
-	protected void setThingSetupManager(ThingSetupManager thignSetupManager) {
-        this.thingSetupManager = thignSetupManager;
+	protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = thingSetupManager;
     }
 	
 	protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
