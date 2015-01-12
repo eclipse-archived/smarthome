@@ -103,9 +103,9 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getByUID(@PathParam("thingUID") String thingUID) {
-        Thing thing = thingRegistry.getByUID((new ThingUID(thingUID)));
+        Thing thing = thingRegistry.get((new ThingUID(thingUID)));
         if (thing != null) {
-            return Response.ok(BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry)).build();
+            return Response.ok(BeanMapper.mapThingToBean(thing)).build();
         } else {
             return Response.noContent().build();
         }
@@ -117,7 +117,7 @@ public class ThingResource implements RESTResource {
     public Response link(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
             String itemName) {
 
-        Thing thing = thingRegistry.getByUID(new ThingUID(thingUID));
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
         if (thing == null) {
             logger.info("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
             return Response.status(Status.NOT_FOUND).build();
@@ -139,7 +139,7 @@ public class ThingResource implements RESTResource {
 
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
-        unlinkChannelIfAlreadyBound(channelUID);
+        unlinkChannelIfAlreadyLinked(channelUID);
 
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, channelUID));
 
@@ -164,10 +164,9 @@ public class ThingResource implements RESTResource {
             String itemName) {
 
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
-        String boundItem = itemChannelLinkRegistry.getBoundItem(channelUID);
-
-        if (boundItem != null) {
-            managedItemChannelLinkProvider.remove(new ItemChannelLink(boundItem, channelUID).getID());
+ 
+        if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
+            managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());
         }
 
         return Response.ok().build();
@@ -260,7 +259,7 @@ public class ThingResource implements RESTResource {
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
         Set<ThingBean> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            ThingBean thingBean = BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry);
+            ThingBean thingBean = BeanMapper.mapThingToBean(thing);
             thingBeans.add(thingBean);
         }
         return thingBeans;
@@ -275,10 +274,10 @@ public class ThingResource implements RESTResource {
         return null;
     }
 
-    private void unlinkChannelIfAlreadyBound(ChannelUID channelUID) {
+    private void unlinkChannelIfAlreadyLinked(ChannelUID channelUID) {
         Collection<ItemChannelLink> links = managedItemChannelLinkProvider.getAll();
         for (ItemChannelLink link : links) {
-            if (link.getChannelUID().equals(channelUID)) {
+            if (link.getUID().equals(channelUID)) {
                 logger.info(
                         "Channel '{}' is already linked to item '{}' and will be unlinked before it will be linked to the new item.",
                         channelUID, link.getItemName());

@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.Collection;
+
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
+import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * 
@@ -32,6 +35,15 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
     @Override
     protected String getKey(ItemChannelLink element) {
         return element.getID();
+    }
+    
+    public void removeLinksForThing(ThingUID thingUID) {
+        Collection<ItemChannelLink> itemChannelLinks = getAll();
+        for (ItemChannelLink itemChannelLink : itemChannelLinks) {
+            if(itemChannelLink.getUID().getThingUID().equals(thingUID)) {
+                this.remove(itemChannelLink.getID());
+            }
+        }
     }
 
 }

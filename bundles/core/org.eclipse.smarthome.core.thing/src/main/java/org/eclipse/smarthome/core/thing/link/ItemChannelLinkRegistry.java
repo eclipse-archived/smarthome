@@ -11,10 +11,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingUID;
 
 
 /**
@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
  * @author Dennis Nobel - Initial contribution
  * 
  */
-public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
+public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink> {
 
     private ThingRegistry thingRegistry;
 
@@ -41,28 +41,13 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
 
         for (ItemChannelLink itemChannelLink : getAll()) {
             if (itemChannelLink.getItemName().equals(itemName)) {
-                channelUIDs.add(itemChannelLink.getChannelUID());
+                channelUIDs.add(itemChannelLink.getUID());
             }
         }
 
         return channelUIDs;
     }
 
-    /**
-     * Returns the item name, which is bound to the given channel UID.
-     * 
-     * @param channelUID
-     *            channel UID
-     * @return item name or null if no item is bound to the given channel UID
-     */
-    public String getBoundItem(ChannelUID channelUID) {
-        for (ItemChannelLink itemChannelLink : getAll()) {
-            if (itemChannelLink.getChannelUID().equals(channelUID)) {
-                return itemChannelLink.getItemName();
-            }
-        }
-        return null;
-    }
 
     /**
      * Returns a set of bound things for the given item name.
@@ -77,7 +62,7 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
         Collection<ChannelUID> boundChannels = getBoundChannels(itemName);
 
         for (ChannelUID channelUID : boundChannels) {
-            Thing thing = thingRegistry.getByUID(channelUID.getThingUID());
+            Thing thing = thingRegistry.get(channelUID.getThingUID());
             if (thing != null) {
                 things.add(thing);
             }
@@ -86,33 +71,20 @@ public class ItemChannelLinkRegistry extends AbstractRegistry<ItemChannelLink> {
         return things;
     }
 
-    /**
-     * Returns if an item for a given item is linked to a channel for a given
-     * channel UID.
-     * 
-     * @param itemName
-     *            item name
-     * @param channelUID
-     *            channel UID
-     * @return true if linked, false otherwise
-     */
-    public boolean isLinked(String itemName, ChannelUID channelUID) {
-
-        for (ItemChannelLink itemChannelLink : getAll()) {
-            if (itemChannelLink.getChannelUID().equals(channelUID)
-                    && itemChannelLink.getItemName().equals(itemName)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+
+    public void removeLinksForThing(ThingUID thingUID) {
+        if(this.managedProvider != null) {
+            ((ManagedItemChannelLinkProvider) this.managedProvider).removeLinksForThing(thingUID);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
     }
 }

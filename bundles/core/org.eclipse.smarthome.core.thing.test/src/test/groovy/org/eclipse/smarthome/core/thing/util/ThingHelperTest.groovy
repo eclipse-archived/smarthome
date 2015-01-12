@@ -85,16 +85,4 @@ class ThingHelperTest {
 		assertFalse ThingHelper.equals(thingA, thingB)
 	}
 
-	@Test
-	void 'Two things are different after name was modified'() {
-		Thing thingA = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId")).build()
-
-		Thing thingB = ThingBuilder.create(new ThingUID(new ThingTypeUID("binding:type"), "thingId")).build()
-
-		assertTrue ThingHelper.equals(thingA, thingB)
-
-		thingB.setName("Thing B")
-
-		assertFalse ThingHelper.equals(thingA, thingB)
-	}
 }

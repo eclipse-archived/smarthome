@@ -10,7 +10,7 @@ package org.eclipse.smarthome.core.binding.xml.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -119,7 +119,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
 
     @Override
     public synchronized Set<BindingInfo> getBindingInfos(Locale locale) {
-        Set<BindingInfo> allBindingInfos = new HashSet<>(10);
+        Set<BindingInfo> allBindingInfos = new LinkedHashSet<>(10);
 
         Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoSet =
                 this.bundleBindingInfoMap.entrySet();

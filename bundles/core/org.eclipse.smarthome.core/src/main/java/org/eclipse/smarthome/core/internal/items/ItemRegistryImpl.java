@@ -25,6 +25,8 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
+import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * 
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
@@ -46,6 +48,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
      * that they can communicate over the bus
      */
     protected EventPublisher eventPublisher;
+    
+    protected StateDescriptionProvider stateDescriptionProvider;
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
@@ -97,6 +101,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
         }
 
         throw new ItemNotFoundException(name);
+    }
+  
+    @Override
+    public Item get(String itemName) {
+        try {
+            return getItem(itemName);
+        } catch (ItemNotFoundException ignored) {
+            return null;
+        }
     }
 
     /*
@@ -198,16 +211,13 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             if (item instanceof GenericItem) {
                 GenericItem genericItem = (GenericItem) item;
                 genericItem.setEventPublisher(eventPublisher);
+                genericItem.setStateDescriptionProvider(stateDescriptionProvider);
                 genericItem.initialize();
             }
 
             if (item instanceof GroupItem) {
                 // fill group with its members
-                for (Item i : getItems()) {
-                    if (i.getGroupNames().contains(item.getName())) {
-                        ((GroupItem) item).addMember(i);
-                    }
-                }
+                addMembersToGroupItem((GroupItem) item);
             }
 
             // add the item to all relevant groups
@@ -216,6 +226,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
 			throw new IllegalArgumentException("Ignoring item '"
 					+ item.getName() + "' as it does not comply with"
 					+ " the naming convention.");
+        }
+    }
+
+    private void addMembersToGroupItem(GroupItem groupItem) {
+        for (Item i : getItems()) {
+            if (i.getGroupNames().contains(groupItem.getName())) {
+                groupItem.addMember(i);
+            }
         }
     }
 
@@ -246,6 +264,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
     protected void onUpdateElement(Item oldItem, Item item) {
         removeFromGroupItems(oldItem, oldItem.getGroupNames());
         addToGroupItems(item, item.getGroupNames());
+        if(item instanceof GroupItem) {
+            addMembersToGroupItem((GroupItem) item);
+        }
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
@@ -261,6 +282,21 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             ((GenericItem) item).setEventPublisher(null);
         }
     }
+    
+    protected void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = stateDescriptionProvider;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionProvider(stateDescriptionProvider);
+        }
+    }
+
+    protected void unsetStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProvider = null;
+        for (Item item : getItems()) {
+            ((GenericItem) item).setStateDescriptionProvider(null);
+        }
+    }
+
 
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
@@ -305,5 +341,14 @@ public class ItemRegistryImpl extends AbstractRegistry<Item> implements ItemRegi
             }
         }
         return filteredItems; 
+    }
+
+    @Override
+    public void remove(String itemName, boolean recursive) {
+        if(this.managedProvider != null) {
+            ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
+        } else {
+            throw new IllegalStateException("ManagedProvider is not available");
+        }
     }
 }

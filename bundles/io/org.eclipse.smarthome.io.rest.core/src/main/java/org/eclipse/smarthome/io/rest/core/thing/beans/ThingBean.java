@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize things to JSON.
@@ -27,17 +28,19 @@ public class ThingBean {
     public ThingStatus status;
     public String UID;
     public List<ChannelBean> channels;
+    public GroupItemBean item;
 
     public ThingBean() {
     }
 
     public ThingBean(String UID, String bridgeUID, ThingStatus status, List<ChannelBean> channels,
-            Configuration configuration) {
+            Configuration configuration, GroupItemBean item) {
         this.UID = UID;
         this.bridgeUID = bridgeUID;
         this.status = status;
         this.channels = channels;
         this.configuration = toMap(configuration);
+        this.item = item;
     }
 
     private Map<String, Object> toMap(Configuration configuration) {

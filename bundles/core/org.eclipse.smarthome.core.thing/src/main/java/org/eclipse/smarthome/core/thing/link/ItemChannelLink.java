@@ -17,9 +17,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  * @author Dennis Nobel - Initial contribution, Added getIDFor method
  * @author Jochen Hiller - Bugfix 455434: added default constructor, object is now mutable
  */
-public class ItemChannelLink {
-
-    private String itemName;
+public class ItemChannelLink extends AbstractLink {
 
     private ChannelUID channelUID;
 
@@ -28,68 +26,18 @@ public class ItemChannelLink {
      * class by reflection. Not intended to be used for normal instantiation.
      */
     ItemChannelLink() {
-        this.itemName = null;
+        super();
         this.channelUID = null;
     }
-
+    
     public ItemChannelLink(String itemName, ChannelUID channelUID) {
-        this.itemName = itemName;
+        super(itemName);
         this.channelUID = channelUID;
     }
 
-    public String getItemName() {
-        return itemName;
-    }
-
-    public ChannelUID getChannelUID() {
-        return channelUID;
-    }
-
-    public String getID() {
-        return getIDFor(itemName, channelUID);
-    }
-
     @Override
-    public String toString() {
-        return getID();
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-        	return false;
-        }
-        if (!(obj instanceof ItemChannelLink)) {
-        	return false;
-        }
-        ItemChannelLink other = (ItemChannelLink) obj;
-        if (!this.itemName.equals(other.itemName)) {
-        	return false;
-        }
-        if (!this.channelUID.equals(other.channelUID)) {
-        	return false;
-        }
-
-        return true;
-    }
-    
-    @Override
-    public int hashCode() {
-        return (int)this.itemName.hashCode() *
-                this.channelUID.hashCode();
-    }
-    
-    /**
-     * Returns the item channel link ID for a given item name and channel UID
-     * 
-     * @param itemName
-     *            item name
-     * @param channelUID
-     *            channel UID
-     * @return the item channel link ID
-     */
-    public static String getIDFor(String itemName, ChannelUID channelUID) {
-        return itemName + " -> " + channelUID.toString();
+    public ChannelUID getUID() {
+        return this.channelUID;
     }
 
 }

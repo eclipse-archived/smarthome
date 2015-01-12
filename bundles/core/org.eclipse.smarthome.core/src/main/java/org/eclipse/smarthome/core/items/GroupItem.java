@@ -217,6 +217,12 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         sb.append(", ");
         sb.append("State=");
         sb.append(getState());
+        sb.append(", ");
+        sb.append("Label=");
+        sb.append(getLabel());
+        sb.append(", ");
+        sb.append("Category=");
+        sb.append(getCategory());
         if (!getTags().isEmpty()) {
             sb.append(", ");
             sb.append("Tags=[");

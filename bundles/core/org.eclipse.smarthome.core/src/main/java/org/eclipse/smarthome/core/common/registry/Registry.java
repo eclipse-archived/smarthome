@@ -18,7 +18,7 @@ import java.util.Collection;
  * @param <E>
  *            type of the elements in the registry
  */
-public interface Registry<E> {
+public interface Registry<E, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
@@ -34,6 +34,15 @@ public interface Registry<E> {
      * @return collection of all elements in the registry
      */
     Collection<E> getAll();
+    
+    /**
+     * This method retrieves a single element from the registry.
+     * 
+     * @param key
+     *            key of the element
+     * @return element or null if no element was found
+     */
+    public E get(K key);
 
     /**
      * Removes a {@link RegistryChangeListener} from the registry.
@@ -42,5 +51,38 @@ public interface Registry<E> {
      *            registry change listener
      */
     void removeRegistryChangeListener(RegistryChangeListener<E> listener);
-
+    
+    /**
+     * Adds the given element to the according {@link ManagedProvider}.
+     * 
+     * @param element
+     *            element to be added (must not be null)
+     * @throws IllegalStateException
+     *             if no ManagedProvider is available
+     */
+    public void add(E element);
+    
+    /**
+     * Updates the given element at the according {@link ManagedProvider}.
+     * 
+     * @param element
+     *            element to be updated (must not be null)
+     * @return returns the old element or null if no element with the same key
+     *         exists
+     * @throws IllegalStateException
+     *             if no ManagedProvider is available
+     */
+    public E update(E element);
+    
+    /**
+     * Removes the given element from the according {@link ManagedProvider}.
+     * 
+     * @param key
+     *            key of the element (must not be null)
+     * @return element that was removed, or null if no element with the given
+     *         key exists
+     * @throws IllegalStateException
+     *             if no ManagedProvider is available
+     */
+    public E remove(K key);
 }

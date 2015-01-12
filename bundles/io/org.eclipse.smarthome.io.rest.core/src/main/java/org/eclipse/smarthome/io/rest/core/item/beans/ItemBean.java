@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.io.rest.core.item.beans;
 
+import java.util.List;
 import java.util.Set;
+
+import org.eclipse.smarthome.core.types.StateDescription;
 
 
 /**
@@ -21,9 +24,13 @@ public class ItemBean {
 
 	public String type;
 	public String name;	
+	public String label;
+	public String category;
 	public String state;
 	public String link;
 	public Set<String> tags; 
+	public StateDescription stateDescription;
+	public List<String> groupNames;
 	
 	public ItemBean() {}
 		

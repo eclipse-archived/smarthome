@@ -13,7 +13,6 @@ import java.util.List;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
@@ -30,17 +29,7 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
 
     private ThingRegistry thingRegistry;
 
-    private ItemChannelLinkRegistry itemChannelLinkRegistry;
-
     private SseResource sseResource;
-
-    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = itemChannelLinkRegistry;
-    }
-
-    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
-        this.itemChannelLinkRegistry = null;
-    }
 
     protected void setSseResource(SseResource sseResource) {
         this.sseResource = sseResource;
@@ -82,7 +71,7 @@ public class ThingRegistryEventListener implements ThingRegistryChangeListener {
             List<ThingBean> thingBeans = new ArrayList<ThingBean>();
 
             for (Thing thing : elements) {
-                thingBeans.add(BeanMapper.mapThingToBean(thing, itemChannelLinkRegistry));
+                thingBeans.add(BeanMapper.mapThingToBean(thing));
             }
 
             eventObject = thingBeans;

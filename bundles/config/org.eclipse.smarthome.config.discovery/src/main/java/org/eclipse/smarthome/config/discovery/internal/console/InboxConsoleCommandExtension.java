@@ -20,6 +20,7 @@ import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
@@ -33,6 +34,7 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 
     private Inbox inbox;
 	private ManagedThingProvider managedThingProvider;
+	private ThingSetupManager thingSetupManager;
 
     @Override
     public boolean canHandle(String[] args) {
@@ -50,7 +52,11 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
                 switch (subCommand) {
                 case "approve":
                     if (args.length > 2) {
-                    	if(managedThingProvider!=null) {
+                        boolean fullSetup = false;
+                        if(args.length > 3) {
+                            fullSetup = Boolean.parseBoolean(args[3]);
+                        }
+                        if(managedThingProvider!=null && thingSetupManager != null) {
 	                    	try {
 	                    		ThingUID thingUID = new ThingUID(args[2]);
 		                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
@@ -59,13 +65,17 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 		                            return;
 		                    	}
 		                    	DiscoveryResult result = results.get(0);
-		                    	Configuration conf = new Configuration(result.getProperties());
-		                    	managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), conf);
+		                    	Configuration configuratiob = new Configuration(result.getProperties());
+		                    	if(fullSetup) {
+		                    	    thingSetupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
+		                    	} else {
+		                    	    managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), configuratiob);
+		                    	}
 	                    	} catch(Exception e) {
 	                            console.println(e.getMessage());
 	                    	}
                     	} else {
-                    		console.println("Cannot approve thing as managed thing provider is missing.");
+                    		console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
                     	}
                     } else {
                         console.println("Specify thing id to approve: inbox approve <thingUID>");
@@ -161,5 +171,13 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
 
     protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = null;
+    }
+    
+    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = thingSetupManager;
+    }
+    
+    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
+        this.thingSetupManager = null;
     }
 }

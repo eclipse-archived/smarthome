@@ -9,14 +9,17 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * {@link Channel} is a part of a {@link Thing} that represents a functionality
- * of it. Therefore {@link Item}s can be bound a to a channel. The channel only
+ * of it. Therefore {@link Item}s can be linked a to a channel. The channel only
  * accepts a specific item type which is specified by
  * {@link Channel#getAcceptedItemType()} methods.
  * 
@@ -32,8 +35,16 @@ public class Channel {
 
     private Configuration configuration;
 
-    private Set<String> defaultTags;    
-
+    private Set<String> defaultTags;   
+    
+    transient private Set<Item> linkedItems = new LinkedHashSet<>();
+    
+    /**
+     * Package protected default constructor to allow reflective instantiation.
+     */
+    Channel() {
+    }
+    
     public Channel(ChannelUID uid, String acceptedItemType) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
@@ -94,5 +105,44 @@ public class Channel {
      */
     public Set<String> getDefaultTags() {
         return defaultTags;
+    }
+    
+    /**
+     * Adds an linked item to the list of linked items (this is an internal method
+     * that must not be called by clients).
+     * 
+     * @param item item (must not be null)
+     */
+    public void addLinkedItem(Item item) {
+        this.linkedItems.add(item);
+    }
+    
+    /**
+     * Removes an linked item from the list of linked items (this is an internal method
+     * that must not be called by clients).
+     * 
+     * @param item item (must not be null)
+     */
+    public void removeLinkedItem(Item item) {
+        this.linkedItems.remove(item);
+    }
+    
+    /**
+     * Returns a set of items, which are linked to the channel.
+     * 
+     * @return Set of items, which are linked to the channel
+     */
+    public Set<Item> getLinkedItems() {
+        return ImmutableSet.copyOf(this.linkedItems);
+    }
+    
+    /**
+     * Returns whether at least one item is linked to the channel.
+     * 
+     * @return true if at least one item is linked to the channel, false
+     *         otherwise
+     */
+    public boolean isLinked() {
+        return !getLinkedItems().isEmpty();
     }
 }

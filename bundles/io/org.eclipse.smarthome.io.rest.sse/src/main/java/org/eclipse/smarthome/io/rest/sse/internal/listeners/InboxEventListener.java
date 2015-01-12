@@ -7,13 +7,9 @@
  */
 package org.eclipse.smarthome.io.rest.sse.internal.listeners;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
 import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.eclipse.smarthome.io.rest.sse.EventType;
 import org.eclipse.smarthome.io.rest.sse.SseResource;
@@ -65,19 +61,8 @@ public class InboxEventListener implements InboxListener {
         broadcastInboxEvent(result.getThingUID().getId(), EventType.INBOX_THING_REMOVED, result);
     }
 
-    private void broadcastInboxEvent(String resultIdentifier, EventType eventType, DiscoveryResult... elements) {
-        Object eventObject = null;
-        if (elements != null && elements.length > 0) {
-            List<DiscoveryResultBean> discoveryBeans = new ArrayList<DiscoveryResultBean>();
-
-            for (DiscoveryResult discoveryResult : elements) {
-                discoveryBeans.add(BeanMapper.mapDiscoveryResultToBean(discoveryResult));
-            }
-
-            eventObject = discoveryBeans;
-        }
-
-        sseResource.broadcastEvent(resultIdentifier, eventType, eventObject);
+    private void broadcastInboxEvent(String resultIdentifier, EventType eventType, DiscoveryResult discoveryResult) {
+        sseResource.broadcastEvent(resultIdentifier, eventType, BeanMapper.mapDiscoveryResultToBean(discoveryResult));
     }
 
 }

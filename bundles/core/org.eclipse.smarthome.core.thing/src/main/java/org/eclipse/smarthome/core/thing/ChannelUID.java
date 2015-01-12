@@ -207,4 +207,13 @@ public class ChannelUID extends UID {
         return new ThingUID(Arrays.copyOfRange(getSegments(), 0, getSegments().length - 1));
     }
 
+    /**
+     * Returns the thing type UID
+     * 
+     * @return the thing type UID
+     */
+    public ThingTypeUID getThingTypeUID() {
+        String[] segments = getSegments();
+        return new ThingTypeUID(segments[0], segments[1]);
+    }
 }

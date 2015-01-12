@@ -188,6 +188,8 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 			String itemName = normalItem.getName();
 			item = createItemOfType(normalItem.getType(), itemName);
 		}
+		item.setLabel(modelItem.getLabel());
+		item.setCategory(modelItem.getIcon());
 		assignTags(modelItem, item);
 		return item;
 	}

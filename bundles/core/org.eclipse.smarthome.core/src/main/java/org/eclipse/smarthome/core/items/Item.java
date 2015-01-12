@@ -8,10 +8,12 @@
 package org.eclipse.smarthome.core.items;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
@@ -88,6 +90,13 @@ public interface Item {
 	 */
 	public Set<String> getTags();
 	
+    /**
+     * Returns the label of the item or null if no label is set.
+     * 
+     * @return item label or null
+     */
+	public String getLabel();
+	
 	/**
 	 * Returns true if the item's tags contains the specific tag, otherwise false.
 	 * 
@@ -96,20 +105,26 @@ public interface Item {
 	 */
 	public boolean hasTag(String tag);
 	
-	/**
-	 * 
-	 * @param tag - a tag that is to be added to item's tags.
-	 */
-	public void addTag(String tag);
-	
-	/**
-	 * 
-	 * @param tag - a tag that is to be removed from item's tags. 
-	 */
-	public void removeTag(String tag);
-	
-	/**
-	 * Clears all tags of this item.
-	 */
-	public void removeAllTags();
+    /**
+     * Returns the category of the item or null if no category is set.
+     * 
+     * @return category or null
+     */
+    public String getCategory();
+    
+    /**
+     * Returns the state description (uses the default locale).
+     * 
+     * @return state description (can be null)
+     */
+    public StateDescription getStateDescription();
+
+    /**
+     * Returns the state description for a given locale.
+     * 
+     * @param locale
+     *            locale (can be null)
+     * @return state description (can be null)
+     */
+    public StateDescription getStateDescription(Locale locale);
 }

@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.items;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -43,25 +44,11 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         public String itemType;
         
         public Set<String> tags;
+        
+        public String label;
+        
+        public String category;
 
-        public PersistedItem(String itemType, List<String> groupNames) {
-            this(itemType, groupNames, null, null);
-        }
-
-        public PersistedItem(String itemType, List<String> groupNames, Set<String> tags) {
-            this(itemType, groupNames, null, tags);
-        }
-
-        public PersistedItem(String itemType, List<String> groupNames, String baseItemType) {
-            this(itemType, groupNames, baseItemType, null);
-        }
-
-        public PersistedItem(String itemType, List<String> groupNames, String baseItemType, Set<String> tags) {
-            this.itemType = itemType;
-            this.groupNames = groupNames;
-            this.baseItemType = baseItemType;
-            this.tags = tags;
-        }
     }
 
     private static final String ITEM_TYPE_GROUP = "Group";
@@ -70,6 +57,38 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
+    /**
+     * Removes an item and it´s member if recursive flag is set to true.
+     * 
+     * @param itemName
+     *            item name to remove
+     * @param recursive
+     *            if set to true all members of the item will be removed, too.
+     */
+    public void remove(String itemName, boolean recursive) {
+        Item item = get(itemName);
+        if (recursive && item instanceof GroupItem) {
+            List<String> members = getMemberNamesRecursively((GroupItem) item, getAll());
+            for (String member : members) {
+                this.remove(member);
+            }
+        }
+        this.remove(item.getName());
+    }
+    
+    private List<String> getMemberNamesRecursively(GroupItem groupItem, Collection<Item> allItems) {
+        List<String> memberNames = new ArrayList<>();
+        for (Item item : allItems) {
+            if (item.getGroupNames().contains(groupItem.getName())) {
+                memberNames.add(item.getName());
+                if (item instanceof GroupItem) {
+                    memberNames.addAll(getMemberNamesRecursively((GroupItem) item, allItems));
+                }
+            }
+        }
+        return memberNames;
+    }
+    
     private GenericItem createItem(String itemType, String itemName) {
 
         for (ItemFactory factory : this.itemFactories) {
@@ -122,7 +141,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     @Override
     protected Item toElement(String itemName, PersistedItem persistedItem) {
-        GenericItem item = null;
+        ActiveItem item = null;
 
         if (persistedItem.itemType.equals(ITEM_TYPE_GROUP)) {
             if (persistedItem.baseItemType != null) {
@@ -149,6 +168,9 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
                     item.addTag(tag);
                 }
             }
+            
+            item.setLabel(persistedItem.label);
+            item.setCategory(persistedItem.category);
         }
 
         if (item == null) {
@@ -163,8 +185,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     @Override
     protected PersistedItem toPersistableElement(Item item) {
 
-        PersistedItem persistedItem;
-        String itemType = toItemFactoryName(item);
+        PersistedItem persistedItem = new PersistedItem();
 
         if (item instanceof GroupItem) {
             String baseItemType = null;
@@ -172,12 +193,18 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             if (baseItem != null) {
                 baseItemType = toItemFactoryName(baseItem);
             }
-            persistedItem = new PersistedItem(ITEM_TYPE_GROUP, item.getGroupNames(), baseItemType);
+            persistedItem.itemType = ITEM_TYPE_GROUP;
+            persistedItem.baseItemType = baseItemType;
         } else {
-            persistedItem = new PersistedItem(itemType, item.getGroupNames());
+            String itemType = toItemFactoryName(item);
+            persistedItem.itemType = itemType;
         }
-        persistedItem.tags = new HashSet<String>(item.getTags());
-
+        
+        persistedItem.label = item.getLabel();
+        persistedItem.groupNames = new ArrayList<>(item.getGroupNames());
+        persistedItem.tags = new HashSet<>(item.getTags());
+        persistedItem.category = item.getCategory();
+        
         return persistedItem;
     }
 
