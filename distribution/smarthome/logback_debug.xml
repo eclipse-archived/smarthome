@@ -15,6 +15,7 @@
 	<logger name="OSGi" level="WARN" />
 	<logger name="org.eclipse.jetty" level="WARN" />
 	<logger name="org.jupnp" level="INFO" />
+	<logger name="javax.jmdns" level="ERROR" />
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
