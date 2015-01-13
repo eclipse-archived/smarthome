@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -69,7 +69,7 @@ class GenericItemProviderTest extends OSGiTest {
 
         String model =
             '''
-            DateTime Weather_LastUpdate     "Last Update [%1$ta %1$tR]" <clock> [TAG1, TAG2, TAG3]
+            DateTime Weather_LastUpdate     "Last Update [%1$ta %1$tR]" <clock> [TAG1, TAG2, TAG3, TAG4-WITH-DASHES, "TAG5 String Tag"]
             '''
         modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
         def actualItems = itemRegistry.getAll()
@@ -77,7 +77,7 @@ class GenericItemProviderTest extends OSGiTest {
         assertThat actualItems.size(), is(1)
         
         def lastItem = actualItems.last()
-        assertThat lastItem.getTags().sort().join(", "), is(equalTo("TAG1, TAG2, TAG3"))
+        assertThat lastItem.getTags().sort().join(", "), is(equalTo("TAG1, TAG2, TAG3, TAG4-WITH-DASHES, TAG5 String Tag"))
     }
         
 }
