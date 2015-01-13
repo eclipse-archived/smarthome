@@ -80,17 +80,6 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'assert getBoundItem items returns item'() {
-        managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
-        assertThat  itemChannelLinkRegistry.getFirstLinkedItem(CHANNEL_UID), is(equalTo("item"))
-    }
-
-    @Test
-    void 'assert getBoundItem items returns null'() {
-        assertThat  itemChannelLinkRegistry.getFirstLinkedItem(CHANNEL_UID), is(null)
-    }
-
-    @Test
     void 'assert getBoundChannels returns channel'() {
         managedItemChannelLinkProvider.add ITEM_CHANNEL_LINK
         def boundChannels = itemChannelLinkRegistry.getBoundChannels("item")

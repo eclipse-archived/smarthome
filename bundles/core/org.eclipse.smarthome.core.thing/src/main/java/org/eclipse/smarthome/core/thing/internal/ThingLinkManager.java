@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
@@ -195,7 +196,7 @@ public class ThingLinkManager {
      *            the added {@link Thing} to create links for.
      */
     public void thingAdded(Thing thing) {
-        String itemName = itemThingLinkRegistry.getFirstLinkedItem(thing.getUID());
+        String itemName = this.getFirstLinkedItem(thing.getUID());
         if (itemName != null) {
             addLinkedItemToThing((ThingImpl) thing, itemName);
         }
@@ -268,5 +269,15 @@ public class ThingLinkManager {
     private void removeLinkedItemFromThing(ThingImpl thing) {
         logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
         thing.setLinkedItem(null);
+    }
+    
+
+    private String getFirstLinkedItem(UID uid) {
+        for (ItemThingLink link : itemThingLinkRegistry.getAll()) {
+            if (link.getUID().equals(uid)) {
+                return link.getItemName();
+            }
+        }
+        return null;
     }
 }

@@ -139,11 +139,11 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         def items = itemRegistry.getItems();
         assertThat items.size(), is(3)
         
-        def linkedThingGroupItemName = itemThingLinkRegistry.getFirstLinkedItem(thingUID)
+        def linkedThingGroupItemName = itemThingLinkRegistry.getLinkedItems(thingUID).first()
         def linkedThingGroupItem = itemRegistry.get(linkedThingGroupItemName)
         assertThat linkedThingGroupItem.label, is(equalTo("MyThing"))
         
-        def linkedItemName = itemChannelLinkRegistry.getFirstLinkedItem(new ChannelUID(thingUID, "1"))
+        def linkedItemName = itemChannelLinkRegistry.getLinkedItems(new ChannelUID(thingUID, "1")).first()
         def linkedItem = itemRegistry.get(linkedItemName)
         
         assertThat linkedItem.label, is(null)

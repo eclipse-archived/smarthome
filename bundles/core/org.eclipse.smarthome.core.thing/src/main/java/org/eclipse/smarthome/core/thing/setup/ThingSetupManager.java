@@ -47,8 +47,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ThingSetupManager {
 
-    public static final String TAG_CHANNEL_GROUP = "channel_group";
-    public static final String TAG_HOME_GROUP = "home_group";
+    public static final String TAG_CHANNEL_GROUP = "channel-group";
+    public static final String TAG_HOME_GROUP = "home-group";
     public static final String TAG_THING = "thing";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
@@ -61,7 +61,7 @@ public class ThingSetupManager {
     private ThingTypeRegistry thingTypeRegistry;
 
     /**
-     * Adds a group to the system with the a 'home_group' tag.
+     * Adds a group to the system with the a 'home-group' tag.
      * 
      * @param itemName
      *            name of group to be added
@@ -199,7 +199,7 @@ public class ThingSetupManager {
      *            group item name (must not be null)
      */
     public void addToHomeGroup(ThingUID thingUID, String groupItemName) {
-        String linkedItem = this.itemThingLinkRegistry.getFirstLinkedItem(thingUID);
+        String linkedItem = getFirstLinkedItem(thingUID);
         if (linkedItem != null) {
             addToHomeGroup(linkedItem, groupItemName);
         } else {
@@ -259,7 +259,7 @@ public class ThingSetupManager {
     }
 
     /**
-     * Returns a list of all group items (items with tag 'home_group').
+     * Returns a list of all group items (items with tag 'home-group').
      * 
      * @return list of all group items (can not be null)
      */
@@ -314,7 +314,7 @@ public class ThingSetupManager {
      *            group item name (must not be null)
      */
     public void removeFromHomeGroup(ThingUID thingUID, String groupItemName) {
-        String linkedItem = this.itemThingLinkRegistry.getFirstLinkedItem(thingUID);
+        String linkedItem = getFirstLinkedItem(thingUID);
         if (linkedItem != null) {
             removeFromHomeGroup(linkedItem, groupItemName);
         }
@@ -479,5 +479,14 @@ public class ThingSetupManager {
     private String toItemName(UID uid) {
         String itemName = uid.getAsString().replaceAll("[^a-zA-Z0-9_]", "_");
         return itemName;
+    }
+    
+    private String getFirstLinkedItem(UID uid) {
+        for (ItemThingLink link : itemThingLinkRegistry.getAll()) {
+            if (link.getUID().equals(uid)) {
+                return link.getItemName();
+            }
+        }
+        return null;
     }
 }

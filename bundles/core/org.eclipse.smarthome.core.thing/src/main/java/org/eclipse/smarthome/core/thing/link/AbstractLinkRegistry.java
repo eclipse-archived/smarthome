@@ -45,24 +45,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
 
         return false;
     }
-
-    /**
-     * Returns the item name, which is bound to the given UID.
-     * 
-     * @param uid
-     *            UID
-     * @return item name or null if no item is bound to the given UID
-     */
-    public String getFirstLinkedItem(UID uid) {
-        for (AbstractLink link : getAll()) {
-            if (link.getUID().equals(uid)) {
-                return link.getItemName();
-            }
-        }
-        return null;
-    }
     
-
     /**
      * Returns the item name, which is bound to the given UID.
      * 
