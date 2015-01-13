@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome LIFX Binding
+Bundle-SymbolicName: org.eclipse.smarthome.binding.lifx;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .,
+ lib/lifx-sdk-java-1.0.jar
+Import-Package: com.google.common.collect,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.types,
+ org.osgi.service.component;version="1.2.2",
+ org.slf4j
+Service-Component: OSGI-INF/*
+Export-Package: org.eclipse.smarthome.binding.lifx,
+ org.eclipse.smarthome.binding.lifx.handler
