@@ -13,11 +13,11 @@ class ItemsValidator extends AbstractItemsValidator {
 
 	@Check
 	def checkItemName(ModelItem item) {
-		if (item === null || item.name === null || item.name.empty) {
+		if (item === null || item.name === null) {
 			return
 		}
-		if (item.name.contains("-") || item.name.substring(0, 1).matches("[0-9]")) {
-			error('Name must not contain dash and must not start with a number', ItemsPackage.Literals.MODEL_ITEM__NAME)
+		if (item.name.contains("-")) {
+			error('Item name must not contain dashes.', ItemsPackage.Literals.MODEL_ITEM__NAME)
 		}
 	}
 }
