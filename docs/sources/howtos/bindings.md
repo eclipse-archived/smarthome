@@ -50,7 +50,7 @@ Every binding needs to define a `binding.xml` file, which is located in the fold
 
 External systems are represented as *Things* in the Eclipse SmartHome runtime. When starting the implementation of an Eclipse SmartHome binding, you should think about the abstraction of your external system. Different services or devices should be represented as individual *Things* described by a *ThingType*. Each functionality of the *Thing*, should be modelled as a `Channel`. A binding should define all *ThingTypes* that are supported by the binding.
 
-Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing-type/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover supported channels must be specified. For channels it is important to specify which type of an *Item* can be linked the *Channel*. Subsequent an excerpt of the Yahoo Weather service *ThingType* definition is shown:
+Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover supported channels must be specified. For channels it is important to specify which type of an *Item* can be linked the *Channel*. Subsequent an excerpt of the Yahoo Weather service *ThingType* definition is shown:
 
 ```xml
 <thing-type id="weather">
