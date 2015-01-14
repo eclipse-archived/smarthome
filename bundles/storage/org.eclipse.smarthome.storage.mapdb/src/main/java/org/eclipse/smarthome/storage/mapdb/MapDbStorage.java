@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * The MapDbStorage is concrete implementation of the {@link Storage} interface.
@@ -39,13 +40,14 @@ public class MapDbStorage<T> implements Storage<T> {
 	private ClassLoader classLoader;
 	private Map<String, String> map;
 	
-	private transient Gson mapper = new Gson();
+	private transient Gson mapper;
 	
 	
 	public MapDbStorage(DB db, String name, ClassLoader classLoader) {
 		this.db = db;
 		this.classLoader = classLoader;
 		this.map = db.createTreeMap(name).makeOrGet();
+		this.mapper = new GsonBuilder().registerTypeAdapterFactory(new PropertiesTypeAdapterFactory()).create();
 	}
 	
 	

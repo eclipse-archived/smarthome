@@ -50,7 +50,7 @@ Every binding needs to define a `binding.xml` file, which is located in the fold
 
 External systems are represented as *Things* in the Eclipse SmartHome runtime. When starting the implementation of an Eclipse SmartHome binding, you should think about the abstraction of your external system. Different services or devices should be represented as individual *Things* described by a *ThingType*. Each functionality of the *Thing*, should be modelled as a `Channel`. A binding should define all *ThingTypes* that are supported by the binding.
 
-Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing-type/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover supported channels must be specified. For channels it is important to specify which type of an *Item* can be linked the *Channel*. Subsequent an excerpt of the Yahoo Weather service *ThingType* definition is shown:
+Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover supported channels must be specified. For channels it is important to specify which type of an *Item* can be linked the *Channel*. Subsequent an excerpt of the Yahoo Weather service *ThingType* definition is shown:
 
 ```xml
 <thing-type id="weather">
@@ -166,7 +166,7 @@ The `ThingHandler` has two important lifecycle methods: `initialize` and `dispos
 
 ### Configuration
 
-*Things* can be configured with parameters. To retrieve the configuration of a *Thing* you can can call `getThing().getConfiguration()` inside the `ThingHandler`. The configuration class has the equivalent methods as the `Map` interface, thus the the method `get(String key)` can be used to retrieve a value for a given key. 
+*Things* can be configured with parameters. To retrieve the configuration of a *Thing* you can can call `getThing().getConfiguration()` inside the `ThingHandler`. The configuration class has the equivalent methods as the `Map` interface, thus the method `get(String key)` can be used to retrieve a value for a given key. 
 
 Moreover the configuration class has a utility method `as(Class<T> configurationClass)`, that transform the configuration into a Java object of the given type. All configuration values will be mapped to properties of the class. The type of the property must match the type of the configuration. Only the following types are supported for configuration values: `Boolean`, `String` and `BigDecimal`.
 

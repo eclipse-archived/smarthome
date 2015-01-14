@@ -1,4 +1,11 @@
-package org.eclipse.smarthome.io.mdns.discovery;
+/**
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.io.transport.mdns.discovery;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +20,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.io.mdns.MDNSClient;
+import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * This is a {@link DiscoveryService} implementation, which can find mDNS services in the network.
  * Support for further devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
  *  
- * @author Tobias Br√§utigam - Initial contribution
+ * @author Tobias Br‰utigam - Initial contribution
  *
  */
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
@@ -51,7 +58,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
 	@Override
 	protected void startScan() {
-		logger.debug("mDNS discovery service startet");
+		logger.debug("mDNS discovery service started");
 		initializeParticipants();
 	}
 		

@@ -69,16 +69,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 	 */
     protected void deactivate(ComponentContext componentContext) {
         for (ServiceRegistration<ThingHandler> serviceRegistration : this.thingHandlers.values()) {
-
-            ThingHandler thingHandler = (ThingHandler) bundleContext.getService(serviceRegistration
-                    .getReference());
-            if (thingHandler instanceof BaseThingHandler) {
-                ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
-            }
-            thingHandler.dispose();
+            unregisterHandler(serviceRegistration);
         }
         thingTypeRegistryServiceTracker.close();
         configDescritpionRegistryServiceTracker.close();
+        this.thingHandlers.clear();
         this.bundleContext = null;
     }
 
@@ -86,14 +81,17 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     public void unregisterHandler(Thing thing) {
         ServiceRegistration<ThingHandler> serviceRegistration = thingHandlers.remove(thing.getUID().toString());
         if (serviceRegistration != null) {
-			ThingHandler thingHandler = (ThingHandler) bundleContext
-					.getService(serviceRegistration.getReference());
-            serviceRegistration.unregister();
-            removeHandler(thingHandler);
-            thingHandler.dispose();
-            if (thingHandler instanceof BaseThingHandler) {
-                ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
-            }
+			unregisterHandler(serviceRegistration);
+        }
+    }
+
+    private void unregisterHandler(ServiceRegistration<ThingHandler> serviceRegistration) {
+        ThingHandler thingHandler = (ThingHandler) bundleContext.getService(serviceRegistration.getReference());
+        removeHandler(thingHandler);
+        thingHandler.dispose();
+        serviceRegistration.unregister();
+        if (thingHandler instanceof BaseThingHandler) {
+            ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
         }
     }
 

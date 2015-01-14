@@ -22,7 +22,9 @@
     <!-- Color Channel -->
     <channel-type id="color">
         <item-type>Color</item-type>
-        <label>Color channel for changing the color</label>
+        <label>Color</label>
+        <description>Selects the color of the light</description>
+        <category>ColorLight</category>
     </channel-type>
 
 </thing:thing-descriptions>

@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 2014 openHAB UG (haftungsbeschraenkt) and others.
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.mdns.discovery;
+package org.eclipse.smarthome.io.transport.mdns.discovery;
 
 import java.util.Set;
 
@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * {@link MDNSDiscoveryService} and can thus contribute {@link DiscoveryResult}s from
  * mDNS scans.
  * 
- * @author Tobias Br√§utigam - Initial contribution
+ * @author Tobias Br‰utigam - Initial contribution
  *
  */
 public interface MDNSDiscoveryParticipant {

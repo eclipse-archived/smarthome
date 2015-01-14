@@ -75,10 +75,12 @@ public class Configuration {
                             value = bdValue.intValue();
                         }
                     }
-                    logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
-                            configurationClass.getName());
 
-                    FieldUtils.writeField(configuration, fieldName, value, true);
+                    if(value != null) {
+                        logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
+                                configurationClass.getName());
+                        FieldUtils.writeField(configuration, fieldName, value, true);
+                    }
                 } catch (Exception ex) {
                     logger.warn("Could not set field value for field '" + fieldName + "': " + ex.getMessage(), ex);
                 }

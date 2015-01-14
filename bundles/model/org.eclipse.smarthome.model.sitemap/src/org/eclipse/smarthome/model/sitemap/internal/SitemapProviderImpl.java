@@ -42,7 +42,7 @@ public class SitemapProviderImpl implements SitemapProvider {
 			if(sitemap!=null) {
 				return sitemap;
 			} else {
-				logger.debug("Sitemap {} can not be found", sitemapName);
+				logger.trace("Sitemap {} cannot be found", sitemapName);
 				return null;
 			}
 		} else {
