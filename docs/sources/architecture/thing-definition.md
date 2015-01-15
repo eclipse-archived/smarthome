@@ -37,7 +37,7 @@ In the following sections the declaration and semantics of tags, state descripti
 
 ### Default Tags
 
-The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows an alarm tag definition:
+The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a weather tag definition:
 
 ```xml 
 <tags>
