@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -29,6 +30,7 @@ import org.osgi.service.component.ComponentContext
 /**
  * Tests for {@link ManagedThingProvider}.
  * @author Oliver Libutzki - Initital contribution
+ * @author Dennis Nobel - Added test for bridgeInitialized and bridgeDisposed callbacks
  *
  */
 class BindingBaseClassesOSGiTest extends OSGiTest {
@@ -112,5 +114,76 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         unregisterService(ThingHandlerFactory.class.name)
         thingHandlerFactory.deactivate(componentContext)
+    }
+    
+    class AnotherSimpleThingHandlerFactory extends BaseThingHandlerFactory {
+
+        @Override
+        public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+            true
+        }
+
+        @Override
+        protected ThingHandler createHandler(Thing thing) {
+            return new AnotherSimpleThingHandler(thing)
+        }
+    }
+    
+    def bridgeInitCalled = false;
+    def bridgeDisposedCalled = false;
+    
+    class AnotherSimpleThingHandler extends BaseThingHandler {
+
+        public AnotherSimpleThingHandler(Thing thing) {
+            super(thing)
+        }
+        
+        @Override
+        public void handleCommand(ChannelUID channelUID, Command command) {
+        }
+        
+        @Override
+        protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+            bridgeInitCalled = true
+        }
+        
+        @Override
+        protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+            bridgeDisposedCalled = true
+        }
+    }
+    
+    
+    @Test
+    void 'assert bridgeInitialized is called by BaseThingHandler'() {
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new AnotherSimpleThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+        
+        def bridge = BridgeBuilder.create(new ThingUID("bindingId:type1:bridgeId")).build()
+        def thing = ThingBuilder.create(new ThingUID("bindingId:type2:thingId")).withBridge(bridge.getUID()).build()
+
+        // add thing first
+        managedThingProvider.add(thing)
+        managedThingProvider.add(bridge)
+        
+        assertThat bridgeInitCalled, is(true)
+        assertThat bridgeDisposedCalled, is(false)
+        
+        // remove bridge
+        managedThingProvider.remove(bridge.UID)
+        
+        assertThat bridgeDisposedCalled, is(true)
+        
+        managedThingProvider.remove(thing.UID)
+        bridgeInitCalled = false
+        bridgeDisposedCalled = false
+        
+        // add bridge first
+        managedThingProvider.add(bridge)
+        managedThingProvider.add(thing)
+        
+        assertThat bridgeInitCalled, is(true)
     }
 }

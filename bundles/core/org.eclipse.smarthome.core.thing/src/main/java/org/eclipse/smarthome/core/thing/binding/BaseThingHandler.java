@@ -44,6 +44,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected BundleContext bundleContext;
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker thingHandlerServiceTracker;
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
@@ -74,10 +76,37 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
+
+        thingHandlerServiceTracker = new ServiceTracker(this.bundleContext, ThingHandler.class.getName(), null) {
+            @Override
+            public Object addingService(final ServiceReference reference) {
+                Object thingId = reference.getProperty(SERVICE_PROPERTY_THING_ID);
+                if (thingId instanceof ThingUID && BaseThingHandler.this.thing != null) {
+                    ThingUID thingUID = (ThingUID) thingId;
+                    if (thingUID.equals(BaseThingHandler.this.thing.getBridgeUID())) {
+                        ThingHandler thingHandler = (ThingHandler) bundleContext.getService(reference);
+                        Thing thing = thingHandler.getThing();
+                        if (thing instanceof Bridge) {
+                            bridgeHandlerInitialized(thingHandler, (Bridge) thing);
+                            return thingHandler;
+                        }
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            public void removedService(final ServiceReference reference, final Object service) {
+                ThingHandler thingHandler = (ThingHandler) service;
+                bridgeHandlerDisposed(thingHandler, (Bridge) thingHandler.getThing());
+            }
+        };
+        thingHandlerServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
+        thingHandlerServiceTracker.close();
         this.bundleContext = null;
     }
 
@@ -227,4 +256,33 @@ public abstract class BaseThingHandler implements ThingHandler {
         }
     }
 
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was initialized. If the thing of this handler does not have a
+     * bridge, this method is never called. This method can be overridden by
+     * subclasses.
+     * 
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+        // can be overridden by subclasses
+    }
+    
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was disposed. If the thing of this handler does not have a
+     * bridge, this method is never called. This method can be overridden by
+     * subclasses.
+     * 
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+        // can be overridden by subclasses
+    }
 }
