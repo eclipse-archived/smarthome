@@ -101,7 +101,7 @@ public class ThingSetupManagerResource implements RESTResource {
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean itemUpdated = false;
-                if (!thingGroupItem.getLabel().equals(label)) {
+                if (thingGroupItem.getLabel()==null || !thingGroupItem.getLabel().equals(label)) {
                     thingGroupItem.setLabel(label);
                     itemUpdated = true;
                 }
