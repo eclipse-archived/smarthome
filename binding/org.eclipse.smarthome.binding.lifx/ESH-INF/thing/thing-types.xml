@@ -23,6 +23,7 @@
     <channel-type id="color">
         <item-type>Color</item-type>
         <label>Color channel for changing the color</label>
+        <category>ColorLight</category>
     </channel-type>
 
 </thing:thing-descriptions>
