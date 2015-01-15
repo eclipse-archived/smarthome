@@ -91,6 +91,32 @@ class StorageServiceOSGiTest extends OSGiTest {
         
         assertThat storageWithoutClassloader.get("Key1"), is(equalTo("Value"))
     }
+    
+    @Test
+    void 'assert store configuration works'() {
+        def storageWithoutClassloader = storageService.getStorage("storage")
+
+        def configuration = new MockConfiguration();
+        configuration.put("bigDecimal", new BigDecimal(3))
+
+        storageWithoutClassloader.put("configuration", configuration)
+
+        def bigDecimal = storageWithoutClassloader.get("configuration").get("bigDecimal")
+        assertThat bigDecimal instanceof BigDecimal, is(true)
+    }
+    
+    private class MockConfiguration {
+        private Map<String, Object> configuration = new HashMap<String, Object>();
+        
+        public void put(String key, Object value) {
+            configuration.put(key,  value);
+        }
+        
+        public Object get(String key) {
+            return configuration.get(key);
+        }
+        
+    }
 
 	
 	private class PersistedItem {
