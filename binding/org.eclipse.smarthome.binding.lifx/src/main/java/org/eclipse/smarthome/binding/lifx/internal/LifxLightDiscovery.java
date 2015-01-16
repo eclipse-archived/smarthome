@@ -16,6 +16,7 @@ import lifx.java.android.light.LFXLight;
 import lifx.java.android.light.LFXLight.LFXLightListener;
 import lifx.java.android.network_context.LFXNetworkContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.lifx.LifxBindingConstants;
 import org.eclipse.smarthome.binding.lifx.internal.LifxConnection.LifxLightTracker;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -103,7 +104,11 @@ public class LifxLightDiscovery extends AbstractDiscoveryService implements Lifx
     private DiscoveryResult createDiscoveryResult(LFXLight light) {
         ThingUID thingUID = getUID(light);
 
-        return DiscoveryResultBuilder.create(thingUID).withLabel(light.getLabel())
+        String label = light.getLabel();
+        
+        if(StringUtils.isBlank(label)) label = "LIFX";
+        
+        return DiscoveryResultBuilder.create(thingUID).withLabel(label)
                 .withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, light.getDeviceID()).build();
     }
 
