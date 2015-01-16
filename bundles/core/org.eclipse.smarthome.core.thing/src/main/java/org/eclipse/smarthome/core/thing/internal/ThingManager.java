@@ -258,18 +258,21 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         ThingUID thingUID = thing.getUID();
         Thing oldThing = getThing(thingUID);
-        if (oldThing != null) {
+        
+        if(oldThing != thing) {
             this.things.remove(oldThing);
+            this.things.add(thing);
+            ((ThingImpl) thing).addThingListener(thingListener);
         }
-
-        things.add(thing);
-        ((ThingImpl) thing).addThingListener(thingListener);
+        
         thingLinkManager.thingUpdated(thing);
 
         ThingHandler thingHandler = thingHandlers.get(thingUID);
         if (thingHandler != null) {
             try {
-                thing.setHandler(thingHandler);
+                if(oldThing != thing) {
+                    thing.setHandler(thingHandler);
+                }
                 thingHandler.thingUpdated(thing);
             } catch (Exception ex) {
                 logger.error("Cannot send Thing updated event to ThingHandler '" + thingHandler + "'!", ex);
@@ -278,7 +281,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
             registerHandler(thing); 
         }
 
-        if (oldThing != null) {
+        if (oldThing != thing) {
             oldThing.setHandler(null);
             ((ThingImpl) oldThing).removeThingListener(this.thingListener);
         }
