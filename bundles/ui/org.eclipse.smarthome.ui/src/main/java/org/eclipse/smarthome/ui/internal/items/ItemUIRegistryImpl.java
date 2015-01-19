@@ -225,27 +225,28 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 			return SitemapFactory.eINSTANCE.createColorpicker();
 		}
 		if (itemType.equals(PlayerItem.class)) {
-		    return createSwitchWithButtons(
-		            PlayPauseType.PLAY,
-		            PlayPauseType.PAUSE,
-		            RewindFastforwardType.REWIND,
-		            RewindFastforwardType.FASTFORWARD,
-		            NextPreviousType.NEXT,
-		            NextPreviousType.PREVIOUS);
+		    return createPlayerButtons();
 		}
 
 		return null;
 	}
 
-    private Switch createSwitchWithButtons(Enum<?>... commands) {
+    private Switch createPlayerButtons() {
         Switch playerItemSwitch = SitemapFactory.eINSTANCE.createSwitch();
         List<Mapping> mappings = playerItemSwitch.getMappings();
         Mapping commandMapping = null;
-        for (Enum<?> command : commands) {
-            mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
-            commandMapping.setCmd(command.name());
-            commandMapping.setLabel(StringUtils.capitalize(command.name().toLowerCase()));
-        }
+        mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
+        commandMapping.setCmd(NextPreviousType.PREVIOUS.name());
+        commandMapping.setLabel("<<");
+        mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
+        commandMapping.setCmd(PlayPauseType.PAUSE.name());
+        commandMapping.setLabel("||");
+        mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
+        commandMapping.setCmd(PlayPauseType.PLAY.name());
+        commandMapping.setLabel(">");
+        mappings.add(commandMapping = SitemapFactory.eINSTANCE.createMapping());
+        commandMapping.setCmd(NextPreviousType.NEXT.name());
+        commandMapping.setLabel(">>");
         return playerItemSwitch;
     }
 
