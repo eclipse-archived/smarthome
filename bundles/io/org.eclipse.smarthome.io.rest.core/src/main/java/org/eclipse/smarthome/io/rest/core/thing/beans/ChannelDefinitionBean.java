@@ -24,18 +24,20 @@ public class ChannelDefinitionBean {
     public Set<String> tags;
     private String category;
     private StateDescription stateDescription;
+    private boolean advanced;
 
     public ChannelDefinitionBean() {
 
     }
 
-    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category, StateDescription stateDescription) {
+    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category, StateDescription stateDescription, boolean advanced) {
         this.description = description;
         this.label = label;
         this.id = id;
         this.tags = tags;
         this.category = category;
         this.stateDescription = stateDescription;
+        this.advanced = advanced;
     }
 
     public String getDescription() {
@@ -60,5 +62,9 @@ public class ChannelDefinitionBean {
     
     public StateDescription getStateDescription() {
         return stateDescription;
+    }
+    
+    public boolean isAdvanced() {
+        return advanced;
     }
 }
