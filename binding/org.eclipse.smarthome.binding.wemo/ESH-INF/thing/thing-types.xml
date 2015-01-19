@@ -80,31 +80,34 @@
      <channel-type id="state">
         <item-type>Switch</item-type>
         <label>Switch</label>
-        <description>This channel turns the power on or off</description>
+        <description>Turns the power on or off</description>
+        <category>Switch</category>
     </channel-type>
 
      <channel-type id="currentPower">
         <item-type>Number</item-type>
-        <label>Current consumption</label>
-        <description>This channel measures actual power consumption</description>
+        <label>Power</label>
+        <description>The current power consumption</description>
+        <category>Energy</category>
+        <state pattern="%.1f W" />
     </channel-type>
 
-     <channel-type id="lastOnFor">
+     <channel-type id="lastOnFor" advanced="true">
         <item-type>Number</item-type>
-        <label>Seconds on last activation</label>
-        <description>This channel measures how long the device has been switched on last</description>
+        <label>Last Activity (s)</label>
+        <description>Duration the device has been switched on for</description>        
     </channel-type>
 
-     <channel-type id="onToday">
+     <channel-type id="onToday" advanced="true">
         <item-type>Number</item-type>
-        <label>Seconds on today</label>
-        <description>This channel measures how long the device has been switched on today</description>
+        <label>Today's Activity (s)</label>
+        <description>How long has the device been switched on today</description>
     </channel-type>
 
-     <channel-type id="onTotal">
+     <channel-type id="onTotal" advanced="true">
         <item-type>Number</item-type>
-        <label>Seconds on total</label>
-        <description>This channel measures how long the device has been switched on totally</description>
+        <label>Total Activity (s)</label>
+        <description>How long has the device been switched on totally</description>
     </channel-type>
  
 </thing:thing-descriptions>
