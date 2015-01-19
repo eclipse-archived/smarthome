@@ -134,7 +134,14 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 				return currentIcon;
 			}
 		}
-		// do some reasonable default, if no provider had an answer
+
+		// use the category, if defined 
+		String category = getItemCategory(itemName);
+		if(category!=null) {
+			return category.toLowerCase();
+		}
+		
+		// do some reasonable default
 		// try to get the item type from the item name
 		Class<? extends Item> itemType = getItemType(itemName);
 		if(itemType==null) return null;
@@ -559,6 +566,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 		}
 	}
 
+	public String getItemCategory(String itemName) {
+		try {
+			Item item = itemRegistry.getItem(itemName);
+			return item.getCategory();
+		} catch (ItemNotFoundException e) {
+			return null;
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
