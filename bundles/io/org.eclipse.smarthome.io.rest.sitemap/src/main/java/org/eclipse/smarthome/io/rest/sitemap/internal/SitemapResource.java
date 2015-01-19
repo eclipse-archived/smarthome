@@ -52,6 +52,7 @@ import org.eclipse.smarthome.model.sitemap.Mapping;
 import org.eclipse.smarthome.model.sitemap.Selection;
 import org.eclipse.smarthome.model.sitemap.Setpoint;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
+import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Video;
@@ -85,6 +86,8 @@ public class SitemapResource implements RESTResource {
 
 	private ModelRepository modelRepository;
 	
+	private Set<SitemapProvider> sitemapProviders = new HashSet<>();
+	
 	public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
 		this.itemUIRegistry = itemUIRegistry;
 	}
@@ -101,6 +104,14 @@ public class SitemapResource implements RESTResource {
 		this.modelRepository = null;
 	}
 	
+	public void addSitemapProvider(SitemapProvider provider) {
+		sitemapProviders.add(provider);
+	}
+
+	public void removeSitemapProvider(SitemapProvider provider) {
+		sitemapProviders.remove(provider);
+	}
+
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSitemaps() {
@@ -185,6 +196,7 @@ public class SitemapResource implements RESTResource {
 	public Collection<SitemapBean> getSitemapBeans(URI uri) {
 		Collection<SitemapBean> beans = new LinkedList<SitemapBean>();
 		logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
+		boolean containsDefault = false;
 		for(String modelName : modelRepository.getAllModelNamesOfType("sitemap")) {
 			Sitemap sitemap = (Sitemap) modelRepository.getModel(modelName);
 			if(sitemap!=null) {
@@ -196,7 +208,20 @@ public class SitemapResource implements RESTResource {
 				bean.homepage = new PageBean();
 				bean.homepage.link = bean.link + "/" + sitemap.getName();
 				beans.add(bean);
+				if(bean.name.equals("default")) {
+					containsDefault = true;
+				}
 			}
+		}
+		if(!containsDefault) {
+			SitemapBean bean = new SitemapBean();
+			bean.name = "default";
+			bean.icon = "";
+			bean.label = "My Home";
+			bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
+			bean.homepage = new PageBean();
+			bean.homepage.link = bean.link + "/default";
+			beans.add(bean);
 		}
 		return beans;
 	}
@@ -386,10 +411,13 @@ public class SitemapResource implements RESTResource {
 	}
 
 	private Sitemap getSitemap(String sitemapname) {
-        if(modelRepository!=null) {
-			Sitemap sitemap = (Sitemap) modelRepository.getModel(sitemapname + SITEMAP_FILEEXT);
-			return sitemap;
+        for(SitemapProvider provider : sitemapProviders) {
+        	Sitemap sitemap = provider.getSitemap(sitemapname);
+			if(sitemap != null) {
+				return sitemap;
+			}
         }
+        
         return null;
     }
 	
