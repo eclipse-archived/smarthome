@@ -229,14 +229,18 @@ public class RuleTriggerManager {
 			break;
 		case COMMAND:  
 			if(newType instanceof Command) {
-				Command command = (Command) newType;
-				for(Rule rule : rules) {
-					for(EventTrigger t : rule.getEventtrigger()) {
+				final Command command = (Command) newType;
+				for (Rule rule : rules) {
+					for (final EventTrigger t : rule.getEventtrigger()) {
 						if (t instanceof CommandEventTrigger) {
-							CommandEventTrigger ct = (CommandEventTrigger) t;
-							Command triggerCommand = TypeParser.parseCommand(item.getAcceptedCommandTypes(), ct.getCommand());
-							if(ct.getItem().equals(item.getName()) &&
-									(triggerCommand==null || command.equals(triggerCommand))) {
+							final CommandEventTrigger ct = (CommandEventTrigger) t;
+							if (ct.getItem().equals(item.getName())) {
+								if (ct.getCommand() != null) {
+									final Command triggerCommand = TypeParser.parseCommand(item.getAcceptedCommandTypes(), ct.getCommand());
+									if (!command.equals(triggerCommand)) {
+										continue;
+									}
+								}
 								result.add(rule);
 							}
 						}
