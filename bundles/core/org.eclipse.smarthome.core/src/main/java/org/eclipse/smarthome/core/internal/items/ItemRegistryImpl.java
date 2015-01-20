@@ -70,8 +70,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         elementMap.put(provider, items);
         for (Item item : provider.getAll()) {
             try {
-            	onAddElement(item);
-            	items.add(item);
+                onAddElement(item);
+                items.add(item);
+                notifyListenersAboutAddedElement(item);
             } catch(IllegalArgumentException ex) {
             	 logger.warn("Could not add item: " + ex.getMessage(), ex);
             }
