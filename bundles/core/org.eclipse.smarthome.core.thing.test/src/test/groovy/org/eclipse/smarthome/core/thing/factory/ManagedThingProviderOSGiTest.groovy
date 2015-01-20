@@ -98,10 +98,11 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		def thing2 = ThingBuilder.create(THING_TYPE_UID, THING2_ID).build()
 		managedThingProvider.add(thing2)
 		things = managedThingProvider.getAll()
+		// Check for exact size and if the collection contains every element.
+		// So, the order of the elements is ignored.
 		assertThat things.size(), is(2)
-		assertThat things.getAt(0), is(thing1)
-		assertThat things.getAt(1), is(thing2)
-		
+		assertTrue things.contains(thing1)
+		assertTrue things.contains(thing2)
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
