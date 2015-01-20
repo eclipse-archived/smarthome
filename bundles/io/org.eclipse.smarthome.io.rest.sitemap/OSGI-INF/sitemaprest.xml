@@ -16,4 +16,5 @@
       <provide interface="org.eclipse.smarthome.io.rest.sitemap.internal.SitemapResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
+   <reference bind="addSitemapProvider" cardinality="0..n" interface="org.eclipse.smarthome.model.sitemap.SitemapProvider" name="SitemapProvider" policy="dynamic" unbind="removeSitemapProvider"/>
 </scr:component>
