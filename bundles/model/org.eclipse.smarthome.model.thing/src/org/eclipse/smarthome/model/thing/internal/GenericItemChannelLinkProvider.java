@@ -108,9 +108,11 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
 			for(String itemName : itemNames) {
 				// we remove all binding configurations for all items
 				Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
-				for (ItemChannelLink removedItemChannelLink : links) {
-				    notifyListenersAboutRemovedElement(removedItemChannelLink);
-                }
+				if(links != null) {
+    				for (ItemChannelLink removedItemChannelLink : links) {
+    				    notifyListenersAboutRemovedElement(removedItemChannelLink);
+                    }
+				}
 			}
 			contextMap.remove(context);
 		}
