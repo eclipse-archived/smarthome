@@ -354,6 +354,16 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
     }
 
+    public void startSearch(List<String> serialNumbers) {
+        if (bridge != null) {
+            try {
+                bridge.startSearch(serialNumbers);
+            } catch (IOException | ApiException e) {
+                logger.error("Bridge cannot start search mode", e);
+            }
+        }
+    }
+
     private boolean isEqual(State state1, State state2) {
     	try {
 	    	return state1.getAlertMode().equals(state2.getAlertMode())
