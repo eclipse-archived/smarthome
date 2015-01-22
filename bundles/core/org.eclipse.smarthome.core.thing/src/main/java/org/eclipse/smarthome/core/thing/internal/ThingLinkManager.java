@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -82,8 +83,56 @@ public class ThingLinkManager {
         }
         
         @Override
-        public void allItemsChanged(Collection<String> oldItemNames) {
-           // TODO: what to do?
+        public void allItemsChanged(final Collection<String> oldItemNames) {
+            /*
+             * Find all item channel links for old items (by name) and remove the link to the item from the channel.
+             */
+            final Collection<ItemChannelLink> itemChannelLinks = itemChannelLinkRegistry.getAll();
+            for (final ItemChannelLink itemChannelLink : itemChannelLinks) {
+                final String itemName = itemChannelLink.getItemName();
+                if (oldItemNames.contains(itemName)) {
+                    /*
+                     * The current 'itemChannelLink' contains the old item with name 'itemName'. Find the channel object
+                     * that contain the link to the item.
+                     */
+                    final Set<ChannelUID> boundChannels = itemChannelLinkRegistry.getBoundChannels(itemName);
+                    for (final ChannelUID channelUID : boundChannels) {
+                        final Thing thing = thingRegistry.get(channelUID.getThingUID());
+                        if (thing != null) {
+                            final Channel channel = thing.getChannel(channelUID.getId());
+                            if (channel != null) {
+                                /*
+                                 * The current 'channel' contains the link to the old item with name 'itemName'. To
+                                 * remove the link we need the item object. Collect all items that link needs to be
+                                 * removed from 'channel'.
+                                 */
+                                final Set<Item> oldLinkedItems = new LinkedHashSet<>();
+                                final Set<Item> linkedItems = channel.getLinkedItems();
+                                for (final Item linkedItem : linkedItems) {
+                                    if (linkedItem.getName().equals(itemName)) {
+                                        oldLinkedItems.add(linkedItem);
+                                    }
+                                }
+                                /*
+                                 * Remove all the old linked items.
+                                 */
+                                for (final Item oldLinkedItem : oldLinkedItems) {
+                                    channel.removeLinkedItem(oldLinkedItem);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            /*
+             * After all old items are removed, we could call the added handler for all items that are still available.
+             */
+            final Collection<Item> allCurrentItems = itemRegistry.getAll();
+            for (final Item item : allCurrentItems) {
+                logger.debug("add item {}", item.getName());
+                added(item);
+            }
         }
     };
     
