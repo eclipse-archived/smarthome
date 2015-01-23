@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * The {@link ThingLinkManager} is used by the {@link ThingManager}.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Markus Rathgeb - Handle item registry's all items changed notification
  */
 public class ThingLinkManager {
 
@@ -130,7 +131,6 @@ public class ThingLinkManager {
              */
             final Collection<Item> allCurrentItems = itemRegistry.getAll();
             for (final Item item : allCurrentItems) {
-                logger.debug("add item {}", item.getName());
                 added(item);
             }
         }
