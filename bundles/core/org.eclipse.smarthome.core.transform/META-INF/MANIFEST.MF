@@ -9,6 +9,11 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ javax.script,
+ javax.xml.parsers,
+ javax.xml.transform,
+ javax.xml.transform.stream,
+ javax.xml.xpath,
  org.apache.commons.collections,
  org.apache.commons.collections.list,
  org.apache.commons.io,
@@ -27,7 +32,9 @@ Import-Package: com.google.common.base,
  org.osgi.service.component,
  org.osgi.service.event,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ org.w3c.dom,
+ org.xml.sax
 Bundle-SymbolicName: org.eclipse.smarthome.core.transform
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/regexservice.xml, OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
