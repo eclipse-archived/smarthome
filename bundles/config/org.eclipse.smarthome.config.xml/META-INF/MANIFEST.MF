@@ -11,7 +11,12 @@ Import-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
  org.osgi.util.tracker,
- org.slf4j
+ org.slf4j,
+ javax.xml.stream,
+ javax.xml.transform,
+ javax.xml.transform.stream,
+ javax.xml.namespace,
+ javax.security.auth
 Bundle-Activator: org.eclipse.smarthome.config.xml.internal.Activator
 Export-Package: com.thoughtworks.xstream,com.thoughtworks.xstream.conv
  erters,com.thoughtworks.xstream.io,org.eclipse.smarthome.config.xml,o
