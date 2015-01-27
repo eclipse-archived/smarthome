@@ -10,8 +10,8 @@ package org.eclipse.smarthome.io.rest.internal;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.eclipse.smarthome.io.mdns.MDNSService;
-import org.eclipse.smarthome.io.mdns.ServiceDescription;
+import org.eclipse.smarthome.io.transport.mdns.MDNSService;
+import org.eclipse.smarthome.io.transport.mdns.ServiceDescription;
 import org.osgi.framework.BundleContext;
 
 /**

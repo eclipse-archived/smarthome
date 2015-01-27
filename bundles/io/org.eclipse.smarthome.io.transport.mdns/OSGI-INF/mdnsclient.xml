@@ -8,9 +8,9 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.io.mdns">
-   <implementation class="org.eclipse.smarthome.io.mdns.internal.MDNSServiceImpl"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.io.transport.mdns.client">
+   <implementation class="org.eclipse.smarthome.io.transport.mdns.internal.MDNSClientImpl"/>
    <service>
-	   <provide interface="org.eclipse.smarthome.io.mdns.MDNSService"/>
+      <provide interface="org.eclipse.smarthome.io.transport.mdns.MDNSClient"/>
    </service>
 </scr:component>
