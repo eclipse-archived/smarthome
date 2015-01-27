@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.mdns.internal;
+package org.eclipse.smarthome.io.transport.mdns.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
