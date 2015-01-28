@@ -85,7 +85,7 @@ public class RootResource {
     public void activate() {
         Configuration configuration;
         try {
-            configuration = configurationAdmin.getConfiguration(Constants.JAXRS_CONNECTOR_CONFIG);
+            configuration = configurationAdmin.getConfiguration(Constants.JAXRS_CONNECTOR_CONFIG, null);
 
             if (configuration != null) {
                 Dictionary properties = configuration.getProperties();
