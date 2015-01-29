@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.jupnp.UpnpService;
 import org.jupnp.controlpoint.ActionCallback;
+import org.jupnp.controlpoint.ControlPoint;
 import org.jupnp.controlpoint.SubscriptionCallback;
 import org.jupnp.model.action.ActionArgumentValue;
 import org.jupnp.model.action.ActionException;
@@ -22,10 +23,10 @@ import org.jupnp.model.gena.GENASubscription;
 import org.jupnp.model.message.UpnpResponse;
 import org.jupnp.model.meta.Action;
 import org.jupnp.model.meta.Device;
+import org.jupnp.model.meta.DeviceIdentity;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.model.meta.Service;
 import org.jupnp.model.state.StateVariableValue;
-import org.jupnp.model.types.DeviceType;
 import org.jupnp.model.types.ServiceId;
 import org.jupnp.model.types.UDAServiceId;
 import org.jupnp.model.types.UDN;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Karel Goderis - Initial contribution
  * @author Kai Kreuzer - added descriptor url retrieval
+ * @author Markus Rathgeb - added NP checks in subscription ended callback
  */
 @SuppressWarnings("rawtypes")
 public class UpnpIOServiceImpl implements UpnpIOService {
@@ -60,20 +62,34 @@ public class UpnpIOServiceImpl implements UpnpIOService {
 			super(service, requestedDurationSeconds);
 		}
 
-		@Override
-		protected void ended(GENASubscription subscription,
-				CancelReason reason, UpnpResponse response) {
+        @Override
+        protected void ended(GENASubscription subscription, CancelReason reason, UpnpResponse response) {
+            final Service service = subscription.getService();
+            if (service != null) {
+                final ServiceId serviceId = service.getServiceId();
+                final Device device = service.getDevice();
+                if (device != null) {
+                    final Device deviceRoot = device.getRoot();
+                    if (deviceRoot != null) {
+                        final DeviceIdentity deviceRootIdentity = deviceRoot.getIdentity();
+                        if (deviceRootIdentity != null) {
+                            final UDN deviceRootUdn = deviceRootIdentity.getUdn();
+                            logger.debug("A GENA subscription '{}' for device '{}' was ended",
+                                    serviceId, deviceRootUdn);
+                        }
+                    }
+                }
 
-			logger.debug("A GENA subscription '{}' for device '{}' was ended",
-					subscription.getService().getServiceId(), subscription
-							.getService().getDevice().getRoot().getIdentity()
-							.getUdn());
-
-			Service service = subscription.getService();
-			UpnpSubscriptionCallback callback = new UpnpSubscriptionCallback(
-					service, subscription.getActualDurationSeconds());
-			upnpService.getControlPoint().execute(callback);
-		}
+                if (upnpService != null) {
+                    final ControlPoint cp = upnpService.getControlPoint();
+                    if (cp != null) {
+                        final UpnpSubscriptionCallback callback = new UpnpSubscriptionCallback(service,
+                                subscription.getActualDurationSeconds());
+                        cp.execute(callback);
+                    }
+                }
+            }
+        }
 
 		@Override
 		protected void established(GENASubscription subscription) {
