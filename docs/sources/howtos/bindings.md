@@ -166,11 +166,11 @@ The `ThingHandler` has two important lifecycle methods: `initialize` and `dispos
 
 ### Configuration
 
-*Things* can be configured with parameters. To retrieve the configuration of a *Thing* you can can call `getThing().getConfiguration()` inside the `ThingHandler`. The configuration class has the equivalent methods as the `Map` interface, thus the method `get(String key)` can be used to retrieve a value for a given key. 
+*Things* can be configured with parameters. To retrieve the configuration of a *Thing* you can call `getThing().getConfiguration()` inside the `ThingHandler`. The configuration class has the equivalent methods as the `Map` interface, thus the method `get(String key)` can be used to retrieve a value for a given key. 
 
-Moreover the configuration class has a utility method `as(Class<T> configurationClass)`, that transform the configuration into a Java object of the given type. All configuration values will be mapped to properties of the class. The type of the property must match the type of the configuration. Only the following types are supported for configuration values: `Boolean`, `String` and `BigDecimal`.
+Moreover the configuration class has a utility method `as(Class<T> configurationClass)` that transform the configuration into a Java object of the given type. All configuration values will be mapped to properties of the class. The type of the property must match the type of the configuration. Only the following types are supported for configuration values: `Boolean`, `String` and `BigDecimal`.
 
-For example, The Yahoo Weather binding allows to configure the location and unit.
+For example, the Yahoo Weather binding allows to configure the location and unit.
 
 ## Bridges
 
