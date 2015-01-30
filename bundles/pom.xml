@@ -24,6 +24,7 @@
     <module>model</module>
     <module>ui</module>
     <module>storage</module>
+    <module>automation</module>
   </modules>
 
   <build>

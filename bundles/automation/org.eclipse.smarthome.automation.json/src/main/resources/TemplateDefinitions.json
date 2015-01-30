@@ -1,0 +1,373 @@
+{  
+  "triggers":{  
+    "PeriodicalTimerTrigger":{  
+      "label":"Periodical Timer Trigger",
+      "description":"Periodical timer trigger description.",
+      "config":{  
+        "interval":{  
+          "type":"integer",
+          "label":"Timer Interval",
+          "description":"Timer description.",
+          "required":true
+        },
+        "startTime":{  
+          "type":"integer",
+          "label":"Start Time",
+          "description":"Time for first execution.",
+          "required":false
+        }
+      }
+    },
+    "MotionTrigger":{  
+      "label":"Motion Trigger",
+      "description":"Motion trigger description.",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Name of motion sensor.",
+          "required":true
+        }
+      },
+      "output":{  
+        "motion":{  
+          "type":"boolean",
+          "label":"Motion State",
+          "description":"Indicator for motion.",
+          "tags":[  
+            "motion",
+            "detection"
+          ],
+          "reference":"this.motion"
+        },
+        "brightness":{  
+          "type":"int",
+          "label":"Brightness Level",
+          "description":"Level of brightness intensity.",
+          "tags":[  
+            "brightness"
+          ],
+          "reference":"items.$itemName.brightness"
+        }
+      }
+    },
+    "StartManualTrigger":{  
+      "label":"Start Trigger",
+      "description":"Starts manual execution.",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Name of motion sensor.",
+          "required":true
+        }
+      }
+    },
+    "ManualGetLevelTrigger":{  
+      "label":"Get Level Of The Item",
+      "description":"Gets current level of the item.",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Name of motion sensor.",
+          "required":true
+        }
+      },
+      "output":{  
+        "level":{  
+          "type":"int",
+          "label":"Current Level",
+          "description":"Current level of the Item.",
+          "reference":"items.$itemName.level"
+        }
+      }
+    }
+  },
+  "conditions":{  
+    "StateCondition":{  
+      "label":"State Condition",
+      "description":"Simple Item State Condition description.",
+      "config":{  
+        "expression":{  
+          "type":"text",
+          "label":"Expression",
+          "description":"Provides expression that evaluates properties in items.",
+          "required":true
+        }
+      }
+    },
+    "MotionBrightnessCondition":{  
+      "label":"Motion Brightness Condition",
+      "description":"Motion Brightness Condition description.",
+      "config":{  
+        "expression":{  
+          "type":"text",
+          "label":"Expression",
+          "description":"Provides expression that evaluates input properties.",
+          "required":true
+        }
+      },
+      "input":{  
+        "motion":{  
+          "type":"boolean",
+          "label":"Motion",
+          "description":"Data of motion state.",
+          "cached":false
+        },
+        "brightness":{  
+          "type":"int",
+          "label":"Brightness",
+          "description":"Data of brightness level."
+        }
+      }
+    },
+    "ComparatorCondition":{  
+      "label":"Comparator Condition",
+      "description":"Compares input value with configured constraint.",
+      "config":{  
+        "operator":{  
+          "type":"text",
+          "label":"Operator",
+          "description":"Comparison operator. One of '<', '>', '==', '!=', '<=', '>=' ",
+          "required":true
+        },
+        "constraint":{  
+          "type":"decimal",
+          "label":"Constraint Constant",
+          "description":"Constraint constant for right operand",
+          "required":true
+        }
+      },
+      "input":{  
+        "left":{  
+          "type":"java.lang.Number",
+          "label":"Left operand",
+          "description":"Data of the left operand."
+        }
+      }
+    }
+  },
+  "actions":{  
+    "LampSwitchAction":{  
+      "label":"Lamp Switch Action",
+      "description":"Switch on/off the lamp ",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Name of lamp.",
+          "required":true
+        },
+        "state":{  
+          "type":"boolean",
+          "label":"State",
+          "description":"True (swichOn) or False (switchOff).",
+          "required":true
+        },
+        "expression":{  
+          "type":"text",
+          "label":"Action Expression",
+          "description":"Lamp action. Default toggle lamp state.",
+          "required":false,
+          "defaultValue":"items.$itemName.toggle()"
+        }
+      }
+    },
+    "ItemScriptAction":{  
+      "label":"Item Script Action",
+      "description":"Evaluate simple expression over Item",
+      "config":{  
+        "expression":{  
+          "type":"text",
+          "label":"Expression",
+          "description":"Provides expression that makes some operations on Item.",
+          "required":true
+        }
+      }
+    },
+    "ItemDimmerAction":{  
+      "label":"Item Dimmer Action",
+      "description":"Set dimmer level",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Defines the Idem by name.",
+          "required":true
+        },
+        "expression":{  
+          "type":"text",
+          "label":"Expression",
+          "description":"Set dimmer expression.",
+          "required":false,
+          "defaultValue":"items.$itemName.level = $level"
+        }
+      },
+      "input":{  
+        "level":{  
+          "type":"int",
+          "label":"Dimmer Level",
+          "description":"Input for dimmer level."
+        }
+      }
+    },
+    "ItemSetPropertyAction":{  
+      "label":"Item Set Property Action",
+      "description":"Sets property of Item",
+      "config":{  
+        "itemName":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Defines the Idem by name.",
+          "required":true
+        },
+        "propertyName":{  
+          "type":"text",
+          "label":"Property Name",
+          "description":"Defines property Of Item changed by this action.",
+          "required":true
+        },
+        "expression":{  
+          "type":"text",
+          "label":"Action Expression",
+          "description":"Item set property expression.",
+          "required":false,
+          "defaultValue":"items.$itemName.$propertyName = $value"
+        }
+      },
+      "input":{  
+        "value":{  
+          "type":"java.lang.Object",
+          "label":"Property Value",
+          "description":"New property value set by this action."
+        }
+      }
+    },
+    "ChangeBrightnessAction":{  
+      "label":"Change Brightness",
+      "description":"Change brightness in the room.",
+      "config":{  
+        "step":{  
+          "type":"integer",
+          "label":"Increase Step",
+          "description":"Number of level which has to be added to brightness",
+          "required":true
+        }
+      },
+      "input":{  
+        "brightness":{  
+          "type":"int",
+          "label":"Input Brightness Level",
+          "description":"Input level of brightness intensity."
+        }
+      },
+      "output":{  
+        "level":{  
+          "type":"int",
+          "label":"Output Dimmer Level",
+          "description":"Output value for dimmer level.",
+          "reference":"this.$brightness"
+        }
+      }
+    }
+  },
+  "composite":{  
+    "motionTriggerCmposition":{  
+      "config":{  
+        "motionItem":{  
+          "type":"text",
+          "label":"Motion Item Name",
+          "description":"Name of motion detector",
+          "required":true
+        },
+        "interval":{  
+          "type":"integer",
+          "label":"Timer Interval",
+          "description":"Timer interval in milliseconds.",
+          "required":false,
+          "defaultValue":20000
+        }
+      },
+      "triggers":[  
+        {  
+          "id":"motionTrigger2",
+          "template.uid":"MotionTrigger",
+          "config":{  
+            "itemName":"$motionItem"
+          }
+        },
+        {  
+          "id":"MyPeriodicalTimerTrigger1",
+          "template.uid":"PeriodicalTimerTrigger",
+          "config":{  
+            "interval":"$interval"
+          }
+        }
+      ]
+    }
+  },
+  "rules":[  
+    {  
+      "uid":"MotionSwitchRuleTemplate",
+      "description":"Switch lamp on motion detection.",
+      "tags":[  
+        "motion",
+        "dimmer"
+      ],
+      "active":true,
+      "config":{  
+        "interval":{  
+          "type":"integer",
+          "label":"Timer Interval",
+          "description":"Timer interval in milliseconds.",
+          "required":false,
+          "defaultValue":20000
+        },
+        "motionItem":{  
+          "type":"text",
+          "label":"Motion Item Name",
+          "description":"Name of motion detector",
+          "required":true
+        },
+        "dimmerItem":{  
+          "type":"text",
+          "label":"Dimmer Item Name",
+          "description":"Name of dimmer actuator.",
+          "required":true
+        }
+      },
+      "on":[  
+        {  
+          "id":"myRuleTrigger",
+          "template.uid":"motionTriggerCmposition",
+          "config":{  
+            "itemName":"$motionItem",
+            "interval":"$interval"
+          }
+        }
+      ],
+      "if":[  
+        {  
+          "id":"MyMotionCondition",
+          "template.uid":"MotionBrightnessCondition",
+          "config":{  
+            "expression":"motion == true"
+          },
+          "input":{  
+            "motion":"motionTrigger2.motion"
+          }
+        }
+      ],
+      "then":[  
+        {  
+          "id":"MyScriptAction",
+          "template.uid":"ItemScriptAction",
+          "config":{  
+            "expression":"items.$dimmerItem.level = 60"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+[  
+  {  
+    "uid":"rule1",
+    "tags":[  
+      "motion",
+      "lamp"
+    ],
+    "description":"Switch lamp on motion detection.",
+    "active":true,
+    "on":[  
+      {  
+        "id":"MyMotionTrigger1",
+        "label":"Motion Detection Trigger",
+        "description":"Triggers the Switch lamp action on motion detection.",
+        "config":{  
+          "itemUID":{  
+            "type":"text",
+            "value":"MyMotionDetector1"
+          }
+        },
+        "output":{  
+          "motion":{  
+            "type":"boolean",
+            "reference":"this.motion"
+          },
+          "brightness":{  
+            "type":"int",
+            "reference":"items.$itemUID.brightness"
+          }
+        }
+      }
+    ],
+    "if":[  
+      {  
+        "id":"MyMotionCondition1",
+        "label":"Motion Brightness Condition",
+        "description":"Motion Brightness Condition description.",
+        "config":{  
+          "expression":{  
+            "type":"text",
+            "label":"Expression",
+            "description":"Provides expression that evaluates input properties.",
+            "required":true,
+            "value":"$motion == true && $brightness < 30"
+          }
+        },
+        "input":{  
+          "motion":{  
+            "type":"boolean",
+            "label":"Motion",
+            "description":"Data of motion state.",
+            "reference":"MyMotionTrigger1.motion"
+          },
+          "brightness":{  
+            "type":"int",
+            "label":"Brightness",
+            "description":"Data of brightness level.",
+            "reference":"MyMotionTrigger1.brightness"
+          }
+        }
+      }
+    ],
+    "then":[  
+      {  
+        "id":"MyLampSwitchAction1",
+        "label":"Lamp Switch Action",
+        "description":"Switch ON the lamp.",
+        "config":{  
+          "itemUID":{  
+            "type":"text",
+            "label":"Item uid",
+            "description":"uid of the lamp.",
+            "required":true,
+            "value":"lamp5"
+          },
+          "expression":{  
+            "type":"text",
+            "label":"Action Expression",
+            "description":"Turn ON the Lamp.",
+            "required":true,
+            "value":"items.$itemUID.turnOn()"
+          }
+        }
+      }
+    ]
+  },
+  {  
+    "uid":"rule2",
+    "tags":[  
+      "motion",
+      "lamp"
+    ],
+    "description":"Switch lamp on motion detection.",
+    "active":true,
+    "on":[  
+      {  
+        "id":"MyMotionTrigger2",
+        "template.uid":"MotionTrigger",
+        "config":{  
+          "itemUID":"MyMotionDetector2"
+        }
+      },
+      {  
+        "id":"MyPeriodicalTimerTrigger1",
+        "template.uid":"PeriodicalTimerTrigger",
+        "config":{  
+          "interval":20000
+        }
+      }
+    ],
+    "if":[  
+      {  
+        "id":"MyMotionCondition2",
+        "template.uid":"MotionBrightnessCondition",
+        "config":{  
+          "expression":"$motion == true && $brightness < 30"
+        },
+        "input":{  
+          "motion":"MyMotionTrigger2.motion",
+          "brightness":"MyMotionTrigger2.brightness"
+        }
+      },
+      {  
+        "id":"MyStateCondition",
+        "template.uid":"StateCondition",
+        "config":{  
+          "expression":"items.myDimmer.level > 20"
+        },
+        "input":{  
+          "trigger":"MyMotionTrigger2.trigger"
+        }
+      }
+    ],
+    "then":[  
+      {  
+        "id":"MyProcessor1",
+        "template.uid":"ChangeBrightnessAction",
+        "config":{  
+          "step":10
+        },
+        "input":{  
+          "brightness":"MyMotionTrigger2.brightness"
+        }
+      },
+      {  
+        "id":"MyLampSwitchAction2",
+        "template.uid":"LampSwitchAction",
+        "config":{  
+          "itemUID":"myLamp",
+          "state":"true"
+        }
+      },
+      {  
+        "id":"MyScriptAction1",
+        "template.uid":"ItemScriptAction",
+        "config":{  
+          "expression":"items.lamp5.turnOn()"
+        }
+      },
+      {  
+        "id":"MyScriptAction2",
+        "template.uid":"ItemScriptAction",
+        "config":{  
+          "expression":"items.dimmer1.level = items.dimmer2.level + 5"
+        }
+      },
+      {  
+        "id":"MyDimmerAction",
+        "template.uid":"ItemDimmerAction",
+        "config":{  
+          "itemUID":"item5"
+        },
+        "input":{  
+          "level":"MyProcessor1.level"
+        }
+      }
+    ]
+  },
+  {  
+    "uid":"rule3",
+    "template.uid":"MotionSwitchRuleTemplate",
+    "tags":[  
+      "motion",
+      "dimmer"
+    ],
+    "active":false,
+    "config":{  
+      "motionItem":"MyMotionSensor",
+      "dimmerItem":"MyDimmerActuator"
+    }
+  }
+]
