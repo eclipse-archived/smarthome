@@ -53,7 +53,7 @@ It is important to note that Eclipse SmartHome is not meant to reside on (or nea
 
 ## Things
 
-Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other managable source of information and functionality.
+Things are the entities that can physically be added to a system and which can potentially provide many functionalities in one. It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.
 From a user perspective, they are relevant for the setup and configuration process, but not for the operation.
 
 Things can have configuration properties, which can be optional or mandatory. Such properties can be basic information like an IP address, an access token for a web service or a device specific configuration that alters its behavior.
