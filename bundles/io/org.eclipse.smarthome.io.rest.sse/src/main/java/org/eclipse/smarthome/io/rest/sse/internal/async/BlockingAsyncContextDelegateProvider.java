@@ -21,12 +21,12 @@ import org.glassfish.jersey.servlet.spi.AsyncContextDelegateProvider;
 /**
  * An {@link AsyncContextDelegateProvider} implementation that returns a
  * blocking {@link AsyncContextDelegate}, which blocks while the connection is
- * alive if the response content-type is {@link SseFeature #SERVER_SENT_EVENTS}
- * or throws an UnsupportedOperationException otherwise. The blocking continues
+ * alive if the response content-type is {@link SseFeature #SERVER_SENT_EVENTS} or throws an
+ * UnsupportedOperationException otherwise. The blocking continues
  * until the response can longer be written to.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class BlockingAsyncContextDelegateProvider implements AsyncContextDelegateProvider {
 

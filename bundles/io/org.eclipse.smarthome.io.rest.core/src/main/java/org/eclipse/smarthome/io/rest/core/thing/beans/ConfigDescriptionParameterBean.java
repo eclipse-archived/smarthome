@@ -15,7 +15,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 /**
  * This is a java bean that is used with JAX-RS to serialize parameter of a
  * configuration description to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended for options and filter criteria
  *
@@ -42,10 +42,9 @@ public class ConfigDescriptionParameterBean {
     public ConfigDescriptionParameterBean() {
     }
 
-    public ConfigDescriptionParameterBean(String name, Type type, BigDecimal minimum,
-            BigDecimal maximum, BigDecimal stepsize, String pattern, Boolean required,
-            Boolean readOnly, Boolean multiple, String context, String defaultValue, String label,
-            String description, List<ParameterOptionBean> options,
+    public ConfigDescriptionParameterBean(String name, Type type, BigDecimal minimum, BigDecimal maximum,
+            BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
+            String defaultValue, String label, String description, List<ParameterOptionBean> options,
             List<FilterCriteriaBean> filterCriteria) {
         this.name = name;
         this.type = type;

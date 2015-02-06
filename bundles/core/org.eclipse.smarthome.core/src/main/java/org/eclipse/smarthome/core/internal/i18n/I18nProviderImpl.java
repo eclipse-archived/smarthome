@@ -14,24 +14,19 @@ import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-
 /**
- * The {@link I18nProviderImpl} is a concrete implementation of the {@link I18nProvider}
- * service interface.
+ * The {@link I18nProviderImpl} is a concrete implementation of the {@link I18nProvider} service interface.
  * <p>
- * This implementation uses the i18n mechanism of Java ({@link ResourceBundle}) to translate a
- * given key into text. The resources must be placed under the specific directory
- * {@link LanguageResourceBundleManager#RESOURCE_DIRECTORY} within the certain modules.
- * Each module is tracked in the platform by using the {@link ResourceBundleTracker} and managed
- * by using one certain {@link LanguageResourceBundleManager} which is responsible for the
- * translation.
+ * This implementation uses the i18n mechanism of Java ({@link ResourceBundle}) to translate a given key into text. The
+ * resources must be placed under the specific directory {@link LanguageResourceBundleManager#RESOURCE_DIRECTORY} within
+ * the certain modules. Each module is tracked in the platform by using the {@link ResourceBundleTracker} and managed by
+ * using one certain {@link LanguageResourceBundleManager} which is responsible for the translation.
  *
  * @author Michael Grammling - Initial Contribution
  */
 public class I18nProviderImpl implements I18nProvider {
 
     private ResourceBundleTracker resourceBundleTracker;
-
 
     protected void activate(BundleContext bundleContext) {
         this.resourceBundleTracker = new ResourceBundleTracker(bundleContext);
@@ -44,8 +39,7 @@ public class I18nProviderImpl implements I18nProvider {
 
     @Override
     public String getText(Bundle bundle, String key, String defaultText, Locale locale) {
-        LanguageResourceBundleManager languageResource =
-                this.resourceBundleTracker.getLanguageResource(bundle);
+        LanguageResourceBundleManager languageResource = this.resourceBundleTracker.getLanguageResource(bundle);
 
         if (languageResource != null) {
             String text = languageResource.getText(key, locale);

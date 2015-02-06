@@ -32,23 +32,22 @@ import com.google.common.collect.Sets;
 
 /**
  * {@link HueThingHandlerFactory} is a factory for {@link HueBridgeHandler}s.
- * 
+ *
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Kai Kreuzer - added supportsThingType method
  * @author Andre Fuechsel - implemented to use one discovery service per bridge
- * 
+ *
  */
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(
-    		HueBridgeHandler.SUPPORTED_THING_TYPES,
-    		HueLightHandler.SUPPORTED_THING_TYPES);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.union(HueBridgeHandler.SUPPORTED_THING_TYPES,
+            HueLightHandler.SUPPORTED_THING_TYPES);
 
     private Map<ThingUID, ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
-    
+
     @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
-            ThingUID thingUID, ThingUID bridgeUID) {
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
+            ThingUID bridgeUID) {
         if (HueBridgeHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
             ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
@@ -57,8 +56,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, hueLightUID, bridgeUID);
         }
-        throw new IllegalArgumentException("The thing type " + thingTypeUID
-                + " is not supported by the hue binding.");
+        throw new IllegalArgumentException("The thing type " + thingTypeUID + " is not supported by the hue binding.");
     }
 
     @Override
@@ -66,8 +64,7 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_THING_TYPES.contains(thingTypeUID);
     }
 
-    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration) {
+    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
         if (thingUID == null) {
             String serialNumber = (String) configuration.get(SERIAL_NUMBER);
             thingUID = new ThingUID(thingTypeUID, serialNumber);
@@ -75,8 +72,8 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         return thingUID;
     }
 
-    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration, ThingUID bridgeUID) {
+    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
+            ThingUID bridgeUID) {
         String lightId = (String) configuration.get(LIGHT_ID);
 
         if (thingUID == null) {
@@ -94,27 +91,25 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
         } else if (HueLightHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
             return new HueLightHandler(thing);
         } else {
-        	return null;
+            return null;
         }
     }
-    
+
     private synchronized void registerLightDiscoveryService(HueBridgeHandler bridgeHandler) {
-    	HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
-    	discoveryService.activate();
-        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext
-                .registerService(DiscoveryService.class.getName(), discoveryService,
-                        new Hashtable<String, Object>()));
+        HueLightDiscoveryService discoveryService = new HueLightDiscoveryService(bridgeHandler);
+        discoveryService.activate();
+        this.discoveryServiceRegs.put(bridgeHandler.getThing().getUID(), bundleContext.registerService(
+                DiscoveryService.class.getName(), discoveryService, new Hashtable<String, Object>()));
     }
-    
+
     @Override
     protected synchronized void removeHandler(ThingHandler thingHandler) {
         if (thingHandler instanceof HueBridgeHandler) {
-            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler
-                    .getThing().getUID());
+            ServiceRegistration<?> serviceReg = this.discoveryServiceRegs.get(thingHandler.getThing().getUID());
             if (serviceReg != null) {
                 // remove discovery service, if bridge handler is removed
-                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext
-                        .getService(serviceReg.getReference());
+                HueLightDiscoveryService service = (HueLightDiscoveryService) bundleContext.getService(serviceReg
+                        .getReference());
                 service.deactivate();
                 serviceReg.unregister();
                 discoveryServiceRegs.remove(thingHandler.getThing().getUID());

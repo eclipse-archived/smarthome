@@ -30,48 +30,46 @@ import com.google.inject.name.Names;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
- * 
+ *
  */
 @SuppressWarnings("restriction")
 public class ScriptRuntimeModule extends org.eclipse.smarthome.model.script.AbstractScriptRuntimeModule {
 
+    public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
+        return ScriptImplicitlyImportedTypes.class;
+    }
 
-	public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
-		return ScriptImplicitlyImportedTypes.class;
-	}
-	
+    @Override
+    public Class<? extends IExpressionInterpreter> bindIExpressionInterpreter() {
+        return ScriptInterpreter.class;
+    }
 
-	
-	public Class<? extends IExpressionInterpreter> bindIExpressionInterpreter() {
-		return ScriptInterpreter.class;
-	}
-	
-	@Override
-	public Class<? extends IGenerator> bindIGenerator() {
-		return NullGenerator.class;
-	}
-	
-	
-	public void configureIScopeProviderDelegate(Binder binder) {
-		binder.bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE)).to(ScriptImportSectionNamespaceScopeProvider.class);
-	}
-	
-	@Override
-	public Class<? extends IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
-		return ReflectionTypeProviderFactory.class;
-	}
+    @Override
+    public Class<? extends IGenerator> bindIGenerator() {
+        return NullGenerator.class;
+    }
 
-	@Override
-	public Class<? extends AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
-		return ReflectionTypeScopeProvider.class;
-	}
-	
-	
-	@Override
-	public ClassLoader bindClassLoaderToInstance() {
-		return new ActionClassLoader(super.bindClassLoaderToInstance());
-	}
-	
+    @Override
+    public void configureIScopeProviderDelegate(Binder binder) {
+        binder.bind(IScopeProvider.class).annotatedWith(Names.named(AbstractDeclarativeScopeProvider.NAMED_DELEGATE))
+                .to(ScriptImportSectionNamespaceScopeProvider.class);
+    }
+
+    @Override
+    public Class<? extends IJvmTypeProvider.Factory> bindIJvmTypeProvider$Factory() {
+        return ReflectionTypeProviderFactory.class;
+    }
+
+    @Override
+    public Class<? extends AbstractTypeScopeProvider> bindAbstractTypeScopeProvider() {
+        return ReflectionTypeScopeProvider.class;
+    }
+
+    @Override
+    public ClassLoader bindClassLoaderToInstance() {
+        return new ActionClassLoader(super.bindClassLoaderToInstance());
+    }
+
 }

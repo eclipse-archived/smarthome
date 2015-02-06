@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
-
 /**
  * The {@link DiscoveryResultFlag} class specifies a list of flags
  * which a {@link DiscoveryResult} object can take.

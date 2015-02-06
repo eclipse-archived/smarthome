@@ -11,11 +11,10 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
 /**
- * A {@link Feature} implementation that registers our custom
- * {@link BlockingAsyncBinder}.
- * 
+ * A {@link Feature} implementation that registers our custom {@link BlockingAsyncBinder}.
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class BlockingAsyncFeature implements Feature {
 

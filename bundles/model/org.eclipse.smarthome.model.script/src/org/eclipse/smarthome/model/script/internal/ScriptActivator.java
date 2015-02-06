@@ -18,46 +18,48 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Extension of the default OSGi bundle activator
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class ScriptActivator implements BundleActivator {
-	
-	public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
-	public static ServiceTracker<EventPublisher, EventPublisher> eventPublisherTracker;
-	public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
-	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
-	public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
 
-	/**
-	 * Called whenever the OSGi framework starts our bundle
-	 */
-	public void start(BundleContext bc) throws Exception {
-		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(bc, ActionService.class, null);
-		actionServiceTracker.open();
+    public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
+    public static ServiceTracker<EventPublisher, EventPublisher> eventPublisherTracker;
+    public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
+    public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
+    public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
 
-		itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(bc, ItemRegistry.class, null);
-		itemRegistryTracker.open();
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        actionServiceTracker = new ServiceTracker<ActionService, ActionService>(bc, ActionService.class, null);
+        actionServiceTracker.open();
 
-		eventPublisherTracker = new ServiceTracker<EventPublisher, EventPublisher>(bc, EventPublisher.class, null);
-		eventPublisherTracker.open();
+        itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(bc, ItemRegistry.class, null);
+        itemRegistryTracker.open();
 
-		modelRepositoryTracker = new ServiceTracker<ModelRepository, ModelRepository>(bc, ModelRepository.class, null);
-		modelRepositoryTracker.open();
+        eventPublisherTracker = new ServiceTracker<EventPublisher, EventPublisher>(bc, EventPublisher.class, null);
+        eventPublisherTracker.open();
 
-		scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
-		scriptEngineTracker.open();
-	}
+        modelRepositoryTracker = new ServiceTracker<ModelRepository, ModelRepository>(bc, ModelRepository.class, null);
+        modelRepositoryTracker.open();
 
-	/**
-	 * Called whenever the OSGi framework stops our bundle
-	 */
-	public void stop(BundleContext bc) throws Exception {
-		itemRegistryTracker.close();
-		eventPublisherTracker.close();
-		modelRepositoryTracker.close();
-		scriptEngineTracker.close();
-		actionServiceTracker.close();
-	}
+        scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
+        scriptEngineTracker.open();
+    }
+
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+        itemRegistryTracker.close();
+        eventPublisherTracker.close();
+        modelRepositoryTracker.close();
+        scriptEngineTracker.close();
+        actionServiceTracker.close();
+    }
 
 }

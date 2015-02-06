@@ -15,12 +15,12 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * TypeAdapterFactory responsible for returning a new instance of
- * {@link PropertiesTypeAdapter} if the given type matches Map<String, Object>
+ * TypeAdapterFactory responsible for returning a new instance of {@link PropertiesTypeAdapter} if the given type
+ * matches Map<String, Object>
  * or null otherwise.
- * 
+ *
  * @author Ivan Iliev
- * 
+ *
  */
 public class PropertiesTypeAdapterFactory implements TypeAdapterFactory {
 

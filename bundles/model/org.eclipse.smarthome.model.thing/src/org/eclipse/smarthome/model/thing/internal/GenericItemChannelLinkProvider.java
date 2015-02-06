@@ -28,101 +28,99 @@ import com.google.common.collect.Lists;
 
 /**
  * {@link GenericItemChannelLinkProvider} link items to channel by reading bindings with type "channel".
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
- * @author Alex Tugarev - Added parsing of multiple Channel UIDs 
+ * @author Alex Tugarev - Added parsing of multiple Channel UIDs
  *
  */
-public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader, ItemChannelLinkProvider, ModelRepositoryChangeListener {
+public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader,
+        ItemChannelLinkProvider, ModelRepositoryChangeListener {
 
-	/** caches binding configurations. maps itemNames to {@link BindingConfig}s */
-	protected Map<String, Set<ItemChannelLink>> itemChannelLinkMap = new ConcurrentHashMap<>();
-	
-	/** 
-	 * stores information about the context of items. The map has this content
-	 * structure: context -> Set of Item names
-	 */ 
-	protected Map<String, Set<String>> contextMap = new ConcurrentHashMap<>();
-	
-	@SuppressWarnings("unused")
+    /** caches binding configurations. maps itemNames to {@link BindingConfig}s */
+    protected Map<String, Set<ItemChannelLink>> itemChannelLinkMap = new ConcurrentHashMap<>();
+
+    /**
+     * stores information about the context of items. The map has this content
+     * structure: context -> Set of Item names
+     */
+    protected Map<String, Set<String>> contextMap = new ConcurrentHashMap<>();
+
+    @SuppressWarnings("unused")
     private ModelRepository modelRepository = null;
-	
-	@Override
-	public String getBindingType() {
-		return "channel";
-	}
 
-	@Override
-	public void validateItemType(String itemType, String bindingConfig)
-			throws BindingConfigParseException {
-		// all item types are allowed
-	}
+    @Override
+    public String getBindingType() {
+        return "channel";
+    }
 
-	@Override
-	public void processBindingConfiguration(String context, String itemType,
-			String itemName, String bindingConfig)
-			throws BindingConfigParseException {
-	    String[] uids = bindingConfig.split(",");
+    @Override
+    public void validateItemType(String itemType, String bindingConfig) throws BindingConfigParseException {
+        // all item types are allowed
+    }
+
+    @Override
+    public void processBindingConfiguration(String context, String itemType, String itemName, String bindingConfig)
+            throws BindingConfigParseException {
+        String[] uids = bindingConfig.split(",");
         if (uids.length == 0) {
             throw new BindingConfigParseException(
                     "At least one Channel UID should be provided: <bindingID>.<thingTypeId>.<thingId>.<channelId>");
         }
-	    for (String uid : uids) {
-	        createItemChannelLink(context, itemName, uid.trim());
+        for (String uid : uids) {
+            createItemChannelLink(context, itemName, uid.trim());
         }
-	}
+    }
 
     private void createItemChannelLink(String context, String itemName, String channelUID)
             throws BindingConfigParseException {
         ChannelUID channelUIDObject = null;
-		try {
-		    channelUIDObject = new ChannelUID(channelUID);
-		} catch (IllegalArgumentException e) {
-			throw new BindingConfigParseException(e.getMessage());
-		}
-		ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject);
-		
-		
-		Set<String> itemNames = contextMap.get(context);
-		if (itemNames == null) {
-			itemNames = new HashSet<>();
-			contextMap.put(context, itemNames);
-		}
-		itemNames.add(itemName);
-		Set<ItemChannelLink> links = itemChannelLinkMap.get(itemName);
-		if (links == null) {
-		    itemChannelLinkMap.put(itemName, links = new HashSet<>());
-		}
-		if (!links.contains(itemChannelLink)) {
-		    links.add(itemChannelLink);
-			notifyListenersAboutAddedElement(itemChannelLink);
-		} else {
-			notifyListenersAboutUpdatedElement(itemChannelLink, itemChannelLink);
-		}
+        try {
+            channelUIDObject = new ChannelUID(channelUID);
+        } catch (IllegalArgumentException e) {
+            throw new BindingConfigParseException(e.getMessage());
+        }
+        ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUIDObject);
+
+        Set<String> itemNames = contextMap.get(context);
+        if (itemNames == null) {
+            itemNames = new HashSet<>();
+            contextMap.put(context, itemNames);
+        }
+        itemNames.add(itemName);
+        Set<ItemChannelLink> links = itemChannelLinkMap.get(itemName);
+        if (links == null) {
+            itemChannelLinkMap.put(itemName, links = new HashSet<>());
+        }
+        if (!links.contains(itemChannelLink)) {
+            links.add(itemChannelLink);
+            notifyListenersAboutAddedElement(itemChannelLink);
+        } else {
+            notifyListenersAboutUpdatedElement(itemChannelLink, itemChannelLink);
+        }
     }
 
-	@Override
-	public void removeConfigurations(String context) {
-		Set<String> itemNames = contextMap.get(context);
-		if(itemNames!=null) {
-			for(String itemName : itemNames) {
-				// we remove all binding configurations for all items
-				Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
-				if(links != null) {
-    				for (ItemChannelLink removedItemChannelLink : links) {
-    				    notifyListenersAboutRemovedElement(removedItemChannelLink);
+    @Override
+    public void removeConfigurations(String context) {
+        Set<String> itemNames = contextMap.get(context);
+        if (itemNames != null) {
+            for (String itemName : itemNames) {
+                // we remove all binding configurations for all items
+                Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
+                if (links != null) {
+                    for (ItemChannelLink removedItemChannelLink : links) {
+                        notifyListenersAboutRemovedElement(removedItemChannelLink);
                     }
-				}
-			}
-			contextMap.remove(context);
-		}
-	}
+                }
+            }
+            contextMap.remove(context);
+        }
+    }
 
-	@Override
-	public Collection<ItemChannelLink> getAll() {
-		return Lists.newLinkedList(Iterables.concat(itemChannelLinkMap.values()));
-	}
-	
+    @Override
+    public Collection<ItemChannelLink> getAll() {
+        return Lists.newLinkedList(Iterables.concat(itemChannelLinkMap.values()));
+    }
+
     public void setModelRepository(ModelRepository modelRepository) {
         this.modelRepository = modelRepository;
         modelRepository.addModelRepositoryChangeListener(this);
@@ -137,13 +135,13 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     public void modelChanged(String modelName, EventType type) {
         if (modelName.endsWith("items")) {
             switch (type) {
-            case ADDED:
-                break;
-            case MODIFIED:
-                break;
-            case REMOVED:
-                removeConfigurations(modelName);
-                break;
+                case ADDED:
+                    break;
+                case MODIFIED:
+                    break;
+                case REMOVED:
+                    removeConfigurations(modelName);
+                    break;
             }
         }
     }

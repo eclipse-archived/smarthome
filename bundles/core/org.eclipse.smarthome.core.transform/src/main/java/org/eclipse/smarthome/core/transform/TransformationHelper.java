@@ -17,29 +17,30 @@ import org.slf4j.LoggerFactory;
 
 public class TransformationHelper {
 
-	/**
-	 * Queries the OSGi service registry for a service that provides a transformation service of
-	 * a given transformation type (e.g. REGEX, XSLT, etc.)
-	 * 
-	 * @param transformationType the desired transformation type
-	 * @return a service instance or null, if none could be found
-	 */
-	static public TransformationService getTransformationService(BundleContext context, String transformationType) {
-		if(context!=null) {
-			Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
-			String filter = "(smarthome.transform=" + transformationType + ")";
-			try {
-				Collection<ServiceReference<TransformationService>> refs = context.getServiceReferences(TransformationService.class, filter);
-				if(refs!=null && refs.size() > 0) {
-					return (TransformationService) context.getService(refs.iterator().next());
-				} else {
-					logger.warn("Cannot get service reference for transformation service of type " + transformationType);
-				}
-			} catch (InvalidSyntaxException e) {
-				logger.warn("Cannot get service reference for transformation service of type " + transformationType, e);
-			}
-		}
-		return null;
-	}
+    /**
+     * Queries the OSGi service registry for a service that provides a transformation service of
+     * a given transformation type (e.g. REGEX, XSLT, etc.)
+     * 
+     * @param transformationType the desired transformation type
+     * @return a service instance or null, if none could be found
+     */
+    static public TransformationService getTransformationService(BundleContext context, String transformationType) {
+        if (context != null) {
+            Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+            String filter = "(smarthome.transform=" + transformationType + ")";
+            try {
+                Collection<ServiceReference<TransformationService>> refs = context.getServiceReferences(
+                        TransformationService.class, filter);
+                if (refs != null && refs.size() > 0) {
+                    return context.getService(refs.iterator().next());
+                } else {
+                    logger.warn("Cannot get service reference for transformation service of type " + transformationType);
+                }
+            } catch (InvalidSyntaxException e) {
+                logger.warn("Cannot get service reference for transformation service of type " + transformationType, e);
+            }
+        }
+        return null;
+    }
 
 }

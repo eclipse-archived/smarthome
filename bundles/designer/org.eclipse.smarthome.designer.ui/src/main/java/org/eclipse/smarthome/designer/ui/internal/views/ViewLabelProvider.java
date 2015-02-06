@@ -30,54 +30,58 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ViewLabelProvider extends LabelProvider {
 
-	private Map<String, Image> imageCache = new HashMap<String, Image>();
-	
-	@Override
-	public void dispose() {
-		for(Image image : imageCache.values()) image.dispose();
-	}
-	
-	public String getText(Object obj) {
-		if(obj instanceof IFolder) {
-			IResource res = (IResource) obj;
-			return StringUtils.capitalize(res.getName());
-		} else if(obj instanceof IFile) {
-				IResource res = (IResource) obj;
-				return res.getName();
-		} else {
-			return obj.toString();
-		}
-	}
-	
-	public Image getImage(Object obj) {
-		if (obj instanceof IFolder) {
-			IFolder folder = (IFolder) obj;
-			String name = folder.getName().toLowerCase();
-			Image image = imageCache.get(name);
-			if(image==null) {
-				ImageDescriptor imageDesc = UIActivator.getImageDescriptor("icons/" + name + ".png");
-				if(imageDesc!=null) {
-					image = imageDesc.createImage();
-					imageCache.put(name, image);
-					return image;
-				}
-			} else {
-				return image;
-			}
-			// use the folder image as a default
-			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
-		} else if(obj instanceof IFile) {
-			IFile file = (IFile) obj;
-			String fileExt = file.getFileExtension();
-			Image image = imageCache.get(fileExt);
-			if(image==null) {
-				ImageDescriptor imageDesc = PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor("." + fileExt);
-				image = imageDesc.createImage();
-				imageCache.put(fileExt, image);
-			}
-			return image;	
-		} else {
-			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
-		}
-	}
+    private Map<String, Image> imageCache = new HashMap<String, Image>();
+
+    @Override
+    public void dispose() {
+        for (Image image : imageCache.values())
+            image.dispose();
+    }
+
+    @Override
+    public String getText(Object obj) {
+        if (obj instanceof IFolder) {
+            IResource res = (IResource) obj;
+            return StringUtils.capitalize(res.getName());
+        } else if (obj instanceof IFile) {
+            IResource res = (IResource) obj;
+            return res.getName();
+        } else {
+            return obj.toString();
+        }
+    }
+
+    @Override
+    public Image getImage(Object obj) {
+        if (obj instanceof IFolder) {
+            IFolder folder = (IFolder) obj;
+            String name = folder.getName().toLowerCase();
+            Image image = imageCache.get(name);
+            if (image == null) {
+                ImageDescriptor imageDesc = UIActivator.getImageDescriptor("icons/" + name + ".png");
+                if (imageDesc != null) {
+                    image = imageDesc.createImage();
+                    imageCache.put(name, image);
+                    return image;
+                }
+            } else {
+                return image;
+            }
+            // use the folder image as a default
+            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
+        } else if (obj instanceof IFile) {
+            IFile file = (IFile) obj;
+            String fileExt = file.getFileExtension();
+            Image image = imageCache.get(fileExt);
+            if (image == null) {
+                ImageDescriptor imageDesc = PlatformUI.getWorkbench().getEditorRegistry()
+                        .getImageDescriptor("." + fileExt);
+                image = imageDesc.createImage();
+                imageCache.put(fileExt, image);
+            }
+            return image;
+        } else {
+            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+        }
+    }
 }

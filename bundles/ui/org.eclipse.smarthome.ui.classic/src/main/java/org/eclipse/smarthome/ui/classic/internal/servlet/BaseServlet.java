@@ -15,70 +15,73 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 
-
 /**
- * This is the base servlet class for other servlet in the Classic UI. 
- * 
+ * This is the base servlet class for other servlet in the Classic UI.
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public abstract class BaseServlet implements Servlet {
-	
-	/** the root path of this web application */
-	public static final String WEBAPP_ALIAS = "/";
-		
-	protected HttpService httpService;
-	protected ItemRegistry itemRegistry;
 
-	
-	public void setItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = itemRegistry;
-	}
+    /** the root path of this web application */
+    public static final String WEBAPP_ALIAS = "/";
 
-	public void unsetItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = null;
-	}
+    protected HttpService httpService;
+    protected ItemRegistry itemRegistry;
 
-	public void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
-	}
+    public void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
 
-	public void unsetHttpService(HttpService httpService) {
-		this.httpService = null;
-	}
+    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
 
-	/**
-	 * Creates a {@link HttpContext}
-	 * @return a {@link HttpContext}
-	 */
-	protected HttpContext createHttpContext() {
-		HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-		return defaultHttpContext;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void init(ServletConfig config) throws ServletException {
-	}
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public ServletConfig getServletConfig() {
-		return null;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getServletInfo() {
-		return null;
-	}
+    public void unsetHttpService(HttpService httpService) {
+        this.httpService = null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void destroy() {
-	}
+    /**
+     * Creates a {@link HttpContext}
+     * 
+     * @return a {@link HttpContext}
+     */
+    protected HttpContext createHttpContext() {
+        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
+        return defaultHttpContext;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServletInfo() {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy() {
+    }
 
 }

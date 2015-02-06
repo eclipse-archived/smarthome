@@ -15,13 +15,13 @@ import org.osgi.framework.Bundle;
  * The {@link BindingI18nUtil} uses the {@link I18nProvider} to resolve the
  * localized texts. It automatically infers the key if the default text is not a
  * constant.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class BindingI18nUtil {
 
     private I18nProvider i18nProvider;
-    
+
     public BindingI18nUtil(I18nProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }

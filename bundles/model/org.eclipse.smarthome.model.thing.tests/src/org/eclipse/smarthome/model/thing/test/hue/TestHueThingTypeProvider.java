@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 /**
- * 
+ *
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
@@ -47,8 +47,8 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
             ChannelType ctColor = new ChannelType(new ChannelTypeUID("hue:LCT001:color"), false, "Color", "colorLabel",
                     "description", null, null, null, new URI("hue", "LCT001:color", null));
             ChannelDefinition color = new ChannelDefinition("color", ctColor);
-            ChannelType ctColorTemperature = new ChannelType(new ChannelTypeUID("hue:LCT001:color_temperature"),
-                    false, "Dimmer", "colorTemperatureLabel", "description", null, null, null, new URI("hue",
+            ChannelType ctColorTemperature = new ChannelType(new ChannelTypeUID("hue:LCT001:color_temperature"), false,
+                    "Dimmer", "colorTemperatureLabel", "description", null, null, null, new URI("hue",
                             "LCT001:color_temperature", null));
             ChannelDefinition colorTemp = new ChannelDefinition("color_temperature", ctColorTemperature);
             thingTypes.put(
@@ -63,7 +63,7 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingTypes
      * (java.util.Locale)
@@ -75,7 +75,7 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.thing.binding.ThingTypeProvider#getThingType
      * (org.eclipse.smarthome.core.thing.ThingTypeUID, java.util.Locale)

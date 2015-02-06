@@ -14,8 +14,7 @@ import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * The {@link DiscoveryResultBuilder} helps creating a {@link DiscoveryResult}
- * through the builder pattern.
+ * The {@link DiscoveryResultBuilder} helps creating a {@link DiscoveryResult} through the builder pattern.
  *
  * @author Kai Kreuzer - Initial API
  *
@@ -23,29 +22,30 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  */
 public class DiscoveryResultBuilder {
 
-	final private ThingUID thingUID;
+    final private ThingUID thingUID;
 
-	private ThingUID bridgeUID;
+    private ThingUID bridgeUID;
     private Map<String, Object> properties = new HashMap<>();
     private String label;
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
-    	this.thingUID = thingUID;
+        this.thingUID = thingUID;
     };
 
     /**
      * Creates a new builder for a given thing UID.
-     * 
+     *
      * @param thingUID the thing UID for which the builder should be created-
-     * 
+     *
      * @return a new instance of a {@link DiscoveryResultBuilder}
      */
     public static DiscoveryResultBuilder create(ThingUID thingUID) {
-    	return new DiscoveryResultBuilder(thingUID);
+        return new DiscoveryResultBuilder(thingUID);
     }
-    
+
     /**
      * Adds properties to the desired result
+     * 
      * @param properties of the desired result
      * @return the updated builder
      */
@@ -53,9 +53,10 @@ public class DiscoveryResultBuilder {
         this.properties.putAll(properties);
         return this;
     }
-    
+
     /**
      * Adds a property to the desired result
+     * 
      * @param property of the desired result
      * @return the updated builder
      */
@@ -66,30 +67,32 @@ public class DiscoveryResultBuilder {
 
     /**
      * Sets the bridgeUID of the desired result
+     * 
      * @param bridgeUID of the desired result
      * @return the updated builder
      */
     public DiscoveryResultBuilder withBridge(ThingUID bridgeUID) {
-    	this.bridgeUID = bridgeUID;
+        this.bridgeUID = bridgeUID;
         return this;
     }
 
     /**
      * Sets the label of the desired result
+     * 
      * @param label of the desired result
      * @return the updated builder
      */
     public DiscoveryResultBuilder withLabel(String label) {
-    	this.label = label;
+        this.label = label;
         return this;
     }
-    
+
     /**
      * Builds a result with the settings of this builder.
-     * 
+     *
      * @return the desired result
      */
-	public DiscoveryResult build() {
+    public DiscoveryResult build() {
         return new DiscoveryResultImpl(thingUID, bridgeUID, properties, label);
     }
 

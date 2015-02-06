@@ -24,49 +24,51 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * A StringItem can be used for any kind of string to either send or receive
  * from a device.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class StringItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	static {
-		acceptedDataTypes.add(StringType.class);
-		acceptedDataTypes.add((DateTimeType.class));
-		acceptedDataTypes.add(UnDefType.class);
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-		acceptedCommandTypes.add(RefreshType.class);
-		acceptedCommandTypes.add(StringType.class);		
-	}
-	
-	public StringItem(String name) {
-		super(CoreItemFactory.STRING, name);
-	}
+    static {
+        acceptedDataTypes.add(StringType.class);
+        acceptedDataTypes.add((DateTimeType.class));
+        acceptedDataTypes.add(UnDefType.class);
 
-	public void send(StringType command) {
-		internalSend(command);
-	}
-	
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+        acceptedCommandTypes.add(RefreshType.class);
+        acceptedCommandTypes.add(StringType.class);
+    }
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
-	
-	@Override
-	public State getStateAs(Class<? extends State> typeClass) {
-		ArrayList<Class<? extends State>> list = new ArrayList<Class<? extends State>>();
-		list.add(typeClass);
-		State convertedState = TypeParser.parseState(list, state.toString());
-		if(convertedState!=null) {
-			return convertedState;
-		} else {
-			return super.getStateAs(typeClass);
-		}
-	}
+    public StringItem(String name) {
+        super(CoreItemFactory.STRING, name);
+    }
+
+    public void send(StringType command) {
+        internalSend(command);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        ArrayList<Class<? extends State>> list = new ArrayList<Class<? extends State>>();
+        list.add(typeClass);
+        State convertedState = TypeParser.parseState(list, state.toString());
+        if (convertedState != null) {
+            return convertedState;
+        } else {
+            return super.getStateAs(typeClass);
+        }
+    }
 }

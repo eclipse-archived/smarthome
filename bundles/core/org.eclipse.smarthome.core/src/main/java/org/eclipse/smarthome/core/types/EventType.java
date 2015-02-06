@@ -19,9 +19,7 @@ package org.eclipse.smarthome.core.types;
  */
 public enum EventType {
 
-    COMMAND("command"),
-    UPDATE("update");
-
+    COMMAND("command"), UPDATE("update");
 
     private String name;
 
@@ -29,6 +27,7 @@ public enum EventType {
         this.name = name;
     }
 
+    @Override
     public String toString() {
         return this.name;
     }

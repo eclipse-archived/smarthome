@@ -7,15 +7,14 @@
  */
 package org.eclipse.smarthome.io.rest.core.item.beans;
 
-
 /**
  * This is a java bean that is used to serialize group items to JSON.
- *  
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class GroupItemBean extends ItemBean {
 
-	public ItemBean[] members;
-	
+    public ItemBean[] members;
+
 }

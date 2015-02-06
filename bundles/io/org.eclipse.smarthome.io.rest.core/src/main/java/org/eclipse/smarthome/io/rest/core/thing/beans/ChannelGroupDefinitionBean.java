@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * This is a java bean that is used to serialize channel group definitions.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class ChannelGroupDefinitionBean {
@@ -24,8 +24,7 @@ public class ChannelGroupDefinitionBean {
     public ChannelGroupDefinitionBean() {
     }
 
-    public ChannelGroupDefinitionBean(String id, String label, String description,
-            List<ChannelDefinitionBean> channels) {
+    public ChannelGroupDefinitionBean(String id, String label, String description, List<ChannelDefinitionBean> channels) {
         this.id = id;
         this.label = label;
         this.description = description;

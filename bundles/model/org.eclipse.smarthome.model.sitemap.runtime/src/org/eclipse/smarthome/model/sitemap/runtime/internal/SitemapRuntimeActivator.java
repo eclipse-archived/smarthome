@@ -15,17 +15,16 @@ import org.slf4j.LoggerFactory;
 
 public class SitemapRuntimeActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(SitemapRuntimeActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(SitemapRuntimeActivator.class);
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		SitemapStandaloneSetup.doSetup();
-		logger.debug("Registered 'sitemap' configuration parser");
-	}
+    @Override
+    public void start(BundleContext context) throws Exception {
+        SitemapStandaloneSetup.doSetup();
+        logger.debug("Registered 'sitemap' configuration parser");
+    }
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+    }
 
 }

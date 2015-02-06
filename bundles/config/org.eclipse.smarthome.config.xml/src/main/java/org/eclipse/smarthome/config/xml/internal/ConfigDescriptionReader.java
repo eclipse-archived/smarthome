@@ -12,7 +12,6 @@ import java.util.List;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.FilterCriteria;
-import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
 import org.eclipse.smarthome.config.xml.FilterCriteriaConverter;
@@ -26,14 +25,12 @@ import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 
 import com.thoughtworks.xstream.XStream;
 
-
 /**
- * The {@link ConfigDescriptionReader} reads XML documents, which contain the
- * {@code config-descriptions} XML tag, and converts them to {@link List}
- * objects consisting of {@link ConfigDescription} objects.
+ * The {@link ConfigDescriptionReader} reads XML documents, which contain the {@code config-descriptions} XML tag, and
+ * converts them to {@link List} objects consisting of {@link ConfigDescription} objects.
  * <p>
  * This reader uses {@code XStream} and {@code StAX} to parse and convert the XML document.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended for options and filter criteria
  */
@@ -67,5 +64,5 @@ public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescri
         xstream.alias("filter", List.class);
         xstream.alias("criteria", FilterCriteria.class);
     }
-    
+
 }

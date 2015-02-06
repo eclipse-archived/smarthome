@@ -9,13 +9,12 @@ package org.eclipse.smarthome.config.xml.osgi;
 
 import org.eclipse.smarthome.config.xml.internal.ConfigDescriptionReader;
 
-
 /**
  * The {@link XmlDocumentProvider} is responsible managing any created objects
  * by a {@link ConfigDescriptionReader} for a certain module.
  * <p>
  * Each instance of this class is assigned to exactly one module.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  *
  * @param <T> the result type of the conversion
@@ -24,7 +23,7 @@ public interface XmlDocumentProvider<T> {
 
     /**
      * Adds a new result object from the XML processing for further processing.
-     * 
+     *
      * @param object the result object to be processed (could be null)
      */
     void addingObject(T object);

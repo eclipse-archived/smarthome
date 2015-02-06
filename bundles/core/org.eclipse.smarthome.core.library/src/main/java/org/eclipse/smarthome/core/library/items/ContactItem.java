@@ -24,45 +24,47 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * A ContactItem can be used for sensors that return an "open" or "close" as a state.
  * This is useful for doors, windows, etc.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class ContactItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
-	
-	static {
-		acceptedDataTypes.add(OpenClosedType.class);
-		acceptedDataTypes.add(UnDefType.class);
-		
-		acceptedCommandTypes.add(RefreshType.class);		
-	}
-	
-	public ContactItem(String name) {
-		super(CoreItemFactory.CONTACT, name);
-	}
 
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
+    static {
+        acceptedDataTypes.add(OpenClosedType.class);
+        acceptedDataTypes.add(UnDefType.class);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public State getStateAs(Class<? extends State> typeClass) {
-		if(typeClass==DecimalType.class) {
-			return state==OpenClosedType.OPEN ? new DecimalType(1) : DecimalType.ZERO;
-		} else if(typeClass==PercentType.class) {
-			return state==OpenClosedType.OPEN ? PercentType.HUNDRED : PercentType.ZERO;
-		} else {
-			return super.getStateAs(typeClass);
-		}
-	}
+        acceptedCommandTypes.add(RefreshType.class);
+    }
+
+    public ContactItem(String name) {
+        super(CoreItemFactory.CONTACT, name);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        if (typeClass == DecimalType.class) {
+            return state == OpenClosedType.OPEN ? new DecimalType(1) : DecimalType.ZERO;
+        } else if (typeClass == PercentType.class) {
+            return state == OpenClosedType.OPEN ? PercentType.HUNDRED : PercentType.ZERO;
+        } else {
+            return super.getStateAs(typeClass);
+        }
+    }
 }

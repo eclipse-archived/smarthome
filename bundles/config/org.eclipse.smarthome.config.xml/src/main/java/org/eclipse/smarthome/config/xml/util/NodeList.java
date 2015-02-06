@@ -13,15 +13,14 @@ import java.util.Map;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
-
 /**
  * The {@link NodeList} class contains the node name and its according list of values for an XML tag.
  * <p>
- * This class can be used for an intermediate conversion result of a list of values for an XML tag.
- * The conversion can be done by using the according {@link NodeListConverter}.
+ * This class can be used for an intermediate conversion result of a list of values for an XML tag. The conversion can
+ * be done by using the according {@link NodeListConverter}.
  * <p>
  * <b>Hint:</b> This class is immutable.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class NodeList implements NodeName {
@@ -30,22 +29,19 @@ public class NodeList implements NodeName {
     private Map<String, String> attributes;
     private List<?> list;
 
-
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param nodeName the name of the node this object belongs to (must neither be null, nor empty)
      * @param attributes all attributes of the node this object belongs to (could be null or empty)
      * @param list the list of the node this object belongs to (could be null or empty)
-     * 
+     *
      * @throws IllegalArgumentException if the name of the node is null or empty
      */
-    public NodeList(String nodeName, Map<String, String> attributes, List<?> list)
-            throws IllegalArgumentException {
+    public NodeList(String nodeName, Map<String, String> attributes, List<?> list) throws IllegalArgumentException {
 
         if ((nodeName == null) || (nodeName.isEmpty())) {
-            throw new IllegalArgumentException(
-                    "The name of the node must neither be null nor empty!");
+            throw new IllegalArgumentException("The name of the node must neither be null nor empty!");
         }
 
         this.attributes = attributes;
@@ -79,8 +75,7 @@ public class NodeList implements NodeName {
     /**
      * @see #getAttributes(String, String, String)
      */
-    public List<String> getAttributes(String nodeName, String attributeName)
-            throws ConversionException {
+    public List<String> getAttributes(String nodeName, String attributeName) throws ConversionException {
 
         return getAttributes(nodeName, attributeName, null);
     }
@@ -89,15 +84,15 @@ public class NodeList implements NodeName {
      * Returns the attributes of the specified XML node and attribute name for the whole list.
      * <p>
      * This list <i>MUST ONLY</i> contain {@link NodeAttributes}.
-     * 
+     *
      * @param nodeName the node name to be considered (must neither be null, nor empty)
      * @param attributeName the attribute name to be considered (must neither be null, nor empty)
      * @param formattedText the format for the output text using the placeholder format
-     *     of the Java String (could be null or empty)
-     * 
+     *            of the Java String (could be null or empty)
+     *
      * @return the attributes of the specified XML node and attribute name for the whole list
-     *     (could be null or empty)
-     * 
+     *         (could be null or empty)
+     *
      * @throws ConversionException if the attribute could not be found in the specified node
      */
     @SuppressWarnings("unchecked")
@@ -120,8 +115,8 @@ public class NodeList implements NodeName {
                     if (attributeValue != null) {
                         attributes.add(String.format(formattedText, attributeValue));
                     } else {
-                        throw new ConversionException("Missing attribute '" + attributeName
-                                + "' in '" + nodeName + "'!");
+                        throw new ConversionException("Missing attribute '" + attributeName + "' in '" + nodeName
+                                + "'!");
                     }
                 } else {
                     throw new ConversionException("Invalid attribute in '" + nodeName + "'!");
@@ -134,8 +129,7 @@ public class NodeList implements NodeName {
 
     @Override
     public String toString() {
-        return "NodeList [nodeName=" + nodeName + ", attributes=" + attributes
-                + ", list=" + list + "]";
+        return "NodeList [nodeName=" + nodeName + ", attributes=" + attributes + ", list=" + list + "]";
     }
 
 }

@@ -46,24 +46,24 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 public class InboxResource implements RESTResource {
 
     private ThingSetupManager thingSetupManager;
-	private Inbox inbox;
+    private Inbox inbox;
 
-	protected void setInbox(Inbox inbox) {
-		this.inbox = inbox;
-	}
+    protected void setInbox(Inbox inbox) {
+        this.inbox = inbox;
+    }
 
-	protected void unsetInbox(Inbox inbox) {
-		this.inbox = null;
-	}
+    protected void unsetInbox(Inbox inbox) {
+        this.inbox = null;
+    }
 
-	protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
+    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = thingSetupManager;
     }
-	
-	protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
+
+    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = null;
     }
-    
+
     @Context
     private UriInfo uriInfo;
 
@@ -78,14 +78,15 @@ public class InboxResource implements RESTResource {
         }
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
-        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(), label != null && !label.isEmpty() ? label : null);
+        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(),
+                label != null && !label.isEmpty() ? label : null);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/{thingUID}")
     public Response delete(@PathParam("thingUID") String thingUID) {
-        if(inbox.remove(new ThingUID(thingUID))) {
+        if (inbox.remove(new ThingUID(thingUID))) {
             return Response.ok().build();
         } else {
             return Response.status(Status.NOT_FOUND).build();

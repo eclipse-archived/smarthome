@@ -21,36 +21,29 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
-
 /**
  * The {@link BridgeTypeXmlResult} is an intermediate XML conversion result object which
  * contains all fields needed to create a concrete {@link BridgeType} object.
  * <p>
- * If a {@link ConfigDescription} object exists, it must be added to the according
- * {@link ConfigDescriptionProvider}. 
- * 
+ * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
-    public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<NodeAttributes>[] channelTypeReferenceObjects,
-            Object[] configDescriptionObjects) {
+    public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
+            String description, List<NodeAttributes>[] channelTypeReferenceObjects, Object[] configDescriptionObjects) {
 
-        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description,
-                channelTypeReferenceObjects, configDescriptionObjects);
+        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, channelTypeReferenceObjects,
+                configDescriptionObjects);
     }
 
     @Override
-    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes,
-            Map<String, ChannelType> channelTypes) throws ConversionException {
+    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes, Map<String, ChannelType> channelTypes)
+            throws ConversionException {
 
-        BridgeType bridgeType = new BridgeType(
-                super.thingTypeUID,
-                super.supportedBridgeTypeUIDs,
-                super.label,
-                super.description,
-                super.toChannelDefinitions(this.channelTypeReferences, channelTypes),
+        BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
+                super.description, super.toChannelDefinitions(this.channelTypeReferences, channelTypes),
                 super.toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes),
                 super.configDescriptionURI);
 
@@ -59,12 +52,10 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     @Override
     public String toString() {
-        return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID
-                + ", supportedBridgeTypeUIDs=" + supportedBridgeTypeUIDs
-                + ", label=" + label + ", description=" + description
-                + ", channelTypeReferences=" + channelTypeReferences
-                + ", channelGroupTypeReferences=" + channelGroupTypeReferences
-                + ", configDescriptionURI=" + configDescriptionURI
+        return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
+                + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description
+                + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
+                + channelGroupTypeReferences + ", configDescriptionURI=" + configDescriptionURI
                 + ", configDescription=" + configDescription + "]";
     }
 

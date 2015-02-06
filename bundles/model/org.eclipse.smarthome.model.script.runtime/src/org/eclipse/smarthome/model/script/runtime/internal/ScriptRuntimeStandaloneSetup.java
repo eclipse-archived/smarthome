@@ -13,21 +13,22 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 public class ScriptRuntimeStandaloneSetup extends ScriptStandaloneSetup {
-	
-	private static Injector injector;
-	
-	public static void doSetup() {
-		if(injector==null) {
-			injector = new ScriptRuntimeStandaloneSetup().createInjectorAndDoEMFRegistration();
-		}
-	}
-	
-	static public Injector getInjector() {
-		return injector;
-	}
-	
-	@Override
-	public Injector createInjector() {
-		return Guice.createInjector(new org.eclipse.smarthome.model.script.ScriptRuntimeModule(), new ScriptRuntimeModule());
-	}
+
+    private static Injector injector;
+
+    public static void doSetup() {
+        if (injector == null) {
+            injector = new ScriptRuntimeStandaloneSetup().createInjectorAndDoEMFRegistration();
+        }
+    }
+
+    static public Injector getInjector() {
+        return injector;
+    }
+
+    @Override
+    public Injector createInjector() {
+        return Guice.createInjector(new org.eclipse.smarthome.model.script.ScriptRuntimeModule(),
+                new ScriptRuntimeModule());
+    }
 }

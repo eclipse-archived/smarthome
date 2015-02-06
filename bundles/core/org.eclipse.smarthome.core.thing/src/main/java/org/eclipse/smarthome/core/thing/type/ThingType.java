@@ -16,15 +16,13 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-
 /**
  * The {@link ThingType} describes a concrete type of a {@link Thing}.
  * <p>
- * This description is used as template definition for the creation of the
- * according concrete {@link Thing} object.
+ * This description is used as template definition for the creation of the according concrete {@link Thing} object.
  * <p>
  * <b>Hint:</b> This class is immutable.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
  */
@@ -35,45 +33,42 @@ public class ThingType extends AbstractDescriptionType {
     private final List<String> supportedBridgeTypeUIDs;
     private URI configDescriptionURI;
 
-
     /**
      * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, URI)
      */
-    public ThingType(String bindingId, String thingTypeId, String label)
-            throws IllegalArgumentException {
+    public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
 
         this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
     }
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param uid the unique identifier which identifies this Thing type within the overall system
-     *     (must neither be null, nor empty)
-     * 
+     *            (must neither be null, nor empty)
+     *
      * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
-     *     (could be null or empty)
-     * 
+     *            (could be null or empty)
+     *
      * @param label the human readable label for the according type
-     *     (must neither be null nor empty)
-     * 
+     *            (must neither be null nor empty)
+     *
      * @param description the human readable description for the according type
-     *     (could be null or empty)
-     * 
+     *            (could be null or empty)
+     *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
-     * 
+     *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
-     *     provides (could be null or empty)
-     * 
+     *            provides (could be null or empty)
+     *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
-     * 
+     *
      * @throws IllegalArgumentException
-     *     if the UID is null or empty, or the the meta information is null
+     *             if the UID is null or empty, or the the meta information is null
      */
-    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions, URI configDescriptionURI)
-            throws IllegalArgumentException {
+    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
+            List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -86,15 +81,13 @@ public class ThingType extends AbstractDescriptionType {
         if (channelDefinitions != null) {
             this.channelDefinitions = Collections.unmodifiableList(channelDefinitions);
         } else {
-            this.channelDefinitions = Collections.unmodifiableList(
-                    new ArrayList<ChannelDefinition>(0));
+            this.channelDefinitions = Collections.unmodifiableList(new ArrayList<ChannelDefinition>(0));
         }
 
         if (channelGroupDefinitions != null) {
             this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
         } else {
-            this.channelGroupDefinitions = Collections.unmodifiableList(
-                    new ArrayList<ChannelGroupDefinition>(0));
+            this.channelGroupDefinitions = Collections.unmodifiableList(new ArrayList<ChannelGroupDefinition>(0));
         }
 
         this.configDescriptionURI = configDescriptionURI;
@@ -102,17 +95,18 @@ public class ThingType extends AbstractDescriptionType {
 
     /**
      * Returns the unique identifier which identifies this Thing type within the overall system.
-     * 
+     *
      * @return the unique identifier which identifies this Thing type within the overall system
-     *     (not null)
+     *         (not null)
      */
+    @Override
     public ThingTypeUID getUID() {
         return (ThingTypeUID) super.getUID();
     }
 
     /**
      * Returns the binding ID this Thing type belongs to.
-     * 
+     *
      * @return the binding ID this Thing type belongs to (not null)
      */
     public String getBindingId() {
@@ -123,9 +117,9 @@ public class ThingType extends AbstractDescriptionType {
      * Returns the unique identifiers of the bridges this {@link ThingType} supports.
      * <p>
      * The returned list is immutable.
-     * 
+     *
      * @return the unique identifiers of the bridges this Thing type supports
-     *     (not null, could be empty)
+     *         (not null, could be empty)
      */
     public List<String> getSupportedBridgeTypeUIDs() {
         return this.supportedBridgeTypeUIDs;
@@ -135,20 +129,20 @@ public class ThingType extends AbstractDescriptionType {
      * Returns the channels this {@link ThingType} provides.
      * <p>
      * The returned list is immutable.
-     * 
+     *
      * @return the channels this Thing type provides (not null, could be empty)
      */
     public List<ChannelDefinition> getChannelDefinitions() {
         return this.channelDefinitions;
     }
-    
+
     /**
      * Returns the channel groups defining the channels this {@link ThingType} provides.
      * <p>
      * The returned list is immutable.
-     * 
+     *
      * @return the channel groups defining the channels this Thing type provides
-     *     (not null, could be empty)
+     *         (not null, could be empty)
      */
     public List<ChannelGroupDefinition> getChannelGroupDefinitions() {
         return this.channelGroupDefinitions;
@@ -156,8 +150,8 @@ public class ThingType extends AbstractDescriptionType {
 
     /**
      * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}. 
-     * 
+     * otherwise {@code false}.
+     *
      * @return true if a link to a concrete ConfigDescription exists, otherwise false
      */
     public boolean hasConfigDescriptionURI() {
@@ -166,7 +160,7 @@ public class ThingType extends AbstractDescriptionType {
 
     /**
      * Returns the link to a concrete {@link ConfigDescription}.
-     * 
+     *
      * @return the link to a concrete ConfigDescription (could be null)
      */
     public URI getConfigDescriptionURI() {
@@ -189,7 +183,7 @@ public class ThingType extends AbstractDescriptionType {
 
     @Override
     public int hashCode() {
-       return getUID().hashCode();
+        return getUID().hashCode();
     }
 
     @Override

@@ -10,11 +10,9 @@ package org.eclipse.smarthome.core.thing;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 /**
  * {@link ThingUID} represents a unique identifier for things.
- *  
+ * 
  * @author Dennis Nobel - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  */
@@ -30,7 +28,7 @@ public class ThingUID extends UID {
 
     /**
      * Instantiates a new thing UID.
-     * 
+     *
      * @param thingType
      *            the thing type
      * @param id
@@ -42,7 +40,7 @@ public class ThingUID extends UID {
 
     /**
      * Instantiates a new thing UID.
-     * 
+     *
      * @param thingType
      *            the thing type
      * @param bridgeUID
@@ -51,47 +49,47 @@ public class ThingUID extends UID {
      *            the id of the thing
      */
     public ThingUID(ThingTypeUID thingTypeUID, ThingUID bridgeUID, String id) {
-    	super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeUID.getBridgeIds(), bridgeUID.getId()));
+        super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeUID.getBridgeIds(),
+                bridgeUID.getId()));
     }
 
     /**
      * Instantiates a new thing UID.
-     * 
+     *
      * @param thingType
      *            the thing type
      * @param id
      *            the id
      */
     public ThingUID(ThingTypeUID thingTypeUID, String id, String... bridgeIds) {
-    	super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeIds));
-    }
-    
-    private static String[] getArray(String bindingId, String thingTypeId, String id, String... bridgeIds) {
-    	if (bridgeIds == null || bridgeIds.length == 0) {
-    		return new String[] {
-    	    		bindingId,thingTypeId,id
-        	};
-    	}
-    	
-    	String[] result = new String[3+bridgeIds.length];
-    	result[0] = bindingId;
-    	result[1] = thingTypeId;
-    	for (int i = 0; i < bridgeIds.length; i++) {
-			result[i+2] = bridgeIds[i];
-		}
-    	result[result.length-1] = id;
-    	return result;
+        super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeIds));
     }
 
-    private static String[] getArray(String bindingId, String thingTypeId, String id, List<String> bridgeIds, String bridgeId) {
-    	List<String> allBridgeIds = new ArrayList<>(bridgeIds);
-    	allBridgeIds.add(bridgeId);
-    	return getArray(bindingId, thingTypeId, id, allBridgeIds.toArray(new String[0]));
+    private static String[] getArray(String bindingId, String thingTypeId, String id, String... bridgeIds) {
+        if (bridgeIds == null || bridgeIds.length == 0) {
+            return new String[] { bindingId, thingTypeId, id };
+        }
+
+        String[] result = new String[3 + bridgeIds.length];
+        result[0] = bindingId;
+        result[1] = thingTypeId;
+        for (int i = 0; i < bridgeIds.length; i++) {
+            result[i + 2] = bridgeIds[i];
+        }
+        result[result.length - 1] = id;
+        return result;
     }
-    
+
+    private static String[] getArray(String bindingId, String thingTypeId, String id, List<String> bridgeIds,
+            String bridgeId) {
+        List<String> allBridgeIds = new ArrayList<>(bridgeIds);
+        allBridgeIds.add(bridgeId);
+        return getArray(bindingId, thingTypeId, id, allBridgeIds.toArray(new String[0]));
+    }
+
     /**
      * Instantiates a new thing UID.
-     * 
+     *
      * @param bindingId
      *            the binding id
      * @param thingTypeId
@@ -99,71 +97,71 @@ public class ThingUID extends UID {
      * @param id
      *            the id
      */
-	public ThingUID(String bindingId, String thingTypeId, String id) {
+    public ThingUID(String bindingId, String thingTypeId, String id) {
         super(bindingId, thingTypeId, id);
-	}
+    }
 
     /**
      * Instantiates a new thing UID.
-     * 
+     *
      * @param thingUID
      *            the thing UID
      */
-	public ThingUID(String thingUID) {
+    public ThingUID(String thingUID) {
         super(thingUID);
-	}
-	
-	/**
-	 * Instantiates a new thing UID.
-	 * 
+    }
+
+    /**
+     * Instantiates a new thing UID.
+     *
      * @param segments
      *            segments (must not be null)
-	 */
-	public ThingUID(String... segments) {
-	    super(segments);
-	}
+     */
+    public ThingUID(String... segments) {
+        super(segments);
+    }
 
     /**
      * Returns the thing type id.
-     * 
+     *
      * @return thing type id
      */
     public String getThingTypeId() {
         return getSegment(1);
-	}
+    }
 
     /**
      * Returns the thing type uid.
-     * 
+     *
      * @return thing type uid
      */
     public ThingTypeUID getThingTypeUID() {
         return new ThingTypeUID(getSegment(0), getSegment(1));
-	}
-    
+    }
+
     /**
      * Returns the bridge ids.
-     * 
+     *
      * @return list of bridge ids
      */
     public List<String> getBridgeIds() {
-    	List<String> bridgeIds = new ArrayList<>();
-    	String[] segments = getSegments();
-    	for (int i = 2; i < segments.length-1; i++) {
-			bridgeIds.add(segments[i]);
-		}
-    	return bridgeIds;
+        List<String> bridgeIds = new ArrayList<>();
+        String[] segments = getSegments();
+        for (int i = 2; i < segments.length - 1; i++) {
+            bridgeIds.add(segments[i]);
+        }
+        return bridgeIds;
     }
-    
+
     /**
      * Returns the id.
-     * 
+     *
      * @return id
      */
-	public String getId() {
+    public String getId() {
         String[] segments = getSegments();
-		return segments[segments.length-1];
-	}
+        return segments[segments.length - 1];
+    }
 
     @Override
     protected int getMinimalNumberOfSegments() {

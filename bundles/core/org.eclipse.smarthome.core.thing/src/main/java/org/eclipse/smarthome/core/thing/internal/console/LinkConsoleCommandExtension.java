@@ -23,7 +23,7 @@ import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 /**
  * {@link LinkConsoleCommandExtension} provides console commands for listing,
  * addding and removing links.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Added support for links between items and things
  */
@@ -43,61 +43,61 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
     public void execute(String[] args, Console console) {
         String command = args[0];
         switch (command) {
-        case COMMAND_LINKS:
-            if (args.length > 1) {
-                String subCommand = args[1];
-                switch (subCommand) {
-                case "list":
+            case COMMAND_LINKS:
+                if (args.length > 1) {
+                    String subCommand = args[1];
+                    switch (subCommand) {
+                        case "list":
+                            list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
+                            return;
+                        case "addChannelLink":
+                            if (args.length > 3) {
+                                String itemName = args[2];
+                                ChannelUID channelUID = new ChannelUID(args[3]);
+                                addChannelLink(console, itemName, channelUID);
+                            } else {
+                                console.println("Specify item name and channel UID to link: link <itemName> <channelUID>");
+                            }
+                            return;
+                        case "removeChannelLink":
+                            if (args.length > 3) {
+                                String itemName = args[2];
+                                ChannelUID channelUID = new ChannelUID(args[3]);
+                                removeChannelLink(console, itemName, channelUID);
+                            } else {
+                                console.println("Specify item name and channel UID to unlink: link <itemName> <channelUID>");
+                            }
+                            return;
+                        case "addThingLink":
+                            if (args.length > 3) {
+                                String itemName = args[2];
+                                ThingUID thingUID = new ThingUID(args[3]);
+                                addThingLink(console, itemName, thingUID);
+                            } else {
+                                console.println("Specify item name and thing UID to link: link <itemName> <thingUID>");
+                            }
+                            return;
+                        case "removeThingLink":
+                            if (args.length > 3) {
+                                String itemName = args[2];
+                                ThingUID thingUID = new ThingUID(args[3]);
+                                removeThingLink(console, itemName, thingUID);
+                            } else {
+                                console.println("Specify item name and thing UID to unlink: link <itemName> <thingUID>");
+                            }
+                            return;
+                        case "clear":
+                            clear(console);
+                            return;
+                        default:
+                            break;
+                    }
+                } else {
                     list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
-                    return;
-                case "addChannelLink":
-                    if (args.length > 3) {
-                        String itemName = args[2];
-                        ChannelUID channelUID = new ChannelUID(args[3]);
-                        addChannelLink(console, itemName, channelUID);
-                    } else {
-                        console.println("Specify item name and channel UID to link: link <itemName> <channelUID>");
-                    }
-                    return;
-                case "removeChannelLink":
-                    if (args.length > 3) {
-                        String itemName = args[2];
-                        ChannelUID channelUID = new ChannelUID(args[3]);
-                        removeChannelLink(console, itemName, channelUID);
-                    } else {
-                        console.println("Specify item name and channel UID to unlink: link <itemName> <channelUID>");
-                    }
-                    return;
-                case "addThingLink":
-                    if (args.length > 3) {
-                        String itemName = args[2];
-                        ThingUID thingUID = new ThingUID(args[3]);
-                        addThingLink(console, itemName, thingUID);
-                    } else {
-                        console.println("Specify item name and thing UID to link: link <itemName> <thingUID>");
-                    }
-                    return;
-                case "removeThingLink":
-                    if (args.length > 3) {
-                        String itemName = args[2];
-                        ThingUID thingUID = new ThingUID(args[3]);
-                        removeThingLink(console, itemName, thingUID);
-                    } else {
-                        console.println("Specify item name and thing UID to unlink: link <itemName> <thingUID>");
-                    }
-                    return;
-                case "clear":
-                    clear(console);
-                    return;
-                default:
-                    break;
                 }
-            } else {
-                list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
-            }
-            return;
-        default:
-            return;
+                return;
+            default:
+                return;
         }
     }
 
@@ -129,11 +129,11 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
         itemChannelLinkRegistry.add(itemChannelLink);
         console.println("Link " + itemChannelLink.toString() + " successfully added.");
     }
-    
+
     private void addThingLink(Console console, String itemName, ThingUID thingUID) {
         ItemThingLink itemThingLink = new ItemThingLink(itemName, thingUID);
         itemThingLinkRegistry.add(itemThingLink);
-        console.println("Link " + itemThingLink.toString() + " successfully added.");        
+        console.println("Link " + itemThingLink.toString() + " successfully added.");
     }
 
     private void list(Console console, Collection<ItemChannelLink> itemChannelLinks,
@@ -148,8 +148,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
 
     private void removeChannelLink(Console console, String itemName, ChannelUID channelUID) {
         ItemChannelLink itemChannelLink = new ItemChannelLink(itemName, channelUID);
-        ItemChannelLink removedItemChannelLink = itemChannelLinkRegistry.remove(itemChannelLink
-                .getID());
+        ItemChannelLink removedItemChannelLink = itemChannelLinkRegistry.remove(itemChannelLink.getID());
         if (removedItemChannelLink != null) {
             console.println("Link " + itemChannelLink.toString() + "successfully removed.");
         } else {
@@ -178,7 +177,7 @@ public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
     protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = itemThingLinkRegistry;
     }
-    
+
     protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = null;
     }

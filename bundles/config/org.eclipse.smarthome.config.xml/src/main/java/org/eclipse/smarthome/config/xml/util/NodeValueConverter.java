@@ -13,12 +13,11 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link NodeValueConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert the value of an XML tag within an XML
+ * The {@link NodeValueConverter} is a concrete implementation of the {@code XStream} {@link Converter} interface used
+ * to convert the value of an XML tag within an XML
  * document into a {@link NodeValue} object.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class NodeValueConverter extends GenericUnmarshaller<NodeValue> {
@@ -29,8 +28,7 @@ public class NodeValueConverter extends GenericUnmarshaller<NodeValue> {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        Map<String, String> attributes =
-                ConverterAttributeMapValidator.readValidatedAttributes(reader, null);
+        Map<String, String> attributes = ConverterAttributeMapValidator.readValidatedAttributes(reader, null);
 
         return new NodeValue(reader.getNodeName(), attributes, reader.getValue());
     }

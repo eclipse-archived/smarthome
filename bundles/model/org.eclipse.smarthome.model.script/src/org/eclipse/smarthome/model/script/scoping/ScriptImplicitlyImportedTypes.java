@@ -27,12 +27,11 @@ import org.joda.time.DateTime;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-
 /**
  * This class registers all statically available functions as well as the
  * extensions for specific jvm types, which should only be available in rules,
  * but not in scripts
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Oliver Libutzki - Xtext 2.5.0 migration
  *
@@ -42,54 +41,52 @@ import com.google.inject.Singleton;
 @Singleton
 public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 
-	private List<Class<?>> actionClasses = null;
-	
-	@Inject
-	IActionServiceProvider actionServiceProvider;
-	
+    private List<Class<?>> actionClasses = null;
 
-	
-	@Override
-	protected List<Class<?>> getExtensionClasses() {
-		List<Class<?>> result = super.getExtensionClasses();
-		result.remove(Comparable.class);
-		result.remove(Double.class);
-		result.remove(Integer.class);
-		result.remove(BigInteger.class);
-		result.remove(BigDecimal.class);
-		result.remove(double.class);
-		result.add(NumberExtensions.class);
-		result.add(StringUtils.class);
-		result.add(URLEncoder.class);
-		result.add(PersistenceExtensions.class);
-		result.add(BusEvent.class);
-		return result;
-	}
-	
-	@Override
-	protected List<Class<?>> getStaticImportClasses() {
-		List<Class<?>> result = super.getStaticImportClasses();
-		result.add(BusEvent.class);
-		result.add(ScriptExecution.class);
-		result.add(LogAction.class);
+    @Inject
+    IActionServiceProvider actionServiceProvider;
 
-		// jodatime static functions
-		result.add(DateTime.class);
-		
-		result.addAll(getActionClasses());
-		return result;
-	}
-	
-	protected List<Class<?>> getActionClasses() {
-		
-		List<ActionService> services = actionServiceProvider.get();
-		if (services != null) {
-			List<Class<?>> localActionClasses = new ArrayList<Class<?>>();
-			for (ActionService actionService : services) {
-				localActionClasses.add(actionService.getActionClass());
-			}
-			actionClasses = localActionClasses;
-		}
-		return actionClasses;
-	}
+    @Override
+    protected List<Class<?>> getExtensionClasses() {
+        List<Class<?>> result = super.getExtensionClasses();
+        result.remove(Comparable.class);
+        result.remove(Double.class);
+        result.remove(Integer.class);
+        result.remove(BigInteger.class);
+        result.remove(BigDecimal.class);
+        result.remove(double.class);
+        result.add(NumberExtensions.class);
+        result.add(StringUtils.class);
+        result.add(URLEncoder.class);
+        result.add(PersistenceExtensions.class);
+        result.add(BusEvent.class);
+        return result;
+    }
+
+    @Override
+    protected List<Class<?>> getStaticImportClasses() {
+        List<Class<?>> result = super.getStaticImportClasses();
+        result.add(BusEvent.class);
+        result.add(ScriptExecution.class);
+        result.add(LogAction.class);
+
+        // jodatime static functions
+        result.add(DateTime.class);
+
+        result.addAll(getActionClasses());
+        return result;
+    }
+
+    protected List<Class<?>> getActionClasses() {
+
+        List<ActionService> services = actionServiceProvider.get();
+        if (services != null) {
+            List<Class<?>> localActionClasses = new ArrayList<Class<?>>();
+            for (ActionService actionService : services) {
+                localActionClasses.add(actionService.getActionClass());
+            }
+            actionClasses = localActionClasses;
+        }
+        return actionClasses;
+    }
 }

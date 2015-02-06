@@ -9,5 +9,5 @@ package org.eclipse.smarthome.model.core;
 
 public interface ModelRepositoryChangeListener {
 
-	public void modelChanged(String modelName, EventType type);
+    public void modelChanged(String modelName, EventType type);
 }

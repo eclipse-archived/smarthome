@@ -37,11 +37,11 @@ import org.slf4j.LoggerFactory;
  * <p>
  * In good HATEOAS manner, it provides links to other offered resources.
  * </p>
- * 
+ *
  * <p>
  * The result is returned as JSON
  * </p>
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path("/")

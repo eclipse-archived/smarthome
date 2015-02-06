@@ -34,17 +34,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 /**
- * {@link ThingFactory} helps to create thing based on a given {@link ThingType}
- * .
- * 
+ * {@link ThingFactory} helps to create thing based on a given {@link ThingType} .
+ *
  * @author Dennis Nobel - Initial contribution, added support for channel groups
- * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default values
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
+ *         values
  */
 public class ThingFactory {
 
     /**
      * Creates a thing based on a given thing type.
-     * 
+     *
      * @param thingType
      *            thing type (should not be null)
      * @param thingUID
@@ -59,12 +59,12 @@ public class ThingFactory {
             ThingUID bridgeUID) {
         return createThing(thingType, thingUID, configuration, bridgeUID, null);
     }
-    
+
     /**
      * Creates a thing based on a given thing type. It also creates the
      * default-configuration given in the configDescriptions if the
      * configDescriptionRegistry is not null
-     * 
+     *
      * @param thingType
      *            (should not be null)
      * @param thingUID
@@ -111,9 +111,9 @@ public class ThingFactory {
     }
 
     /**
-     * 
+     *
      * Creates a thing based on given thing type.
-     * 
+     *
      * @param thingType
      *            thing type (should not be null)
      * @param thingUID
@@ -122,8 +122,7 @@ public class ThingFactory {
      *            (should not be null)
      * @return thing
      */
-    public static Thing createThing(ThingType thingType, ThingUID thingUID,
-            Configuration configuration) {
+    public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration) {
 
         return createThing(thingType, thingUID, configuration, null);
     }
@@ -172,7 +171,7 @@ public class ThingFactory {
                     String defaultValue = param.getDefault();
                     if (defaultValue != null) {
                         Object value = getDefaultValueAsCorrectType(param.getType(), defaultValue);
-                        if(value != null) {
+                        if (value != null) {
                             config.put(param.getName(), value);
                         }
                     }
@@ -188,19 +187,19 @@ public class ThingFactory {
     private static Object getDefaultValueAsCorrectType(Type parameterType, String defaultValue) {
         try {
             switch (parameterType) {
-            case TEXT:
-                return defaultValue;
-            case BOOLEAN:
-                return Boolean.parseBoolean(defaultValue);
-            case INTEGER:
-                return new BigDecimal(defaultValue);
-            case DECIMAL:
-                return new BigDecimal(defaultValue);
-            default:
-                return null;
+                case TEXT:
+                    return defaultValue;
+                case BOOLEAN:
+                    return Boolean.parseBoolean(defaultValue);
+                case INTEGER:
+                    return new BigDecimal(defaultValue);
+                case DECIMAL:
+                    return new BigDecimal(defaultValue);
+                default:
+                    return null;
             }
         } catch (NumberFormatException ex) {
-        	LoggerFactory.getLogger(ThingFactory.class).warn(
+            LoggerFactory.getLogger(ThingFactory.class).warn(
                     "Could not parse default value '" + defaultValue + "' as type '" + parameterType + "': "
                             + ex.getMessage(), ex);
             return null;

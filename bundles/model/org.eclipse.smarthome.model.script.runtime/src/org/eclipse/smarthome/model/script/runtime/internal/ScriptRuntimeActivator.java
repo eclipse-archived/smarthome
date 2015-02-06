@@ -14,17 +14,16 @@ import org.slf4j.LoggerFactory;
 
 public class ScriptRuntimeActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(ScriptRuntimeActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(ScriptRuntimeActivator.class);
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		ScriptRuntimeStandaloneSetup.doSetup();
-		logger.debug("Registered 'script' configuration parser");
-	}
+    @Override
+    public void start(BundleContext context) throws Exception {
+        ScriptRuntimeStandaloneSetup.doSetup();
+        logger.debug("Registered 'script' configuration parser");
+    }
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+    }
 
 }

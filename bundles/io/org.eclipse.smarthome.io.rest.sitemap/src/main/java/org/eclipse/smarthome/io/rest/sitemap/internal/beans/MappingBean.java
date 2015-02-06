@@ -7,18 +7,18 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
 
-
 /**
  * This is a java bean that is used to serialize command mappings to JSON.
- *  
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class MappingBean {
 
-	public String command;
-	public String label;
+    public String command;
+    public String label;
 
-	public MappingBean() {}
-		
+    public MappingBean() {
+    }
+
 }

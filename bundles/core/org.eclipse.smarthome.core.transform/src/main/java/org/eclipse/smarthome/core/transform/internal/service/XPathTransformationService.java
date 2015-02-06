@@ -27,54 +27,55 @@ import org.xml.sax.InputSource;
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by XPath Expressions.
  * </p>
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public class XPathTransformationService implements TransformationService {
 
-	private final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
+    private final Logger logger = LoggerFactory.getLogger(XPathTransformationService.class);
 
-	/**
-	 * @{inheritDoc
-	 */
-	public String transform(String xpathExpression, String source) throws TransformationException {
+    /**
+     * @{inheritDoc
+     */
+    @Override
+    public String transform(String xpathExpression, String source) throws TransformationException {
 
-		if (xpathExpression == null || source == null) {
-			throw new TransformationException("the given parameters 'xpath' and 'source' must not be null");
-		}
+        if (xpathExpression == null || source == null) {
+            throw new TransformationException("the given parameters 'xpath' and 'source' must not be null");
+        }
 
-		logger.debug("about to transform '{}' by the function '{}'", source, xpathExpression);
+        logger.debug("about to transform '{}' by the function '{}'", source, xpathExpression);
 
-		StringReader stringReader = null;
+        StringReader stringReader = null;
 
-		try {
-			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-			domFactory.setNamespaceAware(true);
-			domFactory.setValidating(false);
-			DocumentBuilder builder = domFactory.newDocumentBuilder();
+        try {
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            domFactory.setNamespaceAware(true);
+            domFactory.setValidating(false);
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
 
-			stringReader = new StringReader(source);
-			InputSource inputSource = new InputSource(stringReader);
-			inputSource.setEncoding("UTF-8");
+            stringReader = new StringReader(source);
+            InputSource inputSource = new InputSource(stringReader);
+            inputSource.setEncoding("UTF-8");
 
-			Document doc = builder.parse(inputSource);
+            Document doc = builder.parse(inputSource);
 
-			XPath xpath = XPathFactory.newInstance().newXPath();
-			XPathExpression expr = xpath.compile(xpathExpression);
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            XPathExpression expr = xpath.compile(xpathExpression);
 
-			String transformationResult = (String) expr.evaluate(doc, XPathConstants.STRING);
+            String transformationResult = (String) expr.evaluate(doc, XPathConstants.STRING);
 
-			logger.debug("transformation resulted in '{}'", transformationResult);
+            logger.debug("transformation resulted in '{}'", transformationResult);
 
-			return transformationResult;
-		} catch (Exception e) {
-			throw new TransformationException("transformation throws exceptions", e);
-		} finally {
-			if (stringReader != null) {
-				stringReader.close();
-			}
-		}
+            return transformationResult;
+        } catch (Exception e) {
+            throw new TransformationException("transformation throws exceptions", e);
+        } finally {
+            if (stringReader != null) {
+                stringReader.close();
+            }
+        }
 
-	}
+    }
 
 }

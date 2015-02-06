@@ -16,7 +16,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * {@link ThingHandlerFactory} is responsible for creating {@link Thing}s and
  * registering {@link ThingHandler}s. Therefore it must be registered as OSGi
  * service.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public interface ThingHandlerFactory {
@@ -24,7 +24,7 @@ public interface ThingHandlerFactory {
     /**
      * Returns whether the handler is able to create a thing or register a thing
      * handler for the given type.
-     * 
+     *
      * @param thingTypeUID
      *            thing type
      * @return true, if the handler supports the thing type, false otherwise
@@ -35,7 +35,7 @@ public interface ThingHandlerFactory {
      * This method is called, if the {@link ThingHandlerFactory} supports the
      * type of the given thing. A {@link ThingHandler} must be registered as
      * OSGi service for the given thing.
-     * 
+     *
      * @param thing
      *            thing for which a new handler must be registered
      */
@@ -43,7 +43,7 @@ public interface ThingHandlerFactory {
 
     /**
      * This method is called, when a {@link ThingHandler} must be unregistered.
-     * 
+     *
      * @param thing
      *            thing, which handler must be unregistered
      */
@@ -51,7 +51,7 @@ public interface ThingHandlerFactory {
 
     /**
      * Creates a thing for given arguments.
-     * 
+     *
      * @param thingTypeUID
      *            thing type uid (not null)
      * @param configuration
@@ -62,12 +62,11 @@ public interface ThingHandlerFactory {
      *            bridge uid, which can be null
      * @return thing
      */
-    Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
-            ThingUID bridgeUID);
+    Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID);
 
     /**
      * A thing with the given {@link Thing} UID was removed.
-     * 
+     *
      * @param thingUID
      *            thing UID of the removed object
      */

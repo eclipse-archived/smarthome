@@ -14,14 +14,14 @@ import java.util.List;
  * An {@link ActiveItem} can be modified. It provides methods for adding and
  * removing tags, adding and removing group names and setting a label and a
  * category.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public interface ActiveItem extends Item {
 
     /**
      * Sets the label of an item
-     * 
+     *
      * @param label
      *            label (can be null)
      */
@@ -29,7 +29,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Sets the category of the item (can be null)
-     * 
+     *
      * @param category
      *            category
      */
@@ -37,7 +37,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Adds a tag to the item.
-     * 
+     *
      * @param tag
      *            a tag that is to be added to item's tags.
      */
@@ -45,7 +45,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Adds tags to the item.
-     * 
+     *
      * @param tags
      *            tags that are to be added to item's tags.
      */
@@ -53,7 +53,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Adds tags to the item.
-     * 
+     *
      * @param tags
      *            tags that are to be added to item's tags.
      */
@@ -61,7 +61,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Removes a tag from the item.
-     * 
+     *
      * @param tag
      *            a tag that is to be removed from item's tags.
      */
@@ -74,7 +74,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Removes the according item from a group.
-     * 
+     *
      * @param groupItemName
      *            name of the group (must not be null)
      */
@@ -82,7 +82,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Assigns the according item to a group.
-     * 
+     *
      * @param groupItemName
      *            name of the group (must not be null)
      */
@@ -90,7 +90,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Assigns the according item to the given groups.
-     * 
+     *
      * @param groupItemNames
      *            names of the groups (must not be null)
      */
@@ -98,7 +98,7 @@ public interface ActiveItem extends Item {
 
     /**
      * Assigns the according item to the given groups.
-     * 
+     *
      * @param groupItemNames
      *            names of the groups (must not be null)
      */

@@ -40,14 +40,14 @@ import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**
  * This class acts as a REST resource for the setup manager.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 @Path("setup")
 public class ThingSetupManagerResource implements RESTResource {
 
     private ThingSetupManager thingSetupManager;
-    
+
     @Context
     private UriInfo uriInfo;
 
@@ -65,8 +65,8 @@ public class ThingSetupManagerResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        thingSetupManager
-                .addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label, thingBean.item.groupNames);
+        thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label,
+                thingBean.item.groupNames);
 
         return Response.ok().build();
     }
@@ -101,7 +101,7 @@ public class ThingSetupManagerResource implements RESTResource {
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean itemUpdated = false;
-                if (thingGroupItem.getLabel()==null || !thingGroupItem.getLabel().equals(label)) {
+                if (thingGroupItem.getLabel() == null || !thingGroupItem.getLabel().equals(label)) {
                     thingGroupItem.setLabel(label);
                     itemUpdated = true;
                 }

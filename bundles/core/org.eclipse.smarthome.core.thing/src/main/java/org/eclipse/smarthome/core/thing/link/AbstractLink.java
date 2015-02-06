@@ -11,14 +11,14 @@ import org.eclipse.smarthome.core.thing.UID;
 
 /**
  * {@link AbstractLink} is the abstract base class of all links.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public abstract class AbstractLink {
 
     /**
      * Returns the link ID for a given item name and UID
-     * 
+     *
      * @param itemName
      *            item name
      * @param uid
@@ -50,7 +50,7 @@ public abstract class AbstractLink {
 
     /**
      * Returns the ID for the link.
-     * 
+     *
      * @return id (can not be null)
      */
     public String getID() {
@@ -59,7 +59,7 @@ public abstract class AbstractLink {
 
     /**
      * Returns the item that is linked to the object.
-     * 
+     *
      * @return item name (can not be null)
      */
     public String getItemName() {
@@ -68,7 +68,7 @@ public abstract class AbstractLink {
 
     /**
      * Returns the UID of the object, which is linked to the item.
-     * 
+     *
      * @return UID (can not be null)
      */
     public abstract UID getUID();

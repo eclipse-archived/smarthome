@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class acts as a REST resource for things and is registered with the
  * Jersey servlet.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
@@ -164,7 +164,7 @@ public class ThingResource implements RESTResource {
             String itemName) {
 
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
- 
+
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
             managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());
         }

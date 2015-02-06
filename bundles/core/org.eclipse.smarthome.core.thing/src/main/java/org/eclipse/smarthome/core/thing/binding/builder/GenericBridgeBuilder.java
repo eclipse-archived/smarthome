@@ -16,9 +16,9 @@ public class GenericBridgeBuilder<T extends GenericBridgeBuilder<T>> extends Gen
         super(bridge);
     }
 
+    @Override
     public Bridge build() {
         return (Bridge) super.build();
     }
-
 
 }

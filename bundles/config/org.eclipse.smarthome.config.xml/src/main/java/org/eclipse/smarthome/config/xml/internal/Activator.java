@@ -20,16 +20,14 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-
 /**
  * The {@link Activator} class is responsible to activate this module.
  * <p>
- * This module tracks any XML documents of other bundles in the {@link #XML_DIRECTORY}
- * folder and tries to extract config description information from them. Any
- * {@link ConfigDescription} objects are registered at the {@link XmlConfigDescriptionProvider}
- * which itself is registered as service at the <i>OSGi</i> service registry and unregistered
- * again, if the providing bundle or this bundle is stopped.
- * 
+ * This module tracks any XML documents of other bundles in the {@link #XML_DIRECTORY} folder and tries to extract
+ * config description information from them. Any {@link ConfigDescription} objects are registered at the
+ * {@link XmlConfigDescriptionProvider} which itself is registered as service at the <i>OSGi</i> service registry and
+ * unregistered again, if the providing bundle or this bundle is stopped.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class Activator implements BundleActivator {
@@ -42,26 +40,23 @@ public class Activator implements BundleActivator {
 
     private ServiceBinder configDescriptionI18nProviderServiceBinder;
 
-
     @Override
     public void start(BundleContext context) throws Exception {
         XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
-        this.configDescriptionI18nProviderServiceBinder =
-                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder = new ServiceBinder(context, configDescriptionProvider);
         this.configDescriptionI18nProviderServiceBinder.open();
-        
-        XmlDocumentReader<List<ConfigDescription>> configDescriptionReader =
-                new ConfigDescriptionReader();
 
-        XmlDocumentProviderFactory<List<ConfigDescription>> configDescriptionProviderFactory =
-                new ConfigDescriptionXmlProviderFactory(configDescriptionProvider);
+        XmlDocumentReader<List<ConfigDescription>> configDescriptionReader = new ConfigDescriptionReader();
 
-        this.configDescriptionTracker = new XmlDocumentBundleTracker<>(
-                context, XML_DIRECTORY, configDescriptionReader, configDescriptionProviderFactory);
+        XmlDocumentProviderFactory<List<ConfigDescription>> configDescriptionProviderFactory = new ConfigDescriptionXmlProviderFactory(
+                configDescriptionProvider);
+
+        this.configDescriptionTracker = new XmlDocumentBundleTracker<>(context, XML_DIRECTORY, configDescriptionReader,
+                configDescriptionProviderFactory);
         this.configDescriptionTracker.open();
 
-        this.configDescriptionProviderReg = context.registerService(
-                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
+        this.configDescriptionProviderReg = context.registerService(ConfigDescriptionProvider.class.getName(),
+                configDescriptionProvider, null);
     }
 
     @Override

@@ -9,46 +9,49 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.model.sitemap.List;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
  * can produce HTML code for List widgets.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class ListRenderer extends AbstractWidgetRenderer {
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canRender(Widget w) {
-		return w instanceof List;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-		String snippet = getSnippet("list");
-		snippet = snippet.replaceAll("%label%", getLabel(w));
-		
-		String rowSnippet = getSnippet("list_row");
-		String state = itemUIRegistry.getState(w).toString();
-		String[] rowContents = state.split(((List) w).getSeparator());
-		StringBuilder rowSB = new StringBuilder();
-		for(String row : rowContents) {
-			rowSB.append(StringUtils.replace(rowSnippet, "%title%", row));
-		}
-		snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
 
-		// Process the color tags
-		snippet = processColor(w, snippet);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canRender(Widget w) {
+        return w instanceof List;
+    }
 
-		sb.append(snippet);
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
+        String snippet = getSnippet("list");
+        snippet = snippet.replaceAll("%label%", getLabel(w));
+
+        String rowSnippet = getSnippet("list_row");
+        String state = itemUIRegistry.getState(w).toString();
+        String[] rowContents = state.split(((List) w).getSeparator());
+        StringBuilder rowSB = new StringBuilder();
+        for (String row : rowContents) {
+            rowSB.append(StringUtils.replace(rowSnippet, "%title%", row));
+        }
+        snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
+
+        // Process the color tags
+        snippet = processColor(w, snippet);
+
+        sb.append(snippet);
+        return null;
+    }
 }

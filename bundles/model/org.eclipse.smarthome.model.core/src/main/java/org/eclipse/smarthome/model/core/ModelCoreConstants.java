@@ -9,12 +9,12 @@ package org.eclipse.smarthome.model.core;
 
 /**
  * This class holds all important constants relevant for this bundle.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class ModelCoreConstants {
 
-	/** The service pid used for the managed service (without the "org.eclipse.smarthome" prefix */
-	public final static String SERVICE_PID = "folder";
+    /** The service pid used for the managed service (without the "org.eclipse.smarthome" prefix */
+    public final static String SERVICE_PID = "folder";
 }

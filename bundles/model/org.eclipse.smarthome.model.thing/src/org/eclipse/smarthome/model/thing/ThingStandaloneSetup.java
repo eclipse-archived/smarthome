@@ -8,13 +8,12 @@
 package org.eclipse.smarthome.model.thing;
 
 /**
- * Initialization support for running Xtext languages 
+ * Initialization support for running Xtext languages
  * without equinox extension registry
  */
-public class ThingStandaloneSetup extends ThingStandaloneSetupGenerated{
+public class ThingStandaloneSetup extends ThingStandaloneSetupGenerated {
 
-	public static void doSetup() {
-		new ThingStandaloneSetup().createInjectorAndDoEMFRegistration();
-	}
+    public static void doSetup() {
+        new ThingStandaloneSetup().createInjectorAndDoEMFRegistration();
+    }
 }
-

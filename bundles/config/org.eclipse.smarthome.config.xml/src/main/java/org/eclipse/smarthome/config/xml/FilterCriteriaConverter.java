@@ -14,8 +14,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * The {@link FilterCriteriaConverter} creates a {@link FilterCriteria}
- * instance from a {@code criteria} XML node.
+ * The {@link FilterCriteriaConverter} creates a {@link FilterCriteria} instance from a {@code criteria} XML node.
  *
  * @author Alex Tugarev - Initial Contribution
  */

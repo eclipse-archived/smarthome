@@ -12,14 +12,14 @@ import java.util.Locale;
 /**
  * {@link LocaleUtil} provides helper method for working with locales in REST
  * resources.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LocaleUtil {
 
     /**
      * Returns the locale in respect to the given "Accept-Language" HTTP header.
-     * 
+     *
      * @param language
      *            value of the "Accept-Language" HTTP header (can be null).
      * @return Locale for the "Accept-Language" HTTP header or default locale if

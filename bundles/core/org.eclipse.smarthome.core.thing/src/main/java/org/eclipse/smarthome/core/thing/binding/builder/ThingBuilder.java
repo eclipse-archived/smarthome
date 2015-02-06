@@ -21,10 +21,10 @@ public class ThingBuilder extends GenericThingBuilder<ThingBuilder> {
         ThingImpl thing = new ThingImpl(thingTypeUID, thingId);
         return new ThingBuilder(thing);
     }
-    
+
     public static ThingBuilder create(ThingUID thingUID) {
-    	ThingImpl thing = new ThingImpl(thingUID);
-    	return new ThingBuilder(thing);
+        ThingImpl thing = new ThingImpl(thingUID);
+        return new ThingBuilder(thing);
     }
 
 }

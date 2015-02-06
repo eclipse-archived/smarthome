@@ -11,7 +11,7 @@ import org.eclipse.smarthome.core.common.registry.Provider;
 
 /**
  * The {@link ThingProvider} is responsible for providing things.
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Changed interface to extend {@link Provider} interface
  */

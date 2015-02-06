@@ -14,18 +14,16 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
-
 /**
  * The {@link Inbox} is a service interface providing a container for discovered {@code Thing}s
  * (e.g. found by a {@link DiscoveryService}) as {@link DiscoveryResult}s.
  * <p>
- * A {@link DiscoveryResult} entry in this container is not a full configured {@code Thing}
- * and therefore no {@code Thing} exists for it. A {@link DiscoveryResult} can be marked
- * to be ignored, so that a specific {@code Thing} is not considered to get part of the
- * system.
+ * A {@link DiscoveryResult} entry in this container is not a full configured {@code Thing} and therefore no
+ * {@code Thing} exists for it. A {@link DiscoveryResult} can be marked to be ignored, so that a specific {@code Thing}
+ * is not considered to get part of the system.
  * <p>
- * This container offers a listener registry for {@link InboxListener}s which are notified
- * if a {@link DiscoveryResult} is added, updated or removed.
+ * This container offers a listener registry for {@link InboxListener}s which are notified if a {@link DiscoveryResult}
+ * is added, updated or removed.
  *
  * @author Michael Grammling - Initial Contribution
  *
@@ -37,10 +35,9 @@ public interface Inbox {
      * Adds the specified {@link DiscoveryResult} to this {@link Inbox} and sends an <i>ADDED</i>
      * event to any registered {@link InboxListener}.
      * <p>
-     * If there is already a {@link DiscoveryResult} with the same {@code Thing} ID
-     * in this {@link Inbox}, the specified {@link DiscoveryResult} is synchronized with
-     * the existing one, while keeping the {@link DiscoveryResultFlag} and overriding the
-     * specific properties. In that case an <i>UPDATED</i> event is sent to any registered
+     * If there is already a {@link DiscoveryResult} with the same {@code Thing} ID in this {@link Inbox}, the specified
+     * {@link DiscoveryResult} is synchronized with the existing one, while keeping the {@link DiscoveryResultFlag} and
+     * overriding the specific properties. In that case an <i>UPDATED</i> event is sent to any registered
      * {@link InboxListener}.
      * <p>
      * This method returns silently, if the specified {@link DiscoveryResult} is {@code null}.
@@ -54,28 +51,28 @@ public interface Inbox {
      * Removes the {@link DiscoveryResult} associated with the specified {@code Thing} ID from
      * this {@link Inbox} and sends a <i>REMOVED</i> event to any registered {@link InboxListener}.
      * <p>
-     * This method returns silently, if the specified {@code Thing} ID is {@code null}, empty,
-     * invalid, or no associated {@link DiscoveryResult} exists in this {@link Inbox}.
+     * This method returns silently, if the specified {@code Thing} ID is {@code null}, empty, invalid, or no associated
+     * {@link DiscoveryResult} exists in this {@link Inbox}.
      *
      * @param thingUID the Thing UID pointing to the discovery result to be removed from this inbox
-     *     (could be null or invalid)
+     *            (could be null or invalid)
      *
      * @return true if the specified discovery result could be removed, otherwise false
      */
     boolean remove(ThingUID thingUID);
 
     /**
-     * Returns all {@link DiscoveryResult}s in this {@link Inbox} which fit to the specified
-     * {@link InboxFilterCriteria}.
+     * Returns all {@link DiscoveryResult}s in this {@link Inbox} which fit to the specified {@link InboxFilterCriteria}
+     * .
      * <p>
-     * If the specified {@link InboxFilterCriteria} is {@code null}, all {@link DiscoveryResult}s
-     * in this {@link Inbox} are returned.
+     * If the specified {@link InboxFilterCriteria} is {@code null}, all {@link DiscoveryResult}s in this {@link Inbox}
+     * are returned.
      *
      * @param criteria the filter criteria to be used for filtering all discovery results
-     *     (could be null)
+     *            (could be null)
      *
      * @return all discovery results in this inbox which fit to the specified filter criteria
-     *     (not null, could be empty)
+     *         (not null, could be empty)
      */
     List<DiscoveryResult> get(InboxFilterCriteria criteria);
 
@@ -88,26 +85,24 @@ public interface Inbox {
 
     /**
      * Sets the flag for a given thingUID result.<br>
-     * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW}
-     * or has been marked as {@link DiscoveryResultFlag#IGNORED}. In the latter
+     * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW} or has been marked as
+     * {@link DiscoveryResultFlag#IGNORED}. In the latter
      * case the result object should be regarded as known by the system so that
      * further processing should be skipped.
      * <p>
-     * If the specified flag is {@code null}, {@link DiscoveryResultFlag.NEW}
-     * is set by default.
+     * If the specified flag is {@code null}, {@link DiscoveryResultFlag.NEW} is set by default.
      *
      * @param flag the flag of the given thingUID result to be set (could be null)
      */
     public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag);
-    
+
     /**
      * Adds an {@link InboxListener} to the listeners' registry.
      * <p>
-     * When a {@link DiscoveryResult} is <i>ADDED</i>, <i>UPDATED</i> or <i>REMOVED</i>,
-     * the specified listener is notified.
+     * When a {@link DiscoveryResult} is <i>ADDED</i>, <i>UPDATED</i> or <i>REMOVED</i>, the specified listener is
+     * notified.
      * <p>
-     * This method returns silently if the specified listener is {@code null} or has
-     * already been registered before.
+     * This method returns silently if the specified listener is {@code null} or has already been registered before.
      *
      * @param listener the listener to be added (could be null)
      */
@@ -116,11 +111,10 @@ public interface Inbox {
     /**
      * Removes an {@link InboxListener} from the listeners' registry.
      * <p>
-     * When this method returns, the specified listener is no longer notified about
-     * an <i>ADDED</i>, <i>UPDATED</i> or <i>REMOVED</i> {@link DiscoveryResult}.
+     * When this method returns, the specified listener is no longer notified about an <i>ADDED</i>, <i>UPDATED</i> or
+     * <i>REMOVED</i> {@link DiscoveryResult}.
      * <p>
-     * This method returns silently if the specified listener is {@code null}
-     * or has not been registered before.
+     * This method returns silently if the specified listener is {@code null} or has not been registered before.
      *
      * @param listener the listener to be removed (could be null)
      */

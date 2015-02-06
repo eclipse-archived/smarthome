@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
  * {@link LifxConnection} is a helper class for the {@link LFXNetworkContext}.
  * It acts as singleton for common access to the gateway light connection and
  * contains a tracker functionality for all lights.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LifxConnection implements LFXLightCollectionListener, LFXNetworkContextListener {

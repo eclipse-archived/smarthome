@@ -12,7 +12,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 /**
  * The {@link LifxBinding} class defines common constants, which are used across
  * the whole binding.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LifxBindingConstants {

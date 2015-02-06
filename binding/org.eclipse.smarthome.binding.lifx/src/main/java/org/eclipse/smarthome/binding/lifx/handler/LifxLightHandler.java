@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link LifxLightHandler} is responsible for handling commands, which are
  * sent to one of the light channels.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LifxLightHandler extends BaseThingHandler implements LifxLightTracker, LFXLightListener,
@@ -72,19 +72,19 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         }
         try {
             switch (channelUID.getId()) {
-            case CHANNEL_COLOR:
-                if (command instanceof HSBType) {
-                    handleHSBCommand((HSBType) command);
-                } else if (command instanceof PercentType) {
-                    handlePercentCommand((PercentType) command);
-                } else if (command instanceof OnOffType) {
-                    handleOnOffCommand((OnOffType) command);
-                } else if (command instanceof IncreaseDecreaseType) {
-                    handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
-                }
-                break;
-            default:
-                break;
+                case CHANNEL_COLOR:
+                    if (command instanceof HSBType) {
+                        handleHSBCommand((HSBType) command);
+                    } else if (command instanceof PercentType) {
+                        handlePercentCommand((PercentType) command);
+                    } else if (command instanceof OnOffType) {
+                        handleOnOffCommand((OnOffType) command);
+                    } else if (command instanceof IncreaseDecreaseType) {
+                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                    }
+                    break;
+                default:
+                    break;
             }
         } catch (Exception ex) {
             logger.error("Error while updating light.", ex);
@@ -117,7 +117,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
     @Override
     public void lightDidChangeColor(LFXLight light, LFXHSBKColor color) {
         this.currentColorState = color;
-        if(this.currentPowerState != LFXPowerState.OFF) {
+        if (this.currentPowerState != LFXPowerState.OFF) {
             updateState(CHANNEL_COLOR, toHSBType(color));
         }
     }
@@ -127,6 +127,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         // nothing to do
     }
 
+    @Override
     public void lightDidChangePowerState(LFXLight light, LFXPowerState powerState) {
         this.currentPowerState = powerState;
         if (powerState == LFXPowerState.OFF) {

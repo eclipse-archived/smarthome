@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
+import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
@@ -62,7 +63,7 @@ public class ThingSetupManager {
 
     /**
      * Adds a group to the system with the a 'home-group' tag.
-     * 
+     *
      * @param itemName
      *            name of group to be added
      * @param label
@@ -78,9 +79,8 @@ public class ThingSetupManager {
     /**
      * Adds a thing without a label, without group names, but enables all
      * channels.
-     * 
-     * See
-     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     *
+     * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
      */
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
         addThing(thingUID, configuration, bridgeUID, null);
@@ -88,9 +88,8 @@ public class ThingSetupManager {
 
     /**
      * Adds a thing without group names, but enables all channels.
-     * 
-     * See
-     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     *
+     * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
      */
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
         addThing(thingUID, configuration, bridgeUID, label, new ArrayList<String>());
@@ -98,9 +97,8 @@ public class ThingSetupManager {
 
     /**
      * Adds a thing and enables all channels.
-     * 
-     * See
-     * {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
+     *
+     * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
      */
     public void addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames) {
@@ -109,7 +107,7 @@ public class ThingSetupManager {
 
     /**
      * Adds a new thing to the system and creates the according items and links.
-     * 
+     *
      * @param thingUID
      *            UID of the thing (must not be null)
      * @param configuration
@@ -174,7 +172,7 @@ public class ThingSetupManager {
 
     /**
      * Adds the given item to the given group.
-     * 
+     *
      * @param itemName
      *            item name (must not be null)
      * @param groupItemName
@@ -182,7 +180,7 @@ public class ThingSetupManager {
      */
     public void addToHomeGroup(String itemName, String groupItemName) {
         ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
-        if(item != null) {
+        if (item != null) {
             item.addGroupName(groupItemName);
             this.itemRegistry.update(item);
         } else {
@@ -192,7 +190,7 @@ public class ThingSetupManager {
 
     /**
      * Adds a thing identified by the given thing UID to the given group.
-     * 
+     *
      * @param thingUID
      *            thing UID (must not be null)
      * @param groupItemName
@@ -209,7 +207,7 @@ public class ThingSetupManager {
 
     /**
      * Disables the channel with the given UID (removes the linked item).
-     * 
+     *
      * @param channelUID
      *            channel UID (must not be null)
      */
@@ -226,7 +224,7 @@ public class ThingSetupManager {
 
     /**
      * Enables the channel with the given UID (adds a linked item).
-     * 
+     *
      * @param channelUID
      *            channel UID (must not be null)
      */
@@ -254,13 +252,13 @@ public class ThingSetupManager {
                 }
             }
         } else {
-           logger.warn("Could not enable channel '{}', because no channel type was found.", channelUID);
+            logger.warn("Could not enable channel '{}', because no channel type was found.", channelUID);
         }
     }
 
     /**
      * Returns a list of all group items (items with tag 'home-group').
-     * 
+     *
      * @return list of all group items (can not be null)
      */
     public Collection<GroupItem> getHomeGroups() {
@@ -275,7 +273,7 @@ public class ThingSetupManager {
 
     /**
      * Returns a thing for a given UID.
-     * 
+     *
      * @return thing or null, if thing with UID does not exists
      */
     public Thing getThing(ThingUID thingUID) {
@@ -284,7 +282,7 @@ public class ThingSetupManager {
 
     /**
      * Returns all things.
-     * 
+     *
      * @return things
      */
     public Collection<Thing> getThings() {
@@ -293,7 +291,7 @@ public class ThingSetupManager {
 
     /**
      * Removes the given item from the given group.
-     * 
+     *
      * @param itemName
      *            item name (must not be null)
      * @param groupItemName
@@ -307,7 +305,7 @@ public class ThingSetupManager {
 
     /**
      * Removes the thing identified by the given thing UID from the given group.
-     * 
+     *
      * @param thingUID
      *            thing UID (must not be null)
      * @param groupItemName
@@ -322,7 +320,7 @@ public class ThingSetupManager {
 
     /**
      * Removes the home group identified by the given itemName from the system.
-     * 
+     *
      * @param itemName
      *            name of group to be added
      * @param label
@@ -336,13 +334,13 @@ public class ThingSetupManager {
         String itemName = toItemName(thingUID);
         thingRegistry.remove(thingUID);
         itemRegistry.remove(itemName, true);
-        itemThingLinkRegistry.remove(ItemThingLink.getIDFor(itemName, thingUID));
+        itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
         itemChannelLinkRegistry.removeLinksForThing(thingUID);
     }
 
     /**
      * Sets the label for a given thing UID.
-     * 
+     *
      * @param thingUID
      *            thing UID (must not be null)
      * @param label
@@ -364,17 +362,17 @@ public class ThingSetupManager {
 
     /**
      * Updates an item.
-     * 
+     *
      * @param item
      *            item (must not be null)
      */
     public void updateItem(Item item) {
         itemRegistry.update(item);
     }
-    
+
     /**
      * Updates a thing.
-     * 
+     *
      * @param thing
      *            thing (must not be null)
      */
@@ -480,7 +478,7 @@ public class ThingSetupManager {
         String itemName = uid.getAsString().replaceAll("[^a-zA-Z0-9_]", "_");
         return itemName;
     }
-    
+
     private String getFirstLinkedItem(UID uid) {
         for (ItemThingLink link : itemThingLinkRegistry.getAll()) {
             if (link.getUID().equals(uid)) {

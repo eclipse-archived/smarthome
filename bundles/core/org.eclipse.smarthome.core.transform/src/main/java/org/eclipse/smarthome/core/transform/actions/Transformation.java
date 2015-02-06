@@ -17,38 +17,39 @@ import org.slf4j.LoggerFactory;
 /**
  * This class holds static "action" methods that can be used from within rules to execute
  * transformations.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class Transformation {
-	
-	/**
-	 * Applies a transformation of a given type with some function to a value.
-	 * 
-	 * @param type the transformation type, e.g. REGEX or MAP
-	 * @param function the function to call, this value depends on the transformation type
-	 * @param value the value to apply the transformation to
-	 * @return 
-	 * 		the transformed value or the original one, if there was no service registered for the
-	 * 		given type or a transformation exception occurred.
-	 */
-	public static String transform(String type, String function, String value) {
-		String result;
-		TransformationService service = TransformationHelper.getTransformationService(TransformationActivator.getContext(), type);
-		Logger logger = LoggerFactory.getLogger(Transformation.class);
-		if(service!=null) {
-			try {
-				result = service.transform(function, value);
-			} catch (TransformationException e) {
-				logger.error("Error executing the transformation '" + type + "': " + e.getMessage());
-				result = value;
-			}			
-		} else {
-			logger.warn("No transformation service '" + type + "' could be found.");
-			result = value;
-		}
-		return result;
-	}
-	
+
+    /**
+     * Applies a transformation of a given type with some function to a value.
+     * 
+     * @param type the transformation type, e.g. REGEX or MAP
+     * @param function the function to call, this value depends on the transformation type
+     * @param value the value to apply the transformation to
+     * @return
+     *         the transformed value or the original one, if there was no service registered for the
+     *         given type or a transformation exception occurred.
+     */
+    public static String transform(String type, String function, String value) {
+        String result;
+        TransformationService service = TransformationHelper.getTransformationService(
+                TransformationActivator.getContext(), type);
+        Logger logger = LoggerFactory.getLogger(Transformation.class);
+        if (service != null) {
+            try {
+                result = service.transform(function, value);
+            } catch (TransformationException e) {
+                logger.error("Error executing the transformation '" + type + "': " + e.getMessage());
+                result = value;
+            }
+        } else {
+            logger.warn("No transformation service '" + type + "' could be found.");
+            result = value;
+        }
+        return result;
+    }
+
 }

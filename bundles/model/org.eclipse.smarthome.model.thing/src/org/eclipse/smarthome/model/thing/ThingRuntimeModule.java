@@ -16,11 +16,12 @@ import org.eclipse.xtext.conversion.IValueConverterService;
 @SuppressWarnings("restriction")
 public class ThingRuntimeModule extends org.eclipse.smarthome.model.thing.AbstractThingRuntimeModule {
 
-	@Override
-	public Class<? extends IValueConverterService> bindIValueConverterService() {
-		return ThingValueConverters.class;
-	}
-	
+    @Override
+    public Class<? extends IValueConverterService> bindIValueConverterService() {
+        return ThingValueConverters.class;
+    }
+
+    @Override
     public Class<? extends org.eclipse.xtext.serializer.sequencer.ISyntacticSequencer> bindISyntacticSequencer() {
         return org.eclipse.smarthome.model.thing.serializer.ThingSyntacticSequencerExtension.class;
     }

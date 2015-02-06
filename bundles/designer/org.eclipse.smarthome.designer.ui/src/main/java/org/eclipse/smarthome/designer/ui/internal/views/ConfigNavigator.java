@@ -19,51 +19,53 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
-*
-* @author Kai Kreuzer - Initial contribution and API
-*
-*/
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class ConfigNavigator extends CommonNavigator {
 
-	private IResourceChangeListener changeListener;
-	
-	private final Logger logger = LoggerFactory.getLogger(ConfigNavigator.class);
-	
-	@Override
-	protected Object getInitialInput() {
-		changeListener = new IResourceChangeListener() {
-			public void resourceChanged(IResourceChangeEvent event) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						getCommonViewer().refresh();
-					}
-				});
-			}
-		};
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(changeListener);
-		
-		try {
-			IFolder rootConfigurationFolder = ConfigurationFolderProvider.getRootConfigurationFolder();
-			if (rootConfigurationFolder != null) {
-				return rootConfigurationFolder.getProject();				
-			} else {
-				return null;
-			}
-		} catch (Exception e) {
-			logger.error("An error occurred while reading config project", e);
-			return null;
-		}
-	}
-	
-	@Override
-	protected ActionGroup createCommonActionGroup() {
-		return new ConfigNavigatorActionGroup(getCommonViewer());
-	}
+    private IResourceChangeListener changeListener;
 
-	@Override
-	public void dispose() {
-		super.dispose();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(changeListener);
-		changeListener = null;
-	}
+    private final Logger logger = LoggerFactory.getLogger(ConfigNavigator.class);
+
+    @Override
+    protected Object getInitialInput() {
+        changeListener = new IResourceChangeListener() {
+            @Override
+            public void resourceChanged(IResourceChangeEvent event) {
+                Display.getDefault().asyncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCommonViewer().refresh();
+                    }
+                });
+            }
+        };
+        ResourcesPlugin.getWorkspace().addResourceChangeListener(changeListener);
+
+        try {
+            IFolder rootConfigurationFolder = ConfigurationFolderProvider.getRootConfigurationFolder();
+            if (rootConfigurationFolder != null) {
+                return rootConfigurationFolder.getProject();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("An error occurred while reading config project", e);
+            return null;
+        }
+    }
+
+    @Override
+    protected ActionGroup createCommonActionGroup() {
+        return new ConfigNavigatorActionGroup(getCommonViewer());
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        ResourcesPlugin.getWorkspace().removeResourceChangeListener(changeListener);
+        changeListener = null;
+    }
 }

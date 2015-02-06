@@ -9,41 +9,43 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.ui.classic.render.RenderException;
-import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 import org.eclipse.smarthome.model.sitemap.Group;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
  * can produce HTML code for Group widgets.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class GroupRenderer extends AbstractWidgetRenderer {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canRender(Widget w) {
-		return w instanceof Group;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-		String snippet = getSnippet("group");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canRender(Widget w) {
+        return w instanceof Group;
+    }
 
-		snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-		snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
-		snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
+        String snippet = getSnippet("group");
 
-		// Process the color tags
-		snippet = processColor(w, snippet);
+        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
+        snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
+        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
 
-		sb.append(snippet);
-		return null;
-	}
+        // Process the color tags
+        snippet = processColor(w, snippet);
+
+        sb.append(snippet);
+        return null;
+    }
 }

@@ -7,7 +7,9 @@
  */
 package org.eclipse.smarthome.binding.yahooweather.handler;
 
-import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.*;
+import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_HUMIDITY;
+import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_PRESSURE;
+import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_TEMPERATURE;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link YahooWeatherHandler} is responsible for handling commands, which are
  * sent to one of the channels.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  */
 public class YahooWeatherHandler extends BaseThingHandler {
@@ -44,135 +46,136 @@ public class YahooWeatherHandler extends BaseThingHandler {
 
     private String location;
     private String unit;
-    private BigDecimal refresh; 
-    
+    private BigDecimal refresh;
+
     private String weatherData = null;
-    
+
     ScheduledFuture<?> refreshJob;
 
-	public YahooWeatherHandler(Thing thing) {
-		super(thing);
-	}
+    public YahooWeatherHandler(Thing thing) {
+        super(thing);
+    }
 
     @Override
     public void initialize() {
         logger.debug("Initializing YahooWeather handler.");
-    	super.initialize();
+        super.initialize();
 
         Configuration config = getThing().getConfiguration();
 
         location = (String) config.get("location");
-        if("us".equalsIgnoreCase((String) config.get("unit"))) {
-        	unit = "f";
+        if ("us".equalsIgnoreCase((String) config.get("unit"))) {
+            unit = "f";
         }
-        
+
         try {
-        	refresh = (BigDecimal) config.get("refresh");
-        } catch(Exception e) {
-        	// let's ignore it and go for the default
+            refresh = (BigDecimal) config.get("refresh");
+        } catch (Exception e) {
+            // let's ignore it and go for the default
         }
-        
+
         startAutomaticRefresh();
     }
 
     @Override
     public void dispose() {
-    	refreshJob.cancel(true);
+        refreshJob.cancel(true);
     }
-    
-	private void startAutomaticRefresh() {
-		
-		Runnable runnable = new Runnable() {
-			public void run() {
-				try {
-					boolean success = updateWeatherData();
-					if(success) {
-		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
-		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
-		                updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
-					}
-				} catch(Exception e) {
-					logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
-				}
-			}
-		};
-		
-		refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh.intValue(), TimeUnit.SECONDS);
-	}
 
-	@Override
-	public void handleCommand(ChannelUID channelUID, Command command) {
+    private void startAutomaticRefresh() {
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    boolean success = updateWeatherData();
+                    if (success) {
+                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_TEMPERATURE), getTemperature());
+                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_HUMIDITY), getHumidity());
+                        updateState(new ChannelUID(getThing().getUID(), CHANNEL_PRESSURE), getPressure());
+                    }
+                } catch (Exception e) {
+                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                }
+            }
+        };
+
+        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refresh.intValue(), TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
         if (command instanceof RefreshType) {
-        	boolean success = updateWeatherData();
-        	if(success) { 
-	            switch (channelUID.getId()) {
-	            case CHANNEL_TEMPERATURE:
-	                updateState(channelUID, getTemperature());
-	                break;
-	            case CHANNEL_HUMIDITY:
-	                updateState(channelUID, getHumidity());
-	                break;
-	            case CHANNEL_PRESSURE:
-	                updateState(channelUID, getPressure());
-	                break;
-	            default:
-	                logger.debug("Command received for an unknown channel: {}", channelUID.getId());
-	                break;
-	            }
-        	}
+            boolean success = updateWeatherData();
+            if (success) {
+                switch (channelUID.getId()) {
+                    case CHANNEL_TEMPERATURE:
+                        updateState(channelUID, getTemperature());
+                        break;
+                    case CHANNEL_HUMIDITY:
+                        updateState(channelUID, getHumidity());
+                        break;
+                    case CHANNEL_PRESSURE:
+                        updateState(channelUID, getPressure());
+                        break;
+                    default:
+                        logger.debug("Command received for an unknown channel: {}", channelUID.getId());
+                        break;
+                }
+            }
         } else {
             logger.debug("Command {} is not supported for channel: {}", command, channelUID.getId());
         }
-	}
+    }
 
-	private synchronized boolean updateWeatherData() {
-		String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=" + unit; 
-		try {
-			URL url = new URL(urlString);
+    private synchronized boolean updateWeatherData() {
+        String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=" + unit;
+        try {
+            URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             weatherData = IOUtils.toString(connection.getInputStream());
-        	updateStatus(ThingStatus.ONLINE);
-			return true;
-		} catch (MalformedURLException e) {
-			logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
-			return false;
-		} catch (IOException e) {
-			logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-			updateStatus(ThingStatus.OFFLINE);
-			return false;
-		}		
-	}
+            updateStatus(ThingStatus.ONLINE);
+            return true;
+        } catch (MalformedURLException e) {
+            logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
+            return false;
+        } catch (IOException e) {
+            logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
+            updateStatus(ThingStatus.OFFLINE);
+            return false;
+        }
+    }
 
-	private State getHumidity() {
-		if(weatherData!=null) {
-			String humidity = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
-			humidity = StringUtils.substringBetween(humidity, "humidity=\"", "\"");
-			if(humidity!=null) {
-				return new DecimalType(humidity);
-			}
-		}
-		return UnDefType.UNDEF;
-	}
+    private State getHumidity() {
+        if (weatherData != null) {
+            String humidity = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
+            humidity = StringUtils.substringBetween(humidity, "humidity=\"", "\"");
+            if (humidity != null) {
+                return new DecimalType(humidity);
+            }
+        }
+        return UnDefType.UNDEF;
+    }
 
-	private State getPressure() {
-		if(weatherData!=null) {
-			String pressure = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
-			pressure = StringUtils.substringBetween(pressure, "pressure=\"", "\"");
-			if(pressure!=null) {
-				return new DecimalType(pressure);
-			}
-		}
-		return UnDefType.UNDEF;
-	}
+    private State getPressure() {
+        if (weatherData != null) {
+            String pressure = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
+            pressure = StringUtils.substringBetween(pressure, "pressure=\"", "\"");
+            if (pressure != null) {
+                return new DecimalType(pressure);
+            }
+        }
+        return UnDefType.UNDEF;
+    }
 
-	private State getTemperature() {
-		if(weatherData!=null) {
-			String temp = StringUtils.substringAfter(weatherData, "yweather:condition");
-			temp = StringUtils.substringBetween(temp, "temp=\"", "\"");
-			if(temp!=null) {
-				return new DecimalType(temp);
-			}
-		}
-		return UnDefType.UNDEF;
-	}
+    private State getTemperature() {
+        if (weatherData != null) {
+            String temp = StringUtils.substringAfter(weatherData, "yweather:condition");
+            temp = StringUtils.substringBetween(temp, "temp=\"", "\"");
+            if (temp != null) {
+                return new DecimalType(temp);
+            }
+        }
+        return UnDefType.UNDEF;
+    }
 }

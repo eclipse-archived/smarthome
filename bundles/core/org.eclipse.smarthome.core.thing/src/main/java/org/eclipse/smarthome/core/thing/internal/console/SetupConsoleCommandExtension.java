@@ -22,7 +22,7 @@ import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
 /**
  * {@link SetupConsoleCommandExtension} provides console commands for setup of things.
- * 
+ *
  * @author Alex Tugarev - Initial contribution
  */
 public class SetupConsoleCommandExtension implements ConsoleCommandExtension {
@@ -41,78 +41,71 @@ public class SetupConsoleCommandExtension implements ConsoleCommandExtension {
     public void execute(String[] args, Console console) {
         String command = args[0];
         switch (command) {
-        case COMMAND_SETUP:
-            int numberOfArguments = args.length;
-            if (numberOfArguments < 2) {
-                break;
-            }
-            String subCommand = args[1];
-            switch (subCommand) {
-            case "listHomeGroups":
-                printHomeGroups(console);
-                break;
-            case "addHomeGroup":
-                if (numberOfArguments > 3) {
-                    addHomeGroup(console, args[2], args[3]);
+            case COMMAND_SETUP:
+                int numberOfArguments = args.length;
+                if (numberOfArguments < 2) {
+                    break;
                 }
-                else {
-                    console.println("Specify name and label of a home group to add: addHomeGroup <groupItemName> <label>");
-                }
-                break;
-            case "removeHomeGroup":
-                if (numberOfArguments > 2) {
-                    removeHomeGroup(console, args[2]);
-                }
-                else {
-                    console.println("Specify name of a home group to remove: removeHomeGroup <groupItemName>");
-                }
-                break;
-            case "addItemToHomeGroup":
-                if (numberOfArguments > 3) {
-                    addItemToHomeGroup(console, args[2], args[3]);
-                }
-                else {
-                    console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
-                }
-                break;
-            case "removeItemFromHomeGroup":
-                if (numberOfArguments > 3) {
-                    removeItemFromHomeGroup(console, args[2], args[3]);
-                }
-                else {
-                    console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
-                }
-                break;
-            case "enableChannel":
-                if (numberOfArguments > 2) {
-                    enableChannel(console, args[2]);
-                }
-                else {
-                    console.println("Specify the id of channel to enable: enableChannel <channelUID>");
-                }
-                break;
-            case "disableChannel":
-                if (numberOfArguments > 2) {
-                    disableChannel(console, args[2]);
-                }
-                else {
-                    console.println("Specify the id of channel to disable: enableChannel <channelUID>");
-                }
-                break;
-            case "setLabel":
-                if (numberOfArguments > 3) {
-                    setLabel(console, args[2], args[3]);
-                }
-                else {
-                    console.println("Specify the new label for the item linked to the thing: setLabel <thingUID> <label>");
+                String subCommand = args[1];
+                switch (subCommand) {
+                    case "listHomeGroups":
+                        printHomeGroups(console);
+                        break;
+                    case "addHomeGroup":
+                        if (numberOfArguments > 3) {
+                            addHomeGroup(console, args[2], args[3]);
+                        } else {
+                            console.println("Specify name and label of a home group to add: addHomeGroup <groupItemName> <label>");
+                        }
+                        break;
+                    case "removeHomeGroup":
+                        if (numberOfArguments > 2) {
+                            removeHomeGroup(console, args[2]);
+                        } else {
+                            console.println("Specify name of a home group to remove: removeHomeGroup <groupItemName>");
+                        }
+                        break;
+                    case "addItemToHomeGroup":
+                        if (numberOfArguments > 3) {
+                            addItemToHomeGroup(console, args[2], args[3]);
+                        } else {
+                            console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
+                        }
+                        break;
+                    case "removeItemFromHomeGroup":
+                        if (numberOfArguments > 3) {
+                            removeItemFromHomeGroup(console, args[2], args[3]);
+                        } else {
+                            console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
+                        }
+                        break;
+                    case "enableChannel":
+                        if (numberOfArguments > 2) {
+                            enableChannel(console, args[2]);
+                        } else {
+                            console.println("Specify the id of channel to enable: enableChannel <channelUID>");
+                        }
+                        break;
+                    case "disableChannel":
+                        if (numberOfArguments > 2) {
+                            disableChannel(console, args[2]);
+                        } else {
+                            console.println("Specify the id of channel to disable: enableChannel <channelUID>");
+                        }
+                        break;
+                    case "setLabel":
+                        if (numberOfArguments > 3) {
+                            setLabel(console, args[2], args[3]);
+                        } else {
+                            console.println("Specify the new label for the item linked to the thing: setLabel <thingUID> <label>");
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
             default:
-                break;
-            }
-            break;
-        default:
-            return;
+                return;
         }
     }
 
@@ -166,7 +159,7 @@ public class SetupConsoleCommandExtension implements ConsoleCommandExtension {
                 sb.append(" [");
                 do {
                     sb.append(members.next().getName());
-                    if (members.hasNext()) 
+                    if (members.hasNext())
                         sb.append(", ");
                 } while (members.hasNext());
                 sb.append("]");
@@ -178,17 +171,17 @@ public class SetupConsoleCommandExtension implements ConsoleCommandExtension {
     @Override
     public List<String> getUsages() {
         return Arrays.asList((new String[] {
-            COMMAND_SETUP + " listHomeGroups - lists all home groups",
-            COMMAND_SETUP + " addHomeGroup <groupItemName> <label> - creates a new home group",
-            COMMAND_SETUP + " removeHomeGroup <groupItemName> - creates a new home group",
-            COMMAND_SETUP + " addItemToHomeGroup <itemName> <groupItemName> - adds an item to a home group",
-            COMMAND_SETUP + " removeItemFromHomeGroup <itemName> <groupItemName> - removes an item from a home group",
-            COMMAND_SETUP + " enableChannel <channelUID> - removes all links and linked items of a channel", 
-            COMMAND_SETUP + " disableChannel <channelUID> - creates all links and linked items for a channel",
-            COMMAND_SETUP + " setLabel <thingUID> <label> - sets a new label of the item linked to the thing"
-        }));
+                COMMAND_SETUP + " listHomeGroups - lists all home groups",
+                COMMAND_SETUP + " addHomeGroup <groupItemName> <label> - creates a new home group",
+                COMMAND_SETUP + " removeHomeGroup <groupItemName> - creates a new home group",
+                COMMAND_SETUP + " addItemToHomeGroup <itemName> <groupItemName> - adds an item to a home group",
+                COMMAND_SETUP
+                        + " removeItemFromHomeGroup <itemName> <groupItemName> - removes an item from a home group",
+                COMMAND_SETUP + " enableChannel <channelUID> - removes all links and linked items of a channel",
+                COMMAND_SETUP + " disableChannel <channelUID> - creates all links and linked items for a channel",
+                COMMAND_SETUP + " setLabel <thingUID> <label> - sets a new label of the item linked to the thing" }));
     }
-    
+
     protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = thingSetupManager;
     }

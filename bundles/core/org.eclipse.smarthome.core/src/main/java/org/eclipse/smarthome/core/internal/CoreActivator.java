@@ -12,38 +12,40 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * The activator class controls the plug-in life cycle
  */
 public class CoreActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory.getLogger(CoreActivator.class); 
-	
-	private static BundleContext context;
-	
-	/**
-	 * Called whenever the OSGi framework starts our bundle
-	 */
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-		logger.debug("Core bundle has been started.");
-	}
+    private final Logger logger = LoggerFactory.getLogger(CoreActivator.class);
 
-	/**
-	 * Called whenever the OSGi framework stops our bundle
-	 */
-	public void stop(BundleContext bc) throws Exception {
-		context = null;
-		logger.debug("Core bundle has been stopped.");
-	}
-	
-	/**
-	 * Returns the bundle context of this bundle
-	 * @return the bundle context
-	 */
-	public static BundleContext getContext() {
-		return context;
-	}
-	
+    private static BundleContext context;
+
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+        logger.debug("Core bundle has been started.");
+    }
+
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+        context = null;
+        logger.debug("Core bundle has been stopped.");
+    }
+
+    /**
+     * Returns the bundle context of this bundle
+     * 
+     * @return the bundle context
+     */
+    public static BundleContext getContext() {
+        return context;
+    }
+
 }

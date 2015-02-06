@@ -17,25 +17,26 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a Quartz {@link Job} which executes the code of a closure that is passed
  * to the createTimer() extension method.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class TimerExecutionJob implements Job {
 
-	private final Logger logger = LoggerFactory.getLogger(TimerExecutionJob.class);
+    private final Logger logger = LoggerFactory.getLogger(TimerExecutionJob.class);
 
-	/**
-	 * Runs the configured closure of this job
-	 * 
-	 * @param context the execution context of the job
-	 */
-	public void execute(JobExecutionContext context) throws JobExecutionException {
-		logger.debug("Executing timer '{}'", context.getJobDetail().getKey().toString());
-		Procedure0 procedure = (Procedure0) context.getJobDetail().getJobDataMap().get("procedure");
-		TimerImpl timer = (TimerImpl) context.getJobDetail().getJobDataMap().get("timer");
-		procedure.apply();
-		timer.setTerminated(true);
-	}
+    /**
+     * Runs the configured closure of this job
+     * 
+     * @param context the execution context of the job
+     */
+    @Override
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+        logger.debug("Executing timer '{}'", context.getJobDetail().getKey().toString());
+        Procedure0 procedure = (Procedure0) context.getJobDetail().getJobDataMap().get("procedure");
+        TimerImpl timer = (TimerImpl) context.getJobDetail().getJobDataMap().get("timer");
+        procedure.apply();
+        timer.setTerminated(true);
+    }
 
 }

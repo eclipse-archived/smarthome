@@ -19,31 +19,31 @@ import com.google.common.base.Joiner;
  * A {@link UIDtoStringConverter} is used to create {@link UID} string
  * representations from an input string and vice versa. If a segment of the
  * parsed {@link UID} string doesn't match the ID rule, it will be escaped.
- * 
+ *
  * @author Alex Tugarev
  */
 public class UIDtoStringConverter implements IValueConverter<String> {
 
-	private static final String SEPERATOR = ":";
+    private static final String SEPERATOR = ":";
 
     @Override
-	public String toValue(final String string, INode node) throws ValueConverterException {
-		if (string == null) {
-		    return null;
-		}
-		String[] ids = string.split(SEPERATOR);
-		for (int i = 0; i < ids.length; i++) {
-		    String id = ids[i];
-		    if (id != null && id.startsWith("\"") && id.endsWith("\"")) {
-	            try {
-	                ids[i] = Strings.convertFromJavaString(id.substring(1, id.length() - 1), true);
-	            } catch (IllegalArgumentException e) {
-	                throw new ValueConverterException(e.getMessage(), node, e);
-	            }
-	        }
+    public String toValue(final String string, INode node) throws ValueConverterException {
+        if (string == null) {
+            return null;
         }
-		return Joiner.on(SEPERATOR).join(ids);
-	}
+        String[] ids = string.split(SEPERATOR);
+        for (int i = 0; i < ids.length; i++) {
+            String id = ids[i];
+            if (id != null && id.startsWith("\"") && id.endsWith("\"")) {
+                try {
+                    ids[i] = Strings.convertFromJavaString(id.substring(1, id.length() - 1), true);
+                } catch (IllegalArgumentException e) {
+                    throw new ValueConverterException(e.getMessage(), node, e);
+                }
+            }
+        }
+        return Joiner.on(SEPERATOR).join(ids);
+    }
 
     @Override
     public String toString(String value) throws ValueConverterException {
@@ -61,7 +61,7 @@ public class UIDtoStringConverter implements IValueConverter<String> {
         }
         return Joiner.on(SEPERATOR).join(ids);
     }
-	
+
     protected String toEscapedString(String value) {
         return '"' + Strings.convertToJavaString(value, false) + '"';
     }

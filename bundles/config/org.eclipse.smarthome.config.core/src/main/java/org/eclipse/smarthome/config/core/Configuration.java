@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
 
 /**
  * This class is a wrapper for configuration settings of {@link Thing}s.
- * 
+ *
  * @author Dennis Nobel - Initial API and contribution
  * @author Kai Kreuzer - added constructors
  * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
@@ -38,13 +38,13 @@ public class Configuration {
     private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
-    	this(new HashMap<String, Object>());
-}
-    
+        this(new HashMap<String, Object>());
+    }
+
     public Configuration(Map<String, Object> properties) {
-		this.properties = properties;
-	}
-    
+        this.properties = properties;
+    }
+
     public <T> T as(Class<T> configurationClass) {
         synchronized (this) {
 
@@ -76,9 +76,9 @@ public class Configuration {
                         }
                     }
 
-                    if(value != null) {
-                        logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value, fieldName,
-                                configurationClass.getName());
+                    if (value != null) {
+                        logger.debug("Setting value ({}) {} to field '{}' in configuration class {}", typeName, value,
+                                fieldName, configurationClass.getName());
                         FieldUtils.writeField(configuration, fieldName, value, true);
                     }
                 } catch (Exception ex) {

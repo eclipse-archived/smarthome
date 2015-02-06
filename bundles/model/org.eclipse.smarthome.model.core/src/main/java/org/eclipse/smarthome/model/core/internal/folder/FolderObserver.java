@@ -46,278 +46,256 @@ import com.google.common.collect.Lists;
 /**
  * This class is able to observe multiple folders for changes and notifies the
  * model repository about every change, so that it can update itself.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Fabio Marini - Refactoring to use WatchService
- * 
+ *
  */
-public class FolderObserver extends AbstractWatchService implements
-		ManagedService {
+public class FolderObserver extends AbstractWatchService implements ManagedService {
 
-	/* the model repository is provided as a service */
-	private ModelRepository modelRepo = null;
+    /* the model repository is provided as a service */
+    private ModelRepository modelRepo = null;
 
-	/* map that stores a list of valid file extensions for each folder */
-	private final Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
+    /* map that stores a list of valid file extensions for each folder */
+    private final Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
 
-	public void setModelRepository(ModelRepository modelRepo) {
-		this.modelRepo = modelRepo;
-	}
+    public void setModelRepository(ModelRepository modelRepo) {
+        this.modelRepo = modelRepo;
+    }
 
-	public void unsetModelRepository(ModelRepository modelRepo) {
-		this.modelRepo = null;
-	}
-	
-	@Override
-	public void activate() {
-	}
+    public void unsetModelRepository(ModelRepository modelRepo) {
+        this.modelRepo = null;
+    }
 
-	@Override
-	protected AbstractWatchQueueReader buildWatchQueueReader(
-			WatchService watchService, Path toWatch) {
-		return new WatchQueueReader(watchService, toWatch, folderFileExtMap,
-				modelRepo);
-	}
+    @Override
+    public void activate() {
+    }
 
-	@Override
-	protected String getSourcePath() {
-		return ConfigConstants.getConfigFolder();
-	}
+    @Override
+    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch) {
+        return new WatchQueueReader(watchService, toWatch, folderFileExtMap, modelRepo);
+    }
 
-	@Override
-	protected boolean watchSubDirectories() {
-		return true;
-	}
+    @Override
+    protected String getSourcePath() {
+        return ConfigConstants.getConfigFolder();
+    }
 
-	@Override
-	protected void registerDirectory(Path subDir) throws IOException {
-		if (subDir != null && MapUtils.isNotEmpty(folderFileExtMap)) {
-			String folderName = subDir.getFileName().toString();
-			if (folderFileExtMap.containsKey(folderName)) {
-				subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE,
-						ENTRY_MODIFY);
-			}
-		}
-	}
+    @Override
+    protected boolean watchSubDirectories() {
+        return true;
+    }
 
-	private static class WatchQueueReader extends AbstractWatchQueueReader {
+    @Override
+    protected void registerDirectory(Path subDir) throws IOException {
+        if (subDir != null && MapUtils.isNotEmpty(folderFileExtMap)) {
+            String folderName = subDir.getFileName().toString();
+            if (folderFileExtMap.containsKey(folderName)) {
+                subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+            }
+        }
+    }
 
-		private Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
+    private static class WatchQueueReader extends AbstractWatchQueueReader {
 
-		private ModelRepository modelRepo = null;
+        private Map<String, String[]> folderFileExtMap = new ConcurrentHashMap<String, String[]>();
 
-		public WatchQueueReader(WatchService watchService, Path dirToWatch,
-				Map<String, String[]> folderFileExtMap,
-				ModelRepository modelRepo) {
-			super(watchService, dirToWatch);
+        private ModelRepository modelRepo = null;
 
-			this.folderFileExtMap = folderFileExtMap;
-			this.modelRepo = modelRepo;
-		}
+        public WatchQueueReader(WatchService watchService, Path dirToWatch, Map<String, String[]> folderFileExtMap,
+                ModelRepository modelRepo) {
+            super(watchService, dirToWatch);
 
-		@Override
-		protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind,
-				Path path) {
-			File toCheck = getFileByFileExtMap(folderFileExtMap, path.toString());
-			if (toCheck != null) {
-				checkFile(modelRepo, toCheck, kind);
-			}
-		}
-	}
+            this.folderFileExtMap = folderFileExtMap;
+            this.modelRepo = modelRepo;
+        }
 
-	@SuppressWarnings("rawtypes")
-	public synchronized void updated(Dictionary config)
-			throws ConfigurationException {
-		if (config != null) {
-			// necessary to check removed models
-			Map<String, String[]> previousFolderFileExtMap = new ConcurrentHashMap<String, String[]>(
-					folderFileExtMap);
+        @Override
+        protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
+            File toCheck = getFileByFileExtMap(folderFileExtMap, path.toString());
+            if (toCheck != null) {
+                checkFile(modelRepo, toCheck, kind);
+            }
+        }
+    }
 
-			// make sure to clear the caches first
-			folderFileExtMap.clear();
+    @Override
+    @SuppressWarnings("rawtypes")
+    public synchronized void updated(Dictionary config) throws ConfigurationException {
+        if (config != null) {
+            // necessary to check removed models
+            Map<String, String[]> previousFolderFileExtMap = new ConcurrentHashMap<String, String[]>(folderFileExtMap);
 
-			Enumeration keys = config.keys();
-			while (keys.hasMoreElements()) {
+            // make sure to clear the caches first
+            folderFileExtMap.clear();
 
-				String foldername = (String) keys.nextElement();
-				if (foldername.equals("service.pid"))
-					continue;
+            Enumeration keys = config.keys();
+            while (keys.hasMoreElements()) {
 
-				String[] fileExts = ((String) config.get(foldername))
-						.split(",");
+                String foldername = (String) keys.nextElement();
+                if (foldername.equals("service.pid"))
+                    continue;
 
-				File folder = getFile(foldername);
-				if (folder.exists() && folder.isDirectory()) {
-					folderFileExtMap.put(foldername, fileExts);
-				} else {
-					logger.warn(
-							"Directory '{}' does not exist in '{}'. Please check your configuration settings!",
-							foldername, ConfigConstants.getConfigFolder());
-				}
-			}
+                String[] fileExts = ((String) config.get(foldername)).split(",");
 
-			notifyUpdateToModelRepo(previousFolderFileExtMap);
-			initializeWatchService();
-		}
-	}
+                File folder = getFile(foldername);
+                if (folder.exists() && folder.isDirectory()) {
+                    folderFileExtMap.put(foldername, fileExts);
+                } else {
+                    logger.warn("Directory '{}' does not exist in '{}'. Please check your configuration settings!",
+                            foldername, ConfigConstants.getConfigFolder());
+                }
+            }
 
-	private void notifyUpdateToModelRepo(
-			Map<String, String[]> previousFolderFileExtMap) {
-		checkDeletedModels(previousFolderFileExtMap);
-		if (MapUtils.isNotEmpty(folderFileExtMap)) {
-			Iterator<String> iterator = folderFileExtMap.keySet().iterator();
-			while (iterator.hasNext()) {
-				String folderName = iterator.next();
+            notifyUpdateToModelRepo(previousFolderFileExtMap);
+            initializeWatchService();
+        }
+    }
 
-				final String[] validExtension = folderFileExtMap
-						.get(folderName);
-				if (validExtension != null && validExtension.length > 0) {
-					File folder = getFile(folderName);
+    private void notifyUpdateToModelRepo(Map<String, String[]> previousFolderFileExtMap) {
+        checkDeletedModels(previousFolderFileExtMap);
+        if (MapUtils.isNotEmpty(folderFileExtMap)) {
+            Iterator<String> iterator = folderFileExtMap.keySet().iterator();
+            while (iterator.hasNext()) {
+                String folderName = iterator.next();
 
-					File[] files = folder.listFiles(new FileExtensionsFilter(
-							validExtension));
-					if (files != null && files.length > 0) {
-						for (File file : files) {
-							checkFile(modelRepo, file, ENTRY_CREATE);
-						}
-					}
-				}
-			}
-		}
-	}
+                final String[] validExtension = folderFileExtMap.get(folderName);
+                if (validExtension != null && validExtension.length > 0) {
+                    File folder = getFile(folderName);
 
-	private void checkDeletedModels(
-			Map<String, String[]> previousFolderFileExtMap) {
-		if (MapUtils.isNotEmpty(previousFolderFileExtMap)) {
-			List<String> modelsToRemove = new LinkedList<String>();
-			if (MapUtils.isNotEmpty(folderFileExtMap)) {
-				Set<String> folders = previousFolderFileExtMap.keySet();
-				for (String folder : folders) {
-					if (!folderFileExtMap.containsKey(folder)) {
-						Iterable<String> models = modelRepo
-								.getAllModelNamesOfType(folder);
-						if (models != null) {
-							modelsToRemove.addAll(Lists.newLinkedList(models));
-						}
-					}
-				}
-			} else {
-				Set<String> folders = previousFolderFileExtMap.keySet();
-				for (String folder : folders) {
-					synchronized (FolderObserver.class) {
-						Iterable<String> models = modelRepo
-								.getAllModelNamesOfType(folder);
-						if (models != null) {
-							modelsToRemove.addAll(Lists.newLinkedList(models));
-						}
-					}
-				}
-			}
+                    File[] files = folder.listFiles(new FileExtensionsFilter(validExtension));
+                    if (files != null && files.length > 0) {
+                        for (File file : files) {
+                            checkFile(modelRepo, file, ENTRY_CREATE);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-			if (CollectionUtils.isNotEmpty(modelsToRemove)) {
-				for (String modelToRemove : modelsToRemove) {
-					synchronized (FolderObserver.class) {
-						modelRepo.removeModel(modelToRemove);
-					}
-				}
-			}
-		}
-	}
+    private void checkDeletedModels(Map<String, String[]> previousFolderFileExtMap) {
+        if (MapUtils.isNotEmpty(previousFolderFileExtMap)) {
+            List<String> modelsToRemove = new LinkedList<String>();
+            if (MapUtils.isNotEmpty(folderFileExtMap)) {
+                Set<String> folders = previousFolderFileExtMap.keySet();
+                for (String folder : folders) {
+                    if (!folderFileExtMap.containsKey(folder)) {
+                        Iterable<String> models = modelRepo.getAllModelNamesOfType(folder);
+                        if (models != null) {
+                            modelsToRemove.addAll(Lists.newLinkedList(models));
+                        }
+                    }
+                }
+            } else {
+                Set<String> folders = previousFolderFileExtMap.keySet();
+                for (String folder : folders) {
+                    synchronized (FolderObserver.class) {
+                        Iterable<String> models = modelRepo.getAllModelNamesOfType(folder);
+                        if (models != null) {
+                            modelsToRemove.addAll(Lists.newLinkedList(models));
+                        }
+                    }
+                }
+            }
 
-	protected class FileExtensionsFilter implements FilenameFilter {
+            if (CollectionUtils.isNotEmpty(modelsToRemove)) {
+                for (String modelToRemove : modelsToRemove) {
+                    synchronized (FolderObserver.class) {
+                        modelRepo.removeModel(modelToRemove);
+                    }
+                }
+            }
+        }
+    }
 
-		private String[] validExtensions;
+    protected class FileExtensionsFilter implements FilenameFilter {
 
-		public FileExtensionsFilter(String[] validExtensions) {
-			this.validExtensions = validExtensions;
-		}
+        private String[] validExtensions;
 
-		@Override
-		public boolean accept(File dir, String name) {
-			if (validExtensions != null && validExtensions.length > 0) {
-				for (String extension : validExtensions) {
-					if (name.toLowerCase().endsWith("." + extension)) {
-						return true;
-					}
-				}
-			}
+        public FileExtensionsFilter(String[] validExtensions) {
+            this.validExtensions = validExtensions;
+        }
 
-			return false;
-		}
-	}
+        @Override
+        public boolean accept(File dir, String name) {
+            if (validExtensions != null && validExtensions.length > 0) {
+                for (String extension : validExtensions) {
+                    if (name.toLowerCase().endsWith("." + extension)) {
+                        return true;
+                    }
+                }
+            }
 
-	@SuppressWarnings("rawtypes")
-	private static void checkFile(ModelRepository modelRepo, final File file,
-			Kind kind) {
-		if (modelRepo != null && file != null) {
-			try {
-				synchronized (FolderObserver.class) {
-					if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY)
-							&& file != null) {
-						modelRepo.addOrRefreshModel(file.getName(),
-								FileUtils.openInputStream(file));
-					} else if (kind == ENTRY_DELETE && file != null) {
-						modelRepo.removeModel(file.getName());
-					}
-				}
-			} catch (IOException e) {
-				LoggerFactory.getLogger(FolderObserver.class).warn("Cannot open file '" + file.getAbsolutePath()
-						+ "' for reading.", e);
-			}
-		}
-	}
+            return false;
+        }
+    }
 
-	private static File getFileByFileExtMap(Map<String, String[]> folderFileExtMap, String filename) {
-		if (StringUtils.isNotBlank(filename)
-				&& MapUtils.isNotEmpty(folderFileExtMap)) {
+    @SuppressWarnings("rawtypes")
+    private static void checkFile(ModelRepository modelRepo, final File file, Kind kind) {
+        if (modelRepo != null && file != null) {
+            try {
+                synchronized (FolderObserver.class) {
+                    if ((kind == ENTRY_CREATE || kind == ENTRY_MODIFY) && file != null) {
+                        modelRepo.addOrRefreshModel(file.getName(), FileUtils.openInputStream(file));
+                    } else if (kind == ENTRY_DELETE && file != null) {
+                        modelRepo.removeModel(file.getName());
+                    }
+                }
+            } catch (IOException e) {
+                LoggerFactory.getLogger(FolderObserver.class).warn(
+                        "Cannot open file '" + file.getAbsolutePath() + "' for reading.", e);
+            }
+        }
+    }
 
-			String extension = getExtension(filename);
+    private static File getFileByFileExtMap(Map<String, String[]> folderFileExtMap, String filename) {
+        if (StringUtils.isNotBlank(filename) && MapUtils.isNotEmpty(folderFileExtMap)) {
 
-			if (StringUtils.isNotBlank(extension)) {
-				Set<Entry<String, String[]>> entries = folderFileExtMap
-						.entrySet();
-				Iterator<Entry<String, String[]>> iterator = entries.iterator();
-				while (iterator.hasNext()) {
-					Entry<String, String[]> entry = iterator.next();
+            String extension = getExtension(filename);
 
-					if (ArrayUtils.contains(entry.getValue(), extension)) {
-						return new File(getFile(entry.getKey())
-								+ File.separator + filename);
-					}
-				}
-			}
-		}
+            if (StringUtils.isNotBlank(extension)) {
+                Set<Entry<String, String[]>> entries = folderFileExtMap.entrySet();
+                Iterator<Entry<String, String[]>> iterator = entries.iterator();
+                while (iterator.hasNext()) {
+                    Entry<String, String[]> entry = iterator.next();
 
-		return null;
-	}
+                    if (ArrayUtils.contains(entry.getValue(), extension)) {
+                        return new File(getFile(entry.getKey()) + File.separator + filename);
+                    }
+                }
+            }
+        }
 
-	/**
-	 * Returns the {@link File} object for the given filename. <br />
-	 * It must be contained in the configuration folder
-	 * 
-	 * @param configDispatcher
-	 *            the configuration dispatcher service
-	 * @param filename
-	 *            the file name to get the {@link File} for
-	 * @return the corresponding {@link File}
-	 */
-	private static File getFile(String filename) {
-		File folder = new File(ConfigConstants.getConfigFolder()
-				+ File.separator + filename);
+        return null;
+    }
 
-		return folder;
-	}
+    /**
+     * Returns the {@link File} object for the given filename. <br />
+     * It must be contained in the configuration folder
+     * 
+     * @param configDispatcher
+     *            the configuration dispatcher service
+     * @param filename
+     *            the file name to get the {@link File} for
+     * @return the corresponding {@link File}
+     */
+    private static File getFile(String filename) {
+        File folder = new File(ConfigConstants.getConfigFolder() + File.separator + filename);
 
-	/**
-	 * Returns the extension of the given file
-	 * 
-	 * @param filename
-	 *            the file name to get the extension
-	 * @return the file's extension
-	 */
-	public static String getExtension(String filename) {
-		String fileExt = filename.substring(filename.lastIndexOf(".") + 1);
+        return folder;
+    }
 
-		return fileExt;
-	}
+    /**
+     * Returns the extension of the given file
+     * 
+     * @param filename
+     *            the file name to get the extension
+     * @return the file's extension
+     */
+    public static String getExtension(String filename) {
+        String fileExt = filename.substring(filename.lastIndexOf(".") + 1);
+
+        return fileExt;
+    }
 }

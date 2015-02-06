@@ -16,34 +16,35 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Extension of the default OSGi bundle activator
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class RuleRuntimeActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
-	
-	public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
-	public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
+    private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
 
-	public void start(BundleContext bc) throws Exception {
-		
-		RulesStandaloneSetup.doSetup();
-		logger.debug("Registered 'rule' configuration parser");	
-		modelRepositoryTracker = new ServiceTracker<ModelRepository, ModelRepository>(bc, ModelRepository.class, null);
-		modelRepositoryTracker.open();
+    public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
+    public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
 
-		scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
-		scriptEngineTracker.open();		
+    @Override
+    public void start(BundleContext bc) throws Exception {
 
-	}
+        RulesStandaloneSetup.doSetup();
+        logger.debug("Registered 'rule' configuration parser");
+        modelRepositoryTracker = new ServiceTracker<ModelRepository, ModelRepository>(bc, ModelRepository.class, null);
+        modelRepositoryTracker.open();
 
-	public void stop(BundleContext context) throws Exception {
-		modelRepositoryTracker.close();
-		scriptEngineTracker.close();
-	}
+        scriptEngineTracker = new ServiceTracker<ScriptEngine, ScriptEngine>(bc, ScriptEngine.class, null);
+        scriptEngineTracker.open();
+
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        modelRepositoryTracker.close();
+        scriptEngineTracker.close();
+    }
 
 }

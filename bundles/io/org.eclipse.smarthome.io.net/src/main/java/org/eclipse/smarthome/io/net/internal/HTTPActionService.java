@@ -7,43 +7,42 @@
  */
 package org.eclipse.smarthome.io.net.internal;
 
-import org.eclipse.smarthome.io.net.actions.HTTP;
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
-	
+import org.eclipse.smarthome.io.net.actions.HTTP;
 
 /**
  * This class registers an OSGi service for the HTTP action.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class HTTPActionService implements ActionService {
 
-	/**
-	 * Indicates whether this action is properly configured which means all
-	 * necessary configurations are set. This flag can be checked by the
-	 * action methods before executing code.
-	 */
-	/* default */ static boolean isProperlyConfigured = false;
-	
-	public HTTPActionService() {
-	}
-	
-	public void activate() {
-	}
-	
-	public void deactivate() {
-		// deallocate Resources here that are no longer needed and 
-		// should be reset when activating this binding again
-	}
+    /**
+     * Indicates whether this action is properly configured which means all
+     * necessary configurations are set. This flag can be checked by the
+     * action methods before executing code.
+     */
+    /* default */static boolean isProperlyConfigured = false;
 
-	@Override
-	public String getActionClassName() {
-		return HTTP.class.getCanonicalName();
-	}
+    public HTTPActionService() {
+    }
 
-	@Override
-	public Class<?> getActionClass() {
-		return HTTP.class;
-	}
+    public void activate() {
+    }
+
+    public void deactivate() {
+        // deallocate Resources here that are no longer needed and
+        // should be reset when activating this binding again
+    }
+
+    @Override
+    public String getActionClassName() {
+        return HTTP.class.getCanonicalName();
+    }
+
+    @Override
+    public Class<?> getActionClass() {
+        return HTTP.class;
+    }
 
 }

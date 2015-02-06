@@ -28,13 +28,11 @@ public interface DiscoveryResult {
     /**
      * Returns the unique {@code Thing} ID of this result object.
      * <p>
-     * A {@link ThingUID} must be a unique identifier of a concrete
-     * {@code Thing} which <i>must not</i> consist of data which could change
-     * (e.g. configuration data such as an IP address). If a {@code Thing}
-     * disappears and is discovered again, the same {@code Thing} ID must be
-     * created. A typical {@code Thing} ID could be the serial number. It's
-     * usually <i>not</i> a product number.
-     * 
+     * A {@link ThingUID} must be a unique identifier of a concrete {@code Thing} which <i>must not</i> consist of data
+     * which could change (e.g. configuration data such as an IP address). If a {@code Thing} disappears and is
+     * discovered again, the same {@code Thing} ID must be created. A typical {@code Thing} ID could be the serial
+     * number. It's usually <i>not</i> a product number.
+     *
      * @return the Thing ID of this result object (not null, not empty)
      */
     public ThingUID getThingUID();
@@ -42,9 +40,9 @@ public interface DiscoveryResult {
     /**
      * Returns the unique {@code Thing} type ID of this result object.
      * <p>
-     * A {@code Thing} type ID could be a product number which identifies the same
-     * type of {@link Thing}s. It's usually <i>not</i> a serial number.
-     * 
+     * A {@code Thing} type ID could be a product number which identifies the same type of {@link Thing}s. It's usually
+     * <i>not</i> a serial number.
+     *
      * @return the unique Thing type of this result object (not null, not empty)
      */
     public ThingTypeUID getThingTypeUID();
@@ -67,11 +65,11 @@ public interface DiscoveryResult {
      * @return the properties of this result object (not null, could be empty)
      */
     public Map<String, Object> getProperties();
-    
+
     /**
      * Returns the flag of this result object.<br>
-     * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW}
-     * or has been marked as {@link DiscoveryResultFlag#IGNORED}. In the latter
+     * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW} or has been marked as
+     * {@link DiscoveryResultFlag#IGNORED}. In the latter
      * case the result object should be regarded as known by the system so that
      * further processing should be skipped.
      *
@@ -85,10 +83,10 @@ public interface DiscoveryResult {
      * @return the human readable label for this result object (not null, could be empty)
      */
     public String getLabel();
-    
+
     /**
      * Returns the unique bridge ID of the {@link DiscoveryResult}.
-     * 
+     *
      * @return the unique bridge ID (could be null)
      */
     public ThingUID getBridgeUID();

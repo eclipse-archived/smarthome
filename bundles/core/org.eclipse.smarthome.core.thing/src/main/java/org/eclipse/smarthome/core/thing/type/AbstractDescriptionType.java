@@ -9,14 +9,13 @@ package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.smarthome.core.thing.UID;
 
-
 /**
  * The {@link AbstractDescriptionType} class is the base class for a {@link ThingType},
  * a {@link BridgeType} a {@link ChannelType} or a {@link ChannelGroupType}.
  * This class contains only properties and methods accessing them.
  * <p>
  * <b>Hint:</b> This class is immutable.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public abstract class AbstractDescriptionType {
@@ -27,20 +26,19 @@ public abstract class AbstractDescriptionType {
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param uid the unique identifier which identifies the according type within
-     *     the overall system (must neither be null, nor empty)
-     * 
+     *            the overall system (must neither be null, nor empty)
+     *
      * @param label the human readable label for the according type
-     *     (must neither be null nor empty)
-     * 
+     *            (must neither be null nor empty)
+     *
      * @param description the human readable description for the according type
-     *     (could be null or empty)
-     * 
+     *            (could be null or empty)
+     *
      * @throws IllegalArgumentException if the UID is null, or the label is null or empty
      */
-    public AbstractDescriptionType(UID uid, String label, String description)
-            throws IllegalArgumentException {
+    public AbstractDescriptionType(UID uid, String label, String description) throws IllegalArgumentException {
 
         if (uid == null) {
             throw new IllegalArgumentException("The UID must not be null");
@@ -57,9 +55,9 @@ public abstract class AbstractDescriptionType {
 
     /**
      * Returns the unique identifier which identifies the according type within the overall system.
-     * 
+     *
      * @return the unique identifier which identifies the according type within
-     *     the overall system (neither null, nor empty)
+     *         the overall system (neither null, nor empty)
      */
     public UID getUID() {
         return this.uid;
@@ -67,7 +65,7 @@ public abstract class AbstractDescriptionType {
 
     /**
      * Returns the human readable label for the according type.
-     * 
+     *
      * @return the human readable label for the according type (neither null, nor empty)
      */
     public String getLabel() {
@@ -76,7 +74,7 @@ public abstract class AbstractDescriptionType {
 
     /**
      * Returns the human readable description for the according type.
-     * 
+     *
      * @return the human readable description for the according type (could be null or empty)
      */
     public String getDescription() {

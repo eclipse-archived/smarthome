@@ -39,155 +39,166 @@ import com.google.common.collect.Lists;
  *
  */
 public class ModelRepositoryImpl implements ModelRepository {
-	
-	private final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
-	private final ResourceSet resourceSet;
-	
-	private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();
 
-	public ModelRepositoryImpl() {
-		XtextResourceSet xtextResourceSet = new SynchronizedXtextResourceSet();
-		xtextResourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
-		this.resourceSet = xtextResourceSet;
-		// don't use XMI as a default
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().remove("*");
-	}
-	
-	public EObject getModel(String name) {
-		synchronized (resourceSet) {
-	 		Resource resource = getResource(name);
-			if(resource!=null) {
-				if(resource.getContents().size()>0) {
-					return resource.getContents().get(0);
-				} else {
-					logger.warn("Configuration model '{}' is either empty or cannot be parsed correctly!", name);
-					resourceSet.getResources().remove(resource);
-					return null;
-				}
-			} else {
-				logger.debug("Configuration model '{}' can not be found", name);
-				return null;
-			}
-		}
-	}
+    private final Logger logger = LoggerFactory.getLogger(ModelRepositoryImpl.class);
+    private final ResourceSet resourceSet;
 
-	public boolean addOrRefreshModel(String name, InputStream inputStream) {
-		Resource resource = getResource(name);
-		if(resource==null) {
-			synchronized(resourceSet) {
-				// try again to retrieve the resource as it might have been created by now
-				resource = getResource(name);
-				if(resource==null) {
-					// seems to be a new file
-					resource = resourceSet.createResource(URI.createURI(name));
-					if(resource!=null) {
-						logger.info("Loading model '{}'", name);
-						try {
-							Map<String, String> options = new HashMap<String, String>();
-							options.put(XtextResource.OPTION_ENCODING, "UTF-8");
-							if (inputStream == null) {
-								logger.warn("Resource '{}' not found. You have to pass an inputStream to create the resource.", name);
-								return false;
-							}
-							resource.load(inputStream, options);
-							notifyListeners(name, EventType.ADDED);
-							return true;
-						} catch (IOException e) {
-							logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
-							resourceSet.getResources().remove(resource);
-						}
-					}
-				}
-			}
-		} else {
-			synchronized(resourceSet) {
-				resource.unload();
-				try {
-					logger.info("Refreshing model '{}'", name);
-					if (inputStream != null) {
-						resource.load(inputStream, Collections.EMPTY_MAP);
-					} else {
-						resource.load(Collections.EMPTY_MAP);
-					}
-					notifyListeners(name, EventType.MODIFIED);
-					return true;
-				} catch (IOException e) {
-					logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
-					resourceSet.getResources().remove(resource);
-				}
-			}
-		}
-		return false;
-	}
+    private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();
 
-	public boolean removeModel(String name) {
-		Resource resource = getResource(name);
-		if(resource!=null) {
-			synchronized(resourceSet) {
-				// do not physically delete it, but remove it from the resource set
-				notifyListeners(name, EventType.REMOVED);
-				resourceSet.getResources().remove(resource);
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}
+    public ModelRepositoryImpl() {
+        XtextResourceSet xtextResourceSet = new SynchronizedXtextResourceSet();
+        xtextResourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+        this.resourceSet = xtextResourceSet;
+        // don't use XMI as a default
+        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().remove("*");
+    }
 
-	public Iterable<String> getAllModelNamesOfType(final String modelType) {
-		synchronized(resourceSet) {
-			Iterable<Resource> matchingResources = Iterables.filter(resourceSet.getResources(), new Predicate<Resource>() {
-				public boolean apply(Resource input) {
-					if(input!=null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
-						return modelType.equalsIgnoreCase(input.getURI().fileExtension());
-					} else {
-						return false;
-					}
-				}});
-			return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
-				public String apply(Resource from) {
-					return from.getURI().path();
-				}}));
-		}
-	}
-	
+    @Override
+    public EObject getModel(String name) {
+        synchronized (resourceSet) {
+            Resource resource = getResource(name);
+            if (resource != null) {
+                if (resource.getContents().size() > 0) {
+                    return resource.getContents().get(0);
+                } else {
+                    logger.warn("Configuration model '{}' is either empty or cannot be parsed correctly!", name);
+                    resourceSet.getResources().remove(resource);
+                    return null;
+                }
+            } else {
+                logger.debug("Configuration model '{}' can not be found", name);
+                return null;
+            }
+        }
+    }
 
-	public void reloadAllModelsOfType(final String modelType) {
-		synchronized(resourceSet) {
-			// Make a copy to avoid ConcurrentModificationException
-			List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
-			for (Resource resource : resourceListCopy) {
-				if(resource!=null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
-					if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
-						XtextResource xtextResource = (XtextResource)resource;
-						// It's not sufficient to discard the derived state. 
-						// The quick & dirts solution is to reparse the whole resource.
-						// We trigger this by dummy updating the resource.
-						xtextResource.update(1, 0, "");
-					}
-				}
-			}
-		}
-	}
+    @Override
+    public boolean addOrRefreshModel(String name, InputStream inputStream) {
+        Resource resource = getResource(name);
+        if (resource == null) {
+            synchronized (resourceSet) {
+                // try again to retrieve the resource as it might have been created by now
+                resource = getResource(name);
+                if (resource == null) {
+                    // seems to be a new file
+                    resource = resourceSet.createResource(URI.createURI(name));
+                    if (resource != null) {
+                        logger.info("Loading model '{}'", name);
+                        try {
+                            Map<String, String> options = new HashMap<String, String>();
+                            options.put(XtextResource.OPTION_ENCODING, "UTF-8");
+                            if (inputStream == null) {
+                                logger.warn(
+                                        "Resource '{}' not found. You have to pass an inputStream to create the resource.",
+                                        name);
+                                return false;
+                            }
+                            resource.load(inputStream, options);
+                            notifyListeners(name, EventType.ADDED);
+                            return true;
+                        } catch (IOException e) {
+                            logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
+                            resourceSet.getResources().remove(resource);
+                        }
+                    }
+                }
+            }
+        } else {
+            synchronized (resourceSet) {
+                resource.unload();
+                try {
+                    logger.info("Refreshing model '{}'", name);
+                    if (inputStream != null) {
+                        resource.load(inputStream, Collections.EMPTY_MAP);
+                    } else {
+                        resource.load(Collections.EMPTY_MAP);
+                    }
+                    notifyListeners(name, EventType.MODIFIED);
+                    return true;
+                } catch (IOException e) {
+                    logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
+                    resourceSet.getResources().remove(resource);
+                }
+            }
+        }
+        return false;
+    }
 
-	public void addModelRepositoryChangeListener(
-			ModelRepositoryChangeListener listener) {
-		listeners.add(listener);
-	}
+    @Override
+    public boolean removeModel(String name) {
+        Resource resource = getResource(name);
+        if (resource != null) {
+            synchronized (resourceSet) {
+                // do not physically delete it, but remove it from the resource set
+                notifyListeners(name, EventType.REMOVED);
+                resourceSet.getResources().remove(resource);
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
 
-	public void removeModelRepositoryChangeListener(
-			ModelRepositoryChangeListener listener) {
-		listeners.remove(listener);
-	}
+    @Override
+    public Iterable<String> getAllModelNamesOfType(final String modelType) {
+        synchronized (resourceSet) {
+            Iterable<Resource> matchingResources = Iterables.filter(resourceSet.getResources(),
+                    new Predicate<Resource>() {
+                        @Override
+                        public boolean apply(Resource input) {
+                            if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
+                                return modelType.equalsIgnoreCase(input.getURI().fileExtension());
+                            } else {
+                                return false;
+                            }
+                        }
+                    });
+            return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
+                @Override
+                public String apply(Resource from) {
+                    return from.getURI().path();
+                }
+            }));
+        }
+    }
 
-	private Resource getResource(String name) {
-		 return resourceSet.getResource(URI.createURI(name), false);
-	}
+    @Override
+    public void reloadAllModelsOfType(final String modelType) {
+        synchronized (resourceSet) {
+            // Make a copy to avoid ConcurrentModificationException
+            List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            for (Resource resource : resourceListCopy) {
+                if (resource != null && resource.getURI().lastSegment().contains(".") && resource.isLoaded()) {
+                    if (modelType.equalsIgnoreCase(resource.getURI().fileExtension())) {
+                        XtextResource xtextResource = (XtextResource) resource;
+                        // It's not sufficient to discard the derived state.
+                        // The quick & dirts solution is to reparse the whole resource.
+                        // We trigger this by dummy updating the resource.
+                        xtextResource.update(1, 0, "");
+                    }
+                }
+            }
+        }
+    }
 
-	private void notifyListeners(String name, EventType type) {
-		for(ModelRepositoryChangeListener listener : listeners) {
-			listener.modelChanged(name, type);
-		}
-	}
+    @Override
+    public void addModelRepositoryChangeListener(ModelRepositoryChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeModelRepositoryChangeListener(ModelRepositoryChangeListener listener) {
+        listeners.remove(listener);
+    }
+
+    private Resource getResource(String name) {
+        return resourceSet.getResource(URI.createURI(name), false);
+    }
+
+    private void notifyListeners(String name, EventType type) {
+        for (ModelRepositoryChangeListener listener : listeners) {
+            listener.modelChanged(name, type);
+        }
+    }
 
 }

@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.types;
 
 /**
  * Describes one possible value an item might have.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public final class StateOption {
@@ -19,7 +19,7 @@ public final class StateOption {
 
     /**
      * Creates a {@link StateOption} object.
-     * 
+     *
      * @param value
      *            value of the item
      * @param label
@@ -28,7 +28,7 @@ public final class StateOption {
      *             if value is null
      */
     public StateOption(String value, String label) {
-        if(value == null) {
+        if (value == null) {
             throw new IllegalArgumentException("Value must not be null.");
         }
         this.value = value;
@@ -37,7 +37,7 @@ public final class StateOption {
 
     /**
      * Returns the label (can be null).
-     * 
+     *
      * @return label (can be null)
      */
     public String getLabel() {
@@ -46,7 +46,7 @@ public final class StateOption {
 
     /**
      * Returns the value (can not be null).
-     * 
+     *
      * @return value (can not be null)
      */
     public String getValue() {

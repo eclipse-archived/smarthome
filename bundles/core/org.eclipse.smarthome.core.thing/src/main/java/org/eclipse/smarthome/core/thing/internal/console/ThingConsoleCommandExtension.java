@@ -15,14 +15,14 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
 /**
  * {@link ThingConsoleCommandExtension} provides console commands for listing and removing things.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
@@ -41,44 +41,44 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
     public void execute(String[] args, Console console) {
         String command = args[0];
         switch (command) {
-        case COMMAND_THINGS:
-            Collection<Thing> things = thingRegistry.getAll();
-            if(args.length > 1) {
-                String subCommand = args[1];
-                switch (subCommand) {
-                case "list":
-                    printThings(console, things);
-                    return;
-                case "clear":
-                    removeAllThings(console, things);
-                    return;    
-                case "remove":
-                    if (args.length > 2) {
-                    	ThingUID thingUID = new ThingUID(args[2]);
-                        removeThing(console, things, thingUID);
-                    } else {
-                        console.println("Specify thing id to remove: things remove <thingUID> (e.g. \"hue:light:1\")");
+            case COMMAND_THINGS:
+                Collection<Thing> things = thingRegistry.getAll();
+                if (args.length > 1) {
+                    String subCommand = args[1];
+                    switch (subCommand) {
+                        case "list":
+                            printThings(console, things);
+                            return;
+                        case "clear":
+                            removeAllThings(console, things);
+                            return;
+                        case "remove":
+                            if (args.length > 2) {
+                                ThingUID thingUID = new ThingUID(args[2]);
+                                removeThing(console, things, thingUID);
+                            } else {
+                                console.println("Specify thing id to remove: things remove <thingUID> (e.g. \"hue:light:1\")");
+                            }
+                            return;
+                        default:
+                            break;
                     }
-                    return;
-                default:
-                    break;
+                } else {
+                    printThings(console, things);
                 }
-            } else {
-                printThings(console, things);
-            }
-            return;
-        default:
-            return;
+                return;
+            default:
+                return;
         }
     }
 
     private void removeThing(Console console, Collection<Thing> things, ThingUID thingUID) {
         Thing removedThing = this.managedThingProvider.remove(thingUID);
-        if(removedThing!=null) {
-        	console.println("Thing '" + thingUID + "' successfully removed.");
+        if (removedThing != null) {
+            console.println("Thing '" + thingUID + "' successfully removed.");
         } else {
             console.println("Could not delete thing " + thingUID + ".");
-        }            	
+        }
     }
 
     private void removeAllThings(Console console, Collection<Thing> things) {
@@ -91,11 +91,9 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList((new String[] {
-        	COMMAND_THINGS + " list - lists all things",
-        	COMMAND_THINGS + " clear - removes all managed things",
-        	COMMAND_THINGS + " remove <thingUID> - removes a thing" 
-        }));
+        return Arrays.asList((new String[] { COMMAND_THINGS + " list - lists all things",
+                COMMAND_THINGS + " clear - removes all managed things",
+                COMMAND_THINGS + " remove <thingUID> - removes a thing" }));
     }
 
     private void printThings(Console console, Collection<Thing> things) {
@@ -111,8 +109,6 @@ public class ThingConsoleCommandExtension implements ConsoleCommandExtension {
             console.println(String.format("%s (Type=%s, Status=%s)", id, thingType, status));
         }
     }
-
-
 
     protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = managedThingProvider;

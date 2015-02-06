@@ -24,13 +24,12 @@ import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 
 import com.thoughtworks.xstream.XStream;
 
-
 /**
  * The {@link BindingInfoReader} reads XML documents, which contain the {@code binding} XML tag,
  * and converts them to {@link BindingInfoXmlResult} objects.
  * <p>
  * This reader uses {@code XStream} and {@code StAX} to parse and convert the XML document.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended by options and filter criteria
  */
@@ -50,7 +49,7 @@ public class BindingInfoReader extends XmlDocumentReader<BindingInfoXmlResult> {
         xstream.registerConverter(new BindingInfoConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
-        xstream.registerConverter(new FilterCriteriaConverter());        
+        xstream.registerConverter(new FilterCriteriaConverter());
     }
 
     @Override
@@ -65,7 +64,7 @@ public class BindingInfoReader extends XmlDocumentReader<BindingInfoXmlResult> {
         xstream.alias("options", NodeList.class);
         xstream.alias("option", NodeValue.class);
         xstream.alias("filter", List.class);
-        xstream.alias("criteria", FilterCriteria.class);        
+        xstream.alias("criteria", FilterCriteria.class);
     }
 
 }

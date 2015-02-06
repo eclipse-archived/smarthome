@@ -9,7 +9,7 @@ package org.eclipse.smarthome.io.rest.core.link.beans;
 
 /**
  * This is a java bean that is used to serialize links.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class ItemChannelLinkBean {

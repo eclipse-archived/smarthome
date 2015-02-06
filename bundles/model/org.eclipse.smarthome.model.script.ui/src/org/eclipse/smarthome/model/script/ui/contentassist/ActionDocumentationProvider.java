@@ -12,10 +12,10 @@ import org.eclipse.xtext.xbase.ui.hover.XbaseHoverDocumentationProvider;
 
 public class ActionDocumentationProvider extends XbaseHoverDocumentationProvider {
 
-	@Override
-	public String getDocumentation(EObject o) {
-		String doc = super.getDocumentation(o);
-		return doc;
-	}
+    @Override
+    public String getDocumentation(EObject o) {
+        String doc = super.getDocumentation(o);
+        return doc;
+    }
 
 }

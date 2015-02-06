@@ -9,9 +9,9 @@ package org.eclipse.smarthome.io.rest.sse.beans;
 
 /**
  * Event bean for broadcasted events.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class EventBean {
 

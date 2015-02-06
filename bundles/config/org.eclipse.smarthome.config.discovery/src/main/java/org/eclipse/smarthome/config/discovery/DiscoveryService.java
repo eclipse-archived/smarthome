@@ -11,36 +11,28 @@ import java.util.Collection;
 
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
-
 /**
  * The {@link DiscoveryService} is a service interface which each binding can
- * implement to provide an auto discovery process for one or more {@code Thing}
- * s.
+ * implement to provide an auto discovery process for one or more {@code Thing} s.
  * <p>
- * As an example, a typical discovery mechanism could scan the network for
- * <i>UPnP</i> devices, if requested.
+ * As an example, a typical discovery mechanism could scan the network for <i>UPnP</i> devices, if requested.
  * <p>
- * A {@link DiscoveryService} must be able to finish its discovery process
- * without any user interaction.
+ * A {@link DiscoveryService} must be able to finish its discovery process without any user interaction.
  * <p>
  * <b>There are two different kind of executions:</b>
  * <ul>
- * <li><b>Background discovery:</b> If this mode is enabled, the discovery
- * process should run in the background as long as this mode is not disabled
- * again. Background discovery can be enabled and disabled and is configured
- * through the configuration admin. The implementation class that registers an
- * OSGi service must define a PID and has to react on configuration changes for
- * it. See also
- * {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED}.</li>
- * <li><b>Active scan:</b> If an active scan is triggered, the the service
- * should try to actively query for new devices and should report new results
- * within the defined scan timeout. An active scan can be aborted.</li>
+ * <li><b>Background discovery:</b> If this mode is enabled, the discovery process should run in the background as long
+ * as this mode is not disabled again. Background discovery can be enabled and disabled and is configured through the
+ * configuration admin. The implementation class that registers an OSGi service must define a PID and has to react on
+ * configuration changes for it. See also {@link DiscoveryService#CONFIG_PROPERTY_BACKGROUND_DISCOVERY_ENABLED}.</li>
+ * <li><b>Active scan:</b> If an active scan is triggered, the the service should try to actively query for new devices
+ * and should report new results within the defined scan timeout. An active scan can be aborted.</li>
  * </ul>
  *
  * @author Michael Grammling - Initial Contribution.
  * @author Kai Kreuzer - Refactored API
  * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
- * 
+ *
  * @see DiscoveryListener
  * @see DiscoveryServiceRegistry
  */
@@ -56,7 +48,7 @@ public interface DiscoveryService {
      * Returns the list of {@code Thing} types which are supported by the {@link DiscoveryService}.
      *
      * @return the list of Thing types which are supported by the discovery service
-     *     (not null, could be empty)
+     *         (not null, could be empty)
      */
     public Collection<ThingTypeUID> getSupportedThingTypes();
 
@@ -82,7 +74,7 @@ public interface DiscoveryService {
      * If started, any registered {@link DiscoveryListener} must be notified about {@link DiscoveryResult}s.
      * <p>
      * If there is already a scan running, it is aborted and a new scan is triggered.
-     * 
+     *
      * @param listener a listener that is notified about errors or termination of the scan
      */
     void startScan(ScanListener listener);
@@ -92,9 +84,8 @@ public interface DiscoveryService {
      * This method must not block any calls such as {@link #startScan()} and must
      * return fast.
      * <p>
-     * After this method returns, no further notifications about {@link DiscoveryResult}s
-     * are allowed to be sent to any registered listener, exceptional the background discovery
-     * mode is active.
+     * After this method returns, no further notifications about {@link DiscoveryResult}s are allowed to be sent to any
+     * registered listener, exceptional the background discovery mode is active.
      * <p>
      * This method returns silently, if the scan has not been started before.
      */
@@ -103,14 +94,13 @@ public interface DiscoveryService {
     /**
      * Adds a {@link DiscoveryListener} to the listeners' registry.
      * <p>
-     * Directly after registering the listener, it will receive 
-     * {@link DiscoveryListener#thingDiscovered(DiscoveryService, DiscoveryResult)} notifications
-     * about all devices that have been previously discovered by the service already (tracker behaviour).
-     * This is also done, if the listener has already been registered previously. 
+     * Directly after registering the listener, it will receive
+     * {@link DiscoveryListener#thingDiscovered(DiscoveryService, DiscoveryResult)} notifications about all devices that
+     * have been previously discovered by the service already (tracker behaviour). This is also done, if the listener
+     * has already been registered previously.
      * <p>
-     * When a {@link DiscoveryResult} is created while the discovery process is active
-     * (e.g. by starting a scan or through the enabled background discovery mode), 
-     * the specified listener is notified.
+     * When a {@link DiscoveryResult} is created while the discovery process is active (e.g. by starting a scan or
+     * through the enabled background discovery mode), the specified listener is notified.
      * <p>
      * This method returns silently if the specified listener is {@code null}.
      *
@@ -121,13 +111,11 @@ public interface DiscoveryService {
     /**
      * Removes a {@link DiscoveryListener} from the listeners' registry.
      * <p>
-     * When this method returns, the specified listener is no longer notified about
-     * a created {@link DiscoveryResult} while the discovery process is active
-     * (e.g. by forcing the startup of the discovery process or while enabling the
+     * When this method returns, the specified listener is no longer notified about a created {@link DiscoveryResult}
+     * while the discovery process is active (e.g. by forcing the startup of the discovery process or while enabling the
      * auto discovery mode)
      * <p>
-     * This method returns silently if the specified listener is {@code null}
-     * or has not been registered before.
+     * This method returns silently if the specified listener is {@code null} or has not been registered before.
      *
      * @param listener the listener to be removed (could be null)
      */

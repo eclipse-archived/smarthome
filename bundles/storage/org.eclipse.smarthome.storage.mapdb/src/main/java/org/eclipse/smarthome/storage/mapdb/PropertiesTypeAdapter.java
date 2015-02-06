@@ -29,9 +29,9 @@ import com.google.gson.stream.JsonWriter;
  * Type adapter that makes sure that all Numeric values in Maps of type
  * Map<String, Object> are deserialized as BigDecimal instances instead of
  * doubles.
- * 
+ *
  * @author Ivan Iliev
- * 
+ *
  */
 public class PropertiesTypeAdapter extends TypeAdapter<Map<String, Object>> {
 

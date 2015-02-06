@@ -25,10 +25,10 @@ public class BridgeBuilder extends GenericBridgeBuilder<BridgeBuilder> {
         bridge.setChannels(new ArrayList<Channel>());
         return new BridgeBuilder(bridge);
     }
-    
+
     public static BridgeBuilder create(ThingUID thingUID) {
-    	BridgeImpl bridge = new BridgeImpl(thingUID);
-    	return new BridgeBuilder(bridge);
+        BridgeImpl bridge = new BridgeImpl(thingUID);
+        return new BridgeBuilder(bridge);
     }
 
 }

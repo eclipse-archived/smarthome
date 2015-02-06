@@ -8,18 +8,18 @@
 package org.eclipse.smarthome.io.transport.upnp;
 
 /**
- * The {@link UpnpIOParticipant} is an interface that needs to 
+ * The {@link UpnpIOParticipant} is an interface that needs to
  * be implemented by classes that wants to participate in
  * UPNP communication
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public interface UpnpIOParticipant {
-	
-	/** Get the UDN of the participant **/
-	public String getUDN();
 
-	/** Called when the UPNP IO service receives a {variable,value} tuple for the given UPNP service**/
-	public void onValueReceived(String variable, String value, String service);
-		
+    /** Get the UDN of the participant **/
+    public String getUDN();
+
+    /** Called when the UPNP IO service receives a {variable,value} tuple for the given UPNP service **/
+    public void onValueReceived(String variable, String value, String service);
+
 }

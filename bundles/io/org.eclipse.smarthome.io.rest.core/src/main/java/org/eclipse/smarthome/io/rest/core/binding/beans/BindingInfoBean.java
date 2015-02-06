@@ -13,7 +13,7 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
 /**
  * This is a java bean that is used to serialize binding info objects to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

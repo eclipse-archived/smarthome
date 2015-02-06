@@ -26,15 +26,13 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link ChannelTypeConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert channel type information within an XML document
+ * The {@link ChannelTypeConverter} is a concrete implementation of the {@code XStream} {@link Converter} interface used
+ * to convert channel type information within an XML document
  * into a {@link ChannelTypeXmlResult} object.
  * <p>
- * This converter converts {@code channel-type} XML tags.
- * It uses the {@link AbstractDescriptionTypeConverter} which offers base functionality
- * for each type definition.
+ * This converter converts {@code channel-type} XML tags. It uses the {@link AbstractDescriptionTypeConverter} which
+ * offers base functionality for each type definition.
  *
  * @author Michael Grammling - Initial Contribution
  */
@@ -43,9 +41,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     public ChannelTypeConverter() {
         super(ChannelTypeXmlResult.class, "channel-type");
 
-        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
-                { "id", "true" },
-                { "advanced", "false" }});
+        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
+                { "advanced", "false" } });
     }
 
     private boolean isAdvanced(Map<String, String> attributes, boolean defaultValue) {
@@ -89,7 +86,7 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
             }
         }
 
-        return tags; 
+        return tags;
     }
 
     private StateDescription readStateDescription(NodeIterator nodeIterator) {
@@ -107,10 +104,8 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
     }
 
     @Override
-    protected ChannelTypeXmlResult unmarshalType(
-            HierarchicalStreamReader reader, UnmarshallingContext context,
-            Map<String, String> attributes, NodeIterator nodeIterator)
-            throws ConversionException {
+    protected ChannelTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
+            Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
         ChannelTypeUID channelTypeUID = new ChannelTypeUID(super.getUID(attributes, context));
         boolean advanced = isAdvanced(attributes, false);
@@ -125,19 +120,11 @@ public class ChannelTypeConverter extends AbstractDescriptionTypeConverter<Chann
 
         Object[] configDescriptionObjects = super.getConfigDescriptionObjects(nodeIterator);
 
-        ChannelType channelType = new ChannelType(
-                channelTypeUID,
-                advanced,
-                itemType,
-                label,
-                description,
-                category,
-                tags,
-                stateDescription,
-                (URI) configDescriptionObjects[0]);
+        ChannelType channelType = new ChannelType(channelTypeUID, advanced, itemType, label, description, category,
+                tags, stateDescription, (URI) configDescriptionObjects[0]);
 
-        ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(
-                channelType, (ConfigDescription) configDescriptionObjects[1]);
+        ChannelTypeXmlResult channelTypeXmlResult = new ChannelTypeXmlResult(channelType,
+                (ConfigDescription) configDescriptionObjects[1]);
 
         return channelTypeXmlResult;
     }

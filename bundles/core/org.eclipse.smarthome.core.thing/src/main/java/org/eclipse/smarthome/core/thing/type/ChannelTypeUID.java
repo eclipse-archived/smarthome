@@ -11,7 +11,7 @@ import org.eclipse.smarthome.core.thing.UID;
 
 /**
  * The {@link ChannelTypeUID} represents a unique identifier for channel types.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  * @author Dennis Nobel - Javadoc added
@@ -26,10 +26,9 @@ public class ChannelTypeUID extends UID {
         super();
     }
 
-
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param channelUid the UID for the channel
      */
     public ChannelTypeUID(String channelUid) {
@@ -38,7 +37,7 @@ public class ChannelTypeUID extends UID {
 
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param bindingId the binding ID (must neither be null, nor empty)
      * @param id the identifier of the channel (must neither be null, nor empty)
      */
@@ -48,7 +47,7 @@ public class ChannelTypeUID extends UID {
 
     /**
      * Returns the identifier of the channel.
-     * 
+     *
      * @return the identifier of the channel (neither null, nor empty)
      */
     public String getId() {

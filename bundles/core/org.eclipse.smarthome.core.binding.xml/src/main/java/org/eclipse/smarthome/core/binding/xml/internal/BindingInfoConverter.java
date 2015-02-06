@@ -23,27 +23,24 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link BindingInfoConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert binding information within an XML document
+ * The {@link BindingInfoConverter} is a concrete implementation of the {@code XStream} {@link Converter} interface used
+ * to convert binding information within an XML document
  * into a {@link BindingInfoXmlResult} object.
  * <p>
  * This converter converts {@code binding} XML tags.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResult> {
 
     private ConverterAttributeMapValidator attributeMapValidator;
 
-
     public BindingInfoConverter() {
         super(BindingInfoXmlResult.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
-                { "id", "true" },
-                { "schemaLocation", "false" }});
+        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
+                { "schemaLocation", "false" } });
     }
 
     private URI readConfigDescriptionURI(NodeIterator nodeIterator) throws ConversionException {

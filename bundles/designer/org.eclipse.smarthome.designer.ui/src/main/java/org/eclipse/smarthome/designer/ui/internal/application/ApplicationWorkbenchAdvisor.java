@@ -17,15 +17,16 @@ import org.eclipse.ui.application.WorkbenchWindowAdvisor;
  */
 public class ApplicationWorkbenchAdvisor extends WorkbenchAdvisor {
 
-	private static final String PERSPECTIVE_ID = "org.eclipse.smarthome.designer.ui.perspective";
+    private static final String PERSPECTIVE_ID = "org.eclipse.smarthome.designer.ui.perspective";
 
-	public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(
-			IWorkbenchWindowConfigurer configurer) {
-		return new ApplicationWorkbenchWindowAdvisor(configurer);
-	}
+    @Override
+    public WorkbenchWindowAdvisor createWorkbenchWindowAdvisor(IWorkbenchWindowConfigurer configurer) {
+        return new ApplicationWorkbenchWindowAdvisor(configurer);
+    }
 
-	public String getInitialWindowPerspectiveId() {
-		return PERSPECTIVE_ID;
-	}
+    @Override
+    public String getInitialWindowPerspectiveId() {
+        return PERSPECTIVE_ID;
+    }
 
 }

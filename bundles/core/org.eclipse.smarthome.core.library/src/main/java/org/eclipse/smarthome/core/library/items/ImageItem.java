@@ -21,32 +21,34 @@ import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * An ImageItem holds the binary image data as its status.
- * 
+ *
  * @author Kai Kreuzer
  *
  */
 public class ImageItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	static {
-		acceptedDataTypes.add(RawType.class);
-		acceptedDataTypes.add(UnDefType.class);
-		
-		acceptedCommandTypes.add(RefreshType.class);
-	}
-	
-	public ImageItem(String name) {
-		super(CoreItemFactory.IMAGE, name);
-	}
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+    static {
+        acceptedDataTypes.add(RawType.class);
+        acceptedDataTypes.add(UnDefType.class);
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
-	
+        acceptedCommandTypes.add(RefreshType.class);
+    }
+
+    public ImageItem(String name) {
+        super(CoreItemFactory.IMAGE, name);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
 }

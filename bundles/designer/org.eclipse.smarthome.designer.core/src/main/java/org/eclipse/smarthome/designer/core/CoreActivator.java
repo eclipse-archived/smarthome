@@ -24,80 +24,81 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class CoreActivator extends Plugin {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.smarthome.designer.core"; //$NON-NLS-1$
+    // The plug-in ID
+    public static final String PLUGIN_ID = "org.eclipse.smarthome.designer.core"; //$NON-NLS-1$
 
-	// The shared instance
-	private static CoreActivator plugin;
+    // The shared instance
+    private static CoreActivator plugin;
 
-	public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
+    public static ServiceTracker<ActionService, ActionService> actionServiceTracker;
 
-	/** Tracker for the ConfigurationAdmin service */
-	public static ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> configurationAdminTracker;
-	
-	/**
-	 * The constructor
-	 */
-	public CoreActivator() {
-	}
+    /** Tracker for the ConfigurationAdmin service */
+    public static ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> configurationAdminTracker;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-		actionServiceTracker = new ServiceTracker<ActionService, ActionService>(
-				context, ActionService.class, null);
-		actionServiceTracker.open();
+    /**
+     * The constructor
+     */
+    public CoreActivator() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        plugin = this;
+        actionServiceTracker = new ServiceTracker<ActionService, ActionService>(context, ActionService.class, null);
+        actionServiceTracker.open();
 
         configurationAdminTracker = new ServiceTracker<>(context, ConfigurationAdmin.class.getName(), null);
         configurationAdminTracker.open();
-}
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-	 * )
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-		actionServiceTracker.close();
-		configurationAdminTracker.close();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
+     * )
+     */
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        super.stop(context);
+        actionServiceTracker.close();
+        configurationAdminTracker.close();
+    }
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void updateFolderObserver() throws IOException {
-		ConfigurationAdmin configurationAdmin = (ConfigurationAdmin) CoreActivator.configurationAdminTracker.getService();
-		if (configurationAdmin != null) {
-			Configuration configuration;
-				configuration = configurationAdmin.getConfiguration("org.eclipse.smarthome.folder", null);
-			if (configuration != null) {
-				Dictionary configProperties = new Properties();
-				configProperties.put("items", "items");
-				configuration.update(configProperties);
-			}
-		}
-	}
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static void updateFolderObserver() throws IOException {
+        ConfigurationAdmin configurationAdmin = CoreActivator.configurationAdminTracker.getService();
+        if (configurationAdmin != null) {
+            Configuration configuration;
+            configuration = configurationAdmin.getConfiguration("org.eclipse.smarthome.folder", null);
+            if (configuration != null) {
+                Dictionary configProperties = new Properties();
+                configProperties.put("items", "items");
+                configuration.update(configProperties);
+            }
+        }
+    }
 
-	/**
-	 * Returns the shared instance
-	 * 
-	 * @return the shared instance
-	 */
-	public static CoreActivator getDefault() {
-		return plugin;
-	}
+    /**
+     * Returns the shared instance
+     * 
+     * @return the shared instance
+     */
+    public static CoreActivator getDefault() {
+        return plugin;
+    }
 
-	public static void setConfigFolder(String absolutePath) {
-		Properties props = System.getProperties();
-		props.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, absolutePath);
-	}
+    public static void setConfigFolder(String absolutePath) {
+        Properties props = System.getProperties();
+        props.setProperty(ConfigConstants.CONFIG_DIR_PROG_ARGUMENT, absolutePath);
+    }
 }

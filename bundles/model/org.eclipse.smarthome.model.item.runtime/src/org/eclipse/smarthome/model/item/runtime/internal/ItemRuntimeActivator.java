@@ -15,17 +15,16 @@ import org.slf4j.LoggerFactory;
 
 public class ItemRuntimeActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(ItemRuntimeActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(ItemRuntimeActivator.class);
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		ItemsStandaloneSetup.doSetup();
-		logger.debug("Registered 'item' configuration parser");
-	}
+    @Override
+    public void start(BundleContext context) throws Exception {
+        ItemsStandaloneSetup.doSetup();
+        logger.debug("Registered 'item' configuration parser");
+    }
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+    }
 
 }

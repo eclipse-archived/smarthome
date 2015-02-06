@@ -24,14 +24,12 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
-
 /**
  * The {@link ThingTypeXmlResult} is an intermediate XML conversion result object which
  * contains all fields needed to create a concrete {@link ThingType} object.
  * <p>
- * If a {@link ConfigDescription} object exists, it must be added to the according
- * {@link ConfigDescriptionProvider}.
- * 
+ * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ThingTypeXmlResult {
@@ -45,10 +43,8 @@ public class ThingTypeXmlResult {
     protected URI configDescriptionURI;
     protected ConfigDescription configDescription;
 
-
-    public ThingTypeXmlResult(ThingTypeUID thingTypeUID, List<String> supportedBridgeTypeUIDs,
-            String label, String description, List<NodeAttributes>[] channelTypeReferenceObjects,
-            Object[] configDescriptionObjects) {
+    public ThingTypeXmlResult(ThingTypeUID thingTypeUID, List<String> supportedBridgeTypeUIDs, String label,
+            String description, List<NodeAttributes>[] channelTypeReferenceObjects, Object[] configDescriptionObjects) {
 
         this.thingTypeUID = thingTypeUID;
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
@@ -64,10 +60,8 @@ public class ThingTypeXmlResult {
         return this.configDescription;
     }
 
-    protected List<ChannelDefinition> toChannelDefinitions(
-            List<NodeAttributes> channelTypeReferences,
-            Map<String, ChannelType> channelTypes)
-            throws ConversionException {
+    protected List<ChannelDefinition> toChannelDefinitions(List<NodeAttributes> channelTypeReferences,
+            Map<String, ChannelType> channelTypes) throws ConversionException {
 
         List<ChannelDefinition> channelTypeDefinitions = null;
 
@@ -79,16 +73,14 @@ public class ThingTypeXmlResult {
                     String id = channelTypeReference.getAttribute("id");
                     String typeId = channelTypeReference.getAttribute("typeId");
 
-                    String typeUID = String.format("%s:%s",
-                            this.thingTypeUID.getBindingId(), typeId);
+                    String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {
                         ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType);
                         channelTypeDefinitions.add(channelDefinition);
                     } else {
-                        throw new ConversionException(
-                                "The channel type for '" + typeUID + "' is missing!");
+                        throw new ConversionException("The channel type for '" + typeUID + "' is missing!");
                     }
                 }
             } else {
@@ -99,10 +91,8 @@ public class ThingTypeXmlResult {
         return channelTypeDefinitions;
     }
 
-    protected List<ChannelGroupDefinition> toChannelGroupDefinitions(
-            List<NodeAttributes> channelGroupTypeReferences,
-            Map<String, ChannelGroupType> channelGroupTypes)
-            throws ConversionException {
+    protected List<ChannelGroupDefinition> toChannelGroupDefinitions(List<NodeAttributes> channelGroupTypeReferences,
+            Map<String, ChannelGroupType> channelGroupTypes) throws ConversionException {
 
         List<ChannelGroupDefinition> channelGroupTypeDefinitions = null;
 
@@ -114,19 +104,16 @@ public class ThingTypeXmlResult {
                     String id = channelGroupTypeReference.getAttribute("id");
                     String typeId = channelGroupTypeReference.getAttribute("typeId");
 
-                    String typeUID = String.format("%s:%s",
-                            this.thingTypeUID.getBindingId(), typeId);
+                    String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
 
                     ChannelGroupType channelGroupType = channelGroupTypes.get(typeUID);
 
                     if (channelGroupType != null) {
-                        ChannelGroupDefinition channelGroupDefinition =
-                                new ChannelGroupDefinition(id, channelGroupType);
+                        ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id, channelGroupType);
 
                         channelGroupTypeDefinitions.add(channelGroupDefinition);
                     } else {
-                        throw new ConversionException(
-                                "The channel group type for '" + typeUID + "' is missing!");
+                        throw new ConversionException("The channel group type for '" + typeUID + "' is missing!");
                     }
                 }
             } else {
@@ -137,15 +124,11 @@ public class ThingTypeXmlResult {
         return channelGroupTypeDefinitions;
     }
 
-    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes,
-            Map<String, ChannelType> channelTypes) throws ConversionException {
+    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes, Map<String, ChannelType> channelTypes)
+            throws ConversionException {
 
-        ThingType thingType = new ThingType(
-                this.thingTypeUID,
-                this.supportedBridgeTypeUIDs,
-                this.label,
-                this.description,
-                toChannelDefinitions(this.channelTypeReferences, channelTypes),
+        ThingType thingType = new ThingType(this.thingTypeUID, this.supportedBridgeTypeUIDs, this.label,
+                this.description, toChannelDefinitions(this.channelTypeReferences, channelTypes),
                 toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes),
                 this.configDescriptionURI);
 
@@ -154,12 +137,10 @@ public class ThingTypeXmlResult {
 
     @Override
     public String toString() {
-        return "ThingTypeXmlResult [thingTypeUID=" + thingTypeUID
-                + ", supportedBridgeTypeUIDs=" + supportedBridgeTypeUIDs
-                + ", label=" + label + ", description=" + description
-                + ", channelTypeReferences=" + channelTypeReferences
-                + ", channelGroupTypeReferences=" + channelGroupTypeReferences
-                + ", configDescriptionURI=" + configDescriptionURI
+        return "ThingTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
+                + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description
+                + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
+                + channelGroupTypeReferences + ", configDescriptionURI=" + configDescriptionURI
                 + ", configDescription=" + configDescription + "]";
     }
 

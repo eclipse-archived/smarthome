@@ -8,14 +8,15 @@
 package org.eclipse.smarthome.core.library.types;
 
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.PrimitiveType;
+import org.eclipse.smarthome.core.types.State;
 
 public enum UpDownType implements PrimitiveType, State, Command {
-	UP, DOWN;
-		
-	public String format(String pattern) {
-		return String.format(pattern, this.toString());
-	}
+    UP, DOWN;
+
+    @Override
+    public String format(String pattern) {
+        return String.format(pattern, this.toString());
+    }
 
 }

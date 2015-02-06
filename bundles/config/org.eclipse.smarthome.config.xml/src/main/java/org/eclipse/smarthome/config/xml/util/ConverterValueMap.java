@@ -15,15 +15,13 @@ import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
  * The {@link ConverterValueMap} reads all children elements of a node and provides
  * them as key-value pair map.
  * <p>
- * This class should be used for nodes whose children elements <i>only</i> contain simple values
- * (without children) and whose order is unpredictable. There must be only one children with the
- * same name.
- * 
+ * This class should be used for nodes whose children elements <i>only</i> contain simple values (without children) and
+ * whose order is unpredictable. There must be only one children with the same name.
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended for options and filter criteria
  */
@@ -33,12 +31,11 @@ public class ConverterValueMap {
     private Map<String, Object> valueMap;
     private UnmarshallingContext context;
 
-
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param reader the reader to be used to read-in all children (must not be null)
-     * @param context 
+     * @param context
      */
     public ConverterValueMap(HierarchicalStreamReader reader, UnmarshallingContext context) {
         this(reader, -1, context);
@@ -46,11 +43,11 @@ public class ConverterValueMap {
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param reader the reader to be used to read-in all children (must not be null)
      * @param numberOfValues the number of children to be read-in (< 0 = until end of section)
-     * @param context 
-     * 
+     * @param context
+     *
      * @throws ConversionException if not all children could be read-in
      */
     public ConverterValueMap(HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context)
@@ -67,7 +64,7 @@ public class ConverterValueMap {
 
     /**
      * Returns the key-value map containing all read-in children.
-     * 
+     *
      * @return the key-value map containing all read-in children (not null, could be empty)
      */
     public Map<String, Object> getValueMap() {
@@ -76,17 +73,17 @@ public class ConverterValueMap {
 
     /**
      * Reads-in {@code N} children in a key-value map and returns it.
-     * 
+     *
      * @param reader the reader to be used to read-in the children (must not be null)
      * @param numberOfValues the number of children to be read in (< 0 = until end of section)
-     * @param context 
-     * 
+     * @param context
+     *
      * @return the key-value map containing the read-in children (not null, could be empty)
-     * 
+     *
      * @throws ConversionException if not all children could be read-in
      */
-    public static Map<String, Object> readValueMap(
-            HierarchicalStreamReader reader, int numberOfValues, UnmarshallingContext context) throws ConversionException {
+    public static Map<String, Object> readValueMap(HierarchicalStreamReader reader, int numberOfValues,
+            UnmarshallingContext context) throws ConversionException {
 
         Map<String, Object> valueMap = new HashMap<>((numberOfValues >= 0) ? numberOfValues : 10);
         int counter = 0;
@@ -96,8 +93,7 @@ public class ConverterValueMap {
             if (reader.hasMoreChildren()) {
                 List<?> list = (List<?>) context.convertAnother(context, List.class);
                 valueMap.put(reader.getNodeName(), list);
-            }
-            else {
+            } else {
                 valueMap.put(reader.getNodeName(), reader.getValue());
             }
             reader.moveUp();
@@ -113,7 +109,7 @@ public class ConverterValueMap {
 
     /**
      * Returns the object associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @return the object associated with the specified name of the child's node (could be null)
      */
@@ -123,10 +119,10 @@ public class ConverterValueMap {
 
     /**
      * Returns the object associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the value to be returned if the node could not be found (could be null)
-     * 
+     *
      * @return the object associated with the specified name of the child's node (could be null)
      */
     public Object getObject(String nodeName, Object defaultValue) {
@@ -141,7 +137,7 @@ public class ConverterValueMap {
 
     /**
      * Returns the text associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @return the text associated with the specified name of the child's node (could be null)
      */
@@ -151,10 +147,10 @@ public class ConverterValueMap {
 
     /**
      * Returns the text associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the text to be returned if the node could not be found (could be null)
-     * 
+     *
      * @return the text associated with the specified name of the child's node (could be null)
      */
     public String getString(String nodeName, String defaultValue) {
@@ -170,7 +166,7 @@ public class ConverterValueMap {
 
     /**
      * Returns the boolean associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @return the boolean associated with the specified name of the child's node (could be null)
      */
@@ -180,10 +176,10 @@ public class ConverterValueMap {
 
     /**
      * Returns the boolean associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the boolean to be returned if the node could not be found (could be null)
-     * 
+     *
      * @return the boolean associated with the specified name of the child's node (could be null)
      */
     public Boolean getBoolean(String nodeName, Boolean defaultValue) {
@@ -198,12 +194,12 @@ public class ConverterValueMap {
 
     /**
      * Returns the numeric value associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
-     * 
+     *
      * @return the numeric value associated with the specified name of the child's node
-     *     (could be null)
-     * 
+     *         (could be null)
+     *
      * @throws ConversionException if the value could not be converted to a numeric value
      */
     public Integer getInteger(String nodeName) throws ConversionException {
@@ -212,14 +208,14 @@ public class ConverterValueMap {
 
     /**
      * Returns the numeric value associated with the specified name of the child's node.
-     * 
+     *
      * @param nodeName the name of the child's node (must not be null)
      * @param defaultValue the numeric value to be returned if the node could not be found
-     *     (could be null)
-     * 
+     *            (could be null)
+     *
      * @return the numeric value associated with the specified name of the child's node
-     *    (could be null)
-     * 
+     *         (could be null)
+     *
      * @throws ConversionException if the value could not be converted to a numeric value
      */
     public Integer getInteger(String nodeName, Integer defaultValue) throws ConversionException {
@@ -229,8 +225,7 @@ public class ConverterValueMap {
             try {
                 return Integer.parseInt(value.toString());
             } catch (NumberFormatException nfe) {
-                throw new ConversionException("The value '" + value
-                        + "' cannot be converted to a numeric value!", nfe);
+                throw new ConversionException("The value '" + value + "' cannot be converted to a numeric value!", nfe);
             }
         }
 

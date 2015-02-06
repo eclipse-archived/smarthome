@@ -17,11 +17,11 @@ import org.eclipse.smarthome.core.types.State;
 /**
  * A {@link ThingHandler} can 'handle' a {@link Thing}. It must be registered as
  * OSGi service with the id of the corresponding {@link Thing} as service
- * property 'thing.id' and its type with the property 'thing.type'. When a
- * {@link Command} is sent to an {@link Item} and the item is bound to a
+ * property 'thing.id' and its type with the property 'thing.type'. When a {@link Command} is sent to an {@link Item}
+ * and the item is bound to a
  * channel, the handler of the corresponding thing will receive the command via
  * the {@link ThingHandler#handleCommand(Channel, Command)} method.
- * 
+ *
  * @author Dennis Nobel - Initial contribution and API
  * @author Michael Grammling - Added dynamic configuration update
  */
@@ -32,14 +32,14 @@ public interface ThingHandler {
 
     /**
      * Returns the {@link Thing}, which belongs to the handler.
-     * 
+     *
      * @return {@link Thing}, which belongs to the handler
      */
     Thing getThing();
 
     /**
      * Handles a command for a given channel.
-     * 
+     *
      * @param channelUID
      *            unique identifier of the channel to which the command was sent
      * @param command
@@ -49,7 +49,7 @@ public interface ThingHandler {
 
     /**
      * Handles a command for a given channel.
-     * 
+     *
      * @param channelUID
      *            unique identifier of the channel on which the update was performed
      * @param newState
@@ -59,7 +59,7 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler about an updated {@link Thing}.
-     * 
+     *
      * @param thing the {@link Thing}, that has been updated
      */
     void thingUpdated(Thing thing);

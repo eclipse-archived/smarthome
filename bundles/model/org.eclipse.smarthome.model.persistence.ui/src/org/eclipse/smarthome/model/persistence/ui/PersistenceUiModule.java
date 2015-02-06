@@ -16,7 +16,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Use this class to register components to be used within the IDE.
  */
 public class PersistenceUiModule extends org.eclipse.smarthome.model.persistence.ui.AbstractPersistenceUiModule {
-	public PersistenceUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    public PersistenceUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
 }

@@ -38,7 +38,7 @@ public class BeanMapper {
     public static ThingBean mapThingToBean(Thing thing) {
         return mapThingToBean(thing, null);
     }
-    
+
     public static ThingBean mapThingToBean(Thing thing, String uriPath) {
         List<ChannelBean> channelBeans = new ArrayList<>();
         for (Channel channel : thing.getChannels()) {
@@ -50,14 +50,16 @@ public class BeanMapper {
         String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
 
         GroupItem groupItem = thing.getLinkedItem();
-        GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) mapItemToBean(groupItem, true, uriPath) : null;
-        
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(), groupItemBean);
+        GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) mapItemToBean(groupItem, true, uriPath)
+                : null;
+
+        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(),
+                groupItemBean);
     }
 
     public static ChannelBean mapChannelToBean(Channel channel) {
         List<String> linkedItemNames = new ArrayList<>();
-        for(Item item : channel.getLinkedItems()) {
+        for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
         return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames);
@@ -70,7 +72,6 @@ public class BeanMapper {
         return new DiscoveryResultBean(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
                 discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties());
     }
-    
 
     private static void fillProperties(ItemBean bean, Item item, boolean drillDown, String uriPath) {
         if (item instanceof GroupItem && drillDown) {
@@ -79,18 +80,19 @@ public class BeanMapper {
             for (Item member : groupItem.getMembers()) {
                 members.add(mapItemToBean(member, drillDown, uriPath));
             }
-            ((GroupItemBean)bean).members = members.toArray(new ItemBean[members.size()]);
+            ((GroupItemBean) bean).members = members.toArray(new ItemBean[members.size()]);
         }
         bean.name = item.getName();
         bean.state = item.getState().toString();
         bean.type = item.getClass().getSimpleName();
-        if(uriPath != null) {
-            bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build().toASCIIString();
+        if (uriPath != null) {
+            bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build()
+                    .toASCIIString();
         }
         bean.label = item.getLabel();
         bean.tags = item.getTags();
         bean.category = item.getCategory();
         bean.stateDescription = item.getStateDescription();
-        bean.groupNames = item.getGroupNames(); 
+        bean.groupNames = item.getGroupNames();
     }
 }

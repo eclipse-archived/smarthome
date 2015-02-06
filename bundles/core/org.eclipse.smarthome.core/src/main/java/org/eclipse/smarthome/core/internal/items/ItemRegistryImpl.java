@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
  * keeps track of all declared items of all item providers and keeps their
  * current state in memory. This is the central point where states are kept and
  * thus it is a core part for all stateful services.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
- * 
+ *
  */
 public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
 
@@ -48,7 +48,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
      * that they can communicate over the bus
      */
     protected EventPublisher eventPublisher;
-    
+
     protected StateDescriptionProvider stateDescriptionProvider;
 
     @Override
@@ -70,23 +70,23 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         elementMap.put(provider, items);
         for (Item item : provider.getAll()) {
             try {
-            	onAddElement(item);
-            	items.add(item);
-            } catch(IllegalArgumentException ex) {
-            	 logger.warn("Could not add item: " + ex.getMessage(), ex);
+                onAddElement(item);
+                items.add(item);
+            } catch (IllegalArgumentException ex) {
+                logger.warn("Could not add item: " + ex.getMessage(), ex);
             }
         }
 
         for (RegistryChangeListener<Item> listener : listeners) {
-            if(listener instanceof ItemRegistryChangeListener) {
-                ((ItemRegistryChangeListener)listener).allItemsChanged(oldItemNames);
+            if (listener instanceof ItemRegistryChangeListener) {
+                ((ItemRegistryChangeListener) listener).allItemsChanged(oldItemNames);
             }
         }
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
      * .String)
@@ -102,7 +102,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
         throw new ItemNotFoundException(name);
     }
-  
+
     @Override
     public Item get(String itemName) {
         try {
@@ -114,7 +114,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
      * (java.lang.String)
@@ -137,7 +137,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
      */
     @Override
@@ -160,7 +160,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
      * lang.String)
@@ -201,7 +201,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
      * An item should be initialized, which means that the event publisher is
      * injected and its implementation is notified that it has just been
      * created, so it can perform any task it needs to do after its creation.
-     * 
+     *
      * @param item
      *            the item to initialize
      * @throws IllegalArgumentException if the item has no valid name
@@ -223,9 +223,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             // add the item to all relevant groups
             addToGroupItems(item, item.getGroupNames());
         } else {
-			throw new IllegalArgumentException("Ignoring item '"
-					+ item.getName() + "' as it does not comply with"
-					+ " the naming convention.");
+            throw new IllegalArgumentException("Ignoring item '" + item.getName() + "' as it does not comply with"
+                    + " the naming convention.");
         }
     }
 
@@ -264,7 +263,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
     protected void onUpdateElement(Item oldItem, Item item) {
         removeFromGroupItems(oldItem, oldItem.getGroupNames());
         addToGroupItems(item, item.getGroupNames());
-        if(item instanceof GroupItem) {
+        if (item instanceof GroupItem) {
             addMembersToGroupItem((GroupItem) item);
         }
     }
@@ -282,7 +281,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             ((GenericItem) item).setEventPublisher(null);
         }
     }
-    
+
     protected void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
         this.stateDescriptionProvider = stateDescriptionProvider;
         for (Item item : getItems()) {
@@ -297,25 +296,24 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
-
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
         List<Item> filteredItems = new ArrayList<Item>();
         for (Item item : getItems()) {
             if (itemHasTags(item, tags)) {
-                filteredItems.add(item); 
+                filteredItems.add(item);
             }
         }
-        return filteredItems; 
+        return filteredItems;
     }
 
     private boolean itemHasTags(Item item, String... tags) {
         for (String tag : tags) {
             if (!item.hasTag(tag)) {
-                return false; 
+                return false;
             }
         }
-        return true; 
+        return true;
     }
 
     @Override
@@ -337,15 +335,15 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         List<Item> filteredItems = new ArrayList<Item>();
         for (Item item : getItemsOfType(type)) {
             if (itemHasTags(item, tags)) {
-                filteredItems.add(item); 
+                filteredItems.add(item);
             }
         }
-        return filteredItems; 
+        return filteredItems;
     }
 
     @Override
     public void remove(String itemName, boolean recursive) {
-        if(this.managedProvider != null) {
+        if (this.managedProvider != null) {
             ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
         } else {
             throw new IllegalStateException("ManagedProvider is not available");

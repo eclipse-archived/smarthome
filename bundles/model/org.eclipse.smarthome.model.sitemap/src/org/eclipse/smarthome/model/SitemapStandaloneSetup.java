@@ -7,16 +7,14 @@
  */
 package org.eclipse.smarthome.model;
 
-import org.eclipse.smarthome.model.SitemapStandaloneSetupGenerated;
 
 /**
- * Initialization support for running Xtext languages 
+ * Initialization support for running Xtext languages
  * without equinox extension registry
  */
-public class SitemapStandaloneSetup extends SitemapStandaloneSetupGenerated{
+public class SitemapStandaloneSetup extends SitemapStandaloneSetupGenerated {
 
-	public static void doSetup() {
-		new SitemapStandaloneSetup().createInjectorAndDoEMFRegistration();
-	}
+    public static void doSetup() {
+        new SitemapStandaloneSetup().createInjectorAndDoEMFRegistration();
+    }
 }
-

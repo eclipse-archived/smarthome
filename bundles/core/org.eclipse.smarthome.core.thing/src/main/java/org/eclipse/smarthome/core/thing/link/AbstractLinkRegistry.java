@@ -17,7 +17,7 @@ import org.eclipse.smarthome.core.thing.UID;
 /**
  * {@link AbstractLinkRegistry} is an abstract class for link based registries,
  * which handle {@link AbstractLink}s.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  * @param <L>
@@ -28,7 +28,7 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
     /**
      * Returns if an item for a given item name is linked to a channel or thing for a
      * given UID.
-     * 
+     *
      * @param itemName
      *            item name
      * @param uid
@@ -45,10 +45,10 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
 
         return false;
     }
-    
+
     /**
      * Returns the item name, which is bound to the given UID.
-     * 
+     *
      * @param uid
      *            UID
      * @return item name or null if no item is bound to the given UID
@@ -62,12 +62,12 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
         }
         return linkedItems;
     }
-    
+
     @Override
     public L get(String key) {
-        Collection<L> links = getAll(); 
+        Collection<L> links = getAll();
         for (L link : links) {
-            if(link.getID().equals(key)) {
+            if (link.getID().equals(key)) {
                 return link;
             }
         }

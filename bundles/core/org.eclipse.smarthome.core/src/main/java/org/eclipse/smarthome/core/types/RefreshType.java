@@ -7,13 +7,13 @@
  */
 package org.eclipse.smarthome.core.types;
 
-
 public enum RefreshType implements PrimitiveType, Command {
-	
-	REFRESH;
-	
-	public String format(String pattern) {
-		return String.format(pattern, this.toString());
-	}
+
+    REFRESH;
+
+    @Override
+    public String format(String pattern) {
+        return String.format(pattern, this.toString());
+    }
 
 }

@@ -7,19 +7,18 @@
  */
 package org.eclipse.smarthome.config.xml.util;
 
-
 /**
  * The {@link NodeName} interface defines common features for all {@code Node}* classes.
  * <p>
  * Each {@code Node}* class has to return its node name.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public interface NodeName {
 
     /**
      * Returns the name of the node this object belongs to.
-     * 
+     *
      * @return the name of the node this object belongs to (neither null, nor empty)
      */
     String getNodeName();

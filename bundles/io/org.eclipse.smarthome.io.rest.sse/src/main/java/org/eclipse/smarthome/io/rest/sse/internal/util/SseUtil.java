@@ -16,9 +16,9 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
 
 /**
  * Utility class containing helper methods for the SSE implementation.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class SseUtil {
 
@@ -39,10 +39,10 @@ public class SseUtil {
     public static final boolean SERVLET3_SUPPORT;
 
     /**
-     * Creates a new {@link OutboundEvent} object containing an
-     * {@link EventBean} created for the given eventType, objectIdentifier,
+     * Creates a new {@link OutboundEvent} object containing an {@link EventBean} created for the given eventType,
+     * objectIdentifier,
      * eventObject.
-     * 
+     *
      * @param eventType
      *            - the event type for the event
      * @param objectIdentifier
@@ -78,7 +78,7 @@ public class SseUtil {
     /**
      * Returns true if the current thread is processing an SSE request that
      * should block.
-     * 
+     *
      * @return
      */
     public static boolean shouldAsyncBlock() {

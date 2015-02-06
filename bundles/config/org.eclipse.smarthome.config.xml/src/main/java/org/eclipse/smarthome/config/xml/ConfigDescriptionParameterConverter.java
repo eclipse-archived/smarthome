@@ -26,10 +26,9 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link ConfigDescriptionParameterConverter} is a concrete implementation of the
- * {@code XStream} {@link Converter} interface used to convert config description parameters
+ * The {@link ConfigDescriptionParameterConverter} is a concrete implementation of the {@code XStream} {@link Converter}
+ * interface used to convert config description parameters
  * information within an XML document into a {@link ConfigDescriptionParameter} object.
  * <p>
  * This converter converts {@code parameter} XML tags.
@@ -37,28 +36,18 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended for options and filter criteria
  */
-public class ConfigDescriptionParameterConverter
-        extends GenericUnmarshaller<ConfigDescriptionParameter> {
+public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<ConfigDescriptionParameter> {
 
     private ConverterAttributeMapValidator attributeMapValidator;
-
 
     public ConfigDescriptionParameterConverter() {
         super(ConfigDescriptionParameter.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
-                { "name" , "true" },
-                { "type", "true" },
-                { "min", "false" },
-                { "max", "false" },
-                { "step", "false" },
-                { "pattern", "false" },
-                { "required", "false" },
-                { "readOnly", "false" },
-                { "multiple", "false" }
-                });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "name", "true" },
+                { "type", "true" }, { "min", "false" }, { "max", "false" }, { "step", "false" },
+                { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" } });
     }
-    
+
     private Type toType(String xmlType) {
         if (xmlType != null) {
             return Type.valueOf(xmlType.toUpperCase());
@@ -66,28 +55,26 @@ public class ConfigDescriptionParameterConverter
 
         return null;
     }
-    
+
     private BigDecimal toNumber(String value) {
         try {
             if (value != null)
                 return new BigDecimal(value);
         } catch (NumberFormatException e) {
-            throw new ConversionException("The value '" + value
-                    + "' could not be converted to a decimal number.", e);
+            throw new ConversionException("The value '" + value + "' could not be converted to a decimal number.", e);
         }
         return null;
     }
-    
+
     private Boolean toBoolean(String val) {
         if (val == null)
             return null;
         return new Boolean(val);
     }
-    
+
     private Boolean falseIfNull(Boolean b) {
         return (b != null) ? b : false;
     }
-    
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
@@ -104,27 +91,26 @@ public class ConfigDescriptionParameterConverter
         Boolean required = toBoolean(attributes.get("required"));
         Boolean readOnly = falseIfNull(toBoolean(attributes.get("readOnly")));
         Boolean multiple = falseIfNull(toBoolean(attributes.get("multiple")));
-        
+
         // read values
         ConverterValueMap valueMap = new ConverterValueMap(reader, context);
         String parameterContext = valueMap.getString("context");
-        if (required == null) {  
+        if (required == null) {
             // fallback to deprecated "required" element
             required = valueMap.getBoolean("required", false);
         }
         String defaultValue = valueMap.getString("default");
         String label = valueMap.getString("label");
         String description = valueMap.getString("description");
-        
+
         // read options and filter criteria
         List<ParameterOption> options = readParameterOptions(valueMap.getObject("options"));
         @SuppressWarnings("unchecked")
         List<FilterCriteria> filterCriteria = (List<FilterCriteria>) valueMap.getObject("filter");
-        
+
         // create object
-        configDescriptionParam = new ConfigDescriptionParameter(name, type, min, max, step,
-                patternString, required, readOnly, multiple, parameterContext,
-                defaultValue, label, description, options, filterCriteria);
+        configDescriptionParam = new ConfigDescriptionParameter(name, type, min, max, step, patternString, required,
+                readOnly, multiple, parameterContext, defaultValue, label, description, options, filterCriteria);
 
         return configDescriptionParam;
     }

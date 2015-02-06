@@ -9,9 +9,9 @@ package org.eclipse.smarthome.io.rest.internal;
 
 /**
  * Utility class for constants.
- * 
+ *
  * @author Ivan Iliev
- * 
+ *
  */
 public class Constants {
 

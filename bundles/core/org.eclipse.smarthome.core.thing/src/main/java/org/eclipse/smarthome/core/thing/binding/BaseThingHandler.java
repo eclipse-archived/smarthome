@@ -28,16 +28,16 @@ import org.osgi.util.tracker.ServiceTracker;
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
  * <p>
- * The default behavior for {@link Thing} updates is to {@link #dispose()} this handler first,
- * exchange the {@link Thing} and {@link #initialize()} it again. Override the method
- * {@link #thingUpdated(Thing)} to change the default behavior. 
- * 
+ * The default behavior for {@link Thing} updates is to {@link #dispose()} this handler first, exchange the
+ * {@link Thing} and {@link #initialize()} it again. Override the method {@link #thingUpdated(Thing)} to change the
+ * default behavior.
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
-	protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
+    protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     private Thing thing;
     protected ThingRegistry thingRegistry;
@@ -49,7 +49,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Creates a new instance of this class for the {@link Thing}.
-     * 
+     *
      * @param thing
      *            thing
      */
@@ -60,8 +60,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void setBundleContext(final BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        thingRegistryServiceTracker = new ServiceTracker(this.bundleContext,
-                ThingRegistry.class.getName(), null) {
+        thingRegistryServiceTracker = new ServiceTracker(this.bundleContext, ThingRegistry.class.getName(), null) {
             @Override
             public Object addingService(final ServiceReference reference) {
                 thingRegistry = (ThingRegistry) bundleContext.getService(reference);
@@ -128,9 +127,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void initialize() {
         // can be overridden by subclasses
-    	// standard behavior is to set the thing to ONLINE,
-    	// assuming no further initialization is necessary.
-    	this.thing.setStatus(ThingStatus.ONLINE);
+        // standard behavior is to set the thing to ONLINE,
+        // assuming no further initialization is necessary.
+        this.thing.setStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -142,7 +141,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Returns the configuration of the thing.
-     * 
+     *
      * @return configuration of the thing
      */
     protected Configuration getConfig() {
@@ -152,7 +151,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Returns the configuration of the thing and transforms it to the given
      * class.
-     * 
+     *
      * @param configurationClass
      *            configuration class
      * @return configuration of thing in form of the given class
@@ -162,9 +161,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * 
+     *
      * Updates the state of the thing.
-     * 
+     *
      * @param channelUID
      *            unique id of the channel, which was updated
      * @param state
@@ -174,25 +173,24 @@ public abstract class BaseThingHandler implements ThingHandler {
         thing.channelUpdated(channelUID, state);
     }
 
-	/**
-	 * 
-	 * Updates the state of the thing. Will use the thing UID to infer the
-	 * unique channel UID.
-	 * 
-	 * @param channel
-	 *            ID id of the channel, which was updated
-	 * @param state
-	 *            new state
-	 */
-	protected void updateState(String channelID, State state) {
-		ChannelUID channelUID = new ChannelUID(this.getThing().getUID(),
-				channelID);
-		updateState(channelUID, state);
-	}
+    /**
+     * 
+     * Updates the state of the thing. Will use the thing UID to infer the
+     * unique channel UID.
+     * 
+     * @param channel
+     *            ID id of the channel, which was updated
+     * @param state
+     *            new state
+     */
+    protected void updateState(String channelID, State state) {
+        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
+        updateState(channelUID, state);
+    }
 
     /**
      * Updates the status of the thing.
-     * 
+     *
      * @param status
      *            new status
      */
@@ -204,7 +202,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Returns the bridge of the thing.
-     * 
+     *
      * @return returns the bridge of the thing or null if the thing has no
      *         bridge
      */
@@ -218,11 +216,10 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         }
     }
-    
-    
+
     /**
      * Returns a set of linked items for a given channel ID.
-     * 
+     *
      * @param channelId
      *            channel ID (must not be null)
      * @return set of linked items
@@ -237,10 +234,10 @@ public abstract class BaseThingHandler implements ThingHandler {
             throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
         }
     }
-    
+
     /**
      * Returns whether at least on item is linked for the given channel ID.
-     * 
+     *
      * @param channelId
      *            channel ID (must not be null)
      * @return true if at least one item is linked, false otherwise
@@ -261,7 +258,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * bridge was initialized. If the thing of this handler does not have a
      * bridge, this method is never called. This method can be overridden by
      * subclasses.
-     * 
+     *
      * @param thingHandler
      *            thing handler of the bridge
      * @param bridge
@@ -270,13 +267,13 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
         // can be overridden by subclasses
     }
-    
+
     /**
      * This method is called, when the according {@link ThingHandler} of the
      * bridge was disposed. If the thing of this handler does not have a
      * bridge, this method is never called. This method can be overridden by
      * subclasses.
-     * 
+     *
      * @param thingHandler
      *            thing handler of the bridge
      * @param bridge

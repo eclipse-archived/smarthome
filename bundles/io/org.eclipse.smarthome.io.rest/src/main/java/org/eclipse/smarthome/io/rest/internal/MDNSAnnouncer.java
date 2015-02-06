@@ -17,7 +17,7 @@ import org.osgi.framework.BundleContext;
 /**
  * This class announces the REST API through mDNS for clients to automatically
  * discover it.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class MDNSAnnouncer {

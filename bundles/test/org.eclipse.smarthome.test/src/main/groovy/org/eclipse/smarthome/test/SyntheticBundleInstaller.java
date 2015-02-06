@@ -30,8 +30,7 @@ public class SyntheticBundleInstaller {
 
     private static String bundlePoolPath = "/test-bundle-pool";
 
-    public static Bundle install(BundleContext bundleContext, String testBundleName)
-            throws Exception {
+    public static Bundle install(BundleContext bundleContext, String testBundleName) throws Exception {
         String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
         byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName);
 
@@ -41,8 +40,7 @@ public class SyntheticBundleInstaller {
         return syntheticBundle;
     }
 
-    public static void uninstall(BundleContext bundleContext, String testBundleName)
-            throws BundleException {
+    public static void uninstall(BundleContext bundleContext, String testBundleName) throws BundleException {
         Bundle[] bundles = bundleContext.getBundles();
         for (Bundle bundle : bundles) {
             if (testBundleName.equals(bundle.getSymbolicName())) {
@@ -51,12 +49,11 @@ public class SyntheticBundleInstaller {
         }
     }
 
-    private static byte[] createSyntheticBundle(Bundle bundle, String bundlePath,
-            String bundleName) throws Exception {
+    private static byte[] createSyntheticBundle(Bundle bundle, String bundlePath, String bundleName) throws Exception {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Manifest manifest = getManifest(bundle, bundlePath);
-        JarOutputStream jarOutputStream = manifest != null ? new JarOutputStream(outputStream,
-                manifest) : new JarOutputStream(outputStream);
+        JarOutputStream jarOutputStream = manifest != null ? new JarOutputStream(outputStream, manifest)
+                : new JarOutputStream(outputStream);
 
         List<String> files = collectFilesFrom(bundle, bundlePath, bundleName);
         for (String file : files) {
@@ -66,8 +63,8 @@ public class SyntheticBundleInstaller {
         return outputStream.toByteArray();
     }
 
-    private static void addFileToArchive(Bundle bundle, String bundlePath,
-            String fileInBundle, JarOutputStream jarOutputStream) throws IOException {
+    private static void addFileToArchive(Bundle bundle, String bundlePath, String fileInBundle,
+            JarOutputStream jarOutputStream) throws IOException {
         String filePath = bundlePath + "/" + fileInBundle;
         URL resource = bundle.getResource(filePath);
         if (resource == null)
@@ -78,14 +75,13 @@ public class SyntheticBundleInstaller {
         jarOutputStream.closeEntry();
     }
 
-    private static List<String> collectFilesFrom(Bundle bundle, String bundlePath,
-            String bundleName) throws Exception {
+    private static List<String> collectFilesFrom(Bundle bundle, String bundlePath, String bundleName) throws Exception {
         List<String> result = new ArrayList<>();
         URL url = getBaseURL(bundle, bundleName);
         if (url != null) {
             String path = url.getPath();
             URI baseURI = url.toURI();
-            
+
             List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties");
             for (URL entryURL : list) {
                 String fileEntry = convertToFileEntry(baseURI, entryURL);
@@ -118,8 +114,7 @@ public class SyntheticBundleInstaller {
         return fileEntry;
     }
 
-    private static Manifest getManifest(Bundle bundle, String bundlePath)
-            throws IOException {
+    private static Manifest getManifest(Bundle bundle, String bundlePath) throws IOException {
         String filePath = bundlePath + "/" + "META-INF/MANIFEST.MF";
         URL resource = bundle.getResource(filePath);
         if (resource == null)

@@ -9,9 +9,9 @@ package org.eclipse.smarthome.io.rest;
 
 /**
  * This is a marker interface for REST resource implementations
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public interface RESTResource {
-	
+
 }

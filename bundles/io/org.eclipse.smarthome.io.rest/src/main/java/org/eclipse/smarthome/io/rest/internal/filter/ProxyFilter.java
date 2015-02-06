@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 /**
  * A filter used to update both base and request URIs in Jersey's request
  * context if proxy headers are detected.
- * 
+ *
  * @author Ivan Iliev
- * 
+ *
  */
 @Provider
 @PreMatching

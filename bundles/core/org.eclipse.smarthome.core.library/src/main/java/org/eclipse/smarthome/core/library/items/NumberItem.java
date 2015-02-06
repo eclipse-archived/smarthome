@@ -24,37 +24,39 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * of sensors, like temperature, brightness, wind, etc.
  * It can also be used as a counter or as any other thing that can be expressed
  * as a number.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class NumberItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	static {
-		acceptedDataTypes.add(DecimalType.class);
-		acceptedDataTypes.add(UnDefType.class);
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-		acceptedCommandTypes.add(DecimalType.class);
-		acceptedCommandTypes.add(RefreshType.class);		
-	}
-	
-	public NumberItem(String name) {
-		super(CoreItemFactory.NUMBER, name);
-	}
+    static {
+        acceptedDataTypes.add(DecimalType.class);
+        acceptedDataTypes.add(UnDefType.class);
 
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+        acceptedCommandTypes.add(DecimalType.class);
+        acceptedCommandTypes.add(RefreshType.class);
+    }
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
-	
-	public void send(DecimalType command) {
-		internalSend(command);
-	}
+    public NumberItem(String name) {
+        super(CoreItemFactory.NUMBER, name);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    public void send(DecimalType command) {
+        internalSend(command);
+    }
 
 }

@@ -14,17 +14,19 @@ public class Activator implements BundleActivator {
 
     private static BundleContext context;
 
+    @Override
     public void start(BundleContext context) throws Exception {
         Activator.context = context;
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
         Activator.context = null;
     }
 
     /**
      * Returns the bundle context of this bundle
-     * 
+     *
      * @return the bundle context
      */
     public static BundleContext getContext() {

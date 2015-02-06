@@ -15,16 +15,16 @@ import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
  * This is a listener interface which should be implemented where ever item
  * providers or the item registry are used in order to be notified of any
  * dynamic changes in the provided items.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
- * 
+ *
  */
-public interface ItemsChangeListener extends ProviderChangeListener<Item>{
+public interface ItemsChangeListener extends ProviderChangeListener<Item> {
 
     /**
      * Notifies the listener that all items of a provider have changed and thus
      * should be reloaded.
-     * 
+     *
      * @param provider
      *            the concerned item provider
      * @param oldItemNames
