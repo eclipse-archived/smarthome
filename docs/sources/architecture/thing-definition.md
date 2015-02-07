@@ -1,8 +1,21 @@
-# Thing Definition
+# Thing Type Definitions
+
+In order to work with things, some meta information about them is needed. This is provided through 'ThingType' definitions, which describe details about their functionality and configuration options.
+
+Technically, the thing types are provided by [ThingTypeProvider](https://github.com/eclipse/smarthome/blob/master/bundles/core/org.eclipse.smarthome.core.thing/src/main/java/org/eclipse/smarthome/core/thing/binding/ThingTypeProvider.java)s. Eclipse SmartHome comes with an implementation of such a provider that reads XML files from the folder `ESH-INF/thing` of bundles. Although we refer to this XML syntax in the following, you also have the option to provide directly object model instances through your own provider implementation.  
 
 ## Things
 
-TBD
+Things represent devices or services that can be individually added to, configured or removed from the system. They either contain a set of channels or a set of channel groups. A bridge is a specific type of thing as it can additionally provide access to other Things as well. Which Things can be associated through which bridge type is defined within the description of a thing:
+
+```xml
+    <thing-type id="thingTypeID">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridgeTypeID" />
+        </supported-bridge-type-refs>
+		...
+    </thing-type>
+```
 
 ## Channels
 
@@ -31,7 +44,7 @@ The following XML snippet shows a thing type definition with 2 channels and one 
 </channel-type>
 ```
 
-The `advanced` property indicates if this channel is either a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user inteface mide hide this channel by default. The default value is `false` and will be taken if the `advanced` attribute is not specified. Espacially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. If a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarley used it should be better marked as `advanced`.
+The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
 In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](configuration.md).
 
@@ -71,7 +84,7 @@ The user interface can use these values to render labels for values or to provid
 
 ### Channel Categories
 
-The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accssible mode and the according item type:
+The channel type definition allows to specify a category. Together with the definition of the `readOnly` attribute in the state description, user interfaces get an idea how to render an item for this channel. A binding should classify each channel into one of the existing categories. This is a list of all predefined categories with their usual accessible mode and the according item type:
 
 | Category      | Accessible Mode | Item Type              |
 |---------------|-----------------|------------------------|
@@ -108,7 +121,7 @@ The channel type definition allows to specify a category. Together with the defi
 | Zoom          | RW              | String                 |
 R=Read, RW=Read/Write
 
-The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the `Motion` category can be used for sensors only, so `read only` can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be `true` or `false`. In addition categories are realated to specific item types. For example the 'Energy' category can only be used for `Number` items. But `Rain` could be either expressed as Switch item, where it only indicates if it rains or not, or as `Number`, which gives information about the rain intensity.
+The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the `Motion` category can be used for sensors only, so `read only` can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be `true` or `false`. In addition categories are related to specific item types. For example the 'Energy' category can only be used for `Number` items. But `Rain` could be either expressed as Switch item, where it only indicates if it rains or not, or as `Number`, which gives information about the rain intensity.
 
 The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
 
