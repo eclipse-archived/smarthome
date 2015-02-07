@@ -19,14 +19,12 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
-
 /**
  * The {@link ChannelGroupTypeXmlResult} is an intermediate XML conversion result object which
  * contains all parts of a {@link ChannelGroupType} object.
  * <p>
- * To create a concrete {@link ChannelGroupType} object, the method {@link #toChannelGroupType(Map)}
- * must be called.
- * 
+ * To create a concrete {@link ChannelGroupType} object, the method {@link #toChannelGroupType(Map)} must be called.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ChannelGroupTypeXmlResult {
@@ -37,9 +35,8 @@ public class ChannelGroupTypeXmlResult {
     private String description;
     private List<NodeAttributes> channelTypeReferences;
 
-
-    public ChannelGroupTypeXmlResult(ChannelGroupTypeUID channelGroupTypeUID, boolean advanced,
-            String label, String description, List<NodeAttributes> channelTypeReferences) { 
+    public ChannelGroupTypeXmlResult(ChannelGroupTypeUID channelGroupTypeUID, boolean advanced, String label,
+            String description, List<NodeAttributes> channelTypeReferences) {
 
         this.channelGroupTypeUID = channelGroupTypeUID;
         this.advanced = advanced;
@@ -65,16 +62,14 @@ public class ChannelGroupTypeXmlResult {
                     String id = channelTypeReference.getAttribute("id");
                     String typeId = channelTypeReference.getAttribute("typeId");
 
-                    String typeUID = String.format("%s:%s",
-                            this.channelGroupTypeUID.getBindingId(), typeId);
+                    String typeUID = String.format("%s:%s", this.channelGroupTypeUID.getBindingId(), typeId);
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {
                         ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType);
                         channelTypeDefinitions.add(channelDefinition);
                     } else {
-                        throw new ConversionException(
-                                "The channel type for '" + typeUID + "' is missing!");
+                        throw new ConversionException("The channel type for '" + typeUID + "' is missing!");
                     }
                 }
             } else {
@@ -85,25 +80,19 @@ public class ChannelGroupTypeXmlResult {
         return channelTypeDefinitions;
     }
 
-    public ChannelGroupType toChannelGroupType(Map<String, ChannelType> channelTypes)
-            throws ConversionException {
+    public ChannelGroupType toChannelGroupType(Map<String, ChannelType> channelTypes) throws ConversionException {
 
-        ChannelGroupType channelGroupType = new ChannelGroupType(
-                this.channelGroupTypeUID,
-                this.advanced,
-                this.label,
-                this.description,
-                toChannelDefinitions(this.channelTypeReferences, channelTypes));
+        ChannelGroupType channelGroupType = new ChannelGroupType(this.channelGroupTypeUID, this.advanced, this.label,
+                this.description, toChannelDefinitions(this.channelTypeReferences, channelTypes));
 
         return channelGroupType;
     }
 
     @Override
     public String toString() {
-        return "ChannelGroupTypeXmlResult [channelGroupTypeUID="
-                + channelGroupTypeUID + ", advanced=" + advanced + ", label="
-                + label + ", description=" + description
-                + ", channelTypeReferences=" + channelTypeReferences + "]";
+        return "ChannelGroupTypeXmlResult [channelGroupTypeUID=" + channelGroupTypeUID + ", advanced=" + advanced
+                + ", label=" + label + ", description=" + description + ", channelTypeReferences="
+                + channelTypeReferences + "]";
     }
 
 }

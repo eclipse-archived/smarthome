@@ -19,12 +19,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 /**
- * The {@link AbstractRegistry} is an abstract implementation of the
- * {@link Registry} interface, that can be used as base class for
- * {@link Registry} implementations.
- * 
+ * The {@link AbstractRegistry} is an abstract implementation of the {@link Registry} interface, that can be used as
+ * base class for {@link Registry} implementations.
+ *
  * @author Dennis Nobel - Initial contribution
- * 
+ *
  * @param <E>
  *            type of the element
  */
@@ -39,7 +38,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
 
-    protected ManagedProvider<E,K> managedProvider;
+    protected ManagedProvider<E, K> managedProvider;
 
     @Override
     public void added(Provider<E> provider, E element) {
@@ -55,10 +54,12 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
 
+    @Override
     public void addRegistryChangeListener(RegistryChangeListener<E> listener) {
         listeners.add(listener);
     }
 
+    @Override
     public Collection<E> getAll() {
         return ImmutableList.copyOf(Iterables.concat(elementMap.values()));
     }
@@ -77,6 +78,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
 
+    @Override
     public void removeRegistryChangeListener(RegistryChangeListener<E> listener) {
         listeners.remove(listener);
     }
@@ -95,7 +97,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
             }
         }
     }
-    
+
     @Override
     public void add(E element) {
         if (this.managedProvider != null) {
@@ -104,19 +106,19 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
             throw new IllegalStateException("ManagedProvider is not available");
         }
     }
-    
+
     @Override
     public E update(E element) {
-        if(this.managedProvider != null) {
+        if (this.managedProvider != null) {
             return this.managedProvider.update(element);
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
         }
     }
-    
+
     @Override
     public E remove(K key) {
-        if(this.managedProvider != null) {
+        if (this.managedProvider != null) {
             return this.managedProvider.remove(key);
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
@@ -127,21 +129,21 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         for (RegistryChangeListener<E> listener : this.listeners) {
             try {
                 switch (eventType) {
-                case ADDED:
-                    listener.added(element);
-                    break;
-                case REMOVED:
-                    listener.removed(element);
-                    break;
-                case UPDATED:
-                    listener.updated(oldElement, element);
-                    break;
-                default:
-                    break;
+                    case ADDED:
+                        listener.added(element);
+                        break;
+                    case REMOVED:
+                        listener.removed(element);
+                        break;
+                    case UPDATED:
+                        listener.updated(oldElement, element);
+                        break;
+                    default:
+                        break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the listener '" + listener + "' about the '"
-                        + eventType.name() + "' event!: " + ex.getMessage(), ex);
+                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
+                        + "' event!: " + ex.getMessage(), ex);
             }
         }
     }
@@ -180,8 +182,8 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
                 }
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
-            if(provider instanceof ManagedProvider) {
-                this.managedProvider = (ManagedProvider<E,K>) provider;
+            if (provider instanceof ManagedProvider) {
+                this.managedProvider = (ManagedProvider<E, K>) provider;
             }
         }
     }
@@ -190,12 +192,11 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
      * This method is called before an element is added. The implementing class
      * can override this method to perform initialization logic or check the
      * validity of the element.
-     * 
+     *
      * <p>
-     * If the method throws an {@link IllegalArgumentException} the element will
-     * not be added.
+     * If the method throws an {@link IllegalArgumentException} the element will not be added.
      * <p>
-     * 
+     *
      * @param element
      *            element to be added
      * @throws IllegalArgumentException
@@ -208,7 +209,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     /**
      * This method is called before an element is removed. The implementing
      * class can override this method to perform specific logic.
-     * 
+     *
      * @param element
      *            element to be removed
      */
@@ -220,17 +221,16 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
      * This method is called before an element is updated. The implementing
      * class can override this method to perform specific logic or check the
      * validity of the updated element.
-     * 
+     *
      * @param oldElement
      *            old element (before update)
      * @param element
      *            updated element (after update)
-     * 
+     *
      *            <p>
-     *            If the method throws an {@link IllegalArgumentException} the
-     *            element will not be updated.
+     *            If the method throws an {@link IllegalArgumentException} the element will not be updated.
      *            <p>
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the updated element is invalid and should not be updated
      */
@@ -255,8 +255,8 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
             provider.removeProviderChangeListener(this);
 
             logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
-            
-            if(this.managedProvider == provider) {
+
+            if (this.managedProvider == provider) {
                 this.managedProvider = null;
             }
         }

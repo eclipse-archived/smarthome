@@ -23,45 +23,45 @@ import org.eclipse.xtext.ui.resource.IStorage2UriMapper;
 
 import com.google.inject.Inject;
 
-public class ResourceForFileEditorFactory implements
-		IResourceForEditorInputFactory {
+public class ResourceForFileEditorFactory implements IResourceForEditorInputFactory {
 
-	// our singleton resource set to be used
-	private static final ResourceSet resourceSet = new ResourceSetImpl();
-	
-	@Inject
-	private IStorage2UriMapper storageToUriMapper;
+    // our singleton resource set to be used
+    private static final ResourceSet resourceSet = new ResourceSetImpl();
 
-	public Resource createResource(IEditorInput editorInput) {
-		try {
-			if (editorInput instanceof IStorageEditorInput) {
-				IStorage storage = ((IStorageEditorInput) editorInput).getStorage();
-				return createResourceFor(storage);
-			}
-			throw new IllegalArgumentException("Couldn't create EMF Resource for input " + editorInput);
-		} catch (CoreException e) {
-			throw new WrappedException(e);
-		}
-	}
+    @Inject
+    private IStorage2UriMapper storageToUriMapper;
 
-	private Resource createResourceFor(IStorage storage) {
-		ResourceSet resourceSet = getResourceSet(storage);
-		URI uri = storageToUriMapper.getUri(storage);
-		XtextResource resource = getResource(resourceSet, uri);
-		resource.setValidationDisabled(true);
-		return resource;
-	}
+    @Override
+    public Resource createResource(IEditorInput editorInput) {
+        try {
+            if (editorInput instanceof IStorageEditorInput) {
+                IStorage storage = ((IStorageEditorInput) editorInput).getStorage();
+                return createResourceFor(storage);
+            }
+            throw new IllegalArgumentException("Couldn't create EMF Resource for input " + editorInput);
+        } catch (CoreException e) {
+            throw new WrappedException(e);
+        }
+    }
 
-	protected ResourceSet getResourceSet(IStorage storage) {
-		return resourceSet;
-	}
+    private Resource createResourceFor(IStorage storage) {
+        ResourceSet resourceSet = getResourceSet(storage);
+        URI uri = storageToUriMapper.getUri(storage);
+        XtextResource resource = getResource(resourceSet, uri);
+        resource.setValidationDisabled(true);
+        return resource;
+    }
 
-	private XtextResource getResource(ResourceSet resourceSet, URI uri) {
-		Resource aResource = resourceSet.createResource(uri, ContentHandler.UNSPECIFIED_CONTENT_TYPE);
-		if (!(aResource instanceof XtextResource))
-			throw new IllegalStateException("The resource factory registered for " + uri
-					+ " does not yield an XtextResource. Make sure the right resource factory has been registered.");
-		return (XtextResource) aResource;
-	}
+    protected ResourceSet getResourceSet(IStorage storage) {
+        return resourceSet;
+    }
+
+    private XtextResource getResource(ResourceSet resourceSet, URI uri) {
+        Resource aResource = resourceSet.createResource(uri, ContentHandler.UNSPECIFIED_CONTENT_TYPE);
+        if (!(aResource instanceof XtextResource))
+            throw new IllegalStateException("The resource factory registered for " + uri
+                    + " does not yield an XtextResource. Make sure the right resource factory has been registered.");
+        return (XtextResource) aResource;
+    }
 
 }

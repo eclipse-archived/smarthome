@@ -7,16 +7,14 @@
  */
 package org.eclipse.smarthome.model.script;
 
-import org.eclipse.smarthome.model.script.ScriptStandaloneSetupGenerated;
 
 /**
- * Initialization support for running Xtext languages 
+ * Initialization support for running Xtext languages
  * without equinox extension registry
  */
-public class ScriptStandaloneSetup extends ScriptStandaloneSetupGenerated{
+public class ScriptStandaloneSetup extends ScriptStandaloneSetupGenerated {
 
-	public static void doSetup() {
-		new ScriptStandaloneSetup().createInjectorAndDoEMFRegistration();
-	}
+    public static void doSetup() {
+        new ScriptStandaloneSetup().createInjectorAndDoEMFRegistration();
+    }
 }
-

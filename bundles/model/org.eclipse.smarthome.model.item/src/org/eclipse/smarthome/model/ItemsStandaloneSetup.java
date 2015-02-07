@@ -7,16 +7,14 @@
  */
 package org.eclipse.smarthome.model;
 
-import org.eclipse.smarthome.model.ItemsStandaloneSetupGenerated;
 
 /**
- * Initialization support for running Xtext languages 
+ * Initialization support for running Xtext languages
  * without equinox extension registry
  */
-public class ItemsStandaloneSetup extends ItemsStandaloneSetupGenerated{
+public class ItemsStandaloneSetup extends ItemsStandaloneSetupGenerated {
 
-	public static void doSetup() {
-		new ItemsStandaloneSetup().createInjectorAndDoEMFRegistration();
-	}
+    public static void doSetup() {
+        new ItemsStandaloneSetup().createInjectorAndDoEMFRegistration();
+    }
 }
-

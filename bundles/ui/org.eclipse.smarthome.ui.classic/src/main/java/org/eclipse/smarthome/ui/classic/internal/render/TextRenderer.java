@@ -9,43 +9,44 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.ui.classic.render.RenderException;
-import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 import org.eclipse.smarthome.model.sitemap.Text;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
  * can produce HTML code for Text widgets.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class TextRenderer extends AbstractWidgetRenderer {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canRender(Widget w) {
-		return w instanceof Text;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-		Text text = (Text) w;
-		String snippet = (text.getChildren().size() > 0) ? 
-			getSnippet("text_link") : getSnippet("text");			
-			
-		snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-		snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
-		snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canRender(Widget w) {
+        return w instanceof Text;
+    }
 
-		// Process the color tags
-		snippet = processColor(w, snippet);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
+        Text text = (Text) w;
+        String snippet = (text.getChildren().size() > 0) ? getSnippet("text_link") : getSnippet("text");
 
-		sb.append(snippet);
-		return null;
-	}
+        snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
+        snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
+        snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+
+        // Process the color tags
+        snippet = processColor(w, snippet);
+
+        sb.append(snippet);
+        return null;
+    }
 }

@@ -26,56 +26,53 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the
- * {@link DiscoveryServiceRegistry}.
+ * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the {@link DiscoveryServiceRegistry}.
  * <p>
- * This implementation tracks any existing {@link DiscoveryService} and
- * registers itself as {@link DiscoveryListener} on it.
+ * This implementation tracks any existing {@link DiscoveryService} and registers itself as {@link DiscoveryListener} on
+ * it.
  * <p>
- * This implementation does neither handle memory leaks (orphaned listener
- * instances) nor blocked listeners. No performance optimizations have been done
- * (synchronization).
- * 
+ * This implementation does neither handle memory leaks (orphaned listener instances) nor blocked listeners. No
+ * performance optimizations have been done (synchronization).
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Kai Kreuzer - Refactored API
- * 
+ *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
  */
-public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry,
-        DiscoveryListener {
+public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
 
     private final class AggregatingScanListener implements ScanListener {
-        
+
         private final ScanListener listener;
         private int finishedDiscoveryServices = 0;
         private boolean errorOccured = false;
         private int numberOfDiscoveryServices;
 
-        private AggregatingScanListener(int numberOfDiscoveryServices,
-                ScanListener listener) {
+        private AggregatingScanListener(int numberOfDiscoveryServices, ScanListener listener) {
             this.numberOfDiscoveryServices = numberOfDiscoveryServices;
             this.listener = listener;
         }
 
-
+        @Override
         public synchronized void onFinished() {
             synchronized (this) {
                 finishedDiscoveryServices++;
-                logger.debug("Finished {} of {} discovery services.", finishedDiscoveryServices, numberOfDiscoveryServices);
+                logger.debug("Finished {} of {} discovery services.", finishedDiscoveryServices,
+                        numberOfDiscoveryServices);
                 if (!errorOccured && finishedDiscoveryServices == numberOfDiscoveryServices) {
-                    if(listener != null) {
+                    if (listener != null) {
                         listener.onFinished();
                     }
                 }
             }
         }
 
-
+        @Override
         public void onErrorOccurred(Exception exception) {
             synchronized (this) {
                 if (!errorOccured) {
-                    if(listener != null) {
+                    if (listener != null) {
                         listener.onErrorOccurred(exception);
                     }
                     errorOccured = true;
@@ -89,7 +86,7 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
             synchronized (this) {
                 numberOfDiscoveryServices--;
                 if (!errorOccured && finishedDiscoveryServices == numberOfDiscoveryServices) {
-                    if(listener != null) {
+                    if (listener != null) {
                         listener.onFinished();
                     }
                 }
@@ -100,35 +97,36 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private List<DiscoveryService> discoveryServices = new CopyOnWriteArrayList<>();
 
     private Set<DiscoveryListener> listeners = new CopyOnWriteArraySet<>();
-    
+
     private final Logger logger = LoggerFactory.getLogger(DiscoveryServiceRegistryImpl.class);
 
+    @Override
     public boolean abortScan(ThingTypeUID thingTypeUID) throws IllegalStateException {
-        
+
         Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
-        
+
         if (discoveryServicesForThingType.isEmpty()) {
             logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);
             return false;
         }
-        
+
         return abortScans(discoveryServicesForThingType);
     }
 
-
+    @Override
     public boolean abortScan(String bindingId) throws IllegalStateException {
-        
+
         Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
-        
+
         if (discoveryServicesForBinding.isEmpty()) {
             logger.warn("No discovery service for binding '{}' found!", bindingId);
             return false;
         }
-        
+
         return abortScans(discoveryServicesForBinding);
     }
 
-    
+    @Override
     public void addDiscoveryListener(DiscoveryListener listener) throws IllegalStateException {
         if (listener != null) {
             this.listeners.add(listener);
@@ -138,17 +136,18 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     @Override
     public boolean startScan(ThingTypeUID thingTypeUID, ScanListener listener) throws IllegalStateException {
         Set<DiscoveryService> discoveryServicesForThingType = getDiscoveryServices(thingTypeUID);
-        
+
         if (discoveryServicesForThingType.isEmpty()) {
             logger.warn("No discovery service for thing type '{}' found!", thingTypeUID);
             return false;
         }
-        
+
         return startScans(discoveryServicesForThingType, listener);
     }
 
+    @Override
     public boolean startScan(String bindingId, final ScanListener listener) throws IllegalStateException {
-        
+
         final Set<DiscoveryService> discoveryServicesForBinding = getDiscoveryServices(bindingId);
 
         if (discoveryServicesForBinding.isEmpty()) {
@@ -158,15 +157,16 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         return startScans(discoveryServicesForBinding, listener);
     }
-   
+
+    @Override
     public boolean supportsDiscovery(ThingTypeUID thingTypeUID) {
         return !getDiscoveryServices(thingTypeUID).isEmpty();
     }
-    
+
+    @Override
     public boolean supportsDiscovery(String bindingId) {
         return !getDiscoveryServices(bindingId).isEmpty();
     }
-    
 
     @Override
     public List<ThingTypeUID> getSupportedThingTypes() {
@@ -176,7 +176,6 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         }
         return thingTypeUIDs;
     }
-
 
     @Override
     public List<String> getSupportedBindings() {
@@ -190,66 +189,69 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         return bindings;
     }
 
-    public synchronized void removeDiscoveryListener(DiscoveryListener listener)
-            throws IllegalStateException {
+    @Override
+    public synchronized void removeDiscoveryListener(DiscoveryListener listener) throws IllegalStateException {
 
         if (listener != null) {
             this.listeners.remove(listener);
         }
     }
 
+    @Override
     public synchronized void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingDiscovered(source, result);
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener "
-                        + listener.getClass().getName() + " on Thing discovered event!", ex);
+                logger.error("Cannot notify the DiscoveryListener " + listener.getClass().getName()
+                        + " on Thing discovered event!", ex);
             }
         }
     }
 
+    @Override
     public synchronized void thingRemoved(DiscoveryService source, ThingUID thingUID) {
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingRemoved(source, thingUID);
             } catch (Exception ex) {
-                logger.error("Cannot notify the DiscoveryListener '"
-                        + listener.getClass().getName() + "' on Thing removed event!", ex);
+                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
+                        + "' on Thing removed event!", ex);
             }
         }
     }
 
     private boolean abortScans(Set<DiscoveryService> discoveryServices) {
         boolean allServicesAborted = true;
-        
-        for(DiscoveryService discoveryService : discoveryServices) {
+
+        for (DiscoveryService discoveryService : discoveryServices) {
             Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
             try {
-                logger.debug("Abort scan for thing types '{}' on '{}'...", supportedThingTypes,
-                        discoveryService.getClass().getName());
-    
+                logger.debug("Abort scan for thing types '{}' on '{}'...", supportedThingTypes, discoveryService
+                        .getClass().getName());
+
                 discoveryService.abortScan();
-    
-                logger.debug("Scan for thing types '{}' aborted on '{}'.",
-                        supportedThingTypes, discoveryService.getClass().getName());
+
+                logger.debug("Scan for thing types '{}' aborted on '{}'.", supportedThingTypes, discoveryService
+                        .getClass().getName());
             } catch (Exception ex) {
-                logger.error("Cannot abort scan for thing types '" + supportedThingTypes
-                        + "' on '" + discoveryService.getClass().getName() + "'!", ex);
+                logger.error("Cannot abort scan for thing types '" + supportedThingTypes + "' on '"
+                        + discoveryService.getClass().getName() + "'!", ex);
                 allServicesAborted = false;
             }
         }
-    
+
         return allServicesAborted;
     }
 
     private boolean startScans(Set<DiscoveryService> discoveryServices, ScanListener listener) {
-        
+
         boolean atLeastOneDiscoveryServiceHasBeenStarted = false;
 
         if (discoveryServices.size() > 1) {
             logger.debug("Trying to start {} scans with an aggregating listener.", discoveryServices.size());
-            AggregatingScanListener aggregatingScanListener = new AggregatingScanListener(discoveryServices.size(), listener);
+            AggregatingScanListener aggregatingScanListener = new AggregatingScanListener(discoveryServices.size(),
+                    listener);
             for (DiscoveryService discoveryService : discoveryServices) {
                 if (startScan(discoveryService, aggregatingScanListener)) {
                     atLeastOneDiscoveryServiceHasBeenStarted = true;
@@ -270,20 +272,19 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     private boolean startScan(DiscoveryService discoveryService, ScanListener listener) {
         Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
-        try {                
-            logger.debug("Triggering scan for thing types '{}' on '{}'...", supportedThingTypes,
-                    discoveryService.getClass().getSimpleName());
+        try {
+            logger.debug("Triggering scan for thing types '{}' on '{}'...", supportedThingTypes, discoveryService
+                    .getClass().getSimpleName());
 
             discoveryService.startScan(listener);
             return true;
         } catch (Exception ex) {
-            logger.error("Cannot trigger scan for thing types '" + supportedThingTypes
-                    + "' on '" + discoveryService.getClass().getSimpleName() + "'!", ex);
+            logger.error("Cannot trigger scan for thing types '" + supportedThingTypes + "' on '"
+                    + discoveryService.getClass().getSimpleName() + "'!", ex);
             return false;
         }
     }
-    
-    
+
     private synchronized Set<DiscoveryService> getDiscoveryServices(ThingTypeUID thingTypeUID)
             throws IllegalStateException {
 
@@ -291,8 +292,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         if (thingTypeUID != null) {
             for (DiscoveryService discoveryService : this.discoveryServices) {
-            	Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();
-                if(discoveryThingTypes.contains(thingTypeUID)) {
+                Collection<ThingTypeUID> discoveryThingTypes = discoveryService.getSupportedThingTypes();
+                if (discoveryThingTypes.contains(thingTypeUID)) {
                     discoveryServices.add(discoveryService);
                 }
             }
@@ -300,9 +301,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
         return discoveryServices;
     }
-    
-    private synchronized Set<DiscoveryService> getDiscoveryServices(String bindingId)
-            throws IllegalStateException {
+
+    private synchronized Set<DiscoveryService> getDiscoveryServices(String bindingId) throws IllegalStateException {
 
         Set<DiscoveryService> discoveryServices = new HashSet<>();
 
@@ -328,9 +328,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         discoveryService.removeDiscoveryListener(this);
     }
 
-	protected void deactivate() {
-	    this.discoveryServices.clear();
-	    this.listeners.clear();
-	}
+    protected void deactivate() {
+        this.discoveryServices.clear();
+        this.listeners.clear();
+    }
 
 }

@@ -14,9 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link AbstractProvider} can be used as base class for {@link Provider}
- * implementations. It supports the registration and notification of listeners.
- * 
+ * {@link AbstractProvider} can be used as base class for {@link Provider} implementations. It supports the registration
+ * and notification of listeners.
+ *
  * @author Dennis Nobel - Initial contribution
  *
  * @param <E>
@@ -45,21 +45,21 @@ public abstract class AbstractProvider<E> implements Provider<E> {
         for (ProviderChangeListener<E> listener : this.listeners) {
             try {
                 switch (eventType) {
-                case ADDED:
-                    listener.added(this, element);
-                    break;
-                case REMOVED:
-                    listener.removed(this, element);
-                    break;
-                case UPDATED:
-                    listener.updated(this, oldElement, element);
-                    break;
-                default:
-                    break;
+                    case ADDED:
+                        listener.added(this, element);
+                        break;
+                    case REMOVED:
+                        listener.removed(this, element);
+                        break;
+                    case UPDATED:
+                        listener.updated(this, oldElement, element);
+                        break;
+                    default:
+                        break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the listener '" + listener + "' about the '"
-                        + eventType.name() + "' event!: " + ex.getMessage(), ex);
+                logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
+                        + "' event!: " + ex.getMessage(), ex);
             }
         }
     }

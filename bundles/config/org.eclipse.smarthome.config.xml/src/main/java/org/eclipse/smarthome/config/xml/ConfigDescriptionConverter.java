@@ -23,10 +23,9 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link ConfigDescriptionConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert config description information within an XML
+ * The {@link ConfigDescriptionConverter} is a concrete implementation of the {@code XStream} {@link Converter}
+ * interface used to convert config description information within an XML
  * document into a {@link ConfigDescription} object.
  * <p>
  * This converter converts {@code config-description} XML tags.
@@ -37,12 +36,10 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
 
     private ConverterAttributeMapValidator attributeMapValidator;
 
-
     public ConfigDescriptionConverter() {
         super(ConfigDescription.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
-                { "uri", "false" }});
+        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "uri", "false" } });
     }
 
     @SuppressWarnings("unchecked")
@@ -62,13 +59,13 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         try {
             uri = new URI(uriText);
         } catch (NullPointerException | URISyntaxException ex) {
-            throw new ConversionException("The URI '" + uriText + "' in node '"
-                    + reader.getNodeName() + "' is invalid!", ex);
+            throw new ConversionException("The URI '" + uriText + "' in node '" + reader.getNodeName()
+                    + "' is invalid!", ex);
         }
 
         // read values
-        List<ConfigDescriptionParameter> configDescriptionParams =
-                (List<ConfigDescriptionParameter>) context.convertAnother(context, List.class);
+        List<ConfigDescriptionParameter> configDescriptionParams = (List<ConfigDescriptionParameter>) context
+                .convertAnother(context, List.class);
 
         ConverterAssertion.assertEndOfType(reader);
 

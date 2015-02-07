@@ -22,9 +22,9 @@ import org.eclipse.smarthome.io.rest.sse.SseResource;
 /**
  * Listener responsible for broadcasting item registry events to all clients
  * subscribed to them.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class ItemRegistryEventListener implements ItemRegistryChangeListener {
 

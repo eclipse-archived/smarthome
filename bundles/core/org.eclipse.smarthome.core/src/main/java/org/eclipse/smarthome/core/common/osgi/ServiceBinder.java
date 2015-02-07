@@ -21,34 +21,31 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * The {@link ServiceBinder} class is a utility class to bind an <i>OSGi</i> service and to
  * inject the bound service into a specified object by calling the annotated method on it.
  * <p>
- * This class is an <i>OSGi</i> utility class which can be simply used for injecting a service
- * by an API instead of using a declarative way.
+ * This class is an <i>OSGi</i> utility class which can be simply used for injecting a service by an API instead of
+ * using a declarative way.
  * <p>
- * The annotated method for binding a service must have the signature
- * {@code public void methodName(<ServiceType>)} and the annotated method for unbinding a service
- * must have the signature {@code public void methodName(<ServiceType>)} or
+ * The annotated method for binding a service must have the signature {@code public void methodName(<ServiceType>)} and
+ * the annotated method for unbinding a service must have the signature {@code public void methodName(<ServiceType>)} or
  * {@code public void methodName()}.
  * <p>
- * After starting the binder with {@link #open()} the service is tracked and if a service
- * is found and bound, the specified injection method is called with the service as parameter.
- * If the service disappears again or the method {@link #close()} is called to stop the binder,
- * the specified injection method is called with {@code null} as parameter if the unbind method
- * is the same as for the binding, otherwise the released service instance is used as parameter.
+ * After starting the binder with {@link #open()} the service is tracked and if a service is found and bound, the
+ * specified injection method is called with the service as parameter. If the service disappears again or the method
+ * {@link #close()} is called to stop the binder, the specified injection method is called with {@code null} as
+ * parameter if the unbind method is the same as for the binding, otherwise the released service instance is used as
+ * parameter.
  * <p>
- * <b>Usage Example:</b>
- * <code><pre>
+ * <b>Usage Example:</b> <code><pre>
  * ServiceBinder serviceBinder = new ServiceBinder(bundleContext, new MyObject());
  * serviceBinder.open();
  * serviceBinder.close();
  *   ...
  * public class MyObject {
  *   private AnyService anyService;
- * 
+ *
  *   &#64Bind
  *   &#64Unbind
  *   public void setAnyService(AnyService anyService) {
@@ -56,36 +53,36 @@ import org.slf4j.LoggerFactory;
  *   }
  * }
  * </pre></code>
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ServiceBinder {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface Bind { }
+    public @interface Bind {
+    }
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    public @interface Unbind { }
+    public @interface Unbind {
+    }
 
     private ServiceTracker<?, ?> serviceTracker;
     private Object trackedService;
-    
-    private Logger logger = LoggerFactory.getLogger(ServiceBinder.class);
 
+    private Logger logger = LoggerFactory.getLogger(ServiceBinder.class);
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param bundleContext the bundle context to be used for tracking the service (must not be null)
      * @param targetObject the object into which the service to be injected (must not be null)
-     * 
+     *
      * @throws IllegalArgumentException if any of the parameters is null,
-     *     or if the annotated methods do not follow the scheme
+     *             or if the annotated methods do not follow the scheme
      */
-    public ServiceBinder(final BundleContext bundleContext, final Object targetObject)
-            throws IllegalArgumentException {
+    public ServiceBinder(final BundleContext bundleContext, final Object targetObject) throws IllegalArgumentException {
 
         if (bundleContext == null) {
             throw new IllegalArgumentException("The bundle context must not be null!");
@@ -127,8 +124,7 @@ public class ServiceBinder {
                     }
 
                     @Override
-                    public synchronized void removedService(
-                            ServiceReference<Class<?>> reference, Object service) {
+                    public synchronized void removedService(ServiceReference<Class<?>> reference, Object service) {
 
                         if (service == trackedService) {
                             trackedService = null;
@@ -171,12 +167,11 @@ public class ServiceBinder {
         return null;
     }
 
-    private Class<?> determineServiceType(Method method, boolean required)
-            throws IllegalArgumentException {
+    private Class<?> determineServiceType(Method method, boolean required) throws IllegalArgumentException {
 
         if (method != null) {
             Class<?>[] paramTypes = method.getParameterTypes();
-    
+
             if (paramTypes.length == 1) {
                 return paramTypes[0];
             } else if (paramTypes.length > 1) {

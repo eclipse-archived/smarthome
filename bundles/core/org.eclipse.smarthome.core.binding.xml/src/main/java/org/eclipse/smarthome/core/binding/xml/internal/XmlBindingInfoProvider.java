@@ -25,15 +25,12 @@ import org.eclipse.smarthome.core.i18n.BindingI18nUtil;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 
-
 /**
- * The {@link XmlBindingInfoProvider} is a concrete implementation of the
- * {@link BindingInfoProvider} service interface.
+ * The {@link XmlBindingInfoProvider} is a concrete implementation of the {@link BindingInfoProvider} service interface.
  * <p>
- * This implementation manages any {@link BindingInfo} objects associated
- * to specific modules. If a specific module disappears, any registered
- * {@link BindingInfo} objects associated with that module are released.
- * 
+ * This implementation manages any {@link BindingInfo} objects associated to specific modules. If a specific module
+ * disappears, any registered {@link BindingInfo} objects associated with that module are released.
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Michael Grammling - Refactoring: Provider/Registry pattern is used, added locale support
  */
@@ -41,7 +38,6 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
 
     private Map<Bundle, List<BindingInfo>> bundleBindingInfoMap;
     private BindingI18nUtil bindingI18nUtil;
-
 
     public XmlBindingInfoProvider() {
         this.bundleBindingInfoMap = new HashMap<>(10);
@@ -67,7 +63,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
      * Adds a {@link BindingInfo} object to the internal list associated with the specified module.
      * <p>
      * This method returns silently, if any of the parameters is {@code null}.
-     * 
+     *
      * @param bundle the module to which the binding information to be added
      * @param bindingInfo the binding information to be added
      */
@@ -86,7 +82,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
      * associated with the specified module.
      * <p>
      * This method returns silently if the module is {@code null}.
-     * 
+     *
      * @param bundle the module for which all associated binding informations to be removed
      */
     public synchronized void removeAllBindingInfos(Bundle bundle) {
@@ -101,8 +97,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
 
     @Override
     public synchronized BindingInfo getBindingInfo(String id, Locale locale) {
-        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoList =
-                this.bundleBindingInfoMap.entrySet();
+        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoList = this.bundleBindingInfoMap.entrySet();
 
         if (bindingInfoList != null) {
             for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoList) {
@@ -121,14 +116,13 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     public synchronized Set<BindingInfo> getBindingInfos(Locale locale) {
         Set<BindingInfo> allBindingInfos = new LinkedHashSet<>(10);
 
-        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoSet =
-                this.bundleBindingInfoMap.entrySet();
+        Collection<Entry<Bundle, List<BindingInfo>>> bindingInfoSet = this.bundleBindingInfoMap.entrySet();
 
         if (bindingInfoSet != null) {
             for (Entry<Bundle, List<BindingInfo>> bindingInfos : bindingInfoSet) {
                 for (BindingInfo bindingInfo : bindingInfos.getValue()) {
-                    BindingInfo localizedBindingInfo = createLocalizedBindingInfo(
-                            bindingInfos.getKey(), bindingInfo, locale);
+                    BindingInfo localizedBindingInfo = createLocalizedBindingInfo(bindingInfos.getKey(), bindingInfo,
+                            locale);
 
                     allBindingInfos.add(localizedBindingInfo);
                 }
@@ -142,23 +136,21 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
     public void setI18nProvider(I18nProvider i18nProvider) {
         this.bindingI18nUtil = new BindingI18nUtil(i18nProvider);
     }
-    
+
     @Unbind
     public void unsetI18nProvider(I18nProvider i18nProvider) {
         this.bindingI18nUtil = null;
     }
 
-    private BindingInfo createLocalizedBindingInfo(
-            Bundle bundle, BindingInfo bindingInfo, Locale locale) {
+    private BindingInfo createLocalizedBindingInfo(Bundle bundle, BindingInfo bindingInfo, Locale locale) {
 
         if (this.bindingI18nUtil != null) {
-            String name = this.bindingI18nUtil.getName(
-                    bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
-            String description = this.bindingI18nUtil.getDescription(
-                    bundle, bindingInfo.getId(), bindingInfo.getDescription(), locale);
+            String name = this.bindingI18nUtil.getName(bundle, bindingInfo.getId(), bindingInfo.getName(), locale);
+            String description = this.bindingI18nUtil.getDescription(bundle, bindingInfo.getId(),
+                    bindingInfo.getDescription(), locale);
 
-            return new BindingInfo(bindingInfo.getId(), name, description,
-                    bindingInfo.getAuthor(), bindingInfo.getConfigDescriptionURI());
+            return new BindingInfo(bindingInfo.getId(), name, description, bindingInfo.getAuthor(),
+                    bindingInfo.getConfigDescriptionURI());
         } else {
             return bindingInfo;
         }

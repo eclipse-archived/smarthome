@@ -14,29 +14,29 @@ import org.eclipse.ui.actions.ActionGroup;
 import org.eclipse.ui.navigator.CommonViewer;
 
 /**
-*
-* @author Kai Kreuzer - Initial contribution and API
-*
-*/
+ *
+ * @author Kai Kreuzer - Initial contribution and API
+ *
+ */
 public class ConfigNavigatorActionGroup extends ActionGroup {
 
-	private SelectConfigFolderAction selectConfigFolderAction;
-	private CommonViewer commonViewer;
+    private SelectConfigFolderAction selectConfigFolderAction;
+    private CommonViewer commonViewer;
 
-	public ConfigNavigatorActionGroup(CommonViewer aViewer) {
-		super();
-		commonViewer = aViewer;
-		makeActions();
-	}
+    public ConfigNavigatorActionGroup(CommonViewer aViewer) {
+        super();
+        commonViewer = aViewer;
+        makeActions();
+    }
 
-	@Override
-	public void fillActionBars(IActionBars actionBars) {
-		IToolBarManager manager = actionBars.getToolBarManager();
-		manager.add(selectConfigFolderAction);
-	}
-	
-	private void makeActions() {
-		selectConfigFolderAction = new SelectConfigFolderAction(commonViewer);
-	}
+    @Override
+    public void fillActionBars(IActionBars actionBars) {
+        IToolBarManager manager = actionBars.getToolBarManager();
+        manager.add(selectConfigFolderAction);
+    }
+
+    private void makeActions() {
+        selectConfigFolderAction = new SelectConfigFolderAction(commonViewer);
+    }
 
 }

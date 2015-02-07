@@ -15,17 +15,15 @@ import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.osgi.framework.Bundle;
 
-
 /**
  * The {@link ConfigDescriptionXmlProvider} is responsible managing any created objects
  * by a {@link ConfigDescriptionReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link ConfigDescription} object at the
- * {@link XmlConfigDescriptionProvider} which is itself registered as
- * {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.
- * 
+ * This implementation registers each {@link ConfigDescription} object at the {@link XmlConfigDescriptionProvider} which
+ * is itself registered as {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.
+ *
  * @author Michael Grammling - Initial Contribution
- * 
+ *
  * @see ConfigDescriptionXmlProviderFactory
  */
 public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<ConfigDescription>> {
@@ -33,9 +31,7 @@ public class ConfigDescriptionXmlProvider implements XmlDocumentProvider<List<Co
     private Bundle bundle;
     private XmlConfigDescriptionProvider configDescriptionProvider;
 
-
-    public ConfigDescriptionXmlProvider(
-            Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider)
+    public ConfigDescriptionXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider)
             throws IllegalArgumentException {
 
         if (bundle == null) {

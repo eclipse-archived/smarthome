@@ -15,17 +15,16 @@ import org.slf4j.LoggerFactory;
 
 public class PersistenceRuntimeActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(PersistenceRuntimeActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(PersistenceRuntimeActivator.class);
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		PersistenceStandaloneSetup.doSetup();
-		logger.debug("Registered 'persistence' configuration parser");
-	}
+    @Override
+    public void start(BundleContext context) throws Exception {
+        PersistenceStandaloneSetup.doSetup();
+        logger.debug("Registered 'persistence' configuration parser");
+    }
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+    }
 
 }

@@ -25,18 +25,16 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * The {@link Activator} class is responsible to activate this module.
  * <p>
- * This module tracks any XML documents of other bundles in the {@link #XML_DIRECTORY}
- * folder and tries to extract thing description information from them. Any {@link ThingType}
- * objects are registered at the {@link XmlThingTypeProvider} which itself is registered as
- * service at the <i>OSGi</i> service registry and unregistered again, if the providing bundle
- * or this bundle is stopped.
+ * This module tracks any XML documents of other bundles in the {@link #XML_DIRECTORY} folder and tries to extract thing
+ * description information from them. Any {@link ThingType} objects are registered at the {@link XmlThingTypeProvider}
+ * which itself is registered as service at the <i>OSGi</i> service registry and unregistered again, if the providing
+ * bundle or this bundle is stopped.
  * <p>
- * If the thing description information contains a {@code config-description} section, the
- * according {@link ConfigDescription} object is added to the {@link XmlConfigDescriptionProvider}
- * and removed again, if the providing bundle or this bundle is stopped.<br>
- * The {@link XmlConfigDescriptionProvider} is registered itself as service at the <i>OSGi</i>
- * service registry.
- * 
+ * If the thing description information contains a {@code config-description} section, the according
+ * {@link ConfigDescription} object is added to the {@link XmlConfigDescriptionProvider} and removed again, if the
+ * providing bundle or this bundle is stopped.<br>
+ * The {@link XmlConfigDescriptionProvider} is registered itself as service at the <i>OSGi</i> service registry.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class Activator implements BundleActivator {
@@ -51,7 +49,6 @@ public class Activator implements BundleActivator {
 
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
 
-
     @Override
     public void start(BundleContext context) throws Exception {
         XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider();
@@ -59,25 +56,23 @@ public class Activator implements BundleActivator {
         this.thingTypeI18nProviderServiceBinder.open();
 
         XmlConfigDescriptionProvider configDescriptionProvider = new XmlConfigDescriptionProvider();
-        this.configDescriptionI18nProviderServiceBinder =
-                new ServiceBinder(context, configDescriptionProvider);
+        this.configDescriptionI18nProviderServiceBinder = new ServiceBinder(context, configDescriptionProvider);
         this.configDescriptionI18nProviderServiceBinder.open();
-        
+
         XmlDocumentReader<List<?>> thingTypeReader = new ThingDescriptionReader();
 
-        XmlDocumentProviderFactory<List<?>> thingTypeProviderFactory =
-                new ThingTypeXmlProviderFactory(configDescriptionProvider, thingTypeProvider);
+        XmlDocumentProviderFactory<List<?>> thingTypeProviderFactory = new ThingTypeXmlProviderFactory(
+                configDescriptionProvider, thingTypeProvider);
 
-        this.thingTypeTracker = new XmlDocumentBundleTracker<>(
-                context, XML_DIRECTORY, thingTypeReader, thingTypeProviderFactory);
+        this.thingTypeTracker = new XmlDocumentBundleTracker<>(context, XML_DIRECTORY, thingTypeReader,
+                thingTypeProviderFactory);
 
         this.thingTypeTracker.open();
 
-        this.configDescriptionProviderReg = context.registerService(
-                ConfigDescriptionProvider.class.getName(), configDescriptionProvider, null);
+        this.configDescriptionProviderReg = context.registerService(ConfigDescriptionProvider.class.getName(),
+                configDescriptionProvider, null);
 
-        this.thingTypeProviderReg = context.registerService(
-                ThingTypeProvider.class.getName(), thingTypeProvider, null);
+        this.thingTypeProviderReg = context.registerService(ThingTypeProvider.class.getName(), thingTypeProvider, null);
     }
 
     @Override

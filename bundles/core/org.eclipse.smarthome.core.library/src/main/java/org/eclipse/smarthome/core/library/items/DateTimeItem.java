@@ -21,38 +21,40 @@ import org.eclipse.smarthome.core.types.UnDefType;
 
 /**
  * A DateTimeItem stores a timestamp including a valid time zone.
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  * @author Kai Kreuzer - Initial contribution and API
- * 
+ *
  */
 public class DateTimeItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	static {
-		acceptedDataTypes.add((DateTimeType.class));
-		acceptedDataTypes.add(UnDefType.class);
-		
-		acceptedCommandTypes.add(RefreshType.class);
-		acceptedCommandTypes.add(DateTimeType.class);
-	}
-	
-	public DateTimeItem(String name) {
-		super(CoreItemFactory.DATETIME, name);
-	}
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+    static {
+        acceptedDataTypes.add((DateTimeType.class));
+        acceptedDataTypes.add(UnDefType.class);
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
-	
-	public void send(DateTimeType command) {
-		internalSend(command);
-	}
+        acceptedCommandTypes.add(RefreshType.class);
+        acceptedCommandTypes.add(DateTimeType.class);
+    }
+
+    public DateTimeItem(String name) {
+        super(CoreItemFactory.DATETIME, name);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    public void send(DateTimeType command) {
+        internalSend(command);
+    }
 
 }

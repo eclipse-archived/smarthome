@@ -7,13 +7,12 @@
  */
 package org.eclipse.smarthome.core.types;
 
-
 /**
  * A primitive type consists of a single value like a string, a number, etc.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public interface PrimitiveType extends Type {
-	
+
 }

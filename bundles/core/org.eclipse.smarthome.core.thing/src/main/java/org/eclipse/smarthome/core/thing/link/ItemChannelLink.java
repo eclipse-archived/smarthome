@@ -11,9 +11,8 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 
 /**
- * {@link ItemChannelLink} defines a link between an {@link Item} and a
- * {@link Channel}.
- * 
+ * {@link ItemChannelLink} defines a link between an {@link Item} and a {@link Channel}.
+ *
  * @author Dennis Nobel - Initial contribution, Added getIDFor method
  * @author Jochen Hiller - Bugfix 455434: added default constructor, object is now mutable
  */
@@ -29,7 +28,7 @@ public class ItemChannelLink extends AbstractLink {
         super();
         this.channelUID = null;
     }
-    
+
     public ItemChannelLink(String itemName, ChannelUID channelUID) {
         super(itemName);
         this.channelUID = channelUID;

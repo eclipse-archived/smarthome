@@ -11,26 +11,24 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
-
 /**
- * The {@link GenericUnmarshaller} is an abstract implementation of the {@code XStream}
- * {@link Converter} interface used to convert XML tags within an XML document into its
+ * The {@link GenericUnmarshaller} is an abstract implementation of the {@code XStream} {@link Converter} interface used
+ * to convert XML tags within an XML document into its
  * according objects.
  * <p>
  * <b>Hint:</b> This class only supports unmarshalling functionality.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  *
- * @param <T> the result type of the conversion 
+ * @param <T> the result type of the conversion
  */
 public abstract class GenericUnmarshaller<T> implements Converter {
 
     private Class<T> clazz;
 
-
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param clazz the class of the result type (must not be null)
      */
     public GenericUnmarshaller(Class<T> clazz) {
@@ -39,7 +37,7 @@ public abstract class GenericUnmarshaller<T> implements Converter {
 
     /**
      * Returns the class of the result type
-     * 
+     *
      * @return the class of the result type
      */
     public Class<?> getResultType() {
@@ -53,8 +51,7 @@ public abstract class GenericUnmarshaller<T> implements Converter {
     }
 
     @Override
-    public final void marshal(
-            Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public final void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
 
         throw new UnsupportedOperationException();
     }

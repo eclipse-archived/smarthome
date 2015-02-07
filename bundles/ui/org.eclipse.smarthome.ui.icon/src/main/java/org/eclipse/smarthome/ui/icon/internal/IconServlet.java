@@ -31,87 +31,87 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Registers a servlet that serves icons through {@link IconProvider}s.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  *
  */
 public class IconServlet extends HttpServlet {
-	
-	private static final long serialVersionUID = 2880642275858634578L;
 
-	private final Logger logger = LoggerFactory.getLogger(IconServlet.class);
+    private static final long serialVersionUID = 2880642275858634578L;
 
-	private static final String SERVLET_NAME = "/images";
-	
-	private long startupTime;
-	
-	protected HttpService httpService;
+    private final Logger logger = LoggerFactory.getLogger(IconServlet.class);
 
-	private List<IconProvider> iconProvider = new ArrayList<>();
-	
-	public void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
-	}
+    private static final String SERVLET_NAME = "/images";
 
-	public void unsetHttpService(HttpService httpService) {
-		this.httpService = null;
-	}
+    private long startupTime;
 
-	public void addIconProvider(IconProvider iconProvider) {
-		this.iconProvider.add(iconProvider);
-	}
+    protected HttpService httpService;
 
-	public void removeIconProvider(IconProvider iconProvider) {
-		this.iconProvider.remove(iconProvider);
-	}
+    private List<IconProvider> iconProvider = new ArrayList<>();
 
-	protected void activate() {
-		try {
-			logger.debug("Starting up icon servlet at " + SERVLET_NAME);
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
 
-			Hashtable<String, String> props = new Hashtable<String, String>();
-			httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
-		} catch (NamespaceException e) {
-			logger.error("Error during servlet startup", e);
-		} catch (ServletException e) {
-			logger.error("Error during servlet startup", e);
-		}
-		startupTime = System.currentTimeMillis();
-	}
+    public void unsetHttpService(HttpService httpService) {
+        this.httpService = null;
+    }
 
-	/**
-	 * Creates a {@link HttpContext}
-	 * @return a {@link HttpContext}
-	 */
-	protected HttpContext createHttpContext() {
-		HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-		return defaultHttpContext;
-	}
+    public void addIconProvider(IconProvider iconProvider) {
+        this.iconProvider.add(iconProvider);
+    }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		
-		if(req.getDateHeader("If-Modified-Since") > startupTime) {
-			resp.setStatus(304);
-			return;
-		}
-		
-		String filename = StringUtils.substringAfterLast(req.getRequestURI(), "/");
+    public void removeIconProvider(IconProvider iconProvider) {
+        this.iconProvider.remove(iconProvider);
+    }
 
-		String iconName = StringUtils.substringBeforeLast(filename, ".");
-		
-		for(IconProvider provider : iconProvider) {
-			if(provider.hasIcon(iconName)) {
-				resp.setContentType("image/png");
-				resp.setDateHeader("Last-Modified", new Date().getTime());
-				ServletOutputStream os = resp.getOutputStream();
-				InputStream is = provider.getIcon(iconName);
-				IOUtils.copy(is, os);
-				resp.flushBuffer();
-				return;
-			}
-		}
-		resp.sendError(404);
-	}
+    protected void activate() {
+        try {
+            logger.debug("Starting up icon servlet at " + SERVLET_NAME);
+
+            Hashtable<String, String> props = new Hashtable<String, String>();
+            httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
+        } catch (NamespaceException e) {
+            logger.error("Error during servlet startup", e);
+        } catch (ServletException e) {
+            logger.error("Error during servlet startup", e);
+        }
+        startupTime = System.currentTimeMillis();
+    }
+
+    /**
+     * Creates a {@link HttpContext}
+     * 
+     * @return a {@link HttpContext}
+     */
+    protected HttpContext createHttpContext() {
+        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
+        return defaultHttpContext;
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        if (req.getDateHeader("If-Modified-Since") > startupTime) {
+            resp.setStatus(304);
+            return;
+        }
+
+        String filename = StringUtils.substringAfterLast(req.getRequestURI(), "/");
+
+        String iconName = StringUtils.substringBeforeLast(filename, ".");
+
+        for (IconProvider provider : iconProvider) {
+            if (provider.hasIcon(iconName)) {
+                resp.setContentType("image/png");
+                resp.setDateHeader("Last-Modified", new Date().getTime());
+                ServletOutputStream os = resp.getOutputStream();
+                InputStream is = provider.getIcon(iconName);
+                IOUtils.copy(is, os);
+                resp.flushBuffer();
+                return;
+            }
+        }
+        resp.sendError(404);
+    }
 }

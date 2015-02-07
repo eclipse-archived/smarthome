@@ -13,10 +13,10 @@ import org.eclipse.smarthome.core.common.registry.Provider;
  * An item provider provides instances of {@link GenericItem}. These
  * items can be constructed from some static configuration files or
  * they can be derived from some dynamic logic.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public interface ItemProvider extends Provider<Item> {
-	
+
 }

@@ -34,200 +34,202 @@ import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * This servlet generates time-series charts for a given set of items. It
  * accepts the following HTTP parameters:
  * <ul>
  * <li>w: width in pixels of image to generate</li>
  * <li>h: height in pixels of image to generate</li>
- * <li>period: the time span for the x-axis. Value can be
- * h,4h,8h,12h,D,3D,W,2W,M,2M,4M,Y</li>
+ * <li>period: the time span for the x-axis. Value can be h,4h,8h,12h,D,3D,W,2W,M,2M,4M,Y</li>
  * <li>items: A comma separated list of item names to display</li>
- * <li>groups: A comma separated list of group names, whose members should be
- * displayed</li>
+ * <li>groups: A comma separated list of group names, whose members should be displayed</li>
  * <li>service: The persistence service name. If not supplied the first service found will be used.</li>
  * </ul>
- * 
+ *
  * @author Chris Jackson
- * 
+ *
  */
 
 public class ChartServlet extends HttpServlet implements ManagedService {
 
-	private static final long serialVersionUID = 7700873790924746422L;
+    private static final long serialVersionUID = 7700873790924746422L;
 
-	private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
+    private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
-	protected String providerName = "default";
-	
-	// The URI of this servlet
-	public static final String SERVLET_NAME = "/chart";
+    protected String providerName = "default";
 
-	protected static final Color[] LINECOLORS = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA,
-			Color.ORANGE, Color.CYAN, Color.PINK, Color.DARK_GRAY, Color.YELLOW };
-	protected static final Color[] AREACOLORS = new Color[] { new Color(255, 0, 0, 30), new Color(0, 255, 0, 30),
-			new Color(0, 0, 255, 30), new Color(255, 0, 255, 30), new Color(255, 128, 0, 30),
-			new Color(0, 255, 255, 30), new Color(255, 0, 128, 30), new Color(255, 128, 128, 30),
-			new Color(255, 255, 0, 30) };
+    // The URI of this servlet
+    public static final String SERVLET_NAME = "/chart";
 
-	protected static final Map<String, Long> PERIODS = new HashMap<String, Long>();
+    protected static final Color[] LINECOLORS = new Color[] { Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA,
+            Color.ORANGE, Color.CYAN, Color.PINK, Color.DARK_GRAY, Color.YELLOW };
+    protected static final Color[] AREACOLORS = new Color[] { new Color(255, 0, 0, 30), new Color(0, 255, 0, 30),
+            new Color(0, 0, 255, 30), new Color(255, 0, 255, 30), new Color(255, 128, 0, 30),
+            new Color(0, 255, 255, 30), new Color(255, 0, 128, 30), new Color(255, 128, 128, 30),
+            new Color(255, 255, 0, 30) };
 
-	static {
-		PERIODS.put("h", 3600000L);
-		PERIODS.put("4h", 14400000L);
-		PERIODS.put("8h", 28800000L);
-		PERIODS.put("12h", 43200000L);
-		PERIODS.put("D", 86400000L);
-		PERIODS.put("3D", 259200000L);
-		PERIODS.put("W", 604800000L);
-		PERIODS.put("2W", 1209600000L);
-		PERIODS.put("M", 2592000000L);
-		PERIODS.put("2M", 5184000000L);
-		PERIODS.put("4M", 10368000000L);
-		PERIODS.put("Y", 31536000000L);
-	}
+    protected static final Map<String, Long> PERIODS = new HashMap<String, Long>();
 
-	protected HttpService httpService;
-	protected ItemUIRegistry itemUIRegistry;
-	static protected Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
+    static {
+        PERIODS.put("h", 3600000L);
+        PERIODS.put("4h", 14400000L);
+        PERIODS.put("8h", 28800000L);
+        PERIODS.put("12h", 43200000L);
+        PERIODS.put("D", 86400000L);
+        PERIODS.put("3D", 259200000L);
+        PERIODS.put("W", 604800000L);
+        PERIODS.put("2W", 1209600000L);
+        PERIODS.put("M", 2592000000L);
+        PERIODS.put("2M", 5184000000L);
+        PERIODS.put("4M", 10368000000L);
+        PERIODS.put("Y", 31536000000L);
+    }
 
-	public void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
-	}
+    protected HttpService httpService;
+    protected ItemUIRegistry itemUIRegistry;
+    static protected Map<String, ChartProvider> chartProviders = new HashMap<String, ChartProvider>();
 
-	public void unsetHttpService(HttpService httpService) {
-		this.httpService = null;
-	}
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
 
-	public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-		this.itemUIRegistry = itemUIRegistry;
-	}
+    public void unsetHttpService(HttpService httpService) {
+        this.httpService = null;
+    }
 
-	public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
-		this.itemUIRegistry = null;
-	}
+    public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
+        this.itemUIRegistry = itemUIRegistry;
+    }
 
-	public void addChartProvider(ChartProvider provider) {
-		chartProviders.put(provider.getName(), provider);
-	}
+    public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
+        this.itemUIRegistry = null;
+    }
 
-	public void removeChartProvider(ChartProvider provider) {
-		chartProviders.remove(provider.getName());
-	}
+    public void addChartProvider(ChartProvider provider) {
+        chartProviders.put(provider.getName(), provider);
+    }
 
-	static public Map<String, ChartProvider> getChartProviders() {
-		return chartProviders;
-	}
+    public void removeChartProvider(ChartProvider provider) {
+        chartProviders.remove(provider.getName());
+    }
 
-	protected void activate() {
-		try {
-			logger.debug("Starting up chart servlet at " + SERVLET_NAME);
+    static public Map<String, ChartProvider> getChartProviders() {
+        return chartProviders;
+    }
 
-			Hashtable<String, String> props = new Hashtable<String, String>();
-			httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
+    protected void activate() {
+        try {
+            logger.debug("Starting up chart servlet at " + SERVLET_NAME);
 
-		} catch (NamespaceException e) {
-			logger.error("Error during chart servlet startup", e);
-		} catch (ServletException e) {
-			logger.error("Error during chart servlet startup", e);
-		}
-	}
+            Hashtable<String, String> props = new Hashtable<String, String>();
+            httpService.registerServlet(SERVLET_NAME, this, props, createHttpContext());
 
-	protected void deactivate() {
-		httpService.unregister(SERVLET_NAME);
-	}
+        } catch (NamespaceException e) {
+            logger.error("Error during chart servlet startup", e);
+        } catch (ServletException e) {
+            logger.error("Error during chart servlet startup", e);
+        }
+    }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		logger.debug("Received incoming chart request: ", req);
+    protected void deactivate() {
+        httpService.unregister(SERVLET_NAME);
+    }
 
-		int width = 480;
-		try {
-			width = Integer.parseInt(req.getParameter("w"));
-		} catch (Exception e) {
-		}
-		int height = 240;
-		try {
-			height = Integer.parseInt(req.getParameter("h"));
-		} catch (Exception e) {
-		}
-		Long period = PERIODS.get(req.getParameter("period"));
-		if (period == null) {
-			// use a day as the default period
-			period = PERIODS.get("D");
-		}
-		// Create the start and stop time
-		Date timeEnd = new Date();
-		Date timeBegin = new Date(timeEnd.getTime() - period);
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        logger.debug("Received incoming chart request: ", req);
 
-		// If a persistence service is specified, find the provider
-		String serviceName = req.getParameter("service");
+        int width = 480;
+        try {
+            width = Integer.parseInt(req.getParameter("w"));
+        } catch (Exception e) {
+        }
+        int height = 240;
+        try {
+            height = Integer.parseInt(req.getParameter("h"));
+        } catch (Exception e) {
+        }
+        Long period = PERIODS.get(req.getParameter("period"));
+        if (period == null) {
+            // use a day as the default period
+            period = PERIODS.get("D");
+        }
+        // Create the start and stop time
+        Date timeEnd = new Date();
+        Date timeBegin = new Date(timeEnd.getTime() - period);
 
-		ChartProvider provider = getChartProviders().get(providerName);
-		if(provider == null) 
-			throw new ServletException("Could not get chart provider.");
+        // If a persistence service is specified, find the provider
+        String serviceName = req.getParameter("service");
 
-		// Set the content type to that provided by the chart provider
-		res.setContentType("image/"+provider.getChartType());
-		try {
-			BufferedImage chart = provider.createChart(serviceName, null, timeBegin, timeEnd, height, width, req.getParameter("items"), req.getParameter("groups"));
-			ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
-		} catch (ItemNotFoundException e) {
-			logger.debug("Item not found error while generating chart.");
-		} catch (IllegalArgumentException e) {
-			logger.warn("Illegal argument in chart: {}", e.getMessage());
-		}
-	}
+        ChartProvider provider = getChartProviders().get(providerName);
+        if (provider == null)
+            throw new ServletException("Could not get chart provider.");
 
-	/**
-	 * Creates a {@link HttpContext}
-	 * 
-	 * @return a {@link HttpContext}
-	 */
-	protected HttpContext createHttpContext() {
-		HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
-		return defaultHttpContext;
-	}
+        // Set the content type to that provided by the chart provider
+        res.setContentType("image/" + provider.getChartType());
+        try {
+            BufferedImage chart = provider.createChart(serviceName, null, timeBegin, timeEnd, height, width,
+                    req.getParameter("items"), req.getParameter("groups"));
+            ImageIO.write(chart, provider.getChartType().toString(), res.getOutputStream());
+        } catch (ItemNotFoundException e) {
+            logger.debug("Item not found error while generating chart.");
+        } catch (IllegalArgumentException e) {
+            logger.warn("Illegal argument in chart: {}", e.getMessage());
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void init(ServletConfig config) throws ServletException {
-	}
+    /**
+     * Creates a {@link HttpContext}
+     * 
+     * @return a {@link HttpContext}
+     */
+    protected HttpContext createHttpContext() {
+        HttpContext defaultHttpContext = httpService.createDefaultHttpContext();
+        return defaultHttpContext;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public ServletConfig getServletConfig() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getServletInfo() {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ServletConfig getServletConfig() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void destroy() {
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getServletInfo() {
+        return null;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy() {
+    }
 
-		if(properties == null)
-			return;
-		
-		if(properties.get("provider") != null) {
-			providerName = (String) properties.get("provider");
-		}
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
+
+        if (properties == null)
+            return;
+
+        if (properties.get("provider") != null) {
+            providerName = (String) properties.get("provider");
+        }
+    }
 
 }

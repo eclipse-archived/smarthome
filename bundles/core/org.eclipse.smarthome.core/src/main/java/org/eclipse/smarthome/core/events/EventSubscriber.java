@@ -14,12 +14,11 @@ import org.eclipse.smarthome.core.types.State;
  * The {@link EventSubscriber} defines the callback interface for receiving events from
  * the <i>Eclipse SmartHome</i> event bus.
  * <p>
- * Any events containing a command or a status update can be received by this listener
- * interface. Use the {@link AbstractEventSubscriber} class as concrete implementation
- * of this listener interface.
+ * Any events containing a command or a status update can be received by this listener interface. Use the
+ * {@link AbstractEventSubscriber} class as concrete implementation of this listener interface.
  * <p>
- * For further information about sending events through the event bus check
- * the {@link EventPublisher} service specification.
+ * For further information about sending events through the event bus check the {@link EventPublisher} service
+ * specification.
  *
  * @see EventPublisher
  * @see AbstractEventSubscriber
@@ -34,11 +33,10 @@ public interface EventSubscriber {
      * <p>
      * Any exceptions, which may occur in this callback method, are caught and logged.
      * <p>
-     * Hint: Do not block the reception of this event for long-term tasks.
-     * For long-term tasks create an own thread.
+     * Hint: Do not block the reception of this event for long-term tasks. For long-term tasks create an own thread.
      *
      * @param itemName the item for which a command was sent
-     *     (not null, not empty, follows the item name specification)
+     *            (not null, not empty, follows the item name specification)
      *
      * @param command the command that was sent (not null)
      */
@@ -49,11 +47,10 @@ public interface EventSubscriber {
      * <p>
      * Any exceptions, which may occur in this callback method, are caught and logged.
      * <p>
-     * Hint: Do not block the reception of this event for long-term tasks.
-     * For long-term tasks create an own thread.
+     * Hint: Do not block the reception of this event for long-term tasks. For long-term tasks create an own thread.
      *
      * @param itemName the item for which a command was sent
-     *     (not null, not empty, follows the item name specification)
+     *            (not null, not empty, follows the item name specification)
      *
      * @param state the state that was sent (not null)
      */

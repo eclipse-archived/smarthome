@@ -9,27 +9,28 @@ package org.eclipse.smarthome.core.scriptengine;
 
 /**
  * Exception that is thrown on errors during script execution.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class ScriptExecutionException extends ScriptException {
 
-	private static final long serialVersionUID = 149490362444673405L;
+    private static final long serialVersionUID = 149490362444673405L;
 
-	public ScriptExecutionException(final String message, final int line, final int column, final int length) {
-		super(message, null, line, column, length);
-	}
+    public ScriptExecutionException(final String message, final int line, final int column, final int length) {
+        super(message, null, line, column, length);
+    }
 
-	public ScriptExecutionException(final String message, final Throwable cause, final int line, final int column, final int length) {
-		super(cause, message, null, line, column, length);
-	}
+    public ScriptExecutionException(final String message, final Throwable cause, final int line, final int column,
+            final int length) {
+        super(cause, message, null, line, column, length);
+    }
 
-	public ScriptExecutionException(final String message) {
-		super(message);
-	}
+    public ScriptExecutionException(final String message) {
+        super(message);
+    }
 
-	public ScriptExecutionException(String message, Throwable exception) {
-		super(message, exception);
-	}
+    public ScriptExecutionException(String message, Throwable exception) {
+        super(message, exception);
+    }
 }

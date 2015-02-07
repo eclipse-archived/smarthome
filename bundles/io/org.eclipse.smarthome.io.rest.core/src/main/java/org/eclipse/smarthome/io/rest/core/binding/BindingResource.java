@@ -38,24 +38,24 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 @Path("bindings")
 public class BindingResource implements RESTResource {
 
-	private BindingInfoRegistry bindingInfoRegistry;
-	private ThingTypeResource thingTypeResource;
-	
-	protected void setBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
-		this.bindingInfoRegistry = bindingInfoRegistry;
-	}
+    private BindingInfoRegistry bindingInfoRegistry;
+    private ThingTypeResource thingTypeResource;
 
-	protected void unsetBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
-		this.bindingInfoRegistry = null;
-	}
+    protected void setBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
+        this.bindingInfoRegistry = bindingInfoRegistry;
+    }
 
-	protected void setThingTypeResource(ThingTypeResource thingTypeResource) {
-		this.thingTypeResource = thingTypeResource;
-	}
+    protected void unsetBindingInfoRegistry(BindingInfoRegistry bindingInfoRegistry) {
+        this.bindingInfoRegistry = null;
+    }
 
-	protected void unsetThingTypeResource(ThingTypeResource thingTypeResource) {
-		this.thingTypeResource = null;
-	}
+    protected void setThingTypeResource(ThingTypeResource thingTypeResource) {
+        this.thingTypeResource = thingTypeResource;
+    }
+
+    protected void unsetThingTypeResource(ThingTypeResource thingTypeResource) {
+        this.thingTypeResource = null;
+    }
 
     @Context
     UriInfo uriInfo;

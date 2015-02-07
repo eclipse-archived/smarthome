@@ -9,19 +9,18 @@ package org.eclipse.smarthome.io.transport.mdns;
 
 import javax.jmdns.JmDNS;
 
-
 /**
  * This interface defines how to get an JmDNS instance
  * to access Bonjour/MDNS
- * 
- * @author Tobias Bräutigam - Initial contribution and API
+ *
+ * @author Tobias Brï¿½utigam - Initial contribution and API
  */
 public interface MDNSClient {
-	
-	/**
-	 * This method returns an jmDNS instance 
-	 * 
-	 */
-	public JmDNS getClient();
-	
+
+    /**
+     * This method returns an jmDNS instance
+     * 
+     */
+    public JmDNS getClient();
+
 }

@@ -26,49 +26,51 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * Action for choosing a configuration folder
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class SelectConfigFolderAction extends Action {
-	
-	Viewer viewer;
-	
-	public SelectConfigFolderAction(Viewer viewer) {
-		this.viewer = viewer;
-		setText("Select configuration folder");
-		setToolTipText("select a configuration folder");
-		setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER));
-	}
-	
-	@Override
-	public void run() {
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
-		dialog.setMessage("Select the configuration folder of the Eclipse SmartHome runtime");
-		String selection = dialog.open();
-		if(selection!=null) {
-			try {
-				File file = new File(selection);
-				if(isValidConfigurationFolder(file)) {
-					ConfigurationFolderProvider.saveFolderToPreferences(selection);
-					ConfigurationFolderProvider.setRootConfigurationFolder(new File(selection));
-					viewer.setInput(ConfigurationFolderProvider.getRootConfigurationFolder());
-				} else {
-					MessageDialog.openError(shell, "No valid configuration directory", "The chosen directory is not a valid Eclipse SmartHome configuration" +
-							" directory. Please choose a different one.");
-				}
-			} catch (CoreException e) {
-				IStatus status = new Status(IStatus.ERROR, UIActivator.PLUGIN_ID,  "An error occurred while opening the configuration folder", e);
-				ErrorDialog.openError(shell, "Cannot open configuration folder!", null, status);
-			}
-		}
-	}
 
-	private boolean isValidConfigurationFolder(File dir) {
-		if(dir.isDirectory()) {
-			return true;
-		}
-		return false;
-	}
+    Viewer viewer;
+
+    public SelectConfigFolderAction(Viewer viewer) {
+        this.viewer = viewer;
+        setText("Select configuration folder");
+        setToolTipText("select a configuration folder");
+        setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FOLDER));
+    }
+
+    @Override
+    public void run() {
+        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        DirectoryDialog dialog = new DirectoryDialog(shell, SWT.OPEN);
+        dialog.setMessage("Select the configuration folder of the Eclipse SmartHome runtime");
+        String selection = dialog.open();
+        if (selection != null) {
+            try {
+                File file = new File(selection);
+                if (isValidConfigurationFolder(file)) {
+                    ConfigurationFolderProvider.saveFolderToPreferences(selection);
+                    ConfigurationFolderProvider.setRootConfigurationFolder(new File(selection));
+                    viewer.setInput(ConfigurationFolderProvider.getRootConfigurationFolder());
+                } else {
+                    MessageDialog.openError(shell, "No valid configuration directory",
+                            "The chosen directory is not a valid Eclipse SmartHome configuration"
+                                    + " directory. Please choose a different one.");
+                }
+            } catch (CoreException e) {
+                IStatus status = new Status(IStatus.ERROR, UIActivator.PLUGIN_ID,
+                        "An error occurred while opening the configuration folder", e);
+                ErrorDialog.openError(shell, "Cannot open configuration folder!", null, status);
+            }
+        }
+    }
+
+    private boolean isValidConfigurationFolder(File dir) {
+        if (dir.isDirectory()) {
+            return true;
+        }
+        return false;
+    }
 }

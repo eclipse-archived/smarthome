@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize channels to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

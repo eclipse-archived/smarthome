@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.binding.wemo.internal;
 
-
-import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.*;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.UDN;
 
 import java.util.Set;
 
@@ -24,20 +23,19 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 
 /**
- * The {@link WemoHandlerFactory} is responsible for creating things and thing 
+ * The {@link WemoHandlerFactory} is responsible for creating things and thing
  * handlers.
- * 
+ *
  * @author Hans-Jörg Merk - Initial contribution
  * @author Kai Kreuzer - some refactoring for performance and simplification
  */
 public class WemoHandlerFactory extends BaseThingHandlerFactory {
-    
-	private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
-	private UpnpIOService upnpIOService;
+    private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
-	public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WemoHandler.SUPPORTED_THING_TYPES);
-	
+    private UpnpIOService upnpIOService;
+
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WemoHandler.SUPPORTED_THING_TYPES);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -50,7 +48,8 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (WemoHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-        	logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'",thing.getUID(),thing.getConfiguration().get(UDN));
+            logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(), thing
+                    .getConfiguration().get(UDN));
             return new WemoHandler(thing, upnpIOService);
         }
 
@@ -58,11 +57,11 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
     }
 
     protected void setUpnpIOService(UpnpIOService upnpIOService) {
-		this.upnpIOService = upnpIOService;
-	}
+        this.upnpIOService = upnpIOService;
+    }
 
-	protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
-		this.upnpIOService = null;
-	}
-    
+    protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
+        this.upnpIOService = null;
+    }
+
 }

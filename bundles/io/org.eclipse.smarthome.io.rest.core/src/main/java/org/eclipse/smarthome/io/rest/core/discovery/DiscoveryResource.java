@@ -39,13 +39,13 @@ public class DiscoveryResource implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(DiscoveryResource.class);
 
     private DiscoveryServiceRegistry discoveryServiceRegistry;
-    
+
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-    	this.discoveryServiceRegistry = discoveryServiceRegistry;
+        this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
 
     protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-    	this.discoveryServiceRegistry = null;
+        this.discoveryServiceRegistry = null;
     }
 
     @Context
@@ -61,7 +61,7 @@ public class DiscoveryResource implements RESTResource {
     @POST
     @Path("/scan/{bindingId}")
     public Response scan(@PathParam("bindingId") final String bindingId) {
-    	discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
+        discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
             @Override
             public void onErrorOccurred(Exception exception) {
                 logger.error("Error occured while scanning for binding '{}': {}", bindingId, exception.getMessage(),

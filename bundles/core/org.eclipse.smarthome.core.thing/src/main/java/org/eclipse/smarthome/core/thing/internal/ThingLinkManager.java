@@ -34,55 +34,54 @@ import org.slf4j.LoggerFactory;
  * The {@link ThingLinkManager} manages links between items and channels and
  * between items things.
  * <p>
- * An item is linked or unlinked to or from a channel on events from
- * {@link ItemChannelLinkRegistry} or {@link ItemRegistry}. An item is linked or
- * unlinked to or from a thing on events from {@link ItemThingLinkRegistry}
+ * An item is linked or unlinked to or from a channel on events from {@link ItemChannelLinkRegistry} or
+ * {@link ItemRegistry}. An item is linked or unlinked to or from a thing on events from {@link ItemThingLinkRegistry}
  * <p>
  * The {@link ThingLinkManager} is used by the {@link ThingManager}.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Markus Rathgeb - Handle item registry's all items changed notification
  */
 public class ThingLinkManager {
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-    
+
     private final ItemRegistryChangeListener itemRegistryChangeListener = new ItemRegistryChangeListener() {
-        
+
         @Override
         public void updated(Item oldElement, Item element) {
             removed(oldElement);
             added(element);
         }
-        
+
         @Override
         public void removed(Item element) {
             Set<ChannelUID> linkedChannels = itemChannelLinkRegistry.getBoundChannels(element.getName());
             for (ChannelUID channelUID : linkedChannels) {
                 Thing thing = thingRegistry.get(channelUID.getThingUID());
-                if(thing != null) {
+                if (thing != null) {
                     Channel channel = thing.getChannel(channelUID.getId());
-                    if(channel != null) {
+                    if (channel != null) {
                         channel.removeLinkedItem(element);
                     }
                 }
             }
         }
-        
+
         @Override
         public void added(Item element) {
             Set<ChannelUID> linkedChannels = itemChannelLinkRegistry.getBoundChannels(element.getName());
             for (ChannelUID channelUID : linkedChannels) {
                 Thing thing = thingRegistry.get(channelUID.getThingUID());
-                if(thing != null) {
+                if (thing != null) {
                     Channel channel = thing.getChannel(channelUID.getId());
-                    if(channel != null) {
+                    if (channel != null) {
                         channel.addLinkedItem(element);
                     }
                 }
             }
         }
-        
+
         @Override
         public void allItemsChanged(final Collection<String> oldItemNames) {
             /*
@@ -135,7 +134,7 @@ public class ThingLinkManager {
             }
         }
     };
-    
+
     private final RegistryChangeListener<ItemChannelLink> itemChannelLinkRegistryChangeListener = new RegistryChangeListener<ItemChannelLink>() {
 
         @Override
@@ -195,14 +194,13 @@ public class ThingLinkManager {
         }
 
     };
-    
 
     private Logger logger = LoggerFactory.getLogger(ThingLinkManager.class);
     private ThingRegistry thingRegistry;
 
     /**
      * Creates a new {@link ThingLinkManager} instance.
-     * 
+     *
      * @param itemRegistry
      *            the {@link ItemRegistry} to listen on change events
      * @param thingRegistry
@@ -221,7 +219,8 @@ public class ThingLinkManager {
     }
 
     /**
-     * Starts listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and {@link ItemThingLinkRegistry}.
+     * Starts listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and
+     * {@link ItemThingLinkRegistry}.
      */
     public void startListening() {
         itemRegistry.addRegistryChangeListener(itemRegistryChangeListener);
@@ -230,7 +229,8 @@ public class ThingLinkManager {
     }
 
     /**
-     * Stops listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and {@link ItemThingLinkRegistry}.
+     * Stops listening on events from {@link ItemRegistry}, {@link ItemChannelLinkRegistry}, and
+     * {@link ItemThingLinkRegistry}.
      */
     public void stopListening() {
         itemRegistry.removeRegistryChangeListener(itemRegistryChangeListener);
@@ -240,7 +240,7 @@ public class ThingLinkManager {
 
     /**
      * Links {@link Item}s to the {@link Thing} and its {@link Channel}s.
-     * 
+     *
      * @param thing
      *            the added {@link Thing} to create links for.
      */
@@ -252,7 +252,7 @@ public class ThingLinkManager {
         List<Channel> channels = thing.getChannels();
         for (Channel channel : channels) {
             Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
-            for(String linkedItem: linkedItems) {
+            for (String linkedItem : linkedItems) {
                 addLinkedItemToChannel(channel, linkedItem);
             }
         }
@@ -260,7 +260,7 @@ public class ThingLinkManager {
 
     /**
      * Unlinks {@link Item}s from the {@link Thing} and its {@link Channel}s.
-     * 
+     *
      * @param thing
      *            the removed {@link Thing} to remove links for.
      */
@@ -269,7 +269,7 @@ public class ThingLinkManager {
         List<Channel> channels = thing.getChannels();
         for (Channel channel : channels) {
             Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
-            for(String linkedItem: linkedItems) {
+            for (String linkedItem : linkedItems) {
                 removeLinkedItemFromChannel(channel, linkedItem);
             }
         }
@@ -277,7 +277,7 @@ public class ThingLinkManager {
 
     /**
      * Updates links from {@link Item}s from the {@link Thing} and its {@link Channel}s.
-     * 
+     *
      * @param thing the updated {@link Thing} to update links for.
      */
     public void thingUpdated(Thing thing) {
@@ -319,7 +319,6 @@ public class ThingLinkManager {
         logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
         thing.setLinkedItem(null);
     }
-    
 
     private String getFirstLinkedItem(UID uid) {
         for (ItemThingLink link : itemThingLinkRegistry.getAll()) {

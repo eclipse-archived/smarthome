@@ -25,67 +25,70 @@ import com.google.inject.Provider;
 
 /**
  * Helper class to deal with rule evaluation contexts.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 @SuppressWarnings("restriction")
 public class RuleContextHelper {
 
-	/**
-	 * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the same model (= rule file).
-	 * 
-	 * @param rule the rule to get the context for
-	 * @return the evaluation context
-	 */
-	public static synchronized IEvaluationContext getContext(Rule rule, Injector injector) {
-		Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
-		RuleModel ruleModel = (RuleModel) rule.eContainer();
+    /**
+     * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the
+     * same model (= rule file).
+     * 
+     * @param rule the rule to get the context for
+     * @return the evaluation context
+     */
+    public static synchronized IEvaluationContext getContext(Rule rule, Injector injector) {
+        Logger logger = LoggerFactory.getLogger(RuleContextHelper.class);
+        RuleModel ruleModel = (RuleModel) rule.eContainer();
 
-	    // check if a context already exists on the resource
-	    for(Adapter adapter : ruleModel.eAdapters()) {
-			if(adapter instanceof RuleContextAdapter) {
-				return ((RuleContextAdapter) adapter).getContext();
-			}
-		}
-	    Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
-		// no evaluation context found, so create a new one
-		ScriptEngine scriptEngine = RuleRuntimeActivator.scriptEngineTracker.getService();
-		if(scriptEngine!=null) {
-		    IEvaluationContext evaluationContext = contextProvider.get();
-		    for(VariableDeclaration var : ruleModel.getVariables()) {
-				try {
-					Object initialValue = var.getRight()==null ? null : scriptEngine.newScriptFromXExpression(var.getRight()).execute();
-					evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
-				} catch (ScriptExecutionException e) {
-					logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}", 
-							new Object[] { var.getName(), ruleModel.eResource().getURI().path(), var.getRight().toString(), e.getMessage() });
-				}
-		    }
-		    ruleModel.eAdapters().add(new RuleContextAdapter(evaluationContext));
-			return evaluationContext;
-		} else {
-			logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!", 
-					ruleModel.eResource().getURI().path());
-			return contextProvider.get();
-		}
-	}
+        // check if a context already exists on the resource
+        for (Adapter adapter : ruleModel.eAdapters()) {
+            if (adapter instanceof RuleContextAdapter) {
+                return ((RuleContextAdapter) adapter).getContext();
+            }
+        }
+        Provider<IEvaluationContext> contextProvider = injector.getProvider(IEvaluationContext.class);
+        // no evaluation context found, so create a new one
+        ScriptEngine scriptEngine = RuleRuntimeActivator.scriptEngineTracker.getService();
+        if (scriptEngine != null) {
+            IEvaluationContext evaluationContext = contextProvider.get();
+            for (VariableDeclaration var : ruleModel.getVariables()) {
+                try {
+                    Object initialValue = var.getRight() == null ? null : scriptEngine.newScriptFromXExpression(
+                            var.getRight()).execute();
+                    evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
+                } catch (ScriptExecutionException e) {
+                    logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}",
+                            new Object[] { var.getName(), ruleModel.eResource().getURI().path(),
+                                    var.getRight().toString(), e.getMessage() });
+                }
+            }
+            ruleModel.eAdapters().add(new RuleContextAdapter(evaluationContext));
+            return evaluationContext;
+        } else {
+            logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!", ruleModel
+                    .eResource().getURI().path());
+            return contextProvider.get();
+        }
+    }
 
-	/**
-	 * Inner class that wraps an evaluation context into an EMF adapters
-	 */
-	private static class RuleContextAdapter extends EContentAdapter {
-		
-		private IEvaluationContext context;
+    /**
+     * Inner class that wraps an evaluation context into an EMF adapters
+     */
+    private static class RuleContextAdapter extends EContentAdapter {
 
-		public RuleContextAdapter(IEvaluationContext context) {
-			this.context = context;
-		}
+        private IEvaluationContext context;
 
-		public IEvaluationContext getContext() {
-			return context;
-		}
+        public RuleContextAdapter(IEvaluationContext context) {
+            this.context = context;
+        }
 
-	}
+        public IEvaluationContext getContext() {
+            return context;
+        }
+
+    }
 
 }

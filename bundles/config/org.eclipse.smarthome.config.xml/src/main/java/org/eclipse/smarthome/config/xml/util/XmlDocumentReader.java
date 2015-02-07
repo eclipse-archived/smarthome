@@ -14,21 +14,19 @@ import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
 
-
 /**
  * The {@link XmlDocumentReader} is an abstract class used to read XML documents
  * of a certain type and converts them to its according objects.
  * <p>
  * This class uses {@code XStream} and {@code StAX} to parse and convert the XML document.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
- * 
+ *
  * @param <T> the result type of the conversion
  */
 public abstract class XmlDocumentReader<T> {
 
     private XStream xstream;
-
 
     /**
      * The default constructor of this class initializes the {@code XStream} object, and calls
@@ -45,7 +43,7 @@ public abstract class XmlDocumentReader<T> {
 
     /**
      * Sets the classloader for {@link XStream}.
-     * 
+     *
      * @param classLoader the classloader to set (must not be null)
      */
     public void setClassLoader(ClassLoader classLoader) {
@@ -54,28 +52,28 @@ public abstract class XmlDocumentReader<T> {
 
     /**
      * Registers any {@link Converter}s at the {@link XStream} instance.
-     * 
+     *
      * @param xstream the XStream object to be configured
      */
     public abstract void registerConverters(XStream xstream);
 
     /**
      * Registers any aliases at the {@link XStream} instance.
-     * 
+     *
      * @param xstream the XStream object to be configured
      */
     public abstract void registerAliases(XStream xstream);
 
     /**
-     * Reads the XML document containing a specific XML tag from the specified {@link URL}
-     * and converts it to the according object.
+     * Reads the XML document containing a specific XML tag from the specified {@link URL} and converts it to the
+     * according object.
      * <p>
      * This method returns {@code null} if the given URL is {@code null}.
-     * 
+     *
      * @param xmlURL the URL pointing to the XML document to be read (could be null)
-     * 
+     *
      * @return the conversion result object (could be null)
-     * 
+     *
      * @throws ConversionException if the specified document contains invalid content
      */
     @SuppressWarnings("unchecked")

@@ -13,30 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 
-
 /**
  * The {@link VolatileStorageService} returns {@link VolatileStorage}s
  * which stores their data in-memory.
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen - Initial Contribution and API
  */
 public class VolatileStorageService implements StorageService {
-	
-	@SuppressWarnings("rawtypes")
-	Map<String, Storage> storages = new ConcurrentHashMap<String, Storage>();
-	
-	
-	/**
-	 * {@inheritDoc}
-	 * @return 
-	 */
-	@SuppressWarnings("unchecked")
-	public synchronized <T> Storage<T> getStorage(String name) {
-		if (!storages.containsKey(name)) {
-			storages.put(name, new VolatileStorage<T>());
-		}
-		return storages.get(name);
-	}
+
+    @SuppressWarnings("rawtypes")
+    Map<String, Storage> storages = new ConcurrentHashMap<String, Storage>();
 
     /**
      * {@inheritDoc}
@@ -44,8 +30,22 @@ public class VolatileStorageService implements StorageService {
      * @return
      */
     @Override
+    @SuppressWarnings("unchecked")
+    public synchronized <T> Storage<T> getStorage(String name) {
+        if (!storages.containsKey(name)) {
+            storages.put(name, new VolatileStorage<T>());
+        }
+        return storages.get(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
+    @Override
     public <T> Storage<T> getStorage(String name, ClassLoader classLoader) {
         return getStorage(name);
     }
-	
+
 }

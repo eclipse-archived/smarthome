@@ -16,18 +16,16 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.SynchronousBundleListener;
 import org.osgi.util.tracker.BundleTracker;
 
-
 /**
  * The {@link ResolvedBundleTracker} tracks any bundles which have reached the "resolved" state
  * semantically. This means that not only a "resolved" bundle is tracked but also a bundle who
  * has reached the "started" or "starting" state.
  * <p>
- * Override the methods {@link #addingBundle(Bundle)} or {@link #removedBundle(Bundle)}
- * to consume the events.
+ * Override the methods {@link #addingBundle(Bundle)} or {@link #removedBundle(Bundle)} to consume the events.
  * <p>
- * This class is a simple replacement for an <i>OSGi</i> {@link BundleTracker}, whose usage
- * for monitoring semantic states is more complex. 
- * 
+ * This class is a simple replacement for an <i>OSGi</i> {@link BundleTracker}, whose usage for monitoring semantic
+ * states is more complex.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public abstract class ResolvedBundleTracker implements SynchronousBundleListener {
@@ -35,10 +33,9 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
     private BundleContext bundleContext;
     private List<Bundle> trackedBundles;
 
-
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param bundleContext a bundle context to be used to track any bundles (must not be null)
      * @throws IllegalArgumentException if the bundle context is null
      */
@@ -54,8 +51,8 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
     /**
      * Opens the tracker.
      * <p>
-     * For each bundle which is already available and which has reached at least the "resolved"
-     * state, an {@link #addingBundle(Bundle)} event is fired.
+     * For each bundle which is already available and which has reached at least the "resolved" state, an
+     * {@link #addingBundle(Bundle)} event is fired.
      */
     public synchronized void open() {
         this.bundleContext.addBundleListener(this);
@@ -102,10 +99,8 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
         Bundle bundle = event.getBundle();
         int type = event.getType();
 
-        boolean shouldBeTracked =
-                (type & ((BundleEvent.STARTING | BundleEvent.STARTED | BundleEvent.RESOLVED))) > 0;
-        boolean shouldNotBeTracked =
-                (type & (BundleEvent.UNINSTALLED | BundleEvent.UNRESOLVED)) > 0;
+        boolean shouldBeTracked = (type & ((BundleEvent.STARTING | BundleEvent.STARTED | BundleEvent.RESOLVED))) > 0;
+        boolean shouldNotBeTracked = (type & (BundleEvent.UNINSTALLED | BundleEvent.UNRESOLVED)) > 0;
 
         if (shouldBeTracked) {
             add(bundle);
@@ -143,7 +138,7 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
      * the "resolved" state.
      * <p>
      * This method might be overridden.
-     * 
+     *
      * @param bundle the according bundle (not null)
      * @return true if the bundle should be tracked, otherwise false
      */
@@ -157,7 +152,7 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
      * least the "resolved" state semantically (e.g. if it was "uninstalled", etc.).
      * <p>
      * This method might be overridden.
-     * 
+     *
      * @param bundle the according bundle (not null)
      */
     public void removedBundle(Bundle bundle) {

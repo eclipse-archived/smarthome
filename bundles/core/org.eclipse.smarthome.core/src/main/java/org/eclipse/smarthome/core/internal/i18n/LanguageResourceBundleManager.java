@@ -19,16 +19,15 @@ import java.util.ResourceBundle.Control;
 import org.eclipse.smarthome.core.common.osgi.ResourceBundleClassLoader;
 import org.osgi.framework.Bundle;
 
-
 /**
  * The {@link LanguageResourceBundleManager} class manages all available i18n resources for one
- * specific <i>OSGi</i> bundle. Any i18n resource is searched within the {@link RESOURCE_DIRECTORY}
- * of the bundle and <i>not</i> within the general bundle classpath. For the translation, the
+ * specific <i>OSGi</i> bundle. Any i18n resource is searched within the {@link RESOURCE_DIRECTORY} of the bundle and
+ * <i>not</i> within the general bundle classpath. For the translation, the
  * i18n mechanism of Java ({@link ResourceBundle}) is used.
  * <p>
- * This implementation uses the user defined {@link ResourceBundleClassLoader} to map the
- * bundle resource files to usual URLs which the Java {@link ResourceBundle} can handle.
- * 
+ * This implementation uses the user defined {@link ResourceBundleClassLoader} to map the bundle resource files to usual
+ * URLs which the Java {@link ResourceBundle} can handle.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class LanguageResourceBundleManager {
@@ -43,7 +42,6 @@ public class LanguageResourceBundleManager {
     private ClassLoader resourceClassLoader;
     private List<String> resourceNames;
 
-
     public LanguageResourceBundleManager(Bundle bundle) {
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
@@ -51,8 +49,7 @@ public class LanguageResourceBundleManager {
 
         this.bundle = bundle;
 
-        this.resourceClassLoader = new ResourceBundleClassLoader(
-                bundle, RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN);
+        this.resourceClassLoader = new ResourceBundleClassLoader(bundle, RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN);
 
         this.resourceNames = determineResourceNames();
     }
@@ -72,7 +69,7 @@ public class LanguageResourceBundleManager {
      * Returns {@code true} if the specified resource is managed by this instance
      * and therefore the according module is responsible for translations,
      * otherwise {@code false}.
-     * 
+     *
      * @param resource the resource to check (could be null or empty)
      * @return true if the specified resource is managed by this instance, otherwise false
      */
@@ -87,7 +84,7 @@ public class LanguageResourceBundleManager {
     /**
      * Returns {@code true} if this instance and therefore the according module provides
      * resource information, otherwise {@code false}.
-     * 
+     *
      * @return true if the according bundle provides resource information, otherwise false
      */
     public boolean containsResources() {
@@ -97,8 +94,7 @@ public class LanguageResourceBundleManager {
     private List<String> determineResourceNames() {
         List<String> resourceNames = new ArrayList<>();
 
-        Enumeration<URL> resourceFiles = this.bundle.findEntries(
-                RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN, true);
+        Enumeration<URL> resourceFiles = this.bundle.findEntries(RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN, true);
 
         if (resourceFiles != null) {
             while (resourceFiles.hasMoreElements()) {
@@ -123,13 +119,13 @@ public class LanguageResourceBundleManager {
      * therefore it is mapped to one translation package (all files which belong to the base
      * name).
      * <p>
-     * If no translation could be found, {@code null} is returned. If the location is not
-     * specified, the default location is used.
-     * 
+     * If no translation could be found, {@code null} is returned. If the location is not specified, the default
+     * location is used.
+     *
      * @param resource the resource to be used for look-up (could be null or empty)
      * @param key the key to be translated (could be null or empty)
      * @param locale the locale (language) to be used (could be null)
-     * 
+     *
      * @return the translated text, or null if the key could not be translated
      */
     public String getText(String resource, String key, Locale locale) {
@@ -158,12 +154,12 @@ public class LanguageResourceBundleManager {
      * Returns a translation for the specified key in the specified locale (language)
      * by considering all resources in the according bundle.
      * <p>
-     * If no translation could be found, {@code null} is returned. If the location is not
-     * specified, the default location is used.
-     * 
+     * If no translation could be found, {@code null} is returned. If the location is not specified, the default
+     * location is used.
+     *
      * @param key the key to be translated (could be null or empty)
      * @param locale the locale (language) to be used (could be null)
-     * 
+     *
      * @return the translated text, or null if the key could not be translated
      */
     public String getText(String key, Locale locale) {
@@ -179,9 +175,7 @@ public class LanguageResourceBundleManager {
             // 4.) null -> leads to a default text
             // Not using the default fallback strategy helps that not the default locale
             // search order is applied between 2.) and 3.).
-            ResourceBundle resourceBundle = ResourceBundle.getBundle(
-                    resourceName, locale,
-                    this.resourceClassLoader,
+            ResourceBundle resourceBundle = ResourceBundle.getBundle(resourceName, locale, this.resourceClassLoader,
                     Control.getNoFallbackControl(Control.FORMAT_PROPERTIES));
 
             if (resourceBundle != null) {

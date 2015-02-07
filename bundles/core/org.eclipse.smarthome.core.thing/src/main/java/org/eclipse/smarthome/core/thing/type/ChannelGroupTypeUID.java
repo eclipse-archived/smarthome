@@ -9,17 +9,16 @@ package org.eclipse.smarthome.core.thing.type;
 
 import org.eclipse.smarthome.core.thing.UID;
 
-
 /**
  * The {@link ChannelGroupTypeUID} represents a unique identifier for channel group types.
- * 
+ *
  * @author Michael Grammling - Initial contribution.
  */
 public class ChannelGroupTypeUID extends UID {
 
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param channelGroupUid the UID for the channel group
      */
     public ChannelGroupTypeUID(String channelGroupUid) {
@@ -28,7 +27,7 @@ public class ChannelGroupTypeUID extends UID {
 
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param bindingId the binding ID (must neither be null, nor empty)
      * @param id the identifier of the channel group (must neither be null, nor empty)
      */
@@ -38,7 +37,7 @@ public class ChannelGroupTypeUID extends UID {
 
     /**
      * Returns the identifier of the channel group.
-     * 
+     *
      * @return the identifier of the channel group (neither null, nor empty)
      */
     public String getId() {

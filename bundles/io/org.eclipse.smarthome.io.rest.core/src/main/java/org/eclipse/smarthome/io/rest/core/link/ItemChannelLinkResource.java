@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -33,7 +34,7 @@ import org.eclipse.smarthome.io.rest.core.link.beans.ItemChannelLinkBean;
  */
 @Path("links")
 public class ItemChannelLinkResource implements RESTResource {
-   
+
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ManagedItemChannelLinkProvider managedItemChannelLinkProvider;
 
@@ -54,27 +55,27 @@ public class ItemChannelLinkResource implements RESTResource {
     @DELETE
     @Path("/{itemName}/{channelUID}")
     public Response unlink(@PathParam("itemName") String itemName, @PathParam("channelUID") String channelUid) {
-        managedItemChannelLinkProvider.remove(ItemChannelLink.getIDFor(itemName, new ChannelUID(channelUid)));
+        managedItemChannelLinkProvider.remove(AbstractLink.getIDFor(itemName, new ChannelUID(channelUid)));
         return Response.ok().build();
     }
-    
+
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
-    
+
     protected void setManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
         this.managedItemChannelLinkProvider = managedItemChannelLinkProvider;
     }
-    
+
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = null;
     }
-    
+
     protected void unsetManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
         this.managedItemChannelLinkProvider = null;
     }
-    
-    private Collection<ItemChannelLinkBean> toBeans(Collection<ItemChannelLink> links){
+
+    private Collection<ItemChannelLinkBean> toBeans(Collection<ItemChannelLink> links) {
         Collection<ItemChannelLinkBean> beans = new ArrayList<>();
         for (ItemChannelLink link : links) {
             ItemChannelLinkBean bean = new ItemChannelLinkBean(link.getItemName(), link.getUID().toString());
@@ -82,5 +83,5 @@ public class ItemChannelLinkResource implements RESTResource {
         }
         return beans;
     }
-    
+
 }

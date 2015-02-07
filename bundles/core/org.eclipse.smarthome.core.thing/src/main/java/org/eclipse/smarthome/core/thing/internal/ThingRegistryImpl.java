@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of {@link ThingRegistry}.
- * 
+ *
  * @author Michael Grammling - Added dynamic configuration update
  */
 public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
@@ -33,7 +33,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /**
      * Adds a thing tracker.
-     * 
+     *
      * @param thingTracker
      *            the thing tracker
      */
@@ -44,7 +44,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
@@ -60,7 +60,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /**
      * Removes a thing tracker.
-     * 
+     *
      * @param thingTracker
      *            the thing tracker
      */
@@ -138,21 +138,21 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         for (ThingTracker thingTracker : thingTrackers) {
             try {
                 switch (event) {
-                case THING_ADDED:
-                    thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
-                    break;
-                case THING_REMOVED:
-                    thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
-                    break;
-                case THING_UPDATED:
-                    thingTracker.thingUpdated(thing, ThingTrackerEvent.THING_UPDATED);
-                    break;
-                default:
-                    break;
+                    case THING_ADDED:
+                        thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
+                        break;
+                    case THING_REMOVED:
+                        thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
+                        break;
+                    case THING_UPDATED:
+                        thingTracker.thingUpdated(thing, ThingTrackerEvent.THING_UPDATED);
+                        break;
+                    default:
+                        break;
                 }
             } catch (Exception ex) {
-                logger.error("Could not inform the ThingTracker '" + thingTracker + "' about the '"
-                        + event.name() + "' event!", ex);
+                logger.error("Could not inform the ThingTracker '" + thingTracker + "' about the '" + event.name()
+                        + "' event!", ex);
             }
         }
     }

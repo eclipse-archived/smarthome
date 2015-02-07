@@ -16,11 +16,11 @@ import com.google.inject.Inject;
 
 public class SitemapConverters extends DefaultTerminalConverters {
 
-	@Inject
-	private STRINGValueConverter stringValueConverter;
+    @Inject
+    private STRINGValueConverter stringValueConverter;
 
-	 @ValueConverter(rule = "Icon")
-	 public IValueConverter<String> BIG_DECIMAL() {
-	   return stringValueConverter;
-	 }
+    @ValueConverter(rule = "Icon")
+    public IValueConverter<String> BIG_DECIMAL() {
+        return stringValueConverter;
+    }
 }

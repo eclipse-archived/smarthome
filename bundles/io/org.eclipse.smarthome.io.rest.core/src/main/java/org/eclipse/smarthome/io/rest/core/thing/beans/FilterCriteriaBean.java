@@ -10,7 +10,7 @@ package org.eclipse.smarthome.io.rest.core.thing.beans;
 /**
  * This is a java bean that is used with JAX-RS to serialize filter criteria of a
  * parameter to JSON.
- * 
+ *
  * @author Alex Tugarev - Initial contribution
  *
  */

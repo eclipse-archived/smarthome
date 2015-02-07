@@ -28,64 +28,63 @@ import org.slf4j.LoggerFactory;
 /**
  * The implementation of {@link TransformationService} which transforms the
  * input by Java Script.
- * 
+ *
  * @author Pauli Anttila
  */
 public class JavaScriptTransformationService implements TransformationService {
-	
-	/**
-	 * Transforms the input <code>source</code> by Java Script. It expects the
-	 * transformation rule to be read from a file which is stored under the
-	 * 'configurations/transform' folder. To organize the various
-	 * transformations one should use subfolders.
-	 * 
-	 * @param filename
-	 *            the name of the file which contains the Java script
-	 *            transformation rule. Transformation service inject input
-	 *            (source) to 'input' variable.
-	 * @param source
-	 *            the input to transform
-	 */
-	public String transform(String filename, String source) throws TransformationException {
-		Logger logger = LoggerFactory.getLogger(JavaScriptTransformationService.class);
-		if (filename == null || source == null) {
-			throw new TransformationException(
-				"the given parameters 'filename' and 'source' must not be null");
-		}
 
-		logger.debug("about to transform '{}' by the Java Script '{}'", source, filename);
+    /**
+     * Transforms the input <code>source</code> by Java Script. It expects the
+     * transformation rule to be read from a file which is stored under the
+     * 'configurations/transform' folder. To organize the various
+     * transformations one should use subfolders.
+     * 
+     * @param filename
+     *            the name of the file which contains the Java script
+     *            transformation rule. Transformation service inject input
+     *            (source) to 'input' variable.
+     * @param source
+     *            the input to transform
+     */
+    @Override
+    public String transform(String filename, String source) throws TransformationException {
+        Logger logger = LoggerFactory.getLogger(JavaScriptTransformationService.class);
+        if (filename == null || source == null) {
+            throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
+        }
 
-		Reader reader;
+        logger.debug("about to transform '{}' by the Java Script '{}'", source, filename);
 
-		try {
-			String path = ConfigConstants.getConfigFolder() 
-				+ File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME
-				+ File.separator + filename;
-			reader = new InputStreamReader(new FileInputStream(path));
-		} catch (FileNotFoundException e) {
-			throw new TransformationException("An error occured while loading script.", e);
-		}
+        Reader reader;
 
-		ScriptEngineManager manager = new ScriptEngineManager();
-		
-		ScriptEngine engine = manager.getEngineByName("javascript");
-		engine.put("input", source);
+        try {
+            String path = ConfigConstants.getConfigFolder() + File.separator
+                    + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+            reader = new InputStreamReader(new FileInputStream(path));
+        } catch (FileNotFoundException e) {
+            throw new TransformationException("An error occured while loading script.", e);
+        }
 
-		Object result = null;
+        ScriptEngineManager manager = new ScriptEngineManager();
 
-		long startTime = System.currentTimeMillis();
+        ScriptEngine engine = manager.getEngineByName("javascript");
+        engine.put("input", source);
 
-		try {
-			result = engine.eval(reader);
-		} catch (ScriptException e) {
-			throw new TransformationException("An error occured while executing script.", e);
-		} finally {
-			IOUtils.closeQuietly(reader);
-		}
+        Object result = null;
 
-		logger.trace("JavaScript execution elapsed {} ms", System.currentTimeMillis() - startTime);
+        long startTime = System.currentTimeMillis();
 
-		return String.valueOf(result);
-	}
+        try {
+            result = engine.eval(reader);
+        } catch (ScriptException e) {
+            throw new TransformationException("An error occured while executing script.", e);
+        } finally {
+            IOUtils.closeQuietly(reader);
+        }
+
+        logger.trace("JavaScript execution elapsed {} ms", System.currentTimeMillis() - startTime);
+
+        return String.valueOf(result);
+    }
 
 }

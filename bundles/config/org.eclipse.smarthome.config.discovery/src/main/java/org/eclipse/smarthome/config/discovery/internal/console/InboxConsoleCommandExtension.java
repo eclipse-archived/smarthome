@@ -33,8 +33,8 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     private final static List<String> SUPPORTED_COMMANDS = Lists.newArrayList(COMMAND_INBOX);
 
     private Inbox inbox;
-	private ManagedThingProvider managedThingProvider;
-	private ThingSetupManager thingSetupManager;
+    private ManagedThingProvider managedThingProvider;
+    private ThingSetupManager thingSetupManager;
 
     @Override
     public boolean canHandle(String[] args) {
@@ -46,68 +46,70 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     public void execute(String[] args, Console console) {
         String command = args[0];
         switch (command) {
-        case COMMAND_INBOX:
-            if(args.length > 1) {
-                String subCommand = args[1];
-                switch (subCommand) {
-                case "approve":
-                    if (args.length > 2) {
-                        boolean fullSetup = false;
-                        if(args.length > 3) {
-                            fullSetup = Boolean.parseBoolean(args[3]);
-                        }
-                        if(managedThingProvider!=null && thingSetupManager != null) {
-	                    	try {
-	                    		ThingUID thingUID = new ThingUID(args[2]);
-		                    	List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
-		                    	if(results.isEmpty()) {
-		                            console.println("No matching inbox entry could be found.");
-		                            return;
-		                    	}
-		                    	DiscoveryResult result = results.get(0);
-		                    	Configuration configuratiob = new Configuration(result.getProperties());
-		                    	if(fullSetup) {
-		                    	    thingSetupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
-		                    	} else {
-		                    	    managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(), result.getBridgeUID(), configuratiob);
-		                    	}
-	                    	} catch(Exception e) {
-	                            console.println(e.getMessage());
-	                    	}
-                    	} else {
-                    		console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
-                    	}
-                    } else {
-                        console.println("Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
+            case COMMAND_INBOX:
+                if (args.length > 1) {
+                    String subCommand = args[1];
+                    switch (subCommand) {
+                        case "approve":
+                            if (args.length > 2) {
+                                boolean fullSetup = false;
+                                if (args.length > 3) {
+                                    fullSetup = Boolean.parseBoolean(args[3]);
+                                }
+                                if (managedThingProvider != null && thingSetupManager != null) {
+                                    try {
+                                        ThingUID thingUID = new ThingUID(args[2]);
+                                        List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID,
+                                                null));
+                                        if (results.isEmpty()) {
+                                            console.println("No matching inbox entry could be found.");
+                                            return;
+                                        }
+                                        DiscoveryResult result = results.get(0);
+                                        Configuration configuratiob = new Configuration(result.getProperties());
+                                        if (fullSetup) {
+                                            thingSetupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
+                                        } else {
+                                            managedThingProvider.createThing(result.getThingTypeUID(),
+                                                    result.getThingUID(), result.getBridgeUID(), configuratiob);
+                                        }
+                                    } catch (Exception e) {
+                                        console.println(e.getMessage());
+                                    }
+                                } else {
+                                    console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
+                                }
+                            } else {
+                                console.println("Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
+                            }
+                            return;
+                        case "ignore":
+                            if (args.length > 2) {
+                                try {
+                                    ThingUID thingUID = new ThingUID(args[2]);
+                                    PersistentInbox persistentInbox = (PersistentInbox) inbox;
+                                    persistentInbox.setFlag(thingUID, DiscoveryResultFlag.IGNORED);
+                                } catch (IllegalArgumentException e) {
+                                    console.println("'" + args[2] + "' is no valid thing UID.");
+                                }
+                            } else {
+                                console.println("Cannot approve thing as managed thing provider is missing.");
+                            }
+                            return;
+                        case "listignored":
+                            printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
+                            return;
+                        case "clear":
+                            clearInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+                            return;
+                        default:
+                            break;
                     }
-                    return;
-                case "ignore":
-                    if (args.length > 2) {
-                    	try {
-                    		ThingUID thingUID = new ThingUID(args[2]);
-                    		PersistentInbox persistentInbox = (PersistentInbox) inbox;
-                    		persistentInbox.setFlag(thingUID, DiscoveryResultFlag.IGNORED);
-                    	} catch(IllegalArgumentException e) {
-                            console.println("'"+ args[2] + "' is no valid thing UID.");
-                    	}
-                	} else {
-                		console.println("Cannot approve thing as managed thing provider is missing.");
-                	}
-                    return;
-                case "listignored":
-                    printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.IGNORED)));
-                    return;
-                case "clear":
-                	clearInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
-                	return;	
-                default:
-                    break;
                 }
-            }
-            printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
-            return;
-        default:
-            return;
+                printInboxEntries(console, inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)));
+                return;
+            default:
+                return;
         }
     }
 
@@ -124,15 +126,15 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]",
-                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
-           
+            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]", flag.name(),
+                    thingTypeUID, label, thingUID, bridgeId, properties));
+
         }
     }
 
     private void clearInboxEntries(Console console, List<DiscoveryResult> discoveryResults) {
 
-    	if (discoveryResults.isEmpty()) {
+        if (discoveryResults.isEmpty()) {
             console.println("No inbox entries found.");
         }
 
@@ -143,18 +145,19 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            console.println(String.format("REMOVED [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]",
-                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties));
+            console.println(String.format("REMOVED [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]", flag.name(),
+                    thingTypeUID, label, thingUID, bridgeId, properties));
             inbox.remove(thingUID);
         }
     }
 
+    @Override
     public List<String> getUsages() {
         return Arrays.asList((new String[] { COMMAND_INBOX + " - lists all current inbox entries",
-        		COMMAND_INBOX + " listignored - lists all ignored inbox entries",
-        		COMMAND_INBOX + " approve <thingUID> <fullSetup - true|false> - creates a thing for an inbox entry",
-        		COMMAND_INBOX + " clear - clears all current inbox entries",
-        		COMMAND_INBOX + " ignore <thingUID> - ignores an inbox entry permanently" }));
+                COMMAND_INBOX + " listignored - lists all ignored inbox entries",
+                COMMAND_INBOX + " approve <thingUID> <fullSetup - true|false> - creates a thing for an inbox entry",
+                COMMAND_INBOX + " clear - clears all current inbox entries",
+                COMMAND_INBOX + " ignore <thingUID> - ignores an inbox entry permanently" }));
     }
 
     protected void setInbox(Inbox inbox) {
@@ -172,11 +175,11 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
     protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
         this.managedThingProvider = null;
     }
-    
+
     protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = thingSetupManager;
     }
-    
+
     protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = null;
     }

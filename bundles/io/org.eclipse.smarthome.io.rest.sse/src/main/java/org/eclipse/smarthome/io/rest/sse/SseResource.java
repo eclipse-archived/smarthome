@@ -33,9 +33,9 @@ import org.glassfish.jersey.media.sse.SseFeature;
 
 /**
  * SSE Resource for pushing events to currently listening clients.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 @Path("events")
 @Singleton
@@ -70,7 +70,7 @@ public class SseResource {
     /**
      * Subscribes the connecting client to the stream of events filtered by the
      * given eventFilter.
-     * 
+     *
      * @param eventFilter
      * @return {@link EventOutput} object associated with the incoming
      *         connection.
@@ -106,7 +106,7 @@ public class SseResource {
     /**
      * Broadcasts an event described by the given parameters to all currently
      * listening clients.
-     * 
+     *
      * @param objectIdentifier
      *            - identifier of the event object
      * @param eventType
@@ -126,10 +126,10 @@ public class SseResource {
     }
 
     /**
-     * 
+     *
      * Subscribes the given eventOutput to all EventTypes matching the given
      * filter.
-     * 
+     *
      * @param eventFilter
      * @param eventOutput
      */

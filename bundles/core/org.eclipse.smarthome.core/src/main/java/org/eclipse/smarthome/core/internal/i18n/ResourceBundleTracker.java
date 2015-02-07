@@ -15,24 +15,22 @@ import org.eclipse.smarthome.core.common.osgi.ResolvedBundleTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-
 /**
- * The {@link ResourceBundleTracker} class tracks all <i>OSGi</i> bundles which are in the
- * {@link Bundle#RESOLVED} state or which it already passed (e.g. {@link Bundle#STARTING}
- * or {@link Bundle#ACTIVE}). Only bundles which contains i18n resource files are considered
- * within this tracker. 
+ * The {@link ResourceBundleTracker} class tracks all <i>OSGi</i> bundles which are in the {@link Bundle#RESOLVED} state
+ * or which it already passed (e.g. {@link Bundle#STARTING} or {@link Bundle#ACTIVE}). Only bundles which contains i18n
+ * resource files are considered
+ * within this tracker.
  * <p>
  * This tracker must be started by calling {@link #open()} and stopped by calling {@link #close()}.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ResourceBundleTracker extends ResolvedBundleTracker {
 
     private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
 
-
-    public ResourceBundleTracker(BundleContext bundleContext)  throws IllegalArgumentException {
-        super(bundleContext);   // can throw an IllegalArgumentException
+    public ResourceBundleTracker(BundleContext bundleContext) throws IllegalArgumentException {
+        super(bundleContext); // can throw an IllegalArgumentException
 
         this.bundleLanguageResourceMap = new LinkedHashMap<>();
     }
@@ -74,7 +72,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
     /**
      * Returns the {@link LanguageResourceBundleManager} instance for the specified bundle,
      * or {@code null} if it cannot be found within that tracker.
-     * 
+     *
      * @param bundle the bundle which points to the specific resource manager (could be null)
      * @return the specific resource manager (could be null)
      */
@@ -88,7 +86,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
 
     /**
      * Returns all {@link LanguageResourceBundleManager} instances managed by this tracker.
-     * 
+     *
      * @return the list of all resource managers (not null, could be empty)
      */
     public Collection<LanguageResourceBundleManager> getAllLanguageResources() {

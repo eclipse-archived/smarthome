@@ -7,16 +7,14 @@
  */
 package org.eclipse.smarthome.model.persistence;
 
-import org.eclipse.smarthome.model.persistence.PersistenceStandaloneSetupGenerated;
 
 /**
- * Initialization support for running Xtext languages 
+ * Initialization support for running Xtext languages
  * without equinox extension registry
  */
-public class PersistenceStandaloneSetup extends PersistenceStandaloneSetupGenerated{
+public class PersistenceStandaloneSetup extends PersistenceStandaloneSetupGenerated {
 
-	public static void doSetup() {
-		new PersistenceStandaloneSetup().createInjectorAndDoEMFRegistration();
-	}
+    public static void doSetup() {
+        new PersistenceStandaloneSetup().createInjectorAndDoEMFRegistration();
+    }
 }
-

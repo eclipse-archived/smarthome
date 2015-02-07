@@ -38,14 +38,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
- * mediates the communication between the {@link Thing} and the
- * {@link ThingHandler} from the binding. Therefore it tracks
- * {@link ThingHandlerFactory}s and calls
- * {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that was
+ * mediates the communication between the {@link Thing} and the {@link ThingHandler} from the binding. Therefore it
+ * tracks {@link ThingHandlerFactory}s and calls {@link ThingHandlerFactory#registerHandler(Thing)} for each thing, that
+ * was
  * added to the {@link ThingRegistry}. In addition the {@link ThingManager} acts
  * as an {@link EventHandler} and subscribes to smarthome update and command
  * events.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  */
@@ -100,7 +99,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private EventPublisher eventPublisher;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-    
+
     private ItemThingLinkRegistry itemThingLinkRegistry;
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
@@ -122,7 +121,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     };
 
     private ItemRegistry itemRegistry;
-    
+
     private ThingRegistryImpl thingRegistry;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
@@ -131,7 +130,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     /**
      * Method is called when a {@link ThingHandler} is added.
-     * 
+     *
      * @param thing
      *            thing
      * @param thingHandler
@@ -144,7 +143,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     /**
      * Method is called when a {@link ThingHandler} is removed.
-     * 
+     *
      * @param thing
      *            thing
      * @param thingHandler
@@ -220,7 +219,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
-        ((ThingImpl)thing).addThingListener(thingListener);
+        ((ThingImpl) thing).addThingListener(thingListener);
         this.thingLinkManager.thingAdded(thing);
         ThingHandler thingHandler = thingHandlers.get(thing.getUID());
         if (thingHandler == null) {
@@ -241,14 +240,12 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 if (thingHandlerFactory != null) {
                     unregisterHandler(thing, thingHandlerFactory);
                 } else {
-                    logger.warn(
-                            "Cannot unregister handler. No handler factory for thing '{}' found.",
-                            thing.getUID());
+                    logger.warn("Cannot unregister handler. No handler factory for thing '{}' found.", thing.getUID());
                 }
             }
         }
         this.thingLinkManager.thingRemoved(thing);
-        ((ThingImpl)thing).removeThingListener(thingListener);
+        ((ThingImpl) thing).removeThingListener(thingListener);
         logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
@@ -258,19 +255,19 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         ThingUID thingUID = thing.getUID();
         Thing oldThing = getThing(thingUID);
-        
-        if(oldThing != thing) {
+
+        if (oldThing != thing) {
             this.things.remove(oldThing);
             this.things.add(thing);
             ((ThingImpl) thing).addThingListener(thingListener);
         }
-        
+
         thingLinkManager.thingUpdated(thing);
 
         ThingHandler thingHandler = thingHandlers.get(thingUID);
         if (thingHandler != null) {
             try {
-                if(oldThing != thing) {
+                if (oldThing != thing) {
                     thing.setHandler(thingHandler);
                 }
                 thingHandler.thingUpdated(thing);
@@ -278,7 +275,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 logger.error("Cannot send Thing updated event to ThingHandler '" + thingHandler + "'!", ex);
             }
         } else {
-            registerHandler(thing); 
+            registerHandler(thing);
         }
 
         if (oldThing != thing) {
@@ -335,7 +332,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void activate(ComponentContext componentContext) {
-        this.thingLinkManager = new ThingLinkManager(itemRegistry, thingRegistry, itemChannelLinkRegistry, itemThingLinkRegistry);
+        this.thingLinkManager = new ThingLinkManager(itemRegistry, thingRegistry, itemChannelLinkRegistry,
+                itemThingLinkRegistry);
         this.thingLinkManager.startListening();
         this.bundleContext = componentContext.getBundleContext();
         this.thingHandlerTracker = new ThingHandlerTracker(this.bundleContext);
@@ -343,8 +341,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        logger.debug("Thing handler factory '{}' added",
-                thingHandlerFactory.getClass().getSimpleName());
+        logger.debug("Thing handler factory '{}' added", thingHandlerFactory.getClass().getSimpleName());
 
         thingHandlerFactories.add(thingHandlerFactory);
 
@@ -368,8 +365,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        logger.debug("Thing handler factory '{}' removed",
-                thingHandlerFactory.getClass().getSimpleName());
+        logger.debug("Thing handler factory '{}' removed", thingHandlerFactory.getClass().getSimpleName());
 
         thingHandlerFactories.remove(thingHandlerFactory);
     }
@@ -399,19 +395,19 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         this.thingRegistry.removeThingTracker(this);
         this.thingRegistry = null;
     }
-    
+
     protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
-    
+
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
     }
-    
+
     protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = itemThingLinkRegistry;
     }
-    
+
     protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = null;
     }

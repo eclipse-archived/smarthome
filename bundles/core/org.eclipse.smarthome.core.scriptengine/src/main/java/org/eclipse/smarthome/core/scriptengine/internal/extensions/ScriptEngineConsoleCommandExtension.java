@@ -22,58 +22,56 @@ import com.google.common.base.Joiner;
 
 /**
  * This class provides the script engine as a console command
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
  *
  */
-public class ScriptEngineConsoleCommandExtension implements
-		ConsoleCommandExtension {
+public class ScriptEngineConsoleCommandExtension implements ConsoleCommandExtension {
 
-	
-	private ScriptEngine scriptEngine;
-	
-	@Override
-	public boolean canHandle(String[] args) {
-		String firstArg = args[0];
-		return ">".equals(firstArg);	
-	}
+    private ScriptEngine scriptEngine;
 
-	@Override
-	public void execute(String[] args, Console console) {
-		// remove first argument
-		args = (String[]) ArrayUtils.remove(args, 0);
-		if(scriptEngine!=null) {
-			String scriptString = Joiner.on(" ").join(args);
-			Script script;
-			try {
-				script = scriptEngine.newScriptFromString(scriptString);
-				Object result = script.execute();
-				
-				if(result!=null) {
-					console.println(result.toString());
-				} else {
-					console.println("OK");
-				}
-			} catch (ScriptParsingException e) {
-				console.println(e.getMessage());
-			} catch (ScriptExecutionException e) {
-				console.println(e.getMessage());
-			}
-		} else {
-			console.println("Script engine is not available.");
-		}
-	}
+    @Override
+    public boolean canHandle(String[] args) {
+        String firstArg = args[0];
+        return ">".equals(firstArg);
+    }
 
-	@Override
-	public List<String> getUsages() {
-		return Collections.singletonList("> <script to execute> - Executes a script");
-	}
-	
-	public void setScriptEngine(ScriptEngine scriptEngine) {
-		this.scriptEngine = scriptEngine;
-	}
-	
-	public void unsetScriptEngine(ScriptEngine scriptEngine) {
-		this.scriptEngine = null;
-	}
+    @Override
+    public void execute(String[] args, Console console) {
+        // remove first argument
+        args = (String[]) ArrayUtils.remove(args, 0);
+        if (scriptEngine != null) {
+            String scriptString = Joiner.on(" ").join(args);
+            Script script;
+            try {
+                script = scriptEngine.newScriptFromString(scriptString);
+                Object result = script.execute();
+
+                if (result != null) {
+                    console.println(result.toString());
+                } else {
+                    console.println("OK");
+                }
+            } catch (ScriptParsingException e) {
+                console.println(e.getMessage());
+            } catch (ScriptExecutionException e) {
+                console.println(e.getMessage());
+            }
+        } else {
+            console.println("Script engine is not available.");
+        }
+    }
+
+    @Override
+    public List<String> getUsages() {
+        return Collections.singletonList("> <script to execute> - Executes a script");
+    }
+
+    public void setScriptEngine(ScriptEngine scriptEngine) {
+        this.scriptEngine = scriptEngine;
+    }
+
+    public void unsetScriptEngine(ScriptEngine scriptEngine) {
+        this.scriptEngine = null;
+    }
 }

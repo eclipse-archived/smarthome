@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 /**
  * The {@link LifxHandlerFactory} is responsible for creating things and thing
  * handlers.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LifxHandlerFactory extends BaseThingHandlerFactory {

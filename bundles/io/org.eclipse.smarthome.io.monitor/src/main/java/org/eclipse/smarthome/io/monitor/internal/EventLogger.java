@@ -15,14 +15,16 @@ import org.slf4j.LoggerFactory;
 
 public class EventLogger extends AbstractEventSubscriber {
 
-	private final Logger logger = LoggerFactory.getLogger("runtime.busevents");
+    private final Logger logger = LoggerFactory.getLogger("runtime.busevents");
 
-	public void receiveCommand(String itemName, Command command) {
-		logger.info("{} received command {}", itemName, command);
-	}
+    @Override
+    public void receiveCommand(String itemName, Command command) {
+        logger.info("{} received command {}", itemName, command);
+    }
 
-	public void receiveUpdate(String itemName, State newStatus) {
-		logger.info("{} state updated to {}", itemName, newStatus);
-	}
+    @Override
+    public void receiveUpdate(String itemName, State newStatus) {
+        logger.info("{} state updated to {}", itemName, newStatus);
+    }
 
 }

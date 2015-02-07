@@ -20,10 +20,9 @@ import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 
 /**
- * A {@link ChannelStateDescriptionProvider} provides localized
- * {@link StateDescription}s from the type of a {@link Channel} bounded to an
- * {@link Item}.
- * 
+ * A {@link ChannelStateDescriptionProvider} provides localized {@link StateDescription}s from the type of a
+ * {@link Channel} bounded to an {@link Item}.
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class ChannelStateDescriptionProvider implements StateDescriptionProvider {
@@ -38,7 +37,7 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
             ChannelUID channelUID = boundChannels.iterator().next();
             ChannelType channelType = thingTypeRegistry.getChannelType(channelUID, locale);
             return channelType != null ? channelType.getState() : null;
-        } else { 
+        } else {
             return null;
         }
     }

@@ -9,34 +9,33 @@ package org.eclipse.smarthome.core.transform.internal;
 
 import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.core.transform.actions.Transformation;
-	
 
 /**
  * This class registers an OSGi service for the Transformation action.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class TransformationActionService implements ActionService {
 
-	public TransformationActionService() {
-	}
-	
-	public void activate() {
-	}
-	
-	public void deactivate() {
-		// deallocate Resources here that are no longer needed and 
-		// should be reset when activating this binding again
-	}
+    public TransformationActionService() {
+    }
 
-	@Override
-	public String getActionClassName() {
-		return Transformation.class.getCanonicalName();
-	}
+    public void activate() {
+    }
 
-	@Override
-	public Class<?> getActionClass() {
-		return Transformation.class;
-	}
+    public void deactivate() {
+        // deallocate Resources here that are no longer needed and
+        // should be reset when activating this binding again
+    }
+
+    @Override
+    public String getActionClassName() {
+        return Transformation.class.getCanonicalName();
+    }
+
+    @Override
+    public Class<?> getActionClass() {
+        return Transformation.class;
+    }
 
 }

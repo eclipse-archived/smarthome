@@ -12,12 +12,12 @@ import org.glassfish.jersey.internal.inject.CustomAnnotationImpl;
 import org.glassfish.jersey.servlet.spi.AsyncContextDelegateProvider;
 
 /**
- * An {@link AbstractBinder} implementation that registers our custom
- * {@link BlockingAsyncContextDelegateProvider} class as an implementation of
+ * An {@link AbstractBinder} implementation that registers our custom {@link BlockingAsyncContextDelegateProvider} class
+ * as an implementation of
  * the {@link AsyncContextDelegateProvider} SPI interface.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class BlockingAsyncBinder extends AbstractBinder {
 

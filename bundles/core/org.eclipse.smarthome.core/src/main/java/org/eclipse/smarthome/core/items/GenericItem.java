@@ -30,90 +30,97 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
-/** 
+/**
  * The abstract base class for all items. It provides all relevant logic
  * for the infrastructure, such as publishing updates to the event bus
  * or notifying listeners.
- *  
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - Added tags
  *
  */
 abstract public class GenericItem implements ActiveItem {
-	
-	protected EventPublisher eventPublisher;
 
-	protected Set<StateChangeListener> listeners = new CopyOnWriteArraySet<StateChangeListener>(Collections.newSetFromMap(new WeakHashMap<StateChangeListener, Boolean>()));
-	
-	protected List<String> groupNames = new ArrayList<String>();
-	
-	protected Set<String> tags = new HashSet<String>(); 
-	
-	final protected String name;
-	
-	final protected String type;
-	
-	protected State state = UnDefType.NULL;
-	
-	protected String label;
-	
-	protected String category;
+    protected EventPublisher eventPublisher;
+
+    protected Set<StateChangeListener> listeners = new CopyOnWriteArraySet<StateChangeListener>(
+            Collections.newSetFromMap(new WeakHashMap<StateChangeListener, Boolean>()));
+
+    protected List<String> groupNames = new ArrayList<String>();
+
+    protected Set<String> tags = new HashSet<String>();
+
+    final protected String name;
+
+    final protected String type;
+
+    protected State state = UnDefType.NULL;
+
+    protected String label;
+
+    protected String category;
 
     private StateDescriptionProvider stateDescriptionProvider;
-    
-	public GenericItem(String type, String name) {
-		this.name = name;
-		this.type = type;
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public State getState() {
-		return state;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public State getStateAs(Class<? extends State> typeClass) {
-		if(typeClass!=null && typeClass.isInstance(state)) {
-			return state;
-		} else {
-			return null;
-		}
-	}
-	
-	public void initialize() {}
-	
-	public void dispose() {
-		this.eventPublisher = null;
-	}
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public String getType() {
-		return type;
-	}
+    public GenericItem(String type, String name) {
+        this.name = name;
+        this.type = type;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<String> getGroupNames() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public State getState() {
+        return state;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        if (typeClass != null && typeClass.isInstance(state)) {
+            return state;
+        } else {
+            return null;
+        }
+    }
+
+    public void initialize() {
+    }
+
+    public void dispose() {
+        this.eventPublisher = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> getGroupNames() {
         return ImmutableList.copyOf(groupNames);
-	}
+    }
 
     /**
      * Adds a group name to the {@link GenericItem}.
-     * 
+     *
      * @param groupItemName
      *            group item name to add
      */
@@ -123,14 +130,14 @@ abstract public class GenericItem implements ActiveItem {
             groupNames.add(groupItemName);
         }
     }
-    
+
     @Override
     public void addGroupNames(String... groupItemNames) {
         for (String groupItemName : groupItemNames) {
             addGroupName(groupItemName);
         }
     }
-    
+
     @Override
     public void addGroupNames(List<String> groupItemNames) {
         for (String groupItemName : groupItemNames) {
@@ -140,7 +147,7 @@ abstract public class GenericItem implements ActiveItem {
 
     /**
      * Removes a group item name from the {@link GenericItem}.
-     * 
+     *
      * @param groupItemName
      *            group item name to remove
      */
@@ -149,57 +156,57 @@ abstract public class GenericItem implements ActiveItem {
         groupNames.remove(groupItemName);
     }
 
-	public void setEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
-	
-   public void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+    public void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    public void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
         this.stateDescriptionProvider = stateDescriptionProvider;
     }
-	
-	protected void internalSend(Command command) {
-		// try to send the command to the bus
-		if(eventPublisher!=null) {
-			eventPublisher.sendCommand(this.getName(), command);
-		}		
-	}
-	
+
+    protected void internalSend(Command command) {
+        // try to send the command to the bus
+        if (eventPublisher != null) {
+            eventPublisher.sendCommand(this.getName(), command);
+        }
+    }
+
     /**
      * Sets new state and notifies listeners.
-     * 
+     *
      * @param state
      *            new state of this item
      */
-	public void setState(State state) {
-		State oldState = this.state;
-		this.state = state;
-		notifyListeners(oldState, state);
-	}
+    public void setState(State state) {
+        State oldState = this.state;
+        this.state = state;
+        notifyListeners(oldState, state);
+    }
 
     public void send(RefreshType command) {
         internalSend(command);
     }
 
-	private void notifyListeners(State oldState, State newState) {
-		// if nothing has changed, we send update notifications
-		Set<StateChangeListener> clonedListeners = null;
-		clonedListeners = new CopyOnWriteArraySet<StateChangeListener>(listeners);
-		for(StateChangeListener listener : clonedListeners) {
-			listener.stateUpdated(this, newState);
-		}
-		if(!oldState.equals(newState)) {
-			for(StateChangeListener listener : clonedListeners) {
-				listener.stateChanged(this, oldState, newState);
-			}
-		}
-	}
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
+    private void notifyListeners(State oldState, State newState) {
+        // if nothing has changed, we send update notifications
+        Set<StateChangeListener> clonedListeners = null;
+        clonedListeners = new CopyOnWriteArraySet<StateChangeListener>(listeners);
+        for (StateChangeListener listener : clonedListeners) {
+            listener.stateUpdated(this, newState);
+        }
+        if (!oldState.equals(newState)) {
+            for (StateChangeListener listener : clonedListeners) {
+                listener.stateChanged(this, oldState, newState);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
         sb.append(getName());
         sb.append(" (");
         sb.append("Type=");
@@ -220,20 +227,20 @@ abstract public class GenericItem implements ActiveItem {
             sb.append("]");
         }
         sb.append(")");
-	    return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	public void addStateChangeListener(StateChangeListener listener) {
-		synchronized(listeners) {
-			listeners.add(listener);
-		}
-	}
-	
-	public void removeStateChangeListener(StateChangeListener listener) {
-		synchronized(listeners) {
-			listeners.remove(listener);
-		}
-	}
+    public void addStateChangeListener(StateChangeListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeStateChangeListener(StateChangeListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
+    }
 
     @Override
     public int hashCode() {
@@ -259,7 +266,7 @@ abstract public class GenericItem implements ActiveItem {
             return false;
         return true;
     }
-    
+
     @Override
     public Set<String> getTags() {
         return ImmutableSet.copyOf(tags);
@@ -267,66 +274,66 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public boolean hasTag(String tag) {
-        return (tags.contains(tag)); 
+        return (tags.contains(tag));
     }
 
     @Override
     public void addTag(String tag) {
-        tags.add(tag); 
+        tags.add(tag);
     }
-    
+
     @Override
     public void addTags(Collection<String> tags) {
         this.tags.addAll(tags);
     }
-    
+
     @Override
     public void addTags(String... tags) {
-        this.tags.addAll(Arrays.asList(tags));   
+        this.tags.addAll(Arrays.asList(tags));
     }
 
     @Override
     public void removeTag(String tag) {
-        tags.remove(tag); 
-   }
+        tags.remove(tag);
+    }
 
     @Override
     public void removeAllTags() {
         tags.clear();
     }
-    
+
     @Override
     public String getLabel() {
         return this.label;
     }
-    
+
     @Override
     public void setLabel(String label) {
         this.label = label;
     }
-    
+
     @Override
     public String getCategory() {
         return category;
     }
-    
+
     @Override
     public void setCategory(String category) {
-        this.category = category;   
+        this.category = category;
     }
-    
+
     @Override
     public StateDescription getStateDescription() {
         return getStateDescription(Locale.getDefault());
     }
-    
+
     @Override
     public StateDescription getStateDescription(Locale locale) {
-        if(stateDescriptionProvider != null) {
+        if (stateDescriptionProvider != null) {
             return stateDescriptionProvider.getStateDescription(this.name, locale);
         } else {
             return null;
         }
     }
-	
+
 }

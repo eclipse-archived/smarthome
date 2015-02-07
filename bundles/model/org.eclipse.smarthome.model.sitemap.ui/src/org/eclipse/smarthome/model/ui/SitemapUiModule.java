@@ -16,7 +16,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Use this class to register components to be used within the IDE.
  */
 public class SitemapUiModule extends org.eclipse.smarthome.model.ui.AbstractSitemapUiModule {
-	public SitemapUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    public SitemapUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
 }

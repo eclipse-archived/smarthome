@@ -13,42 +13,39 @@ import java.util.Map;
 import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
  * The {@link ConverterAttributeMapValidator} class reads any attributes of a node, validates
  * if they appear or not, and returns the validated key-value pair map.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ConverterAttributeMapValidator {
 
     private Map<String, Boolean> validationMaskTemplate;
 
-
     /**
      * Creates a new instance of this class with the specified parameter.
      * <p>
-     * The validation mask template is a two-dimensional key-required ({@code String, [true|false]})
-     * list, defining all attributes the node could have and which are required and which not.
-     * The structure of the array is the following:<br>
+     * The validation mask template is a two-dimensional key-required ({@code String, [true|false]}) list, defining all
+     * attributes the node could have and which are required and which not. The structure of the array is the following:
+     * <br>
      * <code><pre>
      * String[] validationMaskTemplate = new String[][] {
      *         { "uri", "false" },
      *         { "attribute", "true" }};
      * </pre></code>
      * <p>
-     * If the validation mask template is {@code null} the validation is skipped.
-     * If it's empty, no attributes are allowed for this node.
+     * If the validation mask template is {@code null} the validation is skipped. If it's empty, no attributes are
+     * allowed for this node.
      *
-     * @param validationMaskTemplate the two-dimensional key-required list (could be null or empty) 
+     * @param validationMaskTemplate the two-dimensional key-required list (could be null or empty)
      */
     public ConverterAttributeMapValidator(String[][] validationMaskTemplate) {
         if (validationMaskTemplate != null) {
             this.validationMaskTemplate = new HashMap<>(validationMaskTemplate.length);
 
             for (String[] validationProperty : validationMaskTemplate) {
-                this.validationMaskTemplate.put(
-                        validationProperty[0], Boolean.parseBoolean(validationProperty[1]));
+                this.validationMaskTemplate.put(validationProperty[0], Boolean.parseBoolean(validationProperty[1]));
             }
         }
     }
@@ -56,12 +53,12 @@ public class ConverterAttributeMapValidator {
     /**
      * Creates a new instance of this class with the specified parameter.
      * <p>
-     * The validation mask template is a key-required ({@code String, [true|false]}) map,
-     * defining all attributes the node could have, and which are required and which not.
+     * The validation mask template is a key-required ({@code String, [true|false]}) map, defining all attributes the
+     * node could have, and which are required and which not.
      * <p>
-     * If the validation mask template is {@code null} the validation is skipped.
-     * If it's empty, no attributes are allowed for this node.
-     * 
+     * If the validation mask template is {@code null} the validation is skipped. If it's empty, no attributes are
+     * allowed for this node.
+     *
      * @param validationMaskTemplate the key-required map (could be null or empty)
      */
     public ConverterAttributeMapValidator(Map<String, Boolean> validationMaskTemplate) {
@@ -71,13 +68,12 @@ public class ConverterAttributeMapValidator {
     /**
      * Reads, validates and returns all attributes of a node associated with the specified
      * reader as key-value map.
-     * 
+     *
      * @param reader the reader to be used to read-in all attributes of the node (must not be null)
      * @return the key-value map (not null, could be empty)
      * @throws ConversionException if the validation check fails
      */
-    public Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader)
-            throws ConversionException {
+    public Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader) throws ConversionException {
 
         return readValidatedAttributes(reader, this.validationMaskTemplate);
     }
@@ -86,9 +82,9 @@ public class ConverterAttributeMapValidator {
      * Reads, validates and returns all attributes of a node associated with the specified
      * reader as key-value map.
      * <p>
-     * The validation mask template is a key-required ({@code String, [true|false]}) map,
-     * defining all attributes the node could have, and which are required and which not.
-     * 
+     * The validation mask template is a key-required ({@code String, [true|false]}) map, defining all attributes the
+     * node could have, and which are required and which not.
+     *
      * @param reader the reader to be used to read-in all attributes of the node (must not be null)
      * @param validationMaskTemplate the key-required map (could be null or empty)
      *
@@ -96,9 +92,8 @@ public class ConverterAttributeMapValidator {
      *
      * @throws ConversionException if the validation check fails
      */
-    public static Map<String, String> readValidatedAttributes(
-            HierarchicalStreamReader reader, Map<String, Boolean> validationMaskTemplate)
-            throws ConversionException {
+    public static Map<String, String> readValidatedAttributes(HierarchicalStreamReader reader,
+            Map<String, Boolean> validationMaskTemplate) throws ConversionException {
 
         Map<String, String> attributeMap = new HashMap<>(reader.getAttributeCount());
 
@@ -115,12 +110,11 @@ public class ConverterAttributeMapValidator {
                 attributeMap.put(attributeName, reader.getAttribute(index));
 
                 if (validationMask != null) {
-                    validationMask.remove(attributeName);   // no duplicates are allowed
+                    validationMask.remove(attributeName); // no duplicates are allowed
                 }
             } else {
-                throw new ConversionException("The attribute '" + attributeName
-                        + "' of the node '" + reader.getNodeName()
-                        + "' is not supported or exists multiple times!");
+                throw new ConversionException("The attribute '" + attributeName + "' of the node '"
+                        + reader.getNodeName() + "' is not supported or exists multiple times!");
             }
         }
 
@@ -131,8 +125,8 @@ public class ConverterAttributeMapValidator {
                 boolean attributeRequired = entry.getValue();
 
                 if (attributeRequired) {
-                    throw new ConversionException("The attribute '" + attributeName
-                            + "' of the node '" + reader.getNodeName() + "' is missing!");
+                    throw new ConversionException("The attribute '" + attributeName + "' of the node '"
+                            + reader.getNodeName() + "' is missing!");
                 }
             }
         }

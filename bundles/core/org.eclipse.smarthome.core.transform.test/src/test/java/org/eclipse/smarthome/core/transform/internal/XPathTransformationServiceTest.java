@@ -14,27 +14,26 @@ import org.eclipse.smarthome.core.transform.internal.service.XPathTransformation
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
  * @author Thomas.Eichstaedt-Engelen
  */
 public class XPathTransformationServiceTest extends AbstractTransformationServiceTest {
 
-	private XPathTransformationService processor;
+    private XPathTransformationService processor;
 
-	@Before
-	public void init() {
-		processor = new XPathTransformationService();
-	}
-	
-	@Test
-	public void testTransformByXPath() throws TransformationException {
+    @Before
+    public void init() {
+        processor = new XPathTransformationService();
+    }
 
-		// method under test
-		String transformedResponse = processor.transform("//current_conditions/temp_c/@data", source);
-		
-		// Asserts
-		Assert.assertEquals("8", transformedResponse);
-	}
+    @Test
+    public void testTransformByXPath() throws TransformationException {
+
+        // method under test
+        String transformedResponse = processor.transform("//current_conditions/temp_c/@data", source);
+
+        // Asserts
+        Assert.assertEquals("8", transformedResponse);
+    }
 
 }

@@ -9,15 +9,13 @@ package org.eclipse.smarthome.core.thing.link;
 
 import org.eclipse.smarthome.core.common.registry.Provider;
 
-
 /**
  * The {@link ItemChannelLinkProvider} is responsible for providing item channel
  * links.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
- * 
+ *
  */
 public interface ItemChannelLinkProvider extends Provider<ItemChannelLink> {
-
 
 }

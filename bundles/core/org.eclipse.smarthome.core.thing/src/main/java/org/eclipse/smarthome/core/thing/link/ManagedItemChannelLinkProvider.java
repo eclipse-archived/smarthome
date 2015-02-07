@@ -13,14 +13,14 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * 
- * {@link ManagedItemChannelLinkProvider} is responsible for managed
- * {@link ItemChannelLink}s at runtime.
- * 
+ *
+ * {@link ManagedItemChannelLinkProvider} is responsible for managed {@link ItemChannelLink}s at runtime.
+ *
  * @author Dennis Nobel - Initial contribution
- * 
+ *
  */
-public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String> implements ItemChannelLinkProvider {
+public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String> implements
+        ItemChannelLinkProvider {
 
     @Override
     protected String getStorageName() {
@@ -36,11 +36,11 @@ public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvid
     protected String getKey(ItemChannelLink element) {
         return element.getID();
     }
-    
+
     public void removeLinksForThing(ThingUID thingUID) {
         Collection<ItemChannelLink> itemChannelLinks = getAll();
         for (ItemChannelLink itemChannelLink : itemChannelLinks) {
-            if(itemChannelLink.getUID().getThingUID().equals(thingUID)) {
+            if (itemChannelLink.getUID().getThingUID().equals(thingUID)) {
                 this.remove(itemChannelLink.getID());
             }
         }

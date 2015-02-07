@@ -27,17 +27,17 @@ public class BridgeImpl extends ThingImpl implements Bridge {
      */
     BridgeImpl() {
     }
-    
+
     public BridgeImpl(ThingTypeUID thingTypeUID, String bridgeId) {
         super(thingTypeUID, bridgeId);
     }
-    
+
     /**
      * @param thingUID
      * @throws IllegalArgumentException
      */
     public BridgeImpl(ThingUID thingUID) throws IllegalArgumentException {
-    	super(thingUID);
+        super(thingUID);
     }
 
     public void addThing(Thing thing) {

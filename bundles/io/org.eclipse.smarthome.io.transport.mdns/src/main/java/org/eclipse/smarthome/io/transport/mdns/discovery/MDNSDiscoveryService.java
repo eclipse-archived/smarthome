@@ -27,113 +27,112 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a {@link DiscoveryService} implementation, which can find mDNS services in the network.
  * Support for further devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
- *  
- * @author Tobias Bräutigam - Initial contribution
+ * 
+ * @author Tobias Brï¿½utigam - Initial contribution
  *
  */
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
-	private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
-	
-	private Set<MDNSDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
-	
-	private MDNSClient mdnsClient;
+    private final Logger logger = LoggerFactory.getLogger(MDNSDiscoveryService.class);
 
-	public MDNSDiscoveryService() {
-		super(5);
-	}			
+    private Set<MDNSDiscoveryParticipant> participants = new CopyOnWriteArraySet<>();
 
-	
-	public void setMDNSClient(MDNSClient mdnsClient) {
-		this.mdnsClient = mdnsClient;
-		startScan();
-	}
-	
-	public void unsetMDNSClient(MDNSClient mdnsClient) {
-		this.mdnsClient = null;
-	}
-	
-	protected void activate() {
-		
-	}
+    private MDNSClient mdnsClient;
 
-	@Override
-	protected void startScan() {
-		logger.debug("mDNS discovery service started");
-		initializeParticipants();
-	}
-		
-	protected void initializeParticipants() {
-		for(MDNSDiscoveryParticipant participant : participants) {
-			mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
-			ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
-			logger.debug(services.length+" services found for "+participant.getServiceType());
-			for(ServiceInfo service : services) {
-				participant.createResult(service);
-			}
-			mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
-		}
-	}
-	
-	protected void addMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
-		this.participants.add(participant);
-		logger.debug("adding mDNS listener to type: "+participant.getServiceType());
-		if (mdnsClient!=null && mdnsClient.getClient() != null) {
-			
-			ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
-			
-			logger.debug(services.length+" services found");
-			for(ServiceInfo service : services) {
-				participant.createResult(service);
-			}
-			mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
-		}
-	}
+    public MDNSDiscoveryService() {
+        super(5);
+    }
 
-	protected void removeMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
-		this.participants.remove(participant);
-		mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
-	}
-	
-	@Override
-	public Set<ThingTypeUID> getSupportedThingTypes() {
-		Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
-		for(MDNSDiscoveryParticipant participant : participants) {
-			supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
-		}
-		return supportedThingTypes;
-	}
+    public void setMDNSClient(MDNSClient mdnsClient) {
+        this.mdnsClient = mdnsClient;
+        startScan();
+    }
 
-	@Override
-	public void serviceAdded(ServiceEvent serviceEvent) {
-		for(MDNSDiscoveryParticipant participant : participants) {
-			try {
-				DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
-				if(result!=null) {
-					thingDiscovered(result);
-				}
-			} catch(Exception e) {
-				logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
-			}
-		}	   
-	}
+    public void unsetMDNSClient(MDNSClient mdnsClient) {
+        this.mdnsClient = null;
+    }
 
-	@Override
-	public void serviceRemoved(ServiceEvent serviceEvent) {
-		for(MDNSDiscoveryParticipant participant : participants) {
-			try {
-				ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
-				if(thingUID!=null) {
-					thingRemoved(thingUID);
-				}
-			} catch(Exception e) {
-				logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
-			}
-		}
-	}
+    protected void activate() {
 
-	@Override
-	public void serviceResolved(ServiceEvent serviceEvent) {
-		
-	}
+    }
+
+    @Override
+    protected void startScan() {
+        logger.debug("mDNS discovery service started");
+        initializeParticipants();
+    }
+
+    protected void initializeParticipants() {
+        for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
+            logger.debug(services.length + " services found for " + participant.getServiceType());
+            for (ServiceInfo service : services) {
+                participant.createResult(service);
+            }
+            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+        }
+    }
+
+    protected void addMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+        this.participants.add(participant);
+        logger.debug("adding mDNS listener to type: " + participant.getServiceType());
+        if (mdnsClient != null && mdnsClient.getClient() != null) {
+
+            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
+
+            logger.debug(services.length + " services found");
+            for (ServiceInfo service : services) {
+                participant.createResult(service);
+            }
+            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+        }
+    }
+
+    protected void removeMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
+        this.participants.remove(participant);
+        mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+    }
+
+    @Override
+    public Set<ThingTypeUID> getSupportedThingTypes() {
+        Set<ThingTypeUID> supportedThingTypes = new HashSet<>();
+        for (MDNSDiscoveryParticipant participant : participants) {
+            supportedThingTypes.addAll(participant.getSupportedThingTypeUIDs());
+        }
+        return supportedThingTypes;
+    }
+
+    @Override
+    public void serviceAdded(ServiceEvent serviceEvent) {
+        for (MDNSDiscoveryParticipant participant : participants) {
+            try {
+                DiscoveryResult result = participant.createResult(serviceEvent.getInfo());
+                if (result != null) {
+                    thingDiscovered(result);
+                }
+            } catch (Exception e) {
+                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+            }
+        }
+    }
+
+    @Override
+    public void serviceRemoved(ServiceEvent serviceEvent) {
+        for (MDNSDiscoveryParticipant participant : participants) {
+            try {
+                ThingUID thingUID = participant.getThingUID(serviceEvent.getInfo());
+                if (thingUID != null) {
+                    thingRemoved(thingUID);
+                }
+            } catch (Exception e) {
+                logger.error("Participant '{}' threw an exception", participant.getClass().getName(), e);
+            }
+        }
+    }
+
+    @Override
+    public void serviceResolved(ServiceEvent serviceEvent) {
+
+    }
 
 }

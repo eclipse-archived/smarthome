@@ -20,15 +20,13 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link ThingTypeConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert {@code Thing} type information within
+ * The {@link ThingTypeConverter} is a concrete implementation of the {@code XStream} {@link Converter} interface used
+ * to convert {@code Thing} type information within
  * an XML document into a {@link ThingTypeXmlResult} object.
  * <p>
- * This converter converts {@code thing-type} XML tags.
- * It uses the {@link AbstractDescriptionTypeConverter} which offers base functionality
- * for each type definition.
+ * This converter converts {@code thing-type} XML tags. It uses the {@link AbstractDescriptionTypeConverter} which
+ * offers base functionality for each type definition.
  *
  * @author Michael Grammling - Initial Contribution
  */
@@ -40,7 +38,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
 
     /**
      * Creates a new instance of this class with the specified parameters.
-     * 
+     *
      * @param clazz the class of the result object (must not be null)
      * @param type the name of the type (e.g. "bridge-type")
      */
@@ -49,8 +47,7 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
         super(clazz, type);
     }
 
-    protected List<String> readSupportedBridgeTypeUIDs(NodeIterator nodeIterator,
-            UnmarshallingContext context) {
+    protected List<String> readSupportedBridgeTypeUIDs(NodeIterator nodeIterator, UnmarshallingContext context) {
 
         Object nextNode = nodeIterator.next("supported-bridge-type-refs", false);
 
@@ -74,25 +71,19 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
 
         channelTypeReferences = (List<NodeAttributes>) nodeIterator.nextList("channels", false);
         if (channelTypeReferences == null) {
-            channelGroupTypeReferences =
-                    (List<NodeAttributes>) nodeIterator.nextList("channel-groups", false);
+            channelGroupTypeReferences = (List<NodeAttributes>) nodeIterator.nextList("channel-groups", false);
         }
 
         return new List[] { channelTypeReferences, channelGroupTypeReferences };
     }
 
     @Override
-    protected ThingTypeXmlResult unmarshalType(
-            HierarchicalStreamReader reader, UnmarshallingContext context,
-            Map<String, String> attributes, NodeIterator nodeIterator)
-            throws ConversionException {
+    protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
+            Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
-                new ThingTypeUID(super.getUID(attributes, context)),
-                readSupportedBridgeTypeUIDs(nodeIterator, context),
-                super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator),
-                getChannelTypeReferenceObjects(nodeIterator),
+        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(new ThingTypeUID(super.getUID(attributes,
+                context)), readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
+                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator),
                 super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;

@@ -11,21 +11,18 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 
-
 /**
  * The {@link ChannelTypeXmlResult} is an intermediate XML conversion result object which
  * contains a {@link ChannelType} object.
  * <p>
- * If a {@link ConfigDescription} object exists, it must be added to the according
- * {@link ConfigDescriptionProvider}. 
- * 
+ * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public class ChannelTypeXmlResult {
 
     private ChannelType channelType;
     private ConfigDescription configDescription;
-
 
     public ChannelTypeXmlResult(ChannelType channelType, ConfigDescription configDescription) {
         this.channelType = channelType;
@@ -42,8 +39,7 @@ public class ChannelTypeXmlResult {
 
     @Override
     public String toString() {
-        return "ChannelTypeXmlResult [channelType=" + channelType
-                + ", configDescription=" + configDescription + "]";
+        return "ChannelTypeXmlResult [channelType=" + channelType + ", configDescription=" + configDescription + "]";
     }
 
 }

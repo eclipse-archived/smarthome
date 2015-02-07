@@ -7,24 +7,23 @@
  */
 package org.eclipse.smarthome.core.transform;
 
-
 /**
  * A TransformationException is thrown when any step of a transformation went
- * wrong. The originating exception should be attached to increase traceability. 
- * 
+ * wrong. The originating exception should be attached to increase traceability.
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public class TransformationException extends Exception {
-	
-	/** generated serial Version UID */
-	private static final long serialVersionUID = -535237375844795145L;
-	
-	public TransformationException(String message) {
-		super(message);
-	}
-	
-	public TransformationException(String message, Throwable cause) {
-		super(message, cause);
-	}
+
+    /** generated serial Version UID */
+    private static final long serialVersionUID = -535237375844795145L;
+
+    public TransformationException(String message) {
+        super(message);
+    }
+
+    public TransformationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

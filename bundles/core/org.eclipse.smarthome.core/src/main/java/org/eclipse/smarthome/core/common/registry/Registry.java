@@ -12,9 +12,9 @@ import java.util.Collection;
 /**
  * The {@link Registry} interface represents a registry for elements of the type
  * E. The concrete subinterfaces are registered as OSGi services.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
- * 
+ *
  * @param <E>
  *            type of the elements in the registry
  */
@@ -22,7 +22,7 @@ public interface Registry<E, K> {
 
     /**
      * Adds a {@link RegistryChangeListener} to the registry.
-     * 
+     *
      * @param listener
      *            registry change listener
      */
@@ -30,14 +30,14 @@ public interface Registry<E, K> {
 
     /**
      * Returns a collection of all elements in the registry.
-     * 
+     *
      * @return collection of all elements in the registry
      */
     Collection<E> getAll();
-    
+
     /**
      * This method retrieves a single element from the registry.
-     * 
+     *
      * @param key
      *            key of the element
      * @return element or null if no element was found
@@ -46,25 +46,25 @@ public interface Registry<E, K> {
 
     /**
      * Removes a {@link RegistryChangeListener} from the registry.
-     * 
+     *
      * @param listener
      *            registry change listener
      */
     void removeRegistryChangeListener(RegistryChangeListener<E> listener);
-    
+
     /**
      * Adds the given element to the according {@link ManagedProvider}.
-     * 
+     *
      * @param element
      *            element to be added (must not be null)
      * @throws IllegalStateException
      *             if no ManagedProvider is available
      */
     public void add(E element);
-    
+
     /**
      * Updates the given element at the according {@link ManagedProvider}.
-     * 
+     *
      * @param element
      *            element to be updated (must not be null)
      * @return returns the old element or null if no element with the same key
@@ -73,10 +73,10 @@ public interface Registry<E, K> {
      *             if no ManagedProvider is available
      */
     public E update(E element);
-    
+
     /**
      * Removes the given element from the according {@link ManagedProvider}.
-     * 
+     *
      * @param key
      *            key of the element (must not be null)
      * @return element that was removed, or null if no element with the given

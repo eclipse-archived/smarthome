@@ -20,19 +20,18 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import com.google.common.collect.Lists;
 
 /**
- * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered
- * {@link ThingTypeProvider}s.
- * 
+ * The {@link ThingTypeRegistry} tracks all {@link ThingType}s provided by registered {@link ThingTypeProvider}s.
+ *
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Added locale support
  */
 public class ThingTypeRegistry {
-	
+
     private List<ThingTypeProvider> thingTypeProviders = new CopyOnWriteArrayList<>();
-	
+
     /**
      * Returns all thing types.
-     * 
+     *
      * @param locale
      *            locale (can be null)
      * @return all thing types
@@ -47,16 +46,16 @@ public class ThingTypeRegistry {
 
     /**
      * Returns all thing types.
-     * 
+     *
      * @return all thing types
      */
-	public List<ThingType> getThingTypes() {
+    public List<ThingType> getThingTypes() {
         return getThingTypes((Locale) null);
     }
-	
+
     /**
      * Returns thing types for a given binding id.
-     * 
+     *
      * @param bindingId
      *            binding id
      * @param locale
@@ -77,7 +76,7 @@ public class ThingTypeRegistry {
 
     /**
      * Returns thing types for a given binding id.
-     * 
+     *
      * @param bindingId
      *            binding id
      * @return thing types for given binding id
@@ -88,7 +87,7 @@ public class ThingTypeRegistry {
 
     /**
      * Returns a thing type for a given thing type UID.
-     * 
+     *
      * @param thingTypeUID
      *            thing type UID
      * @param locale
@@ -105,10 +104,10 @@ public class ThingTypeRegistry {
 
         return null;
     }
-    
+
     /**
      * Returns a thing type for a given thing type UID.
-     * 
+     *
      * @param thingTypeUID
      *            thing type UID
      * @return thing type for given UID or null if no thing type with this UID
@@ -117,11 +116,11 @@ public class ThingTypeRegistry {
     public ThingType getThingType(ThingTypeUID thingTypeUID) {
         return getThingType(thingTypeUID, null);
     }
-    
+
     public ChannelType getChannelType(ChannelUID channelUID) {
         return getChannelType(channelUID, null);
     }
-    
+
     public ChannelType getChannelType(ChannelUID channelUID, Locale locale) {
         ThingType thingType = this.getThingType(channelUID.getThingTypeUID(), locale);
         if (thingType != null) {
@@ -135,7 +134,8 @@ public class ThingTypeRegistry {
                 List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
                 for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
                     if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
-                        for (ChannelDefinition channelDefinition : channelGroupDefinition.getType().getChannelDefinitions()) {
+                        for (ChannelDefinition channelDefinition : channelGroupDefinition.getType()
+                                .getChannelDefinitions()) {
                             if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
                                 return channelDefinition.getType();
                             }

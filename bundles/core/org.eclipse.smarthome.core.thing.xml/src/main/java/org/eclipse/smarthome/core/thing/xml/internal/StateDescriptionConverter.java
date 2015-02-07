@@ -25,10 +25,9 @@ import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
-
 /**
- * The {@link StateDescriptionConverter} is a concrete implementation of the {@code XStream}
- * {@link Converter} interface used to convert a state description within an XML document
+ * The {@link StateDescriptionConverter} is a concrete implementation of the {@code XStream} {@link Converter} interface
+ * used to convert a state description within an XML document
  * into a {@link StateDescription} object.
  * <p>
  * This converter converts {@code state} XML tags.
@@ -39,20 +38,14 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
 
     protected ConverterAttributeMapValidator attributeMapValidator;
 
-
     public StateDescriptionConverter() {
         super(StateDescription.class);
-        
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] {
-                { "min", "false" },
-                { "max", "false" },
-                { "step", "false" },
-                { "pattern", "false" },
-                { "readOnly", "false" }});
+
+        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "min", "false" },
+                { "max", "false" }, { "step", "false" }, { "pattern", "false" }, { "readOnly", "false" } });
     }
 
-    private BigDecimal toBigDecimal(
-            Map<String, String> attributes, String attribute, BigDecimal defaultValue)
+    private BigDecimal toBigDecimal(Map<String, String> attributes, String attribute, BigDecimal defaultValue)
             throws ConversionException {
 
         String attrValueText = attributes.get(attribute);
@@ -79,8 +72,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
         return defaultValue;
     }
 
-    private List<StateOption> toListOfChannelState(NodeList nodeList)
-            throws ConversionException {
+    private List<StateOption> toListOfChannelState(NodeList nodeList) throws ConversionException {
 
         if ("options".equals(nodeList.getNodeName())) {
             List<StateOption> stateOptions = new ArrayList<>();
@@ -88,7 +80,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
             for (Object nodeObject : nodeList.getList()) {
                 stateOptions.add(toChannelStateOption((NodeValue) nodeObject));
             }
-    
+
             return stateOptions;
         }
 
@@ -137,12 +129,7 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
 
         nodeIterator.assertEndOfType();
 
-        StateDescription stateDescription = new StateDescription(
-                minimum,
-                maximum,
-                step,
-                pattern,
-                readOnly,
+        StateDescription stateDescription = new StateDescription(minimum, maximum, step, pattern, readOnly,
                 channelOptions);
 
         return stateDescription;

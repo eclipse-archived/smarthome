@@ -17,29 +17,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * {@link ConfigDescriptionRegistry} provides access to {@link ConfigDescription}s.
- * It tracks {@link ConfigDescriptionProvider} OSGi services to collect all
- * {@link ConfigDescription}s.
- * 
+ * It tracks {@link ConfigDescriptionProvider} OSGi services to collect all {@link ConfigDescription}s.
+ *
  * @see ConfigDescriptionProvider
- * 
+ *
  * @author Dennis Nobel - Initial contribution, added locale support
  * @author Michael Grammling - Initial contribution
  */
 public class ConfigDescriptionRegistry {
 
-    private final List<ConfigDescriptionProvider> configDescriptionProviders =
-            new CopyOnWriteArrayList<>();
+    private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
 
-    protected void addConfigDescriptionProvider(
-            ConfigDescriptionProvider configDescriptionProvider) {
+    protected void addConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
 
         if (configDescriptionProvider != null) {
             configDescriptionProviders.add(configDescriptionProvider);
         }
     }
 
-    protected void removeConfigDescriptionProvider(
-            ConfigDescriptionProvider configDescriptionProvider) {
+    protected void removeConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
 
         if (configDescriptionProvider != null) {
             configDescriptionProviders.remove(configDescriptionProvider);
@@ -48,7 +44,7 @@ public class ConfigDescriptionRegistry {
 
     /**
      * Returns all config descriptions.
-     * 
+     *
      * @param locale
      *            locale
      * @return all config descriptions or an empty collection if no config
@@ -64,7 +60,7 @@ public class ConfigDescriptionRegistry {
 
     /**
      * Returns all config descriptions.
-     * 
+     *
      * @return all config descriptions or an empty collection if no config
      *         description exists
      */
@@ -74,7 +70,7 @@ public class ConfigDescriptionRegistry {
 
     /**
      * Returns a config description for a given URI.
-     * 
+     *
      * @param uri
      *            the URI to which the config description to be returned (must
      *            not be null)
@@ -85,8 +81,7 @@ public class ConfigDescriptionRegistry {
      */
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
-            ConfigDescription configDescription =
-                    configDescriptionProvider.getConfigDescription(uri, locale);
+            ConfigDescription configDescription = configDescriptionProvider.getConfigDescription(uri, locale);
 
             if (configDescription != null) {
                 return configDescription;
@@ -97,7 +92,7 @@ public class ConfigDescriptionRegistry {
 
     /**
      * Returns a config description for a given URI.
-     * 
+     *
      * @param uri
      *            the URI to which the config description to be returned (must
      *            not be null)

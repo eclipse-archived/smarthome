@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.model.thing.test.hue;
 
-
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -25,10 +24,9 @@ import com.google.common.collect.Sets;
  *         ThingType Description
  */
 public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
-    
+
     public static final String BINDING_ID = "hue";
 
-    
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
     public final static ThingTypeUID THING_TYPE_TEST = new ThingTypeUID(BINDING_ID, "TEST");
@@ -37,7 +35,7 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST);
     public final static Set<ThingTypeUID> SUPPORTED_TYPES = Sets.union(SUPPORTED_BRIDGE_TYPES, SUPPORTED_THING_TYPES);
 
- // List all channels
+    // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
@@ -49,10 +47,10 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
-    
+
     @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
-            ThingUID thingUID, ThingUID bridgeUID) {
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
+            ThingUID bridgeUID) {
         if (SUPPORTED_BRIDGE_TYPES.contains(thingTypeUID)) {
             ThingUID hueBridgeUID = getBridgeThingUID(thingTypeUID, thingUID, configuration);
             return super.createThing(thingTypeUID, configuration, hueBridgeUID, null);
@@ -61,8 +59,7 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
             ThingUID hueLightUID = getLightUID(thingTypeUID, thingUID, configuration, bridgeUID);
             return super.createThing(thingTypeUID, configuration, hueLightUID, bridgeUID);
         }
-        throw new IllegalArgumentException("The thing type " + thingTypeUID
-                + " is not supported by the hue binding.");
+        throw new IllegalArgumentException("The thing type " + thingTypeUID + " is not supported by the hue binding.");
     }
 
     @Override
@@ -70,8 +67,7 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
         return SUPPORTED_TYPES.contains(thingTypeUID);
     }
 
-    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration) {
+    private ThingUID getBridgeThingUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
         if (thingUID == null) {
             String serialNumber = (String) configuration.get(SERIAL_NUMBER);
             thingUID = new ThingUID(thingTypeUID, serialNumber);
@@ -79,8 +75,8 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
         return thingUID;
     }
 
-    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration, ThingUID bridgeUID) {
+    private ThingUID getLightUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
+            ThingUID bridgeUID) {
         String lightId = (String) configuration.get(LIGHT_ID);
 
         if (thingUID == null) {
@@ -93,8 +89,7 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     protected ThingHandler createHandler(Thing thing) {
         return null;
     }
-    
-    
+
     @Override
     protected synchronized void removeHandler(ThingHandler thingHandler) {
     }

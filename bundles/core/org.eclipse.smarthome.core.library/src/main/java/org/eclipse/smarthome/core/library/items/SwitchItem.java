@@ -24,51 +24,53 @@ import org.eclipse.smarthome.core.types.UnDefType;
 /**
  * A SwitchItem represents a normal switch that can be ON or OFF.
  * Useful for normal lights, presence detection etc.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class SwitchItem extends GenericItem {
-	
-	private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
-	private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-	static {
-		acceptedDataTypes.add(OnOffType.class);
-		acceptedDataTypes.add(UnDefType.class);
+    private static List<Class<? extends State>> acceptedDataTypes = new ArrayList<Class<? extends State>>();
+    private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
-		acceptedCommandTypes.add(OnOffType.class);
-		acceptedCommandTypes.add(RefreshType.class);
-	}
-	
-	public SwitchItem(String name) {
-		super(CoreItemFactory.SWITCH, name);
-	}
+    static {
+        acceptedDataTypes.add(OnOffType.class);
+        acceptedDataTypes.add(UnDefType.class);
 
-	/* package */ SwitchItem(String type, String name) {
-		super(type, name);
-	}
+        acceptedCommandTypes.add(OnOffType.class);
+        acceptedCommandTypes.add(RefreshType.class);
+    }
 
-	public void send(OnOffType command) {
-		internalSend(command);
-	}
+    public SwitchItem(String name) {
+        super(CoreItemFactory.SWITCH, name);
+    }
 
-	public List<Class<? extends State>> getAcceptedDataTypes() {
-		return Collections.unmodifiableList(acceptedDataTypes);
-	}
+    /* package */SwitchItem(String type, String name) {
+        super(type, name);
+    }
 
-	public List<Class<? extends Command>> getAcceptedCommandTypes() {
-		return Collections.unmodifiableList(acceptedCommandTypes);
-	}
-	
-	@Override
-	public State getStateAs(Class<? extends State> typeClass) {
-		if(typeClass==DecimalType.class) {
-			return state==OnOffType.ON ? new DecimalType(1) : DecimalType.ZERO;
-		} else if(typeClass==PercentType.class) {
-			return state==OnOffType.ON ? PercentType.HUNDRED : PercentType.ZERO;
-		} else {
-			return super.getStateAs(typeClass);
-		}
-	}
+    public void send(OnOffType command) {
+        internalSend(command);
+    }
+
+    @Override
+    public List<Class<? extends State>> getAcceptedDataTypes() {
+        return Collections.unmodifiableList(acceptedDataTypes);
+    }
+
+    @Override
+    public List<Class<? extends Command>> getAcceptedCommandTypes() {
+        return Collections.unmodifiableList(acceptedCommandTypes);
+    }
+
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        if (typeClass == DecimalType.class) {
+            return state == OnOffType.ON ? new DecimalType(1) : DecimalType.ZERO;
+        } else if (typeClass == PercentType.class) {
+            return state == OnOffType.ON ? PercentType.HUNDRED : PercentType.ZERO;
+        } else {
+            return super.getStateAs(typeClass);
+        }
+    }
 }

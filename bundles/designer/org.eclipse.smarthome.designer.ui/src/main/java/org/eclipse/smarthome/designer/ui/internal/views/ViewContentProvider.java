@@ -27,76 +27,82 @@ import org.slf4j.LoggerFactory;
  * existing objects in adapters or simply return
  * objects as-is. These objects may be sensitive
  * to the current input of the view, or ignore
- * it and always show the same content 
+ * it and always show the same content
  *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class ViewContentProvider implements IStructuredContentProvider, 
-									   ITreeContentProvider {
+public class ViewContentProvider implements IStructuredContentProvider, ITreeContentProvider {
 
-	private final Logger logger = LoggerFactory.getLogger(ViewContentProvider.class); 
-	
-	private IFolder configRootFolder;
+    private final Logger logger = LoggerFactory.getLogger(ViewContentProvider.class);
 
-	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		if(newInput instanceof IFolder) {
-			configRootFolder = (IFolder) newInput;
-		}
-	}
-	
-	public void dispose() {
-		configRootFolder = null; 
-	}
-	
-	public Object[] getElements(Object parent) {
-		if (parent instanceof IProject) {
-			try {
-				configRootFolder = ConfigurationFolderProvider.getRootConfigurationFolder();
-				if(configRootFolder!=null) {
-					return getChildren(configRootFolder);
-				} else {
-					return new String[] { "<select a configuration folder>" };
-				}
-			} catch (CoreException e) {
-				logger.error("Cannot initialize configuration project in workspace", e);
-				return new Object[0];
-			}
-		}
-		return getChildren(parent);
-	}
+    private IFolder configRootFolder;
 
-	public Object getParent(Object child) {
-		if(child.equals(configRootFolder)) return null;
-		
-		if(child instanceof IResource) {
-			IResource res = (IResource) child;
-			return res.getParent();
-		}
-		return null;
-	}
+    @Override
+    public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+        if (newInput instanceof IFolder) {
+            configRootFolder = (IFolder) newInput;
+        }
+    }
 
-	public Object[] getChildren(Object parent) {
-		if(parent instanceof IFolder) {
-			IFolder folder = (IFolder) parent;
-			try {
-				IResource[] resources = folder.members();
-				List<IResource> children  = new ArrayList<IResource>(resources.length);
-				for(IResource child : resources) {
-					// filter out hidden files
-					if(!child.getName().startsWith(".")) {
-						children.add(child);
-					}
-				}
-				return children.toArray(new IResource[children.size()]);
-			} catch (CoreException e) {
-				logger.warn("Error getting children for folder '{}'", folder.getName(), e);
-			}
-		}
-		return new Object[0];
-	}
+    @Override
+    public void dispose() {
+        configRootFolder = null;
+    }
 
-	public boolean hasChildren(Object parent) {
-		return getChildren(parent).length > 0;
-	}
+    @Override
+    public Object[] getElements(Object parent) {
+        if (parent instanceof IProject) {
+            try {
+                configRootFolder = ConfigurationFolderProvider.getRootConfigurationFolder();
+                if (configRootFolder != null) {
+                    return getChildren(configRootFolder);
+                } else {
+                    return new String[] { "<select a configuration folder>" };
+                }
+            } catch (CoreException e) {
+                logger.error("Cannot initialize configuration project in workspace", e);
+                return new Object[0];
+            }
+        }
+        return getChildren(parent);
+    }
+
+    @Override
+    public Object getParent(Object child) {
+        if (child.equals(configRootFolder))
+            return null;
+
+        if (child instanceof IResource) {
+            IResource res = (IResource) child;
+            return res.getParent();
+        }
+        return null;
+    }
+
+    @Override
+    public Object[] getChildren(Object parent) {
+        if (parent instanceof IFolder) {
+            IFolder folder = (IFolder) parent;
+            try {
+                IResource[] resources = folder.members();
+                List<IResource> children = new ArrayList<IResource>(resources.length);
+                for (IResource child : resources) {
+                    // filter out hidden files
+                    if (!child.getName().startsWith(".")) {
+                        children.add(child);
+                    }
+                }
+                return children.toArray(new IResource[children.size()]);
+            } catch (CoreException e) {
+                logger.warn("Error getting children for folder '{}'", folder.getName(), e);
+            }
+        }
+        return new Object[0];
+    }
+
+    @Override
+    public boolean hasChildren(Object parent) {
+        return getChildren(parent).length > 0;
+    }
 }

@@ -35,22 +35,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link PersistentInbox} class is a concrete implementation of the
- * {@link Inbox}.
+ * The {@link PersistentInbox} class is a concrete implementation of the {@link Inbox}.
  * <p>
- * This implementation uses the {@link DiscoveryServiceRegistry} to register
- * itself as {@link DiscoveryListener} to receive {@link DiscoveryResult}
- * objects automatically from {@link DiscoveryService}s.
+ * This implementation uses the {@link DiscoveryServiceRegistry} to register itself as {@link DiscoveryListener} to
+ * receive {@link DiscoveryResult} objects automatically from {@link DiscoveryService}s.
  * <p>
- * This implementation does neither handle memory leaks (orphaned listener
- * instances) nor blocked listeners. No performance optimizations have been
- * done (synchronization).
- * 
+ * This implementation does neither handle memory leaks (orphaned listener instances) nor blocked listeners. No
+ * performance optimizations have been done (synchronization).
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added automated removing of entries
  * @author Michael Grammling - Added dynamic configuration updates
  * @author Dennis Nobel - Added persistence support
- * 
+ *
  */
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
 
@@ -68,7 +65,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private DiscoveryServiceRegistry discoveryServiceRegistry;
     private ThingRegistry thingRegistry;
     private ManagedThingProvider managedThingProvider;
-    
+
     private Storage<DiscoveryResult> discoveryResultStorage;
 
     @Override
@@ -78,31 +75,31 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Thing thing = this.thingRegistry.get(thingUID);
 
             if (thing == null) {
-            	DiscoveryResult inboxResult = get(thingUID);
+                DiscoveryResult inboxResult = get(thingUID);
 
                 if (inboxResult == null) {
-                	discoveryResultStorage.put(result.getThingUID().toString(), result);
+                    discoveryResultStorage.put(result.getThingUID().toString(), result);
                     notifyListeners(result, EventType.added);
                     logger.info("Added new thing '{}' to inbox.", thingUID);
                     return true;
                 } else {
-                    if(inboxResult instanceof DiscoveryResultImpl) {
-                    	DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
-                    	resultImpl.synchronize(result);
-                    	discoveryResultStorage.put(result.getThingUID().toString(), resultImpl);
+                    if (inboxResult instanceof DiscoveryResultImpl) {
+                        DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) inboxResult;
+                        resultImpl.synchronize(result);
+                        discoveryResultStorage.put(result.getThingUID().toString(), resultImpl);
                         notifyListeners(resultImpl, EventType.updated);
                         logger.debug("Updated discovery result for '{}'.", thingUID);
                         return true;
                     } else {
-                        logger.warn("Cannot synchronize result with implementation class '{}'.", inboxResult.getClass().getName());
+                        logger.warn("Cannot synchronize result with implementation class '{}'.", inboxResult.getClass()
+                                .getName());
                     }
                 }
             } else {
                 logger.debug("Discovery result with thing '{}' not added as inbox entry."
                         + " It is already present as thing in the ThingRegistry.", thingUID);
 
-                boolean updated = synchronizeConfiguration(
-                        result.getProperties(), thing.getConfiguration());
+                boolean updated = synchronizeConfiguration(result.getProperties(), thing.getConfiguration());
 
                 if (updated) {
                     logger.debug("The configuration for thing '{}' is updated...", thingUID);
@@ -165,7 +162,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     @Override
     public synchronized boolean remove(ThingUID thingUID) throws IllegalStateException {
         if (thingUID != null) {
-        	DiscoveryResult discoveryResult = get(thingUID);
+            DiscoveryResult discoveryResult = get(thingUID);
             if (discoveryResult != null) {
                 this.discoveryResultStorage.remove(thingUID.toString());
                 notifyListeners(discoveryResult, EventType.removed);
@@ -215,25 +212,24 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     @Override
     public void setFlag(ThingUID thingUID, DiscoveryResultFlag flag) {
-    	DiscoveryResult result = get(thingUID);
-    	if(result instanceof DiscoveryResultImpl) {
-    		DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) result;
-    		resultImpl.setFlag((flag == null) ? DiscoveryResultFlag.NEW : flag);
-    		discoveryResultStorage.put(resultImpl.getThingUID().toString(), resultImpl);
-    		notifyListeners(resultImpl, EventType.updated);
-    	} else {
-    		logger.warn("Cannot set flag for result of instance type '{}'", result.getClass().getName());
-    	}
+        DiscoveryResult result = get(thingUID);
+        if (result instanceof DiscoveryResultImpl) {
+            DiscoveryResultImpl resultImpl = (DiscoveryResultImpl) result;
+            resultImpl.setFlag((flag == null) ? DiscoveryResultFlag.NEW : flag);
+            discoveryResultStorage.put(resultImpl.getThingUID().toString(), resultImpl);
+            notifyListeners(resultImpl, EventType.updated);
+        } else {
+            logger.warn("Cannot set flag for result of instance type '{}'", result.getClass().getName());
+        }
     }
-    
+
     /**
      * Returns the {@link DiscoveryResult} in this {@link Inbox} associated with
-     * the specified {@code Thing} ID, or {@code null}, if no
-     * {@link DiscoveryResult} could be found.
-     * 
+     * the specified {@code Thing} ID, or {@code null}, if no {@link DiscoveryResult} could be found.
+     *
      * @param thingId
      *            the Thing ID to which the discovery result should be returned
-     * 
+     *
      * @return the discovery result associated with the specified Thing ID, or
      *         null, if no discovery result could be found
      */
@@ -283,20 +279,19 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         for (InboxListener listener : this.listeners) {
             try {
                 switch (type) {
-                case added:
-                    listener.thingAdded(this, result);
-                    break;
-                case removed:
-                    listener.thingRemoved(this, result);
-                    break;
-                case updated:
-                    listener.thingUpdated(this, result);
-                    break;
+                    case added:
+                        listener.thingAdded(this, result);
+                        break;
+                    case removed:
+                        listener.thingRemoved(this, result);
+                        break;
+                    case updated:
+                        listener.thingUpdated(this, result);
+                        break;
                 }
             } catch (Exception ex) {
-                String errorMessage = String.format(
-                        "Cannot notify the InboxListener '%s' about a Thing %s event!", listener
-                                .getClass().getName(), type.name());
+                String errorMessage = String.format("Cannot notify the InboxListener '%s' about a Thing %s event!",
+                        listener.getClass().getName(), type.name());
 
                 logger.error(errorMessage, ex);
             }
@@ -334,11 +329,12 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     protected void unsetManagedThingProvider(ManagedThingProvider thingProvider) {
         this.managedThingProvider = null;
     }
-    
+
     protected void setStorageService(StorageService storageService) {
-        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(), this.getClass().getClassLoader());
+        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(), this.getClass()
+                .getClassLoader());
     }
-    
+
     protected void unsetStorageService(StorageService storageService) {
         this.discoveryResultStorage = null;
     }

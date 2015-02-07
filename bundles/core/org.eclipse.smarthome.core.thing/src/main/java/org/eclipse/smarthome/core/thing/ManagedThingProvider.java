@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * things at runtime by calling {@link ManagedThingProvider#addThing(Thing)} or
  * {@link ManagedThingProvider#removeThing(Thing)}. An added thing is
  * automatically exposed to the {@link ThingRegistry}.
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
  * @author Dennis Nobel - Integrated Storage
  * @author Michael Grammling - Added dynamic configuration update
@@ -35,7 +35,7 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
     /**
      * Creates a thing based on the given configuration properties, adds it and
      * informs all listeners.
-     * 
+     *
      * @param thingTypeUID
      *            thing type unique id
      * @param thingUID
@@ -53,14 +53,13 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration,
-                        thingUID, bridgeUID);
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
                 add(thing);
                 return thing;
             }
         }
-        logger.warn("Cannot create thing. No binding found that supports creating a thing"
-                + " of type {}.", thingTypeUID);
+        logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
+                thingTypeUID);
         return null;
     }
 

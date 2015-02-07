@@ -27,29 +27,25 @@ import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.converters.ConversionException;
 
-
 /**
  * The {@link ThingTypeXmlProvider} is responsible managing any created {@link ThingType} objects
  * by a {@link ThingDescriptionReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link ThingType} object at the {@link ThingTypeProvider}
- * which is itself registered as service at the <i>OSGi</i> service registry. If a configuration
- * section is found, a {@link ConfigDescription} object is registered at the
- * {@link ConfigDescriptionProvider} which is itself registered as service at the <i>OSGi</i>
- * service registry.
+ * This implementation registers each {@link ThingType} object at the {@link ThingTypeProvider} which is itself
+ * registered as service at the <i>OSGi</i> service registry. If a configuration section is found, a
+ * {@link ConfigDescription} object is registered at the {@link ConfigDescriptionProvider} which is itself registered as
+ * service at the <i>OSGi</i> service registry.
  * <p>
  * The {@link ThingTypeXmlProvider} uses an internal cache consisting of {@link #thingTypeRefs},
- * {@link #channelGroupTypeRefs}, {@link #channelGroupTypes} and {@link #channelTypes}.
- * This cache is used to merge first the {@link ChannelType} definitions with the
- * {@link ChannelGroupTypeXmlResult} objects to create valid {@link ChannelGroupType} objects.
- * After that the {@link ChannelType} and the {@link ChannelGroupType} definitions are used
- * to merge with the {@link ThingTypeXmlResult} objects to create valid {@link ThingType} objects.
- * After the merge process has been finished, the cache is cleared again.
- * The merge process is started when {@link #addingFinished()} is invoked from the according
- * {@link XmlDocumentBundleTracker}. 
- * 
+ * {@link #channelGroupTypeRefs}, {@link #channelGroupTypes} and {@link #channelTypes}. This cache is used to merge
+ * first the {@link ChannelType} definitions with the {@link ChannelGroupTypeXmlResult} objects to create valid
+ * {@link ChannelGroupType} objects. After that the {@link ChannelType} and the {@link ChannelGroupType} definitions are
+ * used to merge with the {@link ThingTypeXmlResult} objects to create valid {@link ThingType} objects. After the merge
+ * process has been finished, the cache is cleared again. The merge process is started when {@link #addingFinished()} is
+ * invoked from the according {@link XmlDocumentBundleTracker}.
+ *
  * @author Michael Grammling - Initial Contribution
- * 
+ *
  * @see ThingTypeXmlProviderFactory
  */
 public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
@@ -66,9 +62,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private Map<String, ChannelGroupType> channelGroupTypes;
     private Map<String, ChannelType> channelTypes;
 
-
-    public ThingTypeXmlProvider(Bundle bundle,
-            XmlConfigDescriptionProvider configDescriptionProvider,
+    public ThingTypeXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider) throws IllegalArgumentException {
 
         if (bundle == null) {
@@ -119,8 +113,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private void addConfigDescription(ConfigDescription configDescription) {
         if (configDescription != null) {
             try {
-                this.configDescriptionProvider.addConfigDescription(
-                        this.bundle, configDescription);
+                this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
             } catch (Exception ex) {
                 this.logger.error("Could not register ConfigDescription!", ex);
             }
@@ -131,8 +124,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     public synchronized void addingFinished() {
         // create channel group types
         for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
-            this.channelGroupTypes.put(type.getUID().toString(),
-                    type.toChannelGroupType(this.channelTypes));
+            this.channelGroupTypes.put(type.getUID().toString(), type.toChannelGroupType(this.channelTypes));
         }
 
         // create thing and bridge types

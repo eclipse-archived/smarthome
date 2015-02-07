@@ -14,25 +14,27 @@ import org.osgi.framework.BundleContext;
  * Extension of the default OSGi bundle activator
  */
 public final class UIActivator implements BundleActivator {
-	
-	static private BundleContext context;
-	
-	/**
-	 * Called whenever the OSGi framework starts our bundle
-	 */
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-	}
 
-	/**
-	 * Called whenever the OSGi framework stops our bundle
-	 */
-	public void stop(BundleContext bc) throws Exception {
-		context = null;
-	}
-	
-	static public BundleContext getContext() {
-		return context;
-	}
+    static private BundleContext context;
+
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+    }
+
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+        context = null;
+    }
+
+    static public BundleContext getContext() {
+        return context;
+    }
 
 }

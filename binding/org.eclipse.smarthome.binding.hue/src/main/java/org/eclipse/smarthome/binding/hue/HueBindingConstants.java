@@ -10,15 +10,15 @@ package org.eclipse.smarthome.binding.hue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 /**
- * The {@link HueBindingConstants} class defines common constants, which are 
+ * The {@link HueBindingConstants} class defines common constants, which are
  * used across the whole binding.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  */
 public class HueBindingConstants {
 
     public static final String BINDING_ID = "hue";
-    
+
     // List all Thing Type UIDs, related to the Hue Binding
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
@@ -43,10 +43,10 @@ public class HueBindingConstants {
 
     // Bridge config properties
     public static final String HOST = "ipAddress";
-	public static final String USER_NAME = "userName";
-	public static final String SERIAL_NUMBER = "serialNumber";
+    public static final String USER_NAME = "userName";
+    public static final String SERIAL_NUMBER = "serialNumber";
 
-	// Light config properties
+    // Light config properties
     public static final String LIGHT_ID = "lightId";
 
 }

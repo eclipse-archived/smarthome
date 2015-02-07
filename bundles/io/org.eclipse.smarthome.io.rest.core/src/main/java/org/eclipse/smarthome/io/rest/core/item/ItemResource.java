@@ -53,13 +53,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>This class acts as a REST resource for items and provides different methods to interact with them,
- * like retrieving lists of items, sending commands to them or checking a single status.</p>
- * 
- * <p>The typical content types are plain text for status values and XML or JSON(P) for more complex data
- * structures</p>
- * 
- * <p>This resource is registered with the Jersey servlet.</p>
+ * <p>
+ * This class acts as a REST resource for items and provides different methods to interact with them, like retrieving
+ * lists of items, sending commands to them or checking a single status.
+ * </p>
+ *
+ * <p>
+ * The typical content types are plain text for status values and XML or JSON(P) for more complex data structures
+ * </p>
+ *
+ * <p>
+ * This resource is registered with the Jersey servlet.
+ * </p>
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
@@ -68,50 +73,51 @@ import org.slf4j.LoggerFactory;
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
 
-	private final Logger logger = LoggerFactory.getLogger(ItemResource.class); 
-	
-	/** The URI path to this resource */
+    private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
+
+    /** The URI path to this resource */
     public static final String PATH_ITEMS = "items";
-    
-	private ItemRegistry itemRegistry;
-	private EventPublisher eventPublisher;
-	private ManagedItemProvider managedItemProvider;
-	private Set<ItemFactory> itemFactories = new HashSet<>();
-	
-	protected void setItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = itemRegistry;
-	}
-	
-	protected void unsetItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = null;
-	}
 
-	protected void setEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
-	
-	protected void unsetEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = null;
-	}
+    private ItemRegistry itemRegistry;
+    private EventPublisher eventPublisher;
+    private ManagedItemProvider managedItemProvider;
+    private Set<ItemFactory> itemFactories = new HashSet<>();
 
-	protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
-		this.managedItemProvider = managedItemProvider;
-	}
-	
-	protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
-		this.managedItemProvider = null;
-	}
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
 
-	protected void addItemFactory(ItemFactory itemFactory) {
-		this.itemFactories.add(itemFactory);
-	}
-	
-	protected void removeItemFactory(ItemFactory itemFactory) {
-		this.itemFactories.remove(itemFactory);
-	}
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
 
-	@Context UriInfo uriInfo;
-	
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
+
+    protected void setManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = managedItemProvider;
+    }
+
+    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = null;
+    }
+
+    protected void addItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.add(itemFactory);
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.remove(itemFactory);
+    }
+
+    @Context
+    UriInfo uriInfo;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getItems(@QueryParam("type") String type, @QueryParam("tags") String tags,
@@ -122,87 +128,96 @@ public class ItemResource implements RESTResource {
         return Response.ok(responseObject).build();
     }
 
-    @GET @Path("/{itemname: [a-zA-Z_0-9]*}/state") 
-	@Produces( { MediaType.TEXT_PLAIN })
-    public Response getPlainItemState(
-		@PathParam("itemname") String itemname) {
-    	Item item = getItem(itemname);
-    	if(item!=null) {
-			logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
-			throw new WebApplicationException(Response.ok(item.getState().toString()).build());
-    	} else {
-    		logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-    		throw new WebApplicationException(404);
-    	}
+    @GET
+    @Path("/{itemname: [a-zA-Z_0-9]*}/state")
+    @Produces({ MediaType.TEXT_PLAIN })
+    public Response getPlainItemState(@PathParam("itemname") String itemname) {
+        Item item = getItem(itemname);
+        if (item != null) {
+            logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
+            throw new WebApplicationException(Response.ok(item.getState().toString()).build());
+        } else {
+            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
     }
 
-    @GET @Path("/{itemname: [a-zA-Z_0-9]*}")
-    @Produces( { MediaType.WILDCARD })
-    public Response  getItemData(
-    		@PathParam("itemname") String itemname) {
-		logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
+    @GET
+    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Produces({ MediaType.WILDCARD })
+    public Response getItemData(@PathParam("itemname") String itemname) {
+        logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-    	final Object responseObject = getItemDataBean(itemname);
-    	throw new WebApplicationException(Response.ok(responseObject).build());  
+        final Object responseObject = getItemDataBean(itemname);
+        throw new WebApplicationException(Response.ok(responseObject).build());
     }
-    
-    @PUT @Path("/{itemname: [a-zA-Z_0-9]*}/state")
-	@Consumes(MediaType.TEXT_PLAIN)	
-	public Response putItemState(@PathParam("itemname") String itemname, String value) {
-    	Item item = getItem(itemname);
-    	if(item!=null) {
-    		State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
-    		if(state!=null) {
-    			logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-    			eventPublisher.postUpdate(itemname, state);
-    			return Response.ok().build();
-    		} else {
-    			logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(), value);
-    			return Response.status(Status.BAD_REQUEST).build();
-    		}
-    	} else {
-    		logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-    		throw new WebApplicationException(404);
-    	}
-	}
 
-	@Context UriInfo localUriInfo;
-    @POST @Path("/{itemname: [a-zA-Z_0-9]*}")
-	@Consumes(MediaType.TEXT_PLAIN)	
-	public Response postItemCommand(@PathParam("itemname") String itemname, String value) {
-    	Item item = getItem(itemname);
-    	Command command = null;
-    	if(item!=null) {
-    		if("toggle".equalsIgnoreCase(value) && 
-    				(item instanceof SwitchItem || 
-    				 item instanceof RollershutterItem)) {
-    			if(OnOffType.ON.equals(item.getStateAs(OnOffType.class))) command = OnOffType.OFF;
-    			if(OnOffType.OFF.equals(item.getStateAs(OnOffType.class))) command = OnOffType.ON;
-    			if(UpDownType.UP.equals(item.getStateAs(UpDownType.class))) command = UpDownType.DOWN;
-    			if(UpDownType.DOWN.equals(item.getStateAs(UpDownType.class))) command = UpDownType.UP;
-    		} else {
-    			command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), value);
-    		}
-    		if(command!=null) {
-    			logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
-    			eventPublisher.postCommand(itemname, command);
-    			return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
-    		} else {
-    			logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(), value);
-    			return Response.status(Status.BAD_REQUEST).build();
-    		}
-    	} else {
-    		logger.info("Received HTTP POST request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-    		throw new WebApplicationException(404);
-    	}
-	}
-    
-    @PUT @Path("/{itemname: [a-zA-Z_0-9]*}")
-	@Consumes(MediaType.TEXT_PLAIN)	
-	public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
+    @PUT
+    @Path("/{itemname: [a-zA-Z_0-9]*}/state")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response putItemState(@PathParam("itemname") String itemname, String value) {
+        Item item = getItem(itemname);
+        if (item != null) {
+            State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
+            if (state != null) {
+                logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
+                eventPublisher.postUpdate(itemname, state);
+                return Response.ok().build();
+            } else {
+                logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
+                        value);
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+        } else {
+            logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+    }
+
+    @Context
+    UriInfo localUriInfo;
+
+    @POST
+    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response postItemCommand(@PathParam("itemname") String itemname, String value) {
+        Item item = getItem(itemname);
+        Command command = null;
+        if (item != null) {
+            if ("toggle".equalsIgnoreCase(value) && (item instanceof SwitchItem || item instanceof RollershutterItem)) {
+                if (OnOffType.ON.equals(item.getStateAs(OnOffType.class)))
+                    command = OnOffType.OFF;
+                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class)))
+                    command = OnOffType.ON;
+                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class)))
+                    command = UpDownType.DOWN;
+                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class)))
+                    command = UpDownType.UP;
+            } else {
+                command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), value);
+            }
+            if (command != null) {
+                logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
+                eventPublisher.postCommand(itemname, command);
+                return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
+            } else {
+                logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
+                        value);
+                return Response.status(Status.BAD_REQUEST).build();
+            }
+        } else {
+            logger.info("Received HTTP POST request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+    }
+
+    @PUT
+    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
 
         GenericItem newItem = null;
-        
+
         if (itemType != null && itemType.equals("Group")) {
             newItem = new GroupItem(itemname);
         } else {
@@ -212,7 +227,7 @@ public class ItemResource implements RESTResource {
                     break;
             }
         }
-        
+
         if (newItem == null) {
             logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
                     itemType);
@@ -223,7 +238,7 @@ public class ItemResource implements RESTResource {
 
         if (existingItem == null) {
             managedItemProvider.add(newItem);
-        } else if(managedItemProvider.get(itemname) != null) {
+        } else if (managedItemProvider.get(itemname) != null) {
             managedItemProvider.update(newItem);
         } else {
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
@@ -231,8 +246,8 @@ public class ItemResource implements RESTResource {
         }
 
         return Response.ok().build();
-	}
-    
+    }
+
     @PUT
     @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
     public Response addMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
@@ -242,60 +257,62 @@ public class ItemResource implements RESTResource {
             if (!(item instanceof GroupItem)) {
                 return Response.status(Status.NOT_FOUND).build();
             }
- 
+
             GroupItem groupItem = (GroupItem) item;
 
             Item memberItem = itemRegistry.getItem(memberItemName);
-            
+
             if (!(memberItem instanceof GenericItem)) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-            
-            if(managedItemProvider.get(memberItemName) == null) {
+
+            if (managedItemProvider.get(memberItemName) == null) {
                 return Response.status(Status.METHOD_NOT_ALLOWED).build();
             }
-            
+
             GenericItem genericMemberItem = (GenericItem) memberItem;
             genericMemberItem.addGroupName(groupItem.getName());
             managedItemProvider.update(genericMemberItem);
-            
+
             return Response.ok().build();
         } catch (ItemNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
     }
-    
-    @DELETE @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
-    public Response removeMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
+
+    @DELETE
+    @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
+    public Response removeMember(@PathParam("itemName") String itemName,
+            @PathParam("memberItemName") String memberItemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
 
             if (!(item instanceof GroupItem)) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-            
+
             GroupItem groupItem = (GroupItem) item;
 
             Item memberItem = itemRegistry.getItem(memberItemName);
-            
+
             if (!(memberItem instanceof GenericItem)) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-            
-            if(managedItemProvider.get(memberItemName) == null) {
+
+            if (managedItemProvider.get(memberItemName) == null) {
                 return Response.status(Status.METHOD_NOT_ALLOWED).build();
             }
-            
+
             GenericItem genericMemberItem = (GenericItem) memberItem;
             genericMemberItem.removeGroupName(groupItem.getName());
             managedItemProvider.update(genericMemberItem);
-            
+
             return Response.ok().build();
         } catch (ItemNotFoundException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
     }
-    
+
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     public Response removeItem(@PathParam("itemname") String itemname) {
@@ -318,8 +335,8 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP PUT request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-        
-        if(managedItemProvider.get(itemname) == null) {
+
+        if (managedItemProvider.get(itemname) == null) {
             return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
@@ -328,7 +345,7 @@ public class ItemResource implements RESTResource {
 
         return Response.ok().build();
     }
-    
+
     @DELETE
     @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
     public Response removeTag(@PathParam("itemname") String itemname, @PathParam("tag") String tag) {
@@ -339,8 +356,8 @@ public class ItemResource implements RESTResource {
             logger.info("Received HTTP DELETE request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return Response.status(Status.NOT_FOUND).build();
         }
-        
-        if(managedItemProvider.get(itemname) == null) {
+
+        if (managedItemProvider.get(itemname) == null) {
             return Response.status(Status.METHOD_NOT_ALLOWED).build();
         }
 
@@ -349,32 +366,31 @@ public class ItemResource implements RESTResource {
 
         return Response.ok().build();
     }
-    
+
     private Item getItem(String itemname) {
-    	try {
-			Item item = itemRegistry.getItem(itemname);
-			return item;
-		} catch (ItemNotFoundException ignored) {
-		}
+        try {
+            Item item = itemRegistry.getItem(itemname);
+            return item;
+        } catch (ItemNotFoundException ignored) {
+        }
         return null;
     }
 
-
     private List<ItemBean> getItemBeans(String type, String tags, boolean recursive) {
         List<ItemBean> beans = new LinkedList<ItemBean>();
-        Collection<Item> items; 
+        Collection<Item> items;
         if (tags == null) {
             if (type == null) {
-                items = itemRegistry.getItems(); 
+                items = itemRegistry.getItems();
             } else {
-                items = itemRegistry.getItemsOfType(type); 
+                items = itemRegistry.getItemsOfType(type);
             }
         } else {
-            String[] tagList = tags.split(","); 
+            String[] tagList = tags.split(",");
             if (type == null) {
-                items = itemRegistry.getItemsByTag(tagList); 
+                items = itemRegistry.getItemsByTag(tagList);
             } else {
-                items = itemRegistry.getItemsByTagAndType(type, tagList); 
+                items = itemRegistry.getItemsByTagAndType(type, tagList);
             }
         }
         if (items != null) {
@@ -385,13 +401,13 @@ public class ItemResource implements RESTResource {
         return beans;
     }
 
-	private ItemBean getItemDataBean(String itemname) {
-		Item item = getItem(itemname);
-		if(item!=null) {
-			return BeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri().toASCIIString());
-		} else {
-			logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
-			throw new WebApplicationException(404);
-		}
-	}
+    private ItemBean getItemDataBean(String itemname) {
+        Item item = getItem(itemname);
+        if (item != null) {
+            return BeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri().toASCIIString());
+        } else {
+            logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
+            throw new WebApplicationException(404);
+        }
+    }
 }

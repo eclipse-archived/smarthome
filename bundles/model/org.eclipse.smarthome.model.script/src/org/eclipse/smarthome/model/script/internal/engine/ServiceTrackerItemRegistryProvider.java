@@ -18,14 +18,15 @@ import com.google.inject.Singleton;
  * without going through OSGi declarative services.
  * Though it is very handy, this should be rather seen as a workaround - I am not
  * yet clear on how best to combine guice injection and OSGi DS.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 @Singleton
 public class ServiceTrackerItemRegistryProvider implements IItemRegistryProvider {
-	public ItemRegistry get() {
-		ItemRegistry itemRegistry = ScriptActivator.itemRegistryTracker.getService();
-		return itemRegistry;
-	}
+    @Override
+    public ItemRegistry get() {
+        ItemRegistry itemRegistry = ScriptActivator.itemRegistryTracker.getService();
+        return itemRegistry;
+    }
 }

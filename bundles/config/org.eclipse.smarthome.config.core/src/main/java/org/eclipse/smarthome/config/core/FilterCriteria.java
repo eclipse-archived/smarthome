@@ -11,9 +11,9 @@ package org.eclipse.smarthome.config.core;
  * The {@link FilterCriteria} specifies a filter for dynamic selection list
  * providers of a {@link ConfigDescriptionParameter}.
  * <p>
- * The {@link FilterCriteria} and its name is related to the context of the
- * containing {@link ConfigDescriptionParameter}.
- * 
+ * The {@link FilterCriteria} and its name is related to the context of the containing
+ * {@link ConfigDescriptionParameter}.
+ *
  * @author Alex Tugarev - Initial Contribution
  *
  */
@@ -37,8 +37,7 @@ public class FilterCriteria {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + " [name=\"" + name + "\", value=\"" + value
-                + "\"]";
+        return this.getClass().getSimpleName() + " [name=\"" + name + "\", value=\"" + value + "\"]";
     }
 
 }

@@ -16,9 +16,9 @@ import org.eclipse.smarthome.io.rest.sse.SseResource;
 /**
  * Listener responsible for broadcasting internal item update/command events to
  * all clients subscribed to them.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class OSGiEventListener extends AbstractEventSubscriber {
 

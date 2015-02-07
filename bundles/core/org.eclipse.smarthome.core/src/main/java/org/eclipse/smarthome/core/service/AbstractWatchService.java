@@ -26,117 +26,113 @@ import org.slf4j.LoggerFactory;
  * See the WatchService <a href=
  * "http://docs.oracle.com/javase/7/docs/api/java/nio/file/WatchService.html"
  * >java docs</a> for more details
- * 
+ *
  * @author Fabio Marini
- * 
+ *
  */
 public abstract class AbstractWatchService {
 
-	/**
-	 * Default logger for ESH Watch Services
-	 */
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * Default logger for ESH Watch Services
+     */
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	/**
-	 * The WatchService
-	 */
-	protected WatchService watchService;
+    /**
+     * The WatchService
+     */
+    protected WatchService watchService;
 
-	/**
-	 * The queue reader
-	 */
-	protected AbstractWatchQueueReader watchQueueReader;
+    /**
+     * The queue reader
+     */
+    protected AbstractWatchQueueReader watchQueueReader;
 
-	/**
-	 * Method to call on service activation
-	 */
-	public void activate() {
-		initializeWatchService();
-	}
+    /**
+     * Method to call on service activation
+     */
+    public void activate() {
+        initializeWatchService();
+    }
 
-	/**
-	 * Method to call on service deactivation
-	 */
-	public void deactivate() {
-		stopWatchService();
-	}
+    /**
+     * Method to call on service deactivation
+     */
+    public void deactivate() {
+        stopWatchService();
+    }
 
-	protected void initializeWatchService() {
-		if (watchService != null) {
-			try {
-				watchService.close();
-			} catch (IOException e) {
-				logger.warn("Cannot deactivate folder watcher", e);
-			}
-		}
+    protected void initializeWatchService() {
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (IOException e) {
+                logger.warn("Cannot deactivate folder watcher", e);
+            }
+        }
 
-		String pathToWatch = getSourcePath();
-		if (StringUtils.isNotBlank(pathToWatch)) {
-			Path toWatch = Paths.get(pathToWatch);
-			try {
-				if (watchSubDirectories()) {
-					watchService = FileSystems.getDefault().newWatchService();
+        String pathToWatch = getSourcePath();
+        if (StringUtils.isNotBlank(pathToWatch)) {
+            Path toWatch = Paths.get(pathToWatch);
+            try {
+                if (watchSubDirectories()) {
+                    watchService = FileSystems.getDefault().newWatchService();
 
-					Files.walkFileTree(toWatch, new SimpleFileVisitor<Path>() {
-						@Override
-						public FileVisitResult preVisitDirectory(Path subDir,
-								BasicFileAttributes attrs) throws IOException {
-							registerDirectory(subDir);
-							return FileVisitResult.CONTINUE;
-						}
-					});
-				} else {
-					watchService = toWatch.getFileSystem().newWatchService();
-					registerDirectory(toWatch);
-				}
+                    Files.walkFileTree(toWatch, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attrs)
+                                throws IOException {
+                            registerDirectory(subDir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                } else {
+                    watchService = toWatch.getFileSystem().newWatchService();
+                    registerDirectory(toWatch);
+                }
 
-				AbstractWatchQueueReader reader = buildWatchQueueReader(
-						watchService, toWatch);
+                AbstractWatchQueueReader reader = buildWatchQueueReader(watchService, toWatch);
 
-				Thread qr = new Thread(reader, "Dir Watcher");
-				qr.start();
-			} catch (IOException e) {
-				logger.error(
-						"Cannot activate folder watcher for folder '{}': {}",
-						toWatch, e.getMessage());
-			}
-		}
-	}
+                Thread qr = new Thread(reader, "Dir Watcher");
+                qr.start();
+            } catch (IOException e) {
+                logger.error("Cannot activate folder watcher for folder '{}': {}", toWatch, e.getMessage());
+            }
+        }
+    }
 
-	protected void stopWatchService() {
-		try {
-			watchService.close();
-		} catch (IOException e) {
-			logger.warn("Cannot deactivate folder watcher", e);
-		}
+    protected void stopWatchService() {
+        try {
+            watchService.close();
+        } catch (IOException e) {
+            logger.warn("Cannot deactivate folder watcher", e);
+        }
 
-		watchService = null;
-	}
+        watchService = null;
+    }
 
-	/**
-	 * 
-	 * @param watchService
-	 * @param toWatch
-	 * @return
-	 */
-	protected abstract AbstractWatchQueueReader buildWatchQueueReader(
-			WatchService watchService, Path toWatch);
+    /**
+     * 
+     * @param watchService
+     * @param toWatch
+     * @return
+     */
+    protected abstract AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch);
 
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract String getSourcePath();
+    /**
+     * 
+     * @return
+     */
+    protected abstract String getSourcePath();
 
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract boolean watchSubDirectories();
+    /**
+     * 
+     * @return
+     */
+    protected abstract boolean watchSubDirectories();
 
-	/**
-	 * @param subDir
-	 * @throws IOException
-	 */
-	protected abstract void registerDirectory(Path subDir) throws IOException;
+    /**
+     * @param subDir
+     * @throws IOException
+     */
+    protected abstract void registerDirectory(Path subDir) throws IOException;
 }

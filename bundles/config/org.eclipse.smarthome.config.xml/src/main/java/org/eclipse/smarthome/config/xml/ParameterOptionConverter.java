@@ -14,8 +14,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * The {@link ParameterOptionConverter} creates a {@link ParameterOption}
- * instance from a {@code option} XML node.
+ * The {@link ParameterOptionConverter} creates a {@link ParameterOption} instance from a {@code option} XML node.
  *
  * @author Alex Tugarev - Initial Contribution
  */

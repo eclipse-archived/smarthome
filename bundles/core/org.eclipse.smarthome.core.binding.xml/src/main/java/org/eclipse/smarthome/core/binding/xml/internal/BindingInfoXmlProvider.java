@@ -16,21 +16,18 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
- 
 /**
  * The {@link BindingInfoXmlProvider} is responsible managing any created
  * objects by a {@link BindingInfoReader} for a certain bundle.
  * <p>
- * This implementation registers each {@link BindingInfo} object at the
- * {@link XmlBindingInfoProvider} which is itself registered as
- * {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
+ * This implementation registers each {@link BindingInfo} object at the {@link XmlBindingInfoProvider} which is itself
+ * registered as {@link BindingInfoProvider} service at the <i>OSGi</i> service registry.
  * <p>
- * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult}
- * object, it is added to the {@link XmlConfigDescriptionProvider} which is itself
- * registered as <i>OSGi</i> service at the service registry.
- * 
+ * If there is a {@link ConfigDescription} object within the {@link BindingInfoXmlResult} object, it is added to the
+ * {@link XmlConfigDescriptionProvider} which is itself registered as <i>OSGi</i> service at the service registry.
+ *
  * @author Michael Grammling - Initial Contribution
- * 
+ *
  * @see BindingInfoXmlProviderFactory
  */
 public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXmlResult> {
@@ -42,11 +39,8 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
     private XmlBindingInfoProvider bindingInfoProvider;
     private XmlConfigDescriptionProvider configDescriptionProvider;
 
-
-    public BindingInfoXmlProvider(Bundle bundle,
-            XmlBindingInfoProvider bindingInfoProvider,
-            XmlConfigDescriptionProvider configDescriptionProvider)
-            throws IllegalArgumentException {
+    public BindingInfoXmlProvider(Bundle bundle, XmlBindingInfoProvider bindingInfoProvider,
+            XmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
 
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
@@ -73,8 +67,7 @@ public class BindingInfoXmlProvider implements XmlDocumentProvider<BindingInfoXm
 
             if (configDescription != null) {
                 try {
-                    this.configDescriptionProvider.addConfigDescription(
-                            this.bundle, configDescription);
+                    this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
                 } catch (Exception ex) {
                     this.logger.error("Could not register ConfigDescription!", ex);
                 }

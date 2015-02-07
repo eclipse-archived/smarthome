@@ -19,11 +19,12 @@ import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider;
  */
 @SuppressWarnings("restriction")
 public class RulesUiModule extends org.eclipse.smarthome.model.rule.ui.AbstractRulesUiModule {
-	public RulesUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    public RulesUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
 
-	public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
+    @Override
+    public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
         return ActionEObjectHoverProvider.class;
     }
 

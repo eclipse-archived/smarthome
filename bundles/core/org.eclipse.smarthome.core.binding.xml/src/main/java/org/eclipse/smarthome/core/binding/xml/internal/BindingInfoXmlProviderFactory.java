@@ -12,25 +12,20 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.osgi.framework.Bundle;
 
-
 /**
- * The {@link BindingInfoXmlProviderFactory} is responsible to create
- * {@link BindingInfoXmlProvider} instances for a certain module.
+ * The {@link BindingInfoXmlProviderFactory} is responsible to create {@link BindingInfoXmlProvider} instances for a
+ * certain module.
  * The factory is <i>not</i> responsible to clean-up any created providers.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
-public class BindingInfoXmlProviderFactory
-        implements XmlDocumentProviderFactory<BindingInfoXmlResult> {
+public class BindingInfoXmlProviderFactory implements XmlDocumentProviderFactory<BindingInfoXmlResult> {
 
     private XmlBindingInfoProvider bindingInfoProvider;
     private XmlConfigDescriptionProvider configDescriptionProvider;
 
-
-    public BindingInfoXmlProviderFactory(
-            XmlBindingInfoProvider bindingInfoProvider,
-            XmlConfigDescriptionProvider configDescriptionProvider)
-            throws IllegalArgumentException {
+    public BindingInfoXmlProviderFactory(XmlBindingInfoProvider bindingInfoProvider,
+            XmlConfigDescriptionProvider configDescriptionProvider) throws IllegalArgumentException {
 
         if (bindingInfoProvider == null) {
             throw new IllegalArgumentException("The XmlBindingInfoProvider must not be null!");
@@ -46,8 +41,7 @@ public class BindingInfoXmlProviderFactory
 
     @Override
     public XmlDocumentProvider<BindingInfoXmlResult> createDocumentProvider(Bundle bundle) {
-        return new BindingInfoXmlProvider(
-                bundle, this.bindingInfoProvider, this.configDescriptionProvider);
+        return new BindingInfoXmlProvider(bundle, this.bindingInfoProvider, this.configDescriptionProvider);
     }
 
 }

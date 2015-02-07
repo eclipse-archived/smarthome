@@ -25,23 +25,21 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 /**
- * The {@link EventPublisherImpl} class is the main implementation of the {@link EventPublisher}
- * service interface.
+ * The {@link EventPublisherImpl} class is the main implementation of the {@link EventPublisher} service interface.
  * <p>
- * This implementation uses the <i>OSGi Event Admin</i> service as event bus implementation
- * to broadcast <i>Eclipse SmartHome</i> events.
+ * This implementation uses the <i>OSGi Event Admin</i> service as event bus implementation to broadcast <i>Eclipse
+ * SmartHome</i> events.
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Michael Grammling - Javadoc and exception handling extended, Checkstyle compliance,
- *     thread-safety
+ *         thread-safety
  * @author Michael Grammling - doPrivileged calls added, so that permissions to the internal
- *     event bus are no longer needed (permissions should be added at some other place
- *     in the future)
+ *         event bus are no longer needed (permissions should be added at some other place
+ *         in the future)
  */
 public class EventPublisherImpl implements EventPublisher {
 
     private EventAdmin eventAdmin;
-
 
     public void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
@@ -54,6 +52,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void sendCommand(final String itemName, final Command command, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
@@ -84,7 +83,8 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
-    public void postCommand(final String itemName, final Command command, final String source) 
+    @Override
+    public void postCommand(final String itemName, final Command command, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
         ItemUtil.assertValidItemName(itemName);
@@ -114,6 +114,7 @@ public class EventPublisherImpl implements EventPublisher {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void postUpdate(final String itemName, final State newState, final String source)
             throws IllegalArgumentException, IllegalStateException {
 
@@ -149,33 +150,32 @@ public class EventPublisherImpl implements EventPublisher {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("command", command);
-        if (source != null) properties.put("source", source);
-        return new Event(createTopic(EventType.COMMAND, itemName) , properties);
+        if (source != null)
+            properties.put("source", source);
+        return new Event(createTopic(EventType.COMMAND, itemName), properties);
     }
 
     private Event createUpdateEvent(String itemName, State newState, String source) {
         Dictionary<String, Object> properties = new Hashtable<String, Object>(2);
         properties.put("item", itemName);
         properties.put("state", newState);
-        if (source != null) properties.put("source", source);
+        if (source != null)
+            properties.put("source", source);
         return new Event(createTopic(EventType.UPDATE, itemName), properties);
     }
 
     @Override
-    public void sendCommand(String itemName, Command command)
-            throws IllegalArgumentException, IllegalStateException {
+    public void sendCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
         sendCommand(itemName, command, null);
     }
 
     @Override
-    public void postCommand(String itemName, Command command)
-            throws IllegalArgumentException, IllegalStateException {
+    public void postCommand(String itemName, Command command) throws IllegalArgumentException, IllegalStateException {
         postCommand(itemName, command, null);
     }
 
     @Override
-    public void postUpdate(String itemName, State newState)
-            throws IllegalArgumentException, IllegalStateException {
+    public void postUpdate(String itemName, State newState) throws IllegalArgumentException, IllegalStateException {
         postUpdate(itemName, newState, null);
     }
 

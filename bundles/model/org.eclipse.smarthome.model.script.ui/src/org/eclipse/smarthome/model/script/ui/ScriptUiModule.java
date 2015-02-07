@@ -19,11 +19,12 @@ import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider;
  */
 @SuppressWarnings("restriction")
 public class ScriptUiModule extends org.eclipse.smarthome.model.script.ui.AbstractScriptUiModule {
-	public ScriptUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    public ScriptUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
 
-	public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
+    @Override
+    public Class<? extends IEObjectHoverProvider> bindIEObjectHoverProvider() {
         return ActionEObjectHoverProvider.class;
     }
 }

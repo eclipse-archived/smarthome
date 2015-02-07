@@ -16,7 +16,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 
 /**
  * {@link ChannelBuilder} is responsible for creating {@link Channel}s.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended about default tags
  */
@@ -35,7 +35,7 @@ public class ChannelBuilder {
 
     /**
      * Creates a channel builder for the given channel UID and item type.
-     * 
+     *
      * @param channelUID
      *            channel UID
      * @param acceptedItemType
@@ -48,7 +48,7 @@ public class ChannelBuilder {
 
     /**
      * Appends a configuration to the channel to build.
-     * 
+     *
      * @param configuration
      *            configuration
      * @return channel builder
@@ -57,10 +57,10 @@ public class ChannelBuilder {
         this.configuration = configuration;
         return this;
     }
-    
+
     /**
      * Appends default tags to the channel to build.
-     * 
+     *
      * @param defaultTags
      *            default tags
      * @return channel builder
@@ -69,10 +69,10 @@ public class ChannelBuilder {
         this.defaultTags = defaultTags;
         return this;
     }
-    
+
     /**
      * Builds and returns the channel.
-     * 
+     *
      * @return channel
      */
     public Channel build() {

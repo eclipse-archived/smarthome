@@ -7,12 +7,14 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.HOST;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
@@ -23,54 +25,51 @@ import org.jupnp.model.meta.DeviceDetails;
 import org.jupnp.model.meta.ModelDetails;
 import org.jupnp.model.meta.RemoteDevice;
 
-
 /**
  * The {@link HueBridgeDiscoveryParticipant} is responsible for discovering new and
  * removed hue bridges. It uses the central {@link UpnpDiscoveryService}.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
- * 
+ *
  */
 public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 
-	@Override
-	public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
-		return Collections.singleton(THING_TYPE_BRIDGE);
-	}
+    @Override
+    public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
+        return Collections.singleton(THING_TYPE_BRIDGE);
+    }
 
-	@Override
-	public DiscoveryResult createResult(RemoteDevice device) {
-		ThingUID uid = getThingUID(device);
-		if(uid!=null) {
-	        Map<String, Object> properties = new HashMap<>(2);
-	        properties.put(HOST, device.getDetails().getBaseURL().getHost());
-	        properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
+    @Override
+    public DiscoveryResult createResult(RemoteDevice device) {
+        ThingUID uid = getThingUID(device);
+        if (uid != null) {
+            Map<String, Object> properties = new HashMap<>(2);
+            properties.put(HOST, device.getDetails().getBaseURL().getHost());
+            properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
 
-	        DiscoveryResult result = DiscoveryResultBuilder.create(uid)
-					.withProperties(properties)
-					.withLabel(device.getDetails().getFriendlyName())
-					.build();
-	        return result;
-		} else {
-			return null;
-		}
-	}
+            DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
+                    .withLabel(device.getDetails().getFriendlyName()).build();
+            return result;
+        } else {
+            return null;
+        }
+    }
 
-	@Override
-	public ThingUID getThingUID(RemoteDevice device) {
-		DeviceDetails details = device.getDetails();
-		if(details != null) {
-			ModelDetails modelDetails = details.getModelDetails();
-			if(modelDetails != null) {
-				String modelName = modelDetails.getModelName();
-				if(modelName != null) {
-					if(modelName.startsWith("Philips hue bridge")) {
-						return new ThingUID(THING_TYPE_BRIDGE, details.getSerialNumber());
-					}
-				}
-			}
-		}
-		return null;
-	}
+    @Override
+    public ThingUID getThingUID(RemoteDevice device) {
+        DeviceDetails details = device.getDetails();
+        if (details != null) {
+            ModelDetails modelDetails = details.getModelDetails();
+            if (modelDetails != null) {
+                String modelName = modelDetails.getModelName();
+                if (modelName != null) {
+                    if (modelName.startsWith("Philips hue bridge")) {
+                        return new ThingUID(THING_TYPE_BRIDGE, details.getSerialNumber());
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
 }

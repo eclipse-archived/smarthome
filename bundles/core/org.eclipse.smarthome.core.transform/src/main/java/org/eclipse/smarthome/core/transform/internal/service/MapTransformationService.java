@@ -36,111 +36,113 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The implementation of {@link TransformationService} which simply maps strings to other strings
  * </p>
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  */
 public class MapTransformationService implements TransformationService {
 
-	private final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
+    private final Logger logger = LoggerFactory.getLogger(MapTransformationService.class);
 
-	protected WatchService watchService = null;
-	
-	protected final Map<String, Properties> cachedProperties = new ConcurrentHashMap<>();
-	
-	protected void deactivate() {
-		cachedProperties.clear();
-		if(watchService != null) {
-			try {
-				watchService.close();
-			} catch (IOException e) {
-				logger.debug("Cannot cancel watch service for folder '{}'", getSourcePath());
-			}
-			watchService = null;
-		}
-	}
-	
-	/**
-	 * <p>
-	 * Transforms the input <code>source</code> by mapping it to another string. It expects the mappings to be read from a file which
-	 * is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e. simple lines with "key=value" pairs.
-	 * To organize the various transformations one might use subfolders.
-	 * </p>
-	 * 
-	 * @param filename
-	 *            the name of the file which contains the key value pairs for the mapping. The name may contain subfoldernames
-	 *            as well
-	 * @param source
-	 *            the input to transform
-	 * 
-	 * @{inheritDoc}
-	 * 
-	 */
-	public String transform(String filename, String source) throws TransformationException {
+    protected WatchService watchService = null;
 
-		if (filename == null || source == null) {
-			throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
-		}
+    protected final Map<String, Properties> cachedProperties = new ConcurrentHashMap<>();
 
-		if (watchService == null) {
-			try {
-				initializeWatchService();
-			} catch (IOException e) {
-				// we cannot watch the folder, so let's at least clear the cache
-				cachedProperties.clear();
-			}
-		} else {
-			processFolderEvents();
-		}
-		Properties properties = cachedProperties.get(filename);
-		if (properties == null) {
-			String path = getSourcePath() + File.separator + filename;
-			try(Reader reader = new FileReader(path)) {
-				properties = new Properties();
-				properties.load(reader);
-				cachedProperties.put(filename, properties);
-			} catch (IOException e) {
-				String message = "opening file '" + filename + "' throws exception";
-				logger.error(message, e);
-				throw new TransformationException(message, e);
-			}
-		}		
-		String target = properties.getProperty(source);
-		if(target!=null) {
-			logger.debug("transformation resulted in '{}'", target);
-			return target;
-		} else {
-			logger.warn("Could not find a mapping for '{}' in the file '{}'.", source, filename);
-			return "";
-		}
-	}
+    protected void deactivate() {
+        cachedProperties.clear();
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (IOException e) {
+                logger.debug("Cannot cancel watch service for folder '{}'", getSourcePath());
+            }
+            watchService = null;
+        }
+    }
 
-	private void processFolderEvents() {
-		WatchKey key = watchService.poll();
-		if (key != null) {
-			for(WatchEvent<?> e : key.pollEvents()) {
-				if (e.kind() == OVERFLOW) {
-					continue;
-				}
+    /**
+     * <p>
+     * Transforms the input <code>source</code> by mapping it to another string. It expects the mappings to be read from
+     * a file which is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e.
+     * simple lines with "key=value" pairs. To organize the various transformations one might use subfolders.
+     * </p>
+     * 
+     * @param filename
+     *            the name of the file which contains the key value pairs for the mapping. The name may contain
+     *            subfoldernames
+     *            as well
+     * @param source
+     *            the input to transform
+     * 
+     * @{inheritDoc
+     * 
+     */
+    @Override
+    public String transform(String filename, String source) throws TransformationException {
 
-				// Context for directory entry event is the file name of entry
-				@SuppressWarnings("unchecked")
-				WatchEvent<Path> ev = (WatchEvent<Path>) e;
-				Path path = ev.context();
-				logger.debug("Refreshing transformation file '{}'", path);
-				cachedProperties.remove(path.getFileName().toString());
-			}
-			key.reset();
-		}
-	}
+        if (filename == null || source == null) {
+            throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
+        }
 
-	private void initializeWatchService() throws IOException {
-		watchService = FileSystems.getDefault().newWatchService();
-		Path transformFilePath = Paths.get(getSourcePath()); 
-		transformFilePath.register(watchService, ENTRY_DELETE, ENTRY_MODIFY);
-	}
+        if (watchService == null) {
+            try {
+                initializeWatchService();
+            } catch (IOException e) {
+                // we cannot watch the folder, so let's at least clear the cache
+                cachedProperties.clear();
+            }
+        } else {
+            processFolderEvents();
+        }
+        Properties properties = cachedProperties.get(filename);
+        if (properties == null) {
+            String path = getSourcePath() + File.separator + filename;
+            try (Reader reader = new FileReader(path)) {
+                properties = new Properties();
+                properties.load(reader);
+                cachedProperties.put(filename, properties);
+            } catch (IOException e) {
+                String message = "opening file '" + filename + "' throws exception";
+                logger.error(message, e);
+                throw new TransformationException(message, e);
+            }
+        }
+        String target = properties.getProperty(source);
+        if (target != null) {
+            logger.debug("transformation resulted in '{}'", target);
+            return target;
+        } else {
+            logger.warn("Could not find a mapping for '{}' in the file '{}'.", source, filename);
+            return "";
+        }
+    }
 
-	protected String getSourcePath() {
-		return ConfigConstants.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME;
-	}
+    private void processFolderEvents() {
+        WatchKey key = watchService.poll();
+        if (key != null) {
+            for (WatchEvent<?> e : key.pollEvents()) {
+                if (e.kind() == OVERFLOW) {
+                    continue;
+                }
+
+                // Context for directory entry event is the file name of entry
+                @SuppressWarnings("unchecked")
+                WatchEvent<Path> ev = (WatchEvent<Path>) e;
+                Path path = ev.context();
+                logger.debug("Refreshing transformation file '{}'", path);
+                cachedProperties.remove(path.getFileName().toString());
+            }
+            key.reset();
+        }
+    }
+
+    private void initializeWatchService() throws IOException {
+        watchService = FileSystems.getDefault().newWatchService();
+        Path transformFilePath = Paths.get(getSourcePath());
+        transformFilePath.register(watchService, ENTRY_DELETE, ENTRY_MODIFY);
+    }
+
+    protected String getSourcePath() {
+        return ConfigConstants.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME;
+    }
 
 }

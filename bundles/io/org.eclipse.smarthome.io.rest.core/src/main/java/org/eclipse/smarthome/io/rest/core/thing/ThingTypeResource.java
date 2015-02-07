@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
  * JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  */
@@ -110,22 +110,15 @@ public class ThingTypeResource implements RESTResource {
                         configDescription.getParameters().size());
                 for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
                     ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
-                            configDescriptionParameter.getName(), 
-                            configDescriptionParameter.getType(),
-                            configDescriptionParameter.getMinimum(),
-                            configDescriptionParameter.getMaximum(),
-                            configDescriptionParameter.getStepSize(),
-                            configDescriptionParameter.getPattern(),
-                            configDescriptionParameter.isRequired(),
-                            configDescriptionParameter.isReadOnly(),
-                            configDescriptionParameter.isMultiple(),
-                            configDescriptionParameter.getContext(), 
+                            configDescriptionParameter.getName(), configDescriptionParameter.getType(),
+                            configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
+                            configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
+                            configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
+                            configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
                             String.valueOf(configDescriptionParameter.getDefault()),
-                            configDescriptionParameter.getLabel(), 
-                            configDescriptionParameter.getDescription(),
+                            configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription(),
                             createBeansForOptions(configDescriptionParameter.getOptions()),
-                            createBeansForCriteria(configDescriptionParameter.getFilterCriteria())
-                            );
+                            createBeansForCriteria(configDescriptionParameter.getFilterCriteria()));
                     configDescriptionParameterBeans.add(configDescriptionParameterBean);
                 }
                 return configDescriptionParameterBeans;

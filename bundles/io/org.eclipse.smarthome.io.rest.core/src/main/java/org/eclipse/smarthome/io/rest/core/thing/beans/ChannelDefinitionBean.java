@@ -13,7 +13,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
  * This is a java bean that is used to serialize channel definitions.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class ChannelDefinitionBean {
@@ -30,7 +30,8 @@ public class ChannelDefinitionBean {
 
     }
 
-    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category, StateDescription stateDescription, boolean advanced) {
+    public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category,
+            StateDescription stateDescription, boolean advanced) {
         this.description = description;
         this.label = label;
         this.id = id;
@@ -59,11 +60,11 @@ public class ChannelDefinitionBean {
     public String getCategory() {
         return category;
     }
-    
+
     public StateDescription getStateDescription() {
         return stateDescription;
     }
-    
+
     public boolean isAdvanced() {
         return advanced;
     }

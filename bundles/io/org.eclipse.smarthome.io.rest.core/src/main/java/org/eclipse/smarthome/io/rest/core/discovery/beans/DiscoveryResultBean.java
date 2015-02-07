@@ -13,7 +13,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 
 /**
  * This is a java bean that is used to serialize discovery results to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

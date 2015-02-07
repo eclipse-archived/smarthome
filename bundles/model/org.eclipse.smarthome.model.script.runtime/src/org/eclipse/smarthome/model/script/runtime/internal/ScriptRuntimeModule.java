@@ -15,16 +15,17 @@ import org.eclipse.xtext.service.AbstractGenericModule;
 
 /**
  * The {@link ScriptRuntimeModule} provides Eclipse SmatrtHome runtime environment specific Guice bindings.
+ * 
  * @author Oliver Libutzki - Initial contribution
  *
  */
 public class ScriptRuntimeModule extends AbstractGenericModule {
 
-	public Class<? extends ScriptEngine> bindScriptEngine() {
-		return ScriptEngineImpl.class;
-	}
-	
-	public Class<? extends Script> bindScript() {
-		return ScriptImpl.class;
-	}
+    public Class<? extends ScriptEngine> bindScriptEngine() {
+        return ScriptEngineImpl.class;
+    }
+
+    public Class<? extends Script> bindScript() {
+        return ScriptImpl.class;
+    }
 }

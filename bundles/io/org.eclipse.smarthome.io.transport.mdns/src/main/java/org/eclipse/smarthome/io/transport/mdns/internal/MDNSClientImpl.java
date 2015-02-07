@@ -17,29 +17,29 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class starts the JmDNS and implements interface to register and unregister services.
- * 
+ *
  * @author Victor Belov
  *
  */
 public class MDNSClientImpl implements MDNSClient {
-	private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
-	
-	private JmDNS jmdns;
-	
-	@Override
-	public JmDNS getClient() {
-		return jmdns;
-	}
+    private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
-	public void activate() {
-		try {
-			jmdns = JmDNS.create();
-			logger.debug("mDNS service has been started");
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
-	}
-	
-	public void deactivate() {
-	}
+    private JmDNS jmdns;
+
+    @Override
+    public JmDNS getClient() {
+        return jmdns;
+    }
+
+    public void activate() {
+        try {
+            jmdns = JmDNS.create();
+            logger.debug("mDNS service has been started");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public void deactivate() {
+    }
 }

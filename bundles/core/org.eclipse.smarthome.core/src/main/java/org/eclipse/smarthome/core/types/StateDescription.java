@@ -12,11 +12,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
  * Describes restrictions of an item state and gives information how to interpret
  * it.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class StateDescription {
@@ -30,7 +29,7 @@ public class StateDescription {
 
     /**
      * Creates a state description object.
-     * 
+     *
      * @param minimum minimum value of the state
      * @param maximum maximum value of the state
      * @param step step size
@@ -38,8 +37,8 @@ public class StateDescription {
      * @param readOnly if the state can be changed by the system
      * @param options predefined list of options
      */
-    public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern,
-            boolean readOnly, List<StateOption> options) {
+    public StateDescription(BigDecimal minimum, BigDecimal maximum, BigDecimal step, String pattern, boolean readOnly,
+            List<StateOption> options) {
         this.minimum = minimum;
         this.maximum = maximum;
         this.step = step;
@@ -54,16 +53,16 @@ public class StateDescription {
 
     /**
      * Returns the minimum value of an item state.
-     * 
+     *
      * @return minimum value of an item state
      */
     public BigDecimal getMinimum() {
         return minimum;
     }
-    
+
     /**
      * Returns the maximum value of an item state.
-     * 
+     *
      * @return maximum value of an item state
      */
     public BigDecimal getMaximum() {
@@ -72,7 +71,7 @@ public class StateDescription {
 
     /**
      * Returns the step size.
-     * 
+     *
      * @return step size
      */
     public BigDecimal getStep() {
@@ -81,7 +80,7 @@ public class StateDescription {
 
     /**
      * Returns the pattern to render the state to a string.
-     * 
+     *
      * @return pattern
      */
     public String getPattern() {
@@ -91,7 +90,7 @@ public class StateDescription {
     /**
      * Returns true, if the state can only be read but not written. Typically a
      * sensor can be read only.
-     * 
+     *
      * @return true, if the state can only be read but not written
      */
     public boolean isReadOnly() {
@@ -100,7 +99,7 @@ public class StateDescription {
 
     /**
      * Returns a list of predefined states with their label.
-     * 
+     *
      * @return ist of predefined states with their label
      */
     public List<StateOption> getOptions() {
@@ -109,10 +108,8 @@ public class StateDescription {
 
     @Override
     public String toString() {
-        return "StateDescription [minimum=" + minimum + ", maximum=" + maximum
-                + ", step=" + step + ", pattern=" + pattern + ", readOnly="
-                + readOnly + ", channelStateOptions=" + options
-                + "]";
+        return "StateDescription [minimum=" + minimum + ", maximum=" + maximum + ", step=" + step + ", pattern="
+                + pattern + ", readOnly=" + readOnly + ", channelStateOptions=" + options + "]";
     }
 
 }

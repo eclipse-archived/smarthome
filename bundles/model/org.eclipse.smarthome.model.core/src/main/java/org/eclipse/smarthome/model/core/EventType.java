@@ -9,5 +9,5 @@ package org.eclipse.smarthome.model.core;
 
 /** These are the event types that can occur as model repository changes */
 public enum EventType {
-	ADDED, REMOVED, MODIFIED
+    ADDED, REMOVED, MODIFIED
 }

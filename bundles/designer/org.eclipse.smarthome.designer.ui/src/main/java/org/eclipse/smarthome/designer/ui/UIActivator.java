@@ -17,60 +17,64 @@ import org.osgi.util.tracker.ServiceTracker;
  * The activator class controls the plug-in life cycle
  */
 public class UIActivator extends AbstractUIPlugin {
-	
-	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.smarthome.designer.ui"; //$NON-NLS-1$
 
-	// The shared instance
-	private static UIActivator plugin;
+    // The plug-in ID
+    public static final String PLUGIN_ID = "org.eclipse.smarthome.designer.ui"; //$NON-NLS-1$
 
-	public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
+    // The shared instance
+    private static UIActivator plugin;
 
-	/**
-	 * The constructor
-	 */
-	public UIActivator() {
-	}
+    public static ServiceTracker<ItemRegistry, ItemRegistry> itemRegistryTracker;
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
-	 */
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(context, ItemRegistry.class, null);
-		itemRegistryTracker.open();
-		plugin = this;
-	}
+    /**
+     * The constructor
+     */
+    public UIActivator() {
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
-	 */
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		itemRegistryTracker.close();
-		itemRegistryTracker = null;
-		super.stop(context);
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        itemRegistryTracker = new ServiceTracker<ItemRegistry, ItemRegistry>(context, ItemRegistry.class, null);
+        itemRegistryTracker.open();
+        plugin = this;
+    }
 
-	/**
-	 * Returns the shared instance
-	 *
-	 * @return the shared instance
-	 */
-	public static UIActivator getDefault() {
-		return plugin;
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+     */
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        itemRegistryTracker.close();
+        itemRegistryTracker = null;
+        super.stop(context);
+    }
 
-	/**
-	 * Returns an image descriptor for the image file at the given
-	 * plug-in relative path
-	 *
-	 * @param path the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
+    /**
+     * Returns the shared instance
+     *
+     * @return the shared instance
+     */
+    public static UIActivator getDefault() {
+        return plugin;
+    }
+
+    /**
+     * Returns an image descriptor for the image file at the given
+     * plug-in relative path
+     *
+     * @param path the path
+     * @return the image descriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String path) {
+        return imageDescriptorFromPlugin(PLUGIN_ID, path);
+    }
 }

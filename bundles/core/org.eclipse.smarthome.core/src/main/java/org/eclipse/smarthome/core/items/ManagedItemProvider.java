@@ -22,12 +22,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * {@link ManagedItemProvider} is an OSGi service, that allows to add or remove
- * items at runtime by calling {@link ManagedItemProvider#addItem(Item)} or
- * {@link ManagedItemProvider#removeItem(Item)}. An added item is automatically
+ * items at runtime by calling {@link ManagedItemProvider#addItem(Item)} or {@link ManagedItemProvider#removeItem(Item)}
+ * . An added item is automatically
  * exposed to the {@link ItemRegistry}. Persistence of added Items is handled by
- * a {@link StorageService}. Items are being restored using the given
- * {@link ItemFactory}s.
- * 
+ * a {@link StorageService}. Items are being restored using the given {@link ItemFactory}s.
+ *
  * @author Dennis Nobel - Initial contribution, added support for GroupItems
  * @author Thomas Eichstaedt-Engelen
  * @author Kai Kreuzer - improved return values
@@ -42,11 +41,11 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         public List<String> groupNames;
 
         public String itemType;
-        
+
         public Set<String> tags;
-        
+
         public String label;
-        
+
         public String category;
 
     }
@@ -59,7 +58,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     /**
      * Removes an item and it´s member if recursive flag is set to true.
-     * 
+     *
      * @param itemName
      *            item name to remove
      * @param recursive
@@ -75,7 +74,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         }
         this.remove(item.getName());
     }
-    
+
     private List<String> getMemberNamesRecursively(GroupItem groupItem, Collection<Item> allItems) {
         List<String> memberNames = new ArrayList<>();
         for (Item item : allItems) {
@@ -88,7 +87,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         }
         return memberNames;
     }
-    
+
     private GenericItem createItem(String itemType, String itemName) {
 
         for (ItemFactory factory : this.itemFactories) {
@@ -106,11 +105,10 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     /**
      * Translates the Items class simple name into a type name understandable by
      * the {@link ItemFactory}s.
-     * 
+     *
      * @param item
      *            the Item to translate the name
-     * @return the translated ItemTypeName understandable by the
-     *         {@link ItemFactory}s
+     * @return the translated ItemTypeName understandable by the {@link ItemFactory}s
      */
     private String toItemFactoryName(Item item) {
         return item.getType();
@@ -153,7 +151,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
         } else {
             item = createItem(persistedItem.itemType, itemName);
         }
-        
+
         if (item != null) {
             List<String> groupNames = persistedItem.groupNames;
             if (groupNames != null) {
@@ -163,19 +161,18 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             }
 
             Set<String> tags = persistedItem.tags;
-            if (tags != null) {                
+            if (tags != null) {
                 for (String tag : tags) {
                     item.addTag(tag);
                 }
             }
-            
+
             item.setLabel(persistedItem.label);
             item.setCategory(persistedItem.category);
         }
 
         if (item == null) {
-            logger.debug(
-                    "Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
+            logger.debug("Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
                     itemName, persistedItem.itemType);
         }
 
@@ -199,12 +196,12 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             String itemType = toItemFactoryName(item);
             persistedItem.itemType = itemType;
         }
-        
+
         persistedItem.label = item.getLabel();
         persistedItem.groupNames = new ArrayList<>(item.getGroupNames());
         persistedItem.tags = new HashSet<>(item.getTags());
         persistedItem.category = item.getCategory();
-        
+
         return persistedItem;
     }
 

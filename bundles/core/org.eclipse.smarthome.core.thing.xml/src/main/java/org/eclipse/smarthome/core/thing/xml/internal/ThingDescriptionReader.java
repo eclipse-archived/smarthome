@@ -26,15 +26,13 @@ import org.eclipse.smarthome.core.types.StateDescription;
 
 import com.thoughtworks.xstream.XStream;
 
-
 /**
- * The {@link ThingDescriptionReader} reads XML documents, which contain the
- * {@code thing-description} XML tag, and converts them to {@link ThingDescriptionList}
- * objects consisting of {@link ThingTypeXmlResult}, {@link BridgeTypeXmlResult} and
- * {@link ChannelTypeXmlResult} objects.
+ * The {@link ThingDescriptionReader} reads XML documents, which contain the {@code thing-description} XML tag, and
+ * converts them to {@link ThingDescriptionList} objects consisting of {@link ThingTypeXmlResult},
+ * {@link BridgeTypeXmlResult} and {@link ChannelTypeXmlResult} objects.
  * <p>
- * This reader uses {@code XStream} and {@code StAX} to parse and convert the XML document.  
- * 
+ * This reader uses {@code XStream} and {@code StAX} to parse and convert the XML document.
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended by options and filter criteria
  */
@@ -90,7 +88,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("config-description-ref", NodeAttributes.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
         xstream.alias("filter", List.class);
-        xstream.alias("criteria", FilterCriteria.class);        
+        xstream.alias("criteria", FilterCriteria.class);
     }
 
 }

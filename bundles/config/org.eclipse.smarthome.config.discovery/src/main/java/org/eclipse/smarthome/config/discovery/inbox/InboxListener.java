@@ -9,12 +9,11 @@ package org.eclipse.smarthome.config.discovery.inbox;
 
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 
-
 /**
  * The {@link InboxListener} interface for receiving {@link Inbox} events.
  * <p>
- * A class that is interested in processing {@link Inbox} events fired synchronously
- * by the {@link Inbox} service has to implement this interface.
+ * A class that is interested in processing {@link Inbox} events fired synchronously by the {@link Inbox} service has to
+ * implement this interface.
  *
  * @author Michael Grammling - Initial Contribution.
  *

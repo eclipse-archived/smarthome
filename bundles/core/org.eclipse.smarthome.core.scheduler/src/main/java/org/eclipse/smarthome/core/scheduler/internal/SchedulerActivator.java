@@ -14,54 +14,54 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Extension of the default OSGi bundle activator
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public final class SchedulerActivator implements BundleActivator {
 
-	private final Logger logger = LoggerFactory.getLogger(SchedulerActivator.class); 
-	
-	private static BundleContext context;
-	
-	/**
-	 * Called whenever the OSGi framework starts our bundle
-	 */
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-		logger.debug("Scheduler has been started.");
-		
+    private final Logger logger = LoggerFactory.getLogger(SchedulerActivator.class);
+
+    private static BundleContext context;
+
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+        logger.debug("Scheduler has been started.");
+
         try {
             StdSchedulerFactory.getDefaultScheduler().start();
-        }
-        catch (SchedulerException se) {
+        } catch (SchedulerException se) {
             logger.error("initializing scheduler throws exception", se);
         }
-	}
+    }
 
-	/**
-	 * Called whenever the OSGi framework stops our bundle
-	 */
-	public void stop(BundleContext bc) throws Exception {
-		context = null;
-		logger.debug("Scheduler has been stopped.");
-		
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+        context = null;
+        logger.debug("Scheduler has been stopped.");
+
         try {
-        	StdSchedulerFactory.getDefaultScheduler().shutdown();
-		}
-        catch (SchedulerException se) {
-			logger.error("shutting down scheduler throws exception", se);
-		}
-		
-	}
-	
-	/**
-	 * Returns the bundle context of this bundle
-	 * @return the bundle context
-	 */
-	public static BundleContext getContext() {
-		return context;
-	}
+            StdSchedulerFactory.getDefaultScheduler().shutdown();
+        } catch (SchedulerException se) {
+            logger.error("shutting down scheduler throws exception", se);
+        }
+
+    }
+
+    /**
+     * Returns the bundle context of this bundle
+     * 
+     * @return the bundle context
+     */
+    public static BundleContext getContext() {
+        return context;
+    }
 }

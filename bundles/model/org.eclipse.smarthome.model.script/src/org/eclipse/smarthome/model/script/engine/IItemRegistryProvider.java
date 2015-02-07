@@ -14,6 +14,6 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Provider;
 
 @ImplementedBy(ServiceTrackerItemRegistryProvider.class)
-public interface IItemRegistryProvider extends Provider<ItemRegistry>{
+public interface IItemRegistryProvider extends Provider<ItemRegistry> {
 
 }

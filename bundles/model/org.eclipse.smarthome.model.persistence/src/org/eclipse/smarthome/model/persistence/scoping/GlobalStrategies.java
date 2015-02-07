@@ -13,27 +13,30 @@ import org.eclipse.smarthome.model.persistence.persistence.impl.StrategyImpl;
 /**
  * This class defines a few persistence strategies that are globally available to
  * all persistence models.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class GlobalStrategies {
 
-	static final public Strategy UPDATE = new StrategyImpl() {
-		public String getName() {
-			return "everyUpdate";
-		};
-	};
+    static final public Strategy UPDATE = new StrategyImpl() {
+        @Override
+        public String getName() {
+            return "everyUpdate";
+        };
+    };
 
-	static final public Strategy CHANGE = new StrategyImpl() {
-		public String getName() {
-			return "everyChange";
-		};
-	};
+    static final public Strategy CHANGE = new StrategyImpl() {
+        @Override
+        public String getName() {
+            return "everyChange";
+        };
+    };
 
-	static final public Strategy RESTORE = new StrategyImpl() {
-		public String getName() {
-			return "restoreOnStartup";
-		};
-	};
+    static final public Strategy RESTORE = new StrategyImpl() {
+        @Override
+        public String getName() {
+            return "restoreOnStartup";
+        };
+    };
 }

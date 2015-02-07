@@ -7,22 +7,21 @@
  */
 package org.eclipse.smarthome.io.rest.sitemap.internal.beans;
 
-
 /**
  * This is a java bean that is used with JAXB to serialize sitemaps to JSON.
- *  
+ * 
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
  *
  */
 public class SitemapBean {
 
-	public String name;
-	public String icon;
-	public String label;
-	
-	public String link;
+    public String name;
+    public String icon;
+    public String label;
 
-	public PageBean homepage;
+    public String link;
+
+    public PageBean homepage;
 
 }

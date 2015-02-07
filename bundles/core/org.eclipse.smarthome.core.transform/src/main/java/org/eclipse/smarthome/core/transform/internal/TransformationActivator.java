@@ -12,44 +12,46 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Extension of the default OSGi bundle activator
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  * @author Kai Kreuzer - Initial contribution and API
- * 
+ *
  */
 public final class TransformationActivator implements BundleActivator {
 
-	public static final String TRANSFORM_FOLDER_NAME = "transform";
-	
-	private final Logger logger = LoggerFactory.getLogger(TransformationActivator.class);
-	
-	private static BundleContext context;
-	
-	/**
-	 * Called whenever the OSGi framework starts our bundle
-	 */
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-		logger.debug("Transformation Service has been started.");
-	}
+    public static final String TRANSFORM_FOLDER_NAME = "transform";
 
-	/**
-	 * Called whenever the OSGi framework stops our bundle
-	 */
-	public void stop(BundleContext bc) throws Exception {
-		context = null;
-		logger.debug("Transformation Service has been stopped.");
-	}
-	
-	/**
-	 * Returns the bundle context of this bundle
-	 * @return the bundle context
-	 */
-	public static BundleContext getContext() {
-		return context;
-	}	
-	
+    private final Logger logger = LoggerFactory.getLogger(TransformationActivator.class);
+
+    private static BundleContext context;
+
+    /**
+     * Called whenever the OSGi framework starts our bundle
+     */
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+        logger.debug("Transformation Service has been started.");
+    }
+
+    /**
+     * Called whenever the OSGi framework stops our bundle
+     */
+    @Override
+    public void stop(BundleContext bc) throws Exception {
+        context = null;
+        logger.debug("Transformation Service has been stopped.");
+    }
+
+    /**
+     * Returns the bundle context of this bundle
+     * 
+     * @return the bundle context
+     */
+    public static BundleContext getContext() {
+        return context;
+    }
+
 }

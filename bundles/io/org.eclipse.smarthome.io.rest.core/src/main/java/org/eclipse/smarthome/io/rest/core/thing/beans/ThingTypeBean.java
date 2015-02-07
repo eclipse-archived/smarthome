@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize things to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */
@@ -29,7 +29,8 @@ public class ThingTypeBean {
     }
 
     public ThingTypeBean(String UID, String label, String description,
-            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels, List<ChannelGroupDefinitionBean> channelGroups) {
+            List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels,
+            List<ChannelGroupDefinitionBean> channelGroups) {
         this.UID = UID;
         this.label = label;
         this.description = description;

@@ -19,20 +19,20 @@ import org.osgi.framework.Bundle;
  * The {@link ConfigDescriptionI18nUtil} uses the {@link I18nProvider} to
  * resolve the localized texts. It automatically infers the key if the default
  * text is not a constant.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended for pattern and option label
  */
 public class ConfigDescriptionI18nUtil {
 
     private I18nProvider i18nProvider;
-    
+
     private static final Pattern delimiter = Pattern.compile("[:=\\s]");
-    
+
     public ConfigDescriptionI18nUtil(I18nProvider i18nProvider) {
         this.i18nProvider = i18nProvider;
     }
-    
+
     public String getParameterPattern(Bundle bundle, URI configDescriptionURI, String parameterName,
             String defaultPattern, Locale locale) {
         String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern) : inferKey(
@@ -53,15 +53,15 @@ public class ConfigDescriptionI18nUtil {
                 configDescriptionURI, parameterName, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
-    
-    public String getParameterOptionLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String optionValue, String defaultOptionLabel,
-            Locale locale) {
+
+    public String getParameterOptionLabel(Bundle bundle, URI configDescriptionURI, String parameterName,
+            String optionValue, String defaultOptionLabel, Locale locale) {
         if (!isValidPropertyKey(optionValue))
             return defaultOptionLabel;
-        
+
         String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel) : inferKey(
                 configDescriptionURI, parameterName, "option." + optionValue);
-        
+
         return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
     }
 
@@ -69,12 +69,12 @@ public class ConfigDescriptionI18nUtil {
         String uri = configDescriptionURI.getSchemeSpecificPart().replace(":", ".");
         return configDescriptionURI.getScheme() + ".config." + uri + "." + parameterName + "." + lastSegment;
     }
-    
+
     private boolean isValidPropertyKey(String key) {
         if (key != null) {
             return !delimiter.matcher(key).find();
         }
         return false;
     }
-    
+
 }

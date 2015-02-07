@@ -17,7 +17,7 @@ import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 
 /**
  * This is a java bean that is used with JAX-RS to serialize things to JSON.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

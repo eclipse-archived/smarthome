@@ -14,28 +14,26 @@ import org.eclipse.smarthome.core.transform.internal.service.XsltTransformationS
 import org.junit.Before;
 import org.junit.Test;
 
-
 /**
  * @author Thomas.Eichstaedt-Engelen
  */
 public class XsltTransformationServiceTest extends AbstractTransformationServiceTest {
 
-	private XsltTransformationService processor;
-	
-	@Before
-	public void init() {
-		processor = new XsltTransformationService();
-	}
-	
-	@Test
-	public void testTransformByXSLT() throws TransformationException {
+    private XsltTransformationService processor;
 
-		// method under test
-		String transformedResponse = 
-			processor.transform("http/google_weather.xsl", source);
-		
-		// Asserts
-		Assert.assertEquals("8", transformedResponse);
-	}
+    @Before
+    public void init() {
+        processor = new XsltTransformationService();
+    }
+
+    @Test
+    public void testTransformByXSLT() throws TransformationException {
+
+        // method under test
+        String transformedResponse = processor.transform("http/google_weather.xsl", source);
+
+        // Asserts
+        Assert.assertEquals("8", transformedResponse);
+    }
 
 }

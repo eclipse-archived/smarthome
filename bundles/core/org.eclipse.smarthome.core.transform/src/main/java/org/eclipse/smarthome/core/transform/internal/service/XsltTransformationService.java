@@ -28,65 +28,67 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by XSLT.
  * </p>
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public class XsltTransformationService implements TransformationService {
 
-	static final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
-	
-	/**
-	 * <p>
-	 * Transforms the input <code>source</code> by XSLT. It expects the transformation rule to be read from a file which
-	 * is stored under the 'configurations/transform' folder. To organize the various transformations one should use
-	 * subfolders.
-	 * </p>
-	 * 
-	 * @param filename
-	 *            the name of the file which contains the XSLT transformation rule. The name may contain subfoldernames
-	 *            as well
-	 * @param source
-	 *            the input to transform
-	 * 
-	 * @{inheritDoc}
-	 * 
-	 */
-	public String transform(String filename, String source) throws TransformationException {
+    static final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
 
-		if (filename == null || source == null) {
-			throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
-		}
+    /**
+     * <p>
+     * Transforms the input <code>source</code> by XSLT. It expects the transformation rule to be read from a file which
+     * is stored under the 'configurations/transform' folder. To organize the various transformations one should use
+     * subfolders.
+     * </p>
+     * 
+     * @param filename
+     *            the name of the file which contains the XSLT transformation rule. The name may contain subfoldernames
+     *            as well
+     * @param source
+     *            the input to transform
+     * 
+     * @{inheritDoc
+     * 
+     */
+    @Override
+    public String transform(String filename, String source) throws TransformationException {
 
-		Source xsl = null;
+        if (filename == null || source == null) {
+            throw new TransformationException("the given parameters 'filename' and 'source' must not be null");
+        }
 
-		try {
-			String path = ConfigConstants.getConfigFolder() + File.separator + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
-			xsl = new StreamSource(new File(path));
-		} catch (Exception e) {
-			String message = "opening file '" + filename + "' throws exception";
+        Source xsl = null;
 
-			logger.error(message, e);
-			throw new TransformationException(message, e);
-		}
+        try {
+            String path = ConfigConstants.getConfigFolder() + File.separator
+                    + TransformationActivator.TRANSFORM_FOLDER_NAME + File.separator + filename;
+            xsl = new StreamSource(new File(path));
+        } catch (Exception e) {
+            String message = "opening file '" + filename + "' throws exception";
 
-		logger.debug("about to transform '{}' by the function '{}'", source, xsl);
+            logger.error(message, e);
+            throw new TransformationException(message, e);
+        }
 
-		StringReader xml = new StringReader(source);
-		StringWriter out = new StringWriter();
+        logger.debug("about to transform '{}' by the function '{}'", source, xsl);
 
-		Transformer transformer;
+        StringReader xml = new StringReader(source);
+        StringWriter out = new StringWriter();
 
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer(xsl);
-			transformer.transform(new StreamSource(xml), new StreamResult(out));
-		} catch (Exception e) {
-			logger.error("transformation throws exception", e);
-			throw new TransformationException("transformation throws exception", e);
-		}
+        Transformer transformer;
 
-		logger.debug("transformation resulted in '{}'", out.toString());
+        try {
+            transformer = TransformerFactory.newInstance().newTransformer(xsl);
+            transformer.transform(new StreamSource(xml), new StreamResult(out));
+        } catch (Exception e) {
+            logger.error("transformation throws exception", e);
+            throw new TransformationException("transformation throws exception", e);
+        }
 
-		return out.toString();
-	}
+        logger.debug("transformation resulted in '{}'", out.toString());
+
+        return out.toString();
+    }
 
 }

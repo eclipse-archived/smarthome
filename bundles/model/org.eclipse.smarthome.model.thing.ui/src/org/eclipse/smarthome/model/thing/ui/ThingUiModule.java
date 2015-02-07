@@ -16,7 +16,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  * Use this class to register components to be used within the IDE.
  */
 public class ThingUiModule extends org.eclipse.smarthome.model.thing.ui.AbstractThingUiModule {
-	public ThingUiModule(AbstractUIPlugin plugin) {
-		super(plugin);
-	}
+    public ThingUiModule(AbstractUIPlugin plugin) {
+        super(plugin);
+    }
 }

@@ -29,78 +29,81 @@ import org.osgi.service.prefs.Preferences;
 import org.slf4j.LoggerFactory;
 
 public class ConfigurationFolderProvider {
-	
-	private static IFolder folder; 
-	
-	private static IProjectCreator projectCreator = new PluginProjectCreator();
-	
-	static public synchronized IFolder getRootConfigurationFolder() throws CoreException {
-		if(folder==null) {
-			IProject project = projectCreator.createProject("config");
-			
-			File configFolder = getFolderFromPreferences();
-			if(configFolder!=null) {
-				folder = project.getFolder("config");
-				folder.createLink(configFolder.toURI(), IResource.BACKGROUND_REFRESH|IResource.REPLACE, null);
-				CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
-			}
-		}
-		return folder;
-	}
-	
-	static public synchronized void setRootConfigurationFolder(final File configFolder) throws CoreException {
-		CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
 
-		try {
-			CoreActivator.updateFolderObserver();
-		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, CoreActivator.PLUGIN_ID, e.getMessage()));
-		}
+    private static IFolder folder;
 
-		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				IProject project = projectCreator.createProject("config");
-				
-				 
-				if(configFolder!=null) {
-					folder = project.getFolder("config");
-					if(folder.exists()) {
-						folder.delete(true, null);
-					}
-					folder.createLink(configFolder.toURI(), IResource.ALLOW_MISSING_LOCAL, null);
-				}
-			}
-		};
-		ResourcesPlugin.getWorkspace().run(runnable, null);
-	}	
+    private static IProjectCreator projectCreator = new PluginProjectCreator();
 
-	private static File getFolderFromPreferences() {
-		IPreferencesService service = Platform.getPreferencesService();
-		Preferences node = service.getRootNode().node(ConfigurationScope.SCOPE).node(CoreActivator.PLUGIN_ID);
-		if(node!=null) {
-			String folderPath = node.get(DesignerCoreConstants.CONFIG_FOLDER_PREFERENCE, null);
-			if(folderPath!=null) {
-				File file = new File(folderPath);
-				if(file!=null && file.isDirectory()) {
-					return file;
-				} else {
-					LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("'{}' is no valid directory.", folderPath);
-				}
-			}
-		}
-		return null;
-	}
+    static public synchronized IFolder getRootConfigurationFolder() throws CoreException {
+        if (folder == null) {
+            IProject project = projectCreator.createProject("config");
 
-	public static void saveFolderToPreferences(String folderPath) {
-		IPreferencesService service = Platform.getPreferencesService();
-		Preferences node = service.getRootNode().node(ConfigurationScope.SCOPE).node(CoreActivator.PLUGIN_ID);
-		try {
-			if(node!=null) {
-				node.put(DesignerCoreConstants.CONFIG_FOLDER_PREFERENCE, folderPath);
-				node.flush();
-				return;
-			}
-		} catch (BackingStoreException e) {}
-		LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("Could not save folder '{}' to preferences.", folderPath);
-	}
+            File configFolder = getFolderFromPreferences();
+            if (configFolder != null) {
+                folder = project.getFolder("config");
+                folder.createLink(configFolder.toURI(), IResource.BACKGROUND_REFRESH | IResource.REPLACE, null);
+                CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
+            }
+        }
+        return folder;
+    }
+
+    static public synchronized void setRootConfigurationFolder(final File configFolder) throws CoreException {
+        CoreActivator.setConfigFolder(configFolder.getAbsolutePath());
+
+        try {
+            CoreActivator.updateFolderObserver();
+        } catch (IOException e) {
+            throw new CoreException(new Status(IStatus.ERROR, CoreActivator.PLUGIN_ID, e.getMessage()));
+        }
+
+        IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+            @Override
+            public void run(IProgressMonitor monitor) throws CoreException {
+                IProject project = projectCreator.createProject("config");
+
+                if (configFolder != null) {
+                    folder = project.getFolder("config");
+                    if (folder.exists()) {
+                        folder.delete(true, null);
+                    }
+                    folder.createLink(configFolder.toURI(), IResource.ALLOW_MISSING_LOCAL, null);
+                }
+            }
+        };
+        ResourcesPlugin.getWorkspace().run(runnable, null);
+    }
+
+    private static File getFolderFromPreferences() {
+        IPreferencesService service = Platform.getPreferencesService();
+        Preferences node = service.getRootNode().node(ConfigurationScope.SCOPE).node(CoreActivator.PLUGIN_ID);
+        if (node != null) {
+            String folderPath = node.get(DesignerCoreConstants.CONFIG_FOLDER_PREFERENCE, null);
+            if (folderPath != null) {
+                File file = new File(folderPath);
+                if (file != null && file.isDirectory()) {
+                    return file;
+                } else {
+                    LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("'{}' is no valid directory.",
+                            folderPath);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void saveFolderToPreferences(String folderPath) {
+        IPreferencesService service = Platform.getPreferencesService();
+        Preferences node = service.getRootNode().node(ConfigurationScope.SCOPE).node(CoreActivator.PLUGIN_ID);
+        try {
+            if (node != null) {
+                node.put(DesignerCoreConstants.CONFIG_FOLDER_PREFERENCE, folderPath);
+                node.flush();
+                return;
+            }
+        } catch (BackingStoreException e) {
+        }
+        LoggerFactory.getLogger(ConfigurationFolderProvider.class).warn("Could not save folder '{}' to preferences.",
+                folderPath);
+    }
 }

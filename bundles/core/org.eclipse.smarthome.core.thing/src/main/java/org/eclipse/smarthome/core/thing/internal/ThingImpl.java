@@ -28,12 +28,12 @@ import com.google.common.collect.ImmutableList;
  * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
  * <p>
  * This class is mutable.
- * 
+ *
  * @author Michael Grammling - Configuration could never be null but may be empty
  * @author Benedikt Niehues - Fix ESH Bug 450236
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
- * 
+ *
  */
 public class ThingImpl implements Thing {
 
@@ -54,13 +54,13 @@ public class ThingImpl implements Thing {
     private ThingTypeUID thingTypeUID;
 
     transient volatile private GroupItem linkedItem;
-    
+
     /**
      * Package protected default constructor to allow reflective instantiation.
      */
     ThingImpl() {
     }
-    
+
     /**
      * @param thingTypeUID
      * @param thingId
@@ -72,20 +72,20 @@ public class ThingImpl implements Thing {
         this.thingTypeUID = thingTypeUID;
         this.channels = new ArrayList<>(0);
     }
-    
+
     /**
      * @param thingUID
      * @throws IllegalArgumentException
      */
     public ThingImpl(ThingUID thingUID) throws IllegalArgumentException {
-    	this.uid = thingUID;
-    	this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
-    	this.channels = new ArrayList<>(0);
+        this.uid = thingUID;
+        this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
+        this.channels = new ArrayList<>(0);
     }
 
     /**
      * Adds the thing listener.
-     * 
+     *
      * @param thingListener
      *            the thing listener
      */
@@ -105,20 +105,21 @@ public class ThingImpl implements Thing {
         return this.bridgeUID;
     }
 
+    @Override
     public List<Channel> getChannels() {
         return ImmutableList.copyOf(this.channels);
     }
-    
+
     @Override
     public Channel getChannel(String channelId) {
         for (Channel channel : this.channels) {
-            if(channel.getUID().getId().equals(channelId)) {
+            if (channel.getUID().getId().equals(channelId)) {
                 return channel;
             }
         }
         return null;
     }
-    
+
     public List<Channel> getChannelsMutable() {
         return this.channels;
     }
@@ -133,18 +134,19 @@ public class ThingImpl implements Thing {
         return this.thingHandler;
     }
 
+    @Override
     public ThingUID getUID() {
         return uid;
     }
 
-
+    @Override
     public ThingStatus getStatus() {
         return status;
     }
 
     /**
      * Removes the thing listener.
-     * 
+     *
      * @param thingListener
      *            the thing listener
      */
@@ -174,6 +176,7 @@ public class ThingImpl implements Thing {
         this.uid = id;
     }
 
+    @Override
     public void setStatus(ThingStatus status) {
         this.status = status;
     }
@@ -196,7 +199,7 @@ public class ThingImpl implements Thing {
     public boolean isLinked() {
         return getLinkedItem() != null;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;

@@ -28,7 +28,7 @@ public interface EventConstants {
      *
      * @see #TOPIC_SEPERATOR
      */
-     String TOPIC_PREFIX = "smarthome";
+    String TOPIC_PREFIX = "smarthome";
 
     /**
      * The constant defining the separator for sub-topics. Each event of <i>Eclipse SmartHome</i>
@@ -39,6 +39,6 @@ public interface EventConstants {
      *
      * @see #TOPIC_PREFIX
      */
-     String TOPIC_SEPERATOR = "/";
+    String TOPIC_SEPERATOR = "/";
 
 }

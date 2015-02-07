@@ -10,38 +10,41 @@ package org.eclipse.smarthome.ui.classic.internal.render;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.classic.render.RenderException;
+import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
  * can produce HTML code for Frame widgets.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public class FrameRenderer extends AbstractWidgetRenderer {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canRender(Widget w) {
-		return w instanceof Frame;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
-		String snippet = getSnippet("frame");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canRender(Widget w) {
+        return w instanceof Frame;
+    }
 
-		snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(getLabel(w)));
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
+        String snippet = getSnippet("frame");
 
-		// Process the color tags
-		snippet = processColor(w, snippet);
+        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(getLabel(w)));
 
-		sb.append(snippet);
-		return ((Frame)w).getChildren();
-	}
+        // Process the color tags
+        snippet = processColor(w, snippet);
+
+        sb.append(snippet);
+        return ((Frame) w).getChildren();
+    }
 }

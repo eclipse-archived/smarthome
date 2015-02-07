@@ -8,23 +8,23 @@
 package org.eclipse.smarthome.io.console;
 
 /**
- * This interface must be implemented by consoles which want to use the 
- * {@link ConsoleInterpreter}.
+ * This interface must be implemented by consoles which want to use the {@link ConsoleInterpreter}.
  * It allows basic output commands.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
 public interface Console {
 
-	public void print(String s);
-	
-	public void println(String s);
-	
-	/** usage output is treated differently from other output as it might
-	 * differ between different kinds of consoles
-	 * 
-	 * @param s the main usage string (console independent)
-	 */
-	public void printUsage(String s);
+    public void print(String s);
+
+    public void println(String s);
+
+    /**
+     * usage output is treated differently from other output as it might
+     * differ between different kinds of consoles
+     * 
+     * @param s the main usage string (console independent)
+     */
+    public void printUsage(String s);
 }

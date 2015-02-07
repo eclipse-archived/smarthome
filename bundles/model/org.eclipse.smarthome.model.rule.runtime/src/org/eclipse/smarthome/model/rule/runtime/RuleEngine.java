@@ -9,7 +9,7 @@ package org.eclipse.smarthome.model.rule.runtime;
 
 /**
  * This is a marker interface for Rule Engines.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */

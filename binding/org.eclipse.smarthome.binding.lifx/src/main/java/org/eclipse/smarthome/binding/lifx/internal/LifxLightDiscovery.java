@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 /**
  * The {@link LifxLightDiscovery} provides support for auto-discovery of LIFX
  * lights.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class LifxLightDiscovery extends AbstractDiscoveryService implements LifxLightTracker, LFXLightListener {
@@ -81,7 +81,7 @@ public class LifxLightDiscovery extends AbstractDiscoveryService implements Lifx
         networkContext = null;
         super.deactivate();
     }
-    
+
     @Override
     protected void startBackgroundDiscovery() {
         LifxConnection.getInstance().addLightTracker(this);
@@ -105,9 +105,10 @@ public class LifxLightDiscovery extends AbstractDiscoveryService implements Lifx
         ThingUID thingUID = getUID(light);
 
         String label = light.getLabel();
-        
-        if(StringUtils.isBlank(label)) label = "LIFX";
-        
+
+        if (StringUtils.isBlank(label))
+            label = "LIFX";
+
         return DiscoveryResultBuilder.create(thingUID).withLabel(label)
                 .withProperty(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID, light.getDeviceID()).build();
     }

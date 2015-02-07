@@ -17,9 +17,9 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Event type for each broadcasted smarthome event using SSE.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public enum EventType {
 
@@ -78,7 +78,7 @@ public enum EventType {
      * to be in the format <b>namespace/event_object/event_type</b> e.g.
      * <b>smarthome/items/added</b>. Wildcard can also be used in place of each
      * component e.g. <b>smarthome/&#42;/added</b>.
-     * 
+     *
      * @param filter
      * @return All events if the filter is empty, no events if the filter cannot
      *         be parsed, all events that match the given filter otherwise.
@@ -131,9 +131,9 @@ public enum EventType {
      * Parses the given filter string into an array with size 3 where the first
      * element is the given filterNamespace, the second element is the given
      * filterEventObject and the third element is filterEventType.
-     * 
+     *
      * Any component missing is considered to be a WILDCARD filter(*).
-     * 
+     *
      * @param filter
      * @return
      */
@@ -145,15 +145,15 @@ public enum EventType {
         String filterEventType = "*";
 
         switch (filterTokens.length) {
-        case 3:
-            filterEventType = filterTokens[2].trim();
-        case 2:
-            fiterEventObject = filterTokens[1].trim();
-        case 1:
-            filterNamespace = filterTokens[0].trim();
-            break;
-        default:
-            break;
+            case 3:
+                filterEventType = filterTokens[2].trim();
+            case 2:
+                fiterEventObject = filterTokens[1].trim();
+            case 1:
+                filterNamespace = filterTokens[0].trim();
+                break;
+            default:
+                break;
         }
 
         return new String[] { filterNamespace, fiterEventObject, filterEventType };
@@ -197,7 +197,7 @@ public enum EventType {
      * Returns the full name for this event using the given identifier in the
      * following format: <b>namespace/event_type/event_object/identifier</b>
      * e.g. <b>smarthome/inbox/added/235226</b>
-     * 
+     *
      * @param identifier
      * @return event type full name.
      */
