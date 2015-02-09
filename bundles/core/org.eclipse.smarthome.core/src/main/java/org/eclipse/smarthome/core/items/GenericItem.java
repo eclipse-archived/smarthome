@@ -194,7 +194,7 @@ abstract public class GenericItem implements ActiveItem {
         for (StateChangeListener listener : clonedListeners) {
             listener.stateUpdated(this, newState);
         }
-        if (!oldState.equals(newState)) {
+        if (newState!=null && !newState.equals(oldState)) {
             for (StateChangeListener listener : clonedListeners) {
                 listener.stateChanged(this, oldState, newState);
             }
