@@ -15,5 +15,5 @@ Bundle-DocURL: http://www.openhab.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/mapdb-1.0.2.jar
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Require-Bundle: com.google.gson;bundle-version="2.2.4"

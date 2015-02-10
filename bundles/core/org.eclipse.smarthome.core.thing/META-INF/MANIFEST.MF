@@ -32,5 +32,5 @@ Export-Package: org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
  org.eclipse.smarthome.core.thing.util
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Bundle-Activator: org.eclipse.smarthome.core.thing.internal.Activator

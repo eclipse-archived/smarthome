@@ -32,7 +32,7 @@ Import-Package: org.apache.log4j,
  org.eclipse.smarthome.model.item,
  org.eclipse.xtext.xbase.lib,
  org.slf4j
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model.thing,org.eclipse.smarthom
  e.model.thing.services,org.eclipse.smarthome.model.thing.thing,org.ec

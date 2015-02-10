@@ -13,6 +13,6 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.thing.binding,
  org.eclipse.smarthome.core.types,
  org.slf4j
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Export-Package: ${package},
  ${package}.handler
