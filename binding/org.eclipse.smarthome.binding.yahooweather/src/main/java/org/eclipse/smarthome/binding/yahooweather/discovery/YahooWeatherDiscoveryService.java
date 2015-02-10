@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
@@ -34,6 +34,7 @@ import com.google.gson.JsonParser;
  * of the local city from the IP address
  *
  * @author Marcel Verpaalen - Initial contribution
+ * @author Jochen Hiller - Removed dependency to Apache HttpClient 3.x
  */
 
 public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
@@ -97,9 +98,8 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
         String query = "SELECT * FROM geo.placefinder WHERE text='" + coordinate + "' and gflags='R'";
         String url = null;
         try {
-            URI uri = new URI("https://query.yahooapis.com/v1/public/yql", false);
-            uri.setQuery("q=" + query + "&format=json");
-            url = uri.toString();
+            url = "https://query.yahooapis.com/v1/public/yql";
+            url += "?q=" + URLEncoder.encode(query, "UTF-8") + "&format=json";
         } catch (Exception e) {
             logger.debug("Error while getting location ID: {}", e.getMessage());
         }
