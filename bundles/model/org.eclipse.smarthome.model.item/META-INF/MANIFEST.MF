@@ -39,4 +39,4 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.slf4j
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml

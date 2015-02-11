@@ -35,5 +35,5 @@ Export-Package: org.eclipse.smarthome.io.rest.core.discovery.beans,
  org.eclipse.smarthome.io.rest.core.thing,
  org.eclipse.smarthome.io.rest.core.thing.beans,
  org.eclipse.smarthome.io.rest.core.util
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy

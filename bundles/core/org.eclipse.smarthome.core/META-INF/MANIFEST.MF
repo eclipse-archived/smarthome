@@ -8,7 +8,7 @@ Export-Package: org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Private-Package: org.eclipse.smarthome.core.internal,org.eclipse.smarthome.core.internal.e
  vents,org.eclipse.smarthome.core.internal.items,org.eclipse.smarthome.core.internal.loggi
  ng

@@ -18,6 +18,6 @@ Import-Package: org.apache.commons.lang,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core.autoupdate
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/*
+Service-Component: OSGI-INF/*.xml
 Bundle-ClassPath: .
 Export-Package: org.eclipse.smarthome.core.autoupdate
