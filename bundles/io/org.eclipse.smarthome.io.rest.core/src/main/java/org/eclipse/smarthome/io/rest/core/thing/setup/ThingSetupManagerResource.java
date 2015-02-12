@@ -195,6 +195,14 @@ public class ThingSetupManagerResource implements RESTResource {
         thingSetupManager.removeHomeGroup(itemName);
         return Response.ok().build();
     }
+    
+    @PUT
+    @Path("groups/{itemName}/label")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response setHomeGroupLabel(@PathParam("itemName") String itemName, String label) {
+        thingSetupManager.setHomeGroupLabel(itemName, label);
+        return Response.ok().build();
+    }
 
     protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
         this.thingSetupManager = thingSetupManager;

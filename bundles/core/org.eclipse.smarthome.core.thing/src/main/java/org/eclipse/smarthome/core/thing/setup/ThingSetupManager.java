@@ -359,6 +359,21 @@ public class ThingSetupManager {
             throw new IllegalArgumentException("No item is linked with thing '" + thingUID.toString() + "'.");
         }
     }
+    
+    /**
+     * Sets the given label for the home group identified by the given item name.
+     * 
+     * @param itemName the name of the home group
+     * @param label the new label for the home group
+     */
+    public void setHomeGroupLabel(String itemName, String label) {
+        GroupItem groupItem = (GroupItem) itemRegistry.get(itemName);
+        if (groupItem == null) {
+            throw new IllegalArgumentException("No group item found with item name " + itemName);
+        }
+        groupItem.setLabel(label);
+        itemRegistry.update(groupItem);
+    }
 
     /**
      * Updates an item.
