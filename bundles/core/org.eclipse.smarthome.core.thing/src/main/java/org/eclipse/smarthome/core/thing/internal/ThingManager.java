@@ -335,6 +335,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         this.thingLinkManager = new ThingLinkManager(itemRegistry, thingRegistry, itemChannelLinkRegistry,
                 itemThingLinkRegistry);
         this.thingLinkManager.startListening();
+        this.thingRegistry.addThingTracker(this);
         this.bundleContext = componentContext.getBundleContext();
         this.thingHandlerTracker = new ThingHandlerTracker(this.bundleContext);
         this.thingHandlerTracker.open();
@@ -361,6 +362,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void deactivate(ComponentContext componentContext) {
         this.thingHandlerTracker.close();
+        this.thingRegistry.removeThingTracker(this);
         this.thingLinkManager.stopListening();
     }
 
@@ -380,7 +382,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = (ThingRegistryImpl) thingRegistry;
-        this.thingRegistry.addThingTracker(this);
     }
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
@@ -392,7 +393,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry.removeThingTracker(this);
         this.thingRegistry = null;
     }
 
