@@ -82,11 +82,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 				]
 			}
 		}
-		if (things.empty) {
-			thingsMap.remove(modelName)
-		} else {
-			thingsMap.put(modelName, things)
-		}
+		thingsMap.put(modelName, things)
 	}
 
 	def private void createThing(ModelThing modelThing, Bridge parentBridge, Collection<Thing> thingList) {
@@ -327,7 +323,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	
 	def updateThings(){
 		thingsMap.keySet.forEach[
-			createThingsFromModel
+			modelChanged(it, org.eclipse.smarthome.model.core.EventType.MODIFIED)
 		]
 	}
 	
