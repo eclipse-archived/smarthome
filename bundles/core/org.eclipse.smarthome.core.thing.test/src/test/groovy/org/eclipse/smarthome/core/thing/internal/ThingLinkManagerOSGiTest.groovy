@@ -125,26 +125,31 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
     
     @Test
     void 'assert that existing things are linked'() {
-        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
-        thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
-        
-        Thing thing = thingRegistry.get(thingUID)
-        assertThat thing, is(notNullValue())
-        
-        // create thing manager manually to simulate start up of declarative service
+        def componentContext = [getBundleContext: {getBundleContext()}] as ComponentContext
         def thingManger = new ThingManager()
-        thingManger.setItemRegistry(getService(ItemRegistry))
-        thingManger.setThingRegistry(getService(ThingRegistry))
-        thingManger.setItemChannelLinkRegistry(getService(ItemChannelLinkRegistry))
-        thingManger.setItemThingLinkRegistry(getService(ItemThingLinkRegistry))
-        thingManger.activate([getBundleContext: {getBundleContext()}] as ComponentContext)
-        
-        def channels = thing.getChannels()
-        assertThat channels.size(), is(1)
-        Channel channel = channels.first()
-        
-        def linkedItems = channel.getLinkedItems()
-        assertThat linkedItems.size(), is(1)
+        try {
+            ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+            thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+            
+            Thing thing = thingRegistry.get(thingUID)
+            assertThat thing, is(notNullValue())
+            
+            // create thing manager manually to simulate start up of declarative service
+            thingManger.setItemRegistry(getService(ItemRegistry))
+            thingManger.setThingRegistry(getService(ThingRegistry))
+            thingManger.setItemChannelLinkRegistry(getService(ItemChannelLinkRegistry))
+            thingManger.setItemThingLinkRegistry(getService(ItemThingLinkRegistry))
+            thingManger.activate(componentContext)
+            
+            def channels = thing.getChannels()
+            assertThat channels.size(), is(1)
+            Channel channel = channels.first()
+            
+            def linkedItems = channel.getLinkedItems()
+            assertThat linkedItems.size(), is(1)
+        } finally {
+            thingManger.deactivate(componentContext)
+        }
     }
     
     /*
