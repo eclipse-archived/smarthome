@@ -228,32 +228,32 @@ public class ThingResource implements RESTResource {
         this.thingRegistry = thingRegistry;
     }
 
-    protected void unsetItemChannelLinkRegistry() {
-        itemChannelLinkRegistry = null;
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
+        this.itemChannelLinkRegistry = null;
     }
 
-    protected void unsetItemFactory() {
-        itemFactory = null;
+    protected void unsetItemFactory(ItemFactory itemFactory) {
+        this.itemFactory = null;
     }
 
-    protected void unsetItemRegistry() {
-        itemRegistry = null;
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
 
-    protected void unsetManagedItemChannelLinkProvider() {
-        managedItemChannelLinkProvider = null;
+    protected void unsetManagedItemChannelLinkProvider(ManagedItemChannelLinkProvider managedItemChannelLinkProvider) {
+        this.managedItemChannelLinkProvider = null;
     }
 
-    protected void unsetManagedItemProvider() {
-        managedItemProvider = null;
+    protected void unsetManagedItemProvider(ManagedItemProvider managedItemProvider) {
+        this.managedItemProvider = null;
     }
 
-    protected void unsetManagedThingProvider() {
-        managedThingProvider = null;
+    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = null;
     }
 
-    protected void unsetThingRegistry() {
-        thingRegistry = null;
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 
     private Set<ThingBean> convertToListBean(Collection<Thing> things) {
