@@ -30,6 +30,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
@@ -160,7 +161,8 @@ public class ThingTypeResource implements RESTResource {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
                 getConfigDescriptionParameterBeans(thingType.getUID(), locale),
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
-                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()));
+                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
+                thingType.getSupportedBridgeTypeUIDs(), thingType instanceof BridgeType);
     }
 
     private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(
@@ -202,4 +204,5 @@ public class ThingTypeResource implements RESTResource {
 
         return thingTypeBeans;
     }
+    
 }
