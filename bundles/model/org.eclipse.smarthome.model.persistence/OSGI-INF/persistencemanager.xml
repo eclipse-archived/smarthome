@@ -14,6 +14,7 @@
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>
    </service>
+   <property name="event.topics" type="String" value="smarthome/update/*"/>
    <reference bind="addPersistenceService" cardinality="0..n" interface="org.eclipse.smarthome.core.persistence.PersistenceService" name="PersistenceService" policy="dynamic" unbind="removePersistenceService"/>
    <reference bind="setItemRegistry" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
 </scr:component>
