@@ -101,13 +101,15 @@ public abstract class AbstractWatchService {
     }
 
     protected void stopWatchService() {
-        try {
-            watchService.close();
-        } catch (IOException e) {
-            logger.warn("Cannot deactivate folder watcher", e);
-        }
-
-        watchService = null;
+    	if(watchService != null) {
+	    	try {
+	            watchService.close();
+	        } catch (IOException e) {
+	            logger.warn("Cannot deactivate folder watcher", e);
+	        }
+	
+	        watchService = null;
+    	}
     }
 
     /**
