@@ -62,6 +62,11 @@ public class Configuration {
                 String typeName = field.getType().getSimpleName();
                 Object value = properties.get(fieldName);
 
+                if (value == null && field.getType().isPrimitive()) {
+                    logger.debug("Skipping field '{}', because it's primitive data type and value is not set", fieldName);
+                    continue;
+                }
+
                 try {
                     if (value != null && value instanceof BigDecimal && !typeName.equals("BigDecimal")) {
                         BigDecimal bdValue = (BigDecimal) value;
