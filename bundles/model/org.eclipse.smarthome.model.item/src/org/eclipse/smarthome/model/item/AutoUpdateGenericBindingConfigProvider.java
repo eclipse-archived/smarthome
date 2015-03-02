@@ -109,7 +109,7 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
      * {@inheritDoc}
      */
     @Override
-    public void removeConfigurations(String context) {
+    public void startConfigurationUpdate(String context) {
         Set<String> itemNames = contextMap.get(context);
         if (itemNames != null) {
             for (String itemName : itemNames) {
@@ -118,6 +118,10 @@ public class AutoUpdateGenericBindingConfigProvider implements AutoUpdateBinding
             }
             contextMap.remove(context);
         }
+    }
+
+    @Override
+    public void stopConfigurationUpdate(String context) {
     }
 
     protected void addBindingConfig(String itemType, String itemName, AutoUpdateBindingConfig config) {

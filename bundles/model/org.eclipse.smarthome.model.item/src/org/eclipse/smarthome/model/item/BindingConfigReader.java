@@ -52,10 +52,18 @@ public interface BindingConfigReader {
             throws BindingConfigParseException;
 
     /**
-     * Removes all configuration information for a given context. This is usually called if a config file is reloaded,
-     * so that the old values are removed, before the new ones are processed.
+     * Informs the reader that configurations will be processed for a given context. This is usually called if a config
+     * file is reloaded, so that the old values are removed, before the new ones are processed.
      * 
-     * @param context the context of the configurations that should be removed
+     * @param context the context of the configurations that will be processed
      */
-    public void removeConfigurations(String context);
+    public void startConfigurationUpdate(String context);
+
+    /**
+     * Informs the reader that configuration update is completed for a given context. This is usually called after a config
+     * file is reloaded, so that the reader can clean up afterwards.
+     * 
+     * @param context the context of the configurations that were processed
+     */
+    public void stopConfigurationUpdate(String context);
 }
