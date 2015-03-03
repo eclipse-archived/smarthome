@@ -9,8 +9,10 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -23,7 +25,6 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
@@ -53,20 +54,28 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
-        // if the provider did not provide any old item names, we check if we
+    	
+    	Map<String, Item> oldItemsMap = new HashMap<>();
+        Collection<Item> oldItems = elementMap.get(provider);
+    	
+    	// if the provider did not provide any old item names, we check if we
         // know them and pass them further on to our listeners
         if (oldItemNames == null || oldItemNames.isEmpty()) {
             oldItemNames = new HashSet<String>();
-            Collection<Item> oldItems;
-            oldItems = elementMap.get(provider);
             if (oldItems != null && oldItems.size() > 0) {
                 for (Item oldItem : oldItems) {
-                    oldItemNames.add(oldItem.getName());
+                	oldItemsMap.put(oldItem.getName(), oldItem);
                 }
             }
+        } else {
+        	for(Item item : oldItems) {
+        		if(oldItemNames.contains(item.getName())) {
+        			oldItemsMap.put(item.getName(), item);
+        		}
+        	}
         }
 
-        Collection<Item> items = new CopyOnWriteArrayList<Item>();
+        List<Item> items = new CopyOnWriteArrayList<Item>();
         elementMap.put(provider, items);
         for (Item item : provider.getAll()) {
             try {
@@ -77,11 +86,26 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             }
         }
 
-        for (RegistryChangeListener<Item> listener : listeners) {
-            if (listener instanceof ItemRegistryChangeListener) {
-                ((ItemRegistryChangeListener) listener).allItemsChanged(oldItemNames);
+    	for(Item item : items) {
+            Item oldItem = oldItemsMap.get(item.getName());
+            for (RegistryChangeListener<Item> listener : listeners) {
+                if(oldItem != null) {
+                	if(!oldItem.equals(item)) {
+                		listener.updated(oldItem, item);
+                	}
+                } else {
+                	listener.added(item);
+                }
             }
+        	oldItemsMap.remove(item.getName());
         }
+    	
+    	for(Item removedItem : oldItemsMap.values()) {
+            for (RegistryChangeListener<Item> listener : listeners) {
+            	listener.removed(removedItem);
+            }
+    	}
+
     }
 
     /*

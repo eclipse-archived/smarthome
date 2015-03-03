@@ -147,9 +147,9 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 return;
             }
 
-            // clear the old binding configuration
+            // start binding configuration processing
             for (BindingConfigReader reader : bindingConfigReaders.values()) {
-                reader.removeConfigurations(modelName);
+                reader.startConfigurationUpdate(modelName);
             }
 
             // create items and read new binding configuration
@@ -159,7 +159,12 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                     internalDispatchBindings(modelName, item, modelItem.getBindings());
                 }
             }
-        }
+
+            // end binding configuration processing
+            for (BindingConfigReader reader : bindingConfigReaders.values()) {
+                reader.stopConfigurationUpdate(modelName);
+            }
+}
     }
 
     private Item createItemFromModelItem(ModelItem modelItem) {
@@ -347,7 +352,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 }
             } else {
                 logger.trace("Couldn't find config reader for binding type '{}' > "
-                        + "parsing binding configuration of Iten '{}' aborted!", bindingType, item);
+                        + "parsing binding configuration of Item '{}' aborted!", bindingType, item);
             }
         }
     }

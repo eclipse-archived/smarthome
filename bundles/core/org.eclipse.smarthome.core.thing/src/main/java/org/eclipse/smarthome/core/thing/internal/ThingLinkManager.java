@@ -163,8 +163,10 @@ public class ThingLinkManager {
 
         @Override
         public void updated(ItemChannelLink oldElement, ItemChannelLink element) {
-            this.removed(oldElement);
-            this.added(element);
+            if(!oldElement.equals(element)) {
+                this.removed(oldElement);
+                this.added(element);
+            }
         }
 
     };

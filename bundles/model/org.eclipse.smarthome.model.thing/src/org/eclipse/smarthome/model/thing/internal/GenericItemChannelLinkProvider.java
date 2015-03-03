@@ -48,6 +48,8 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     @SuppressWarnings("unused")
     private ModelRepository modelRepository = null;
 
+    private Set<String> previousItemNames;
+
     @Override
     public String getBindingType() {
         return "channel";
@@ -87,6 +89,10 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
             contextMap.put(context, itemNames);
         }
         itemNames.add(itemName);
+        if(previousItemNames != null ) {
+            previousItemNames.remove(itemName);
+        }
+        
         Set<ItemChannelLink> links = itemChannelLinkMap.get(itemName);
         if (links == null) {
             itemChannelLinkMap.put(itemName, links = new HashSet<>());
@@ -100,11 +106,15 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
     }
 
     @Override
-    public void removeConfigurations(String context) {
-        Set<String> itemNames = contextMap.get(context);
-        if (itemNames != null) {
-            for (String itemName : itemNames) {
-                // we remove all binding configurations for all items
+    public void startConfigurationUpdate(String context) {
+        previousItemNames = contextMap.get(context);
+    }
+
+    @Override
+    public void stopConfigurationUpdate(String context) {
+        if (previousItemNames != null) {
+            for (String itemName : previousItemNames) {
+                // we remove all binding configurations that were not processed
                 Set<ItemChannelLink> links = itemChannelLinkMap.remove(itemName);
                 if (links != null) {
                     for (ItemChannelLink removedItemChannelLink : links) {
@@ -136,11 +146,14 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
         if (modelName.endsWith("items")) {
             switch (type) {
                 case ADDED:
+                    startConfigurationUpdate(modelName);
                     break;
                 case MODIFIED:
+                    startConfigurationUpdate(modelName);
                     break;
                 case REMOVED:
-                    removeConfigurations(modelName);
+                    startConfigurationUpdate(modelName);
+                    stopConfigurationUpdate(modelName);
                     break;
             }
         }
