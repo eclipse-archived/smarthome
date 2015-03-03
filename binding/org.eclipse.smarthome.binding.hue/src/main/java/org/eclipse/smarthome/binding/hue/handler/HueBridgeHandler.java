@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import nl.q42.jue.Config;
 import nl.q42.jue.FullConfig;
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
@@ -35,6 +36,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
+ * @author Thomas Höfer - added thing properties for firmware version and serial number
  *
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
@@ -127,6 +130,14 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                                     logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
                                 }
                             }
+                        }
+                        
+                        final Config config = fullConfig.getConfig(); 
+                        if (config != null) {
+                            getThing().getConfiguration().put(ThingProperty.SERIAL_NUMBER.keyName,
+                                    fullConfig.getConfig().getMACAddress().replaceAll(":", ""));
+                            getThing().getConfiguration().put(ThingProperty.FIRMWARE_VERSION.keyName,
+                                    fullConfig.getConfig().getSoftwareVersion());
                         }
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {

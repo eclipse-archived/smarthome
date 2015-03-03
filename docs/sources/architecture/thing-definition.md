@@ -155,3 +155,28 @@ The channel group type is defined on the same level as the thing types and chann
 ```
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+
+### Thing Properties
+The configuration descriptions explained in full detail [here](../architecture/configuration.md) are used in order to provide dynamic configuration properties for bindings. In this context *dynamic* means that these configuration properties can be changed at runtime (e.g. because of the IP address of a bridge has been changed). Furthermore these properties are enhanced through configuration descriptions so that the property value can be interpreted in a meaningful manner. However in order to keep the XML based configuration clean there are predefined `ThingProperty`s available that represent properties in a more static manner. In this context *static* means that the value of the property might not be changed (or at least very seldom). In addition to this the type of the property can always be handled as a `java.lang.String` so that no further configuration description is necessary. These *static* properties are defined in the `org.eclipse.smarthome.core.thing.ThingProperty` enumeration which provides the following properties currently:
+
+- Vendor
+- Model
+- Serial Number
+- Hardware Version
+- Firmware Version
+
+To use these properties the operation `getThingProperties` of the `BaseThingHandlerFactory` class has to be overwritten in the concrete thing handler factory class. The following code snippet shows how these thing properties are injected into the thing configuration.
+
+```java
+public class MyConcreteThingHandlerFactory extends BaseThingHandlerFactory {
+
+	...
+
+	@Override
+	protected Map<ThingProperty, String> getThingProperties(Thing thing) {
+	    Map<ThingProperty, String> thingProperties = super.getThingProperties(thing);
+	    thingProperties.put(ThingProperty.VENDOR, "ThingVendor");
+	    return thingProperties;
+	}
+}
+```

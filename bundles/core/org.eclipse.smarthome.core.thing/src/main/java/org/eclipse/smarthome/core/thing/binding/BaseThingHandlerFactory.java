@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -25,15 +26,17 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
 
+import com.google.common.collect.Maps;
+
 /**
  * {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface. It
  * provides the OSGi service
  * registration logic.
  *
  * @author Dennis Nobel - Initial contribution
- *         * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
- *
+ * @author Thomas Höfer - added getThingProperties operation
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
@@ -233,10 +236,15 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         if (thingType != null) {
             Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
+            Map<ThingProperty, String> thingProperties = getThingProperties(thing);
+            if (thingProperties != null) {
+                for(ThingProperty configProperty : thingProperties.keySet()) {
+                    thing.getConfiguration().put(configProperty.keyName, thingProperties.get(configProperty));
+                }
+            }
             return thing;
-        } else {
-            return null;
         }
+        return null;
     }
 
     protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
@@ -246,5 +254,14 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         }
         return configDescritpionRegistryServiceTracker.getService();
     }
-
+    
+    /**
+     * Retrieves the {@link ThingProperty}s for the given {@link Thing}. Sub-classes should overwrite this operation
+     * in order to provide these kind of properties for the things to be created.
+     * 
+     * @param thing the {@link Thing} for which the {@link ThingProperty}s are to be retrieved
+     */
+    protected Map<ThingProperty, String> getThingProperties(Thing thing) {
+        return Maps.newHashMap();
+    }
 }

@@ -11,6 +11,8 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_BRIG
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLOR;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLORTEMPERATURE;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.SERIAL_NUMBER;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_CLASSIC_A60_RGBW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT002;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT003;
@@ -24,7 +26,6 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_L
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_CLASSIC_A60_RGBW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_SURFACE_LIGHT_TW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_ZLL_LIGHT;
 
@@ -42,6 +43,7 @@ import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -60,6 +62,7 @@ import com.google.common.collect.Sets;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
  * @author Andre Fuechsel - implemented switch off when brightness == 0
+ * @author Thomas Höfer - added thing properties for firmware version and serial number
  *
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
@@ -97,6 +100,13 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getHueBridgeHandler() != null) {
                 getThing().setStatus(getBridge().getStatus());
+                getThing().getConfiguration().put(ThingProperty.SERIAL_NUMBER.keyName, 
+                        getBridge().getConfiguration().get(SERIAL_NUMBER) + ":" + lightId);
+                FullLight light = getLight();
+                if (light != null) {
+                    getThing().getConfiguration().put(ThingProperty.FIRMWARE_VERSION.keyName, 
+                            light.getSoftwareVersion());
+                }
             }
         }
     }
