@@ -32,6 +32,10 @@ public class OSGiEventListener extends AbstractEventSubscriber {
         this.sseResource = null;
     }
 
+	protected void activate() {
+		getSourceFilterList().clear();
+	}
+
     @Override
     public void receiveCommand(String itemName, Command command) {
         sseResource.broadcastEvent(itemName, EventType.COMMAND, command.toString());
