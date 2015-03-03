@@ -18,7 +18,7 @@
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl} -consoleLog -console"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.ignoreApp=true -Dosgi.clean=true -Dosgi.noShutdown=true -Dlogback.configurationFile=logback_debug.xml -Dsmarthome.userdata=runtime/etc -Dorg.osgi.service.http.port=8080"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:distribution/smarthome}"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:esh-distribution/smarthome}"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value=""/>
 <stringAttribute key="productFile" value="/org.eclipse.smarthome.runtime.product/org.eclipse.smarthome.runtime.product.product"/>
