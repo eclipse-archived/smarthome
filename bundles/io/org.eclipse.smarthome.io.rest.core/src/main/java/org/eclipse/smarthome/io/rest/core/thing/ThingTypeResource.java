@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,8 +44,6 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameter
 import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterOptionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
@@ -57,8 +54,6 @@ import org.slf4j.LoggerFactory;
  */
 @Path("thing-types")
 public class ThingTypeResource implements RESTResource {
-
-    private Logger logger = LoggerFactory.getLogger(ThingTypeResource.class);
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
@@ -101,32 +96,29 @@ public class ThingTypeResource implements RESTResource {
         }
     }
 
-    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(ThingTypeUID thingTypeUID,
+    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(URI configDescriptionURI,
             Locale locale) {
-        try {
-            ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(new URI("thing-type",
-                    thingTypeUID.toString(), null), locale);
-            if (configDescription != null) {
-                List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
-                        configDescription.getParameters().size());
-                for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-                    ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
-                            configDescriptionParameter.getName(), configDescriptionParameter.getType(),
-                            configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
-                            configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
-                            configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
-                            configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
-                            String.valueOf(configDescriptionParameter.getDefault()),
-                            configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription(),
-                            createBeansForOptions(configDescriptionParameter.getOptions()),
-                            createBeansForCriteria(configDescriptionParameter.getFilterCriteria()));
-                    configDescriptionParameterBeans.add(configDescriptionParameterBean);
-                }
-                return configDescriptionParameterBeans;
+
+        ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale);
+        if (configDescription != null) {
+            List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(
+                    configDescription.getParameters().size());
+            for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
+                ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
+                        configDescriptionParameter.getName(), configDescriptionParameter.getType(),
+                        configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
+                        configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
+                        configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
+                        configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
+                        String.valueOf(configDescriptionParameter.getDefault()),
+                        configDescriptionParameter.getLabel(), configDescriptionParameter.getDescription(),
+                        createBeansForOptions(configDescriptionParameter.getOptions()),
+                        createBeansForCriteria(configDescriptionParameter.getFilterCriteria()));
+                configDescriptionParameterBeans.add(configDescriptionParameterBean);
             }
-        } catch (URISyntaxException ex) {
-            logger.error(ex.getMessage(), ex);
+            return configDescriptionParameterBeans;
         }
+       
         return null;
     }
 
@@ -159,7 +151,7 @@ public class ThingTypeResource implements RESTResource {
 
     private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                getConfigDescriptionParameterBeans(thingType.getUID(), locale),
+                getConfigDescriptionParameterBeans(thingType.getConfigDescriptionURI(), locale),
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
                 convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
                 thingType.getSupportedBridgeTypeUIDs(), thingType instanceof BridgeType);
