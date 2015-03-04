@@ -15,8 +15,8 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
@@ -26,8 +26,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.google.common.collect.Maps;
-
 /**
  * {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface. It
  * provides the OSGi service
@@ -36,7 +34,7 @@ import com.google.common.collect.Maps;
  * @author Dennis Nobel - Initial contribution
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
- * @author Thomas Höfer - added getThingProperties operation
+ * @author Thomas Höfer - added getStaticProperties operation
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
@@ -44,7 +42,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescritpionRegistryServiceTracker;
+    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**
      * Initializes the {@link BaseThingHandlerFactory}. If this method is
@@ -57,9 +55,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         this.bundleContext = componentContext.getBundleContext();
         thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
         thingTypeRegistryServiceTracker.open();
-        configDescritpionRegistryServiceTracker = new ServiceTracker<>(bundleContext,
+        configDescriptionRegistryServiceTracker = new ServiceTracker<>(bundleContext,
                 ConfigDescriptionRegistry.class.getName(), null);
-        configDescritpionRegistryServiceTracker.open();
+        configDescriptionRegistryServiceTracker.open();
     }
 
     /**
@@ -75,7 +73,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             unregisterHandler(serviceRegistration);
         }
         thingTypeRegistryServiceTracker.close();
-        configDescritpionRegistryServiceTracker.close();
+        configDescriptionRegistryServiceTracker.close();
         this.thingHandlers.clear();
         this.bundleContext = null;
     }
@@ -236,10 +234,10 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         if (thingType != null) {
             Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
-            Map<ThingProperty, String> thingProperties = getThingProperties(thing);
-            if (thingProperties != null) {
-                for(ThingProperty configProperty : thingProperties.keySet()) {
-                    thing.getConfiguration().put(configProperty.keyName, thingProperties.get(configProperty));
+            Map<DefaultPropertyKey, String> staticProperties = getStaticProperties(thing);
+            if (staticProperties != null) {
+                for (DefaultPropertyKey staticProperty : staticProperties.keySet()) {
+                    thing.getConfiguration().put(staticProperty.name, staticProperties.get(staticProperty));
                 }
             }
             return thing;
@@ -248,20 +246,20 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     }
 
     protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
-        if (configDescritpionRegistryServiceTracker == null) {
+        if (configDescriptionRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");
         }
-        return configDescritpionRegistryServiceTracker.getService();
+        return configDescriptionRegistryServiceTracker.getService();
     }
-    
+
     /**
-     * Retrieves the {@link ThingProperty}s for the given {@link Thing}. Sub-classes should overwrite this operation
+     * Retrieves the {@link DefaultPropertyKey}s for the given {@link Thing}. Sub-classes should overwrite this operation
      * in order to provide these kind of properties for the things to be created.
      * 
-     * @param thing the {@link Thing} for which the {@link ThingProperty}s are to be retrieved
+     * @param thing the {@link Thing} for which the {@link DefaultPropertyKey}s are to be retrieved
      */
-    protected Map<ThingProperty, String> getThingProperties(Thing thing) {
-        return Maps.newHashMap();
+    protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
+        return new HashMap<>();
     }
 }

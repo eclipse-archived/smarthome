@@ -172,18 +172,18 @@ Moreover the configuration class has a utility method `as(Class<T> configuration
 
 For example, the Yahoo Weather binding allows to configure the location and unit. 
 
-Additionally the `BaseThingHandlerFactory` class provides an operation to inject common `ThingProperty`s into the thing configuration. For this purpose the concrete thing handler factory class has to overwrite the operation `getThingProperties`. As the following code snippet of the `YahooWeatherHandlerFactory` shows the vendor Yahoo is injected into the thing configuration by overwriting the `getThingProperties` operation. 
+Additionally the `BaseThingHandlerFactory` class provides an operation to inject common default thing properties into the thing configuration. For this purpose the concrete thing handler factory class must overwrite the operation `getStaticProperties`. As the following code snippet of the `YahooWeatherHandlerFactory` shows the vendor Yahoo is injected into the thing configuration by overwriting the `getStaticProperties` operation. 
 
 ```java
 @Override
-protected Map<ThingProperty, String> getThingProperties(Thing thing) {
-    Map<ThingProperty, String> thingProperties = super.getThingProperties(thing);
-    thingProperties.put(ThingProperty.VENDOR, "Yahoo");
-    return thingProperties;
+protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
+    Map<DefaultPropertyKey, String> staticProperties = super.getStaticProperties(thing);
+    staticProperties.put(DefaultPropertyKey.VENDOR, "Yahoo");
+    return staticProperties;
 }
 ```
 
-The section Thing Properties on the [Thing Type Definitions](../architecture/thing-definition.md) page provides further information about common thing properties. As a binding developer you should provide as many as possible thing properties.
+The section Default Thing Properties on the [Thing Type Definitions](../architecture/thing-definition.md) page provides further information about default thing properties. As a binding developer you should provide as many as possible thing properties.
 
 ## Bridges
 

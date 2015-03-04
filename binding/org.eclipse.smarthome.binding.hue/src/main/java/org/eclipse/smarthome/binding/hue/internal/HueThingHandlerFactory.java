@@ -21,8 +21,8 @@ import org.eclipse.smarthome.binding.hue.internal.discovery.HueLightDiscoverySer
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -37,7 +37,7 @@ import com.google.common.collect.Sets;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Kai Kreuzer - added supportsThingType method
  * @author Andre Fuechsel - implemented to use one discovery service per bridge
- * @author Thomas Höfer - added thing properties for vendor and model
+ * @author Thomas Höfer - added default properties for vendor and model
  *
  */
 public class HueThingHandlerFactory extends BaseThingHandlerFactory {
@@ -120,10 +120,10 @@ public class HueThingHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected Map<ThingProperty, String> getThingProperties(Thing thing) {
-        Map<ThingProperty, String> thingProperties = super.getThingProperties(thing);
-        thingProperties.put(ThingProperty.VENDOR, "Philips");
-        thingProperties.put(ThingProperty.MODEL, thing.getThingTypeUID().getId());
-        return thingProperties;
+    protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
+        Map<DefaultPropertyKey, String> staticProperties = super.getStaticProperties(thing);
+        staticProperties.put(DefaultPropertyKey.VENDOR, "Philips");
+        staticProperties.put(DefaultPropertyKey.MODEL, thing.getThingTypeUID().getId());
+        return staticProperties;
     }
 }

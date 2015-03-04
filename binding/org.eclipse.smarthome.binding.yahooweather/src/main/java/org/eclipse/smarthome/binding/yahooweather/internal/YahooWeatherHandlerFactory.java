@@ -13,8 +13,8 @@ import java.util.Set;
 
 import org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants;
 import org.eclipse.smarthome.binding.yahooweather.handler.YahooWeatherHandler;
+import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  * handlers.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Thomas Höfer - added thing property for vendor
+ * @author Thomas Höfer - added default property for vendor
  * 
  */
 public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
@@ -50,9 +50,9 @@ public class YahooWeatherHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Override
-    protected Map<ThingProperty, String> getThingProperties(Thing thing) {
-        Map<ThingProperty, String> thingProperties = super.getThingProperties(thing);
-        thingProperties.put(ThingProperty.VENDOR, "Yahoo");
-        return thingProperties;
+    protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
+        Map<DefaultPropertyKey, String> staticProperties = super.getStaticProperties(thing);
+        staticProperties.put(DefaultPropertyKey.VENDOR, "Yahoo");
+        return staticProperties;
     }
 }

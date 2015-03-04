@@ -42,8 +42,8 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingProperty;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -62,7 +62,7 @@ import com.google.common.collect.Sets;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
  * @author Andre Fuechsel - implemented switch off when brightness == 0
- * @author Thomas Höfer - added thing properties for firmware version and serial number
+ * @author Thomas Höfer - added default properties for firmware version and serial number
  *
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
@@ -100,11 +100,11 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getHueBridgeHandler() != null) {
                 getThing().setStatus(getBridge().getStatus());
-                getThing().getConfiguration().put(ThingProperty.SERIAL_NUMBER.keyName, 
+                getThing().getConfiguration().put(DefaultPropertyKey.SERIAL_NUMBER.name, 
                         getBridge().getConfiguration().get(SERIAL_NUMBER) + ":" + lightId);
                 FullLight light = getLight();
                 if (light != null) {
-                    getThing().getConfiguration().put(ThingProperty.FIRMWARE_VERSION.keyName, 
+                    getThing().getConfiguration().put(DefaultPropertyKey.FIRMWARE_VERSION.name, 
                             light.getSoftwareVersion());
                 }
             }
