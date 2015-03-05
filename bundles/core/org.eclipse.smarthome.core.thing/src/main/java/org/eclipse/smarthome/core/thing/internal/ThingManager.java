@@ -20,9 +20,9 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
@@ -108,14 +108,19 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     private ThingHandlerTracker thingHandlerTracker;
 
-    private ThingListener thingListener = new ThingListener() {
+    private ThingHandlerCallback thingHandlerCallback = new ThingHandlerCallback() {
 
         @Override
-        public void channelUpdated(ChannelUID channelUID, State state) {
+        public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
                 eventPublisher.postUpdate(item, state, channelUID.toString());
             }
+        }
+
+        @Override
+        public void thingUpdated(Thing thing) {
+            thingRegistry.update(thing);
         }
 
     };
@@ -138,6 +143,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
      */
     public void handlerAdded(Thing thing, ThingHandler thingHandler) {
         logger.debug("Assigning handler for thing '{}'.", thing.getUID());
+        thingHandler.setCallback(this.thingHandlerCallback);
         thing.setHandler(thingHandler);
     }
 
@@ -153,6 +159,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         thing.setHandler(null);
         thing.setStatus(ThingStatus.OFFLINE);
+        thingHandler.setCallback(null);
     }
 
     @Override
@@ -219,7 +226,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     public void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.things.add(thing);
         logger.debug("Thing '{}' is tracked by ThingManager.", thing.getUID());
-        ((ThingImpl) thing).addThingListener(thingListener);
         this.thingLinkManager.thingAdded(thing);
         ThingHandler thingHandler = thingHandlers.get(thing.getUID());
         if (thingHandler == null) {
@@ -245,7 +251,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
             }
         }
         this.thingLinkManager.thingRemoved(thing);
-        ((ThingImpl) thing).removeThingListener(thingListener);
         logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
@@ -259,7 +264,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         if (oldThing != thing) {
             this.things.remove(oldThing);
             this.things.add(thing);
-            ((ThingImpl) thing).addThingListener(thingListener);
         }
 
         thingLinkManager.thingUpdated(thing);
@@ -280,7 +284,6 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
         if (oldThing != thing) {
             oldThing.setHandler(null);
-            ((ThingImpl) oldThing).removeThingListener(this.thingListener);
         }
     }
 
@@ -316,7 +319,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private void registerHandler(Thing thing, ThingHandlerFactory thingHandlerFactory) {
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
-            thingHandlerFactory.registerHandler(thing);
+            thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }

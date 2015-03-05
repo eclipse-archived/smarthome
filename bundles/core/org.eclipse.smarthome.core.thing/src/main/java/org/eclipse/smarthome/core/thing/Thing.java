@@ -13,8 +13,6 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.internal.ThingListener;
-import org.eclipse.smarthome.core.types.State;
 
 /**
  * A {@link Thing} is a representation of a connected part (e.g. physical device
@@ -91,17 +89,6 @@ public interface Thing {
     void setBridgeUID(ThingUID bridgeUID);
 
     /**
-     * This method must be called when the state of channel was changed. All {@link ThingListener}s will be informed
-     * about the changed state.
-     *
-     * @param channelUID
-     *            the unique channel id
-     * @param state
-     *            the state
-     */
-    void channelUpdated(ChannelUID channelUID, State state);
-
-    /**
      * Gets the configuration.
      *
      * @return the configuration (not null)
@@ -136,4 +123,8 @@ public interface Thing {
      * @return true if thing is linked, false otherwise.
      */
     public boolean isLinked();
+    
+    void addChangeListener(ThingChangeListener thingChangeListener);
+    
+    void removeChangeListener(ThingChangeListener thingChangeListener);
 }

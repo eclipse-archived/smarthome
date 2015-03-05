@@ -74,5 +74,8 @@ public interface ThingHandler {
      * This method is called, when the handler is started.
      */
     void initialize();
+    
+    
+    void setCallback(ThingHandlerCallback thingHandlerCallback);
 
 }
