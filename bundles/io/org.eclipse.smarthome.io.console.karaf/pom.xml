@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>io</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <bundle.symbolicName>org.eclipse.smarthome.io.console.karaf</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.io.console.karaf</bundle.namespace>
+  </properties>
+
+  <groupId>org.eclipse.smarthome.io</groupId>
+  <artifactId>org.eclipse.smarthome.io.console.karaf</artifactId>
+
+  <name>Eclipse SmartHome Console for OSGi runtime Karaf</name>
+
+  <packaging>eclipse-plugin</packaging>
+
+  <!-- Uncomment the following dependency until org.apache.karaf.shell.core is added to Orbit. -->
+  <!--
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.karaf.shell</groupId>
+      <artifactId>org.apache.karaf.shell.core</artifactId>
+      <version>4.0.0.M2</version>
+    </dependency>
+  </dependencies>
+  -->
+
+</project>
