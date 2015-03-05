@@ -47,6 +47,8 @@ public abstract class BaseThingHandler implements ThingHandler {
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingHandlerServiceTracker;
 
+    private ThingHandlerCallback callback;
+
     /**
      * Creates a new instance of this class for the {@link Thing}.
      *
@@ -129,7 +131,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         // standard behavior is to set the thing to ONLINE,
         // assuming no further initialization is necessary.
-        this.thing.setStatus(ThingStatus.ONLINE);
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -137,6 +139,13 @@ public abstract class BaseThingHandler implements ThingHandler {
         dispose();
         this.thing = thing;
         initialize();
+    }
+
+    @Override
+    public void setCallback(ThingHandlerCallback thingHandlerCallback) {
+        synchronized (this) {
+            this.callback = thingHandlerCallback;   
+        }
     }
 
     /**
@@ -170,7 +179,11 @@ public abstract class BaseThingHandler implements ThingHandler {
      *            new state
      */
     protected void updateState(ChannelUID channelUID, State state) {
-        thing.channelUpdated(channelUID, state);
+        synchronized (this) {
+            if (this.callback != null) {
+                this.callback.stateUpdated(channelUID, state);
+            }   
+        }
     }
 
     /**
@@ -195,8 +208,18 @@ public abstract class BaseThingHandler implements ThingHandler {
      *            new status
      */
     protected void updateStatus(ThingStatus status) {
-        if (thing.getStatus() != status) {
-            thing.setStatus(status);
+        thing.setStatus(status);
+    }
+
+    /**
+     * Informs the framework, that a thing was updated. This method must be called after the configuration or channels
+     * was changed.
+     */
+    protected void thingUpdated() {
+        synchronized (this) {
+            if (this.callback != null) {
+                this.callback.thingUpdated(this.thing);
+            }   
         }
     }
 

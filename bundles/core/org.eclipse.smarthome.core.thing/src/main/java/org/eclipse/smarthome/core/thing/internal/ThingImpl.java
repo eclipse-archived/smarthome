@@ -8,19 +8,23 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ItemLinkChangeListener;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingChangeListener;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.types.State;
 
 import com.google.common.collect.ImmutableList;
 
@@ -37,6 +41,29 @@ import com.google.common.collect.ImmutableList;
  */
 public class ThingImpl implements Thing {
 
+    private final class ItemLinkChangeListenerImplementation implements ItemLinkChangeListener {
+        
+        private Channel channel;
+
+        public ItemLinkChangeListenerImplementation(Channel channel) {
+            this.channel = channel;
+        }
+        
+        @Override
+        public void itemUnlinked(Item item) {
+            for (ThingChangeListener listener : listeners) {
+                listener.itemUnlinked(channel, item);
+            }
+        }
+
+        @Override
+        public void itemLinked(Item item) {
+            for (ThingChangeListener listener : listeners) {
+                listener.itemLinked(channel, item);
+            }
+        }
+    }
+
     private ThingUID bridgeUID;
 
     private List<Channel> channels;
@@ -45,15 +72,17 @@ public class ThingImpl implements Thing {
 
     private ThingUID uid;
 
+    private ThingTypeUID thingTypeUID;
+
     transient volatile private ThingStatus status = ThingStatus.OFFLINE;
 
     transient volatile private ThingHandler thingHandler;
 
-    transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
-
-    private ThingTypeUID thingTypeUID;
-
     transient volatile private GroupItem linkedItem;
+
+    transient volatile private List<ThingChangeListener> listeners = new CopyOnWriteArrayList<>();
+    
+    transient volatile private Map<ChannelUID, ItemLinkChangeListener> itemLinkChangeListeners = new HashMap<ChannelUID, ItemLinkChangeListener>();
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -81,23 +110,6 @@ public class ThingImpl implements Thing {
         this.uid = thingUID;
         this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
         this.channels = new ArrayList<>(0);
-    }
-
-    /**
-     * Adds the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void addThingListener(ThingListener thingListener) {
-        this.thingListeners.add(thingListener);
-    }
-
-    @Override
-    public void channelUpdated(ChannelUID channelUID, State state) {
-        for (ThingListener thingListener : thingListeners) {
-            thingListener.channelUpdated(channelUID, state);
-        }
     }
 
     @Override
@@ -144,16 +156,6 @@ public class ThingImpl implements Thing {
         return status;
     }
 
-    /**
-     * Removes the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void removeThingListener(ThingListener thingListener) {
-        this.thingListeners.remove(thingListener);
-    }
-
     @Override
     public void setBridgeUID(ThingUID bridgeUID) {
         this.bridgeUID = bridgeUID;
@@ -179,6 +181,9 @@ public class ThingImpl implements Thing {
     @Override
     public void setStatus(ThingStatus status) {
         this.status = status;
+        for (ThingChangeListener listener : this.listeners) {
+            listener.statusUpdated(status);
+        }
     }
 
     @Override
@@ -223,6 +228,27 @@ public class ThingImpl implements Thing {
         } else if (!uid.equals(other.uid))
             return false;
         return true;
+    }
+
+    @Override
+    public void addChangeListener(ThingChangeListener thingChangeListener) {
+        this.listeners.add(thingChangeListener);
+        for (Channel channel : channels) {
+            ItemLinkChangeListenerImplementation itemLinkChangeListener = new ItemLinkChangeListenerImplementation(channel);
+            itemLinkChangeListeners.put(channel.getUID(), itemLinkChangeListener);
+            channel.addItemLinkChangeListener(itemLinkChangeListener);
+        }
+    }
+
+    @Override
+    public void removeChangeListener(ThingChangeListener thingChangeListener) {
+        this.listeners.remove(thingChangeListener);
+        for (Channel channel : channels) {
+            ItemLinkChangeListener itemLinkChangeListener = itemLinkChangeListeners.get(channel.getUID());
+            if(itemLinkChangeListener != null) {
+                channel.removeItemLinkChangeListener(itemLinkChangeListener);
+            }
+        }
     }
 
 }

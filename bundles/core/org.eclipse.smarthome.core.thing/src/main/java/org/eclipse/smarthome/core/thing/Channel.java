@@ -10,7 +10,9 @@ package org.eclipse.smarthome.core.thing;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
@@ -38,6 +40,8 @@ public class Channel {
     private Set<String> defaultTags;
 
     transient private Set<Item> linkedItems = new LinkedHashSet<>();
+
+    transient private List<ItemLinkChangeListener> listeners = new CopyOnWriteArrayList<>();
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -113,6 +117,9 @@ public class Channel {
      */
     public void addLinkedItem(Item item) {
         this.linkedItems.add(item);
+        for (ItemLinkChangeListener listener : this.listeners) {
+            listener.itemLinked(item);
+        }
     }
 
     /**
@@ -123,6 +130,9 @@ public class Channel {
      */
     public void removeLinkedItem(Item item) {
         this.linkedItems.remove(item);
+        for (ItemLinkChangeListener listener : this.listeners) {
+            listener.itemUnlinked(item);
+        }
     }
 
     /**
@@ -142,5 +152,13 @@ public class Channel {
      */
     public boolean isLinked() {
         return !getLinkedItems().isEmpty();
+    }
+
+    public void addItemLinkChangeListener(ItemLinkChangeListener itemLinkChangeListener) {
+        listeners.add(itemLinkChangeListener);
+    }
+
+    public void removeItemLinkChangeListener(ItemLinkChangeListener itemLinkChangeListener) {
+        listeners.remove(itemLinkChangeListener);
     }
 }
