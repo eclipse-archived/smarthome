@@ -16,17 +16,24 @@ import org.eclipse.smarthome.core.thing.type.ChannelType;
  * contains a {@link ChannelType} object.
  * <p>
  * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
+ * @author Ivan Iliev - Added support for system wide channel types
  */
 public class ChannelTypeXmlResult {
 
     private ChannelType channelType;
     private ConfigDescription configDescription;
+    private boolean system;
 
     public ChannelTypeXmlResult(ChannelType channelType, ConfigDescription configDescription) {
+        this(channelType, configDescription, false);
+    }
+
+    public ChannelTypeXmlResult(ChannelType channelType, ConfigDescription configDescription, boolean system) {
         this.channelType = channelType;
         this.configDescription = configDescription;
+        this.system = system;
     }
 
     public ChannelType getChannelType() {
@@ -35,6 +42,10 @@ public class ChannelTypeXmlResult {
 
     public ConfigDescription getConfigDescription() {
         return this.configDescription;
+    }
+
+    public boolean isSystem() {
+        return system;
     }
 
     @Override

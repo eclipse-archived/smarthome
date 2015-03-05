@@ -57,6 +57,7 @@
         </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="advanced" type="xs:boolean" default="false" use="optional"/>
+        <xs:attribute name="system" type="xs:boolean" default="false" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="channelGroupType">
@@ -85,9 +86,15 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:simpleType name="namespaceIdRestrictionPattern">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9\-_.]+" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="channel">
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
-        <xs:attribute name="typeId" type="config-description:idRestrictionPattern" use="required"/>
+        <xs:attribute name="typeId" type="thing-description:namespaceIdRestrictionPattern" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="channelGroups">

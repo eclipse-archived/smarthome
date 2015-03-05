@@ -17,10 +17,12 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The {@link Activator} class is responsible to activate this module.
@@ -34,8 +36,9 @@ import org.osgi.framework.ServiceRegistration;
  * {@link ConfigDescription} object is added to the {@link XmlConfigDescriptionProvider} and removed again, if the
  * providing bundle or this bundle is stopped.<br>
  * The {@link XmlConfigDescriptionProvider} is registered itself as service at the <i>OSGi</i> service registry.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
+ * @author Ivan Iliev - Added support for system wide channel types
  */
 public class Activator implements BundleActivator {
 
@@ -43,15 +46,28 @@ public class Activator implements BundleActivator {
 
     private ServiceRegistration<?> configDescriptionProviderReg;
     private ServiceRegistration<?> thingTypeProviderReg;
+    private ServiceRegistration<?> xmlSystemChannelTypeProviderReg;
 
     private ServiceBinder thingTypeI18nProviderServiceBinder;
     private ServiceBinder configDescriptionI18nProviderServiceBinder;
 
+    private ServiceTracker<SystemChannelTypeProvider, SystemChannelTypeProvider> systemChannelTypeProviderTracker;
+
     private XmlDocumentBundleTracker<List<?>> thingTypeTracker;
+
+    private XmlSystemChannelTypeProvider xmlSystemChannelTypeProvider;
 
     @Override
     public void start(BundleContext context) throws Exception {
-        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider();
+
+        this.systemChannelTypeProviderTracker = new ServiceTracker<>(context,
+                SystemChannelTypeProvider.class.getName(), null);
+        this.systemChannelTypeProviderTracker.open();
+
+        this.xmlSystemChannelTypeProvider = new XmlSystemChannelTypeProvider();
+
+        XmlThingTypeProvider thingTypeProvider = new XmlThingTypeProvider(systemChannelTypeProviderTracker,
+                this.xmlSystemChannelTypeProvider);
         this.thingTypeI18nProviderServiceBinder = new ServiceBinder(context, thingTypeProvider);
         this.thingTypeI18nProviderServiceBinder.open();
 
@@ -72,18 +88,26 @@ public class Activator implements BundleActivator {
         this.configDescriptionProviderReg = context.registerService(ConfigDescriptionProvider.class.getName(),
                 configDescriptionProvider, null);
 
+        this.xmlSystemChannelTypeProviderReg = context.registerService(SystemChannelTypeProvider.class.getName(),
+                this.xmlSystemChannelTypeProvider, null);
+
         this.thingTypeProviderReg = context.registerService(ThingTypeProvider.class.getName(), thingTypeProvider, null);
     }
 
     @Override
     public void stop(BundleContext context) throws Exception {
+
         this.thingTypeProviderReg.unregister();
         this.thingTypeProviderReg = null;
 
         this.configDescriptionProviderReg.unregister();
         this.configDescriptionProviderReg = null;
 
+        this.xmlSystemChannelTypeProviderReg.unregister();
+        this.xmlSystemChannelTypeProviderReg = null;
+
         this.thingTypeTracker.close();
+        this.systemChannelTypeProviderTracker.close();
 
         this.configDescriptionI18nProviderServiceBinder.close();
         this.thingTypeI18nProviderServiceBinder.close();

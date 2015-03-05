@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,9 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.converters.ConversionException;
 
 /**
- * The {@link ThingTypeXmlProvider} is responsible managing any created {@link ThingType} objects
- * by a {@link ThingDescriptionReader} for a certain bundle.
+ * The {@link ThingTypeXmlProvider} is responsible managing any created {@link ThingType} objects by a
+ * {@link ThingDescriptionReader} for a certain
+ * bundle.
  * <p>
  * This implementation registers each {@link ThingType} object at the {@link ThingTypeProvider} which is itself
  * registered as service at the <i>OSGi</i> service registry. If a configuration section is found, a
@@ -43,9 +45,10 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * used to merge with the {@link ThingTypeXmlResult} objects to create valid {@link ThingType} objects. After the merge
  * process has been finished, the cache is cleared again. The merge process is started when {@link #addingFinished()} is
  * invoked from the according {@link XmlDocumentBundleTracker}.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
- *
+ * @author Ivan Iliev - Added support for system wide channel types
+ * 
  * @see ThingTypeXmlProviderFactory
  */
 public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
@@ -61,6 +64,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
     private Map<String, ChannelGroupType> channelGroupTypes;
     private Map<String, ChannelType> channelTypes;
+    private List<ChannelType> contributedSystemChannelTypes;
 
     public ThingTypeXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider,
             XmlThingTypeProvider thingTypeProvider) throws IllegalArgumentException {
@@ -85,6 +89,7 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         this.channelGroupTypeRefs = new ArrayList<>(10);
         this.channelGroupTypes = new HashMap<>(10);
         this.channelTypes = new HashMap<>(10);
+        this.contributedSystemChannelTypes = new ArrayList<>(10);
     }
 
     @Override
@@ -100,9 +105,16 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
                     this.channelGroupTypeRefs.add(typeResult);
                 } else if (type instanceof ChannelTypeXmlResult) {
                     ChannelTypeXmlResult typeResult = (ChannelTypeXmlResult) type;
-                    addConfigDescription(typeResult.getConfigDescription());
                     ChannelType channelType = typeResult.getChannelType();
-                    this.channelTypes.put(channelType.getUID().toString(), channelType);
+
+                    if (typeResult.isSystem()) {
+                        this.thingTypeProvider.addXmlSystemChannelType(channelType);
+
+                        contributedSystemChannelTypes.add(channelType);
+                    }
+
+                    addConfigDescription(typeResult.getConfigDescription());
+                    this.channelTypes.put(channelType.getUID().getAsString(), channelType);
                 } else {
                     throw new ConversionException("Unknown data type for '" + type + "'!");
                 }
@@ -120,8 +132,19 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         }
     }
 
+    private void addSystemChannelTypes() {
+        Collection<ChannelType> systemChannelTypes = this.thingTypeProvider.getAllSystemChannelTypes();
+
+        for (ChannelType type : systemChannelTypes) {
+            this.channelTypes.put(type.getUID().getAsString(), type);
+        }
+    }
+
     @Override
     public synchronized void addingFinished() {
+
+        addSystemChannelTypes();
+
         // create channel group types
         for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
             this.channelGroupTypes.put(type.getUID().toString(), type.toChannelGroupType(this.channelTypes));
@@ -144,6 +167,10 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     public synchronized void release() {
         this.thingTypeProvider.removeAllThingTypes(this.bundle);
         this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
+
+        for (ChannelType type : contributedSystemChannelTypes) {
+            this.thingTypeProvider.removeXmlSystemChannelType(type);
+        }
     }
 
 }
