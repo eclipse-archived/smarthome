@@ -23,7 +23,7 @@ public interface Console {
     /**
      * usage output is treated differently from other output as it might
      * differ between different kinds of consoles
-     * 
+     *
      * @param s the main usage string (console independent)
      */
     public void printUsage(String s);
