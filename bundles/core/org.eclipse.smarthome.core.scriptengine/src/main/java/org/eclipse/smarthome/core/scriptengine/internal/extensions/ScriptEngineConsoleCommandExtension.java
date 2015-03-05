@@ -10,13 +10,12 @@ package org.eclipse.smarthome.core.scriptengine.internal.extensions;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.core.scriptengine.ScriptParsingException;
 import org.eclipse.smarthome.io.console.Console;
-import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
 import com.google.common.base.Joiner;
 
@@ -26,20 +25,16 @@ import com.google.common.base.Joiner;
  * @author Oliver Libutzki - Initial contribution
  *
  */
-public class ScriptEngineConsoleCommandExtension implements ConsoleCommandExtension {
+public class ScriptEngineConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private ScriptEngine scriptEngine;
 
-    @Override
-    public boolean canHandle(String[] args) {
-        String firstArg = args[0];
-        return ">".equals(firstArg);
+    public ScriptEngineConsoleCommandExtension() {
+        super(">", "Execute scripts");
     }
 
     @Override
     public void execute(String[] args, Console console) {
-        // remove first argument
-        args = (String[]) ArrayUtils.remove(args, 0);
         if (scriptEngine != null) {
             String scriptString = Joiner.on(" ").join(args);
             Script script;
@@ -64,7 +59,7 @@ public class ScriptEngineConsoleCommandExtension implements ConsoleCommandExtens
 
     @Override
     public List<String> getUsages() {
-        return Collections.singletonList("> <script to execute> - Executes a script");
+        return Collections.singletonList(buildCommandUsage("<script to execute>", "Executes a script"));
     }
 
     public void setScriptEngine(ScriptEngine scriptEngine) {

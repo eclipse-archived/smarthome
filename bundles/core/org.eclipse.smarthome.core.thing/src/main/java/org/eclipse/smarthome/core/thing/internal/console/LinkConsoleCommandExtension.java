@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.io.console.Console;
-import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
 /**
  * {@link LinkConsoleCommandExtension} provides console commands for listing,
@@ -27,88 +27,85 @@ import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Added support for links between items and things
  */
-public class LinkConsoleCommandExtension implements ConsoleCommandExtension {
+public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
-    private final static String COMMAND_LINKS = "links";
+    private static final String SUBCMD_LIST = "list";
+    private static final String SUBCMD_CL_ADD = "addChannelLink";
+    private static final String SUBCMD_CL_REMOVE = "removeChannelLink";
+    private static final String SUBCMD_TL_ADD = "addThingLink";
+    private static final String SUBCMD_TL_REMOVE = "removeThingLink";
+    private static final String SUBCMD_CLEAR = "clear";
+
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ItemThingLinkRegistry itemThingLinkRegistry;
 
-    @Override
-    public boolean canHandle(String[] args) {
-        String firstArgument = args[0];
-        return COMMAND_LINKS.equals(firstArgument);
+    public LinkConsoleCommandExtension() {
+        super("links", "Manage your links.");
     }
 
     @Override
     public void execute(String[] args, Console console) {
-        String command = args[0];
-        switch (command) {
-            case COMMAND_LINKS:
-                if (args.length > 1) {
-                    String subCommand = args[1];
-                    switch (subCommand) {
-                        case "list":
-                            list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
-                            return;
-                        case "addChannelLink":
-                            if (args.length > 3) {
-                                String itemName = args[2];
-                                ChannelUID channelUID = new ChannelUID(args[3]);
-                                addChannelLink(console, itemName, channelUID);
-                            } else {
-                                console.println("Specify item name and channel UID to link: link <itemName> <channelUID>");
-                            }
-                            return;
-                        case "removeChannelLink":
-                            if (args.length > 3) {
-                                String itemName = args[2];
-                                ChannelUID channelUID = new ChannelUID(args[3]);
-                                removeChannelLink(console, itemName, channelUID);
-                            } else {
-                                console.println("Specify item name and channel UID to unlink: link <itemName> <channelUID>");
-                            }
-                            return;
-                        case "addThingLink":
-                            if (args.length > 3) {
-                                String itemName = args[2];
-                                ThingUID thingUID = new ThingUID(args[3]);
-                                addThingLink(console, itemName, thingUID);
-                            } else {
-                                console.println("Specify item name and thing UID to link: link <itemName> <thingUID>");
-                            }
-                            return;
-                        case "removeThingLink":
-                            if (args.length > 3) {
-                                String itemName = args[2];
-                                ThingUID thingUID = new ThingUID(args[3]);
-                                removeThingLink(console, itemName, thingUID);
-                            } else {
-                                console.println("Specify item name and thing UID to unlink: link <itemName> <thingUID>");
-                            }
-                            return;
-                        case "clear":
-                            clear(console);
-                            return;
-                        default:
-                            break;
-                    }
-                } else {
+        if (args.length > 0) {
+            String subCommand = args[0];
+            switch (subCommand) {
+                case SUBCMD_LIST:
                     list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
-                }
-                return;
-            default:
-                return;
+                    return;
+                case SUBCMD_CL_ADD:
+                    if (args.length > 2) {
+                        String itemName = args[1];
+                        ChannelUID channelUID = new ChannelUID(args[2]);
+                        addChannelLink(console, itemName, channelUID);
+                    } else {
+                        console.println("Specify item name and channel UID to link: link <itemName> <channelUID>");
+                    }
+                    return;
+                case SUBCMD_CL_REMOVE:
+                    if (args.length > 2) {
+                        String itemName = args[1];
+                        ChannelUID channelUID = new ChannelUID(args[2]);
+                        removeChannelLink(console, itemName, channelUID);
+                    } else {
+                        console.println("Specify item name and channel UID to unlink: link <itemName> <channelUID>");
+                    }
+                    return;
+                case SUBCMD_TL_ADD:
+                    if (args.length > 2) {
+                        String itemName = args[1];
+                        ThingUID thingUID = new ThingUID(args[2]);
+                        addThingLink(console, itemName, thingUID);
+                    } else {
+                        console.println("Specify item name and thing UID to link: link <itemName> <thingUID>");
+                    }
+                    return;
+                case SUBCMD_TL_REMOVE:
+                    if (args.length > 2) {
+                        String itemName = args[1];
+                        ThingUID thingUID = new ThingUID(args[2]);
+                        removeThingLink(console, itemName, thingUID);
+                    } else {
+                        console.println("Specify item name and thing UID to unlink: link <itemName> <thingUID>");
+                    }
+                    return;
+                case SUBCMD_CLEAR:
+                    clear(console);
+                    return;
+                default:
+                    break;
+            }
+        } else {
+            list(console, itemChannelLinkRegistry.getAll(), itemThingLinkRegistry.getAll());
         }
     }
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList((new String[] { COMMAND_LINKS + " list - lists all links",
-                COMMAND_LINKS + " addChannelLink <itemName> <channelUID> - links an item with a channel",
-                COMMAND_LINKS + " addThingLink <itemName> <thingUID> - links an item with a thing",
-                COMMAND_LINKS + " removeChannelLink <itemName> <channelUID> - unlinks an item with a channel",
-                COMMAND_LINKS + " removeThingLink <itemName> <thingUID> - unlinks an item with a thing",
-                COMMAND_LINKS + " clear - removes all managed links" }));
+        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all links"),
+                buildCommandUsage(SUBCMD_CL_ADD + " <itemName> <channelUID>", "links an item with a channel"),
+                buildCommandUsage(SUBCMD_CL_REMOVE + " <itemName> <thingUID>", "links an item with a thing"),
+                buildCommandUsage(SUBCMD_TL_ADD + " <itemName> <channelUID>", "unlinks an item with a channel"),
+                buildCommandUsage(SUBCMD_TL_REMOVE + " <itemName> <thingUID>", "unlinks an item with a thing"),
+                buildCommandUsage(SUBCMD_CLEAR, "removes all managed links") });
     }
 
     private void clear(Console console) {
