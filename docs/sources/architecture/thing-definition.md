@@ -156,8 +156,8 @@ The channel group type is defined on the same level as the thing types and chann
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
 
-### Default Thing Properties
-The configuration descriptions explained in full detail [here](../architecture/configuration.md) are used in order to provide configuration properties for bindings. These properties are enhanced through configuration descriptions so that the property value can be interpreted in a meaningful manner. However in order to keep the XML based configuration clean there are predefined default thing properties available. The type of these properties can always be handled as a `java.lang.String` so that no further configuration description is necessary. The keys for these properties are defined in the `org.eclipse.smarthome.core.thing.DefaultPropertyKey` enumeration which provides the following property keys:
+### Common Thing Properties
+The configuration descriptions explained in full detail [here](../architecture/configuration.md) are used in order to provide configuration properties for bindings. These properties are enhanced through configuration descriptions so that the property value can be interpreted in a meaningful manner. However in order to keep the XML based configuration clean there are predefined common thing properties available. The keys for these properties are defined in the `org.eclipse.smarthome.core.thing.CommonPropertyKey` enumeration which provides the following property keys:
 
 - Vendor
 - Model
@@ -165,23 +165,7 @@ The configuration descriptions explained in full detail [here](../architecture/c
 - Hardware Version
 - Firmware Version
 
-To use these properties the operation `getStaticProperties` of the `BaseThingHandlerFactory` class can be overwritten in the concrete thing handler factory class. The following code snippet shows how these thing properties are injected into the thing configuration. 
-
-```java
-public class MyConcreteThingHandlerFactory extends BaseThingHandlerFactory {
-
-    ...
-
-    @Override
-    protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
-        Map<DefaultPropertyKey, String> staticProperties = super.getStaticProperties(thing);
-        staticProperties.put(DefaultPropertyKey.VENDOR, "MyThingVendor");
-        return staticProperties;
-    }
-}
-```
-
-If the value for the property to be set is not available when the thing is created then the property value can also be stored in the concrete thing handler class during the communication with the thing. For example, the properties can be stored during the execution of the `initialize` operation:
+The common thing property value can either be stored in the `createThing` operation of the concrete thing handler factory class or in the concrete thing handler class during the communication with the thing, e.g. during the execution of the `initialize` operation:
 
 ```java
 public class MyConcreteThingHandler extends BaseThingHandler {

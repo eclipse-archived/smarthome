@@ -172,19 +172,6 @@ Moreover the configuration class has a utility method `as(Class<T> configuration
 
 For example, the Yahoo Weather binding allows to configure the location and unit. 
 
-Additionally the `BaseThingHandlerFactory` class provides an operation to inject common default thing properties into the thing configuration. For this purpose the concrete thing handler factory class must overwrite the operation `getStaticProperties`. As the following code snippet of the `YahooWeatherHandlerFactory` shows the vendor Yahoo is injected into the thing configuration by overwriting the `getStaticProperties` operation. 
-
-```java
-@Override
-protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
-    Map<DefaultPropertyKey, String> staticProperties = super.getStaticProperties(thing);
-    staticProperties.put(DefaultPropertyKey.VENDOR, "Yahoo");
-    return staticProperties;
-}
-```
-
-The section Default Thing Properties on the [Thing Type Definitions](../architecture/thing-definition.md) page provides further information about default thing properties. As a binding developer you should provide as many as possible thing properties.
-
 ## Bridges
 
 In the domain of an IoT system there are often hierarchical structures of devices and services. For example one device acts as a gateway that enables to communicate with other devices of the same protocol. In Eclipse SmartHome this kind of device or service is called *Bridge*. Philips Hue is one example of a system that requires a bridge. The Hue gateway is an IP device with an HTTP API, which communicates over the ZigBee protocol with the Hue bulbs. In the Eclipse SmartHome model the Hue gateway is represented as a *Bridge* with connected *Things*, that represent the hue bulbs. *Bridge* inherits from *Thing*, so that it also has *Channels* and all other features of a thing, with the addition, that it also holds a list of things.

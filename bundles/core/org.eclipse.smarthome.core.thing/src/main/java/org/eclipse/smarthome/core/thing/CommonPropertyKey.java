@@ -8,11 +8,12 @@
 package org.eclipse.smarthome.core.thing;
 
 /**
- * The {@link DefaultPropertyKey} enumeration defines all keys for default properties of a {@link Thing}.
+ * The {@link CommonPropertyKey} enumeration defines keys to be used for common configuration 
+ * properties of a {@link Thing}.
  * 
  * @author Thomas Höfer - initial contribution
  */
-public enum DefaultPropertyKey {
+public enum CommonPropertyKey {
 
     VENDOR("vendor"), 
     MODEL("model"), 
@@ -22,7 +23,7 @@ public enum DefaultPropertyKey {
 
     public final String name;
 
-    private DefaultPropertyKey(String name) {
+    private CommonPropertyKey(String name) {
         this.name = name;
     }
 }

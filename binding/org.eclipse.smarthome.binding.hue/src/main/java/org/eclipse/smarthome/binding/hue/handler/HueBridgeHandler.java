@@ -32,11 +32,12 @@ import nl.q42.jue.exceptions.ApiException;
 import nl.q42.jue.exceptions.DeviceOffException;
 import nl.q42.jue.exceptions.UnauthorizedException;
 
+import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
+import org.eclipse.smarthome.core.thing.CommonPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
- * @author Thomas Höfer - added default properties for firmware version and serial number
+ * @author Thomas Höfer - added values for common thing properties
  *
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
@@ -132,12 +133,12 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                                 }
                             }
                         }
-                        
-                        final Config config = fullConfig.getConfig(); 
+
+                        final Config config = fullConfig.getConfig();
                         if (config != null) {
-                            storeConfigValue(getThing().getConfiguration(), DefaultPropertyKey.SERIAL_NUMBER,
-                                    config.getMACAddress().replaceAll(":", ""));
-                            storeConfigValue(getThing().getConfiguration(), DefaultPropertyKey.FIRMWARE_VERSION,
+                            storeConfigValue(getThing().getConfiguration(), CommonPropertyKey.SERIAL_NUMBER,
+                                    config.getMACAddress());
+                            storeConfigValue(getThing().getConfiguration(), CommonPropertyKey.FIRMWARE_VERSION,
                                     config.getSoftwareVersion());
                         }
                     }
@@ -164,8 +165,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
             }
         }
-        
-        private void storeConfigValue(Configuration configuration, DefaultPropertyKey key, String newValue) {
+
+        private void storeConfigValue(Configuration configuration, CommonPropertyKey key, String newValue) {
             String existingPropertyValue = (String) configuration.get(key.name);
             if (existingPropertyValue == null || !existingPropertyValue.equals(newValue)) {
                 configuration.put(key.name, newValue);
@@ -238,6 +239,9 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     @Override
     public void initialize() {
         logger.debug("Initializing hue bridge handler.");
+
+        getConfig().put(CommonPropertyKey.VENDOR.name, HueBindingConstants.VENDOR_PHILIPS);
+        getConfig().put(CommonPropertyKey.MODEL.name, THING_TYPE_BRIDGE.getId());
 
         if (getConfig().get(USER_NAME) == null) {
             getConfig().put(USER_NAME, DEFAULT_USERNAME);

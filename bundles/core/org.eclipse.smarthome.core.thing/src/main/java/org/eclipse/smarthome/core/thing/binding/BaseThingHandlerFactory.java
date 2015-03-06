@@ -15,7 +15,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.thing.DefaultPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -34,7 +33,6 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
- * @author Thomas Höfer - added getStaticProperties operation
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
@@ -234,12 +232,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         if (thingType != null) {
             Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
-            Map<DefaultPropertyKey, String> staticProperties = getStaticProperties(thing);
-            if (staticProperties != null) {
-                for (DefaultPropertyKey staticProperty : staticProperties.keySet()) {
-                    thing.getConfiguration().put(staticProperty.name, staticProperties.get(staticProperty));
-                }
-            }
             return thing;
         }
         return null;
@@ -251,15 +243,5 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                     "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");
         }
         return configDescriptionRegistryServiceTracker.getService();
-    }
-
-    /**
-     * Retrieves the {@link DefaultPropertyKey}s for the given {@link Thing}. Sub-classes should overwrite this operation
-     * in order to provide these kind of properties for the things to be created.
-     * 
-     * @param thing the {@link Thing} for which the {@link DefaultPropertyKey}s are to be retrieved
-     */
-    protected Map<DefaultPropertyKey, String> getStaticProperties(Thing thing) {
-        return new HashMap<>();
     }
 }

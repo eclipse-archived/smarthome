@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Jochen Hiller - Added OSRAM Classic A60 RGBW
+ * @author Thomas Höfer - Added vendor names
  */
 public class HueBindingConstants {
 
@@ -51,5 +52,9 @@ public class HueBindingConstants {
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
+
+    // vendors
+    public static final String VENDOR_PHILIPS = "Philips";
+    public static final String VENDOR_OSRAM = "OSRAM";
 
 }
