@@ -31,9 +31,8 @@ import org.osgi.util.tracker.ServiceTracker;
  * registration logic.
  *
  * @author Dennis Nobel - Initial contribution
- *         * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
- *
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
@@ -41,7 +40,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
-    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescritpionRegistryServiceTracker;
+    private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
 
     /**
      * Initializes the {@link BaseThingHandlerFactory}. If this method is
@@ -54,9 +53,9 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         this.bundleContext = componentContext.getBundleContext();
         thingTypeRegistryServiceTracker = new ServiceTracker<>(bundleContext, ThingTypeRegistry.class.getName(), null);
         thingTypeRegistryServiceTracker.open();
-        configDescritpionRegistryServiceTracker = new ServiceTracker<>(bundleContext,
+        configDescriptionRegistryServiceTracker = new ServiceTracker<>(bundleContext,
                 ConfigDescriptionRegistry.class.getName(), null);
-        configDescritpionRegistryServiceTracker.open();
+        configDescriptionRegistryServiceTracker.open();
     }
 
     /**
@@ -72,7 +71,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             unregisterHandler(serviceRegistration);
         }
         thingTypeRegistryServiceTracker.close();
-        configDescritpionRegistryServiceTracker.close();
+        configDescriptionRegistryServiceTracker.close();
         this.thingHandlers.clear();
         this.bundleContext = null;
     }
@@ -234,17 +233,15 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
                     getConfigDescriptionRegistry());
             return thing;
-        } else {
-            return null;
         }
+        return null;
     }
 
     protected ConfigDescriptionRegistry getConfigDescriptionRegistry() {
-        if (configDescritpionRegistryServiceTracker == null) {
+        if (configDescriptionRegistryServiceTracker == null) {
             throw new IllegalStateException(
                     "Config Description Registry has not been properly initialized. Did you forget to call super.activate()?");
         }
-        return configDescritpionRegistryServiceTracker.getService();
+        return configDescriptionRegistryServiceTracker.getService();
     }
-
 }

@@ -11,6 +11,7 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_BRIG
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLOR;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLORTEMPERATURE;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_CLASSIC_A60_RGBW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT002;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT003;
@@ -24,7 +25,6 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_L
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_CLASSIC_A60_RGBW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_SURFACE_LIGHT_TW;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_ZLL_LIGHT;
 
@@ -35,12 +35,14 @@ import nl.q42.jue.HueBridge;
 import nl.q42.jue.State;
 import nl.q42.jue.StateUpdate;
 
+import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.CommonPropertyKey;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -60,18 +62,23 @@ import com.google.common.collect.Sets;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
  * @author Andre Fuechsel - implemented switch off when brightness == 0
+ * @author Thomas Höfer - added values for common thing properties
  *
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
-	public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets
-			.newHashSet(THING_TYPE_LCT001, THING_TYPE_LCT002,
-					THING_TYPE_LCT003, THING_TYPE_LLC001, THING_TYPE_LLC006,
-					THING_TYPE_LLC007, THING_TYPE_LLC010, THING_TYPE_LLC011,
-					THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001,
-					THING_TYPE_LST001, THING_TYPE_LCT003, THING_TYPE_LWB004,
-					THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW,
-					THING_TYPE_ZLL_LIGHT);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_LCT002,
+            THING_TYPE_LCT003, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007, THING_TYPE_LLC010,
+            THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001, THING_TYPE_LST001,
+            THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW,
+            THING_TYPE_ZLL_LIGHT);
+
+    private static final Set<ThingTypeUID> PHILIPS_LIGHTS_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001,
+            THING_TYPE_LCT002, THING_TYPE_LCT003, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007,
+            THING_TYPE_LLC010, THING_TYPE_LLC011, THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013,
+            THING_TYPE_LST001, THING_TYPE_LWB004, THING_TYPE_LWL001);
+    private static final Set<ThingTypeUID> OSRAM_LIGHTS_THING_TYPES = Sets.newHashSet(THING_TYPE_CLASSIC_A60_RGBW,
+            THING_TYPE_SURFACE_LIGHT_TW);
 
     private static final int DIM_STEPSIZE = 30;
 
@@ -91,12 +98,26 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void initialize() {
         logger.debug("Initializing hue light handler.");
+
+        String vendor = getLightVendor(getThing().getThingTypeUID());
+        if (vendor != null) {
+            getThing().getConfiguration().put(CommonPropertyKey.VENDOR.name, vendor);
+        }
+        if (!getThing().getThingTypeUID().equals(THING_TYPE_ZLL_LIGHT)) {
+            getThing().getConfiguration().put(CommonPropertyKey.MODEL.name, getThing().getThingTypeUID().getId());
+        }
+
         final String configLightId = (String) getConfig().get(LIGHT_ID);
         if (configLightId != null) {
             lightId = configLightId;
             // note: this call implicitly registers our handler as a listener on the bridge
             if (getHueBridgeHandler() != null) {
                 getThing().setStatus(getBridge().getStatus());
+                FullLight light = getLight();
+                if (light != null) {
+                    getThing().getConfiguration().put(CommonPropertyKey.FIRMWARE_VERSION.name,
+                            light.getSoftwareVersion());
+                }
             }
         }
     }
@@ -111,6 +132,15 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             }
             lightId = null;
         }
+    }
+
+    private static String getLightVendor(ThingTypeUID thingTypeUID) {
+        if (PHILIPS_LIGHTS_THING_TYPES.contains(thingTypeUID)) {
+            return HueBindingConstants.VENDOR_PHILIPS;
+        } else if (OSRAM_LIGHTS_THING_TYPES.contains(thingTypeUID)) {
+            return HueBindingConstants.VENDOR_OSRAM;
+        }
+        return null;
     }
 
     private FullLight getLight() {

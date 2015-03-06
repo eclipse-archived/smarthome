@@ -170,7 +170,7 @@ The `ThingHandler` has two important lifecycle methods: `initialize` and `dispos
 
 Moreover the configuration class has a utility method `as(Class<T> configurationClass)` that transform the configuration into a Java object of the given type. All configuration values will be mapped to properties of the class. The type of the property must match the type of the configuration. Only the following types are supported for configuration values: `Boolean`, `String` and `BigDecimal`.
 
-For example, the Yahoo Weather binding allows to configure the location and unit.
+For example, the Yahoo Weather binding allows to configure the location and unit. 
 
 ## Bridges
 

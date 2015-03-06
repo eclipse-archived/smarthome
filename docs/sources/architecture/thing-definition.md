@@ -155,3 +155,33 @@ The channel group type is defined on the same level as the thing types and chann
 ```
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+
+### Common Thing Properties
+The configuration descriptions explained in full detail [here](../architecture/configuration.md) are used in order to provide configuration properties for bindings. These properties are enhanced through configuration descriptions so that the property value can be interpreted in a meaningful manner. However in order to keep the XML based configuration clean there are predefined common thing properties available. The keys for these properties are defined in the `org.eclipse.smarthome.core.thing.CommonPropertyKey` enumeration which provides the following property keys:
+
+- Vendor
+- Model
+- Serial Number
+- Hardware Version
+- Firmware Version
+
+The common thing property value can either be stored in the `createThing` operation of the concrete thing handler factory class or in the concrete thing handler class during the communication with the thing, e.g. during the execution of the `initialize` operation:
+
+```java
+public class MyConcreteThingHandler extends BaseThingHandler {
+
+    ...
+
+    @Override
+    public void initialize() {
+        ... // other initialization stuff
+        
+        // retrieve the information from the real thing, e.g. by using the REST API of the real thing
+        MyRealThingInfo info = getMyRealThingInfo(); 
+        
+        // store the properties in the thing configuration
+        getThing().getConfiguration().put(DefaultPropertyKey.SERIAL_NUMBER.name, info.getSerialNumber());
+        getThing().getConfiguration().put(DefaultPropertyKey.FIRMWARE_VERSION.name, info.getFirmwareVersion());
+    }
+}
+```
