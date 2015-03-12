@@ -32,7 +32,7 @@ public class LocationTypeTest {
 		locationBerlin.setState(pointBerlin);
 		
 		DecimalType distance = locationParis.distanceFrom(pointParis);
-		assertEquals(distance.intValue(),0);
+		assertEquals(0,distance.intValue());
 		
 		double parisBerlin = locationParis.distanceFrom(pointBerlin).doubleValue();
 		assertEquals(parisBerlin,878400,50);	
