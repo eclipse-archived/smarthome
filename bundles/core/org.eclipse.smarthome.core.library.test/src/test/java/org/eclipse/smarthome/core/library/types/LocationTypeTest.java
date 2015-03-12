@@ -35,7 +35,7 @@ public class LocationTypeTest {
 		assertEquals(0,distance.intValue());
 		
 		double parisBerlin = locationParis.distanceFrom(pointBerlin).doubleValue();
-		assertEquals(parisBerlin,878400,50);	
+		assertEquals(878400,50,parisBerlin);	
 		
 		double gravParis = pointParis.getGravity().doubleValue();
 		assertEquals(gravParis,9.809,0.001);
