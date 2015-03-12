@@ -21,8 +21,8 @@ public class LocationTypeTest {
 	public void testDistance() {	
 		PointType pointParis = new PointType("48.8566140,2.3522219");
 
-		assertEquals(pointParis.getLatitude().doubleValue(),48.856614,0.0000001);
-		assertEquals(pointParis.getLongitude().doubleValue(),2.3522219,0.0000001);
+		assertEquals(48.856614,pointParis.getLatitude().doubleValue(),0.0000001);
+		assertEquals(2.3522219,pointParis.getLongitude().doubleValue(),0.0000001);
 		
 		PointType pointBerlin = new PointType("52.5200066,13.4049540");
 		
