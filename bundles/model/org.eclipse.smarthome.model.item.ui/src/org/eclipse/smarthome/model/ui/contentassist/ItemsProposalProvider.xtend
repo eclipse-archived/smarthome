@@ -19,7 +19,7 @@ import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor
  * see http://www.eclipse.org/Xtext/documentation.html#contentAssist on how to customize content assistant
  */
 class ItemsProposalProvider extends AbstractItemsProposalProvider {
-	protected static final Set<String> ITEMTYPES = newHashSet("Group", "Switch", "Number", "String", "Dimmer", "Color", "Contact", "Rollershutter", "DateTime")
+	protected static final Set<String> ITEMTYPES = newHashSet("Group", "Switch", "Number", "String", "Dimmer", "Color", "Contact", "Rollershutter", "DateTime", "Point")
 
 	override void completeModelNormalItem_Type(EObject model,
 			Assignment assignment, ContentAssistContext context,

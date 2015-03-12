@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
@@ -225,6 +226,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             return SitemapFactory.eINSTANCE.createSwitch();
         }
         if (itemType.equals(StringItem.class)) {
+            return SitemapFactory.eINSTANCE.createText();
+        }
+        if (itemType.equals(LocationItem.class)) {
             return SitemapFactory.eINSTANCE.createText();
         }
         if (itemType.equals(DimmerItem.class)) {
