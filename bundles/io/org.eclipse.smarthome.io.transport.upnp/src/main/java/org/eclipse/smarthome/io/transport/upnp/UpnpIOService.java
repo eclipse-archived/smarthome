@@ -47,6 +47,13 @@ public interface UpnpIOService {
      * @return true of the participant is registered with the UpnpIOService
      */
     public boolean isRegistered(UpnpIOParticipant participant);
+    
+    /**
+     * Register a participant with the UPNP IO Service
+     * 
+     * @param participant - the participant whom's participation we want to register
+     */
+    public void registerParticipant(UpnpIOParticipant participant);
 
     /**
      * Retrieves the descriptor url for the participant
@@ -56,5 +63,17 @@ public interface UpnpIOService {
      * @return the url of the descriptor as provided by the upnp device
      */
     public URL getDescriptorURL(UpnpIOParticipant participant);
+    
+    /**
+     * Establish a polling mechanism to check the status of a specific UDN device. The polling mechanism
+     * works by invoking the actionID on serviceID every interval. It is assumed that the actionID does
+     * not take/have to take any {variable,value} input set
+     * 
+     * @param participant - the participant for whom we want to set up a polling
+     * @param serviceID - the service to use for polling
+     * @param actionID - the action to call
+     * @param interval - the interval in seconds
+     */
+    public void addStatusListener(UpnpIOParticipant participant, String serviceID, String actionID, int interval);
 
 }
