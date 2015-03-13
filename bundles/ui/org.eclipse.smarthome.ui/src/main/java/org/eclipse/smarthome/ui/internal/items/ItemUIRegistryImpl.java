@@ -30,6 +30,7 @@ import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
@@ -227,6 +228,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemType.equals(StringItem.class)) {
             return SitemapFactory.eINSTANCE.createText();
         }
+        if (itemType.equals(LocationItem.class)) {
+            return SitemapFactory.eINSTANCE.createText();
+        }
         if (itemType.equals(DimmerItem.class)) {
             Slider slider = SitemapFactory.eINSTANCE.createSlider();
             slider.setSwitchEnabled(true);
@@ -345,7 +349,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     /**
      * Takes the given <code>formatPattern</code> and replaces it with a analog
      * String-based pattern to replace all value Occurrences with a dash ("-")
-     * 
+     *
      * @param formatPattern the original pattern which will be replaces by a
      *            String pattern.
      * @return a formatted String with dashes ("-") as value replacement
@@ -521,7 +525,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * This method creates a list of children for a group dynamically.
      * If there are no explicit children defined in a sitemap, the children
      * can thus be created on the fly by iterating over the members of the group item.
-     * 
+     *
      * @param group The group widget to get children for
      * @return a list of default widgets provided for the member items
      */

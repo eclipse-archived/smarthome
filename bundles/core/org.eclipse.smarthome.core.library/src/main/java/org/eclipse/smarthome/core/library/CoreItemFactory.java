@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
 import org.eclipse.smarthome.core.library.items.ImageItem;
+import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.PlayerItem;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
@@ -38,6 +39,7 @@ public class CoreItemFactory implements ItemFactory {
     public static final String COLOR = "Color";
     public static final String IMAGE = "Image";
     public static final String PLAYER = "Player";
+    public static final String POINT = "Point";
 
     /**
      * @{inheritDoc
@@ -64,6 +66,8 @@ public class CoreItemFactory implements ItemFactory {
             return new ImageItem(itemName);
         if (itemTypeName.equals(PLAYER))
             return new PlayerItem(itemName);
+        if (itemTypeName.equals(POINT))
+            return new LocationItem(itemName);
         else
             return null;
     }
@@ -73,7 +77,8 @@ public class CoreItemFactory implements ItemFactory {
      */
     @Override
     public String[] getSupportedItemTypes() {
-        return new String[] { SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE, PLAYER };
+        return new String[] { SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE, PLAYER,
+                POINT };
     }
 
 }
