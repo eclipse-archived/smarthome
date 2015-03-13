@@ -38,7 +38,7 @@ public class LocationTypeTest {
 		assertEquals(878400,50,parisBerlin);	
 		
 		double gravParis = pointParis.getGravity().doubleValue();
-		assertEquals(gravParis,9.809,0.001);
+		assertEquals(9.809,gravParis,0.001);
 		
 		// Check canonization of position
 		PointType point3 = new PointType("-100,200");
