@@ -1,7 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Synthetic Test Bundle
-Bundle-SymbolicName: ThingTypesTest.bundle;singleton:=true
+Bundle-SymbolicName: SystemChannelsNoThingTypes.bundle;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .

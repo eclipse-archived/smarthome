@@ -20,6 +20,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -29,8 +30,9 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * contains all fields needed to create a concrete {@link ThingType} object.
  * <p>
  * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
- *
+ * 
  * @author Michael Grammling - Initial Contribution
+ * @author Ivan Iliev - Added support for system wide channel types
  */
 public class ThingTypeXmlResult {
 
@@ -74,6 +76,11 @@ public class ThingTypeXmlResult {
                     String typeId = channelTypeReference.getAttribute("typeId");
 
                     String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
+
+                    int systemPrefixIdx = typeId.indexOf(SystemChannelTypeProvider.NAMESPACE_PREFIX);
+                    if (systemPrefixIdx != -1) {
+                        typeUID = XmlHelper.getSystemUID(typeId);
+                    }
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {

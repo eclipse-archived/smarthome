@@ -44,6 +44,33 @@ The following XML snippet shows a thing type definition with 2 channels and one 
 </channel-type>
 ```
 
+In order to reuse identical channels in different bindings a channeltype can be systemwide. A channel-type can be declared as systemwide by setting its `system` property to true and can then be referenced using a `system.` prefix in a `channel` `typeId` attribute in any binding.  
+
+The following XML snippet shows a system channel-type definition and thing-type definition that references it:
+
+```xml 
+<thing-type id="thingTypeID">
+    <label>Sample Thing</label>
+    <description>Some sample description</description>
+    <channels>
+      <channel id="s" typeId="system.system-channel" />
+    </channels>
+</thing-type>
+<channel-type id="system-channel" system="true">
+    <item-type>Number</item-type>
+    <label>System Channel</label>
+    <category>QualityOfService</category>
+</channel-type>
+```
+
+There exist systemwide channels that are available by default:
+
+| Channel Type ID | Reference typeId       | Item Type    | Category         | Description  |
+|-----------------|------------------------|--------------|----------------- |------------- |
+| signal-strength | system.signal-strength | Number       | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.  |
+| low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off |
+
+
 The `advanced` property indicates whether this channel is a basic or a more specific functionality of the thing. If `advanced` is set to `true` a user interface may hide this channel by default. The default value is `false` and thus will be taken if the `advanced` attribute is not specified. Especially for complex devices with a lot of channels, only a small set of channels - the most important ones - should be shown to the user to reduce complexity. Whether a channel should be declared as `advanced` depends on the device and can be decided by the binding developer. If a functionality is rarely used it should be better marked as `advanced`.
 
 In the following sections the declaration and semantics of tags, state descriptions and channel categories will be explained in more detail. For a complete sample of the thing types XML file and a full list of possible configuration options please see the [XML Configuration Guide](configuration.md).
@@ -109,6 +136,7 @@ The channel type definition allows to specify a category. Together with the defi
 | Player        | RW              | Player                 |
 | PowerOutlet   | RW              | Switch                 |
 | Pressure      | R               | Number                 |
+| QualityOfService      | R       | Number                 |
 | Rain          | R               | Switch, Number         |
 | Recorder      | RW              | String                 |
 | Smoke         | R               | Switch                 |
