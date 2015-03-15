@@ -55,13 +55,18 @@ class ThingTypesTest extends OSGiTest {
         assertThat bridgeType, is(notNullValue())
         assertThat bridgeType.label, is("HUE Bridge")
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
-
+        assertThat bridgeType.properties.size(), is(1)
+        assertThat bridgeType.properties.get("vendor"), is("Philips")
+        
         def thingType = thingTypes.find { it.toString().equals("hue:lamp") } as ThingType
         assertThat thingType, is(notNullValue())
         assertThat thingType.label, is("HUE Lamp")
         assertThat thingType.description, is("My own great HUE Lamp.")
         assertThat thingType.supportedBridgeTypeUIDs.size(), is(1)
         assertThat thingType.supportedBridgeTypeUIDs.head(), is("hue:bridge")
+        assertThat thingType.properties.size(), is(2)
+        assertThat thingType.properties.get("key1"), is("value1")
+        assertThat thingType.properties.get("key2"), is("value2")
         thingType.channelDefinitions.with {
             assertThat size(), is(3)
             def colorChannel = it.find { it.id.equals("color") } as ChannelDefinition
@@ -121,7 +126,10 @@ class ThingTypesTest extends OSGiTest {
                 assertThat state.options[0].label, is(equalTo("My great sound."))
             }
         }
-
+        
+        thingType = thingTypes.find { it.toString().equals("hue:lamp-with-group") } as ThingType
+        assertThat thingType.properties.size(), is(0)
+        
         // uninstall test bundle
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)

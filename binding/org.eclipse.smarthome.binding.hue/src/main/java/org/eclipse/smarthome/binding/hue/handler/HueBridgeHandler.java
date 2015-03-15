@@ -22,6 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import nl.q42.jue.Config;
 import nl.q42.jue.FullConfig;
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
@@ -51,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Libutzki
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
+ * @author Thomas Höfer - added thing properties
  *
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
@@ -128,6 +130,14 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                                 }
                             }
                         }
+
+                        final Config config = fullConfig.getConfig();
+                        if (config != null) {
+                            // TODO persist thing changes if ticket #461874 is implemented
+                            setThingProperty(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
+                            setThingProperty(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                        }
+
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
                     if (isReachable(bridge.getIPAddress())) {

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -29,6 +30,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * offers base functionality for each type definition.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTypeXmlResult> {
 
@@ -77,14 +79,19 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
         return new List[] { channelTypeReferences, channelGroupTypeReferences };
     }
 
+    @SuppressWarnings("unchecked")
+    protected List<NodeValue> getProperties(NodeIterator nodeIterator) {
+        return (List<NodeValue>) nodeIterator.nextList("properties", false); 
+    }
+    
     @Override
     protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-
+        
         ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(new ThingTypeUID(super.getUID(attributes,
                 context)), readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator),
-                super.getConfigDescriptionObjects(nodeIterator));
+                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator), 
+                getProperties(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
     }

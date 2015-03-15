@@ -49,7 +49,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     private ThingTypeI18nUtil thingTypeI18nUtil;
 
     public XmlThingTypeProvider() {
-        this.bundleThingTypesMap = new HashMap<>(10);
+        this.bundleThingTypesMap = new HashMap<>();
     }
 
     private List<ThingType> acquireThingTypes(Bundle bundle) {
@@ -57,7 +57,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             List<ThingType> thingTypes = this.bundleThingTypesMap.get(bundle);
 
             if (thingTypes == null) {
-                thingTypes = new ArrayList<ThingType>(10);
+                thingTypes = new ArrayList<>();
 
                 this.bundleThingTypesMap.put(bundle, thingTypes);
             }
@@ -107,9 +107,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     state, channelType.getConfigDescriptionURI());
 
             return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
-        } else {
-            return channelDefinition;
         }
+        return channelDefinition;
     }
 
     private ChannelGroupDefinition createLocalizedChannelGroupDefinition(Bundle bundle,
@@ -158,9 +157,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
             return new StateDescription(state.getMinimum(), state.getMaximum(), state.getStep(), pattern,
                     state.isReadOnly(), localizedOptions);
-        } else {
-            return null;
         }
+        return null;
     }
 
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
@@ -189,16 +187,15 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
                 return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
+                        localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
                         bridgeType.getConfigDescriptionURI());
-            } else {
-                return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                        thingType.getConfigDescriptionURI());
             }
-        } else {
-            return thingType;
+            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
+                    localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
+                    thingType.getConfigDescriptionURI());
+
         }
+        return thingType;
     }
 
     @Override

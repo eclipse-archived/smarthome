@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.binding.builder;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -43,6 +44,15 @@ public class GenericThingBuilder<T extends GenericThingBuilder<T>> {
     public T withBridge(ThingUID bridgeUID) {
         if (bridgeUID != null) {
             this.thing.setBridgeUID(bridgeUID);
+        }
+        return self();
+    }
+
+    public T withProperties(Map<String, String> properties) {
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                this.thing.setProperty(key, properties.get(key));
+            }
         }
         return self();
     }

@@ -39,6 +39,7 @@ import com.google.common.collect.Lists;
  * @author Dennis Nobel - Initial contribution, added support for channel groups
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
+ * @author Thomas Höfer - added thing and thing type properties
  */
 public class ThingFactory {
 
@@ -106,8 +107,7 @@ public class ThingFactory {
         List<Channel> channels = createChannels(thingType, thingUID, configDescriptionRegistry);
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
-                .withBridge(bridgeUID).build();
-
+                .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
     }
 
     /**
@@ -123,16 +123,14 @@ public class ThingFactory {
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration) {
-
         return createThing(thingType, thingUID, configuration, null);
     }
 
     private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {
         if (thingType instanceof BridgeType) {
             return BridgeBuilder.create(thingUID);
-        } else {
-            return ThingBuilder.create(thingUID);
         }
+        return ThingBuilder.create(thingUID);
     }
 
     private static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,

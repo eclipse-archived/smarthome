@@ -16,6 +16,11 @@
         <channels>
             <channel id="color" typeId="color" />
         </channels>
+        
+        <properties>
+        	<property name="vendor">Philips</property>
+        	<property name="modelId">LLC001</property>
+        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">

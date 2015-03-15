@@ -34,6 +34,7 @@ import org.osgi.util.tracker.ServiceTracker;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
+ * @author Thomas Höfer - Added thing properties
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -281,5 +282,20 @@ public abstract class BaseThingHandler implements ThingHandler {
      */
     protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
         // can be overridden by subclasses
+    }
+
+    /**
+     * Sets the given property value for the thing that is handled by this thing handler instance. The value is
+     * only set for the given property name if there has not been set any value yet or if the value has
+     * been changed. If the value of the property to be set is null then the property is removed.
+     * 
+     * @param name the name of the property to be set
+     * @param value the value of the property
+     */
+    protected void setThingProperty(String name, String value) {
+        String existingPropertyValue = thing.getProperties().get(name);
+        if (existingPropertyValue == null || !existingPropertyValue.equals(value)) {
+            thing.setProperty(name, value);
+        }
     }
 }

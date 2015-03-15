@@ -53,8 +53,8 @@ public class BeanMapper {
         GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) mapItemToBean(groupItem, true, uriPath)
                 : null;
 
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(),
-                groupItemBean);
+        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(), 
+                thing.getProperties(), groupItemBean);
     }
 
     public static ChannelBean mapChannelToBean(Channel channel) {

@@ -11,40 +11,37 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import java.util.Collection;
-import java.util.Locale;
-
 import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.items.GenericItem;
-import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.items.GenericItem
+import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.thing.ChannelUID
+import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
+import org.eclipse.smarthome.core.thing.type.ChannelDefinition
+import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
+import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.types.Command
+import org.eclipse.smarthome.core.types.StateDescription
+import org.eclipse.smarthome.core.types.StateDescriptionProvider
 import org.eclipse.smarthome.core.types.StateOption
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
-import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.ComponentContext
 
 /**
  * Tests for {@link ChannelStateDescriptionProvider}.
  *
  * @author Alex Tugarev - Initial contribution
+ * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
 
@@ -71,7 +68,7 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
         
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null) ])
+        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)

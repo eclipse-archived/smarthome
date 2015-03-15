@@ -17,6 +17,11 @@
         <channels>
             <channel id="color_temperature" typeId="color_temperature" />
         </channels>
+        
+        <properties>
+        	<property name="vendor">OSRAM</property>
+        	<property name="modelId">Surface_Light_TW</property>
+        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">

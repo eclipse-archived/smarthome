@@ -51,6 +51,7 @@ import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 @Path("thing-types")
 public class ThingTypeResource implements RESTResource {
@@ -154,7 +155,8 @@ public class ThingTypeResource implements RESTResource {
                 getConfigDescriptionParameterBeans(thingType.getConfigDescriptionURI(), locale),
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
                 convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
-                thingType.getSupportedBridgeTypeUIDs(), thingType instanceof BridgeType);
+                thingType.getSupportedBridgeTypeUIDs(), thingType.getProperties(), 
+                thingType instanceof BridgeType);
     }
 
     private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(

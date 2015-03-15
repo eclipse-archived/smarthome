@@ -19,12 +19,14 @@ import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
  * This is a java bean that is used with JAX-RS to serialize things to JSON.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  *
  */
 public class ThingBean {
 
     public String bridgeUID;
     public Map<String, Object> configuration;
+    public Map<String, String> properties;
     public ThingStatus status;
     public String UID;
     public List<ChannelBean> channels;
@@ -34,12 +36,13 @@ public class ThingBean {
     }
 
     public ThingBean(String UID, String bridgeUID, ThingStatus status, List<ChannelBean> channels,
-            Configuration configuration, GroupItemBean item) {
+            Configuration configuration, Map<String, String> properties, GroupItemBean item) {
         this.UID = UID;
         this.bridgeUID = bridgeUID;
         this.status = status;
         this.channels = channels;
         this.configuration = toMap(configuration);
+        this.properties = properties;
         this.item = item;
     }
 

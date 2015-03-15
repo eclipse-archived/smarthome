@@ -48,6 +48,7 @@ import org.osgi.service.component.ComponentContext
  * 
  * @author Alex Tugarev - Initial contribution
  * @author Dennis Nobel - Added test for bug 459628 (lifecycle problem)
+ * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ThingLinkManagerOSGiTest extends OSGiTest{
     
@@ -73,7 +74,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
         
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null) ])
+        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
