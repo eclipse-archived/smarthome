@@ -10,7 +10,9 @@ package org.eclipse.smarthome.core.thing.type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -25,20 +27,21 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class ThingType extends AbstractDescriptionType {
 
     private final List<ChannelGroupDefinition> channelGroupDefinitions;
     private final List<ChannelDefinition> channelDefinitions;
     private final List<String> supportedBridgeTypeUIDs;
+    private final Map<String, String> properties;
     private URI configDescriptionURI;
 
     /**
-     * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, URI)
+     * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, List, Map, URI)
      */
     public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
-
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null, null);
     }
 
     /**
@@ -54,13 +57,15 @@ public class ThingType extends AbstractDescriptionType {
      *            (must neither be null nor empty)
      *
      * @param description the human readable description for the according type
-     *            (could be null or empty)
+     *            (could be null or empty)6
      *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
      *            provides (could be null or empty)
-     *
+     * 
+     * @param properties the properties this Thing type provides (could be null)
+     * 
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException
@@ -68,7 +73,7 @@ public class ThingType extends AbstractDescriptionType {
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            URI configDescriptionURI) throws IllegalArgumentException {
+            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -88,6 +93,12 @@ public class ThingType extends AbstractDescriptionType {
             this.channelGroupDefinitions = Collections.unmodifiableList(channelGroupDefinitions);
         } else {
             this.channelGroupDefinitions = Collections.unmodifiableList(new ArrayList<ChannelGroupDefinition>(0));
+        }
+
+        if (properties != null) {
+            this.properties = Collections.unmodifiableMap(properties);
+        } else {
+            this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
         }
 
         this.configDescriptionURI = configDescriptionURI;
@@ -165,6 +176,16 @@ public class ThingType extends AbstractDescriptionType {
      */
     public URI getConfigDescriptionURI() {
         return this.configDescriptionURI;
+    }
+    
+    
+    /**
+     * Returns the properties for this {@link ThingType}
+     * 
+     * @return the properties for this {@link ThingType} (not null)
+     */
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     @Override

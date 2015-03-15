@@ -44,6 +44,7 @@ import org.osgi.service.component.ComponentContext
  * ThingSetupManagerTest is a test for the ThingSetupManager class.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ThingSetupManagerOSGiTest extends OSGiTest {
     
@@ -115,8 +116,8 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         registerService([
             getThingTypes: {
                 return [
-                    new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null),
-                    new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null)
+                    new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null, null),
+                    new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null, null)
                  ]
             } 
         ] as ThingTypeProvider)

@@ -9,6 +9,10 @@
         <label>Hue Bridge</label>
         <description>The hue bridge represents the Philips hue bridge.</description>
 
+        <properties>
+        	<property name="vendor">Philips</property>
+        </properties>
+        
         <config-description>
             <parameter name="ipAddress" type="text">
                 <context>network_address</context>

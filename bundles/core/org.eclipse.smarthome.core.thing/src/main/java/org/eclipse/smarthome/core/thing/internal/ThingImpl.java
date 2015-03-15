@@ -8,7 +8,9 @@
 package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -22,7 +24,9 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.State;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * The {@link ThingImpl} class is a concrete implementation of the {@link Thing}.
@@ -33,6 +37,7 @@ import com.google.common.collect.ImmutableList;
  * @author Benedikt Niehues - Fix ESH Bug 450236
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
+ * @author Thomas Höfer - Added thing and thing type properties
  *
  */
 public class ThingImpl implements Thing {
@@ -42,6 +47,8 @@ public class ThingImpl implements Thing {
     private List<Channel> channels;
 
     private Configuration configuration = new Configuration();
+
+    private Map<String, String> properties = new HashMap<>();
 
     private ThingUID uid;
 
@@ -198,6 +205,26 @@ public class ThingImpl implements Thing {
     @Override
     public boolean isLinked() {
         return getLinkedItem() != null;
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        synchronized (this) {
+            return ImmutableMap.copyOf(properties);
+        }
+    }
+
+    @Override
+    public String setProperty(String name, String value) {
+        if (Strings.isNullOrEmpty(name)) {
+            throw new IllegalArgumentException("Property name must not be null or empty");
+        }
+        synchronized (this) {
+            if (value == null) {
+                return properties.remove(name);
+            }
+            return properties.put(name, value);
+        }
     }
 
     @Override

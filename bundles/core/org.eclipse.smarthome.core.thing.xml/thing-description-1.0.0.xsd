@@ -28,6 +28,7 @@
                 <xs:element name="channels" type="thing-description:channels"/>
                 <xs:element name="channel-groups" type="thing-description:channelGroups"/>
             </xs:choice>
+            <xs:element name="properties" type="thing-description:properties" minOccurs="0"/>
             <xs:choice minOccurs="0">
                 <xs:element name="config-description" type="config-description:configDescription"/>
                 <xs:element name="config-description-ref" type="config-description:configDescriptionRef"/>
@@ -139,4 +140,18 @@
         </xs:simpleContent>
     </xs:complexType>
 
+	<xs:complexType name="properties">
+		<xs:sequence>
+			<xs:element name="property" type="thing-description:property" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="property">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" type="xs:string" use="required" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
 </xs:schema>

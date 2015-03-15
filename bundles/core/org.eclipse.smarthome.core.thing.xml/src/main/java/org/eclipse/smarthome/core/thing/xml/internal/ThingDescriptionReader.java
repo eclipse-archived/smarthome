@@ -35,6 +35,7 @@ import com.thoughtworks.xstream.XStream;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended by options and filter criteria
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
 
@@ -89,6 +90,8 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("parameter", ConfigDescriptionParameter.class);
         xstream.alias("filter", List.class);
         xstream.alias("criteria", FilterCriteria.class);
+        xstream.alias("properties", NodeList.class);
+        xstream.alias("property", NodeValue.class);
     }
 
 }

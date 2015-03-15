@@ -17,6 +17,11 @@
             <channel id="color" typeId="color" />
             <channel id="color_temperature" typeId="color_temperature" />
         </channels>
+        
+        <properties>
+        	<property name="vendor">Philips</property>
+        	<property name="modelId">LCT003</property>
+        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">

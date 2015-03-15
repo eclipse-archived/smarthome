@@ -18,6 +18,11 @@
             <channel id="color" typeId="color" />
             <channel id="color_temperature" typeId="color_temperature" />
         </channels>
+        
+        <properties>
+        	<property name="vendor">OSRAM</property>
+        	<property name="modelId">Classic_A60_RGBW</property>
+        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">

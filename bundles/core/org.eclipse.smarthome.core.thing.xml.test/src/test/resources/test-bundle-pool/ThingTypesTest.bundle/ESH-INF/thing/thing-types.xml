@@ -8,6 +8,10 @@
 		<label>HUE Bridge</label>
 		<description>The hue Bridge represents the Philips hue bridge.</description>
 
+		<properties>
+			<property name="vendor">Philips</property>
+		</properties>
+		
 		<config-description>
 			<parameter name="ip" type="text">
 				<context>network-address</context>
@@ -39,6 +43,11 @@
 			<channel id="color_temperature" typeId="color_temperature" />
             <channel id="alarm" typeId="alarm" />
 		</channels>
+		
+		<properties>
+			<property name="key1">value1</property>
+			<property name="key2">value2</property>
+		</properties>
 	</thing-type>
     
     <!-- HUE Lamp with Group -->

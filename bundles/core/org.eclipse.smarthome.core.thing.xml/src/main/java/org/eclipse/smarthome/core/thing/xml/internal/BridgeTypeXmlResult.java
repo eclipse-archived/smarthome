@@ -13,6 +13,7 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.util.NodeAttributes;
+import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
@@ -28,13 +29,15 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, List<NodeAttributes>[] channelTypeReferenceObjects, Object[] configDescriptionObjects) {
+            String description, List<NodeAttributes>[] channelTypeReferenceObjects, List<NodeValue> properties, 
+            Object[] configDescriptionObjects) {
 
-        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, channelTypeReferenceObjects,
+        super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, channelTypeReferenceObjects, properties,
                 configDescriptionObjects);
     }
 
@@ -45,7 +48,7 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
         BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
                 super.description, super.toChannelDefinitions(this.channelTypeReferences, channelTypes),
                 super.toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes),
-                super.configDescriptionURI);
+                super.toPropertiesMap(), super.configDescriptionURI);
 
         return bridgeType;
     }
@@ -55,8 +58,8 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
         return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description
                 + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", configDescriptionURI=" + configDescriptionURI
-                + ", configDescription=" + configDescription + "]";
+                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI=" 
+                + configDescriptionURI + ", configDescription=" + configDescription + "]";
     }
 
 }

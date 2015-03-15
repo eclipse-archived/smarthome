@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -23,8 +24,24 @@ import org.eclipse.smarthome.core.types.State;
  * through a {@link Bridge}.
  *
  * @author Dennis Nobel - Initial contribution and API
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public interface Thing {
+
+    /** the key for the vendor property */
+    public static final String PROPERTY_VENDOR = "vendor";
+
+    /** the key for the model ID property */
+    public static final String PROPERTY_MODEL_ID = "modelId";
+
+    /** the key for the serial number property */
+    public static final String PROPERTY_SERIAL_NUMBER = "serialNumber";
+
+    /** the key for the hardware version property */
+    public static final String PROPERTY_HARDWARE_VERSION = "hardwareVersion";
+
+    /** the key for the firmware version property */
+    public static final String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
 
     /**
      * Gets the channels.
@@ -136,4 +153,23 @@ public interface Thing {
      * @return true if thing is linked, false otherwise.
      */
     public boolean isLinked();
+
+    /**
+     * Returns an immutable copy of the {@link Thing} properties.
+     * 
+     * @return an immutable copy of the {@link Thing} properties (not null)
+     */
+    Map<String, String> getProperties();
+
+    /**
+     * Sets the property value for the property identified by the given name. If the value to be set is null then the
+     * property will be removed.
+     * 
+     * @param name the name of the property to be set (must not be null or empty)
+     * 
+     * @param value the value of the property (if null then the property with the given name is removed)
+     * 
+     * @return the previous value associated with the name, or null if there was no mapping for the name
+     */
+    String setProperty(String name, String value);
 }

@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.type;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * <b>Hint:</b> This class is immutable.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Thomas Höfer - Added thing and thing type properties
  */
 public class BridgeType extends ThingType {
 
@@ -30,7 +32,7 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null, null);
     }
 
     /**
@@ -52,6 +54,8 @@ public class BridgeType extends ThingType {
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
+     *            
+     * @param properties the properties this Bridge type provides (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
      *
@@ -60,10 +64,10 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            URI configDescriptionURI) throws IllegalArgumentException {
+            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, supportedBridgeTypeUIDs, label, description, channelDefinitions, channelGroupDefinitions,
-                configDescriptionURI);
+                properties, configDescriptionURI);
     }
 
 }

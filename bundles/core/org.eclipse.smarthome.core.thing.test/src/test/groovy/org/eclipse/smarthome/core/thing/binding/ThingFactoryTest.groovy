@@ -34,6 +34,7 @@ import org.junit.Test
  * 
  * @author Dennis Nobel - Initial contribution, added test for different default types
  * @author Alex Tugarev - Adapted for constructor modification of ConfigDescriptionParameter
+ * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ThingFactoryTest {
 
@@ -48,6 +49,7 @@ class ThingFactoryTest {
 		assertThat thing.getUID().toString(), is(equalTo("bindingId:thingTypeId:thingId"))
 		assertThat thing.getThingTypeUID().toString(), is(equalTo("bindingId:thingTypeId"))
 		assertThat thing.getConfiguration(), is(not(null))
+        assertThat thing.getProperties(), is(not(null))
 	}
 
 	@Test
@@ -59,6 +61,7 @@ class ThingFactoryTest {
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
 
 		assertThat thing, is(instanceOf(Bridge))
+        assertThat thing.getProperties(), is(not(null))
 	}
 
 	@Test
@@ -86,7 +89,7 @@ class ThingFactoryTest {
 
     @Test
     void 'create Thing with Default values'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), null, new URI("scheme", "thingType", null))
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", getChannelDefinitions(), null, null, new URI("scheme", "thingType", null))
         def configuration = new Configuration()
         
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -106,11 +109,12 @@ class ThingFactoryTest {
         assertThat thing.channels.size, is(equalTo(2))
         assertThat thing.channels[0].configuration.get("testProperty"), is(equalTo("default"))
         assertThat thing.channels[1].configuration.get("testProperty"), is(equalTo("default"))
+        assertThat thing.getProperties().size(), is(0)
     }
     
     @Test
     void 'create Thing with different default value types'(){
-        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, null, new URI("scheme", "thingType", null))
+        def thingType = new ThingType(new ThingTypeUID("myThingType","myThing"), null, "label", "description", null, null, null, new URI("scheme", "thingType", null))
         def configuration = new Configuration()
         
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
@@ -135,6 +139,7 @@ class ThingFactoryTest {
         assertThat thing.configuration.get("p2").compareTo(new BigDecimal("5")), is(0)
         assertThat thing.configuration.get("p3").compareTo(new BigDecimal("2.3")), is(0)
         assertThat thing.configuration.get("p4"), is(null)
+        assertThat thing.getProperties().size(), is(0)
     }
 	
 	@Test
@@ -146,7 +151,7 @@ class ThingFactoryTest {
 		ChannelDefinition channelDef1 = new ChannelDefinition("ch1", channelType1)
 		ChannelDefinition channelDef2 = new ChannelDefinition("ch2", channelType2)
 		
-		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null, null)
+		def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, [channelDef1, channelDef2], null, null, null)
 		def configuration = new Configuration();
 
 		def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -177,7 +182,7 @@ class ThingFactoryTest {
         ChannelGroupDefinition channelGroupDef1 = new ChannelGroupDefinition("group1", channelGroupType1)
         ChannelGroupDefinition channelGroupDef2 = new ChannelGroupDefinition("group2", channelGroupType2)
         
-        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, [channelGroupDef1, channelGroupDef2], null)
+        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, [channelGroupDef1, channelGroupDef2], null, null)
         def configuration = new Configuration();
 
         def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), configuration)
@@ -186,5 +191,25 @@ class ThingFactoryTest {
         assertThat thing.getChannels().get(0).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch1"))
         assertThat thing.getChannels().get(1).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group1#ch2"))
         assertThat thing.getChannels().get(2).getUID().toString(), is(equalTo("bindingId:thingType:thingId:group2#ch1"))
+    }
+    
+    @Test
+    void 'create Thing with properties'() {
+        def thingType = new ThingType(new ThingTypeUID("bindingId:thingType"), [], "label", null, null, null, ["key1":"value1", "key2":"value2"], null)
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), new Configuration())
+        
+        assertThat thing.getProperties().size(), is(2)
+        assertThat thing.getProperties().get("key1"), is("value1")
+        assertThat thing.getProperties().get("key2"), is("value2")
+    }
+    
+    @Test
+    void 'create Bridge with properties'() {
+        def thingType = new BridgeType(new ThingTypeUID("bindingId", "thingTypeId"), null, "label", null, null, null, ["key1":"value1", "key2":"value2"], null);
+        def thing = ThingFactory.createThing(thingType, new ThingUID(thingType.getUID(), "thingId"), new Configuration())
+        
+        assertThat thing.getProperties().size(), is(2)
+        assertThat thing.getProperties().get("key1"), is("value1")
+        assertThat thing.getProperties().get("key2"), is("value2")
     }
 }
