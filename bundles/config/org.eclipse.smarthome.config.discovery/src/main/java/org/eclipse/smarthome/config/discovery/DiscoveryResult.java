@@ -19,11 +19,17 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * which are fired as an event to registered {@link DiscoveryListener}s.
  *
  * @author Kai Kreuzer - Initial API
+ * @author Andre Fuechsel - added support for time to live
  *
  * @see DiscoveryService
  * @see DiscoveryListener
  */
 public interface DiscoveryResult {
+    
+    /** 
+     * Specifies that the {@link DiscoveryResult} has no given time to live. 
+     */
+    long TTL_UNLIMITED = -1; 
 
     /**
      * Returns the unique {@code Thing} ID of this result object.
@@ -90,5 +96,18 @@ public interface DiscoveryResult {
      * @return the unique bridge ID (could be null)
      */
     public ThingUID getBridgeUID();
+    
+    /**
+     * Get the timestamp of this {@link DiscoveryResult}.
+     * 
+     * @return timestamp as long
+     */
+    public long getTimestamp();
 
+    /**
+     * Get the time to live in seconds for this entry.
+     * 
+     * @return time to live in seconds
+     */
+    public long getTimeToLive();
 }

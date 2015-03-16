@@ -48,7 +48,9 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
             properties.put(SERIAL_NUMBER, device.getDetails().getSerialNumber());
 
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                    .withLabel(device.getDetails().getFriendlyName()).build();
+                    .withLabel(device.getDetails().getFriendlyName())
+                    .withTTL(Math.max(MIN_MAX_AGE_SECS, device.getIdentity().getMaxAgeSeconds()))
+                    .build();
             return result;
         } else {
             return null;

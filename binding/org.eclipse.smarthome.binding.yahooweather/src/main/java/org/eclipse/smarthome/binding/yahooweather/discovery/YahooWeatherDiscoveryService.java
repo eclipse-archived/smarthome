@@ -35,6 +35,7 @@ import com.google.gson.JsonParser;
  *
  * @author Marcel Verpaalen - Initial contribution
  * @author Jochen Hiller - Removed dependency to Apache HttpClient 3.x
+ * @author Andre Fuechsel - Added call of removeOlderResults
  */
 
 public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
@@ -174,6 +175,7 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
     @Override
     protected void startScan() {
         discoverLocation();
+        removeOlderResults(getTimestampOfLastScan());
     }
 
 }

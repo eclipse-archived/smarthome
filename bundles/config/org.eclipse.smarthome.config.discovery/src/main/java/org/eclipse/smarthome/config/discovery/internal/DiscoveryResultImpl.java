@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     private Map<String, Object> properties;
     private DiscoveryResultFlag flag;
     private String label;
+    private long timestamp; 
+    private long timeToLive; 
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -43,22 +46,30 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      * @param properties the properties to be set (could be null or empty)
      * @param label the human readable label to set (could be null or empty)
      * @param bridgeUID the unique bridge ID to be set
+     * @param timeToLive time to live in seconds
      *
      * @throws IllegalArgumentException
      *             if the Thing type UID or the Thing UID is null
      */
-    public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties, String label)
+    public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties, String label, long timeToLive)
             throws IllegalArgumentException {
 
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
+        if (timeToLive < 1 && timeToLive != TTL_UNLIMITED) {
+            throw new IllegalArgumentException("The ttl must not be 0 or negative!");
+        }
+        
         this.thingUID = thingUID;
 
         this.bridgeUID = bridgeUID;
         this.properties = Collections.unmodifiableMap((properties != null) ? new HashMap<>(properties)
                 : new HashMap<String, Object>());
         this.label = label == null ? "" : label;
+        
+        this.timestamp = new Date().getTime(); 
+        this.timeToLive = timeToLive; 
 
         this.flag = DiscoveryResultFlag.NEW;
     }
@@ -169,6 +180,8 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
             this.properties = sourceResult.getProperties();
             this.label = sourceResult.getLabel();
+            this.timestamp = new Date().getTime(); 
+            this.timeToLive = sourceResult.getTimeToLive();
         }
     }
 
@@ -215,7 +228,16 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     @Override
     public String toString() {
         return "DiscoveryResult [thingUID=" + thingUID + ", properties=" + properties + ", flag=" + flag + ", label="
-                + label + ", bridgeUID=" + bridgeUID + "]";
+                + label + ", bridgeUID=" + bridgeUID + ", ttl=" + timeToLive + ", timestamp=" + timestamp + "]";
+    }
+    
+    @Override
+    public long getTimestamp() {
+        return timestamp;
     }
 
+    @Override
+    public long getTimeToLive() {
+        return timeToLive;
+    }
 }

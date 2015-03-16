@@ -23,13 +23,28 @@ import org.junit.Test
  * @author Michael Grammling - Initial Contribution
  */
 class DiscoveryResultImplTest {
+    
+    def DEFAULT_TTL = 60
 
     @Test
-    public void testInvalidConstructor() {
+    public void testInvalidConstructorForThingType() {
         try {
-            new DiscoveryResultImpl(new ThingUID("aa"), null, null, null)
+            new DiscoveryResultImpl(new ThingUID("aa"), null, null, null, DEFAULT_TTL)
             fail "The constructor must throw an IllegalArgumentException if null is used"
             + " as Thing type!"
+        } catch (IllegalArgumentException iae) {
+        }
+    }
+
+    @Test
+    public void testInvalidConstructorForTTL() {
+        try {
+       def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
+
+        DiscoveryResultImpl discoveryResult =
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, null, null, -2)
+            fail "The constructor must throw an IllegalArgumentException if negative value is used"
+            + " as ttl!"
         } catch (IllegalArgumentException iae) {
         }
     }
@@ -39,14 +54,14 @@ class DiscoveryResultImplTest {
         def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
 
         DiscoveryResultImpl discoveryResult =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, null, null)
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, null, null, DEFAULT_TTL)
 
         assertEquals("bindingId:thingType", discoveryResult.getThingTypeUID().toString())
         assertEquals("bindingId:thingType:thingId", discoveryResult.getThingUID().toString())
         assertEquals("bindingId", discoveryResult.getBindingId())
         assertEquals("", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.NEW, discoveryResult.getFlag())
-
+        
         assertNotNull("The properties must never be null!", discoveryResult.getProperties())
     }
 
@@ -56,7 +71,7 @@ class DiscoveryResultImplTest {
         def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
         def discoveryResultSourceMap = [ "ipAddress" : "127.0.0.1" ]
         DiscoveryResultImpl discoveryResult =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET")
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET", DEFAULT_TTL)
 
         discoveryResult.setFlag(DiscoveryResultFlag.IGNORED)
 
@@ -73,12 +88,12 @@ class DiscoveryResultImplTest {
         def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
         def discoveryResultSourceMap = [ "ipAddress" : "127.0.0.1" ]
         DiscoveryResultImpl discoveryResult =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET")
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET", DEFAULT_TTL)
 
         discoveryResult.setFlag(DiscoveryResultFlag.IGNORED)
 
         DiscoveryResultImpl discoveryResultSource =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "anotherThingId"), null, null, null)
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "anotherThingId"), null, null, null, DEFAULT_TTL)
         
 
         discoveryResult.synchronize(discoveryResultSource)
@@ -94,13 +109,13 @@ class DiscoveryResultImplTest {
         def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
         def discoveryResultSourceMap = [ "ipAddress" : "127.0.0.1" ]
         DiscoveryResultImpl discoveryResult =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET")
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultSourceMap, "TARGET", DEFAULT_TTL)
 
         discoveryResult.setFlag(DiscoveryResultFlag.IGNORED)
         
         def discoveryResultMap = [ "ipAddress" : "192.168.178.1" ]
         DiscoveryResultImpl discoveryResultSource =
-                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultMap, "SOURCE")
+                new DiscoveryResultImpl(new ThingUID(thingTypeUID, "thingId"), null, discoveryResultMap, "SOURCE", DEFAULT_TTL)
 
   
         discoveryResultSource.setFlag(DiscoveryResultFlag.NEW)
@@ -111,5 +126,4 @@ class DiscoveryResultImplTest {
         assertEquals("SOURCE", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
-
 }

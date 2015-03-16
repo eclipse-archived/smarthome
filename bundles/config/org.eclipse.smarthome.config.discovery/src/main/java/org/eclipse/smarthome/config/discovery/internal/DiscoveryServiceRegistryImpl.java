@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Kai Kreuzer - Refactored API
+ * @author Andre Fuechsel - Added removeOlderResults
  *
  * @see DiscoveryServiceRegistry
  * @see DiscoveryListener
@@ -219,6 +220,22 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                         + "' on Thing removed event!", ex);
             }
         }
+    }
+
+    @Override
+    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            Collection<ThingTypeUID> thingTypeUIDs) {
+        HashSet<ThingUID> removedResults = new HashSet<>();
+        for (DiscoveryListener listener : this.listeners) {
+            try {
+                removedResults.addAll(listener.removeOlderResults(source, timestamp, thingTypeUIDs));
+            } catch (Exception ex) {
+                logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
+                        + "' on all things removed event!", ex);
+            }
+        }
+        
+        return removedResults; 
     }
 
     private boolean abortScans(Set<DiscoveryService> discoveryServices) {

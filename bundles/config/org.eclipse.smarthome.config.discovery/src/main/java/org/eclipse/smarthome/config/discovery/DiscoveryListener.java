@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.Collection;
+
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -16,6 +19,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * implement this interface.
  *
  * @author Michael Grammling - Initial Contribution.
+ * @author Andre Fuechsel - Added removeOlderThings
  *
  * @see DiscoveryService
  */
@@ -45,4 +49,21 @@ public interface DiscoveryListener {
      */
     void thingRemoved(DiscoveryService source, ThingUID thingUID);
 
+    /**
+     * Removes all results belonging to one of the given types that are older
+     * than the given timestamp.
+     * 
+     * @param source
+     *            the discovery service which is the source of this event (not
+     *            null)
+     * @param timestamp
+     *            timestamp, all <b>older</b> results will be removed
+     * @param thingTypeUIDs
+     *            collection of {@code ThingType}s, only results of these
+     *            {@code ThingType}s will be removed; if {@code null} then
+     *            {@link DiscoveryService#getSupportedThingTypes()} will be used
+     *            instead
+     * @return collection of thing UIDs of all removed things
+     */
+    Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp, Collection<ThingTypeUID> thingTypeUIDs);
 }
