@@ -23,6 +23,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.UID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
@@ -63,6 +64,7 @@ public class ThingLinkManager {
                     Channel channel = thing.getChannel(channelUID.getId());
                     if (channel != null) {
                         channel.removeLinkedItem(element);
+                        informHandlerAboutUnlinkedChannel(thing, channel);
                     }
                 }
             }
@@ -77,6 +79,7 @@ public class ThingLinkManager {
                     Channel channel = thing.getChannel(channelUID.getId());
                     if (channel != null) {
                         channel.addLinkedItem(element);
+                        informHandlerAboutLinkedChannel(thing, channel);
                     }
                 }
             }
@@ -118,6 +121,7 @@ public class ThingLinkManager {
                                  */
                                 for (final Item oldLinkedItem : oldLinkedItems) {
                                     channel.removeLinkedItem(oldLinkedItem);
+                                    informHandlerAboutUnlinkedChannel(thing, channel);
                                 }
                             }
                         }
@@ -144,7 +148,7 @@ public class ThingLinkManager {
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
-                    ThingLinkManager.this.addLinkedItemToChannel(channel, itemChannelLink.getItemName());
+                    ThingLinkManager.this.addLinkedItemToChannel(thing, channel, itemChannelLink.getItemName());
                 }
             }
         }
@@ -156,14 +160,14 @@ public class ThingLinkManager {
             if (thing != null) {
                 Channel channel = thing.getChannel(channelUID.getId());
                 if (channel != null) {
-                    ThingLinkManager.this.removeLinkedItemFromChannel(channel, itemChannelLink.getItemName());
+                    ThingLinkManager.this.removeLinkedItemFromChannel(thing, channel, itemChannelLink.getItemName());
                 }
             }
         }
 
         @Override
         public void updated(ItemChannelLink oldElement, ItemChannelLink element) {
-            if(!oldElement.equals(element)) {
+            if (!oldElement.equals(element)) {
                 this.removed(oldElement);
                 this.added(element);
             }
@@ -255,7 +259,7 @@ public class ThingLinkManager {
         for (Channel channel : channels) {
             Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
             for (String linkedItem : linkedItems) {
-                addLinkedItemToChannel(channel, linkedItem);
+                addLinkedItemToChannel(thing, channel, linkedItem);
             }
         }
     }
@@ -272,7 +276,7 @@ public class ThingLinkManager {
         for (Channel channel : channels) {
             Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
             for (String linkedItem : linkedItems) {
-                removeLinkedItemFromChannel(channel, linkedItem);
+                removeLinkedItemFromChannel(thing, channel, linkedItem);
             }
         }
     }
@@ -288,11 +292,12 @@ public class ThingLinkManager {
         thingAdded(thing);
     }
 
-    private void addLinkedItemToChannel(Channel channel, String itemName) {
+    private void addLinkedItemToChannel(Thing thing, Channel channel, String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             logger.debug("Adding linked item '{}' to channel '{}'.", item.getName(), channel.getUID());
             channel.addLinkedItem(item);
+            informHandlerAboutLinkedChannel(thing, channel);
         } catch (ItemNotFoundException ignored) {
         }
     }
@@ -308,12 +313,42 @@ public class ThingLinkManager {
         }
     }
 
-    private void removeLinkedItemFromChannel(Channel channel, String itemName) {
+    private void removeLinkedItemFromChannel(Thing thing, Channel channel, String itemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
             logger.debug("Removing linked item '{}' from channel '{}'.", item.getName(), channel.getUID());
             channel.removeLinkedItem(item);
+            informHandlerAboutUnlinkedChannel(thing, channel);
         } catch (ItemNotFoundException ignored) {
+        }
+    }
+
+    private void informHandlerAboutLinkedChannel(Thing thing, Channel channel) {
+        ThingHandler handler = thing.getHandler();
+        if (handler != null) {
+            try {
+                handler.channelLinked(channel.getUID());
+            } catch (Exception ex) {
+                logger.error("Eception occured while informing handler:" + ex.getMessage(), ex);
+            }
+        } else {
+            logger.warn("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
+                    thing.getUID());
+        }
+    }
+
+    private void informHandlerAboutUnlinkedChannel(Thing thing, Channel channel) {
+        ThingHandler handler = thing.getHandler();
+        if (handler != null) {
+            try {
+                handler.channelUnlinked(channel.getUID());
+            } catch (Exception ex) {
+                logger.error("Eception occured while informing handler:" + ex.getMessage(), ex);
+            }
+        } else {
+            logger.warn(
+                    "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
+                    thing.getUID());
         }
     }
 

@@ -75,4 +75,28 @@ public interface ThingHandler {
      */
     void initialize();
 
+    /**
+     * Sets the {@link ThingHandlerCallback} of the handler, which must be used for informing the framework about
+     * changes. After the handler was disposed, this method is called again with null as argument, to remove the
+     * callback.
+     * 
+     * @param thingHandlerCallback
+     *            callback (can be null)
+     */
+    void setCallback(ThingHandlerCallback thingHandlerCallback);
+
+    /**
+     * Notifies the handler that a channel was linked.
+     * 
+     * @param channelUID UID of the linked channel
+     */
+    void channelLinked(ChannelUID channelUID);
+
+    /**
+     * Notifies the handler that a channel was unlinked.
+     * 
+     * @param channelUID UID of the unlinked channel
+     */
+    void channelUnlinked(ChannelUID channelUID);
+
 }

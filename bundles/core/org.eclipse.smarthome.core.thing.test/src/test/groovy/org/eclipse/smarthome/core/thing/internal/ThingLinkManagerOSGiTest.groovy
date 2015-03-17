@@ -54,9 +54,13 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
     
     def ThingRegistry thingRegistry 
     def ThingSetupManager thingSetupManager
-
+    
+    Map context = new HashMap<>()
+    
     @Before
     void setup() {
+        context.clear();
+        
         registerVolatileStorageService()
         
         thingRegistry = getService(ThingRegistry)
@@ -153,6 +157,22 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         }
     }
     
+    @Test
+    void 'assert that channelLinked and channelUnlinked at ThingHandler is called'() {
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+        
+        def channelUID = new ChannelUID(thingUID, "1")
+        
+        assertThat context.get("linkedChannel"), is(equalTo(channelUID))
+        assertThat context.get("unlinkedChannel"), is(null)
+        
+        thingSetupManager.disableChannel(channelUID)
+        
+        assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
+    }
+    
+    
     /*
      * Helper
      */
@@ -167,6 +187,8 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                 public void handleCommand(ChannelUID channelUID, Command command) { }
+                void channelLinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("linkedChannel", channelUID)};
+                void channelUnlinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("unlinkedChannel", channelUID)};
             }
         }
     }

@@ -38,8 +38,10 @@ public interface ThingHandlerFactory {
      *
      * @param thing
      *            thing for which a new handler must be registered
+     * @param callback
+     *            {@link ThingHandlerCallback} which must be used for the {@link ThingHandler}
      */
-    void registerHandler(Thing thing);
+    void registerHandler(Thing thing, ThingHandlerCallback callback);
 
     /**
      * This method is called, when a {@link ThingHandler} must be unregistered.

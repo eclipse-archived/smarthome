@@ -11,18 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.types.State;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -52,13 +49,11 @@ public class ThingImpl implements Thing {
 
     private ThingUID uid;
 
+    private ThingTypeUID thingTypeUID;
+
     transient volatile private ThingStatus status = ThingStatus.OFFLINE;
 
     transient volatile private ThingHandler thingHandler;
-
-    transient volatile private List<ThingListener> thingListeners = new CopyOnWriteArrayList<>();
-
-    private ThingTypeUID thingTypeUID;
 
     transient volatile private GroupItem linkedItem;
 
@@ -88,23 +83,6 @@ public class ThingImpl implements Thing {
         this.uid = thingUID;
         this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
         this.channels = new ArrayList<>(0);
-    }
-
-    /**
-     * Adds the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void addThingListener(ThingListener thingListener) {
-        this.thingListeners.add(thingListener);
-    }
-
-    @Override
-    public void channelUpdated(ChannelUID channelUID, State state) {
-        for (ThingListener thingListener : thingListeners) {
-            thingListener.channelUpdated(channelUID, state);
-        }
     }
 
     @Override
@@ -149,16 +127,6 @@ public class ThingImpl implements Thing {
     @Override
     public ThingStatus getStatus() {
         return status;
-    }
-
-    /**
-     * Removes the thing listener.
-     *
-     * @param thingListener
-     *            the thing listener
-     */
-    public void removeThingListener(ThingListener thingListener) {
-        this.thingListeners.remove(thingListener);
     }
 
     @Override

@@ -97,8 +97,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 getThing().setStatus(getBridge().getStatus());
                 FullLight fullLight = getLight();
                 if (fullLight != null) {
-                    // TODO persist thing changes if ticket #461874 is implemented
-                    setThingProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
+                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
                 }
             }
         }

@@ -97,6 +97,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     @Override
     protected void onRemoveElement(Thing thing) {
+        // needed because the removed element was taken from the storage and lost its dynamic state
+        preserveDynamicState(thing);
         ThingUID bridgeUID = thing.getBridgeUID();
         if (bridgeUID != null) {
             Thing bridge = this.get(bridgeUID);
@@ -108,8 +110,18 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     @Override
     protected void onUpdateElement(Thing oldThing, Thing thing) {
+        // better call it explicitly here, even if it is called in onRemoveElement
+        preserveDynamicState(thing);
         onRemoveElement(thing);
         onAddElement(thing);
+    }
+    
+    private void preserveDynamicState(Thing thing) {
+        final Thing existingThing = get(thing.getUID());
+        if(existingThing != null) {
+            thing.setHandler(existingThing.getHandler());
+            thing.setStatus(existingThing.getStatus());
+        }
     }
 
     private void addThingsToBridge(Bridge bridge) {
