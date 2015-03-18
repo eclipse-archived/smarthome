@@ -31,7 +31,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * registration logic.
  *
  * @author Dennis Nobel - Initial contribution
- *         * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
+ * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
  *
  */
@@ -88,15 +88,15 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     private void unregisterHandler(ServiceRegistration<ThingHandler> serviceRegistration) {
         ThingHandler thingHandler = bundleContext.getService(serviceRegistration.getReference());
         removeHandler(thingHandler);
-        thingHandler.dispose();
         serviceRegistration.unregister();
+        thingHandler.dispose();
         if (thingHandler instanceof BaseThingHandler) {
             ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
         }
     }
 
     @Override
-    public void registerHandler(Thing thing) {
+    public void registerHandler(Thing thing, ThingHandlerCallback thingHandlerListener) {
         ThingHandler thingHandler = createHandler(thing);
         if (thingHandler == null) {
             throw new IllegalStateException(this.getClass().getSimpleName()
@@ -109,11 +109,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             }
             ((BaseThingHandler) thingHandler).setBundleContext(bundleContext);
         }
+        thingHandler.setCallback(thingHandlerListener);
         thingHandler.initialize();
-
+        
         ServiceRegistration<ThingHandler> serviceRegistration = registerAsService(thing, thingHandler);
         thingHandlers.put(thing.getUID().toString(), serviceRegistration);
-
     }
 
     private ServiceRegistration<ThingHandler> registerAsService(Thing thing, ThingHandler thingHandler) {

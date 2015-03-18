@@ -133,11 +133,11 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
                         final Config config = fullConfig.getConfig();
                         if (config != null) {
-                            // TODO persist thing changes if ticket #461874 is implemented
-                            setThingProperty(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
-                            setThingProperty(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                            Map<String, String> properties = editProperties();
+                            properties.put(Thing.PROPERTY_SERIAL_NUMBER, config.getMACAddress());
+                            properties.put(Thing.PROPERTY_FIRMWARE_VERSION, config.getSoftwareVersion());
+                            updateProperties(properties);
                         }
-
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
                     if (isReachable(bridge.getIPAddress())) {

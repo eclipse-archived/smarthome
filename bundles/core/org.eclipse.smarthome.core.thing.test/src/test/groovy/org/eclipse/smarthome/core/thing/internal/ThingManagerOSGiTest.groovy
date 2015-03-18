@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
@@ -18,9 +19,12 @@ import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
@@ -72,7 +76,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 		def thingHandlerFactory = [
 			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: {Thing thing -> registerHandlerCalled = true}
+			registerHandler: {thing, callback -> registerHandlerCalled = true}
 		] as ThingHandlerFactory
 
 		registerService(thingHandlerFactory)
@@ -86,17 +90,19 @@ class ThingManagerOSGiTest extends OSGiTest {
 	void 'ThingManager calls unregisterHandler for removed Thing'() {
 
 		def unregisterHandlerCalled = false
+        def removeThingCalled = false
 
 		def thingHandlerFactory = [
 			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: {
-				def thingHandler = [] as ThingHandler
+			registerHandler: { Thing thing, ThingHandlerCallback callback ->
+				def thingHandler = {setCallback: {}} as ThingHandler
 				registerService(thingHandler,[
 					(ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
 					(ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
 				] as Hashtable)
 			},
-			unregisterHandler: {Thing thing -> unregisterHandlerCalled = true}
+			unregisterHandler: {Thing thing -> unregisterHandlerCalled = true},
+            removeThing: { ThingUID thingUID -> removeThingCalled = true}
 		] as ThingHandlerFactory
 
 		registerService(thingHandlerFactory)
@@ -105,6 +111,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
 		managedThingProvider.remove(THING.getUID())
 
+        waitForAssert {assertThat removeThingCalled, is(true)}
 		waitForAssert {assertThat unregisterHandlerCalled, is(true)}
 	}    
 
@@ -119,7 +126,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             handleUpdate: { ChannelUID channelUID, State newState ->
                 handleUpdateWasCalled = true
-            }
+            },
+            setCallback: {}
         ] as ThingHandler
         
         registerService(thingHandler,[
@@ -140,11 +148,12 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
     
     @Test
-    void 'ThingManager handles updates correctly'() {
+    void 'ThingManager handles state updates correctly'() {
 
         def itemName = "name"
         def handleUpdateWasCalled = false
         def thingUpdatedWasCalled = false
+        def callback;
         
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
@@ -154,6 +163,9 @@ class ThingManagerOSGiTest extends OSGiTest {
             },
             thingUpdated: {
                 thingUpdatedWasCalled = true
+            },
+            setCallback: {callbackArg -> 
+                callback = callbackArg 
             }
         ] as ThingHandler
         
@@ -171,7 +183,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as Hashtable)
         
         // thing manager registered a listener, that delegates the update to the OSGi event bus
-        THING.channelUpdated(CHANNEL_UID, new StringType("Value"))
+        callback.stateUpdated(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat event, is(not(null)) }
         waitForAssert { assertThat event.getProperty("state"), is(equalTo("Value")) }
         
@@ -179,9 +191,68 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thing = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
         managedThingProvider.update(thing)
         
-        thing.channelUpdated(CHANNEL_UID, new StringType("Value"))
+        callback.stateUpdated(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat event, is(not(null)) }
         waitForAssert { assertThat event.getProperty("state"), is(equalTo("Value")) }
         waitForAssert { assertThat thingUpdatedWasCalled, is(true) }
+    }
+    
+    @Test
+    void 'ThingManager handles thing status updates correctly'() {
+
+        def itemName = "name"
+        ThingHandlerCallback callback;
+        
+        managedThingProvider.add(THING)
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
+        def thingHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            }
+        ] as ThingHandler
+        
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
+        
+      
+        assertThat THING.status, is(ThingStatus.OFFLINE)
+        callback.statusUpdated(THING, ThingStatus.ONLINE)
+        assertThat THING.status, is(ThingStatus.ONLINE)
+    }
+    
+    @Test
+    void 'ThingManager handles thing updates correctly'() {
+
+        def itemName = "name"
+        ThingHandlerCallback callback;
+        
+        managedThingProvider.add(THING)
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
+        def thingHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            },
+            thingUpdated: {}
+        ] as ThingHandler
+        
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
+        
+        boolean thingUpdated = false
+        
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+        def registryChangeListener = [ updated: {old, updated -> thingUpdated = true} ] as RegistryChangeListener
+        
+        try {
+            thingRegistry.addRegistryChangeListener(registryChangeListener)
+            callback.thingUpdated(THING)
+            assertThat thingUpdated, is(true)
+        } finally {
+            thingRegistry.removeRegistryChangeListener(registryChangeListener)
+        }
     }
 }

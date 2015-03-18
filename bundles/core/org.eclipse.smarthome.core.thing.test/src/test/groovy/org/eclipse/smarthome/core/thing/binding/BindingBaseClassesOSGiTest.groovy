@@ -11,10 +11,14 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
@@ -186,4 +190,122 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         
         assertThat bridgeInitCalled, is(true)
     }
+    
+    class YetAnotherThingHandlerFactory extends BaseThingHandlerFactory {
+        
+        @Override
+        public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+            true
+        }
+
+        @Override
+        protected ThingHandler createHandler(Thing thing) {
+            return new YetAnotherThingHandler(thing)
+        }
+    }
+        
+    class YetAnotherThingHandler extends BaseThingHandler {
+
+        YetAnotherThingHandler(Thing thing) {
+            super(thing)
+        }
+
+        @Override
+        public void initialize() {
+            super.initialize()
+            ThingBuilder thingBuilder = editThing()
+            thingBuilder.withChannels([new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")])
+            updateThing(thingBuilder.build())
+        }
+        
+        @Override
+        public void handleCommand(ChannelUID channelUID, Command command) {
+   
+        }
+        
+        public updateConfig() {
+            Configuration configuration = editConfiguration()
+            configuration.put("key", "value")
+            updateConfiguration(configuration)
+        }
+        
+        public updateProperties() {
+            def properties = editProperties()
+            properties.put(Thing.PROPERTY_MODEL_ID, "1234")
+            updateProperties(properties)
+        }
+        
+        public updateProperty() {
+            updateProperty(Thing.PROPERTY_VENDOR, "vendor")
+        }
+    }
+    
+    @Test
+    void 'assert thing can be updated from ThingHandler'() {
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new YetAnotherThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+        
+        def thingUpdated = false 
+        Thing updatedThing = null
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+        
+        def registryChangeListener = [
+            added: {thing -> },
+            updated: {old, updated -> thingUpdated = true; updatedThing = updated} 
+        ] as RegistryChangeListener
+        
+        try {
+            thingRegistry.addRegistryChangeListener(registryChangeListener)
+            def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).build()
+            assertThat thing.channels.size(), is(0)
+            managedThingProvider.add(thing)
+            assertThat thingUpdated, is(true)
+            assertThat updatedThing.channels.size(), is(1)
+            
+            updatedThing.getHandler().updateConfig()
+            assertThat updatedThing.getConfiguration().get("key"), is("value")
+        } finally {
+            thingRegistry.removeRegistryChangeListener(registryChangeListener)
+        }
+    }
+    
+    @Test
+    void 'assert properties can be updated from ThingHandler'() {
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new YetAnotherThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+        
+        def thingUpdated = false
+        Thing updatedThing = null
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+        
+        def registryChangeListener = [
+            added: {thing -> },
+            updated: {old, updated -> thingUpdated = true; updatedThing = updated}
+        ] as RegistryChangeListener
+        
+        try {
+            thingRegistry.addRegistryChangeListener(registryChangeListener)
+            def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).build()
+            
+            managedThingProvider.add(thing)
+            
+            assertThat updatedThing.getProperties().get(Thing.PROPERTY_MODEL_ID), is(null)
+            assertThat updatedThing.getProperties().get(Thing.PROPERTY_VENDOR), is(null)
+            
+            updatedThing.getHandler().updateProperties()
+                       
+            assertThat updatedThing.getProperties().get(Thing.PROPERTY_MODEL_ID), is("1234")
+            
+            updatedThing.getHandler().updateProperty()
+            
+            assertThat updatedThing.getProperties().get(Thing.PROPERTY_VENDOR), is("vendor")
+        } finally {
+            thingRegistry.removeRegistryChangeListener(registryChangeListener)
+        }
+    }
+    
 }

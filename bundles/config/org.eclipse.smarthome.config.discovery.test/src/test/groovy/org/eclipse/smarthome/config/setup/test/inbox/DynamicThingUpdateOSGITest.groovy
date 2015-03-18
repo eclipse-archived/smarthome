@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.types.Command
@@ -90,7 +91,8 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'thingUpdated' : { Thing updatedThing ->
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
-            }
+            },
+            'setCallback': {}
         ] as ThingHandler )
 
         return thingHandler
@@ -101,7 +103,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
             'supportsThingType' : { ThingTypeUID thingTypeUID ->
                 return THING_TYPE_UID.equals(thingTypeUID) 
             },
-            'registerHandler' : { Thing thing ->
+            'registerHandler' : { Thing thing, ThingHandlerCallback callback ->
                 thingHandler = createThingHandler(thing)
 
                 Hashtable<String, Object> properties = [
