@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -22,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -136,8 +138,21 @@ public class Configuration {
         }
     }
 
-    public boolean isProperlyConfigured() {
-        return true;
+    public Map<String, Object> getProperties() {
+        synchronized (this) {
+            return ImmutableMap.copyOf(properties);
+        }
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        for (Entry<String, Object> entrySet : properties.entrySet()) {
+            this.put(entrySet.getKey(), entrySet.getValue());
+        }
+        for (String key : this.properties.keySet()) {
+            if (!properties.containsKey(key)) {
+                this.remove(key);
+            }
+        }
     }
 
     @Override
