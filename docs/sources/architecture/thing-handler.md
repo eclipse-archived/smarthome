@@ -112,7 +112,7 @@ When the thing is created it is *OFFLINE* as long as the binding sets it to some
 
 Some bindings might want to start specific functionality for a channel only if an item is linked to the channel. The `ThingHandler` has two callback methods `channelLinked(ChannelUID channelUID)` and `channelUnlinked(ChannelUID channelUID)`, which are called for every link that is added or removed to/from a channel. So please be aware of the fact, that both methods can be called multiple times.
 
-The `channelLinked` method is called, even if the link existed before the handler was initialized. It will be called only after the `initialized` method has been executed successfully and the handler was registered as OSGi service. To check if a channel is linked at the time, where `channelLinked` or `channelLinked` is called, you can use the `isLinked(String channelID)` method from the `BaseThingHandler` class.
+The `channelLinked` method is called, even if the link existed before the handler was initialized. It will be called only after the `initialized` method has been executed successfully and the handler was registered as OSGi service. To check if a channel is linked at the time, when `channelLinked` or `channelUnlinked` is called, you can use the `isLinked(String channelID)` method from the `BaseThingHandler` class.
 
 ## Handling Thing Updates
 
