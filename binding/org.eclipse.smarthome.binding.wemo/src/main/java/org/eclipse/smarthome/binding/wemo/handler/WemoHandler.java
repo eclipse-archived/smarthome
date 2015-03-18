@@ -227,7 +227,11 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         // Due to the bad upnp implementation of the WeMo devices, this will be done at a later time.
     }
 
-    private synchronized void onSubscription() {
+    @Override
+	public void onStatusChanged(boolean status) {
+	}
+
+	private synchronized void onSubscription() {
         // Set up GENA Subscriptions
         // Due to the bad upnp implementation of the WeMo devices, this will be done at a later time.
     }
