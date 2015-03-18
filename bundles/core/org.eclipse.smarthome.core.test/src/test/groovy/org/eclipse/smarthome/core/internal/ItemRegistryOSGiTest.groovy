@@ -11,6 +11,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemProvider
@@ -228,5 +230,24 @@ class ItemRegistryOSGiTest extends OSGiTest {
 		
 		assertThat itemAddedCalled && itemRemovedCalled && itemUpdatedCalled, is(true)
 	}
-	
+    
+    @Test
+    void 'assert itemRegistry is thread safe'() {
+        registerService itemProvider
+        
+        AtomicInteger numberOfSuccessfulGetItemCalls = new AtomicInteger(0);
+        
+        10.times({
+            Thread.start {
+                10.times({
+                    // get item throws an exception if item is not present and counter is not incremented
+                    itemRegistry.getItem(ITEM_NAME)
+                    numberOfSuccessfulGetItemCalls.incrementAndGet()
+                })
+            }
+        });
+    
+        waitFor({numberOfSuccessfulGetItemCalls.get() >= 100})
+        assertThat numberOfSuccessfulGetItemCalls.get(), is(100)
+    }
 }
