@@ -260,6 +260,7 @@ public class ThingSetupManager {
                     }
                     item.addTags(channelType.getTags());
                     item.setCategory(channelType.getCategory());
+                    item.setLabel(channelType.getLabel());
                     this.itemRegistry.add(item);
                     this.itemChannelLinkRegistry.add(new ItemChannelLink(itemName, channelUID));
                 }
@@ -372,7 +373,7 @@ public class ThingSetupManager {
             throw new IllegalArgumentException("No item is linked with thing '" + thingUID.toString() + "'.");
         }
     }
-    
+
     /**
      * Sets the given label for the home group identified by the given item name.
      * 
