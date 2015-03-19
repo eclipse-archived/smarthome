@@ -353,8 +353,10 @@ public class ThingLinkManager {
     }
 
     private void removeLinkedItemFromThing(ThingImpl thing) {
-        logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
-        thing.setLinkedItem(null);
+    	if(thing.getLinkedItem() != null) {
+	    	logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
+	        thing.setLinkedItem(null);
+    	}
     }
 
     private String getFirstLinkedItem(UID uid) {
