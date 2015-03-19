@@ -147,7 +147,7 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         def linkedItemName = itemChannelLinkRegistry.getLinkedItems(new ChannelUID(thingUID, "1")).first()
         def linkedItem = itemRegistry.get(linkedItemName)
         
-        assertThat linkedItem.label, is(null)
+        assertThat linkedItem.label, is(equalTo("label"))
         assertThat linkedItem.type, is(equalTo("String"))
         assertThat linkedItem.category, is(equalTo("light"))
     }
