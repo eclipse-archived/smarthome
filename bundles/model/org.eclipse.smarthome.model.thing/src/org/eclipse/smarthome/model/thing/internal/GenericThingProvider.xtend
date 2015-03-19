@@ -105,18 +105,18 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
 		}
-		logger.debug("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
-		val configuration = modelThing.createConfiguration
-		val uid = thingUID
-		if (thingList.exists[UID.equals(uid)]) {
 
-			//the thing is already in the list and nothing will be done!
-			logger.debug("Thing already exists {}", uid.toString)
+		if (!isSupportedByThingHandlerFactory(thingTypeUID, thingHandlerFactory)) {
+			// return silently, we were not asked to do anything
 			return
 		}
 
-		if (!isSupportedByThingHandlerFactroy(thingTypeUID, thingHandlerFactory)) {
-			logger.debug("For Thing with uid: {} is no ThingHandlerFactory registered", uid)
+		logger.trace("Creating thing for type '{}' with UID '{}.", thingTypeUID, thingUID);
+		val configuration = modelThing.createConfiguration
+		val uid = thingUID
+		if (thingList.exists[UID.equals(uid)]) {
+			//the thing is already in the list and nothing will be done!
+			logger.debug("Thing already exists {}", uid.toString)
 			return
 		}
 
@@ -158,7 +158,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		}
 	}
 
-	def private boolean isSupportedByThingHandlerFactroy(ThingTypeUID thingTypeUID, ThingHandlerFactory specific) {
+	def private boolean isSupportedByThingHandlerFactory(ThingTypeUID thingTypeUID, ThingHandlerFactory specific) {
 		if (specific !== null) {
 			return specific.supportsThingType(thingTypeUID)
 		}
@@ -173,11 +173,11 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	def private Thing getThingFromThingHandlerFactories(ThingTypeUID thingTypeUID, Configuration configuration,
 		ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory specific) {
 		if (specific != null && specific.supportsThingType(thingTypeUID)) {
-			logger.debug("creating thing form specific ThingHandlerFactory {} for thingType {}", specific, thingTypeUID)
+			logger.trace("Creating thing from specific ThingHandlerFactory {} for thingType {}", specific, thingTypeUID)
 			return specific.createThing(thingTypeUID, configuration, thingUID, bridgeUID)
 		}
 		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
-			logger.debug("searching thingHandlerFactory for thingType: {}", thingTypeUID)
+			logger.trace("Searching thingHandlerFactory for thingType: {}", thingTypeUID)
 			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
 				return thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
 			}
@@ -293,13 +293,12 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 					]
 
 					currentThings.forEach [ newThing |
-						oldThings.forEach [ oldThing |
-							if (newThing.UID == oldThing.UID) {
-								if (!ThingHelper.equals(oldThing, newThing)) {
-									notifyListenersAboutUpdatedElement(oldThing, newThing)
-								}
+						val oldThing = oldThings.findFirst[it.UID == newThing.UID]
+						if(oldThing != null) {
+							if (!ThingHelper.equals(oldThing, newThing)) {
+								notifyListenersAboutUpdatedElement(oldThing, newThing)
 							}
-						]
+						}
 					]
 				}
 				case org.eclipse.smarthome.model.core.EventType.REMOVED: {
@@ -354,14 +353,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			}
 		}
 		newThings.forEach [ newThing |
-			val oldThing = oldThings.findFirst[it.UID === newThing.UID]
+			val oldThing = oldThings.findFirst[it.UID == newThing.UID]
 			if (oldThing != null) {
-				oldThing.notifyListenersAboutUpdatedElement(newThing)
-				oldThings.remove(oldThing)
+				// this thing already existed, so let's ignore it
 			} else {
+				logger.debug("Adding thing '{}' from model '{}.", newThing.UID, modelName);
+				thingsMap.get(modelName).add(newThing)
 				newThing.notifyListenersAboutAddedElement
 			}
 		]
-		thingsMap.get(modelName).addAll(newThings)
 	}
 }
