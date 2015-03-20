@@ -21,7 +21,7 @@ public class MqttBrokerConnectionHelper extends TimerTask {
 
     /**
      * Create new connection helper to help reconnect the given connection.
-     * 
+     *
      * @param connection
      *            to reconnect.
      */

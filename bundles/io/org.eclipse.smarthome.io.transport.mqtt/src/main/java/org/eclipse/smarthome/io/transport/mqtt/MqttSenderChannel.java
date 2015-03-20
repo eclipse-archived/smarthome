@@ -16,7 +16,7 @@ public interface MqttSenderChannel {
 
     /**
      * Send a message to the MQTT broker.
-     * 
+     *
      * @param topic
      *            Topic to publish the message to.
      * @param message

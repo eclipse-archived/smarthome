@@ -136,7 +136,7 @@ public class MqttService implements ManagedService {
 
     /**
      * Lookup an broker connection by name.
-     * 
+     *
      * @param brokerName
      *            to look for.
      * @return existing connection or new one if it didn't exist yet.
@@ -153,7 +153,7 @@ public class MqttService implements ManagedService {
 
     /**
      * Register a new message consumer which can process messages received on
-     * 
+     *
      * @param brokerName
      *            Name of the broker on which to listen for messages.
      * @param mqttMessageConsumer
@@ -167,7 +167,7 @@ public class MqttService implements ManagedService {
 
     /**
      * Unregisters an existing message.
-     * 
+     *
      * @param mqttMessageConsumer
      *            Consumer which needs to be unregistered.
      */
@@ -184,7 +184,7 @@ public class MqttService implements ManagedService {
     /**
      * Register a new message producer which can send messages to the given
      * broker.
-     * 
+     *
      * @param brokerName
      *            Name of the broker to which messages can be sent.
      * @param mqttMessageProducer
@@ -197,7 +197,7 @@ public class MqttService implements ManagedService {
 
     /**
      * Set the publisher to use for publishing SmartHome updates.
-     * 
+     *
      * @param eventPublisher
      *            EventPublisher
      */
@@ -207,7 +207,7 @@ public class MqttService implements ManagedService {
 
     /**
      * Remove the publisher to use for publishing SmartHome updates.
-     * 
+     *
      * @param eventPublisher
      *            EventPublisher
      */

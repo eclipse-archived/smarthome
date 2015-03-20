@@ -33,7 +33,7 @@ public class MqttWillAndTestament {
      * <li>qos Valid values are 0 (Deliver at most once),1 (Deliver at least once) or 2</li>
      * <li>retain true if messages shall be retained</li>
      * </ul>
-     * 
+     *
      * @param string
      *            the string to parse. If null, null is returned
      * @return the will instance, will be null only if parameter is null
@@ -76,7 +76,7 @@ public class MqttWillAndTestament {
 
     /**
      * Set the topic for the last will.
-     * 
+     *
      * @param topic
      *            the topic
      */
@@ -93,7 +93,7 @@ public class MqttWillAndTestament {
 
     /**
      * Set the payload of the last will.
-     * 
+     *
      * @param payload
      *            the payload
      */
@@ -110,7 +110,7 @@ public class MqttWillAndTestament {
 
     /**
      * Set quality of service. Valid values are 0,1,2
-     * 
+     *
      * @param qos
      *            level.
      */
@@ -129,7 +129,7 @@ public class MqttWillAndTestament {
 
     /**
      * Set whether the last will should be retained by the broker.
-     * 
+     *
      * @param retain
      *            true to retain.
      */
