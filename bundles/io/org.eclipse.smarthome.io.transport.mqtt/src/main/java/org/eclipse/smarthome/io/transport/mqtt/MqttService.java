@@ -20,9 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MQTT Service for creating new connections to MQTT brokers from the Smart Home
- * configuration file and registering message publishers and subscribers. This
- * service is the main entry point for all bundles wanting to use the MQTT
+ * MQTT Service for creating new connections to MQTT brokers from the Smart Home configuration file and registering
+ * message publishers and subscribers. This service is the main entry point for all bundles wanting to use the MQTT
  * transport.
  *
  * @author Davy Vanherbergen
@@ -137,8 +136,7 @@ public class MqttService implements ManagedService {
     /**
      * Lookup an broker connection by name.
      *
-     * @param brokerName
-     *            to look for.
+     * @param brokerName to look for.
      * @return existing connection or new one if it didn't exist yet.
      */
     private synchronized MqttBrokerConnection getConnection(String brokerName) {
@@ -154,10 +152,8 @@ public class MqttService implements ManagedService {
     /**
      * Register a new message consumer which can process messages received on
      *
-     * @param brokerName
-     *            Name of the broker on which to listen for messages.
-     * @param mqttMessageConsumer
-     *            Consumer which will process any received message.
+     * @param brokerName Name of the broker on which to listen for messages.
+     * @param mqttMessageConsumer Consumer which will process any received message.
      */
     public void registerMessageConsumer(String brokerName, MqttMessageConsumer mqttMessageConsumer) {
 
@@ -168,8 +164,7 @@ public class MqttService implements ManagedService {
     /**
      * Unregisters an existing message.
      *
-     * @param mqttMessageConsumer
-     *            Consumer which needs to be unregistered.
+     * @param mqttMessageConsumer Consumer which needs to be unregistered.
      */
     public void unregisterMessageConsumer(String brokerName, MqttMessageConsumer mqttMessageConsumer) {
 
@@ -185,10 +180,8 @@ public class MqttService implements ManagedService {
      * Register a new message producer which can send messages to the given
      * broker.
      *
-     * @param brokerName
-     *            Name of the broker to which messages can be sent.
-     * @param mqttMessageProducer
-     *            Producer which generates the messages.
+     * @param brokerName Name of the broker to which messages can be sent.
+     * @param mqttMessageProducer Producer which generates the messages.
      */
     public void unregisterMessageProducer(String brokerName, MqttMessageProducer commandPublisher) {
 
@@ -198,8 +191,7 @@ public class MqttService implements ManagedService {
     /**
      * Set the publisher to use for publishing SmartHome updates.
      *
-     * @param eventPublisher
-     *            EventPublisher
+     * @param eventPublisher EventPublisher
      */
     public void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
@@ -208,8 +200,7 @@ public class MqttService implements ManagedService {
     /**
      * Remove the publisher to use for publishing SmartHome updates.
      *
-     * @param eventPublisher
-     *            EventPublisher
+     * @param eventPublisher EventPublisher
      */
     public void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;

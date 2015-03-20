@@ -17,12 +17,9 @@ public interface MqttSenderChannel {
     /**
      * Send a message to the MQTT broker.
      *
-     * @param topic
-     *            Topic to publish the message to.
-     * @param message
-     *            message payload.
-     * @throws Exception
-     *             if an error occurs during sending.
+     * @param topic Topic to publish the message to.
+     * @param message message payload.
+     * @throws Exception if an error occurs during sending.
      */
     public void publish(String topic, byte[] message) throws Exception;
 

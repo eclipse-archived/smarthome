@@ -36,12 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An MQTTBrokerConnection represents a single client connection to a MQTT
- * broker. The connection is configured by the MQTTService with properties from
- * the smarthome.cfg file.
+ * An MQTTBrokerConnection represents a single client connection to a MQTT broker. The connection is configured by the
+ * MQTTService with properties from the smarthome.cfg file.
  *
- * When a connection to an MQTT broker is lost, it will try to reconnect every
- * 60 seconds.
+ * When a connection to an MQTT broker is lost, it will try to reconnect every 60 seconds.
  *
  * @author Davy Vanherbergen
  */
@@ -84,20 +82,17 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Create a new connection with the given name.
      *
-     * @param name
-     *            for the connection.
+     * @param name for the connection.
      */
     public MqttBrokerConnection(String name) {
         this.name = name;
     }
 
     /**
-     * Start the connection. This will try to open an MQTT client connection to
-     * the MQTT broker and notify all publishers and subscribers on this
-     * connection that the connection has become active.
+     * Start the connection. This will try to open an MQTT client connection to the MQTT broker and notify all
+     * publishers and subscribers on this connection that the connection has become active.
      *
-     * @throws Exception
-     *             If connection could not be created.
+     * @throws Exception If connection could not be created.
      */
     public synchronized void start() throws Exception {
 
@@ -148,8 +143,7 @@ public class MqttBrokerConnection implements MqttCallback {
      * Set the url for the MQTT broker. Valid URL's are in the format:
      * tcp://localhost:1883 or ssl://localhost:8883
      *
-     * @param url
-     *            url string for the MQTT broker.
+     * @param url url string for the MQTT broker.
      */
     public void setUrl(String url) {
         this.url = url;
@@ -165,8 +159,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Set the optional user name to use when connecting to the MQTT broker.
      *
-     * @param user
-     *            name to use for connection.
+     * @param user name to use for connection.
      */
     public void setUser(String user) {
         this.user = user;
@@ -198,8 +191,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Set quality of service. Valid values are 0,1,2
      *
-     * @param qos
-     *            level.
+     * @param qos level.
      */
     public void setQos(int qos) {
         if (qos >= 0 && qos <= 2) {
@@ -208,8 +200,7 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * @return true if messages sent to the broker should be retained by the
-     *         broker.
+     * @return true if messages sent to the broker should be retained by the broker.
      */
     public boolean isRetain() {
         return retain;
@@ -218,8 +209,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Set whether any published messages should be retained by the broker.
      *
-     * @param retain
-     *            true to retain.
+     * @param retain true to retain.
      */
     public void setRetain(boolean retain) {
         this.retain = retain;
@@ -241,11 +231,10 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * Set whether messages should be sent synchronously (the message is sent
-     * and the thread waits until delivery to the broker has completed) or
-     * asynchronously (the message is sent and the sendign thread does not wait
-     * for delivery completion). In the case of async, the sending thread
-     * currently does not receive any feedback when delivery is completed.
+     * Set whether messages should be sent synchronously (the message is sent and the thread waits until delivery to the
+     * broker has completed) or asynchronously (the message is sent and the sendign thread does not wait for delivery
+     * completion). In the case of async, the sending thread currently does not receive any feedback when delivery is
+     * completed.
      *
      * @param async
      */
@@ -254,11 +243,9 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * Set client id to use when connecting to the broker. If none is specified,
-     * a default is generated.
+     * Set client id to use when connecting to the broker. If none is specified, a default is generated.
      *
-     * @param value
-     *            clientId to use.
+     * @param value clientId to use.
      */
     public void setClientId(String value) {
         this.clientId = value;
@@ -344,8 +331,7 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * Create a trust manager which is not too concerned about validating
-     * certificates.
+     * Create a trust manager which is not too concerned about validating certificates.
      *
      * @return a trusting trust manager
      */
@@ -380,8 +366,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Add a new message producer to this connection.
      *
-     * @param publisher
-     *            to add.
+     * @param publisher to add.
      */
     public synchronized void addProducer(MqttMessageProducer publisher) {
         producers.add(publisher);
@@ -393,8 +378,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Start a registered producer, so that it can start sending messages.
      *
-     * @param publisher
-     *            to start.
+     * @param publisher to start.
      */
     private void startProducer(MqttMessageProducer publisher) {
 
@@ -438,8 +422,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Add a new message consumer to this connection.
      *
-     * @param consumer
-     *            to add.
+     * @param consumer to add.
      */
     public synchronized void addConsumer(MqttMessageConsumer subscriber) {
         consumers.add(subscriber);
@@ -451,8 +434,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Start a registered consumer, so that it can start receiving messages.
      *
-     * @param subscriber
-     *            to start.
+     * @param subscriber to start.
      */
     private void startConsumer(MqttMessageConsumer subscriber) {
 
@@ -469,8 +451,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Remove a previously registered producer from this connection.
      *
-     * @param publisher
-     *            to remove.
+     * @param publisher to remove.
      */
     public synchronized void removeProducer(MqttMessageProducer publisher) {
         logger.debug("Removing message producer for broker '{}'", name);
@@ -481,8 +462,7 @@ public class MqttBrokerConnection implements MqttCallback {
     /**
      * Remove a previously registered consumer from this connection.
      *
-     * @param subscriber
-     *            to remove.
+     * @param subscriber to remove.
      */
     public synchronized void removeConsumer(MqttMessageConsumer subscriber) {
         logger.debug("Unsubscribing message consumer for topic '{}' from broker '{}'", subscriber.getTopic(), name);
@@ -553,13 +533,11 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * Check if the topic on which a message was received matches provided
-     * target topic. The matching will take into account the + and # wildcards.
+     * Check if the topic on which a message was received matches provided target topic. The matching will take into
+     * account the + and # wildcards.
      *
-     * @param source
-     *            topic from received message
-     * @param target
-     *            topic as defined with possible wildcards.
+     * @param source topic from received message
+     * @param target topic as defined with possible wildcards.
      * @return true if both topics match.
      */
     private boolean isTopicMatch(String source, String target) {
@@ -586,10 +564,9 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
-     * Set the keep alive interval. The default interval is 60 seconds.
-     * If no heartbeat is received within this timeframe, the connection
-     * will be considered dead. Set this to a higher value on systems which may
-     * not always be able to process the heartbeat in time.
+     * Set the keep alive interval. The default interval is 60 seconds. If no heartbeat is received within this
+     * timeframe, the connection will be considered dead. Set this to a higher value on systems which may not always be
+     * able to process the heartbeat in time.
      *
      * @param keepAliveInterval interval in seconds
      */
