@@ -20,8 +20,8 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * This type can be used for items that are dealing with GPS or location
- * awareness functionality.
+ * This type can be used for items that are dealing with GPS or
+ * location awareness functionality.
  *
  * @author Gaël L'hopital
  *
@@ -29,8 +29,7 @@ import org.eclipse.smarthome.core.types.State;
 public class PointType implements ComplexType, Command, State {
 
 	public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
-	// The equatorial radius of WGS84 ellipsoid (6378137m).
-	public static final double WGS84_a = 6378137; 
+	public static final double WGS84_a = 6378137; // The equatorial radius of WGS84 ellipsoid (6378137m).
 
 	private BigDecimal latitude; // in decimal degrees
 	private BigDecimal longitude; // in decimal degrees
@@ -49,29 +48,25 @@ public class PointType implements ComplexType, Command, State {
 		canonicalize(latitude, longitude);
 	}
 
-	public PointType(DecimalType latitude, DecimalType longitude,
-			MeasureType altitude) {
+	public PointType(DecimalType latitude, DecimalType longitude, MeasureType altitude) {
 		this(latitude, longitude);
 		setAltitude(altitude);
 	}
 
 	public PointType(StringType latitude, StringType longitude) {
-		this(new DecimalType(latitude.toString()), new DecimalType(
-				longitude.toString()));
+		this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()));
 	}
 
-	public PointType(StringType latitude, StringType longitude,
-			StringType altitude) {
-		this(new DecimalType(latitude.toString()), new DecimalType(
-				longitude.toString()), new MeasureType(altitude.toString()));
+	public PointType(StringType latitude, StringType longitude,	StringType altitude) {
+		this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), 
+				new MeasureType(altitude.toString()));
 	}
 
 	public PointType(String value) {
 		if (!value.isEmpty()) {
 			String[] elements = value.split(",");
 			if (elements.length >= 2) {
-				canonicalize(new DecimalType(elements[0]), new DecimalType(
-						elements[1]));
+				canonicalize(new DecimalType(elements[0]), new DecimalType(elements[1]));
 				if (elements.length == 3) {
 					setAltitude(new MeasureType(elements[2]));
 				}
@@ -98,8 +93,7 @@ public class PointType implements ComplexType, Command, State {
 	public MeasureType getGravity() {
 		double latRad = Math.toRadians(latitude.doubleValue());
 		double altInKm = altitude.toUnit(SI.KILOMETER).doubleValue();
-		double deltaG = -2000.0 * (altInKm) * EARTH_GRAVITATIONAL_CONSTANT
-				/ (Math.pow(WGS84_a, 3.0));
+		double deltaG = -2000.0 * (altInKm) * EARTH_GRAVITATIONAL_CONSTANT / (Math.pow(WGS84_a, 3.0));
 		double sin2lat = Math.sin(latRad) * Math.sin(latRad);
 		double sin22lat = Math.sin(2.0 * latRad) * Math.sin(2.0 * latRad);
 		double result = (9.780327 * (1.0 + 5.3024e-3 * sin2lat - 5.8e-6 * sin22lat) + deltaG);
@@ -129,8 +123,7 @@ public class PointType implements ComplexType, Command, State {
 
 	@Override
 	public String toString() {
-		return String.format("%1$.2f°N, %2$.2f°W, ", latitude, longitude)
-				+ altitude.toString();
+		return String.format("%1$.2f°N, %2$.2f°W, ", latitude, longitude) + altitude.toString();
 	}
 
 	@Override
