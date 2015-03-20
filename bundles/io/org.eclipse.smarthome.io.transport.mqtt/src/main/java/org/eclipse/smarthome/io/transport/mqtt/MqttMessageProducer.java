@@ -18,7 +18,7 @@ public interface MqttMessageProducer {
     /**
      * Set the sender channel which the message producer should use to publish
      * any message.
-     * 
+     *
      * @param channel
      *            Sender Channel which will be set by the MqttBrokerConnection.
      */

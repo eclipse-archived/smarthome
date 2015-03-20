@@ -19,7 +19,7 @@ public interface MqttMessageConsumer {
 
     /**
      * Process a received MQTT message.
-     * 
+     *
      * @param topic
      *            The mqtt topic on which the message was received.
      * @param payload
@@ -34,7 +34,7 @@ public interface MqttMessageConsumer {
 
     /**
      * Set Topic to subscribe to. May contain + or # wildcards
-     * 
+     *
      * @param topic
      *            to subscribe to.
      */
@@ -43,7 +43,7 @@ public interface MqttMessageConsumer {
     /**
      * Set the event publisher to use when broadcasting received messages onto
      * the smarthome event bus.
-     * 
+     *
      * @param eventPublisher
      */
     public void setEventPublisher(EventPublisher eventPublisher);
