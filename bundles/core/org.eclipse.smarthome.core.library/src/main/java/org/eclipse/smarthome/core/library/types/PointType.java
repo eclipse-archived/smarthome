@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.measure.unit.SI;
+
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
 import org.eclipse.smarthome.core.types.PrimitiveType;
@@ -31,7 +33,7 @@ public class PointType implements ComplexType, Command, State {
 
     private BigDecimal latitude; // in decimal degrees
     private BigDecimal longitude; // in decimal degrees
-    private BigDecimal altitude = BigDecimal.ZERO; // in decimal meters
+    private MeasureType altitude = MeasureType.valueOf(0, SI.METER);
 
     // constants for the constituents
     static final public String KEY_LATITUDE = "lat";
@@ -46,7 +48,7 @@ public class PointType implements ComplexType, Command, State {
         canonicalize(latitude, longitude);
     }
 
-    public PointType(DecimalType latitude, DecimalType longitude, DecimalType altitude) {
+    public PointType(DecimalType latitude, DecimalType longitude, MeasureType altitude) {
         this(latitude, longitude);
         setAltitude(altitude);
     }
@@ -56,7 +58,7 @@ public class PointType implements ComplexType, Command, State {
     }
 
     public PointType(StringType latitude, StringType longitude, StringType altitude) {
-        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), new DecimalType(
+        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), new MeasureType(
                 altitude.toString()));
     }
 
@@ -66,7 +68,7 @@ public class PointType implements ComplexType, Command, State {
             if (elements.length >= 2) {
                 canonicalize(new DecimalType(elements[0]), new DecimalType(elements[1]));
                 if (elements.length == 3) {
-                    setAltitude(new DecimalType(elements[2]));
+                    setAltitude(new MeasureType(elements[2]));
                 }
             }
         }
@@ -80,22 +82,22 @@ public class PointType implements ComplexType, Command, State {
         return new DecimalType(longitude);
     }
 
-    public DecimalType getAltitude() {
-        return new DecimalType(altitude);
+    public MeasureType getAltitude() {
+        return altitude;
     }
 
-    public void setAltitude(DecimalType altitude) {
-        this.altitude = altitude.toBigDecimal();
+    public void setAltitude(MeasureType altitude) {
+    	this.altitude = altitude;
     }
 
-    public DecimalType getGravity() {
+    public MeasureType getGravity() {
         double latRad = Math.toRadians(latitude.doubleValue());
-        double deltaG = -2000.0 * (altitude.doubleValue() / 1000) * EARTH_GRAVITATIONAL_CONSTANT
-                / (Math.pow(WGS84_a, 3.0));
+        double altInKm = altitude.toUnit(SI.KILOMETER).doubleValue();
+        double deltaG = -2000.0 * altInKm * EARTH_GRAVITATIONAL_CONSTANT / (Math.pow(WGS84_a, 3.0));
         double sin2lat = Math.sin(latRad) * Math.sin(latRad);
         double sin22lat = Math.sin(2.0 * latRad) * Math.sin(2.0 * latRad);
         double result = (9.780327 * (1.0 + 5.3024e-3 * sin2lat - 5.8e-6 * sin22lat) + deltaG);
-        return new DecimalType(result);
+        return new MeasureType(result, SI.METERS_PER_SQUARE_SECOND);
     }
 
     /**
@@ -119,7 +121,7 @@ public class PointType implements ComplexType, Command, State {
 
     @Override
     public String toString() {
-        return String.format("%1$.2f°N, %2$.2f°W, %2$.2f m", latitude, longitude, altitude);
+    	return String.format("%1$.2f°N, %2$.2f°W, ", latitude, longitude) + altitude.toString();
     }
 
     @Override

@@ -16,3 +16,5 @@ Export-Package: org.eclipse.smarthome.core.library.items,org.eclipse.s
  marthome.core.library.types
 Service-Component: OSGI-INF/itemfactory.xml
 Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/jscience.jar,
+ .
