@@ -329,10 +329,10 @@ public class ThingLinkManager {
             try {
                 handler.channelLinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Eception occured while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occured while informing handler:" + ex.getMessage(), ex);
             }
         } else {
-            logger.warn("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
+            logger.trace("Can not inform handler about linked channel, because no handler is assigned to the thing {}.",
                     thing.getUID());
         }
     }
@@ -343,10 +343,10 @@ public class ThingLinkManager {
             try {
                 handler.channelUnlinked(channel.getUID());
             } catch (Exception ex) {
-                logger.error("Eception occured while informing handler:" + ex.getMessage(), ex);
+                logger.error("Exception occured while informing handler:" + ex.getMessage(), ex);
             }
         } else {
-            logger.warn(
+            logger.trace(
                     "Can not inform handler about unlinked channel, because no handler is assigned to the thing {}.",
                     thing.getUID());
         }
