@@ -150,6 +150,26 @@ public class MqttService implements ManagedService {
     }
 
     /**
+     * Register a new connection observer that could act on MQTT connection changes.
+     *
+     * @param brokerName Name of the broker that connection should be observed.
+     * @param connectionObserver The connection observer that should be informed about connection changes.
+     */
+    public void registerConnectionObserver(String brokerName, MqttConnectionObserver connectionObserver) {
+        getConnection(brokerName).addConnectionObserver(connectionObserver);
+    }
+
+    /**
+     * Unregister an existing connection observer.
+     *
+     * @param brokerName Name of the broker that connection has been observed.
+     * @param connectionObserver The connection observer that should not be informed anymore.
+     */
+    public void unregisterConnectionObserver(String brokerName, MqttConnectionObserver connectionObserver) {
+        getConnection(brokerName).removeConnectionObserver(connectionObserver);
+    }
+
+    /**
      * Register a new message consumer which can process messages received on
      *
      * @param brokerName Name of the broker on which to listen for messages.
