@@ -12,152 +12,164 @@ import java.math.BigDecimal;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.measure.unit.SI;
+
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.ComplexType;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * This type can be used for items that are dealing with GPS or
- * location awareness functionality.
+ * This type can be used for items that are dealing with GPS or location
+ * awareness functionality.
  *
  * @author Gaël L'hopital
  *
  */
 public class PointType implements ComplexType, Command, State {
 
-    public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
-    public static final double WGS84_a = 6378137; // The equatorial radius of WGS84 ellipsoid (6378137 m).
+	public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
+	public static final double WGS84_a = 6378137; // The equatorial radius of
+													// WGS84 ellipsoid (6378137
+													// m).
 
-    private BigDecimal latitude; // in decimal degrees
-    private BigDecimal longitude; // in decimal degrees
-    private BigDecimal altitude = BigDecimal.ZERO; // in decimal meters
+	private BigDecimal latitude; // in decimal degrees
+	private BigDecimal longitude; // in decimal degrees
+	private MeasureType altitude = MeasureType.valueOf(0, SI.METER);
 
-    // constants for the constituents
-    static final public String KEY_LATITUDE = "lat";
-    static final public String KEY_LONGITUDE = "long";
-    static final public String KEY_ALTITUDE = "alt";
+	// constants for the constituents
+	static final public String KEY_LATITUDE = "lat";
+	static final public String KEY_LONGITUDE = "long";
+	static final public String KEY_ALTITUDE = "alt";
 
-    private static final BigDecimal circle = new BigDecimal(360);
-    private static final BigDecimal flat = new BigDecimal(180);
-    private static final BigDecimal right = new BigDecimal(90);
+	private static final BigDecimal circle = new BigDecimal(360);
+	private static final BigDecimal flat = new BigDecimal(180);
+	private static final BigDecimal right = new BigDecimal(90);
 
-    public PointType(DecimalType latitude, DecimalType longitude) {
-        canonicalize(latitude, longitude);
-    }
+	public PointType(DecimalType latitude, DecimalType longitude) {
+		canonicalize(latitude, longitude);
+	}
 
-    public PointType(DecimalType latitude, DecimalType longitude, DecimalType altitude) {
-        this(latitude, longitude);
-        setAltitude(altitude);
-    }
+	public PointType(DecimalType latitude, DecimalType longitude,
+			MeasureType altitude) {
+		this(latitude, longitude);
+		setAltitude(altitude);
+	}
 
-    public PointType(StringType latitude, StringType longitude) {
-        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()));
-    }
+	public PointType(StringType latitude, StringType longitude) {
+		this(new DecimalType(latitude.toString()), new DecimalType(
+				longitude.toString()));
+	}
 
-    public PointType(StringType latitude, StringType longitude, StringType altitude) {
-        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), new DecimalType(
-                altitude.toString()));
-    }
+	public PointType(StringType latitude, StringType longitude,
+			StringType altitude) {
+		this(new DecimalType(latitude.toString()), new DecimalType(
+				longitude.toString()), new MeasureType(altitude.toString()));
+	}
 
-    public PointType(String value) {
-        if (!value.isEmpty()) {
-            String[] elements = value.split(",");
-            if (elements.length >= 2) {
-                canonicalize(new DecimalType(elements[0]), new DecimalType(elements[1]));
-                if (elements.length == 3) {
-                    setAltitude(new DecimalType(elements[2]));
-                }
-            }
-        }
-    }
+	public PointType(String value) {
+		if (!value.isEmpty()) {
+			String[] elements = value.split(",");
+			if (elements.length >= 2) {
+				canonicalize(new DecimalType(elements[0]), new DecimalType(
+						elements[1]));
+				if (elements.length == 3) {
+					setAltitude(new MeasureType(elements[2]));
+				}
+			}
+		}
+	}
 
-    public DecimalType getLatitude() {
-        return new DecimalType(latitude);
-    }
+	public DecimalType getLatitude() {
+		return new DecimalType(latitude);
+	}
 
-    public DecimalType getLongitude() {
-        return new DecimalType(longitude);
-    }
+	public DecimalType getLongitude() {
+		return new DecimalType(longitude);
+	}
 
-    public DecimalType getAltitude() {
-        return new DecimalType(altitude);
-    }
+	public MeasureType getAltitude() {
+		return altitude;
+	}
 
-    public void setAltitude(DecimalType altitude) {
-        this.altitude = altitude.toBigDecimal();
-    }
+	public void setAltitude(MeasureType altitude) {
+		this.altitude = altitude;
+	}
 
-    public DecimalType getGravity() {
-        double latRad = Math.toRadians(latitude.doubleValue());
-        double deltaG = -2000.0 * (altitude.doubleValue() / 1000) * EARTH_GRAVITATIONAL_CONSTANT
-                / (Math.pow(WGS84_a, 3.0));
-        double sin2lat = Math.sin(latRad) * Math.sin(latRad);
-        double sin22lat = Math.sin(2.0 * latRad) * Math.sin(2.0 * latRad);
-        double result = (9.780327 * (1.0 + 5.3024e-3 * sin2lat - 5.8e-6 * sin22lat) + deltaG);
-        return new DecimalType(result);
-    }
+	public MeasureType getGravity() {
+		double latRad = Math.toRadians(latitude.doubleValue());
+		double altInKm = altitude.toUnit(SI.KILOMETER).doubleValue();
+		double deltaG = -2000.0 * (altInKm) * EARTH_GRAVITATIONAL_CONSTANT
+				/ (Math.pow(WGS84_a, 3.0));
+		double sin2lat = Math.sin(latRad) * Math.sin(latRad);
+		double sin22lat = Math.sin(2.0 * latRad) * Math.sin(2.0 * latRad);
+		double result = (9.780327 * (1.0 + 5.3024e-3 * sin2lat - 5.8e-6 * sin22lat) + deltaG);
+		return new MeasureType(result, SI.METERS_PER_SQUARE_SECOND);
+	}
 
-    /**
-     * <p>
-     * Formats the value of this type according to a pattern (@see {@link Formatter}). One single value of this type can
-     * be referenced by the pattern using an index. The item order is defined by the natural (alphabetical) order of
-     * their keys.
-     * </p>
-     *
-     * @param pattern the pattern to use containing indexes to reference the
-     *            single elements of this type.
-     */
-    @Override
-    public String format(String pattern) {
-        return String.format(pattern, getConstituents().values().toArray());
-    }
+	/**
+	 * <p>
+	 * Formats the value of this type according to a pattern (@see
+	 * {@link Formatter}). One single value of this type can be referenced by
+	 * the pattern using an index. The item order is defined by the natural
+	 * (alphabetical) order of their keys.
+	 * </p>
+	 *
+	 * @param pattern
+	 *            the pattern to use containing indexes to reference the single
+	 *            elements of this type.
+	 */
+	@Override
+	public String format(String pattern) {
+		return String.format(pattern, getConstituents().values().toArray());
+	}
 
-    public PointType valueOf(String value) {
-        return new PointType(value);
-    }
+	public PointType valueOf(String value) {
+		return new PointType(value);
+	}
 
-    @Override
-    public String toString() {
-        return String.format("%1$.2f°N, %2$.2f°W, %2$.2f m", latitude, longitude, altitude);
-    }
+	@Override
+	public String toString() {
+		return String.format("%1$.2f°N, %2$.2f°W, ", latitude, longitude)
+				+ altitude.toString();
+	}
 
-    @Override
-    public SortedMap<String, PrimitiveType> getConstituents() {
-        SortedMap<String, PrimitiveType> result = new TreeMap<String, PrimitiveType>();
-        result.put(KEY_LATITUDE, getLatitude());
-        result.put(KEY_LONGITUDE, getLongitude());
-        result.put(KEY_ALTITUDE, getAltitude());
-        return result;
-    }
+	@Override
+	public SortedMap<String, PrimitiveType> getConstituents() {
+		SortedMap<String, PrimitiveType> result = new TreeMap<String, PrimitiveType>();
+		result.put(KEY_LATITUDE, getLatitude());
+		result.put(KEY_LONGITUDE, getLongitude());
+		result.put(KEY_ALTITUDE, getAltitude());
+		return result;
+	}
 
-    /**
-     * Canonicalize the current latitude and longitude values such that:
-     *
-     * <pre>
-     * -90 &lt;= latitude &lt;= +90 - 180 &lt; longitude &lt;= +180
-     * </pre>
-     */
-    private void canonicalize(DecimalType aLat, DecimalType aLon) {
-        latitude = flat.add(aLat.toBigDecimal()).remainder(circle);
-        longitude = aLon.toBigDecimal();
-        if (latitude.compareTo(BigDecimal.ZERO) == -1)
-            latitude.add(circle);
+	/**
+	 * Canonicalize the current latitude and longitude values such that:
+	 *
+	 * <pre>
+	 * -90 &lt;= latitude &lt;= +90 - 180 &lt; longitude &lt;= +180
+	 * </pre>
+	 */
+	private void canonicalize(DecimalType aLat, DecimalType aLon) {
+		latitude = flat.add(aLat.toBigDecimal()).remainder(circle);
+		longitude = aLon.toBigDecimal();
+		if (latitude.compareTo(BigDecimal.ZERO) == -1)
+			latitude.add(circle);
 
-        latitude = latitude.subtract(flat);
-        if (latitude.compareTo(right) == 1) {
-            latitude = flat.subtract(latitude);
-            longitude = longitude.add(flat);
-        } else if (latitude.compareTo(right.negate()) == -1) {
-            latitude = flat.negate().subtract(latitude);
-            longitude = longitude.add(flat);
-        }
+		latitude = latitude.subtract(flat);
+		if (latitude.compareTo(right) == 1) {
+			latitude = flat.subtract(latitude);
+			longitude = longitude.add(flat);
+		} else if (latitude.compareTo(right.negate()) == -1) {
+			latitude = flat.negate().subtract(latitude);
+			longitude = longitude.add(flat);
+		}
 
-        longitude = flat.add(longitude).remainder(circle);
-        if (longitude.compareTo(BigDecimal.ZERO) <= 0)
-            longitude = longitude.add(circle);
-        longitude = longitude.subtract(flat);
+		longitude = flat.add(longitude).remainder(circle);
+		if (longitude.compareTo(BigDecimal.ZERO) <= 0)
+			longitude = longitude.add(circle);
+		longitude = longitude.subtract(flat);
 
-    }
+	}
 
 }

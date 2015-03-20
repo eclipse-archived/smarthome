@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import javax.measure.unit.SI;
 
 import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.junit.Test;
@@ -21,7 +21,6 @@ public class PointTypeTest {
     @Test
     public void testDistance() {
         PointType pointParis = new PointType("48.8566140,2.3522219");
-
         
         assertEquals(2.3522219, pointParis.getLongitude().doubleValue(), 0.0000001);
         assertEquals(48.856614, pointParis.getLatitude().doubleValue(), 0.0000001);
@@ -33,11 +32,12 @@ public class PointTypeTest {
         LocationItem locationBerlin = new LocationItem("berlin");
         locationBerlin.setState(pointBerlin);
 
-        DecimalType distance = locationParis.distanceFrom(pointParis);
+        MeasureType distance = locationParis.distanceFrom(pointParis);
         assertEquals(0, distance.intValue());
 
-        double parisBerlin = locationParis.distanceFrom(pointBerlin).doubleValue();
-        assertEquals(878400, 50, parisBerlin);
+        MeasureType parisBerlin = locationParis.distanceFrom(pointBerlin);
+        double distInKm = parisBerlin.toUnit(SI.KILOMETER).doubleValue();
+        assertEquals(878.4, 0.5, distInKm);
 
         double gravParis = pointParis.getGravity().doubleValue();
         assertEquals(gravParis, 9.809, 0.001);

@@ -12,9 +12,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.measure.unit.SI;
+
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.MeasureType;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -67,7 +69,7 @@ public class LocationItem extends GenericItem {
      * @param away : the point to calculate the distance with
      * @return distance between the two points in meters
      */
-    public DecimalType distanceFrom(PointType away) {
+    public MeasureType distanceFrom(PointType away) {
 
         double dist = -1;
 
@@ -86,6 +88,6 @@ public class LocationItem extends GenericItem {
             dist = PointType.WGS84_a * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        return new DecimalType(dist);
+        return new MeasureType(dist,SI.METER);
     }
 }
