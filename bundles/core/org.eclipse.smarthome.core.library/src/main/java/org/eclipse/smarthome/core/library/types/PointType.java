@@ -29,9 +29,8 @@ import org.eclipse.smarthome.core.types.State;
 public class PointType implements ComplexType, Command, State {
 
 	public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
-	public static final double WGS84_a = 6378137; // The equatorial radius of
-													// WGS84 ellipsoid (6378137
-													// m).
+	// The equatorial radius of WGS84 ellipsoid (6378137m).
+	public static final double WGS84_a = 6378137; 
 
 	private BigDecimal latitude; // in decimal degrees
 	private BigDecimal longitude; // in decimal degrees
