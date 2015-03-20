@@ -21,4 +21,5 @@ public interface MqttMessageProducer {
      * @param channel Sender Channel which will be set by the MqttBrokerConnection.
      */
     public void setSenderChannel(MqttSenderChannel channel);
+
 }

@@ -28,6 +28,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
+import org.eclipse.smarthome.io.transport.mqtt.MqttConnectionObserver;
 import org.eclipse.smarthome.io.transport.mqtt.MqttMessageConsumer;
 import org.eclipse.smarthome.io.transport.mqtt.MqttMessageProducer;
 import org.eclipse.smarthome.io.transport.mqtt.MqttSenderChannel;
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * When a connection to an MQTT broker is lost, it will try to reconnect every 60 seconds.
  *
  * @author Davy Vanherbergen
+ * @author Markus Rathgeb - added connection state callback
  */
 public class MqttBrokerConnection implements MqttCallback {
 
@@ -73,6 +75,8 @@ public class MqttBrokerConnection implements MqttCallback {
 
     private int keepAliveInterval = 60;
 
+    private List<MqttConnectionObserver> connectionObservers = new CopyOnWriteArrayList<>();
+
     private List<MqttMessageConsumer> consumers = new CopyOnWriteArrayList<MqttMessageConsumer>();
 
     private List<MqttMessageProducer> producers = new CopyOnWriteArrayList<MqttMessageProducer>();
@@ -86,6 +90,28 @@ public class MqttBrokerConnection implements MqttCallback {
      */
     public MqttBrokerConnection(String name) {
         this.name = name;
+    }
+
+    private void setConnected(final MqttConnectionObserver connectionObserver, final boolean connected) {
+        try {
+            connectionObserver.setConnected(connected);
+        } catch (final Exception ex) {
+            logger.trace("The recipient of the connection state callback throws an exception.", ex);
+        }
+    }
+
+    private synchronized void setStarted(final boolean started) {
+        if (started) {
+            this.started = true;
+            for (final MqttConnectionObserver connectionObserver : connectionObservers) {
+                setConnected(connectionObserver, true);
+            }
+        } else {
+            for (final MqttConnectionObserver connectionObserver : connectionObservers) {
+                setConnected(connectionObserver, false);
+            }
+            this.started = false;
+        }
     }
 
     /**
@@ -119,7 +145,7 @@ public class MqttBrokerConnection implements MqttCallback {
             startProducer(p);
         }
 
-        started = true;
+        setStarted(true);
     }
 
     /**
@@ -364,6 +390,16 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
+     * Add a new connection observer to this connection.
+     *
+     * @param connectionObserver The connection observer that should be added.
+     */
+    public synchronized void addConnectionObserver(MqttConnectionObserver connectionObserver) {
+        connectionObservers.add(connectionObserver);
+        setConnected(connectionObserver, started);
+    }
+
+    /**
      * Add a new message producer to this connection.
      *
      * @param publisher to add.
@@ -449,6 +485,15 @@ public class MqttBrokerConnection implements MqttCallback {
     }
 
     /**
+     * Remove a previously registered connection observer from this connection.
+     *
+     * @param connectionObserver The connection observer that should be removed.
+     */
+    public synchronized void removeConnectionObserver(MqttConnectionObserver connectionObserver) {
+        connectionObservers.remove(connectionObserver);
+    }
+
+    /**
      * Remove a previously registered producer from this connection.
      *
      * @param publisher to remove.
@@ -490,7 +535,7 @@ public class MqttBrokerConnection implements MqttCallback {
         } catch (MqttException e) {
             logger.error("Error closing connection to broker", e);
         }
-        started = false;
+        setStarted(false);
     }
 
     @Override
@@ -507,7 +552,7 @@ public class MqttBrokerConnection implements MqttCallback {
             logger.error("MQTT connection to '{}' was lost: {}", name, t.getMessage());
         }
 
-        started = false;
+        setStarted(false);
         logger.info("Starting connection helper to periodically try restore connection to broker '{}'", name);
 
         MqttBrokerConnectionHelper helper = new MqttBrokerConnectionHelper(this);
