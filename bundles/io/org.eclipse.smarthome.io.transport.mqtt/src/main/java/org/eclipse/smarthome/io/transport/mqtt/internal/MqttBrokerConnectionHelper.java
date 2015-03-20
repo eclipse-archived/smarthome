@@ -10,8 +10,8 @@ package org.eclipse.smarthome.io.transport.mqtt.internal;
 import java.util.TimerTask;
 
 /**
- * Connection helper which can be executed periodically to try to reconnect to a
- * broker if the connection was previously lost.
+ * Connection helper which can be executed periodically to try to reconnect to a broker if the connection was previously
+ * lost.
  *
  * @author Davy Vanherbergen
  */
@@ -22,8 +22,7 @@ public class MqttBrokerConnectionHelper extends TimerTask {
     /**
      * Create new connection helper to help reconnect the given connection.
      *
-     * @param connection
-     *            to reconnect.
+     * @param connection to reconnect.
      */
     public MqttBrokerConnectionHelper(MqttBrokerConnection connection) {
         this.connection = connection;
