@@ -11,5 +11,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" configuration-policy="optional" deactivate="deactivate" name="org.eclipse.smarthome.mdns">
    <implementation class="org.eclipse.smarthome.io.rest.internal.MDNSAnnouncer"/>
    <property name="service.pid" type="String" value="org.eclipse.smarthome.mdns"/>
-   <reference bind="setMDNSService" cardinality="1..1" interface="org.eclipse.smarthome.io.mdns.MDNSService" name="MDNSService" policy="dynamic" unbind="unsetMDNSService"/>
+   <reference bind="setMDNSService" cardinality="1..1" interface="org.eclipse.smarthome.io.transport.mdns.MDNSService" name="MDNSService" policy="dynamic" unbind="unsetMDNSService"/>
 </scr:component>
