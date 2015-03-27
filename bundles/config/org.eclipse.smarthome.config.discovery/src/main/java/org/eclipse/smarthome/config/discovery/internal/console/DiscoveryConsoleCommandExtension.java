@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal.console;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -16,13 +17,11 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.io.console.Console;
-import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
+import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * {@link DiscoveryConsoleCommandExtension} provides console commands for thing discovery.
@@ -30,7 +29,11 @@ import com.google.common.collect.Lists;
  * @author Kai Kreuzer - Initial contribution
  * @author Dennis Nobel - Added background discovery commands
  */
-public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension {
+public class DiscoveryConsoleCommandExtension extends AbstractConsoleCommandExtension {
+
+    private static final String SUBCMD_START = "start";
+    private static final String SUBCMD_BACKGROUND_DISCOVERY_ENABLE = "enableBackgroundDiscovery";
+    private static final String SUBCMD_BACKGROUND_DISCOVERY_DISABLE = "disableBackgroundDiscovery";
 
     private final Logger logger = LoggerFactory.getLogger(DiscoveryConsoleCommandExtension.class);
 
@@ -38,65 +41,52 @@ public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension
 
     private ConfigurationAdmin configurationAdmin;
 
-    private final static String COMMAND_DISCOVERY = "discovery";
-
-    private final static List<String> SUPPORTED_COMMANDS = Lists.newArrayList(COMMAND_DISCOVERY);
-
-    @Override
-    public boolean canHandle(String[] args) {
-        String firstArgument = args[0];
-        return SUPPORTED_COMMANDS.contains(firstArgument);
+    public DiscoveryConsoleCommandExtension() {
+        super("discovery", "Control the discovery mechanism.");
     }
 
     @Override
     public void execute(String[] args, Console console) {
-        String command = args[0];
-        switch (command) {
-            case COMMAND_DISCOVERY:
-                if (args.length > 1) {
-                    String subCommand = args[1];
-                    switch (subCommand) {
-                        case "start":
-                            if (args.length > 2) {
-                                String arg2 = args[2];
-                                if (arg2.contains(":")) {
-                                    ThingTypeUID thingTypeUID = new ThingTypeUID(arg2);
-                                    runDiscoveryForThingType(console, thingTypeUID);
-                                } else {
-                                    runDiscoveryForBinding(console, arg2);
-                                }
-                            } else {
-                                console.println("Specify thing type id or binding id to discover: discovery "
-                                        + "start <thingTypeUID|bindingID> (e.g. \"hue:bridge\" or \"hue\")");
-                            }
-                            return;
-                        case "enableBackgroundDiscovery":
-                            if (args.length > 2) {
-                                String discoveryServiceName = args[2];
-                                configureBackgroundDiscovery(console, discoveryServiceName, true);
-                            } else {
-                                console.println("Specify discovery service PID to configure background discovery: discovery "
-                                        + "enableBackgroundDiscovery <PID> (e.g. \"hue.discovery\")");
-                            }
-                            return;
-                        case "disableBackgroundDiscovery":
-                            if (args.length > 2) {
-                                String discoveryServiceName = args[2];
-                                configureBackgroundDiscovery(console, discoveryServiceName, false);
-                            } else {
-                                console.println("Specify discovery service PID to configure background discovery: discovery "
-                                        + "disableBackgroundDiscovery <PID> (e.g. \"hue.discovery\")");
-                            }
-                            return;
-                        default:
-                            break;
+        if (args.length > 0) {
+            String subCommand = args[0];
+            switch (subCommand) {
+                case SUBCMD_START:
+                    if (args.length > 1) {
+                        String arg1 = args[1];
+                        if (arg1.contains(":")) {
+                            ThingTypeUID thingTypeUID = new ThingTypeUID(arg1);
+                            runDiscoveryForThingType(console, thingTypeUID);
+                        } else {
+                            runDiscoveryForBinding(console, arg1);
+                        }
+                    } else {
+                        console.println("Specify thing type id or binding id to discover: discovery "
+                                + "start <thingTypeUID|bindingID> (e.g. \"hue:bridge\" or \"hue\")");
                     }
-                } else {
-                    console.println(getUsages().get(0));
-                }
-                return;
-            default:
-                return;
+                    return;
+                case SUBCMD_BACKGROUND_DISCOVERY_ENABLE:
+                    if (args.length > 1) {
+                        String discoveryServiceName = args[1];
+                        configureBackgroundDiscovery(console, discoveryServiceName, true);
+                    } else {
+                        console.println("Specify discovery service PID to configure background discovery: discovery "
+                                + "enableBackgroundDiscovery <PID> (e.g. \"hue.discovery\")");
+                    }
+                    return;
+                case SUBCMD_BACKGROUND_DISCOVERY_DISABLE:
+                    if (args.length > 1) {
+                        String discoveryServiceName = args[1];
+                        configureBackgroundDiscovery(console, discoveryServiceName, false);
+                    } else {
+                        console.println("Specify discovery service PID to configure background discovery: discovery "
+                                + "disableBackgroundDiscovery <PID> (e.g. \"hue.discovery\")");
+                    }
+                    return;
+                default:
+                    break;
+            }
+        } else {
+            console.println(getUsages().get(0));
         }
     }
 
@@ -129,11 +119,13 @@ public class DiscoveryConsoleCommandExtension implements ConsoleCommandExtension
 
     @Override
     public List<String> getUsages() {
-        return Lists
-                .newArrayList(
-                        "discovery start <thingTypeUID|bindingID> - runs a discovery on a given thing type or binding",
-                        "discovery enableBackgroundDiscovery <PID> - enables background discovery for the discovery service with the given PID",
-                        "discovery disableBackgroundDiscovery <PID> - disables background discovery for the discovery service with the given PID");
+        return Arrays.asList(new String[] {
+                buildCommandUsage(SUBCMD_START + " <thingTypeUID|bindingID>",
+                        "runs a discovery on a given thing type or binding"),
+                buildCommandUsage(SUBCMD_BACKGROUND_DISCOVERY_ENABLE + " <PID>",
+                        "enables background discovery for the discovery service with the given PID"),
+                buildCommandUsage(SUBCMD_BACKGROUND_DISCOVERY_DISABLE + " <PID>",
+                        "disables background discovery for the discovery service with the given PID") });
     }
 
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
