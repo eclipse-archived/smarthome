@@ -25,6 +25,11 @@ import org.jupnp.model.meta.RemoteDevice;
 public interface UpnpDiscoveryParticipant {
 
     /**
+     * According to the UPnP specification, the minimum MaxAge is 1800 seconds.
+     */
+    long MIN_MAX_AGE_SECS = 1800;
+
+    /**
      * Defines the list of thing types that this participant can identify
      * 
      * @return a set of thing type UIDs for which results can be created

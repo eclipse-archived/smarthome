@@ -7,17 +7,19 @@
  */
 package org.eclipse.smarthome.config.discovery;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.config.discovery.util.DiscoveryThreadPool;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -33,13 +35,14 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Libutzki - Initial contribution
  * @author Kai Kreuzer - Refactored API
  * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
+ * @author Andre Fuechsel - Added removeOlderResults
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    static protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
-
+    static protected final ScheduledExecutorService scheduler = DiscoveryThreadPool.getScheduler(); 
+    
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected ScanListener scanListener = null;
 
@@ -49,6 +52,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     final private Set<ThingTypeUID> supportedThingTypes;
     final private int timeout;
+
+    private long timestampOfLastScan = 0L;
 
     private ScheduledFuture<?> scheduledStop;
 
@@ -185,6 +190,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
                 scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
             }
+            this.timestampOfLastScan = new Date().getTime(); 
+
             try {
                 startScan();
             } catch (Exception ex) {
@@ -270,6 +277,54 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             cachedResults.remove(thingUID);
         }
     }
+    
+    /**
+     * Call to remove all results of all {@link #supportedThingTypes} that are
+     * older than the given timestamp. To remove all left over results after a
+     * full scan, this method could be called {@link #getTimestampOfLastScan()}
+     * as timestamp.
+     * 
+     * @param timestamp
+     *            timestamp, older results will be removed
+     */
+    protected void removeOlderResults(long timestamp) {
+        removeOlderResults(timestamp, null);
+    }
+    
+    /**
+     * Call to remove all results of the given types that are older than the
+     * given timestamp. To remove all left over results after a full scan, this
+     * method could be called {@link #getTimestampOfLastScan()} as timestamp.
+     * 
+     * @param timestamp
+     *            timestamp, older results will be removed
+     * @param thingTypeUIDs
+     *            collection of {@code ThingType}s, only results of these
+     *            {@code ThingType}s will be removed; if {@code null} then
+     *            {@link DiscoveryService#getSupportedThingTypes()} will be used
+     *            instead
+     */
+    protected void removeOlderResults(long timestamp, Collection<ThingTypeUID> thingTypeUIDs) {
+        Collection<ThingUID> removedThings = null;
+        if (thingTypeUIDs == null) {
+            thingTypeUIDs = getSupportedThingTypes();
+        }
+        for (DiscoveryListener discoveryListener : discoveryListeners) {
+            try {
+                removedThings = discoveryListener.removeOlderResults(this, timestamp, thingTypeUIDs);
+            } catch (Exception e) {
+                logger.error("An error occurred while calling the discovery listener "
+                        + discoveryListener.getClass().getName() + ".", e);
+            }
+        }
+        if (removedThings != null) {
+            synchronized (cachedResults) {
+                for (ThingUID uid : removedThings) {
+                    cachedResults.remove(uid);
+                }
+            }
+        }
+    }
 
     /**
      * Called on component activation, if the implementation of this class is an
@@ -351,6 +406,15 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void stopBackgroundDiscovery() {
         // can be overridden
+    }
+
+    /**
+     * Get the timestamp of the last call of {@link #startScan()}.
+     * 
+     * @return timestamp as long
+     */
+    protected long getTimestampOfLastScan() {
+        return timestampOfLastScan;
     }
 
     private boolean getAutoDiscoveryEnabled(Object autoDiscoveryEnabled) {

@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * Support for further devices can be added by implementing and registering a {@link UpnpDiscoveryParticipant}.
  * 
  * @author Kai Kreuzer - Initial contribution
+ * @author Andre Fuechsel - Added call of removeOlderResults
  *
  */
 public class UpnpDiscoveryService extends AbstractDiscoveryService implements RegistryListener {
@@ -105,6 +106,7 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
 
     @Override
     protected synchronized void stopScan() {
+        removeOlderResults(getTimestampOfLastScan());
         super.stopScan();
         if (!isBackgroundDiscoveryEnabled()) {
             upnpService.getRegistry().removeListener(this);
