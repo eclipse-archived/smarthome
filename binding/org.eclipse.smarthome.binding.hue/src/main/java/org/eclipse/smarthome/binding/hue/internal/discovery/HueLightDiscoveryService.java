@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.hue.internal.discovery;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.BINDING_ID;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     @Override
     public void deactivate() {
+        removeOlderResults(new Date().getTime());
         hueBridgeHandler.unregisterLightStatusListener(this);
     }
 
@@ -74,6 +76,12 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         }
         // search for unpaired lights
         hueBridgeHandler.startSearch();
+    }
+
+    @Override
+    protected synchronized void stopScan() {
+        super.stopScan();
+        removeOlderResults(getTimestampOfLastScan());
     }
 
     @Override

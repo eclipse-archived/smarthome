@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * The {@link DiscoveryResultBuilder} helps creating a {@link DiscoveryResult} through the builder pattern.
  *
  * @author Kai Kreuzer - Initial API
+ * @author Andre Fuechsel - added support for time to live
  *
  * @see DiscoveryResult
  */
@@ -27,6 +28,7 @@ public class DiscoveryResultBuilder {
     private ThingUID bridgeUID;
     private Map<String, Object> properties = new HashMap<>();
     private String label;
+    private long ttl = DiscoveryResult.TTL_UNLIMITED; 
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
         this.thingUID = thingUID;
@@ -87,13 +89,24 @@ public class DiscoveryResultBuilder {
         return this;
     }
 
+    /** 
+     * Sets the time to live for the result in seconds
+     * 
+     * @param ttl time to live in seconds
+     * @return the updated builder
+     */
+    public DiscoveryResultBuilder withTTL(long ttl) {
+        this.ttl = ttl; 
+        return this; 
+    }
+
     /**
      * Builds a result with the settings of this builder.
      *
      * @return the desired result
      */
     public DiscoveryResult build() {
-        return new DiscoveryResultImpl(thingUID, bridgeUID, properties, label);
+        return new DiscoveryResultImpl(thingUID, bridgeUID, properties, label, ttl);
     }
 
 }

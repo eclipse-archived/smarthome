@@ -23,13 +23,21 @@ import org.eclipse.smarthome.core.thing.ThingUID
  */
 class DiscoveryServiceMock extends AbstractDiscoveryService {
 
+    def DEFAULT_TTL = 60
+
+    def generator = { String alphabet, int n ->
+        new Random().with {
+            (1..n).collect { alphabet[ nextInt( alphabet.length() ) ] }.join()
+        }
+    }
+
     ThingTypeUID thingType
     int timeout
     boolean faulty
 
     public DiscoveryServiceMock(thingType, timeout, faulty = false) {
-        super([thingType] as Set, timeout)     
-        this.thingType = thingType   
+        super([thingType] as Set, timeout)
+        this.thingType = thingType
         this.faulty = faulty
     }
 
@@ -38,7 +46,6 @@ class DiscoveryServiceMock extends AbstractDiscoveryService {
         if (faulty) {
             throw new Exception()
         }
-        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, 'abc'), null, null, null))
+        thingDiscovered(new DiscoveryResultImpl(new ThingUID(thingType, generator((('A'..'Z')+('0'..'9')).join(), 9)), null, null, null, DEFAULT_TTL))
     }
-
 }

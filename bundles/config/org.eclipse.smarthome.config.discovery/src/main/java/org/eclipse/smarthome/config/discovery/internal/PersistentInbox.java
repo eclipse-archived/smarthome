@@ -8,10 +8,17 @@
 package org.eclipse.smarthome.config.discovery.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryListener;
@@ -22,6 +29,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
+import org.eclipse.smarthome.config.discovery.util.DiscoveryThreadPool;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -47,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added automated removing of entries
  * @author Michael Grammling - Added dynamic configuration updates
  * @author Dennis Nobel - Added persistence support
+ * @author Andre Fuechsel - Added removeOlderResults
  *
  */
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
@@ -58,6 +67,30 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         added, removed, updated
     }
 
+    private class TimeToLiveCheckingThread implements Runnable {
+
+        private PersistentInbox inbox;
+
+        public TimeToLiveCheckingThread(PersistentInbox inbox) {
+            this.inbox = inbox;
+        }
+
+        @Override
+        public void run() {
+            long now = new Date().getTime(); 
+            for (DiscoveryResult result : inbox.getAll()) {
+                if (isResultExpired(result, now)) {
+                    logger.debug("Inbox entry for thing {} is expired and will be removed", result.getThingUID());
+                    remove(result.getThingUID());
+                }
+            }
+        }
+        
+        private boolean isResultExpired(DiscoveryResult result, long now) {
+            return (result.getTimestamp() + result.getTimeToLive() * 1000 < now); 
+        }
+    }
+    
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
@@ -67,6 +100,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private ManagedThingProvider managedThingProvider;
 
     private Storage<DiscoveryResult> discoveryResultStorage;
+    
+    private ScheduledFuture<?> timeToLiveChecker; 
 
     @Override
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
@@ -189,6 +224,24 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
         remove(thingUID);
     }
+    
+
+    @Override
+    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
+            Collection<ThingTypeUID> thingTypeUIDs) {
+        HashSet<ThingUID> removedThings = new HashSet<>(); 
+        for (DiscoveryResult discoveryResult : getAll()) {
+            ThingUID thingUID = discoveryResult.getThingUID();
+            if (thingTypeUIDs.contains(thingUID.getThingTypeUID())
+                    && discoveryResult.getTimestamp() < timestamp) {
+                removedThings.add(thingUID);
+                remove(thingUID); 
+                logger.debug("Removed {} from inbox because it was older than {}", thingUID,
+                        new Date(timestamp));
+            }
+        }
+        return removedThings; 
+    }
 
     @Override
     public void added(Thing thing) {
@@ -298,8 +351,20 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         }
     }
 
+    protected void activate(ComponentContext componentContext) {
+        this.timeToLiveChecker = DiscoveryThreadPool.getScheduler().scheduleWithFixedDelay(
+                new TimeToLiveCheckingThread(this), 0, 30, TimeUnit.SECONDS);
+    }
+    
+    void setTimeToLiveCheckingInterval(int interval) {
+        this.timeToLiveChecker.cancel(true); 
+        this.timeToLiveChecker = DiscoveryThreadPool.getScheduler().scheduleWithFixedDelay(
+                new TimeToLiveCheckingThread(this), 0, interval, TimeUnit.SECONDS);
+    }
+
     protected void deactivate(ComponentContext componentContext) {
         this.listeners.clear();
+        this.timeToLiveChecker.cancel(true); 
     }
 
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
