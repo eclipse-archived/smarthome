@@ -241,50 +241,6 @@ class InboxOSGITest extends OSGiTest {
     }
     
     @Test
-    void 'assert that expiration thread is working'() {
-        PersistentInbox persistentInbox = (PersistentInbox) inbox; 
-        persistentInbox.setTimeToLiveCheckingInterval(1); 
-        
-        ThingTypeUID thingTypeUID1 = new ThingTypeUID("dummyBindingId1", "dummyThingType1")
-        ThingUID thingUID1 = new ThingUID(thingTypeUID1, "dummyThingId1")
-        ThingTypeUID thingTypeUID2 = new ThingTypeUID("dummyBindingId2", "dummyThingType2")
-        ThingUID thingUID2 = new ThingUID(thingTypeUID2, "dummyThingId2")
-
-        List<DiscoveryResult> allDiscoveryResults = inbox.all
-        assertThat allDiscoveryResults.size(), is(0)
-
-        Map<String, Object> props = new HashMap<>()
-        props.put("property1", "property1value1")
-        props.put("property2", "property2value1")
-
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID1, null, props, "DummyLabel1", 1)
-        assertTrue addDiscoveryResult(discoveryResult)
-        discoveryResult = new DiscoveryResultImpl(thingUID2, null, props, "DummyLabel2", 2)
-        assertTrue addDiscoveryResult(discoveryResult)
-
-        allDiscoveryResults = inbox.all
-        def now = new Date().getTime(); 
-        
-        assertThat allDiscoveryResults.size(), is(2)
-        assertThat isResultExpired(allDiscoveryResults.get(0), now) , is(false)
-        assertThat isResultExpired(allDiscoveryResults.get(1), now) , is(false)
-
-        Thread.sleep(1500) 
-        allDiscoveryResults = inbox.all
-        assertThat allDiscoveryResults.size(), is(1)
-        assertThat allDiscoveryResults.get(0).getThingUID(), is(thingUID2)
-        assertThat isResultExpired(allDiscoveryResults.get(0), now) , is(false)
-
-        Thread.sleep(1500) 
-        allDiscoveryResults = inbox.all
-        assertThat allDiscoveryResults.size(), is(0)
-    }
-
-    def private isResultExpired(DiscoveryResult result, long now) {
-        return result.getTimestamp() * result.getTimeToLive() * 1000 < now; 
-    }
- 
-    @Test
     void 'assert that get with InboxFilterCriteria returns correct results'() {
         List<DiscoveryResult> allDiscoveryResults = inbox.all
         assertThat allDiscoveryResults.size(), is(0)
