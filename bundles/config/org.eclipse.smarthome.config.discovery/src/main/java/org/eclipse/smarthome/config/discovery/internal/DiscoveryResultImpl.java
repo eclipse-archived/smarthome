@@ -27,7 +27,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
     private DiscoveryResultFlag flag;
     private String label;
     private long timestamp; 
-    private long timeToLive; 
+    private long timeToLive = TTL_UNLIMITED; 
 
     /**
      * Package protected default constructor to allow reflective instantiation.
