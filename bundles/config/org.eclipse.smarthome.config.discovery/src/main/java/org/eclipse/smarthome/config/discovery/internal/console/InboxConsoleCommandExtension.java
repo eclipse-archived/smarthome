@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.discovery.internal.console;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -126,8 +127,10 @@ public class InboxConsoleCommandExtension implements ConsoleCommandExtension {
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s]", flag.name(),
-                    thingTypeUID, label, thingUID, bridgeId, properties));
+            String timestamp = new Date(discoveryResult.getTimestamp()).toString(); 
+            String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED" : "" + discoveryResult.getTimeToLive(); 
+            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]", 
+                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
 
         }
     }
