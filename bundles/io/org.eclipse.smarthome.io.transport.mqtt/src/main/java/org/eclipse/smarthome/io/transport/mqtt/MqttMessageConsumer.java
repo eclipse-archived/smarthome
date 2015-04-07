@@ -10,8 +10,8 @@ package org.eclipse.smarthome.io.transport.mqtt;
 import org.eclipse.smarthome.core.events.EventPublisher;
 
 /**
- * All message consumers which want to register as a message consumer to a
- * MqttBrokerConnection should implement this interface.
+ * All message consumers which want to register as a message consumer to a MqttBrokerConnection should implement this
+ * interface.
  *
  * @author Davy Vanherbergen
  */
@@ -19,11 +19,9 @@ public interface MqttMessageConsumer {
 
     /**
      * Process a received MQTT message.
-     * 
-     * @param topic
-     *            The mqtt topic on which the message was received.
-     * @param payload
-     *            content of the message.
+     *
+     * @param topic The mqtt topic on which the message was received.
+     * @param payload content of the message.
      */
     public void processMessage(String topic, byte[] payload);
 
@@ -34,16 +32,14 @@ public interface MqttMessageConsumer {
 
     /**
      * Set Topic to subscribe to. May contain + or # wildcards
-     * 
-     * @param topic
-     *            to subscribe to.
+     *
+     * @param topic to subscribe to.
      */
     public void setTopic(String topic);
 
     /**
-     * Set the event publisher to use when broadcasting received messages onto
-     * the smarthome event bus.
-     * 
+     * Set the event publisher to use when broadcasting received messages onto the smarthome event bus.
+     *
      * @param eventPublisher
      */
     public void setEventPublisher(EventPublisher eventPublisher);

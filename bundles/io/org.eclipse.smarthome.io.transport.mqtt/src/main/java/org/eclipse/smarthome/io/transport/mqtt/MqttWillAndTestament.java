@@ -10,8 +10,7 @@ package org.eclipse.smarthome.io.transport.mqtt;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Class encapsulating the last will and testament that is published after the
- * client has gone offline.
+ * Class encapsulating the last will and testament that is published after the client has gone offline.
  *
  * @author Markus Mann
  *
@@ -23,8 +22,7 @@ public class MqttWillAndTestament {
     private boolean retain = false;
 
     /**
-     * Create an instance of the last will using a string with the following
-     * format:<br/>
+     * Create an instance of the last will using a string with the following format:<br/>
      * topic:message:qos:retained <br/>
      * Where
      * <ul>
@@ -33,9 +31,8 @@ public class MqttWillAndTestament {
      * <li>qos Valid values are 0 (Deliver at most once),1 (Deliver at least once) or 2</li>
      * <li>retain true if messages shall be retained</li>
      * </ul>
-     * 
-     * @param string
-     *            the string to parse. If null, null is returned
+     *
+     * @param string the string to parse. If null, null is returned
      * @return the will instance, will be null only if parameter is null
      */
     public static MqttWillAndTestament fromString(String string) {
@@ -76,9 +73,8 @@ public class MqttWillAndTestament {
 
     /**
      * Set the topic for the last will.
-     * 
-     * @param topic
-     *            the topic
+     *
+     * @param topic the topic
      */
     public void setTopic(String topic) {
         this.topic = topic;
@@ -93,9 +89,8 @@ public class MqttWillAndTestament {
 
     /**
      * Set the payload of the last will.
-     * 
-     * @param payload
-     *            the payload
+     *
+     * @param payload the payload
      */
     public void setPayload(byte[] payload) {
         this.payload = payload;
@@ -110,9 +105,8 @@ public class MqttWillAndTestament {
 
     /**
      * Set quality of service. Valid values are 0,1,2
-     * 
-     * @param qos
-     *            level.
+     *
+     * @param qos level.
      */
     public void setQos(int qos) {
         if (qos >= 0 && qos <= 2) {
@@ -129,9 +123,8 @@ public class MqttWillAndTestament {
 
     /**
      * Set whether the last will should be retained by the broker.
-     * 
-     * @param retain
-     *            true to retain.
+     *
+     * @param retain true to retain.
      */
     public void setRetain(boolean retain) {
         this.retain = retain;
