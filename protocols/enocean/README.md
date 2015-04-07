@@ -49,7 +49,7 @@ Authors
 
 Quick Start
 -----------
-* Get the code (e.g. in Eclipse Kepler).
+* Get the code (e.g. in Eclipse).
 * Compile it (via bnd).
 * Get Apache Felix (e.g. version 4.4.1).
 * Add the following bundles in the "bundle" folder of Felix:
@@ -77,13 +77,14 @@ START LEVEL 1
 * Start Felix.
 
 
-Nota
+Note
 ----
 Using the example app/bundle (org.eclipse.smarthome.protocols.enocean.sample.client) requires to 
-put the following lines in the enocean_config.txt configuration file of (org.eclipse.smarthome.
-protocols.enocean.basedriver.impl):
+put the following lines in the enocean_config.txt configuration file of ``org.eclipse.smarthome.
+protocols.enocean.basedriver.impl```:
+```
 0x018c0874_RORG_FUNC_TYPE_FRIENDLYNAME_DESCRIPTION=F6##99##99##Eltako Smoke Detector##(F6)
 0x01819912_RORG_FUNC_TYPE_FRIENDLYNAME_DESCRIPTION=F6##05##01##AfrisoLab Water Sensor##Liquid Leakage Sensor (mechanic energy harvester) (F6-05-01)
 #0x11111111_RORG_FUNC_TYPE_FRIENDLYNAME_DESCRIPTION=D2##01##08##D2-01-08##Electronic switches and dimmers with Energy Measurement and Local Control
 0x00851656_RORG_FUNC_TYPE_FRIENDLYNAME_DESCRIPTION=D2##A0##01##AfrisoLab Water Valve##Standard Control (BI-DIR) (D2-A0-01)
-
+```
