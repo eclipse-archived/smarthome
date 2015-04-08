@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.binding;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
 /**
@@ -28,6 +29,14 @@ public interface ThingHandlerCallback {
      * @param state state (must not be null)
      */
     void stateUpdated(ChannelUID channelUID, State state);
+
+    /**
+     * Informs about a command, which is sent from the channel.
+     * 
+     * @param channelUID channel UID
+     * @param command command
+     */
+    void postCommand(ChannelUID channelUID, Command command);
 
     /**
      * Informs about an updated status of a thing.
