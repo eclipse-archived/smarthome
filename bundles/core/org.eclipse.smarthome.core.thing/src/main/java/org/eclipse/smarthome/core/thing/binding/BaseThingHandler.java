@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -223,6 +224,41 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
+     * Sends a command for a channel of the thing.
+     *
+     * @param channelID
+     *            id of the channel, which sends the command
+     * @param command
+     *            command
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
+     */
+    protected void postCommand(String channelID, Command command) {
+        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
+        postCommand(channelUID, command);
+    }
+
+    /**
+     * Sends a command for a channel of the thing.
+     *
+     * @param channelUID
+     *            unique id of the channel, which sends the command
+     * @param command
+     *            command
+     * @throws IllegalStateException
+     *             if handler is not initialized correctly, because no callback is present
+     */
+    protected void postCommand(ChannelUID channelUID, Command command) {
+        synchronized (this) {
+            if (this.callback != null) {
+                this.callback.postCommand(channelUID, command);
+            } else {
+                throw new IllegalStateException("Could not update state, because callback is missing");
+            }
+        }
+    }
+
+    /**
      * Updates the status of the thing.
      *
      * @param status
@@ -348,8 +384,8 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * <p>
-     * Updates the given property value for the thing that is handled by this thing handler instance. The value is only set
-     * for the given property name if there has not been set any value yet or if the value has been changed. If the
+     * Updates the given property value for the thing that is handled by this thing handler instance. The value is only
+     * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
      * </p>
      * 
