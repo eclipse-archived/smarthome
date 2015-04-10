@@ -119,6 +119,14 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
                 eventPublisher.postUpdate(item, state, channelUID.toString());
             }
         }
+        
+        @Override
+        public void postCommand(ChannelUID channelUID, Command command) {
+            Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
+            for (String item : items) {
+                eventPublisher.postCommand(item, command, channelUID.toString());
+            }
+        }
 
         @Override
         public void statusUpdated(Thing thing, ThingStatus thingStatus) {
@@ -176,29 +184,32 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     @Override
-    public void receiveCommand(String itemName, Command command) {
+    public void receiveCommand(String itemName, Command command, String source) {
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
-            Thing thing = getThing(channelUID.getThingUID());
-            if (thing != null) {
-                ThingHandler handler = thing.getHandler();
-                if (handler != null) {
-                    logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
-                            itemName, channelUID);
-                    try {
-                        handler.handleCommand(channelUID, command);
-                    } catch (Exception ex) {
-                        logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+            // make sure a command event is not sent back to its source
+            if (!channelUID.toString().equals(source)) {
+                Thing thing = getThing(channelUID.getThingUID());
+                if (thing != null) {
+                    ThingHandler handler = thing.getHandler();
+                    if (handler != null) {
+                        logger.debug("Delegating command '{}' for item '{}' to handler for channel '{}'", command,
+                                itemName, channelUID);
+                        try {
+                            handler.handleCommand(channelUID, command);
+                        } catch (Exception ex) {
+                            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+                        }
+                    } else {
+                        logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                                + "because no handler is assigned. Maybe the binding is not installed or not "
+                                + "propertly initialized.", command, itemName, channelUID);
                     }
                 } else {
                     logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                            + "because no handler is assigned. Maybe the binding is not installed or not "
-                            + "propertly initialized.", command, itemName, channelUID);
+                            + "because no thing with the UID '{}' could be found.", command, itemName, channelUID,
+                            channelUID.getThingUID());
                 }
-            } else {
-                logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                        + "because no thing with the UID '{}' could be found.", command, itemName, channelUID,
-                        channelUID.getThingUID());
             }
         }
     }

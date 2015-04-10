@@ -151,16 +151,12 @@ class ThingManagerOSGiTest extends OSGiTest {
     void 'ThingManager handles state updates correctly'() {
 
         def itemName = "name"
-        def handleUpdateWasCalled = false
         def thingUpdatedWasCalled = false
         def callback;
         
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            handleUpdate: { ChannelUID channelUID, State newState ->
-                handleUpdateWasCalled = true
-            },
             thingUpdated: {
                 thingUpdatedWasCalled = true
             },
@@ -197,6 +193,39 @@ class ThingManagerOSGiTest extends OSGiTest {
         waitForAssert { assertThat thingUpdatedWasCalled, is(true) }
     }
     
+    @Test
+    void 'ThingManager handles post command correctly'() {
+
+        def itemName = "name"
+        def callback;
+        
+        managedThingProvider.add(THING)
+        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
+        def thingHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            }
+        ] as ThingHandler
+        
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+        ] as Hashtable)
+        
+        Event event = null
+        registerService([
+            handleEvent: { Event e ->
+                event = e;
+        }] as EventHandler,[
+            (EventConstants.EVENT_TOPIC): 'smarthome/command/*'
+        ] as Hashtable)
+        
+        // thing manager registered a listener, that delegates the command to the OSGi event bus
+        callback.postCommand(CHANNEL_UID, new StringType("Value"))
+        waitForAssert { assertThat event, is(not(null)) }
+        waitForAssert { assertThat event.getProperty("command"), is(equalTo("Value")) }
+    }
+
     @Test
     void 'ThingManager handles thing status updates correctly'() {
 
