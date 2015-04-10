@@ -8,8 +8,8 @@
   </parent>
 
   <properties>
-  	<bundle.symbolicName>org.eclipse.smarthome.io.net.test</bundle.symbolicName>
-  	<bundle.namespace>org.eclipse.smarthome.io.net.test</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.io.net.test</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.io.net.test</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -22,11 +22,11 @@
 
   <build>
     <plugins>
-		  <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-        </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+      </plugin>
     </plugins>
   </build>
 

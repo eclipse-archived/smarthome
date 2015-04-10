@@ -19,17 +19,17 @@
   <name>Eclipse SmartHome UI Tests</name>
 
   <packaging>eclipse-test-plugin</packaging>
-	
+
   <build>
     <plugins>
-		  <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-      	    <skip>true</skip>
-          </configuration>
-        </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
