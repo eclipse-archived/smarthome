@@ -8,8 +8,8 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.console.commandprovider">
-   <implementation class="org.eclipse.smarthome.io.console.internal.commands.ConsoleCommandProvider"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.console.eclipse">
+   <implementation class="org.eclipse.smarthome.io.console.eclipse.internal.ConsoleSupportEclipse"/>
    <service>
       <provide interface="org.eclipse.osgi.framework.console.CommandProvider"/>
    </service>
