@@ -8,8 +8,8 @@
   </parent>
 
   <properties>
-  	<bundle.symbolicName>org.eclipse.smarthome.core.scheduler</bundle.symbolicName>
-  	<bundle.namespace>org.eclipse.smarthome.core.scheduler</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.core.scheduler</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.core.scheduler</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -19,5 +19,5 @@
   <name>Eclipse SmartHome Core Scheduler Service</name>
 
   <packaging>eclipse-plugin</packaging>
-	
+
 </project>

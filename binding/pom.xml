@@ -24,7 +24,7 @@
   </modules>
 
   <build>
-    <plugins>   
+    <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-source-plugin</artifactId>
@@ -40,5 +40,5 @@
       </plugin>
     </plugins>
   </build>
-  
+
 </project>

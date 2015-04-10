@@ -12,7 +12,7 @@
   <groupId>@${groupId}</groupId>
   <artifactId>${rootArtifactId}</artifactId>
   <version>@${version}</version>
-  
+
   <name>${bindingIdCamelCase} Binding</name>
   <packaging>eclipse-plugin</packaging>
 

@@ -11,7 +11,7 @@
     <bundle.symbolicName>org.eclipse.smarthome.core.transform.test</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.core.transform.test</bundle.namespace>
   </properties>
-  
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.core</groupId>
   <artifactId>org.eclipse.smarthome.core.transform.test</artifactId>
@@ -22,14 +22,14 @@
 
   <build>
     <plugins>
-		  <plugin>
-          <groupId>org.eclipse.tycho</groupId>
-          <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
-          <configuration>
-      	    <skip>true</skip>
-          </configuration>
-        </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

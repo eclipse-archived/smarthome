@@ -8,8 +8,8 @@
   </parent>
 
   <properties>
-  	<bundle.symbolicName>org.eclipse.smarthome.core.autoupdate</bundle.symbolicName>
-  	<bundle.namespace>org.eclipse.smarthome.core.autoupdate</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.core.autoupdate</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.core.autoupdate</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
