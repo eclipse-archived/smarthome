@@ -13,24 +13,32 @@ import org.eclipse.smarthome.io.console.Console;
 
 /**
  * Client which provide a console command have to implement this interface
- * 
+ *
  * @author Oliver Libutzki
  *
  */
 public interface ConsoleCommandExtension {
 
     /**
-     * @param args array which contains the console command and all its arguments
-     * @return true if the extension is able to handle the command
+     * Get the command of for the extension.
+     *
+     * @return command for the extension
      */
-    boolean canHandle(String[] args);
+    String getCommand();
 
     /**
-     * This method called if {@link #canHandle(String[]) canHandle} returns true.
+     * Get the description for the extension.
+     *
+     * @return description for the extension
+     */
+    String getDescription();
+
+    /**
+     * This method called if a {@link #getCommand() command} for that extension is called.
      * Clients are not allowed to throw exceptions. They have to write corresponding messages to the given
      * {@link Console}
-     * 
-     * @param args array which contains the console command and all its arguments
+     *
+     * @param args array which contains all the console command arguments
      * @param console the console used to print
      */
     void execute(String[] args, Console console);
