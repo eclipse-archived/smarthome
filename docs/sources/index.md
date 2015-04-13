@@ -48,6 +48,7 @@ These chapters explain different technical aspects of the Eclipse SmartHome fram
 These chapters are relevant for people who want to develop the Eclipse SmartHome framework itself, not a solution based on it (such as openHAB2). If you want to implement extensions or addons for a specific solution, please refer to the appropriate documentation at their place.
 
 * [Development Environment](development/ide.md) - Learn how to set up a development environment that gets you started with coding.
+* [Coding Guidelines](development/guidelines.md) - This explains how project code should look like and what you need to pay attention for while coding.
 * [Contributing](http://www.eclipse.org/smarthome/community.html#HowToContribute) - Want to contribute your developments to the project? Wonderful!
 * [Unit Testing](development/unittesting.md) - We provide a powerful framework for easily writing unit tests for your code. Developers are encouraged to make use of it.
 
