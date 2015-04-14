@@ -183,3 +183,28 @@ The channel group type is defined on the same level as the thing types and chann
 ```
 
 When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+
+## Properties
+Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include 
+
+- general device information, e.g. the device vendor, the device series or the model ID, ...
+- device characteristics, e.g. if it is battery based, which home automation protocol is used, what is the current firmware version or the serial number, ...
+- physical descriptions, e.g. what is the size, the weight or the color of the device, ...
+- any other meta data that should be made available for the solution by the binding
+
+Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on an user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called `properties`:
+
+```xml 
+    <thing-type id="thingTypeId">
+        ...
+        <properties>
+             <property name="vendor">MyThingVendor</property>
+             <property name="modelId">thingTypeId</property>
+             <property name="protocol">ZigBee</property>
+             ...
+        </properties>
+		...
+    </thing-type>
+```
+
+In general each `property` must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the 'ThingType' definitions the thing handler [documentation](../architecture/thing-handler.md) explains how properties can be set during runtime.
