@@ -27,7 +27,6 @@
     </license>
   </licenses>
 
-
   <distributionManagement>
     <repository>
       <id>repo.eclipse.org</id>
@@ -222,9 +221,9 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>com.mycila.maven-license-plugin</groupId>
-          <artifactId>maven-license-plugin</artifactId>
-          <version>1.9.0</version>
+          <groupId>com.mycila</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>2.10</version>
           <configuration>
             <basedir>${basedir}</basedir>
             <header>src/etc/header.txt</header>
@@ -239,13 +238,14 @@
               <include>**/OSGI-INF/*.xml</include>
             </includes>
             <excludes>
+              <exclude>**/org/eclipse/smarthome/protocols/**</exclude>
               <exclude>target/**</exclude>
               <exclude>**/pom.xml</exclude>
               <exclude>_*.java</exclude>
             </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
             <properties>
-              <year>2014</year>
+              <year>2015</year>
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
