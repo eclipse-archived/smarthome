@@ -19,16 +19,19 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
-import org.eclipse.smarthome.io.console.internal.ConsoleActivator;
 
 /**
  * Console command extension to send status update to item
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
- *
+ * @author Dennis Nobel - Changed service references to be injected via DS
+ * 
  */
 public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
+
+    private ItemRegistry itemRegistry;
+    private EventPublisher eventPublisher;
 
     public UpdateConsoleCommandExtension() {
         super("update", "Send a state update to an item.");
@@ -41,49 +44,54 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
 
     @Override
     public void execute(String[] args, Console console) {
-        ItemRegistry registry = ConsoleActivator.itemRegistryTracker.getService();
-        EventPublisher publisher = ConsoleActivator.eventPublisherTracker.getService();
-        if (publisher != null) {
-            if (registry != null) {
-                if (args.length > 0) {
-                    String itemName = args[0];
-                    try {
-                        Item item = registry.getItemByPattern(itemName);
-                        if (args.length > 1) {
-                            String stateName = args[1];
-                            State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateName);
-                            if (state != null) {
-                                publisher.postUpdate(item.getName(), state);
-                                console.println("Update has been sent successfully.");
-                            } else {
-                                console.println("Error: State '" + stateName + "' is not valid for item '" + itemName
-                                        + "'");
-                                console.print("Valid data types are: ( ");
-                                for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
-                                    console.print(acceptedType.getSimpleName() + " ");
-                                }
-                                console.println(")");
-                            }
-                        } else {
-                            printUsage(console);
+
+        if (args.length > 0) {
+            String itemName = args[0];
+            try {
+                Item item = this.itemRegistry.getItemByPattern(itemName);
+                if (args.length > 1) {
+                    String stateName = args[1];
+                    State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateName);
+                    if (state != null) {
+                        this.eventPublisher.postUpdate(item.getName(), state);
+                        console.println("Update has been sent successfully.");
+                    } else {
+                        console.println("Error: State '" + stateName + "' is not valid for item '" + itemName + "'");
+                        console.print("Valid data types are: ( ");
+                        for (Class<? extends State> acceptedType : item.getAcceptedDataTypes()) {
+                            console.print(acceptedType.getSimpleName() + " ");
                         }
-                    } catch (ItemNotFoundException e) {
-                        console.println("Error: Item '" + itemName + "' does not exist.");
-                    } catch (ItemNotUniqueException e) {
-                        console.print("Error: Multiple items match this pattern: ");
-                        for (Item item : e.getMatchingItems()) {
-                            console.print(item.getName() + " ");
-                        }
+                        console.println(")");
                     }
                 } else {
                     printUsage(console);
                 }
-            } else {
-                console.println("Sorry, no item registry service available!");
+            } catch (ItemNotFoundException e) {
+                console.println("Error: Item '" + itemName + "' does not exist.");
+            } catch (ItemNotUniqueException e) {
+                console.print("Error: Multiple items match this pattern: ");
+                for (Item item : e.getMatchingItems()) {
+                    console.print(item.getName() + " ");
+                }
             }
         } else {
-            console.println("Sorry, no event publisher service available!");
+            printUsage(console);
         }
     }
 
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
 }

@@ -15,16 +15,18 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
-import org.eclipse.smarthome.io.console.internal.ConsoleActivator;
 
 /**
  * Console command extension to get item list
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
+ * @author Dennis Nobel - Changed service references to be injected via DS
  *
  */
 public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension {
+
+    private ItemRegistry itemRegistry;
 
     public ItemConsoleCommandExtension() {
         super("items", "Get information about items.");
@@ -38,20 +40,23 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     @Override
     public void execute(String[] args, Console console) {
-        ItemRegistry registry = ConsoleActivator.itemRegistryTracker.getService();
-        if (registry != null) {
-            String pattern = (args.length == 0) ? "*" : args[0];
-            Collection<Item> items = registry.getItems(pattern);
-            if (items.size() > 0) {
-                for (Item item : items) {
-                    console.println(item.toString());
-                }
-            } else {
-                console.println("No items found for this pattern.");
+        String pattern = (args.length == 0) ? "*" : args[0];
+        Collection<Item> items = this.itemRegistry.getItems(pattern);
+        if (items.size() > 0) {
+            for (Item item : items) {
+                console.println(item.toString());
             }
         } else {
-            console.println("Sorry, no item registry service available!");
+            console.println("No items found for this pattern.");
         }
+    }
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
 
 }
