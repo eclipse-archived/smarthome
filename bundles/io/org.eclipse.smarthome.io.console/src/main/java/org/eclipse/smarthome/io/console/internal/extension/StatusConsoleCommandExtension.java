@@ -16,16 +16,18 @@ import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
-import org.eclipse.smarthome.io.console.internal.ConsoleActivator;
 
 /**
  * Console command extension to show the current state of an item
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
- *
+ * @author Dennis Nobel - Changed service references to be injected via DS
+ * 
  */
 public class StatusConsoleCommandExtension extends AbstractConsoleCommandExtension {
+
+    private ItemRegistry itemRegistry;
 
     public StatusConsoleCommandExtension() {
         super("status", "Get the current status of an item.");
@@ -38,27 +40,31 @@ public class StatusConsoleCommandExtension extends AbstractConsoleCommandExtensi
 
     @Override
     public void execute(String[] args, Console console) {
-        ItemRegistry registry = ConsoleActivator.itemRegistryTracker.getService();
-        if (registry != null) {
-            if (args.length > 0) {
-                String itemName = args[0];
-                try {
-                    Item item = registry.getItemByPattern(itemName);
-                    console.println(item.getState().toString());
-                } catch (ItemNotFoundException e) {
-                    console.println("Error: Item '" + itemName + "' does not exist.");
-                } catch (ItemNotUniqueException e) {
-                    console.print("Error: Multiple items match this pattern: ");
-                    for (Item item : e.getMatchingItems()) {
-                        console.print(item.getName() + " ");
-                    }
+
+        if (args.length > 0) {
+            String itemName = args[0];
+            try {
+                Item item = this.itemRegistry.getItemByPattern(itemName);
+                console.println(item.getState().toString());
+            } catch (ItemNotFoundException e) {
+                console.println("Error: Item '" + itemName + "' does not exist.");
+            } catch (ItemNotUniqueException e) {
+                console.print("Error: Multiple items match this pattern: ");
+                for (Item item : e.getMatchingItems()) {
+                    console.print(item.getName() + " ");
                 }
-            } else {
-                printUsage(console);
             }
         } else {
-            console.println("Sorry, no item registry service available!");
+            printUsage(console);
         }
+    }
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
 
 }
