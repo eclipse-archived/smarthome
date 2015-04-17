@@ -69,6 +69,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Dennis Nobel - Added methods for item management
  * @author Andre Fuechsel - Added tag support
+ * @author Chris Jackson - Added method to write complete item bean
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
@@ -212,43 +213,6 @@ public class ItemResource implements RESTResource {
     }
 
     @PUT
-    @Path("/{itemname: [a-zA-Z_0-9]*}")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
-
-        GenericItem newItem = null;
-
-        if (itemType != null && itemType.equals("Group")) {
-            newItem = new GroupItem(itemname);
-        } else {
-            for (ItemFactory itemFactory : itemFactories) {
-                newItem = itemFactory.createItem(itemType, itemname);
-                if (newItem != null)
-                    break;
-            }
-        }
-
-        if (newItem == null) {
-            logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
-                    itemType);
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-
-        Item existingItem = getItem(itemname);
-
-        if (existingItem == null) {
-            managedItemProvider.add(newItem);
-        } else if (managedItemProvider.get(itemname) != null) {
-            managedItemProvider.update(newItem);
-        } else {
-            logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        return Response.ok().build();
-    }
-
-    @PUT
     @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
     public Response addMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
         try {
@@ -363,6 +327,64 @@ public class ItemResource implements RESTResource {
 
         ((ActiveItem) item).removeTag(tag);
         managedItemProvider.update(item);
+
+        return Response.ok().build();
+    }
+
+    /**
+     * Create or Update an item by supplying an item bean.
+     * @param itemname
+     * @param item the item bean.
+     * @return
+     */
+    @PUT
+    @Path("/{itemname: [a-zA-Z_0-9]*}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemBean item) {
+
+    	// If we didn't get an item bean, then return!
+    	if (item == null) {
+            return Response.status(Status.BAD_REQUEST).build();
+    	}
+
+        GenericItem newItem = null;
+
+        if (item.type != null && item.type.equals("GroupItem")) {
+            newItem = new GroupItem(itemname);
+        } else {
+        	String itemType = item.type.substring(0, item.type.length() - 4);
+            for (ItemFactory itemFactory : itemFactories) {
+                newItem = itemFactory.createItem(itemType, itemname);
+                if (newItem != null) {
+                    break;
+                }
+            }
+        }
+
+        if (newItem == null) {
+            logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
+            		item.type);
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        // See if an existing item of this name exists.
+        Item existingItem = getItem(itemname);
+
+        // Update the label
+       	newItem.setLabel(item.label);
+       	newItem.setCategory(item.category);
+       	newItem.addGroupNames(item.groupNames);
+       	newItem.addTags(item.tags);
+
+        // Save the item
+        if (existingItem == null) {
+            managedItemProvider.add(newItem);
+        } else if (managedItemProvider.get(itemname) != null) {
+            managedItemProvider.update(newItem);
+        } else {
+            logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
 
         return Response.ok().build();
     }
