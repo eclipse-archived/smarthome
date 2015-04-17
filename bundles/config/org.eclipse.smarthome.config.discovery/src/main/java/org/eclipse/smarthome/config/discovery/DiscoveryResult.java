@@ -20,16 +20,17 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  * @author Kai Kreuzer - Initial API
  * @author Andre Fuechsel - added support for time to live
+ * @author Thomas Höfer - Added representation
  *
  * @see DiscoveryService
  * @see DiscoveryListener
  */
 public interface DiscoveryResult {
-    
-    /** 
-     * Specifies that the {@link DiscoveryResult} has no given time to live. 
+
+    /**
+     * Specifies that the {@link DiscoveryResult} has no given time to live.
      */
-    long TTL_UNLIMITED = -1; 
+    long TTL_UNLIMITED = -1;
 
     /**
      * Returns the unique {@code Thing} ID of this result object.
@@ -73,6 +74,18 @@ public interface DiscoveryResult {
     public Map<String, Object> getProperties();
 
     /**
+     * Returns the representation property of this result object.
+     * <p>
+     * The representation property represents an unique human and/or machine readable identifier of the thing that was
+     * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
+     * identifiers are typically the <code>ipAddress</code>, the <code>macAddress</code> or the
+     * <code>serialNumber</code> of the discovered thing.
+     * 
+     * @return the representation property of this result object (could be null)
+     */
+    public String getRepresentationProperty();
+
+    /**
      * Returns the flag of this result object.<br>
      * The flag signals e.g. if the result is {@link DiscoveryResultFlag#NEW} or has been marked as
      * {@link DiscoveryResultFlag#IGNORED}. In the latter
@@ -96,7 +109,7 @@ public interface DiscoveryResult {
      * @return the unique bridge ID (could be null)
      */
     public ThingUID getBridgeUID();
-    
+
     /**
      * Get the timestamp of this {@link DiscoveryResult}.
      * 
