@@ -36,6 +36,7 @@ import com.google.gson.JsonParser;
  * @author Marcel Verpaalen - Initial contribution
  * @author Jochen Hiller - Removed dependency to Apache HttpClient 3.x
  * @author Andre Fuechsel - Added call of removeOlderResults
+ * @author Thomas Höfer - Added representation
  */
 
 public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
@@ -157,7 +158,7 @@ public class YahooWeatherDiscoveryService extends AbstractDiscoveryService {
             Map<String, Object> properties = new HashMap<>(1);
             properties.put("location", locationWoeid);
             DiscoveryResult result = DiscoveryResultBuilder.create(uid).withProperties(properties)
-                    .withLabel("Yahoo weather " + locationName).build();
+                    .withRepresentationProperty("location").withLabel("Yahoo weather " + locationName).build();
             thingDiscovered(result);
         }
     }

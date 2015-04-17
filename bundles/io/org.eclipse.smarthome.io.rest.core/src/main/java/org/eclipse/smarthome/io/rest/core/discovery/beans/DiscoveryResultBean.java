@@ -15,7 +15,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
  * This is a java bean that is used to serialize discovery results to JSON.
  *
  * @author Dennis Nobel - Initial contribution
- *
+ * @author Thomas Höfer - Added representation
  */
 public class DiscoveryResultBean {
 
@@ -23,18 +23,20 @@ public class DiscoveryResultBean {
     public DiscoveryResultFlag flag;
     public String label;
     public Map<String, Object> properties;
+    public String representationProperty;
     public String thingUID;
 
     public DiscoveryResultBean() {
     }
 
     public DiscoveryResultBean(String thingUID, String bridgeUID, String label, DiscoveryResultFlag flag,
-            Map<String, Object> properties) {
+            Map<String, Object> properties, String representationProperty) {
         this.thingUID = thingUID;
         this.bridgeUID = bridgeUID;
         this.label = label;
         this.flag = flag;
         this.properties = properties;
+        this.representationProperty = representationProperty;
     }
 
 }

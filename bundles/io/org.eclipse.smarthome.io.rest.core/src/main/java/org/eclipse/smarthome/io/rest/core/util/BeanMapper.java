@@ -53,7 +53,7 @@ public class BeanMapper {
         GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) mapItemToBean(groupItem, true, uriPath)
                 : null;
 
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(), 
+        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(),
                 thing.getProperties(), groupItemBean);
     }
 
@@ -70,7 +70,8 @@ public class BeanMapper {
         ThingUID bridgeUID = discoveryResult.getBridgeUID();
 
         return new DiscoveryResultBean(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
-                discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties());
+                discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties(),
+                discoveryResult.getRepresentationProperty());
     }
 
     private static void fillProperties(ItemBean bean, Item item, boolean drillDown, String uriPath) {
