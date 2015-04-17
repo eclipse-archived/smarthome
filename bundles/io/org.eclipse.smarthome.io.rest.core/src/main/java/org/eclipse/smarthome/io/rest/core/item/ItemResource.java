@@ -213,43 +213,6 @@ public class ItemResource implements RESTResource {
     }
 
     @PUT
-    @Path("/{itemname: [a-zA-Z_0-9]*}")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response createOrUpdate(@PathParam("itemname") String itemname, String itemType) {
-
-        GenericItem newItem = null;
-
-        if (itemType != null && itemType.equals("Group")) {
-            newItem = new GroupItem(itemname);
-        } else {
-            for (ItemFactory itemFactory : itemFactories) {
-                newItem = itemFactory.createItem(itemType, itemname);
-                if (newItem != null)
-                    break;
-            }
-        }
-
-        if (newItem == null) {
-            logger.warn("Received HTTP PUT request at '{}' with an invalid item type '{}'.", uriInfo.getPath(),
-                    itemType);
-            return Response.status(Status.BAD_REQUEST).build();
-        }
-
-        Item existingItem = getItem(itemname);
-
-        if (existingItem == null) {
-            managedItemProvider.add(newItem);
-        } else if (managedItemProvider.get(itemname) != null) {
-            managedItemProvider.update(newItem);
-        } else {
-            logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
-            return Response.status(Status.METHOD_NOT_ALLOWED).build();
-        }
-
-        return Response.ok().build();
-    }
-
-    @PUT
     @Path("/{itemName: [a-zA-Z_0-9]*}/members/{memberItemName: [a-zA-Z_0-9]*}")
     public Response addMember(@PathParam("itemName") String itemName, @PathParam("memberItemName") String memberItemName) {
         try {
@@ -408,36 +371,10 @@ public class ItemResource implements RESTResource {
         Item existingItem = getItem(itemname);
 
         // Update the label
-        if (item.label != null && !item.label.isEmpty()) {
-        	newItem.setLabel(item.label);
-        }
-        else if (existingItem != null) {
-        	newItem.setLabel(existingItem.getLabel());
-        }
-
-        // Update the category
-        if (item.category != null && !item.category.isEmpty()) {
-        	newItem.setLabel(item.category);
-        }
-        else if (existingItem != null) {
-        	newItem.setCategory(existingItem.getCategory());
-        }
-
-        // Update groups
-        if (item.groupNames != null && !item.groupNames.isEmpty()) {
-        	newItem.addGroupNames(item.groupNames);
-        }
-        else if (existingItem != null) {
-        	newItem.addGroupNames(existingItem.getGroupNames());
-        }
-
-        // Update tags
-        if (item.tags != null && !item.tags.isEmpty()) {
-        	newItem.addTags(item.tags);
-        }
-        else if (existingItem != null) {
-        	newItem.addTags(existingItem.getTags());
-        }
+       	newItem.setLabel(item.label);
+       	newItem.setCategory(item.category);
+       	newItem.addGroupNames(item.groupNames);
+       	newItem.addTags(item.tags);
 
         // Save the item
         if (existingItem == null) {
