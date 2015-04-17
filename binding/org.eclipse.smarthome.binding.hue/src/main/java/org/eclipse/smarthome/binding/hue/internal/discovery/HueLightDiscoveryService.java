@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - changed search timeout
- *
+ * @author Thomas Höfer - Added representation
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
@@ -95,6 +95,12 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LIGHT_ID, light.getId());
+
+            /*
+             * TODO retrieve the light´s unique id (available since Hue bridge versions > 1.3) and set the mac address
+             * as discovery result representationÏ. For this purpose the jue library has to be modified.
+             */
+
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
                     .withBridge(bridgeUID).withLabel(light.getName()).build();
 
