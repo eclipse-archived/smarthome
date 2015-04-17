@@ -18,9 +18,12 @@ Import-Package: org.eclipse.smarthome.config.core,
  javax.xml.namespace,
  javax.security.auth
 Bundle-Activator: org.eclipse.smarthome.config.xml.internal.Activator
-Export-Package: com.thoughtworks.xstream,com.thoughtworks.xstream.conv
- erters,com.thoughtworks.xstream.io,org.eclipse.smarthome.config.xml,o
- rg.eclipse.smarthome.config.xml.osgi,org.eclipse.smarthome.config.xml
- .util
+Export-Package: com.thoughtworks.xstream,
+ com.thoughtworks.xstream.converters,
+ com.thoughtworks.xstream.io,
+ com.thoughtworks.xstream.io.xml,
+ org.eclipse.smarthome.config.xml,
+ org.eclipse.smarthome.config.xml.osgi,
+ org.eclipse.smarthome.config.xml.util
 Bundle-ClassPath: lib/xstream-1.4.7.jar,
  .
