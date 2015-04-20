@@ -15,17 +15,21 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
@@ -227,13 +231,10 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'ThingManager handles thing status updates correctly'() {
-
-        def itemName = "name"
+    void 'ThingManager handles thing status updates "online" and "offline" correctly'() {
         ThingHandlerCallback callback;
         
         managedThingProvider.add(THING)
-        managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             setCallback: {callbackArg ->
                 callback = callbackArg
@@ -244,13 +245,112 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
+		
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
         
-      
-        assertThat THING.status, is(ThingStatus.OFFLINE)
-        callback.statusUpdated(THING, ThingStatus.ONLINE)
-        assertThat THING.status, is(ThingStatus.ONLINE)
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+        assertThat THING.statusInfo, is(statusInfo)
     }
     
+    @Test
+    void 'ThingManager handles thing status updates "uninitialized" and "initializing" correctly'() {
+        def thingHandler = [
+            setCallback: {
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, callback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)}
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        managedThingProvider.add(THING)
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+        assertThat THING.statusInfo, is(statusInfo)
+        
+        unregisterService(THING.getHandler())
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
+        assertThat THING.statusInfo, is(statusInfo)
+    }
+    
+    @Test
+    void 'ThingManager handles thing status update "uninitialized" with an exception correctly'() {
+        def exceptionMsg = "Some runtime exception occurred!"
+        
+        def thingHandler = [
+            setCallback: {
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, callback ->
+                    throw new RuntimeException(exceptionMsg)
+                }
+        ] as ThingHandlerFactory
+
+        registerService(thingHandlerFactory)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_INITIALIZING_ERROR).withDescription(exceptionMsg).build()
+        managedThingProvider.add(THING)
+        assertThat THING.statusInfo, is(statusInfo)
+    }
+
+    @Test
+    void 'ThingManager handles bridge status updates "online" and "offline" correctly'() {
+        Bridge bridge = BridgeBuilder.create(new ThingUID(THING_TYPE_UID, "bridge-id")).build()
+        Thing thingA = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-a-id")).withBridge(bridge.getUID())build()
+        Thing thingB = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-b-id")).withBridge(bridge.getUID()).build()
+        
+        ThingHandlerCallback callback;
+        
+        managedThingProvider.add(bridge)
+        managedThingProvider.add(thingA)
+        managedThingProvider.add(thingB)
+        
+        def bridgeHandler = [
+            setCallback: {callbackArg ->
+                callback = callbackArg
+            }
+        ] as ThingHandler
+        
+        registerService(bridgeHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): bridge.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): bridge.getThingTypeUID()
+        ] as Hashtable)
+
+        def bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE).build()
+        callback.statusUpdated(bridge, bridgeStatusInfo)
+        assertThat bridge.statusInfo, is(bridgeStatusInfo)
+
+        def thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build()
+        for(Thing bridgeThing : bridge.getThings()) {
+            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+        }
+        
+        bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(bridge, bridgeStatusInfo)
+        assertThat bridge.statusInfo, is(bridgeStatusInfo)
+        
+        thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        for(Thing bridgeThing : bridge.getThings()) {
+            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+        }
+    }
+
     @Test
     void 'ThingManager handles thing updates correctly'() {
 

@@ -26,9 +26,11 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
@@ -353,8 +355,9 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	
 			installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
 			
+            def online = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
 	        waitForAssert({
-	            assertThat hueLightHandler.getBridge().getStatus(), is(ThingStatus.ONLINE)
+	            assertThat hueLightHandler.getBridge().getStatusInfo(), is(online)
 	        }, 10000)
 
 	        // create items and channel bindings

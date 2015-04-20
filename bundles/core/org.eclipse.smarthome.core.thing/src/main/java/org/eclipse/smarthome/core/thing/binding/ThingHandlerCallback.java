@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.types.State;
  * or an update of the whole thing.
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Stefan Bußweiler - Added new thing status info 
  */
 public interface ThingHandlerCallback {
 
@@ -44,7 +45,7 @@ public interface ThingHandlerCallback {
      * @param thing thing (must not be null)
      * @param thingStatus thing status (must not be null)
      */
-    void statusUpdated(Thing thing, ThingStatus thingStatus);
+    void statusUpdated(Thing thing, ThingStatusInfo thingStatus);
 
     /**
      * Informs about an update of the whole thing.

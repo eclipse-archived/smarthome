@@ -63,6 +63,12 @@ public interface ThingHandler {
      * @param thing the {@link Thing}, that has been updated
      */
     void thingUpdated(Thing thing);
+    
+    /**
+     * This method is called before a thing will be removed.
+     * An implementing class can handle the removal in order to trigger some tidying work for a thing.
+     */
+    void handleRemoval();
 
     /**
      * This method is called, before the handler is shut down.

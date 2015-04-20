@@ -8,10 +8,30 @@
 package org.eclipse.smarthome.core.thing;
 
 /**
- * {@link ThingStatus} defines all statuses a {@link Thing} could have.
- *
- * @author Dennis Nobel - Initial contribution and API
+ * {@link ThingStatus} defines possible statuses of a {@link ThingStatusInfo}.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
  */
 public enum ThingStatus {
-    ONLINE, OFFLINE
+    UNINITIALIZED(0),
+    INITIALIZING(1),
+    ONLINE(2),
+    OFFLINE(3),
+    REMOVING(4),
+    REMOVED(5);
+
+    private final int value;
+
+    private ThingStatus(final int newValue) {
+        value = newValue;
+    }
+
+    /**
+     * Gets the value of a thing status.
+     * 
+     * @return the value
+     */
+    public int getValue() {
+        return value;
+    }
 }

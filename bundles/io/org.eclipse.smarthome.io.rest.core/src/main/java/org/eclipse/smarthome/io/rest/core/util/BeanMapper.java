@@ -53,7 +53,7 @@ public class BeanMapper {
         GroupItemBean groupItemBean = groupItem != null ? (GroupItemBean) mapItemToBean(groupItem, true, uriPath)
                 : null;
 
-        return new ThingBean(thingUID, bridgeUID, thing.getStatus(), channelBeans, thing.getConfiguration(), 
+        return new ThingBean(thingUID, bridgeUID, thing.getStatusInfo(), channelBeans, thing.getConfiguration(),
                 thing.getProperties(), groupItemBean);
     }
 
