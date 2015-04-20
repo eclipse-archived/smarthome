@@ -18,6 +18,7 @@
   <modules>
     <module>org.eclipse.smarthome.io.console</module>
     <module>org.eclipse.smarthome.io.console.eclipse</module>
+    <module>org.eclipse.smarthome.io.console.rfc147</module>
     <module>org.eclipse.smarthome.io.monitor</module>
     <module>org.eclipse.smarthome.io.multimedia</module>
     <module>org.eclipse.smarthome.io.net</module>
