@@ -224,4 +224,35 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat bulb2.thingTypeUID.toString(), is("hue:LCT001")
 
 	}
+	
+	@Test
+	void 'assert that thingid can contain all characters allowed in config-description XSD'() {
+
+		def things = thingRegistry.getAll()
+		assertThat things.size(), is(0)
+
+		String model =
+			'''
+            hue:1-thing-id-with-5-dashes_and_3_underscores:thing1 [ lightId = "1"]{
+                Switch : notification [ duration = "5" ]
+            }	
+			'''
+		modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+		def actualThings = thingRegistry.getAll()
+
+		assertThat actualThings.size(), is(1)
+
+
+		def thing1 = actualThings.find {
+			"hue:1-thing-id-with-5-dashes_and_3_underscores:thing1".equals(it.UID.toString())
+		}
+
+		assertThat thing1, isA(Thing)
+		assertThat thing1.bridgeUID, is(nullValue())
+		assertThat thing1.configuration.values().size(), is(1)
+		assertThat thing1.configuration.get("lightId"), is("1")
+		assertThat thing1.thingTypeUID.toString(), is("hue:1-thing-id-with-5-dashes_and_3_underscores")
+	}
+
+		
 }
