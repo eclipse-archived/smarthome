@@ -120,7 +120,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         final Thing existingThing = get(thing.getUID());
         if(existingThing != null) {
             thing.setHandler(existingThing.getHandler());
-            thing.setStatus(existingThing.getStatus());
+            thing.setStatusInfo(existingThing.getStatusInfo());
         }
     }
 

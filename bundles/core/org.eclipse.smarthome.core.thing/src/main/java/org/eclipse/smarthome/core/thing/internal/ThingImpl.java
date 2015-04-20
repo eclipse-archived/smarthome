@@ -15,11 +15,15 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -51,7 +55,8 @@ public class ThingImpl implements Thing {
 
     private ThingTypeUID thingTypeUID;
 
-    transient volatile private ThingStatus status = ThingStatus.OFFLINE;
+    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+            ThingStatusDetail.NONE).build();
 
     transient volatile private ThingHandler thingHandler;
 
@@ -125,7 +130,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public ThingStatus getStatus() {
+    public ThingStatusInfo getStatusInfo() {
         return status;
     }
 
@@ -152,7 +157,7 @@ public class ThingImpl implements Thing {
     }
 
     @Override
-    public void setStatus(ThingStatus status) {
+    public void setStatusInfo(ThingStatusInfo status) {
         this.status = status;
     }
 

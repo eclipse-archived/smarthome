@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * sent to one of the light channels.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public class LifxLightHandler extends BaseThingHandler implements LifxLightTracker, LFXLightListener,
         LFXNetworkContextListener {
@@ -66,7 +67,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
                     this.deviceId);
             return;
         }
-        if (getThing().getStatus() != ThingStatus.ONLINE) {
+        if (getThing().getStatusInfo().getStatus() != ThingStatus.ONLINE) {
             logger.warn("Cannot handle command: No connection to LIFX network.");
             return;
         }
@@ -120,6 +121,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         if (this.currentPowerState != LFXPowerState.OFF) {
             updateState(CHANNEL_COLOR, toHSBType(color));
         }
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -137,6 +139,7 @@ public class LifxLightHandler extends BaseThingHandler implements LifxLightTrack
         } else {
             updateState(CHANNEL_COLOR, OnOffType.ON);
         }
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override

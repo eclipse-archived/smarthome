@@ -35,6 +35,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
@@ -52,6 +53,7 @@ import com.google.common.collect.Sets;
  *
  * @author Hans-Jörg Merk - Initial contribution; Added support for WeMo Insight energy measurement
  * @author Kai Kreuzer - some refactoring for performance and simplification
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 
 public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
@@ -111,21 +113,16 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
             logger.debug("Cannot initalize WemoHandler. UDN not set.");
         }
 
-        if (getThing().getStatus() == ThingStatus.OFFLINE) {
-            logger.debug("Setting status for thing '{}' to ONLINE", getThing().getUID());
-            getThing().setStatus(ThingStatus.ONLINE);
-        }
+        logger.debug("Setting status for thing '{}' to ONLINE", getThing().getUID());
+        updateStatus(ThingStatus.ONLINE);
         startAutomaticRefresh();
     }
 
     @Override
     public void dispose() {
         refreshJob.cancel(true);
-
-        if (getThing().getStatus() == ThingStatus.ONLINE) {
-            logger.debug("Setting status for thing '{}' to OFFLINE", getThing().getUID());
-            getThing().setStatus(ThingStatus.OFFLINE);
-        }
+        logger.debug("Setting status for thing '{}' to OFFLINE", getThing().getUID());
+        updateStatus(ThingStatus.OFFLINE);
     }
 
     private void startAutomaticRefresh() {
@@ -283,12 +280,12 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                         wemoOutputStream.write(content.getBytes());
                         wemoOutputStream.flush();
                         String wemoCallResponse = IOUtils.toString(wemoSocket.getInputStream());
-                        getThing().setStatus(ThingStatus.ONLINE);
+                        updateStatus(ThingStatus.ONLINE);
                         return wemoCallResponse;
                     } catch (Exception e) {
                         logger.debug("Could not send request to WeMo device '{}': {}", getThing().getUID(),
                                 e.getMessage());
-                        getThing().setStatus(ThingStatus.OFFLINE);
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
                     }
                     return null;
                 } else {
@@ -296,7 +293,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                 }
             } else {
                 // device was not found in the upnp registry
-                getThing().setStatus(ThingStatus.OFFLINE);
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
                 return null;
             }
 

@@ -42,6 +42,9 @@ These chapters explain different technical aspects of the Eclipse SmartHome fram
 * [XML Configuration](architecture/configuration.md) - A configuration and meta-data facility that is available throughout the system using XML.
 * [Extensions](architecture/extensions.md) - Introduction to existing extension mechanisms for solutions being based on Eclipse SmartHome 
 * [Internationalization](architecture/internationalization.md) - Internationalization support in Eclipse SmartHome 
+* [Thing Definition](architecture/thing-definition.md) - Binding Thing definition guide
+* [Thing Handler](architecture/thing-handler.md) - Binding Thing Hander implementation guide
+* [Thing Status](architecture/thing-status.md) - Overview of the Thing Status concept
  
 ## Development
 

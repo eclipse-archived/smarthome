@@ -100,13 +100,23 @@ Even if the state did not change since the last update, the binding should infor
 
 ## Updating the Thing Status
 
-The *ThingHandler* must also manage the thing status. If the device or service is not working correctly, the binding should change the status to *OFFLINE* and back to *ONLINE*, if it is working again. The status can be updated via an inherited method from the BaseThingHandler class by calling:
+The *ThingHandler* must also manage the thing status (see also: [Thing Status Concept](thing-status.md)). If the device or service is not working correctly, the binding should change the status to *OFFLINE* and back to *ONLINE*, if it is working again. The status can be updated via an inherited method from the BaseThingHandler class by calling:
 
 ```java
-updateStatus(ThingStatus.ONLINE);
+updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
 ```    
 
-When the thing is created it is *OFFLINE* as long as the binding sets it to something else. Because of this the default implementation of the `initialize()` method in the `BaseThingHandler` just changes the status to *ONLINE*.
+The second argument of the method takes a `ThingStatusDetail` enumeration value, which further specifies the current status situation. A complete list of all thing statuses and thing status details is listed in the [Thing Status](thing-status.md) chapter.
+
+For debugging purposes the binding can also provide an additional status description. This description might contain technical information (e.g. an HTTP status code, or any other protocol specific information, which helps to identify the current problem):
+
+```java
+updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, "HTTP 401");
+``` 
+
+After the thing is created, the framework calls the `initialize` method of the handler. At this time the state of the thing is *INTIALIZING* as long as the binding sets it to something else. Because of this the default implementation of the `initialize()` method in the `BaseThingHandler` just changes the status to *ONLINE*.
+
+*Note:* A binding should not set any other state than ONLINE, OFFLINE and REMOVED. All other states are managed by the framework.
 
 ## Channel Links
 
@@ -181,3 +191,11 @@ protected void thingStructureChanged() {
 ```
 
 As the builder does not support removing a channel, the developer has top copy the existing channels into a modifiable list and remove the channel in this list. The list can be passed as argument to the `withChannels()` method of the `ThingBuilder`, which overrides the complete list of channels.
+
+## Handling Thing Removal
+
+If a thing should be removed, the framework informs the binding about the removal request by calling `handleRemoval` at the thing handler. The thing will not be removed from the runtime, before the binding confirms the deletion by setting the thing status to `REMOVED`. If no special removal handling is required by the binding, you do not have to care about removal, because the default implementation of this method in the `BaseThingHandler` class just calls `updateStatus(ThingStatus.REMOVED)`.
+
+But for some radio-based devices it is needed to communicate with the device in order to unpair it safely. After the device was successfully unpaired, the binding can inform the framework that the thing was removed by setting the thing status to `REMOVED`.
+
+After the removal was requested the status of the thing is `REMOVING` and can not be changed back to `ONLINE` or `OFFLINE` by the binding. The binding can only initiate the status transition to `REMOVED`.
