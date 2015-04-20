@@ -30,9 +30,10 @@ public class TestHueThingHandlerFactory extends BaseThingHandlerFactory {
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
     public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
     public final static ThingTypeUID THING_TYPE_TEST = new ThingTypeUID(BINDING_ID, "TEST");
+    public final static ThingTypeUID THING_TYPE_LONG_NAME = new ThingTypeUID(BINDING_ID, "1-thing-id-with-5-dashes_and_3_underscores");
 
     public final static Set<ThingTypeUID> SUPPORTED_BRIDGE_TYPES = Sets.newHashSet(THING_TYPE_BRIDGE);
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_TEST, THING_TYPE_LONG_NAME);
     public final static Set<ThingTypeUID> SUPPORTED_TYPES = Sets.union(SUPPORTED_BRIDGE_TYPES, SUPPORTED_THING_TYPES);
 
     // List all channels
