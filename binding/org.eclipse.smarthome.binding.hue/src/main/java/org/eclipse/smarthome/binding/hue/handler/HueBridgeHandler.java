@@ -37,6 +37,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
  * @author Thomas Höfer - added thing properties
- *
+ * @author Stefan Bußweiler - Added new thing status handling 
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
 
@@ -241,7 +242,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
             onUpdate();
         } else {
-            logger.warn("Cannot connect to hue bridge. IP address or user name not set.");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                    "Cannot connect to hue bridge. IP address or user name not set.");
         }
     }
 
@@ -260,7 +262,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onConnectionLost(HueBridge bridge) {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatus(ThingStatus.OFFLINE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.BRIDGE_OFFLINE);
     }
 
     /**
@@ -301,14 +303,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     logger.debug("Failed adding user '{}' to Hue bridge.", userName);
                 }
             }
-        }
-    }
-
-    @Override
-    protected void updateStatus(ThingStatus status) {
-        super.updateStatus(status);
-        for (Thing child : getThing().getThings()) {
-            child.setStatus(status);
         }
     }
 
