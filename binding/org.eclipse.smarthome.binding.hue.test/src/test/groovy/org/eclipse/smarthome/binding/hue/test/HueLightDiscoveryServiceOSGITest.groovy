@@ -27,9 +27,11 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -170,8 +172,9 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
         installHttpClientMock(hueBridgeHandler, mockedHttpClient)
 
+        def online = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         waitForAssert({
-            assertThat hueBridge.getStatus(), is(ThingStatus.ONLINE)
+            assertThat hueBridge.getStatusInfo(), is(online)
         }, 10000)
 
         discoveryService.startScan();
