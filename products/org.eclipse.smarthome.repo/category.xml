@@ -42,6 +42,18 @@
    <feature url="features/org.eclipse.smarthome.feature.runtime.binding.source_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.binding.source" version="0.8.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.console.equinox_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.console.equinox" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.console.equinox.source_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.console.equinox.source" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.console.rfc147_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.console.rfc147" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.console.rfc147.source_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.console.rfc147.source" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
    <category-def name="org.eclipse.smarthome" label="Eclipse SmartHome">
       <description>
          This category contains all Eclipse SmartHome features
