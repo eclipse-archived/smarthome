@@ -156,6 +156,7 @@ public class ThingSetupManager {
         thingRegistry.add(thing);
         itemRegistry.add(groupItem);
         itemThingLinkRegistry.add(new ItemThingLink(itemName, thing.getUID()));
+        thingRegistry.update(thing);
 
         ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
         if (thingType != null) {
