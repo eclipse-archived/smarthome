@@ -86,13 +86,6 @@ public class ThingSetupManagerResource implements RESTResource {
         Configuration configuration = getConfiguration(thingBean);
 
         Thing thing = thingSetupManager.getThing(thingUID);
-        if (thing != null) {
-            if (bridgeUID != null) {
-                thing.setBridgeUID(bridgeUID);
-            }
-            updateConfiguration(thing, configuration);
-            thingSetupManager.updateThing(thing);
-        }
 
         String label = thingBean.item.label;
         List<String> groupNames = thingBean.item.groupNames;
@@ -110,6 +103,14 @@ public class ThingSetupManagerResource implements RESTResource {
                     thingSetupManager.updateItem(thingGroupItem);
                 }
             }
+        }
+        
+        if (thing != null) {
+            if (bridgeUID != null) {
+                thing.setBridgeUID(bridgeUID);
+            }
+            updateConfiguration(thing, configuration);
+            thingSetupManager.updateThing(thing);
         }
 
         return Response.ok().build();
