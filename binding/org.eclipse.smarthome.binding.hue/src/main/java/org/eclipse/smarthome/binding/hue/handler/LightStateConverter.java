@@ -44,7 +44,10 @@ public class LightStateConverter {
                 .intValue();
         int brightness = new Long(Math.round(hsbType.getBrightness().doubleValue() * SATURATION_AND_BRIGHTNESS_FACTOR))
                 .intValue();
-        StateUpdate stateUpdate = new StateUpdate().setHue(hue).setSat(saturation).setBrightness(brightness);
+        StateUpdate stateUpdate = new StateUpdate().setHue(hue).setSat(saturation);
+        if (brightness > 0) {
+            stateUpdate.setBrightness(brightness);
+        }
         return stateUpdate;
     }
 
@@ -71,9 +74,12 @@ public class LightStateConverter {
      */
     public static StateUpdate toColorLightState(PercentType percentType) {
         boolean on = percentType.equals(PercentType.ZERO) ? false : true;
+        final StateUpdate stateUpdate = new StateUpdate().setOn(on);
 
         int brightness = new Long(Math.round(percentType.doubleValue() * SATURATION_AND_BRIGHTNESS_FACTOR)).intValue();
-        final StateUpdate stateUpdate = new StateUpdate().setOn(on).setBrightness(brightness);
+        if (brightness > 0) {
+            stateUpdate.setBrightness(brightness);
+        }
         return stateUpdate;
     }
 

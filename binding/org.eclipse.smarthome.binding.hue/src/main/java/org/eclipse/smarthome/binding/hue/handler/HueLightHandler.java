@@ -187,20 +187,21 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                         }
                     }
                     if (brightness != null) {
+                        lightState = new StateUpdate();
                         if (command == IncreaseDecreaseType.DECREASE) {
                             brightness -= DIM_STEPSIZE;
-                            if (brightness < 0)
-                                brightness = 0;
+                            if (brightness < 1) {
+                                brightness = 1;
+                                lightState = lightState.setOn(false);
+                            }
                         } else {
                             brightness += DIM_STEPSIZE;
-                            if (brightness > 255)
-                                brightness = 255;
+                            if (brightness > 254) {
+                                brightness = 254;
+                            }
                         }
                         lastSentBrightness = brightness;
-                        lightState = new StateUpdate().setBrightness(brightness);
-                        if (brightness == 0) {
-                            lightState = lightState.setOn(false);
-                        }
+                        lightState.setBrightness(brightness);
                     }
                 }
                 break;
