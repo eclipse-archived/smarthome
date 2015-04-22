@@ -130,6 +130,11 @@ public class ThingImpl implements Thing {
     }
 
     @Override
+    public ThingStatus getStatus() {
+        return status.getStatus();
+    }
+
+    @Override
     public ThingStatusInfo getStatusInfo() {
         return status;
     }
