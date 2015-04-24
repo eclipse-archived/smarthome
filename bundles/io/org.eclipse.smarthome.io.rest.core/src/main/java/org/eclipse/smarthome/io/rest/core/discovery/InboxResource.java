@@ -108,6 +108,13 @@ public class InboxResource implements RESTResource {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.IGNORED);
         return Response.ok().build();
     }
+    
+    @POST
+    @Path("/unignore/{thingUID}")
+    public Response unignore(@PathParam("thingUID") String thingUID) {
+        inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
+        return Response.ok().build();
+    }
 
     private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
         Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
