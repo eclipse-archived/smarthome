@@ -204,7 +204,6 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 		def expectedBody = 
 			"""
 				{
-					"bri" : 0,
 					"on" : false
 				}
 			"""
