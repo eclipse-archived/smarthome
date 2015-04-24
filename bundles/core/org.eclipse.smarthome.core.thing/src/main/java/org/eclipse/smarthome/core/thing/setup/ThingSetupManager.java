@@ -175,7 +175,7 @@ public class ThingSetupManager {
                 ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
                 if (channelType != null && !channelType.isAdvanced()) {
                     enableChannel(channel.getUID());
-                } else {
+                } else if(channelType == null) {
                     logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
                 }
             }
