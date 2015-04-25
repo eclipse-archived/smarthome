@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - addThing operation returns created Thing instance
+ * @author Chris Jackson - Remove children when deleted bridge
  */
 public class ThingSetupManager {
 
@@ -344,7 +346,29 @@ public class ThingSetupManager {
         itemRegistry.remove(itemName);
     }
 
+    /**
+     * Remove a thing and all its links and items.
+     * If this is a bridge, also remove child things by calling
+     * removeThing recursively
+     * @param thingUID
+     */
     public void removeThing(ThingUID thingUID) {
+    	// Lookup the thing in the registry
+    	Thing thing = thingRegistry.get(thingUID);
+    	if(thing == null) {
+    		return;
+    	}
+
+    	// If this is a bridge, remove all child things, their items and links
+        if (thing instanceof Bridge) {
+            Bridge bridge = (Bridge) thing;
+            for (Thing bridgeThing : bridge.getThings()) {
+            	ThingUID bridgeThingUID = bridgeThing.getUID();
+                removeThing(bridgeThingUID);           	
+            }
+        }
+
+        // Now remove the original thing
         String itemName = toItemName(thingUID);
         thingRegistry.remove(thingUID);
         itemRegistry.remove(itemName, true);
