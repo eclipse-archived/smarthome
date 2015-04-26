@@ -16,8 +16,8 @@ import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.osgi.framework.Bundle;
 
 /**
- * The {@link ConfigDescriptionXmlProvider} is responsible managing any created objects
- * by a {@link ConfigDescriptionReader} for a certain bundle.
+ * The {@link ConfigDescriptionXmlProvider} is responsible managing any created
+ * objects by a {@link ConfigDescriptionReader} for a certain bundle.
  * <p>
  * This implementation registers each {@link ConfigDescription} object at the {@link XmlConfigDescriptionProvider} which
  * is itself registered as {@link ConfigDescriptionProvider} service at the <i>OSGi</i> service registry.

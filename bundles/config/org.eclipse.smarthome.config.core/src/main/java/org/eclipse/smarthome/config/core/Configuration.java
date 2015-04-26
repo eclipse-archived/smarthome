@@ -65,7 +65,8 @@ public class Configuration {
                 Object value = properties.get(fieldName);
 
                 if (value == null && field.getType().isPrimitive()) {
-                    logger.debug("Skipping field '{}', because it's primitive data type and value is not set", fieldName);
+                    logger.debug("Skipping field '{}', because it's primitive data type and value is not set",
+                            fieldName);
                     continue;
                 }
 

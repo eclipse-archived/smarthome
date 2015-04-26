@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Chris Jackson - Added parameter groups
  *
  */
 public class ThingTypeBean {
@@ -23,6 +24,7 @@ public class ThingTypeBean {
     public List<ChannelGroupDefinitionBean> channelGroups;
     public List<ConfigDescriptionParameterBean> configParameters;
     public List<String> supportedBridgeTypeUIDs;
+    public List<ParameterGroupBean> parameterGroups;
     public Map<String, String> properties;
     public String description;
     public String label;
@@ -36,7 +38,7 @@ public class ThingTypeBean {
     public ThingTypeBean(String UID, String label, String description,
             List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels,
             List<ChannelGroupDefinitionBean> channelGroups, List<String> supportedBridgeTypeUIDs,
-            Map<String, String> properties, boolean bridge) {
+            Map<String, String> properties, boolean bridge, List<ParameterGroupBean> parameterGroups) {
         this.UID = UID;
         this.label = label;
         this.description = description;
@@ -46,6 +48,7 @@ public class ThingTypeBean {
         this.supportedBridgeTypeUIDs = supportedBridgeTypeUIDs;
         this.properties = properties;
         this.bridge = bridge;
+        this.parameterGroups = parameterGroups;
     }
 
 }
