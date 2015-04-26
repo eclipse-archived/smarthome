@@ -24,16 +24,20 @@ public interface ActiveItem extends Item {
      *
      * @param label
      *            label (can be null)
+     * @return boolean
+     *            true if the label changed
      */
-    void setLabel(String label);
+    boolean setLabel(String label);
 
     /**
      * Sets the category of the item (can be null)
      *
      * @param category
      *            category
+     * @return boolean
+     *            true if the category changed
      */
-    void setCategory(String category);
+    boolean setCategory(String category);
 
     /**
      * Adds a tag to the item.

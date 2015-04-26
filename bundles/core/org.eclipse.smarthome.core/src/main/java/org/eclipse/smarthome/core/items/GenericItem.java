@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -37,6 +38,7 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - Added tags
+ * @author Chris Jackson - updated setters to return change flag
  *
  */
 abstract public class GenericItem implements ActiveItem {
@@ -265,30 +267,15 @@ abstract public class GenericItem implements ActiveItem {
 		if (getClass() != obj.getClass())
 			return false;
 		GenericItem other = (GenericItem) obj;
-		if (category == null) {
-			if (other.category != null)
-				return false;
-		} else if (!category.equals(other.category))
+		if (Objects.equals(category, other.category) == false)
 			return false;
-		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
+		if (Objects.equals(label, other.label) == false)
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
+		if (Objects.equals(name, other.name) == false)
 			return false;
-		if (tags == null) {
-			if (other.tags != null)
-				return false;
-		} else if (!tags.equals(other.tags))
+		if (Objects.equals(tags, other.tags) == false)
 			return false;
-		if (type == null) {
-			if (other.type != null)
-				return false;
-		} else if (!type.equals(other.type))
+		if (Objects.equals(type, other.type) == false)
 			return false;
 		return true;
 	}
@@ -334,8 +321,10 @@ abstract public class GenericItem implements ActiveItem {
     }
 
     @Override
-    public void setLabel(String label) {
+    public boolean setLabel(String label) {
+    	boolean changed = Objects.equals(this.label, label);
         this.label = label;
+        return changed;
     }
 
     @Override
@@ -344,8 +333,10 @@ abstract public class GenericItem implements ActiveItem {
     }
 
     @Override
-    public void setCategory(String category) {
+    public boolean setCategory(String category) {
+    	boolean changed = Objects.equals(this.category, category);
         this.category = category;
+        return changed;
     }
 
     @Override
