@@ -9,18 +9,31 @@
 		<description>The hue Bridge represents the Philips hue bridge.</description>
 
 		<config-description>
-			<parameter name="ip" type="text">
+			<parameter-group name="group1">
+				<label>Group Label 1</label>
+				<description>Group description 1</description>
+				<context>Group1-context</context>
+				<advanced>false</advanced>
+			</parameter-group>
+			<parameter-group name="group2">
+				<label>Group Label 2</label>
+				<description>Group description 2</description>
+				<context>Group2-context</context>
+				<advanced>true</advanced>
+			</parameter-group>
+			<parameter name="ip" type="text" groupName="group1">
 				<context>network-address</context>
 				<label>Network Address</label>
 				<description>Network address of the hue bridge.</description>
 				<required>true</required>
 			</parameter>
-			<parameter name="username" type="text">
+			<parameter name="username" type="text" groupName="group1">
 				<context>password</context>
 				<label>Username</label>
 				<description>Name of a registered hue bridge user, that allows to
 					access the API.
 				</description>
+				<advanced>true</advanced>
 			</parameter>
 		</config-description>
 	</bridge-type>

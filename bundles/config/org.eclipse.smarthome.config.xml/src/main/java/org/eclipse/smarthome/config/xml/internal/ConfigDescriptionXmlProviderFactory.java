@@ -17,8 +17,8 @@ import org.osgi.framework.Bundle;
 
 /**
  * The {@link ConfigDescriptionXmlProviderFactory} is responsible to create {@link ConfigDescriptionXmlProvider}
- * instances for a certain module.
- * The factory is <i>not</i> responsible to clean-up any created providers.
+ * instances for a certain module. The
+ * factory is <i>not</i> responsible to clean-up any created providers.
  *
  * @author Michael Grammling - Initial Contribution
  */

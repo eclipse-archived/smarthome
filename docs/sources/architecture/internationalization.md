@@ -40,11 +40,11 @@ ESH-INF/i18n
 
 In Eclipse SmartHome a binding developer has to provide different XML files. In these XML files label and description texts must be specified. To Internationalize these texts Java I18N properties files must be defined.
 
-For the binding definition and the thing types XML files Eclipse SmartHome defines a standard key scheme, that allows to easily reference the XML nodes. Inside the XML nodes the text must be specified in the default language english. Typically all texts for a binding are put into one file with name of the binding, but they can also be splitted into multiple files.
+For the binding definition and the thing types XML files Eclipse SmartHome defines a standard key scheme, that allows to easily reference the XML nodes. Inside the XML nodes the text must be specified in the default language English. Typically all texts for a binding are put into one file with name of the binding, but they can also be split into multiple files.
 
 ### Binding Definition
 
-The following snippet shows the binding XML file of the Yahoo Weather Binding and its language file that localizes the binding name and description for the german language.
+The following snippet shows the binding XML file of the Yahoo Weather Binding and its language file that localizes the binding name and description for the German language.
 
 XML file (binding.xml):
 ```xml
@@ -66,7 +66,7 @@ So the key for referencing the name of a binding is `binding.<binding-id>.name` 
 
 ### Thing Types
 
-The following snippet shows an excerpt of the thing type definition XML file of the Yahoo Weather Binding and its language file that localizes labels and descriptions for the german language.
+The following snippet shows an excerpt of the thing type definition XML file of the Yahoo Weather Binding and its language file that localizes labels and descriptions for the German language.
 
 XML file (thing-types.xml):
 ```xml
@@ -109,6 +109,10 @@ thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vo
 thing-type.config.yahooweather.weather.location.label = Ort
 thing-type.config.yahooweather.weather.location.description = Ort der Wetterinformation.
 
+thing-type.config.yahooweather.weather.group.group1.label = a label
+thing-type.config.yahooweather.weather.group.group1.description = a description
+
+
 channel-type.yahooweather.temperature.label = Temperatur
 channel-type.yahooweather.temperature.description = Aktuelle Temperatur in Grad Celsius (metrisch) oder Grad Fahrenheit (us)
 channel-type.yahooweather.temperature.pattern = %s Wert
@@ -116,11 +120,11 @@ channel-type.yahooweather.temperature.option.OPTION1 = Option Nummer 1
 channel-type.yahooweather.temperature.option.OPTION2 = Option Nummer 2
 ```
 
-So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label`.
+So the key for referencing a label of a defined thing type is `thing-type.<binding-id>.<thing-type-id>.label`. A label of a channel can be referenced with `channel-type.<binding-id>.<channel-type-id>.label`. And finally the config description parameter key is `thing-type.config.<binding-id>.<thing-type-id>.<parameter-name>.label` and the group parameter is `thing-type.config.<binding-id>.group.<thing-type-id>.<parameter-name>.label`.
 
 ### Using custom Keys
 
-In addition to the default keys the developer can also specify custom keys inside the XML file. But with this approach the XML file cannot longer contain the english texts. So it is mandatory to define a language file for the english language. The syntax for custom keys is `@text/<key>`. The keys are unqiue across the whole bundle, so a constant can reference any key in all files inside the `ESH-INF/i18n` folder.
+In addition to the default keys the developer can also specify custom keys inside the XML file. But with this approach the XML file cannot longer contain the English texts. So it is mandatory to define a language file for the English language. The syntax for custom keys is `@text/<key>`. The keys are unique across the whole bundle, so a constant can reference any key in all files inside the `ESH-INF/i18n` folder.
 
 The following snippet shows a binding XML that uses custom keys:
 
@@ -155,13 +159,13 @@ String text = i18nProvider.getText(bundleContext.getBundle(), "my.key", "Default
 
 Thing types can be retrieved through the `ThingTypeRegistry` OSGi service. Every method takes a `Locale` as last argument. If no locale is specified the thing types are returned for the default locale which is determined by `Locale.getDefault()`, or the default text, which is specified in the XML file, if no language file for the default locale exists.
 
-The following snippet shows how to retrieve the list of Thing Types for the german locale:
+The following snippet shows how to retrieve the list of Thing Types for the German locale:
 
 ```java
 List<ThingType> thingTypes = thingTypeRegistry.getThingTypes(Locale.GERMAN);
 ```
 
-If one binding supports the german language and another does not, it might occur that the languages of the returned thing types are mixed.
+If one binding supports the German language and another does not, it might occur that the languages of the returned thing types are mixed.
 
 For Binding Info and ConfigDescription, the localized objects can be retrieved via the `BindingInfoRegistry` and the `ConfigDescriptionRegistry` in the same manner as described for Thing Types.
 

@@ -6,6 +6,13 @@
 
 	<!-- test dummy -->
 	<config-description uri="config:Dummy">
+		<parameter-group name="group1">
+			<context>Context-Group1</context>
+			<label>Group 1</label>
+			<description>Description Group 1</description>
+			<advanced>false</advanced>
+		</parameter-group>
+
 		<parameter name="location" type="text" required="true">
 			<label>Location</label>
 			<description>Location for the weather information. Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.</description>
