@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry
+import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType
@@ -95,6 +96,7 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         
         def thingTypeUID1 = new ThingTypeUID("binding:thing-type")
         def thingTypeUID2 = new ThingTypeUID("binding:thing-type-with-channel-groups")
+        def bridgeTypeUID = new ThingTypeUID("binding:bridge-type")
         
         def channelType1 = new ChannelType(new ChannelTypeUID("binding:channelType1"), false, "String", "label", "", "light", [] as Set, null, null)
         def channelType2 = new ChannelType(new ChannelTypeUID("binding:channelType2"), true, "String", "label", "", "light", [] as Set, null, null)
@@ -117,7 +119,8 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
             getThingTypes: {
                 return [
                     new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null, null),
-                    new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null, null)
+                    new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null, null),
+                    new BridgeType(bridgeTypeUID, null, "label", null, null, null, null, null)
                  ]
             } 
         ] as ThingTypeProvider)
@@ -180,6 +183,29 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         assertThat itemChannelLinkRegistry.getAll().size(), is(2)
         
         thingSetupManager.removeThing(thingUID)
+        
+        assertThat thingRegistry.getAll().size(), is(0)
+        assertThat itemThingLinkRegistry.getAll().size(), is(0)
+        assertThat itemRegistry.getItems().size(), is(0)
+        assertThat itemChannelLinkRegistry.getAll().size(), is(0)
+    }
+    
+    
+    @Test
+    void 'remove Bridge with Things recursively'() {
+        def bridgeUID = new ThingUID("binding", "bridge-type", "thing")
+        thingSetupManager.addThing(bridgeUID, new Configuration(), null, "MyBridge", [] as List, true)
+        
+        def thingUID = new ThingUID("binding", "thing-type", "thing")
+        thingSetupManager.addThing(thingUID, new Configuration(), bridgeUID, "MyThing", [] as List, true)
+               
+        assertThat thingRegistry.getAll().size(), is(2)
+        assertThat itemThingLinkRegistry.getAll().size(), is(2)
+        assertThat itemRegistry.getItems().size(), is(4)
+        assertThat itemChannelLinkRegistry.getAll().size(), is(2)
+        
+        // if bridge is removed, things are removed recursively, too
+        thingSetupManager.removeThing(bridgeUID)
         
         assertThat thingRegistry.getAll().size(), is(0)
         assertThat itemThingLinkRegistry.getAll().size(), is(0)
