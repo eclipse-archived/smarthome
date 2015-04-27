@@ -228,7 +228,10 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         HashSet<ThingUID> removedResults = new HashSet<>();
         for (DiscoveryListener listener : this.listeners) {
             try {
-                removedResults.addAll(listener.removeOlderResults(source, timestamp, thingTypeUIDs));
+                Collection<ThingUID> olderResults = listener.removeOlderResults(source, timestamp, thingTypeUIDs);
+                if (olderResults != null) {
+                    removedResults.addAll(olderResults);
+                }
             } catch (Exception ex) {
                 logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
                         + "' on all things removed event!", ex);
