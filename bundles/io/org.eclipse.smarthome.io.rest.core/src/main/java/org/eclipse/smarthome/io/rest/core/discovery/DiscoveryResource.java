@@ -59,7 +59,7 @@ public class DiscoveryResource implements RESTResource {
     }
 
     @POST
-    @Path("/scan/{bindingId}")
+    @Path("/bindings/{bindingId}/scan")
     public Response scan(@PathParam("bindingId") final String bindingId) {
         discoveryServiceRegistry.startScan(bindingId, new ScanListener() {
             @Override
