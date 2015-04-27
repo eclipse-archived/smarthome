@@ -68,7 +68,7 @@ public class InboxResource implements RESTResource {
     private UriInfo uriInfo;
 
     @POST
-    @Path("/approve/{thingUID}")
+    @Path("/{thingUID}/approve")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response approve(@PathParam("thingUID") String thingUID, String label) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
@@ -103,11 +103,19 @@ public class InboxResource implements RESTResource {
     }
 
     @POST
-    @Path("/ignore/{thingUID}")
+    @Path("/{thingUID}/ignore")
     public Response ignore(@PathParam("thingUID") String thingUID) {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.IGNORED);
         return Response.ok().build();
     }
+    
+    @POST
+    @Path("/{thingUID}/unignore")
+    public Response unignore(@PathParam("thingUID") String thingUID) {
+        inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
+        return Response.ok().build();
+    }
+
 
     private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
         Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
