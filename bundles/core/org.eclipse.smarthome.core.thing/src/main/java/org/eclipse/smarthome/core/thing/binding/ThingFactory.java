@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -18,6 +19,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
@@ -42,6 +44,19 @@ import com.google.common.collect.Lists;
  * @author Thomas Höfer - added thing and thing type properties
  */
 public class ThingFactory {
+
+    /**
+     * Generates a random Thing UID for the given thingType
+     *
+     * @param thingTypeUID
+     *            thing type (must not be null)
+     * @return random Thing UID
+     */
+    public static ThingUID generateRandomThingUID(ThingTypeUID thingTypeUID) {
+        String uuid = UUID.randomUUID().toString();
+        String thingId = uuid.substring(uuid.length() - 12, uuid.length());
+        return new ThingUID(thingTypeUID, thingId);
+    }
 
     /**
      * Creates a thing based on a given thing type.
