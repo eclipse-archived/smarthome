@@ -6,7 +6,9 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.io.transport.mqtt
-Import-Package: org.apache.commons.lang,
+Import-Package: javax.net,
+ javax.net.ssl,
+ org.apache.commons.lang,
  org.eclipse.smarthome.core.events,
  org.osgi.service.cm,
  org.slf4j
