@@ -217,11 +217,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
      * Creates a thing based on given thing type uid.
      *
      * @param thingTypeUID
-     *            thing type uid (should not be null)
+     *            thing type uid (must not be null)
      * @param thingUID
-     *            thingUID (should not be null)
+     *            thingUID (can be null)
      * @param configuration
-     *            (should not be null)
+     *            (must not be null)
      * @param bridgeUID
      *            (can be null)
      * @return thing (can be null, if thing type is unknown)
@@ -229,6 +229,12 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
     @Override
     public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
             ThingUID bridgeUID) {
+        if(thingTypeUID == null) {
+            throw new IllegalArgumentException("Thing Type UID must not be null");
+        }
+        if(thingUID == null) {
+            thingUID = ThingFactory.generateRandomThingUID(thingTypeUID);
+        }
         ThingType thingType = getThingTypeByUID(thingTypeUID);
         if (thingType != null) {
             Thing thing = ThingFactory.createThing(thingType, thingUID, configuration, bridgeUID,
