@@ -140,49 +140,37 @@ public class ThingSetupManager {
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels) {
 
+        if (thingUID == null) {
+            throw new IllegalArgumentException("Thing UID must not be null");
+        }
+
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
-        Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
 
-        if (thing == null) {
-            logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
-                    thingTypeUID);
-            return null;
-        }
+        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels);
+    }
 
-        String itemName = toItemName(thing.getUID());
-        GroupItem groupItem = new GroupItem(itemName);
-        groupItem.addTag(TAG_THING);
-        groupItem.setLabel(label);
-        groupItem.addGroupNames(groupNames);
-
-        thingRegistry.add(thing);
-        itemRegistry.add(groupItem);
-        itemThingLinkRegistry.add(new ItemThingLink(itemName, thing.getUID()));
-
-        ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
-        if (thingType != null) {
-            List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
-                        channelGroupDefinition.getId()));
-                channelGroupItem.addTag(TAG_CHANNEL_GROUP);
-                channelGroupItem.addGroupName(itemName);
-                itemRegistry.add(channelGroupItem);
-            }
-        }
-
-        if (enableChannels) {
-            List<Channel> channels = thing.getChannels();
-            for (Channel channel : channels) {
-                ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
-                if (channelType != null && !channelType.isAdvanced()) {
-                    enableChannel(channel.getUID());
-                } else if(channelType == null) {
-                    logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
-                }
-            }
-        }
-        return thing;
+    /**
+     * Adds a new thing to the system and creates the according items and links.
+     *
+     * @param thingTypeUID
+     *            UID of the thing type (must not be null)
+     * @param configuration
+     *            configuration (must not be null)
+     * @param bridgeUID
+     *            bridge UID (can be null)
+     * @param label
+     *            label (can be null)
+     * @param groupNames
+     *            list of group names, in which the thing should be added as
+     *            member (must not be null)
+     * @param enableChannels
+     *            defines if all not 'advanced' channels should be enabled
+     *            directly
+     * @return created {@link Thing} instance (can be null)
+     */
+    public Thing addThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID bridgeUID, String label,
+            List<String> groupNames, boolean enableChannels) {
+        return addThing(thingTypeUID, null, configuration, bridgeUID, label, groupNames, enableChannels);
     }
 
     /**
@@ -487,6 +475,54 @@ public class ThingSetupManager {
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
+    }
+
+    private Thing addThing(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration,
+            ThingUID bridgeUID, String label, List<String> groupNames, boolean enableChannels) {
+
+        Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
+
+        if (thing == null) {
+            logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
+                    thingTypeUID);
+            return null;
+        }
+
+        String itemName = toItemName(thing.getUID());
+        GroupItem groupItem = new GroupItem(itemName);
+        groupItem.addTag(TAG_THING);
+        groupItem.setLabel(label);
+        groupItem.addGroupNames(groupNames);
+
+        thingRegistry.add(thing);
+        itemRegistry.add(groupItem);
+        itemThingLinkRegistry.add(new ItemThingLink(itemName, thing.getUID()));
+
+        ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        if (thingType != null) {
+            List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
+            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
+                        channelGroupDefinition.getId()));
+                channelGroupItem.addTag(TAG_CHANNEL_GROUP);
+                channelGroupItem.addGroupName(itemName);
+                itemRegistry.add(channelGroupItem);
+            }
+        }
+
+        if (enableChannels) {
+            List<Channel> channels = thing.getChannels();
+            for (Channel channel : channels) {
+                ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
+                if (channelType != null && !channelType.isAdvanced()) {
+                    enableChannel(channel.getUID());
+                } else if(channelType == null) {
+                    logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
+                }
+            }
+        }
+
+        return thing;
     }
 
     private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
