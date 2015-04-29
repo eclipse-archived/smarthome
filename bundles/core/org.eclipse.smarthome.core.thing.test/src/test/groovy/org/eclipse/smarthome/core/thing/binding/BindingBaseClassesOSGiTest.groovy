@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
+import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
@@ -148,11 +149,13 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         
         @Override
         protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+            updateStatus(ThingStatus.ONLINE)
             bridgeInitCalled = true
         }
         
         @Override
         protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+            updateStatus(ThingStatus.OFFLINE)
             bridgeDisposedCalled = true
         }
     }
@@ -174,11 +177,13 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         
         assertThat bridgeInitCalled, is(true)
         assertThat bridgeDisposedCalled, is(false)
+        assertThat thing.status, is(ThingStatus.ONLINE)
         
         // remove bridge
         managedThingProvider.remove(bridge.UID)
         
         assertThat bridgeDisposedCalled, is(true)
+        assertThat thing.status, is(ThingStatus.OFFLINE)
         
         managedThingProvider.remove(thing.UID)
         bridgeInitCalled = false
