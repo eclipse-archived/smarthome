@@ -72,11 +72,11 @@ If your pull request is not accepted on the first try, don't be discouraged! If 
 
 We're trying very hard to keep Eclipse SmartHome lean and focused. We don't want it to do everything for everybody. This means that we might decide against incorporating a new feature. However, there might be a way to implement that feature on top of Eclipse SmartHome.
 
-## Discuss your Design on the mailing list
+## Discuss your design in the discussion forum
 
-We recommend discussing your plans in the issue tracker before starting to code - especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give feedback on your design, and maybe point out if someone else is working on the same thing.
+We recommend discussing your plans in the [Discussion Forum](http://eclipse.org/forums/eclipse.smarthome) before starting to code - especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give feedback on your design, and maybe point out if someone else is working on the same thing.
 
-## Conventions for Pull Requests
+## Conventions for pull requests
 
 * Submit unit tests for your changes. Eclipse SmartHome has a great test framework built in; use it! Take a look at existing tests for inspiration. Run the full test suite on your branch before submitting a pull request.
 * Update the documentation when creating or modifying features. Test your documentation changes for clarity, concision, and correctness, as well as a clean documentation build.
@@ -92,5 +92,5 @@ The process to create a pull request is then the following:
 1. Do the coding!
 1. Make sure your code applies to the [Coding Guidelines](guidelines.md)
 1. Make sure there is a [Bugzilla issue](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome) for your contribution. If it does not exist yet, [create one](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=SmartHome).
-1. Add a "Signed-off-by" line to very commit you do - see the [Eclipse wiki](https://wiki.eclipse.org/Development_Resources/Contributing_via_Git) for details.
+1. Add a "Signed-off-by" line and a ["Bug"](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome) line to every commit you do - see the [Eclipse wiki](https://wiki.eclipse.org/Development_Resources/Contributing_via_Git) for details.
 1. Create a pull request, referencing the Bugzilla issue number
