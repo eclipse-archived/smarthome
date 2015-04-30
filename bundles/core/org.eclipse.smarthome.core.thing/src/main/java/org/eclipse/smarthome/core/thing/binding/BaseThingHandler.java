@@ -41,7 +41,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties
- * @author Stefan Bußweiler - Added new thing status handling 
+ * @author Stefan Bußweiler - Added new thing status handling
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -87,7 +87,15 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
+    }
 
+    /**
+     * This method is called after {@link BaseThingHandler#initialize()} is called. If this method will be overridden,
+     * the super method must be
+     * called.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public void postInitialize() {
         thingHandlerServiceTracker = new ServiceTracker(this.bundleContext, ThingHandler.class.getName(), null) {
             @Override
             public Object addingService(final ServiceReference reference) {
@@ -117,10 +125,17 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
-        thingHandlerServiceTracker.close();
         this.bundleContext = null;
     }
-    
+
+    /**
+     * This method is called before {@link BaseThingHandler#dispose()} is called. If this method will be overridden, the
+     * super method must be called.
+     */
+    public void preDispose() {
+        thingHandlerServiceTracker.close();
+    }
+
     @Override
     public void handleRemoval() {
         // can be overridden by subclasses
@@ -147,7 +162,7 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         // standard behavior is to set the thing to ONLINE,
         // assuming no further initialization is necessary.
-    	updateStatus(ThingStatus.ONLINE);
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -302,7 +317,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void updateStatus(ThingStatus status, ThingStatusDetail statusDetail) {
         updateStatus(status, statusDetail, null);
     }
-    
+
     /**
      * Updates the status of the thing. The detail of the status will be 'NONE'.
      * 
