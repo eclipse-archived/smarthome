@@ -113,7 +113,7 @@ public class PointType implements ComplexType, Command, State {
         return String.format(pattern, getConstituents().values().toArray());
     }
 
-    public PointType valueOf(String value) {
+    public static PointType valueOf(String value) {
         return new PointType(value);
     }
 
