@@ -332,7 +332,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Creates a thing builder, which allows to modify the thing. The method
-     * {@link BaseThingHandler#updateThing(ThingBuilder)} must be called to persist the changes.
+     * {@link BaseThingHandler#updateThing(Thing)} must be called to persist the changes.
      * 
      * @return {@link ThingBuilder} which builds an exact copy of the thing (not null)
      */
