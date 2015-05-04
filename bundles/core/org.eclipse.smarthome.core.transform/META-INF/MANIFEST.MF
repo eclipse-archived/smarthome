@@ -38,7 +38,11 @@ Import-Package: com.google.common.base,
 Bundle-SymbolicName: org.eclipse.smarthome.core.transform
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/regexservice.xml, OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
-  OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/transformationaction.xml
-Bundle-ClassPath: .
+  OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/transformationaction.xml,
+  OSGI-INF/scaleservice.xml, OSGI-INF/jsonpathservice.xml
+Bundle-ClassPath: .,
+ lib/asm-1.0.2.jar,
+ lib/json-path-2.0.0.jar,
+ lib/json-smart-2.1.1.jar
 Export-Package: org.eclipse.smarthome.core.transform,org.eclipse.smart
  home.core.transform.actions
