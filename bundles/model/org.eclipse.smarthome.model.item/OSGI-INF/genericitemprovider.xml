@@ -12,6 +12,7 @@
    <implementation class="org.eclipse.smarthome.model.item.internal.GenericItemProvider"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.items.ItemProvider"/>
+      <provide interface="org.eclipse.smarthome.core.types.StateDescriptionProvider"/>
    </service>
    <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
    <reference bind="addBindingConfigReader" cardinality="0..n" interface="org.eclipse.smarthome.model.item.BindingConfigReader" name="BindingConfigReader" policy="dynamic" unbind="removeBindingConfigReader"/>
