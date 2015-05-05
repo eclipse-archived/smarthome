@@ -50,7 +50,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
      */
     protected EventPublisher eventPublisher;
 
-    protected StateDescriptionProvider stateDescriptionProvider;
+    protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
@@ -235,7 +235,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             if (item instanceof GenericItem) {
                 GenericItem genericItem = (GenericItem) item;
                 genericItem.setEventPublisher(eventPublisher);
-                genericItem.setStateDescriptionProvider(stateDescriptionProvider);
+                genericItem.setStateDescriptionProviders(stateDescriptionProviders);
                 genericItem.initialize();
             }
 
@@ -306,17 +306,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
-    protected void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProvider = stateDescriptionProvider;
-        for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProvider(stateDescriptionProvider);
+    protected void addStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProviders.add(stateDescriptionProvider);
+        for (Item item : getItems()) {            
+            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
 
-    protected void unsetStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProvider = null;
+    protected void removeStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
+        this.stateDescriptionProviders.remove(stateDescriptionProvider);
         for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProvider(null);
+            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
 
