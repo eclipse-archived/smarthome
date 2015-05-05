@@ -10,8 +10,8 @@ package org.eclipse.smarthome.core.thing.xml.test;
 import static org.junit.Assert.*
 
 import org.eclipse.smarthome.core.thing.type.ChannelType
-import org.eclipse.smarthome.core.thing.xml.internal.ChannelTypeXmlResult
-import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionList
+import org.eclipse.smarthome.core.thing.xml.ChannelTypeXmlResult
+import org.eclipse.smarthome.core.thing.xml.ThingDescriptionList
 import org.eclipse.smarthome.core.thing.xml.internal.ThingDescriptionReader
 import org.junit.Test
 
