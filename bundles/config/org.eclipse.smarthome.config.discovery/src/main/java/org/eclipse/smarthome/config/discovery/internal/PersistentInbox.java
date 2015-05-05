@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -357,6 +355,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     protected void activate(ComponentContext componentContext) {
         this.timeToLiveChecker = DiscoveryThreadPool.getScheduler().scheduleWithFixedDelay(
                 new TimeToLiveCheckingThread(this), 0, 30, TimeUnit.SECONDS);
+        this.discoveryServiceRegistry.addDiscoveryListener(this);
     }
     
     void setTimeToLiveCheckingInterval(int interval) {
@@ -366,13 +365,13 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void deactivate(ComponentContext componentContext) {
+        this.discoveryServiceRegistry.removeDiscoveryListener(this);
         this.listeners.clear();
         this.timeToLiveChecker.cancel(true); 
     }
 
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
-        this.discoveryServiceRegistry.addDiscoveryListener(this);
     }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
@@ -385,7 +384,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-        this.discoveryServiceRegistry.removeDiscoveryListener(this);
         this.discoveryServiceRegistry = null;
     }
 
