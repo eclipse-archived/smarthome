@@ -60,7 +60,7 @@ abstract public class GenericItem implements ActiveItem {
 
     protected String category;
 
-    private StateDescriptionProvider stateDescriptionProvider;
+    private List<StateDescriptionProvider> stateDescriptionProviders;
 
     public GenericItem(String type, String name) {
         this.name = name;
@@ -160,8 +160,8 @@ abstract public class GenericItem implements ActiveItem {
         this.eventPublisher = eventPublisher;
     }
 
-    public void setStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProvider = stateDescriptionProvider;
+    public void setStateDescriptionProviders(List<StateDescriptionProvider> stateDescriptionProviders) {
+        this.stateDescriptionProviders = stateDescriptionProviders;
     }
 
     protected void internalSend(Command command) {
@@ -355,11 +355,13 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
-        if (stateDescriptionProvider != null) {
-            return stateDescriptionProvider.getStateDescription(this.name, locale);
-        } else {
-            return null;
+        for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
+            StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
+            if(stateDescription != null) {
+                return stateDescription;
+            }
         }
+        return null;
     }
 
 }
