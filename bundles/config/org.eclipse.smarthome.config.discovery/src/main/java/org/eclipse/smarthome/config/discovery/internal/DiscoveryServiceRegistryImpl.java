@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -24,6 +25,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.HashMultimap;
 
 /**
  * The {@link DiscoveryServiceRegistryImpl} is a concrete implementation of the {@link DiscoveryServiceRegistry}.
@@ -42,6 +45,8 @@ import org.slf4j.LoggerFactory;
  * @see DiscoveryListener
  */
 public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
+    
+    private HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
 
     private final class AggregatingScanListener implements ScanListener {
 
@@ -129,6 +134,12 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public void addDiscoveryListener(DiscoveryListener listener) throws IllegalStateException {
+        synchronized (cachedResults) {
+            Set<Entry<DiscoveryService, DiscoveryResult>> entries = cachedResults.entries();
+            for (Entry<DiscoveryService, DiscoveryResult> entry : entries) {
+                listener.thingDiscovered(entry.getKey(), entry.getValue());
+            }
+        }
         if (listener != null) {
             this.listeners.add(listener);
         }
@@ -200,6 +211,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public synchronized void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
+        synchronized (cachedResults) {
+            cachedResults.put(source, result);
+        }
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingDiscovered(source, result);
@@ -212,6 +226,9 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
 
     @Override
     public synchronized void thingRemoved(DiscoveryService source, ThingUID thingUID) {
+        synchronized (cachedResults) {
+            cachedResults.remove(source, thingUID);
+        }
         for (DiscoveryListener listener : this.listeners) {
             try {
                 listener.thingRemoved(source, thingUID);
@@ -346,11 +363,15 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     protected void removeDiscoveryService(DiscoveryService discoveryService) {
         this.discoveryServices.remove(discoveryService);
         discoveryService.removeDiscoveryListener(this);
+        synchronized (cachedResults) {
+            this.cachedResults.removeAll(discoveryService);
+        }
     }
 
     protected void deactivate() {
         this.discoveryServices.clear();
         this.listeners.clear();
+        this.cachedResults.clear();
     }
 
 }
