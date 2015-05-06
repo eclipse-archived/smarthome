@@ -262,6 +262,13 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                 } else {
                     logger.error("Group function 'NOT OR' requires two arguments. Using Equality instead.");
                 }
+            case COUNT:
+            	if (args.size() == 1) {
+            		groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
+            		break;
+            	} else {
+            		logger.error("Group function 'COUNT' requires one argument. Using Equality instead.");
+            	}
             case AVG:
                 groupFunction = new ArithmeticGroupFunction.Avg();
                 break;
