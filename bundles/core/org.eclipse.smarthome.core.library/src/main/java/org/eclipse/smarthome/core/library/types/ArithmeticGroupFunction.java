@@ -10,6 +10,8 @@ package org.eclipse.smarthome.core.library.types;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
@@ -398,5 +400,57 @@ public interface ArithmeticGroupFunction extends GroupFunction {
             }
         }
     }
+    
+	/**
+	 * This calculates the number of items in the group matching the
+	 * regular expression passed in parameter
+	 * Group:String:COUNT(".") will count all items having a string state of one character
+	 * Group:String:COUNT("[5-9]") will count all items having a string state between 5 and 9
+	 * ...
+	 * 
+	 * @author Gaël L'hopital
+	 *
+	 */
+	static class Count implements GroupFunction {
+		
+		protected final Pattern pattern;
+		
+		public Count(State regExpr) {
+			if(regExpr==null) {
+				throw new IllegalArgumentException("Parameter must not be null!");
+			}
+			this.pattern = Pattern.compile(regExpr.toString());
+		}
+
+		/**
+		 * @{inheritDoc
+		 */
+		@Override
+		public State calculate(Set<Item> items) {
+			int count = 0;
+			if(items!=null) {
+				for(Item item : items) {
+					Matcher matcher = pattern.matcher(item.getState().toString());
+					if (matcher.matches()) count++;
+				}
+			}
+			
+			return new DecimalType(count);
+		}
+
+		/**
+		 * @{inheritDoc
+		 */
+		@Override
+		public State getStateAs(Set<Item> items, Class<? extends State> stateClass) {
+			State state = calculate(items);
+			if(stateClass.isInstance(state)) {
+				return state;
+			} else {
+				return null;
+			}
+		}
+	}
+
 
 }
