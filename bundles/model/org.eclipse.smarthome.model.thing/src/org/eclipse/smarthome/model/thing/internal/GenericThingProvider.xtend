@@ -104,6 +104,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		} else {
 			thingUID = new ThingUID(modelThing.id)
 			thingTypeUID = new ThingTypeUID(thingUID.bindingId, thingUID.thingTypeId)
+			if(modelThing.bridgeUID != null && !modelThing.bridgeUID.empty) {
+				bridgeUID = new ThingUID(modelThing.bridgeUID)
+			}
 		}
 
 		if (!isSupportedByThingHandlerFactory(thingTypeUID, thingHandlerFactory)) {
@@ -130,9 +133,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			}
 
 		thingBuilder.withConfiguration(configuration)
-		if (parentBridge != null) {
-			thingBuilder.withBridge(parentBridge.UID)
-		}
+		thingBuilder.withBridge(bridgeUID)
+		
 
 		val thingType = thingTypeUID.thingType
 
