@@ -36,7 +36,8 @@ public class MDNSClientImpl implements MDNSClient {
             jmdns = JmDNS.create();
             logger.debug("mDNS service has been started");
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            // we must cancel the activation of this component here
+            throw new IllegalStateException(e);
         }
     }
 
