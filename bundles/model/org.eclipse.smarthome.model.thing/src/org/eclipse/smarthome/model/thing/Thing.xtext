@@ -34,6 +34,7 @@ ModelBridge returns ModelThing:
 
 ModelThing:
 	('Thing')? (id=UID | thingTypeId=UID_SEGMENT thingId=UID_SEGMENT)
+	('(' bridgeUID = UID ')')?
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
 	']')?
