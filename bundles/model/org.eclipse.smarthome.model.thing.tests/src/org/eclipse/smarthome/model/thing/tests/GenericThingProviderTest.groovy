@@ -17,7 +17,6 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.model.core.ModelRepository
 import org.eclipse.smarthome.test.OSGiTest
-import org.hamcrest.core.AnyOf;
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -254,5 +253,32 @@ class GenericThingProviderTest extends OSGiTest {
 		assertThat thing1.thingTypeUID.toString(), is("hue:1-thing-id-with-5-dashes_and_3_underscores")
 	}
 
-		
+    @Test
+    void 'assert that bridge UID can be set'() {
+
+        def things = thingRegistry.getAll()
+        assertThat things.size(), is(0)
+
+        String model =
+            '''
+            hue:bridge:bridge1 []
+            hue:LCT001:bridge1:bulb (hue:bridge:bridge1) [] 
+            '''
+        
+        modelRepository.addOrRefreshModel(TESTMODEL_NAME, new ByteArrayInputStream(model.bytes))
+        def actualThings = thingRegistry.getAll()
+
+        assertThat actualThings.size(), is(2)
+
+        Thing thing = actualThings.find {
+            !(it instanceof Bridge)
+        }
+        Bridge bridge = actualThings.find {
+            it instanceof Bridge
+        }
+
+        assertThat thing.bridgeUID.toString(), is("hue:bridge:bridge1") 
+        assertThat bridge.things.contains(thing), is(true)
+    }
+
 }
