@@ -24,6 +24,17 @@ import org.eclipse.smarthome.config.xml.util.NodeListConverter;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.config.xml.util.NodeValueConverter;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.thing.xml.BridgeTypeConverter;
+import org.eclipse.smarthome.core.thing.xml.BridgeTypeXmlResult;
+import org.eclipse.smarthome.core.thing.xml.ChannelGroupTypeConverter;
+import org.eclipse.smarthome.core.thing.xml.ChannelGroupTypeXmlResult;
+import org.eclipse.smarthome.core.thing.xml.ChannelTypeConverter;
+import org.eclipse.smarthome.core.thing.xml.ChannelTypeXmlResult;
+import org.eclipse.smarthome.core.thing.xml.StateDescriptionConverter;
+import org.eclipse.smarthome.core.thing.xml.ThingDescriptionConverter;
+import org.eclipse.smarthome.core.thing.xml.ThingDescriptionList;
+import org.eclipse.smarthome.core.thing.xml.ThingTypeConverter;
+import org.eclipse.smarthome.core.thing.xml.ThingTypeXmlResult;
 import org.eclipse.smarthome.core.types.StateDescription;
 
 import com.thoughtworks.xstream.XStream;

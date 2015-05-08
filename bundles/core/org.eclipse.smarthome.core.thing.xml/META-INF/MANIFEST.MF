@@ -22,4 +22,5 @@ Import-Package: com.thoughtworks.xstream,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
+Export-Package: org.eclipse.smarthome.core.thing.xml
 Bundle-Activator: org.eclipse.smarthome.core.thing.xml.internal.Activator

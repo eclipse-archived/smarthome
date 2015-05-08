@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.smarthome.config.xml.XmlConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProvider;
 import org.eclipse.smarthome.config.xml.osgi.XmlDocumentProviderFactory;
+import org.eclipse.smarthome.core.thing.xml.XmlThingTypeProvider;
 import org.osgi.framework.Bundle;
 
 /**
