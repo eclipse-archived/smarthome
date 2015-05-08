@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
@@ -27,14 +28,16 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 
 /**
- * The {@link ConfigDescriptionParameterConverter} is a concrete implementation of the {@code XStream} {@link Converter}
- * interface used to convert config description parameters
- * information within an XML document into a {@link ConfigDescriptionParameter} object.
+ * The {@link ConfigDescriptionParameterConverter} is a concrete implementation
+ * of the {@code XStream} {@link Converter} interface used to convert config
+ * description parameters information within an XML document into a {@link ConfigDescriptionParameter} object.
  * <p>
  * This converter converts {@code parameter} XML tags.
  *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended for options and filter criteria
+ * @author Chris Jackson - Modified to use config parameter builder. Added
+ *         parameters.
  */
 public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<ConfigDescriptionParameter> {
 
@@ -45,7 +48,8 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
 
         this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "name", "true" },
                 { "type", "true" }, { "min", "false" }, { "max", "false" }, { "step", "false" },
-                { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" } });
+                { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" },
+                { "groupName", "false" } });
     }
 
     private Type toType(String xmlType) {
@@ -91,6 +95,7 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         Boolean required = toBoolean(attributes.get("required"));
         Boolean readOnly = falseIfNull(toBoolean(attributes.get("readOnly")));
         Boolean multiple = falseIfNull(toBoolean(attributes.get("multiple")));
+        String groupName = attributes.get("groupName");
 
         // read values
         ConverterValueMap valueMap = new ConverterValueMap(reader, context);
@@ -103,14 +108,22 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         String label = valueMap.getString("label");
         String description = valueMap.getString("description");
 
+        Boolean advanced = valueMap.getBoolean("advanced", false);
+        Boolean limitToOptions = valueMap.getBoolean("limitToOptions", true);
+        Integer multipleLimit = valueMap.getInteger("multipleLimit");
+
         // read options and filter criteria
         List<ParameterOption> options = readParameterOptions(valueMap.getObject("options"));
         @SuppressWarnings("unchecked")
         List<FilterCriteria> filterCriteria = (List<FilterCriteria>) valueMap.getObject("filter");
 
         // create object
-        configDescriptionParam = new ConfigDescriptionParameter(name, type, min, max, step, patternString, required,
-                readOnly, multiple, parameterContext, defaultValue, label, description, options, filterCriteria);
+        configDescriptionParam = ConfigDescriptionParameterBuilder.create(name, type).withMinimum(min).withMaximum(max)
+                .withStepSize(step).withPattern(patternString).withRequired(required).withReadOnly(readOnly)
+                .withMultiple(multiple).withContext(parameterContext).withDefault(defaultValue).withLabel(label)
+                .withDescription(description).withOptions(options).withFilterCriteria(filterCriteria)
+                .withGroupName(groupName).withAdvanced(advanced).withLimitToOptions(limitToOptions)
+                .withMultipleLimit(multipleLimit).build();
 
         return configDescriptionParam;
     }

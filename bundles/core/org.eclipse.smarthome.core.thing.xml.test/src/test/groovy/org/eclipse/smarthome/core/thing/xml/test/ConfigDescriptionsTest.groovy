@@ -70,7 +70,7 @@ class ConfigDescriptionsTest extends OSGiTest {
         
         def parameters = bridgeConfigDescription.parameters
         assertThat parameters.size(), is(2)
-        
+
         def ipParameter = parameters.find { it.name.equals("ip") }
         assertThat ipParameter, is(notNullValue())
         assertThat ipParameter.type, is(Type.TEXT)
@@ -80,11 +80,14 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat description, is("Network address of the hue bridge.")
             assertThat required, is(true)
         }
-        
-        def usernameParameter = parameters.find { it.name.equals("username") }
-        assertThat usernameParameter, is(notNullValue())
-        assertThat usernameParameter.type, is(Type.TEXT)
-        usernameParameter.with {
+
+        def userNameParameter = parameters.find { it.name.equals("username") }
+		assertThat userNameParameter, is(notNullValue())
+
+		assertThat userNameParameter.advanced, is(true)
+
+        assertThat userNameParameter.type, is(Type.TEXT)
+        userNameParameter.with {
             assertThat context, is("password")
             assertThat label, is("Username")
             assertThat description, is("Name of a registered hue bridge user, that allows to access the API.")
@@ -100,7 +103,18 @@ class ConfigDescriptionsTest extends OSGiTest {
         def lastDimValueParameter = parameters.find { it.name.equals("lastDimValue") }
         assertThat lastDimValueParameter, is(notNullValue())
         assertThat lastDimValueParameter.type, is(Type.BOOLEAN)
-        
+
+        def groups = bridgeConfigDescription.parameterGroups
+        assertThat groups.size(), is(2)
+
+        def group1 = groups.find { it.name.equals("group1") }
+        assertThat group1, is(notNullValue())
+        group1.with {
+            assertThat context, is("Group1-context")
+            assertThat label, is("Group Label 1")
+            assertThat description, is("Group description 1")
+        }
+
         // uninstall test bundle
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)

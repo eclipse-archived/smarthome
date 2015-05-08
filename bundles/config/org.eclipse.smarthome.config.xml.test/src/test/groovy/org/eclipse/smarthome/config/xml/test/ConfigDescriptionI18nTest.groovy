@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
@@ -59,8 +60,7 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
 
         def config = configDescriptions.first() as ConfigDescription
-
-
+        
         assertThat config, is(notNullValue())
         assertEquals("""
         location.label = Ort
@@ -71,9 +71,11 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         refresh.description = Spezifiziert das Aktualisierungsintervall in Sekunden
         question.pattern = Wie ist das Wetter in [\\w]*?
         question.options = München, Köln
+        group.label = Group 1 German Label
+        group.description = Group 1 German Description
         """, asString(config))
 
-
+        
     }
 
     String asString(final ConfigDescription self) {
@@ -93,6 +95,10 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         def pattern = question.getPattern()
         def options = question.getOptions().collect { it.getLabel() }.join(", ")
         
+        ConfigDescriptionParameterGroup group = self.getParameterGroups().find { it.getName().equals("group1") }
+        def group_label = group.getLabel()
+        def group_description = group.getDescription()
+
         return """
         location.label = ${location_label}
         location.description = ${location_description}
@@ -102,6 +108,8 @@ class ConfigDescriptionI18nTest extends OSGiTest {
         refresh.description = ${refresh_description}
         question.pattern = ${pattern}
         question.options = ${options}
+        group.label = ${group_label}
+        group.description = ${group_description}
         """
     }
 }
