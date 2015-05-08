@@ -16,6 +16,7 @@ package org.eclipse.smarthome.core.thing;
  * </ul>
  * 
  * @author Stefan Bußweiler - Initial contribution
+ * @author Dennis Nobel - Added null checks
  */
 public class ThingStatusInfo {
 
@@ -28,11 +29,20 @@ public class ThingStatusInfo {
     /**
      * Constructs a status info.
      * 
-     * @param status the status
-     * @param statusDetail the detail of the status
+     * @param status the status (must not be null)
+     * @param statusDetail the detail of the status (must not be null)
      * @param description the description of the status
+     * 
+     * @throws IllegalArgumentException if thing status or thing status detail is null
      */
-    public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description) {
+    public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description)
+            throws IllegalArgumentException {
+        if (status == null) {
+            throw new IllegalArgumentException("Thing status must not be null");
+        }
+        if (statusDetail == null) {
+            throw new IllegalArgumentException("Thing status detail must not be null");
+        }
         this.status = status;
         this.statusDetail = statusDetail;
         this.description = description;
@@ -41,7 +51,7 @@ public class ThingStatusInfo {
     /**
      * Gets the status itself.
      * 
-     * @return the status
+     * @return the status (not null)
      */
     public ThingStatus getStatus() {
         return status;
@@ -50,7 +60,7 @@ public class ThingStatusInfo {
     /**
      * Gets the detail of the status.
      * 
-     * @return the status detail
+     * @return the status detail (not null)
      */
     public ThingStatusDetail getStatusDetail() {
         return statusDetail;
