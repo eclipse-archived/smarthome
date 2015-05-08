@@ -23,6 +23,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 public class ConfigDescriptionParameterBuilder {
     private String name;
     private Type type;
+
+    private String groupName;
+
     private BigDecimal min;
     private BigDecimal max;
     private BigDecimal step;
@@ -30,11 +33,15 @@ public class ConfigDescriptionParameterBuilder {
     private boolean required;
     private boolean readOnly;
     private boolean multiple;
+    private Integer multipleLimit;
 
     private String context;
     private String defaultValue;
     private String label;
     private String description;
+
+    private boolean limitToOptions;
+    private boolean advanced;
 
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
@@ -116,6 +123,16 @@ public class ConfigDescriptionParameterBuilder {
     }
 
     /**
+     * Set the configuration parameter to allow multiple selection
+     *
+     * @param multiple
+     */
+    public ConfigDescriptionParameterBuilder withMultipleLimit(Integer multipleLimit) {
+        this.multipleLimit = multipleLimit;
+        return this;
+    }
+
+    /**
      * Set the context of the configuration parameter
      *
      * @param context
@@ -176,6 +193,36 @@ public class ConfigDescriptionParameterBuilder {
     }
 
     /**
+     * Set the configuration parameter as an advanced parameter
+     *
+     * @param options
+     */
+    public ConfigDescriptionParameterBuilder withAdvanced(Boolean advanced) {
+        this.advanced = advanced;
+        return this;
+    }
+
+    /**
+     * Set the configuration parameter to be limited to the values in the options list
+     *
+     * @param options
+     */
+    public ConfigDescriptionParameterBuilder withLimitToOptions(Boolean limitToOptions) {
+        this.limitToOptions = limitToOptions;
+        return this;
+    }
+
+    /**
+     * Set the configuration parameter to be limited to the values in the options list
+     *
+     * @param options
+     */
+    public ConfigDescriptionParameterBuilder withGroupName(String groupName) {
+        this.groupName = groupName;
+        return this;
+    }
+
+    /**
      * Set the filter criteria of the configuration parameter
      *
      * @param filterCriteria
@@ -192,7 +239,8 @@ public class ConfigDescriptionParameterBuilder {
      */
     public ConfigDescriptionParameter build() throws IllegalArgumentException {
         return new ConfigDescriptionParameter(name, type, min, max, step, pattern, required, readOnly, multiple,
-                context, defaultValue, label, description, options, filterCriteria);
+                context, defaultValue, label, description, options, filterCriteria, groupName, advanced,
+                limitToOptions, multipleLimit);
     }
 
 }

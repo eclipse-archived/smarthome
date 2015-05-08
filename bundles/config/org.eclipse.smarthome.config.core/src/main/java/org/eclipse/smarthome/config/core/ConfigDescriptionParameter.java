@@ -21,12 +21,14 @@ import java.util.List;
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Added options, filter criteria, and more parameter
  *         attributes
+ * @author Chris Jackson - Added groupId, limitToOptions, advanced,
+ *         multipleLimit attributes
  */
 public class ConfigDescriptionParameter {
 
     /**
-     * The {@link Type} defines an enumeration of all supported data types
-     * a configuration parameter can take.
+     * The {@link Type} defines an enumeration of all supported data types a
+     * configuration parameter can take.
      *
      * @author Michael Grammling - Initial Contribution
      */
@@ -38,14 +40,14 @@ public class ConfigDescriptionParameter {
         TEXT,
 
         /**
-         * The data type for a signed integer value in the range of
-         * [{@link Integer#MIN_VALUE}, {@link Integer#MAX_VALUE}].
+         * The data type for a signed integer value in the range of [ {@link Integer#MIN_VALUE},
+         * {@link Integer#MAX_VALUE}].
          */
         INTEGER,
 
         /**
-         * The data type for a signed floating point value (IEEE 754) in the range of
-         * [{@link Float#MIN_VALUE}, {@link Float#MAX_VALUE}].
+         * The data type for a signed floating point value (IEEE 754) in the
+         * range of [{@link Float#MIN_VALUE}, {@link Float#MAX_VALUE}].
          */
         DECIMAL,
 
@@ -58,6 +60,9 @@ public class ConfigDescriptionParameter {
 
     private String name;
     private Type type;
+
+    private String groupName;
+
     private BigDecimal min;
     private BigDecimal max;
     private BigDecimal step;
@@ -65,6 +70,7 @@ public class ConfigDescriptionParameter {
     private boolean required;
     private boolean readOnly;
     private boolean multiple;
+    private Integer multipleLimit;
 
     private String context;
     private String defaultValue;
@@ -74,16 +80,25 @@ public class ConfigDescriptionParameter {
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
 
+    private boolean limitToOptions;
+    private boolean advanced;
+
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param name the name of the configuration parameter (must neither be null nor empty)
-     * @param type the data type of the configuration parameter (must not be null)
+     * @param name
+     *            the name of the configuration parameter (must neither be null
+     *            nor empty)
+     * @param type
+     *            the data type of the configuration parameter (must not be
+     *            null)
      *
-     * @throws IllegalArgumentException if the name is null or empty, or the type is null
+     * @throws IllegalArgumentException
+     *             if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
-        this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null);
+        this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, null,
+                null, null);
     }
 
     /**
@@ -127,6 +142,22 @@ public class ConfigDescriptionParameter {
      * @param options
      *            a list of element definitions of a static selection list
      *            (nullable)
+     * @param groupName
+     *            a string used to group parameters together into logical blocks
+     *            so that the UI can display them together
+     * @param advanced
+     *            specifies if this is an advanced parameter. An advanced
+     *            parameter can be hidden in the UI to focus the user on
+     *            important configuration
+     * @param limitToOptions
+     *            specifies that the users input is limited to the options list.
+     *            When set to true without options, this should have no affect.
+     *            When set to true with options, the user can only select the
+     *            options from the list When set to false with options, the user
+     *            can enter values other than those in the list
+     * @param multipleLimit
+     *            specifies the maximum number of options that can be selected
+     *            when multiple is true
      *
      * @throws IllegalArgumentException
      *             if the name is null or empty, or the type is null
@@ -134,7 +165,8 @@ public class ConfigDescriptionParameter {
     public ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum,
             BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
             String defaultValue, String label, String description, List<ParameterOption> options,
-            List<FilterCriteria> filterCriteria) throws IllegalArgumentException {
+            List<FilterCriteria> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
+            Integer multipleLimit) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
@@ -146,12 +178,14 @@ public class ConfigDescriptionParameter {
 
         this.name = name;
         this.type = type;
+        this.groupName = groupName;
         this.min = minimum;
         this.max = maximum;
         this.step = stepsize;
         this.pattern = pattern;
         this.readOnly = readOnly;
         this.multiple = multiple;
+        this.advanced = advanced;
 
         this.context = context;
         this.required = required;
@@ -163,6 +197,9 @@ public class ConfigDescriptionParameter {
             this.options = Collections.unmodifiableList(options);
         else
             this.options = Collections.unmodifiableList(new LinkedList<ParameterOption>());
+
+        this.limitToOptions = limitToOptions;
+        this.multipleLimit = multipleLimit;
 
         if (filterCriteria != null)
             this.filterCriteria = Collections.unmodifiableList(filterCriteria);
@@ -226,10 +263,18 @@ public class ConfigDescriptionParameter {
     }
 
     /**
-     * @return true if multiple selections of options are allowed, otherwise false.
+     * @return true if multiple selections of options are allowed, otherwise
+     *         false.
      */
     public Boolean isMultiple() {
         return multiple;
+    }
+
+    /**
+     * @return the maximum number of options that can be selected from the options list
+     */
+    public Integer getMultipleLimit() {
+        return multipleLimit;
     }
 
     /**
@@ -254,9 +299,11 @@ public class ConfigDescriptionParameter {
     }
 
     /**
-     * Returns {@code true} if the configuration parameter has to be set, otherwise {@code false}.
+     * Returns {@code true} if the configuration parameter has to be set,
+     * otherwise {@code false}.
      *
-     * @return true if the configuration parameter has to be set, otherwise false
+     * @return true if the configuration parameter has to be set, otherwise
+     *         false
      */
     public boolean isRequired() {
         return this.required;
@@ -274,16 +321,46 @@ public class ConfigDescriptionParameter {
     /**
      * Returns a human readable label for the configuration parameter.
      *
-     * @return a human readable label for the configuration parameter (could be null or empty)
+     * @return a human readable label for the configuration parameter (could be
+     *         null or empty)
      */
     public String getLabel() {
         return this.label;
     }
 
     /**
+     * Returns a the group for this configuration parameter.
+     *
+     * @return a group for the configuration parameter (could be null or empty)
+     */
+    public String getGroupName() {
+        return this.groupName;
+    }
+
+    /**
+     * Returns true is the value for this parameter must be limited to the
+     * values in the options list.
+     *
+     * @return true if the value is limited to the options list
+     */
+    public boolean getLimitToOptions() {
+        return this.limitToOptions;
+    }
+
+    /**
+     * Returns true is the parameter is considered an advanced option.
+     *
+     * @return true if the value is an advanced option
+     */
+    public boolean isAdvanced() {
+        return this.advanced;
+    }
+
+    /**
      * Returns a human readable description for the configuration parameter.
      *
-     * @return a human readable description for the configuration parameter (could be null or empty)
+     * @return a human readable description for the configuration parameter
+     *         (could be null or empty)
      */
     public String getDescription() {
         return this.description;
@@ -319,6 +396,11 @@ public class ConfigDescriptionParameter {
         sb.append(", ");
         sb.append("type=");
         sb.append(type);
+        if (groupName != null) {
+            sb.append(", ");
+            sb.append("groupName=");
+            sb.append(groupName);
+        }
         if (min != null) {
             sb.append(", ");
             sb.append("min=");
@@ -350,6 +432,9 @@ public class ConfigDescriptionParameter {
         sb.append(", ");
         sb.append("multiple=");
         sb.append(multiple);
+        sb.append(", ");
+        sb.append("multipleLimit=");
+        sb.append(multipleLimit);
         if (context != null) {
             sb.append(", ");
             sb.append("context=");

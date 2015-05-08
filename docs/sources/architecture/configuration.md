@@ -29,6 +29,13 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
         http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd">
 
   <config-description uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:...">
+    <parameter-group name="String">
+      <label>String</label>
+      <description>String</description>
+      <context>String</description>
+      <advanced>{true|false}</advanced>
+    </parameter-group>
+
     <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}">
       <context>{network-address|password|password-create|color|date|datetime|email|month|week|time|tel|url|item|thing|group|tag|service}</context>
       <required>{true|false}</required>
@@ -64,16 +71,33 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
   <tr><td>parameter.required</td><td>Specifies whether the value is required (optional).</td></tr>
   <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
   <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
+(optional).</td></tr>
+  <tr><td>parameter.advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
+(optional).</td></tr>
   <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
+  <tr><td>group</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human readable label for the configuration parameter (optional).</td></tr>
   <tr><td>description</td><td>A human readable description for the configuration parameter (optional).</td></tr>
   <tr><td>option</td><td>The element definition of a static selection list (optional).</td></tr>
   <tr><td>option.value</td><td>The value of the selection list element.</td></tr>
+  <tr><td>multipleLimit</td><td>If multiple is true, sets the maximum number of options that can be selected (optional).</td></tr>
+  <tr><td>limitToOptions</td><td>If true (default) will only allow the user to select items in the options list. If false, will allow the user to enter other text (optional).</td></tr>
   <tr><td>criteria</td><td>The filter criteria for values of a dynamic selection list (optional).</td></tr>  
   <tr><td>criteria.name</td><td>The name of the context related filter.</td></tr>  
 </table>
+
+Groups allow parameters to be grouped together into logical blocks so that the user can find the parameters they are looking for. A parameter can be placed into a group so that the UI knows how to display the information.
+<table>
+  <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
+  <tr><td>group.name</td><td>The group name - this is used to link the parameters into the group, along with the groupName option in the parameter (mandatory).</td></tr>
+  <tr><td>label</td><td>The human readable label of the group. (mandatory).</td></tr>
+  <tr><td>description</td><td>The description of the group. (optional).</td></tr>
+  <tr><td>context</td><td>Sets a context tag for the group. The context may be used in the UI to provide some feedback on the type of parameters in this group (optional).</td></tr>
+  <tr><td>advanced</td><td>Specifies that this is an advanced group. The UI may hide this group from the user (optional)</td></tr>
+</table>
+
 
 The full XML schema for configuration descriptions is specified in the [ESH config description XSD](http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd) file.
 

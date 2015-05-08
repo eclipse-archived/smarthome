@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 import org.eclipse.smarthome.config.core.ParameterOption;
@@ -61,14 +62,15 @@ class ConfigDescriptionsTest extends OSGiTest {
         ConfigDescription dummyConfigDescription = configDescriptions.find {
                 it.uri.equals(new URI("config:dummyConfig")) }
         assertThat dummyConfigDescription, is(notNullValue())
-        
+
         def parameters = dummyConfigDescription.parameters
-        assertThat parameters.size(), is(5)
+        assertThat parameters.size(), is(6)
         
         ConfigDescriptionParameter ipParameter = parameters.find { it.name.equals("ip") }
         assertThat ipParameter, is(notNullValue())
         assertThat ipParameter.type, is(Type.TEXT)
         ipParameter.with {
+	        assertThat groupName, is(null)
             assertThat context, is("network-address")
             assertThat label, is("Network Address")
             assertThat description, is("Network address of the hue bridge.")
@@ -82,6 +84,7 @@ class ConfigDescriptionsTest extends OSGiTest {
         assertThat usernameParameter, is(notNullValue())
         assertThat usernameParameter.type, is(Type.TEXT)
         usernameParameter.with {
+	        assertThat groupName, is("user")
             assertThat context, is("password")
             assertThat label, is("Username")
             assertThat required, is(false)
@@ -102,32 +105,68 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat context, is("password")
             assertThat label, is("Password")
         }
-        
-        ConfigDescriptionParameter listParameter = parameters.find { it.name.equals("list") }
-        assertThat listParameter, is(notNullValue())
-        assertThat listParameter.type, is(Type.TEXT)
-        listParameter.with {
+
+        ConfigDescriptionParameter colorItemParameter = parameters.find { it.name.equals("color-alarming-light") }
+        assertThat colorItemParameter, is(notNullValue())
+        assertThat colorItemParameter.type, is(Type.TEXT)
+        colorItemParameter.with {
+            assertThat required, is(false)
+            assertThat readOnly, is(false)
+            assertThat context, is("item")
+            assertThat filterCriteria, is(notNullValue())
+            assertThat filterCriteria.join(", "), is("FilterCriteria [name=\"tags\", value=\"alarm, light\"], FilterCriteria [name=\"type\", value=\"color\"], FilterCriteria [name=\"binding-id\", value=\"hue\"]")
+        }
+
+        ConfigDescriptionParameter listParameter1 = parameters.find { it.name.equals("list1") }
+        assertThat listParameter1, is(notNullValue())
+        assertThat listParameter1.type, is(Type.TEXT)
+        listParameter1.with {
             assertThat required, is(false)
             assertThat multiple, is(true)
             assertThat readOnly, is(false)
             assertThat min, is(2 as BigDecimal)
             assertThat max, is(3 as BigDecimal)
             assertThat options, is(notNullValue())
+            assertThat advanced, is(false)
+            assertThat limitToOptions, is(true)
+            assertThat multipleLimit, is(null)
             assertThat options.join(", "), is("ParameterOption [value=\"key1\", label=\"label1\"], ParameterOption [value=\"key2\", label=\"label2\"]")
         }
         
-        ConfigDescriptionParameter colorItemParameter = parameters.find { it.name.equals("color-alarming-light") }
-        assertThat colorItemParameter, is(notNullValue())
-        assertThat colorItemParameter.type, is(Type.TEXT)
-        colorItemParameter.with {
+        ConfigDescriptionParameter listParameter2 = parameters.find { it.name.equals("list2") }
+        assertThat listParameter2, is(notNullValue())
+        assertThat listParameter2.type, is(Type.TEXT)
+        listParameter2.with {
             assertThat required, is(false)
             assertThat multiple, is(true)
             assertThat readOnly, is(false)
-            assertThat context, is("item")
-            assertThat filterCriteria, is(notNullValue())
-            assertThat filterCriteria.join(", "), is("FilterCriteria [name=\"tags\", value=\"alarm, light\"], FilterCriteria [name=\"type\", value=\"color\"], FilterCriteria [name=\"binding-id\", value=\"hue\"]")
+            assertThat options, is(notNullValue())
+            assertThat advanced, is(true)
+            assertThat limitToOptions, is(false)
+            assertThat multipleLimit, is(4)
         }
         
+        def groups = dummyConfigDescription.parameterGroups
+        assertThat groups.size(), is(2)
+
+        ConfigDescriptionParameterGroup group1 = groups.find { it.name.equals("group1") }
+        assertThat group1, is(notNullValue())
+        group1.with {
+            assertThat label, is("Group 1")
+            assertThat description, is("Description Group 1")
+            assertThat advanced, is(false)
+            assertThat context, is("Context-Group1")
+        }
+
+        ConfigDescriptionParameterGroup group2 = groups.find { it.name.equals("group2") }
+        assertThat group1, is(notNullValue())
+        group2.with {
+            assertThat label, is("Group 2")
+            assertThat description, is("Description Group 2")
+            assertThat advanced, is(true)
+            assertThat context, is("Context-Group2")
+        }
+
         // uninstall test bundle
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)

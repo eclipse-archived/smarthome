@@ -104,7 +104,7 @@ public class ThingSetupManagerResource implements RESTResource {
                 }
             }
         }
-        
+
         if (thing != null) {
             if (bridgeUID != null) {
                 thing.setBridgeUID(bridgeUID);
