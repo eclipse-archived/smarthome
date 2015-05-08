@@ -57,6 +57,7 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.Video;
 import org.eclipse.smarthome.model.sitemap.Webview;
+import org.eclipse.smarthome.model.sitemap.Mapview;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
@@ -386,6 +387,10 @@ public class SitemapResource implements RESTResource {
             Webview webViewWidget = (Webview) widget;
             bean.url = webViewWidget.getUrl();
             bean.height = webViewWidget.getHeight();
+        }
+        if (widget instanceof Mapview) {
+        	Mapview mapViewWidget = (Mapview) widget;
+        	bean.height = mapViewWidget.getHeight();
         }
         if (widget instanceof Chart) {
             Chart chartWidget = (Chart) widget;
