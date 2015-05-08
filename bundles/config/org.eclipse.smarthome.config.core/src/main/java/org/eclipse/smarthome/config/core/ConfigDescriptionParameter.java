@@ -97,8 +97,8 @@ public class ConfigDescriptionParameter {
      *             if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
-        this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, null,
-                null, null);
+        this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, false,
+                true, null);
     }
 
     /**
