@@ -1,0 +1,60 @@
+<archetype-descriptor
+	xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
+	name="Eclipse SmartHome Binding Archetype" partial="false">
+
+	<requiredProperties>
+		<requiredProperty key="vendorName">
+			<defaultValue>Eclipse.org/SmartHome</defaultValue>
+		</requiredProperty>
+		<requiredProperty key="namespace">
+			<defaultValue>org.eclipse.smarthome</defaultValue>
+		</requiredProperty>
+        <requiredProperty key="author">
+		</requiredProperty>
+        <requiredProperty key="bindingId">
+		</requiredProperty>
+        <requiredProperty key="bindingIdCamelCase">
+		</requiredProperty>        
+	</requiredProperties>
+
+	<fileSets>
+		<!-- General files -->
+		<fileSet filtered="true" packaged="false" encoding="UTF-8">
+			<directory></directory>
+			<includes>
+				<include>build.properties</include>
+				<include>pom.xml</include>
+				<include>.project</include>
+				<include>.classpath</include>
+				<include>*.launch</include>
+			</includes>
+			<excludes />
+		</fileSet>
+		<!-- META-INF files -->
+		<fileSet filtered="true" packaged="false" encoding="UTF-8">
+			<directory>META-INF</directory>
+			<includes>
+				<include>MANIFEST.MF</include>
+			</includes>
+			<excludes />
+		</fileSet>
+		<!-- Java files -->
+		<fileSet filtered="true" packaged="true" encoding="UTF-8">
+			<directory>src/test/java</directory>
+			<includes>
+				<include>**/*.java</include>
+			</includes>
+			<excludes />
+		</fileSet>
+		<!-- Groovy files -->
+		<fileSet filtered="true" packaged="true" encoding="UTF-8">
+			<directory>src/test/groovy</directory>
+			<includes>
+				<include>**/*.groovy</include>
+			</includes>
+			<excludes />
+		</fileSet>
+	</fileSets>
+</archetype-descriptor>
