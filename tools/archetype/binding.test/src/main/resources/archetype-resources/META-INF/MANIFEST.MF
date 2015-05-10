@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name:  ${bindingIdCamelCase} Binding Tests
+Bundle-SymbolicName: ${artifactId};singleton:=true
+Bundle-Vendor: ${vendorName}
+Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Fragment-Host: ${package}
+Import-Package: ${package},
+ org.slf4j,
+ groovy.json,
+ groovy.lang,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.thing.setup,
+ org.eclipse.smarthome.core.thing.util,
+ org.eclipse.smarthome.test,
+ org.eclipse.smarthome.test.storage,
+ org.hamcrest;core=split,
+ org.osgi.service.device,
+ org.osgi.framework
+Require-Bundle: org.junit;bundle-version="4.11.0"
+Export-Package: ${package}.internal;x-internal:=true,
+ ${package};uses:="org.eclipse.smarthome.test"
+
