@@ -18,6 +18,10 @@ import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTrigg
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -64,6 +68,8 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 
+    protected final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
     private ScriptEngine scriptEngine;
@@ -71,6 +77,15 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
     private RuleTriggerManager triggerManager;
 
     private Injector injector;
+    
+    private ScheduledFuture<?> startupJob;
+
+    private Runnable startupRunnable = new Runnable() {
+        @Override
+        public void run() {
+            runStartupRules();
+        }
+    };
 
     public void activate() {
         injector = RulesStandaloneSetup.getInjector();
@@ -98,7 +113,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
         for (Item item : itemRegistry.getItems()) {
             internalItemAdded(item);
         }
-        runStartupRules();
+        scheduleStartupRules();
     }
 
     public void deactivate() {
@@ -146,7 +161,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
         for (Item item : items) {
             internalItemAdded(item);
         }
-        runStartupRules();
+        scheduleStartupRules();
     }
 
     /**
@@ -155,7 +170,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
     @Override
     public void added(Item item) {
         internalItemAdded(item);
-        runStartupRules();
+        scheduleStartupRules();
     }
 
     /**
@@ -251,12 +266,18 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
                         && (type == org.eclipse.smarthome.model.core.EventType.ADDED || type == org.eclipse.smarthome.model.core.EventType.MODIFIED)) {
                     triggerManager.addRuleModel(model);
                     // now execute all rules that are meant to trigger at startup
-                    runStartupRules();
+                    scheduleStartupRules();
                 }
             }
         }
     }
 
+    private void scheduleStartupRules() {
+        if (startupJob == null || startupJob.isCancelled() || startupJob.isDone()) {
+            startupJob = scheduler.schedule(startupRunnable, 5, TimeUnit.SECONDS);
+        }
+    }
+    
     private void runStartupRules() {
         if (triggerManager != null) {
             Iterable<Rule> startupRules = triggerManager.getRules(STARTUP);
@@ -271,9 +292,13 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
                     script.execute(context);
                     executedRules.add(rule);
                 } catch (ScriptExecutionException e) {
-                    logger.error("Error during the execution of startup rule '{}': {}", new Object[] { rule.getName(),
-                            e.getCause().getMessage() });
-                    executedRules.add(rule);
+                    if(!e.getMessage().contains("cannot be resolved to an item or type")) {
+                        logger.error("Error during the execution of startup rule '{}': {}", new Object[] { rule.getName(),
+                                e.getCause().getMessage() });
+                        executedRules.add(rule);
+                    } else {
+                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing.", rule.getName());
+                    }
                 }
             }
             for (Rule rule : executedRules) {
