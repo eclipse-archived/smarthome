@@ -15,18 +15,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.swing.DebugGraphics;
-
 import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
@@ -161,7 +160,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         @Override
         public void thingUpdated(Thing thing) {
             thingUpdatedLock.add(thing.getUID());
-            thingRegistry.update(thing);
+            managedThingProvider.update(thing);
             thingUpdatedLock.remove(thing.getUID());
         }
 
@@ -170,6 +169,8 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     private ItemRegistry itemRegistry;
 
     private ThingRegistryImpl thingRegistry;
+    
+    private ManagedThingProvider managedThingProvider;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
 
@@ -478,6 +479,14 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
         this.itemThingLinkRegistry = null;
+    }
+    
+    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = managedThingProvider;
+    }
+    
+    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        this.managedThingProvider = null;
     }
     
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail, String description) {
