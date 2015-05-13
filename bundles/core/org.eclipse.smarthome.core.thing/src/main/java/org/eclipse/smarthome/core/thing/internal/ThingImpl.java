@@ -15,15 +15,14 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -69,9 +68,8 @@ public class ThingImpl implements Thing {
     }
 
     /**
-     * @param thingTypeUID
-     * @param thingId
-     *            - TODO: change to {@link ThingUID}
+     * @param thingTypeUID thing type UID
+     * @param thingId thing ID
      * @throws IllegalArgumentException
      */
     public ThingImpl(ThingTypeUID thingTypeUID, String thingId) throws IllegalArgumentException {
