@@ -15,6 +15,7 @@ import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.thing.ChannelUID
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
@@ -33,6 +34,7 @@ import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateDescriptionProvider
 import org.eclipse.smarthome.core.types.StateOption
 import org.eclipse.smarthome.test.OSGiTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.service.component.ComponentContext
@@ -76,6 +78,14 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         
         stateDescriptionProvider = getService(StateDescriptionProvider)
         assertThat stateDescriptionProvider, is(notNullValue())
+    }
+    
+    @After
+    void teardown() {
+        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider)
+        managedThingProvider.getAll().each {
+            managedThingProvider.remove(it.getUID())
+        }
     }
     
     @Test

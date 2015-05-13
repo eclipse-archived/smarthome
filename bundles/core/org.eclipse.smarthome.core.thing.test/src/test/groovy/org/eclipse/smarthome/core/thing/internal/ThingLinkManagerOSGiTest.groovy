@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
+import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
@@ -37,6 +38,7 @@ import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateOption
 import org.eclipse.smarthome.test.OSGiTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.service.component.ComponentContext
@@ -55,7 +57,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
     def ThingRegistry thingRegistry 
     def ThingSetupManager thingSetupManager
     
-    Map context = new HashMap<>()
+    public static Map context = new HashMap<>()
     
     @Before
     void setup() {
@@ -83,6 +85,14 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
         thingSetupManager = getService(ThingSetupManager)
         assertThat thingSetupManager, is(notNullValue())
+    }
+    
+    @After
+    void teardown() {
+        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider)
+        managedThingProvider.getAll().each {
+            managedThingProvider.remove(it.getUID())
+        }
     }
     
     @Test
@@ -187,8 +197,12 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                 public void handleCommand(ChannelUID channelUID, Command command) { }
-                void channelLinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("linkedChannel", channelUID)};
-                void channelUnlinked(ChannelUID channelUID) {ThingLinkManagerOSGiTest.this.context.put("unlinkedChannel", channelUID)};
+                void channelLinked(ChannelUID channelUID) { 
+                    context.put("linkedChannel", channelUID)
+                };
+                void channelUnlinked(ChannelUID channelUID) { 
+                    context.put("unlinkedChannel", channelUID)
+                };
             }
         }
     }
