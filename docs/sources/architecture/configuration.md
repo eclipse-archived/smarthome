@@ -72,7 +72,7 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
   <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
   <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
 (optional).</td></tr>
-  <tr><td>parameter.advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
+  <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
 (optional).</td></tr>
   <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
