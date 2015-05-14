@@ -32,7 +32,7 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
     <parameter-group name="String">
       <label>String</label>
       <description>String</description>
-      <context>String</description>
+      <context>String</context>
       <advanced>{true|false}</advanced>
     </parameter-group>
 
