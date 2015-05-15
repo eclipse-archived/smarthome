@@ -21,17 +21,6 @@ public enum UnDefType implements PrimitiveType, State {
     UNDEF, NULL;
 
     @Override
-    public String toString() {
-        switch (this) {
-            case UNDEF:
-                return "Undefined";
-            case NULL:
-                return "Uninitialized";
-        }
-        return "";
-    }
-
-    @Override
     public String format(String pattern) {
         return String.format(pattern, this.toString());
     }

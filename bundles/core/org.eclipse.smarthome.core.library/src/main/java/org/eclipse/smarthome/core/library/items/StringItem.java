@@ -34,9 +34,9 @@ public class StringItem extends GenericItem {
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
     static {
+        acceptedDataTypes.add(UnDefType.class);
         acceptedDataTypes.add(StringType.class);
         acceptedDataTypes.add((DateTimeType.class));
-        acceptedDataTypes.add(UnDefType.class);
 
         acceptedCommandTypes.add(RefreshType.class);
         acceptedCommandTypes.add(StringType.class);
