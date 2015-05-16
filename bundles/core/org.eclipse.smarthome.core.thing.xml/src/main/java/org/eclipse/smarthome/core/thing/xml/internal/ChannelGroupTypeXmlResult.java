@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -26,6 +25,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * To create a concrete {@link ChannelGroupType} object, the method {@link #toChannelGroupType(Map)} must be called.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Chris Jackson - Updated to support channel properties
  */
 public class ChannelGroupTypeXmlResult {
 
@@ -33,10 +33,10 @@ public class ChannelGroupTypeXmlResult {
     private boolean advanced;
     private String label;
     private String description;
-    private List<NodeAttributes> channelTypeReferences;
+    private List<ChannelXmlResult> channelTypeReferences;
 
     public ChannelGroupTypeXmlResult(ChannelGroupTypeUID channelGroupTypeUID, boolean advanced, String label,
-            String description, List<NodeAttributes> channelTypeReferences) {
+            String description, List<ChannelXmlResult> channelTypeReferences) {
 
         this.channelGroupTypeUID = channelGroupTypeUID;
         this.advanced = advanced;
@@ -49,7 +49,7 @@ public class ChannelGroupTypeXmlResult {
         return this.channelGroupTypeUID;
     }
 
-    protected List<ChannelDefinition> toChannelDefinitions(List<NodeAttributes> channelTypeReferences,
+    protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences,
             Map<String, ChannelType> channelTypes) throws ConversionException {
 
         List<ChannelDefinition> channelTypeDefinitions = null;
@@ -58,9 +58,9 @@ public class ChannelGroupTypeXmlResult {
             channelTypeDefinitions = new ArrayList<>(channelTypeReferences.size());
 
             if (channelTypes != null) {
-                for (NodeAttributes channelTypeReference : channelTypeReferences) {
-                    String id = channelTypeReference.getAttribute("id");
-                    String typeId = channelTypeReference.getAttribute("typeId");
+                for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
+                    String id = channelTypeReference.getId();
+                    String typeId = channelTypeReference.getTypeId();
 
                     String typeUID = String.format("%s:%s", this.channelGroupTypeUID.getBindingId(), typeId);
 

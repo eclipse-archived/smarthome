@@ -118,7 +118,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     channelType.getItemType(), label, description, channelType.getCategory(), channelType.getTags(),
                     state, channelType.getConfigDescriptionURI());
 
-            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType,
+                    channelDefinition.getProperties());
         }
         return channelDefinition;
     }
