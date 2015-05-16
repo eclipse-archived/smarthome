@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.beans;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.types.StateDescription;
@@ -15,6 +16,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
  * This is a java bean that is used to serialize channel definitions.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Chris Jackson - Added properties
  */
 public class ChannelDefinitionBean {
 
@@ -22,6 +24,7 @@ public class ChannelDefinitionBean {
     public String id;
     public String label;
     public Set<String> tags;
+    public Map<String, String> properties;
     private String category;
     private StateDescription stateDescription;
     private boolean advanced;
@@ -31,7 +34,7 @@ public class ChannelDefinitionBean {
     }
 
     public ChannelDefinitionBean(String id, String label, String description, Set<String> tags, String category,
-            StateDescription stateDescription, boolean advanced) {
+            StateDescription stateDescription, boolean advanced, Map<String, String> properties) {
         this.description = description;
         this.label = label;
         this.id = id;
@@ -39,6 +42,7 @@ public class ChannelDefinitionBean {
         this.category = category;
         this.stateDescription = stateDescription;
         this.advanced = advanced;
+        this.properties = properties;
     }
 
     public String getDescription() {
@@ -68,4 +72,9 @@ public class ChannelDefinitionBean {
     public boolean isAdvanced() {
         return advanced;
     }
+    
+    public Map<String, String> getProperties() {
+        return properties;   
+    }
+
 }

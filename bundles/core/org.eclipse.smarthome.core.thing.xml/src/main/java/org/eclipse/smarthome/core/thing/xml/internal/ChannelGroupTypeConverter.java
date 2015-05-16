@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
-import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 
@@ -29,6 +28,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * which offers base functionality for each type definition.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Chris Jackson - Modified to support channel properties
  */
 public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<ChannelGroupTypeXmlResult> {
 
@@ -50,9 +50,9 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
     }
 
     @SuppressWarnings("unchecked")
-    protected List<NodeAttributes> readChannelTypeDefinitions(NodeIterator nodeIterator) throws ConversionException {
+    protected List<ChannelXmlResult> readChannelTypeDefinitions(NodeIterator nodeIterator) throws ConversionException {
 
-        return (List<NodeAttributes>) nodeIterator.nextList("channels", true);
+        return (List<ChannelXmlResult>) nodeIterator.nextList("channels", true);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
 
         String label = super.readLabel(nodeIterator);
         String description = super.readDescription(nodeIterator);
-        List<NodeAttributes> channelTypeDefinitions = readChannelTypeDefinitions(nodeIterator);
+        List<ChannelXmlResult> channelTypeDefinitions = readChannelTypeDefinitions(nodeIterator);
 
         ChannelGroupTypeXmlResult groupChannelType = new ChannelGroupTypeXmlResult(channelGroupTypeUID, advanced,
                 label, description, channelTypeDefinitions);
