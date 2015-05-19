@@ -137,7 +137,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
             thing.setStatusInfo(thingStatus);
-            logger.debug("Thing status of thing {} changed: {}", thing.getUID(), thingStatus.toString());
+            logger.debug("Status of {} changed to {}", thing.getUID(), thingStatus.toString());
             // TODO: send event
 
             if (thing instanceof Bridge) {
