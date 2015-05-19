@@ -30,3 +30,8 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Creation of threads must be avoided. Instead, resort into using existing schedulers which use pre-configured thread pools. If there is no suitable scheduler available, start a discussion in the forum about it rather than creating a thread by yourself.
 1. Bundles need to cleanly start and stop without throwing exceptions or malfunctioning. This can be tested by manually starting and stopping the bundle from the console (```stop <bundle-id>``` resp. ```start <bundle-id>```).
 1. Bundles must not require any substantial CPU time. Test this e.g. using "top" or VisualVM and compare CPU utilization with your bundle stopped vs. started.
+
+## D.Code Dependencies
+
+18. Bundles can declare dependencies in their manifest only to packages provided by the target platform and packages exported by other bundles from the 'bundles' section of the repo.
+1. If a binding bundle have to be also compatible with the [QIVICON project](https://www.qivicon.com) it should import only [packages available in the QIVICON target platform](qivicon-tp-bundles.html).
