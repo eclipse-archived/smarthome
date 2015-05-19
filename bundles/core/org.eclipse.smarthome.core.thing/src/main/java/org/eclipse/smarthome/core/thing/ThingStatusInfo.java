@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * A {@link ThingStatusInfo} represents status information of a thing which consists of
  * <ul>
@@ -77,8 +79,9 @@ public class ThingStatusInfo {
 
     @Override
     public String toString() {
-        return "StatusInfo [getStatus()=" + getStatus() + ", getStatusDetail()=" + getStatusDetail()
-                + ", getDescription()=" + getDescription() + "]";
+        return getStatus() 
+                + (getStatusDetail()==ThingStatusDetail.NONE ? "" : " (" + getStatusDetail() + ")") 
+                + (StringUtils.isBlank(getDescription()) ? "" : ": " + getDescription());
     }
 
     @Override
