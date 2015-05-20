@@ -8,6 +8,7 @@ Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.thing
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
