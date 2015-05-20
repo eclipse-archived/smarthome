@@ -55,7 +55,7 @@ These chapters are relevant for people who want to develop the Eclipse SmartHome
 * [Contributing](development/contributing.md) - Want to contribute your developments to the project? Wonderful!
 * [Unit Testing](development/unittesting.md) - We provide a powerful framework for easily writing unit tests for your code. Developers are encouraged to make use of it.
 
-For frequently asked questions around development topics, please refer to the [FAQ section](development/faq.md).
+For frequently asked questions around development of bindings, please refer to the [FAQ section](development/extensions/bindings/faq.md).
 
 ## Tutorials
 
