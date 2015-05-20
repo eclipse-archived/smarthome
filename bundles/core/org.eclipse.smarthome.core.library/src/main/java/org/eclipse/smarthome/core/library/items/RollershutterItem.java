@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * moving them up, down, stopping or setting it to close to a certain percentage.
  * 
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Support more types for getStateAs
  *
  */
 public class RollershutterItem extends GenericItem {
@@ -94,7 +95,9 @@ public class RollershutterItem extends GenericItem {
      */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
-        if (typeClass == UpDownType.class) {
+        if (state.getClass() == typeClass) {
+            return state;
+        } else if (typeClass == UpDownType.class) {
             if (state.equals(PercentType.ZERO)) {
                 return UpDownType.UP;
             } else if (state.equals(PercentType.HUNDRED)) {
@@ -107,7 +110,12 @@ public class RollershutterItem extends GenericItem {
                 return new DecimalType(((PercentType) state).toBigDecimal().divide(new BigDecimal(100), 8,
                         RoundingMode.UP));
             }
+        } else if (typeClass == PercentType.class) {
+            if (state instanceof DecimalType) {
+                return new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100)));
+            }
         }
+
         return super.getStateAs(typeClass);
     }
 
