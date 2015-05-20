@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -58,6 +59,8 @@ public class WebAppServlet extends BaseServlet {
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
+    private String defaultSitemap = "default";
+
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
     }
@@ -70,7 +73,11 @@ public class WebAppServlet extends BaseServlet {
         this.renderer = renderer;
     }
 
-    protected void activate() {
+    protected void activate(Map<String, Object> configProps) {
+        String value = (String) configProps.get("defaultSitemap");
+        if (value != null) {
+            this.defaultSitemap = value;
+        }
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
             httpService.registerServlet(WEBAPP_ALIAS + SERVLET_NAME, this, props, createHttpContext());
@@ -80,6 +87,13 @@ public class WebAppServlet extends BaseServlet {
             logger.error("Error during servlet startup", e);
         } catch (ServletException e) {
             logger.error("Error during servlet startup", e);
+        }
+    }
+
+    protected void modified(Map<String, Object> configProps) {
+        String value = (String) configProps.get("defaultSitemap");
+        if (value != null) {
+            this.defaultSitemap = value;
         }
     }
 
@@ -103,9 +117,9 @@ public class WebAppServlet extends BaseServlet {
         boolean poll = "true".equalsIgnoreCase(req.getParameter("poll"));
 
         // if there are no parameters, display the "default" sitemap
-        if (sitemapName == null)
-            sitemapName = "default";
-
+        if (sitemapName == null) {
+            sitemapName = defaultSitemap;
+        }
         StringBuilder result = new StringBuilder();
 
         Sitemap sitemap = null;
