@@ -96,7 +96,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
  
 	protected void startScan() {
 		logger.debug("Start WeMo Device discovery");
-		scheduler.scheduleAtFixedRate(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+		discoverWemo();
 	}
 
 	@Override
@@ -155,12 +155,12 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 			try {
 				multicast = new MulticastSocket(null);
 				multicast.bind(srcAddress);
-				logger.debug("Source-Address = '{}'", srcAddress);
+				logger.trace("Source-Address = '{}'", srcAddress);
 				multicast.setTimeToLive(4);
 				logger.debug("Send multicast request.");
 				multicast.send(discoveryPacket);
 			} finally {
-				logger.debug("Multicast ends. Close connection.");
+				logger.trace("Multicast ends. Close connection.");
 				multicast.disconnect();
 				multicast.close();
 			}
@@ -180,7 +180,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 						receivePacket = new DatagramPacket(new byte[1536], 1536);
 						wemoReceiveSocket.receive(receivePacket);
 						final String message = new String(receivePacket.getData());
-						logger.debug("Recieved message: {}", message);
+						logger.trace("Received message: {}", message);
 				
 						new Thread(new Runnable() {
 							@Override
@@ -201,52 +201,32 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 											try {
 												int timeout = 5000;
 												String response = HttpUtil.executeUrl("GET", wemoLocation+"/setup.xml", timeout);
-												logger.debug("Wemo device found at URL '{}'", wemoLocation);
 												wemoFriendlyName = StringUtils.substringBetween(response, "<friendlyName>", "</friendlyName>");
 												logger.debug("Wemo device '{}' found at '{}'", wemoFriendlyName, wemoLocation);
 												wemoModelName = StringUtils.substringBetween(response, "<modelName>", "</modelName>");
-												logger.debug("Wemo device '{}' has model name '{}'", wemoFriendlyName, wemoModelName);
+												logger.trace("Wemo device '{}' has model name '{}'", wemoFriendlyName, wemoModelName);
 												label = "Wemo" + wemoModelName;
 												
 												switch(wemoModelName) {
 												case "Socket":
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
+													logger.debug("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_SOCKET_TYPE_UID, wemoUDN);
 													
 													break;
 												case "Insight":
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
+													logger.trace("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_INSIGHT_TYPE_UID, wemoUDN);
 													break;
 												case "LightSwitch":
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
+													logger.trace("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_LIGHTSWITCH_TYPE_UID, wemoUDN);
 													break;
 												case "Motion":
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
+													logger.trace("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_MOTION_TYPE_UID, wemoUDN);
 													break;
 												}
-/**												
-												if (wemoModelName == "Socket") {
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
-													uid = new ThingUID(WEMO_SOCKET_TYPE_UID, wemoUDN);
-												}
-												if (wemoModelName == "Insight") {
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
-													uid = new ThingUID(WEMO_INSIGHT_TYPE_UID, wemoUDN);
-												}
-												if (wemoModelName == "LightSwitch") {
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
-													uid = new ThingUID(WEMO_LIGHTSWITCH_TYPE_UID, wemoUDN);
-												}
-												if (wemoModelName == "Motion") {
-													logger.debug("Cerating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
-													uid = new ThingUID(WEMO_MOTION_TYPE_UID, wemoUDN);
-												}
-*/											
 									            Map<String, Object> properties = new HashMap<>(4);
-									            properties.put("label", label);
 									            properties.put(UDN, wemoUDN);
 									            properties.put(LOCATION, wemoLocation);
 
