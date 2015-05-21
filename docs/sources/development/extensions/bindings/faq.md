@@ -1,8 +1,6 @@
 # Frequently Asked Questions (FAQs)
 
-Here is a list of frequently asked question, sorted by category. If you do not find an answer to your question, do not hesitate to ask it on the support forum.
-
-## Bindings
+Here is a list of frequently asked question around the development of bindings. If you do not find an answer to your question, do not hesitate to ask it on the support forum.
 
 ### Structuring Things and Thing Types
 

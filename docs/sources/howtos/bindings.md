@@ -195,3 +195,7 @@ public void handleCommand(ChannelUID channelUID, Command command) {
 ```
 
 Inside the `BridgeHandler` the list of *Things* can be retrieved via the `getThings()` call.
+
+## Documentation
+
+When you have finished the implementation of the binding, you should spend a minute to also document it. Please find some [details here](../development/extensions/bindings/docs.md).
