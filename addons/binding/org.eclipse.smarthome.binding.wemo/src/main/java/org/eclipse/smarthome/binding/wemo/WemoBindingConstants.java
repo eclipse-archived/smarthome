@@ -30,6 +30,7 @@ public class WemoBindingConstants {
 
     // List of thing configuration properties
     public static final String UDN = "udn";
+    public static final String LOCATION = "location";
     public final static String CHANNEL_CURRENTPOWER = "currentPower";
     public final static String CHANNEL_LASTONFOR = "lastOnFor";
     public final static String CHANNEL_ONTODAY = "onToday";
