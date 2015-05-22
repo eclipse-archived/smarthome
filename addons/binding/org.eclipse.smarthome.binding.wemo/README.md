@@ -3,9 +3,6 @@
 This binding integrates the [Belkin WeMo Family](http://www.belkin.com/us/Products/c/home-automation/).
 The integration happens either through the WeMo-Link bridge (feature still to come), which acts as an IP gateway to the ZigBee devices or through WiFi connection to standalone devices.
 
-![Belkin WeMo](doc/WeMo_MeetWemo.jpg)
-
-
 ## Supported Things
 
 At current development stage, the WeMo Binding supports the Socket, Insight, Lightswitch and Motion devices.
@@ -50,6 +47,7 @@ wemo:socket:11111111111
 demo.items:
 ```
 Switch DemoSwitch    { channel="wemo:socket:1234567:state" }
+Switch LightSwitch   { channel="wemo:lightswitch:1234567:state" }
 Switch MotionSensor  { channel="wemo:Motion:1234567:state" }
 Number InsightPower  { channel="wemo:insight:1234567:currentpower" }
 Number InsightLastOn { channel="wemo:insight:1234567:lastOnFor" }
@@ -63,6 +61,7 @@ sitemap demo label="Main Menu"
 {
 		Frame label="WeMo" {
 			Switch item=DemoSwitch
+			Switch item=LightSwitch
 			Switch item=MotionSensor
 			Number item=InsightPower
 			Number item=InsightLastOn
