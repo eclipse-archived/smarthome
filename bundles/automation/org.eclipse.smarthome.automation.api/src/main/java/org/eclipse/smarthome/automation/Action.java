@@ -35,14 +35,14 @@ public interface Action extends Module {
      * This method is used to get input connections of the Action. The connections
      * are links between {@link Input}s of the {@link Module} and {@link Output}s
      * of other {@link Module}s.
-     *
+     * 
      * @return a {@link Set} of input {@link Connection}s.
      */
     public Set<Connection> getConnections();
 
     /**
      * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
-     *
+     * 
      * @param connections a {@link Set} of input {@link Connection}s.
      */
     public void setConnections(Set<Connection> connections);

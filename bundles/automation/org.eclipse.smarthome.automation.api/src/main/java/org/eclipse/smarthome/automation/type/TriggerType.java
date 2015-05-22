@@ -31,7 +31,7 @@ public class TriggerType extends ModuleType {
 
     /**
      * Constructor of TriggerType.
-     *
+     * 
      * @param UID unique id of the trigger type
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param outputs is a {@link Set} of {@link Output} definitions.
@@ -44,7 +44,7 @@ public class TriggerType extends ModuleType {
     /**
      * This method is used for getting the meta info of inputs defined by this
      * module type.<br/>
-     *
+     * 
      * @return a {@link Set} of {@link Input} definitions.
      */
     public Set<Output> getOutputs() {

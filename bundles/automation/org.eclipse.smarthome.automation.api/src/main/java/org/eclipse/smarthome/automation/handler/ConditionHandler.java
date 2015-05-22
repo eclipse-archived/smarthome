@@ -26,7 +26,7 @@ public interface ConditionHandler extends ModuleHandler {
 
     /**
      * Method that states if the Condition is satisfied or not
-     *
+     * 
      * @param inputs the values of condition inputs.
      * @return true if Condition is satisfied, false otherwise
      */

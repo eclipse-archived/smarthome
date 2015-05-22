@@ -30,13 +30,13 @@ public class CompositeTriggerType extends TriggerType {
 
     /**
      * Creates a CompositeTriggerType with ordered set of {@link Trigger}s
-     *
+     * 
      * @param UID unique id of this composite trigger type.
-     *
+     * 
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param modules is an ordered list of {@link Trigger}(s)
      * @param outputs is a {@link Set} of {@link Output} definitions.
-     *
+     * 
      */
     public CompositeTriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Output> outputs,
             List<Trigger> modules) {

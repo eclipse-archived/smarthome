@@ -25,8 +25,8 @@ public interface ActionHandler extends ModuleHandler {
 
     /**
      * The Method is called by the RuleEngine to execute a {@link Rule} {@link Action}.
-     *
-     *
+     * 
+     * 
      * @param inputs input values of the Action
      * @return values map of values which must be set to outputs of the {@link Action}.
      */

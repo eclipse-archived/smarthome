@@ -31,7 +31,7 @@ public interface RuleEngineCallback {
     /**
      * This method is used by the {@link TriggerHandler} to notify the RuleEngine when
      * the liked {@link Trigger} instance was fired.
-     *
+     * 
      * @param trigger instance of trigger which was fired. When one TriggerHandler
      *            serve more then one {@link Trigger} instances, this parameter
      *            defines which trigger was fired.
