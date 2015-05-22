@@ -9,8 +9,8 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.wemo.discovery.wemo">
-   <implementation class="org.eclipse.smarthome.binding.wemo.discovery.WemoDiscoveryParticipant"/>
+   <implementation class="org.eclipse.smarthome.binding.wemo.discovery.WemoDiscoveryService"/>
    <service>
-      <provide interface="org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant"/>
+      <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
    </service>
 </scr:component>
