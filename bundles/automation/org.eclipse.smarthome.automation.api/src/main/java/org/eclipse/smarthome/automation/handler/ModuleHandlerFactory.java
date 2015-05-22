@@ -30,7 +30,7 @@ public interface ModuleHandlerFactory {
 
     /**
      * This method is used to return UIDs of module types supported by this {@link ModuleHandlerFactory}
-     *
+     * 
      * @return collection of module type unequal ids supported by this factory.
      */
     public Collection<String> getTypes();
@@ -38,10 +38,10 @@ public interface ModuleHandlerFactory {
     /**
      * This method is used to create ModuleHandler instance for the passed module
      * instance
-     *
+     * 
      * @param module module instance for which the {@link ModuleHandler} instance is
      *            created for.
-     *
+     * 
      * @return ModuleHandler instance.
      */
     public <T extends ModuleHandler> T create(Module module);

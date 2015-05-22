@@ -48,7 +48,7 @@ public class Output {
     /**
      * Constructor of Output objects. It is based on the type of data and Output's
      * name
-     *
+     * 
      * @param type data type accepted by this Output.
      * @param name unique name of the Output.
      * @see #getType()
@@ -61,7 +61,7 @@ public class Output {
     /**
      * Constructor of Output object. Creates Output base on type of accepted data
      * and Output name
-     *
+     * 
      * @param type data type accepted by this Output.;
      * @param name unique name of the Output.
      * @param label a single word description of the Output.
@@ -96,7 +96,7 @@ public class Output {
     /**
      * This method is used for getting the name of Output. It must be unique in
      * scope of {@link Rule}.
-     *
+     * 
      * @return name is an unique identifier of the Output.
      */
     public String getName() {
@@ -106,7 +106,7 @@ public class Output {
     /**
      * This method is used for getting the type of the Output. The accepted types
      * are all java types defined by fully qualified names.
-     *
+     * 
      * @return type is a fully qualified name of java type.
      */
     public String getType() {
@@ -116,7 +116,7 @@ public class Output {
     /**
      * This method is used for getting the short description of the Output.
      * Usually the label should be a single word description.
-     *
+     * 
      * @return label of the Output.
      */
     public String getLabel() {
@@ -125,7 +125,7 @@ public class Output {
 
     /**
      * This method is used for getting the long description of the Output.
-     *
+     * 
      * @return user friendly description of the Output.
      */
     public String getDescription() {
@@ -138,7 +138,7 @@ public class Output {
      * used as value of this output. For example in the Output data is
      * java.lang.Map the reference points which property has to be used as output
      * value.
-     *
+     * 
      * @return reference to data source.
      */
     public String getReference() {
@@ -154,7 +154,7 @@ public class Output {
      * has assign "temperature" and "celsius" tags then the input must have at
      * least one of these output's tags (i.e. "temperature") to connect this input
      * to the selected output.
-     *
+     * 
      * @return tags associated with this Input.
      */
     public Set<String> getTags() {
@@ -165,7 +165,7 @@ public class Output {
      * This method is used for getting the default value of the Output. Default
      * value takes place when there is no value for this Ouput. Type of the
      * default value must be the type the Output.
-     *
+     * 
      * @return default Output value
      */
     public Object getDefaultValue() {
@@ -175,7 +175,7 @@ public class Output {
     /**
      * This method is used for setting the type of the Output. The accepted types
      * are all java types defined by fully qualified names.
-     *
+     * 
      * @param type is a fully qualified name of java type.
      */
     private void setType(String type) {
@@ -183,4 +183,8 @@ public class Output {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+    	return "Output " + name;
+    }
 }

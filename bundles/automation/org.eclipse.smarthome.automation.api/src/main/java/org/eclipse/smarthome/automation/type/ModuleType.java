@@ -70,7 +70,7 @@ public abstract class ModuleType {
      * by column. The first segment contains system ModuleType, which corresponds
      * to the {@link ModuleHandler} of the same type, and the rest are optional and
      * contains UIDs of custom module type.
-     *
+     * 
      * @return the type of descriptor
      */
     public String getUID() {
@@ -79,7 +79,7 @@ public abstract class ModuleType {
 
     /**
      * This method is used for getting the Set of {@link ConfigDescriptionParameter}s define by this module type.<br/>
-     *
+     * 
      * @return a {@link Set} of configuration descriptions.
      */
     public Set<ConfigDescriptionParameter> getConfigurationDescription() {
@@ -89,7 +89,7 @@ public abstract class ModuleType {
     /**
      * ModuleTypes can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the ModuleTypes. This method is used for getting the tags assign to this ModuleType.
-     *
+     * 
      * @return tags assign to this ModuleType
      */
     public Set<String> getTags() {
@@ -99,7 +99,7 @@ public abstract class ModuleType {
     /**
      * ModuleTypes can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the ModuleTypes. This method is used for assigning tags to this ModuleType.
-     *
+     * 
      * @param tags set of tags assign to this Rule.
      */
     public void setTags(Set<String> tags) {
@@ -109,7 +109,7 @@ public abstract class ModuleType {
     /**
      * This method is used for getting the label of the ModuleType. The label is a
      * short, user friendly name of the ModuleType defined by this descriptor.
-     *
+     * 
      * @return the label of the ModuleType.
      */
     public String getLabel() {
@@ -119,7 +119,7 @@ public abstract class ModuleType {
     /**
      * This method is used for setting the label of the ModuleType. The label is a
      * short, user friendly name of the ModuleType defined by this descriptor.
-     *
+     * 
      * @param label of the ModuleType.
      */
     public void setLabel(String label) {
@@ -130,7 +130,7 @@ public abstract class ModuleType {
      * This method is used for getting the description of the ModuleType. The
      * description is a long, user friendly description of the ModuleType defined
      * by this descriptor.
-     *
+     * 
      * @return the description of the ModuleType.
      */
     public String getDescription() {
@@ -141,7 +141,7 @@ public abstract class ModuleType {
      * This method is used for setting the description of the ModuleType. The
      * description is a long, user friendly description of the ModuleType defined
      * by this descriptor.
-     *
+     * 
      * @param description of the ModuleType.
      */
     public void setDescription(String description) {
@@ -151,17 +151,20 @@ public abstract class ModuleType {
     /**
      * This method is used to show visibility of the ModuleType. Default
      * visibility is {@link Visibility#PUBLIC}.
-     *
+     * 
      * @return visibility of ModuleType
      */
     public Visibility getVisibility() {
+        if (visibility == null) {
+          return Visibility.PUBLIC;
+        }
         return visibility;
     }
 
     /**
      * This method is used to change visibility of module type. Default visibility
      * is {@link Visibility#PUBLIC}
-     *
+     * 
      * @param visibility new visibility value.
      */
     public void setVisibility(Visibility visibility) {

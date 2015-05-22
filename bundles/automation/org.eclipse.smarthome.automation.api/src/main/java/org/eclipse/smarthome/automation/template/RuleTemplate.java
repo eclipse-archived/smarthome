@@ -49,7 +49,7 @@ public class RuleTemplate implements Template {
 
     /**
      * This constructor creates a {@link RuleTemplate} instance.
-     *
+     * 
      * @param UID unique identifier of the rule template
      * @param triggers - list of unique {@link Trigger}s participating in the {@link Rule}
      * @param conditions - list of unique {@link Condition}s participating in the {@link Rule}
@@ -73,10 +73,9 @@ public class RuleTemplate implements Template {
     /**
      * This method is used for getting the type of Template. It is unique in scope
      * of RuleEngine.
-     *
+     * 
      * @return the unique id of Template.
      */
-    @Override
     public String getUID() {
         return UID;
     }
@@ -84,32 +83,31 @@ public class RuleTemplate implements Template {
     /**
      * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for getting the assign tags to this Template.
-     *
+     * 
      * @return tags of the template
      */
-    @Override
     public Set<String> getTags() {
+      if (tags == null || tags.isEmpty()) return null; 
         return new HashSet<String>(tags);
     }
 
     /**
      * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for assigning tags to this Template.
-     *
+     * 
      * @param tags set of tags assign to the template.
      */
-    @Override
     public void setTags(Set<String> tags) {
+      if (tags == null || tags.isEmpty()) return;
         tags = new HashSet<String>(tags);
     }
 
     /**
      * This method is used for getting the label of the Template. The label is a
      * short, user friendly name of the Template defined by this descriptor.
-     *
+     * 
      * @return the label of the Template.
      */
-    @Override
     public String getLabel() {
         return label;
     }
@@ -117,10 +115,9 @@ public class RuleTemplate implements Template {
     /**
      * This method is used for setting the label of the Template. The label is a
      * short, user friendly name of the Template defined by this descriptor.
-     *
+     * 
      * @param label of the Template.
      */
-    @Override
     public void setLabel(String label) {
         this.label = label;
     }
@@ -129,10 +126,9 @@ public class RuleTemplate implements Template {
      * This method is used for getting the description of the Template. The
      * description is a long, user friendly description of the Template defined by
      * this descriptor.
-     *
+     * 
      * @return the description of the Template.
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -141,21 +137,22 @@ public class RuleTemplate implements Template {
      * This method is used for setting the description of the Template. The
      * description is a long, user friendly description of the Template defined by
      * this descriptor.
-     *
+     * 
      * @param description of the Template.
      */
-    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
      * This method is used to show visibility of the template
-     *
+     * 
      * @return visibility of template
      */
-    @Override
     public Visibility getVisibility() {
+        if (visibility == null) {
+          return Visibility.PUBLIC;
+        }
         return visibility;
     }
 
@@ -163,7 +160,7 @@ public class RuleTemplate implements Template {
      * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
      * configuration
      * properties of the Rule.<br/>
-     *
+     * 
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
     public Set<ConfigDescriptionParameter> getConfigurationDescription() {
@@ -172,7 +169,7 @@ public class RuleTemplate implements Template {
 
     /**
      * This method is used to get a {@link Module} participating in Rule
-     *
+     * 
      * @param id unique id of the module in this rule.
      * @return module with specified id or null when it does not exist.
      */
@@ -182,7 +179,7 @@ public class RuleTemplate implements Template {
 
     /**
      * This method is used to return a group of {@link Module}s of this rule
-     *
+     * 
      * @param clazz optional parameter defining type looking modules. The types
      *            are {@link Trigger}, {@link Condition} or {@link Action}
      * @return list of modules of defined type or all modules when the type is not
@@ -199,5 +196,4 @@ public class RuleTemplate implements Template {
         }
         return null;
     }
-
 }

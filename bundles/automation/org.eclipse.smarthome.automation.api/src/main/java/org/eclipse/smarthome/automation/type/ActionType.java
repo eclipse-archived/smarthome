@@ -34,9 +34,9 @@ public class ActionType extends ModuleType {
 
     /**
      * Constructor of ActionDescriptor.
-     *
+     * 
      * @param UID unique id of action type
-     *
+     * 
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param inputs is a {@link Set} of {@link Input} definitions.
      */
@@ -47,9 +47,9 @@ public class ActionType extends ModuleType {
     /**
      * Default constructor of ActionDescriptor. Constructs an empty
      * ActionDescriptor.
-     *
+     * 
      * @param UID unique id of action type
-     *
+     * 
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param inputs is a {@link Set} of {@link Input} definitions.
      * @param outputs is a {@link Set} of {@link Output} definitions.
@@ -64,7 +64,7 @@ public class ActionType extends ModuleType {
     /**
      * This method is used for getting the meta info of inputs defined by this
      * descriptor.<br/>
-     *
+     * 
      * @return a {@link Set} of {@link Input} definitions.
      */
     public Set<Input> getInputs() {
@@ -74,7 +74,7 @@ public class ActionType extends ModuleType {
     /**
      * This method is used for getting the meta info of outputs defined by this
      * descriptor.<br/>
-     *
+     * 
      * @return a {@link Set} of {@link Output} definitions.
      */
     public Set<Output> getOutputs() {

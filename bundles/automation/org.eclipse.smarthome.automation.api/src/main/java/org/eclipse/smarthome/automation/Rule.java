@@ -38,7 +38,7 @@ public interface Rule {
     /**
      * This method is used for getting the unique identifier of the Rule. This
      * property is set by the RuleEngine when the {@link Rule} is added.
-     *
+     * 
      * @return unique id of this {@link Rule}
      */
     public String getUID();
@@ -46,7 +46,7 @@ public interface Rule {
     /**
      * This method is used for getting the user friendly name of the {@link Rule}.
      * It's optional property.
-     *
+     * 
      * @return the name of rule or null.
      */
     public String getName();
@@ -54,7 +54,7 @@ public interface Rule {
     /**
      * This method is used for setting a friendly name of the Rule. This property
      * can be changed only when the Rule is not in active state.
-     *
+     * 
      * @param ruleName a new name.
      * @throws IllegalStateException when the rule is in active state
      */
@@ -63,7 +63,7 @@ public interface Rule {
     /**
      * Rules can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
      * used for getting the tags assign to this Rule. The tags are used to filter the rules.
-     *
+     * 
      * @return a list of tags
      */
     public Set<String> getTags();
@@ -72,7 +72,7 @@ public interface Rule {
      * Rules can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
      * used for setting the tags to this rule. This property can be changed only when the Rule is not in active state.
      * The tags are used to filter the rules.
-     *
+     * 
      * @param ruleTags list of tags assign to this Rule.
      * @throws IllegalStateException IllegalStateException when the rule is in
      *             active state.
@@ -83,7 +83,7 @@ public interface Rule {
      * This method is used for getting the description of the Rule. The
      * description is a long, user friendly description of the Rule defined by
      * this descriptor.
-     *
+     * 
      * @return the description of the Rule.
      */
     public String getDescription();
@@ -92,7 +92,7 @@ public interface Rule {
      * This method is used for setting the description of the Rule. The
      * description is a long, user friendly description of the Rule defined by
      * this descriptor.
-     *
+     * 
      * @param ruleDescription of the Rule.
      */
     public void setDescription(String ruleDescription);
@@ -101,7 +101,7 @@ public interface Rule {
      * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
      * configuration
      * properties of the Rule.<br/>
-     *
+     * 
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
     public Set<ConfigDescriptionParameter> getConfigurationDescriptions();
@@ -110,7 +110,7 @@ public interface Rule {
      * This method is used for getting Map with configuration values of the {@link Rule} Key -id of the
      * {@link ConfigDescriptionParameter} Value - the
      * value of the corresponding property
-     *
+     * 
      * @return current configuration values
      */
     public Map<String, Object> getConfiguration();
@@ -119,14 +119,14 @@ public interface Rule {
      * This method is used for setting the Map with configuration values of the {@link Rule}. Key - id of the
      * {@link ConfigDescriptionParameter} Value -
      * the value of the corresponding property
-     *
+     * 
      * @param ruleConfiguration new configuration values.
      */
     public void setConfiguration(Map<String, ?> ruleConfiguration);
 
     /**
      * This method is used to get a module participating in Rule
-     *
+     * 
      * @param moduleId unique id of the module in this rule.
      * @return module with specified id or null when it does not exist.
      */
@@ -134,7 +134,7 @@ public interface Rule {
 
     /**
      * This method is used to return a group of module of this rule
-     *
+     * 
      * @param moduleClazz optional parameter defining type looking modules. The
      *            types are {@link Trigger}, {@link Condition} or {@link Action}
      * @return list of modules of defined type or all modules when the type is not
@@ -147,7 +147,7 @@ public interface Rule {
      * defines a scope where the rule belongs to. It is set automatically by the
      * RuleEngine and is based on identity of rule creator.<br>
      * For example the identity can be application name or user name of creator.
-     *
+     * 
      * @return Rule's identity.
      */
     public String getScopeIdentifier();

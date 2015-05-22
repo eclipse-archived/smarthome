@@ -43,12 +43,11 @@ public interface TemplateRegistry {
     public <T extends Template> Collection<T> getByTag(String tag, Locale locale);
 
     /**
-     * This method is used for getting the templates, specified by type module,
-     * i.e. {@link ActionTemplate}, {@link ConditionTemplate}, {@link TriggerTemplate} and etc.
+     * This method is used for getting all templates, localized by specified locale,
      *
      * @param moduleType the class of module which is looking for.
      * @return collection of templates, corresponding to specified type
      */
-    public <T extends Template> Collection<T> get(Class<T> moduleType, Locale locale);
+    public <T extends Template> Collection<T> getAll(Locale locale);
 
 }

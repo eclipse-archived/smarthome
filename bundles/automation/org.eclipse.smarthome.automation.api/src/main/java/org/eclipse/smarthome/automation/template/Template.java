@@ -46,7 +46,7 @@ public interface Template {
     /**
      * This method is used for getting the type of Template. It is unique in scope
      * of RuleEngine.
-     *
+     * 
      * @return the unique id of Template.
      */
     public String getUID();
@@ -54,7 +54,7 @@ public interface Template {
     /**
      * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for getting the assign tags to this Template.
-     *
+     * 
      * @return tags of the template
      */
     public Set<String> getTags();
@@ -62,7 +62,7 @@ public interface Template {
     /**
      * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for assigning tags to this Template.
-     *
+     * 
      * @param tags set of tags assign to the template.
      */
     public void setTags(Set<String> tags);
@@ -70,7 +70,7 @@ public interface Template {
     /**
      * This method is used for getting the label of the Template. The label is a
      * short, user friendly name of the Template defined by this descriptor.
-     *
+     * 
      * @return the label of the Template.
      */
     public String getLabel();
@@ -78,7 +78,7 @@ public interface Template {
     /**
      * This method is used for setting the label of the Template. The label is a
      * short, user friendly name of the Template defined by this descriptor.
-     *
+     * 
      * @param label of the Template.
      */
     public void setLabel(String label);
@@ -87,7 +87,7 @@ public interface Template {
      * This method is used for getting the description of the Template. The
      * description is a long, user friendly description of the Template defined by
      * this descriptor.
-     *
+     * 
      * @return the description of the Template.
      */
     public String getDescription();
@@ -96,14 +96,14 @@ public interface Template {
      * This method is used for setting the description of the Template. The
      * description is a long, user friendly description of the Template defined by
      * this descriptor.
-     *
+     * 
      * @param description of the Template.
      */
     public void setDescription(String description);
 
     /**
      * This method is used to show visibility of the template
-     *
+     * 
      * @return visibility of template
      */
     public Visibility getVisibility();

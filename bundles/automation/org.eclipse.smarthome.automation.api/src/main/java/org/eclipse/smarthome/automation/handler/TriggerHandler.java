@@ -22,7 +22,7 @@ public interface TriggerHandler extends ModuleHandler {
 
     /**
      * This method is used to set a callback object to the RuleEngine
-     *
+     * 
      * @param ruleCallback a callback object to the RuleEngine.
      */
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback);
