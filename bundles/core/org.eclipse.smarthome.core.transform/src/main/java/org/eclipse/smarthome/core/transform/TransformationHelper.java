@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.core.transform;
 
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -17,6 +19,22 @@ import org.slf4j.LoggerFactory;
 
 public class TransformationHelper {
 
+    private final static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+
+    /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
+    protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
+
+    /**
+     * determines whether a pattern refers to a transformation service
+     * 
+     * @param pattern the pattern to check
+     * @return true, if the pattern contains a transformation
+     */
+    static public boolean isTransform(String pattern) {
+    	return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
+    }
+
+    
     /**
      * Queries the OSGi service registry for a service that provides a transformation service of
      * a given transformation type (e.g. REGEX, XSLT, etc.)
@@ -41,6 +59,42 @@ public class TransformationHelper {
             }
         }
         return null;
+    }
+
+    /**
+     * Transforms a state string using transformation functions within a given pattern.
+     * 
+     * @param context a valid bundle context, required for accessing the services
+     * @param stateDescPattern the pattern that contains the transformation instructions
+     * @param state the state to be formatted before being passed into the transformation function
+     * @return the result of the transformation. If no transformation was done, the state is returned
+     */
+    public static String transform(BundleContext context, String stateDescPattern, String state) {
+        Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(stateDescPattern);
+        if (matcher.find()) {
+            String type = matcher.group(1);
+            String pattern = matcher.group(2);
+            String value = matcher.group(3);
+            TransformationService transformation = TransformationHelper.getTransformationService(context, type);
+            if (transformation != null) {
+            	value = String.format(value, state);
+                try {
+                    pattern = transformation.transform(pattern, value);
+                } catch (TransformationException e) {
+                    logger.warn("transformation throws exception [transformation=" + transformation + ", value="
+                            + value + "]", e);
+                    pattern = state;
+                }
+            } else {
+                logger.warn(
+                        "couldn't transform value  because transformationService of type '{}' is unavailable",
+                        type);
+                pattern = state;
+            }
+            return pattern;
+        } else {
+        	return state;
+        }
     }
 
 }

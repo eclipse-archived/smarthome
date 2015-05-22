@@ -20,7 +20,10 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.transform.TransformationHelper;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
+import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.eclipse.smarthome.io.rest.core.item.ItemResource;
 import org.eclipse.smarthome.io.rest.core.item.beans.GroupItemBean;
 import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
@@ -84,7 +87,7 @@ public class BeanMapper {
             ((GroupItemBean) bean).members = members.toArray(new ItemBean[members.size()]);
         }
         bean.name = item.getName();
-        bean.state = item.getState().toString();
+        bean.state = considerTransformation(item.getState().toString(), item.getStateDescription());
         bean.type = item.getClass().getSimpleName();
         if (uriPath != null) {
             bean.link = UriBuilder.fromUri(uriPath).path(ItemResource.PATH_ITEMS).path(bean.name).build()
@@ -93,7 +96,24 @@ public class BeanMapper {
         bean.label = item.getLabel();
         bean.tags = item.getTags();
         bean.category = item.getCategory();
-        bean.stateDescription = item.getStateDescription();
+        bean.stateDescription = considerTransformation(item.getStateDescription());
         bean.groupNames = item.getGroupNames();
     }
+
+	private static StateDescription considerTransformation(StateDescription desc) {
+		if(desc == null || desc.getPattern() == null) {
+			return desc;
+		} else {
+			return TransformationHelper.isTransform(desc.getPattern()) ? 
+				new StateDescription(desc.getMinimum(), desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
+		}
+	}
+
+	private static String considerTransformation(String state, StateDescription stateDescription) {
+		if(stateDescription != null && stateDescription.getPattern() != null) {
+			return TransformationHelper.transform(RESTCoreActivator.getBundleContext(), stateDescription.getPattern(), state.toString());
+		} else {
+			return state;
+		}
+	}
 }
