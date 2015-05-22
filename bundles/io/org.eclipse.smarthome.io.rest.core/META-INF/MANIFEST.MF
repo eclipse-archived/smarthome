@@ -25,6 +25,7 @@ Import-Package: com.google.gson;version="2.2.4",
  org.eclipse.smarthome.core.thing.link,
  org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.type,
+ org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.rest,
  org.osgi.framework,
@@ -37,3 +38,4 @@ Export-Package: org.eclipse.smarthome.io.rest.core.discovery.beans,
  org.eclipse.smarthome.io.rest.core.util
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator
