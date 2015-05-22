@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.types.UnDefType;
  * to reflect the dimmed state.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Markus Rathgeb - Support more types for getStateAs
  *
  */
 public class DimmerItem extends SwitchItem {
@@ -88,7 +89,9 @@ public class DimmerItem extends SwitchItem {
      */
     @Override
     public State getStateAs(Class<? extends State> typeClass) {
-        if (typeClass == OnOffType.class) {
+        if (state.getClass() == typeClass) {
+            return state;
+        } else if (typeClass == OnOffType.class) {
             // if it is not completely off, we consider the dimmer to be on
             return state.equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON;
         } else if (typeClass == DecimalType.class) {
@@ -96,7 +99,12 @@ public class DimmerItem extends SwitchItem {
                 return new DecimalType(((PercentType) state).toBigDecimal().divide(new BigDecimal(100), 8,
                         RoundingMode.UP));
             }
+        } else if (typeClass == PercentType.class) {
+            if (state instanceof DecimalType) {
+                return new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100)));
+            }
         }
+
         return super.getStateAs(typeClass);
     }
 }
