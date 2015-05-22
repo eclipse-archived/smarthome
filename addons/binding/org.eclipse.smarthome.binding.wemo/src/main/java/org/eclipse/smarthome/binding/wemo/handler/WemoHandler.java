@@ -12,6 +12,7 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_LA
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTODAY;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_ONTOTAL;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.CHANNEL_STATE;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.LOCATION;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.UDN;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIGHT_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
@@ -40,8 +41,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOParticipant;
-import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ import com.google.common.collect.Sets;
  * @author Stefan Bußweiler - Added new thing status handling 
  */
 
-public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
+public class WemoHandler extends BaseThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
@@ -80,8 +79,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         }
     }
 
-    private UpnpIOService service;
-
     /**
      * The default refresh interval in Seconds.
      */
@@ -89,16 +86,10 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
     private ScheduledFuture<?> refreshJob;
 
-    public WemoHandler(Thing thing, UpnpIOService upnpIOService) {
+    public WemoHandler(Thing thing) {
         super(thing);
 
         logger.debug("Create a WemoHandler for thing '{}'", getThing().getUID());
-
-        if (upnpIOService != null) {
-            this.service = upnpIOService;
-        } else {
-            logger.debug("upnpIOService not set.");
-        }
     }
 
     @Override
@@ -107,8 +98,6 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
 
         if (configuration.get(UDN) != null) {
             logger.debug("Initializing WemoHandler for UDN '{}'", configuration.get(UDN));
-            onSubscription();
-            onUpdate();
         } else {
             logger.debug("Cannot initalize WemoHandler. UDN not set.");
         }
@@ -219,30 +208,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
         }
     }
 
-    @Override
-    public void onValueReceived(String variable, String value, String service) {
-        // Due to the bad upnp implementation of the WeMo devices, this will be done at a later time.
-    }
-
-    @Override
-	public void onStatusChanged(boolean status) {
-	}
-
-	private synchronized void onSubscription() {
-        // Set up GENA Subscriptions
-        // Due to the bad upnp implementation of the WeMo devices, this will be done at a later time.
-    }
-
-    private synchronized void onUpdate() {
-        if (service.isRegistered(this)) {
-            // Due to the bad upnp implementation of the WeMo devices, this will be done at a later time.
-        }
-    }
-
-    @Override
-    public String getUDN() {
-        return (String) this.getThing().getConfiguration().get(UDN);
-    }
+ 
 
     /**
      * The {@link wemoCall} is responsible for communicating with the WeMo devices by sending SOAP messages
@@ -250,19 +216,17 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
      * 
      */
     private String wemoCall(ChannelUID channelUID, String soapMethod, String content) {
-        try {
+
+    	try {
+
+    		Configuration configuration = getConfig();
+            String wemoLocation = (String) configuration.get(LOCATION);
 
             String endpoint = "/upnp/control/basicevent1";
 
             if (soapMethod.contains("insight")) {
                 endpoint = "/upnp/control/insight1";
             }
-
-            URL wemoDescriptorURL = service.getDescriptorURL(this);
-
-            if (wemoDescriptorURL != null) {
-                logger.debug("WeMo descriptorURL found as '{}' ", wemoDescriptorURL);
-                String wemoLocation = StringUtils.substringBefore(wemoDescriptorURL.toString(), "/setup.xml");
 
                 if (wemoLocation != null && endpoint != null) {
                     logger.debug("item '{}' is located at '{}'", getThing().getUID(), wemoLocation);
@@ -288,11 +252,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant {
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
                     }
                     return null;
-                } else {
-                    return null;
-                }
             } else {
-                // device was not found in the upnp registry
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
                 return null;
             }
