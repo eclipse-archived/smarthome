@@ -1,0 +1,89 @@
+[  
+  {  
+    "name": "SampleRule",
+    "tags": [  
+      "sample",
+      "rule"
+    ],
+    "description": "Sample Rule definition.",
+    "active": true,
+    "on": [  
+      {  
+        "id": "SampleTriggerID",
+        "type": "SampleTrigger"
+      }
+    ],
+    "if": [
+      {
+        "id": "SampleConditionID",
+        "type": "SampleCondition",
+        "config": {
+          "operator": "=",
+          "constraint": "dtag"
+        },
+        "input": {
+          "conditionInput": "SampleTriggerID.triggerOutput"
+        }
+      }
+    ],
+    "then": [
+      {  
+        "id": "SampleActionID",
+        "type": "SampleAction",
+        "config": {  
+          "message": ">>> Hello World!!!"
+        },
+	     "input": {  
+	       "actionInput": "SampleTriggerID.triggerOutput"
+	     }
+      }
+    ]
+  },
+  {  
+    "name": "SampleRule2",
+    "tags": [  
+      "sample",
+      "rule"
+    ],
+    "description": "Sample Rule definition2.",
+    "active": true,
+    "on": [  
+      {  
+        "id": "CustomSampleTriggerID",
+        "type": "SampleTrigger:CustomTrigger"
+      }
+    ],
+    "if": [
+      {
+        "id": "SampleConditionID2",
+        "type": "SampleCondition",
+        "config": {
+          "operator": "!=",
+          "constraint": "dtag"
+        },
+        "input": {
+          "conditionInput": "CustomSampleTriggerID.customTriggerOutput"
+        }
+      }
+    ],
+    "then": [
+      {  
+        "id": "SampleActionID2",
+        "type": "SampleAction",
+        "config": {  
+          "message": "<<< Hello World!!!"
+        },
+        "input": {  
+          "actionInput": "CustomSampleTriggerID.customTriggerOutput"
+        }
+      },
+      {  
+        "id": "CustomActionID",
+        "type": "SampleAction:CustomAction",
+        "input": {  
+          "customActionInput": "CustomSampleTriggerID.customTriggerOutput"
+        }
+      }
+    ]
+  }
+]

@@ -12,8 +12,8 @@
 
 package org.eclipse.smarthome.automation;
 
-import java.util.Collection;
 
+import java.util.Collection;
 import org.eclipse.smarthome.core.common.registry.Registry;
 
 /**
@@ -42,20 +42,11 @@ public interface RuleRegistry extends Registry<Rule, String> {
     public void setEnabled(String uid, boolean isEnabled);
 
     /**
-     * This method is used for checking active state of the Rule. Only inactive Rules can change their properties.
-     *
-     * @param uid unique identifier of the rule
-     * @return true when the rule is active.
+     * This method gets status of specified rule.
+     * 
+     * @param ruleUID uid of rule
+     * @return {@link RuleStatus} object containing status of looking rule.
      */
-    public boolean isEnabled(String uid);
-
-    /**
-     * This method is used for checking the running state of the Rule.
-     * The Rule is running if it is triggered and execution of its actions are not finished.
-     *
-     * @param uid unique identifier of the rule
-     * @return true when the Rule is running.
-     */
-    public boolean isRunning(String uid);
+    public RuleStatus getStatus(String ruleUID);
 
 }

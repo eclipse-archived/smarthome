@@ -14,6 +14,7 @@ package org.eclipse.smarthome.automation.type;
 
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
@@ -22,7 +23,12 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * info of the {@link Trigger} instances. Each trigger type has unique id in
  * scope of the rule engine and defines {@link ConfigDescriptionParameter}s and {@link Output}s of the {@link Trigger}
  * instance.
- *
+ * 
+ * This class provides common functionality for creating {@link Trigger} instances by supplying types with their
+ * meta-information. The {@link Trigger}s are part of "ON" section of the Rule. Each {@link TriggerType} is defined by
+ * unique id in scope of the RuleEngine and defines {@link ConfigDescriptionParameter}s that are meta-information for
+ * configuration and meta-information for {@link Output}s used for creation of {@link Trigger} instances.
+ * 
  * @author Yordan Mihaylov - Initial Contribution
  */
 public class TriggerType extends ModuleType {
@@ -30,11 +36,13 @@ public class TriggerType extends ModuleType {
     private Set<Output> outputs;
 
     /**
-     * Constructor of TriggerType.
-     *
-     * @param UID unique id of the trigger type
-     * @param configDescriptions is a {@link Set} of configuration descriptions.
-     * @param outputs is a {@link Set} of {@link Output} definitions.
+     * This constructor is responsible to create an instance of {@link TriggerType} with base properties - UID, a
+     * {@link Set} of configuration descriptions and a {@link Set} of {@link Output} descriptions.
+     * 
+     * @param UID is an unique id of the {@link ActionType}, used as reference from the {@link Module}s, to find their
+     *            meta-information.
+     * @param configDescriptions is a {@link Set} of meta-information configuration descriptions.
+     * @param outputs is a {@link Set} of {@link Output} meta-information descriptions.
      */
     public TriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Output> outputs) {
         super(UID, configDescriptions);
@@ -42,10 +50,30 @@ public class TriggerType extends ModuleType {
     }
 
     /**
-     * This method is used for getting the meta info of inputs defined by this
-     * module type.<br/>
-     *
-     * @return a {@link Set} of {@link Input} definitions.
+     * This constructor is responsible to create an instance of {@link TriggerType} with UID, label, description, a
+     * {@link Set} of tags, visibility, a {@link Set} of configuration descriptions and a {@link Set} of {@link Output}
+     * descriptions.
+     * 
+     * @param UID unique id of the {@link TriggerType}.
+     * @param configDescriptions is a {@link Set} of meta-information configuration descriptions.
+     * @param label is a short and accurate name of the {@link TriggerType}.
+     * @param description is a short and understandable description of which can be used the {@link TriggerType}.
+     * @param tags defines categories that fit the {@link TriggerType} and which can serve as criteria for searching
+     *            or filtering it.
+     * @param visibility determines whether the {@link TriggerType} can be used by anyone if it is
+     *            {@link Visibility#PUBLIC} or only by its creator if it is {@link Visibility#PRIVATE}.
+     * @param outputs is a {@link Set} of {@link Output} meta-information descriptions.
+     */
+    public TriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, String label,
+            String description, Set<String> tags, Visibility visibility, Set<Output> outputs) {
+        super(UID, configDescriptions, label, description, tags, visibility);
+        this.outputs = outputs;
+    }
+
+    /**
+     * This method is used for getting the meta-information descriptions of {@link Output}s defined by this type.<br/>
+     * 
+     * @return a {@link Set} of {@link Output} definitions.
      */
     public Set<Output> getOutputs() {
         return outputs;

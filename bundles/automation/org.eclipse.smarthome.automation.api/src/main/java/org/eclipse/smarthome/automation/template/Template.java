@@ -26,7 +26,9 @@ import org.eclipse.smarthome.automation.Rule;
  * <p>
  * Templates can have <code>tags</code> - non-hierarchical keywords or terms for describing them.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface Template {
 
@@ -60,28 +62,12 @@ public interface Template {
     public Set<String> getTags();
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for assigning tags to this Template.
-     *
-     * @param tags set of tags assign to the template.
-     */
-    public void setTags(Set<String> tags);
-
-    /**
      * This method is used for getting the label of the Template. The label is a
      * short, user friendly name of the Template defined by this descriptor.
      *
      * @return the label of the Template.
      */
     public String getLabel();
-
-    /**
-     * This method is used for setting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
-     *
-     * @param label of the Template.
-     */
-    public void setLabel(String label);
 
     /**
      * This method is used for getting the description of the Template. The
@@ -91,15 +77,6 @@ public interface Template {
      * @return the description of the Template.
      */
     public String getDescription();
-
-    /**
-     * This method is used for setting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
-     *
-     * @param description of the Template.
-     */
-    public void setDescription(String description);
 
     /**
      * This method is used to show visibility of the template

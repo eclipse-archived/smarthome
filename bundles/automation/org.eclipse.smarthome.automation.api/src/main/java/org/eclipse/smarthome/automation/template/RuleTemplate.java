@@ -12,6 +12,7 @@
 
 package org.eclipse.smarthome.automation.template;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * <p>
  * Templates can have <code>tags</code> - non-hierarchical keywords or terms for describing them.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class RuleTemplate implements Template {
 
@@ -50,24 +53,29 @@ public class RuleTemplate implements Template {
     /**
      * This constructor creates a {@link RuleTemplate} instance.
      *
-     * @param UID unique identifier of the rule template
+     * @param UID is an unique identifier of the {@link RuleTemplate} instance.
      * @param triggers - list of unique {@link Trigger}s participating in the {@link Rule}
      * @param conditions - list of unique {@link Condition}s participating in the {@link Rule}
      * @param actions - list of unique {@link Action}s participating in the {@link Rule}
      * @param configDescriptions - set of configuration properties of the {@link Rule}
      * @param visibility visibility of template. It can be public or private
      */
-    public RuleTemplate(String UID,
-            List<Trigger> triggers, //
+    public RuleTemplate(String UID, String label, String description, Set<String> tags, List<Trigger> triggers,
             List<Condition> conditions, List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,
             Visibility visibility) {
 
         this.UID = UID;
+        this.label = label;
+        this.description = description;
         this.triggers = triggers;
         this.conditions = conditions;
         this.actions = actions;
         this.configDescriptions = configDescriptions;
         this.visibility = visibility;
+
+        if (tags == null || tags.isEmpty())
+            return;
+        tags = new HashSet<String>(tags);
     }
 
     /**
@@ -76,7 +84,6 @@ public class RuleTemplate implements Template {
      *
      * @return the unique id of Template.
      */
-    @Override
     public String getUID() {
         return UID;
     }
@@ -87,20 +94,10 @@ public class RuleTemplate implements Template {
      *
      * @return tags of the template
      */
-    @Override
     public Set<String> getTags() {
+        if (tags == null || tags.isEmpty())
+            return null;
         return new HashSet<String>(tags);
-    }
-
-    /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for assigning tags to this Template.
-     *
-     * @param tags set of tags assign to the template.
-     */
-    @Override
-    public void setTags(Set<String> tags) {
-        tags = new HashSet<String>(tags);
     }
 
     /**
@@ -109,20 +106,8 @@ public class RuleTemplate implements Template {
      *
      * @return the label of the Template.
      */
-    @Override
     public String getLabel() {
         return label;
-    }
-
-    /**
-     * This method is used for setting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
-     *
-     * @param label of the Template.
-     */
-    @Override
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     /**
@@ -132,21 +117,8 @@ public class RuleTemplate implements Template {
      *
      * @return the description of the Template.
      */
-    @Override
     public String getDescription() {
         return description;
-    }
-
-    /**
-     * This method is used for setting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
-     *
-     * @param description of the Template.
-     */
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     /**
@@ -154,8 +126,10 @@ public class RuleTemplate implements Template {
      *
      * @return visibility of template
      */
-    @Override
     public Visibility getVisibility() {
+        if (visibility == null) {
+            return Visibility.PUBLIC;
+        }
         return visibility;
     }
 
@@ -189,15 +163,40 @@ public class RuleTemplate implements Template {
      *         specified.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Module> List<T> getModules(Class<T> clazz) {
-        if (clazz == Trigger.class) {
-            return (List<T>) triggers;
-        } else if (clazz == Condition.class) {
-            return (List<T>) conditions;
-        } else if (clazz == Action.class) {
-            return (List<T>) actions;
+    public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
+        List<T> result = null;
+        if (moduleClazz == null || Trigger.class == moduleClazz) {
+            List<Trigger> l = triggers;
+            if (moduleClazz != null) {// only triggers
+                return (List<T>) l;
+            }
+            result = getList(result);
+            result.addAll((List<T>) l);
         }
-        return null;
+        if (moduleClazz == null || Condition.class == moduleClazz) {
+            List<Condition> l = conditions;
+            if (moduleClazz != null) {// only conditions
+                return (List<T>) l;
+            }
+            result = getList(result);
+            result.addAll((List<T>) l);
+        }
+        if (moduleClazz == null || Action.class == moduleClazz) {
+            List<Action> l = actions;
+            if (moduleClazz != null) {// only actions
+                return (List<T>) l;
+            }
+            result = getList(result);
+            result.addAll((List<T>) l);
+        }
+        return result;
+    }
+
+    private <T extends Module> List<T> getList(List<T> t) {
+        if (t != null) {
+            return t;
+        }
+        return new ArrayList<T>();
     }
 
 }

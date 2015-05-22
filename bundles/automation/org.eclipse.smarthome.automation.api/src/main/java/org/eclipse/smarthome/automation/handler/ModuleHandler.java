@@ -12,12 +12,8 @@
 
 package org.eclipse.smarthome.automation.handler;
 
-import java.util.Map;
-
-import org.eclipse.smarthome.automation.Module;
-
 /**
- * A common interface for all module handler interfaces. The handler interfaces are
+ * A common interface for all module Handler interfaces. The Handler interfaces are
  * bridge between RuleEngine and external modules used by the RuleEngine.
  *
  * @author Yordan Mihaylov - Initial Contribution
@@ -25,12 +21,6 @@ import org.eclipse.smarthome.automation.Module;
  */
 public interface ModuleHandler {
 
-    /**
-     * This method update configuration values set to corresponding of {@link Module} instance
-     *
-     * @param configuration updated configuration values of {@link Module} instance
-     */
-    public void setConfiguration(Map<String, ?> configuration);
 
     /**
      * The method is called by RuleEngine to free resources when {@link ModuleHandler} is released.
