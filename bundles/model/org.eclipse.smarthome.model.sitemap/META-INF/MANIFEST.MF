@@ -13,12 +13,13 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
  org.antlr.runtime
-Import-Package: org.apache.log4j,
+Import-Package: org.apache.commons.lang,
+ org.apache.log4j,
  org.eclipse.smarthome.model.core,
+ org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.osgi.service.cm,
- org.slf4j,
- org.eclipse.xtext.xbase.lib
+ org.slf4j
 Export-Package: org.eclipse.smarthome.model,org.eclipse.smarthome.mode
  l.formatting,org.eclipse.smarthome.model.scoping,org.eclipse.smarthom
  e.model.sitemap,org.eclipse.smarthome.model.validation,org.eclipse.sm
