@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.sitemap.internal;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -77,8 +78,6 @@ public class SitemapResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
 
-    protected static final String SITEMAP_FILEEXT = ".sitemap";
-
     public static final String PATH_SITEMAPS = "sitemaps";
 
     private static final long TIMEOUT_IN_MS = 30000;
@@ -88,9 +87,7 @@ public class SitemapResource implements RESTResource {
 
     private ItemUIRegistry itemUIRegistry;
 
-    private ModelRepository modelRepository;
-
-    private Set<SitemapProvider> sitemapProviders = new HashSet<>();
+    private java.util.List<SitemapProvider> sitemapProviders = new ArrayList<>();
 
     public void setItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = itemUIRegistry;
@@ -98,14 +95,6 @@ public class SitemapResource implements RESTResource {
 
     public void unsetItemUIRegistry(ItemUIRegistry itemUIRegistry) {
         this.itemUIRegistry = null;
-    }
-
-    public void setModelRepository(ModelRepository modelRepository) {
-        this.modelRepository = modelRepository;
-    }
-
-    public void unsetModelRepository(ModelRepository modelRepository) {
-        this.modelRepository = null;
     }
 
     public void addSitemapProvider(SitemapProvider provider) {
@@ -199,32 +188,20 @@ public class SitemapResource implements RESTResource {
     public Collection<SitemapBean> getSitemapBeans(URI uri) {
         Collection<SitemapBean> beans = new LinkedList<SitemapBean>();
         logger.debug("Received HTTP GET request at '{}'.", UriBuilder.fromUri(uri).build().toASCIIString());
-        boolean containsDefault = false;
-        for (String modelName : modelRepository.getAllModelNamesOfType("sitemap")) {
-            Sitemap sitemap = (Sitemap) modelRepository.getModel(modelName);
-            if (sitemap != null) {
-                SitemapBean bean = new SitemapBean();
-                bean.name = StringUtils.removeEnd(modelName, SITEMAP_FILEEXT);
-                bean.icon = sitemap.getIcon();
-                bean.label = sitemap.getLabel();
-                bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
-                bean.homepage = new PageBean();
-                bean.homepage.link = bean.link + "/" + sitemap.getName();
-                beans.add(bean);
-                if (bean.name.equals("default")) {
-                    containsDefault = true;
+        for(SitemapProvider provider : sitemapProviders) {            
+            for (String modelName : provider.getSitemapNames()) {
+                Sitemap sitemap = provider.getSitemap(modelName);
+                if (sitemap != null) {
+                    SitemapBean bean = new SitemapBean();
+                    bean.name = modelName;
+                    bean.icon = sitemap.getIcon();
+                    bean.label = sitemap.getLabel();
+                    bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
+                    bean.homepage = new PageBean();
+                    bean.homepage.link = bean.link + "/" + sitemap.getName();
+                    beans.add(bean);
                 }
             }
-        }
-        if (!containsDefault) {
-            SitemapBean bean = new SitemapBean();
-            bean.name = "default";
-            bean.icon = "";
-            bean.label = "My Home";
-            bean.link = UriBuilder.fromUri(uri).path(bean.name).build().toASCIIString();
-            bean.homepage = new PageBean();
-            bean.homepage.link = bean.link + "/default";
-            beans.add(bean);
         }
         return beans;
     }
