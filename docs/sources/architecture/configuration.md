@@ -36,7 +36,7 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
       <advanced>{true|false}</advanced>
     </parameter-group>
 
-    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}">
+    <parameter name="String" type="{text|integer|decimal|boolean}" min="Decimal" max="Decimal" step="Decimal" pattern="String" required="{true|false}" readOnly="{true|false}" multiple="{true|false}" groupName="String">
       <context>{network-address|password|password-create|color|date|datetime|email|month|week|time|tel|url|item|thing|group|tag|service}</context>
       <required>{true|false}</required>
       <default>String</default>
@@ -72,11 +72,11 @@ Configuration descriptions must be placed as XML file(s) (with the ending `.xml`
   <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
   <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
 (optional).</td></tr>
+  <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
 (optional).</td></tr>
   <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
-  <tr><td>group</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
   <tr><td>label</td><td>A human readable label for the configuration parameter (optional).</td></tr>
   <tr><td>description</td><td>A human readable description for the configuration parameter (optional).</td></tr>
