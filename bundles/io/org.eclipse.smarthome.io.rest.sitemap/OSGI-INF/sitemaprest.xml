@@ -11,7 +11,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sitemap">
    <implementation class="org.eclipse.smarthome.io.rest.sitemap.internal.SitemapResource"/>
    <reference bind="setItemUIRegistry" cardinality="1..1" interface="org.eclipse.smarthome.ui.items.ItemUIRegistry" name="ItemUIRegistry" policy="dynamic" unbind="unsetItemUIRegistry"/>
-   <reference bind="setModelRepository" cardinality="1..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.rest.sitemap.internal.SitemapResource"/>
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
