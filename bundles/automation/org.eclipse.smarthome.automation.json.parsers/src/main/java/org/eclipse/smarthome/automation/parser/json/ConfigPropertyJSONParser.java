@@ -100,10 +100,14 @@ public class ConfigPropertyJSONParser {
       Boolean required = JSONUtility.getBoolean(JSONStructureConstants.REQUIRED, true, false, configDescription, status);
       Boolean multiple = JSONUtility.getBoolean(JSONStructureConstants.MULTIPLE, true, false, configDescription, status);
       Boolean readOnly = JSONUtility.getBoolean(JSONStructureConstants.READ_ONLY, true, false, configDescription, status);
+      String groupName = null;
+      Boolean advanced = false;
+      Boolean limitToOptions = true;
+      Integer multipleLimit = 0;
       try {
         String defValue = getDefaultValue(configPropertyName, typeStr, configDescription, status);
         return new ConfigDescriptionParameter(configPropertyName, Type.valueOf(typeStr), max, min, step, pattern,
-          required, readOnly, multiple, context, defValue, label, description, options, filter);
+          required, readOnly, multiple, context, defValue, label, description, options, filter, groupName, advanced, limitToOptions, multipleLimit);
     } catch (IllegalArgumentException iae) {
       status.error("Failed to create ConfigDescriptionParameter " + configPropertyName, iae);
       return null;
