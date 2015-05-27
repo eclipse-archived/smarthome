@@ -23,10 +23,12 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. The manifest must not export any internal package
 1. The manifest must not have any version constraint on package imports, unless this is thoughtfully added. Note that Eclipse automatically adds these constraints based on the version in the target platform, which might be too high in many cases.
 1. The manifest must include all services in the Service-Component entry. A good approach is to put OSGI-INF/*.xml in there.
+1. For every binding bundle please check the [list of available packages](https://github.com/eclipse/smarthome/tree/master/docs/sources/development/binding-development-packages.md) before starting the implementation. The list contains some suggestions which will help you to develop your binding in such manner, that it will be compatible with most Eclipse SmartHome based solutions.
+
 
 ## C. Runtime Behavior
 
-14. Overridden methods from abstract classes or interfaces are expected to return fast unless otherwise stated in their JavaDoc. Expensive operations should therefore rather be scheduled as a job.
+15. Overridden methods from abstract classes or interfaces are expected to return fast unless otherwise stated in their JavaDoc. Expensive operations should therefore rather be scheduled as a job.
 1. Creation of threads must be avoided. Instead, resort into using existing schedulers which use pre-configured thread pools. If there is no suitable scheduler available, start a discussion in the forum about it rather than creating a thread by yourself.
 1. Bundles need to cleanly start and stop without throwing exceptions or malfunctioning. This can be tested by manually starting and stopping the bundle from the console (```stop <bundle-id>``` resp. ```start <bundle-id>```).
 1. Bundles must not require any substantial CPU time. Test this e.g. using "top" or VisualVM and compare CPU utilization with your bundle stopped vs. started.
