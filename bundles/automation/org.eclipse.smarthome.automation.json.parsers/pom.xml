@@ -22,20 +22,4 @@
 
   <packaging>eclipse-plugin</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>de.twentyeleven.skysail</groupId>
-			<artifactId>org.json-osgi</artifactId>
-			<version>20080701</version>
-		</dependency>
-		<!--
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20141113</version>
-		</dependency>
-		-->
-	</dependencies>
-
-
 </project>
