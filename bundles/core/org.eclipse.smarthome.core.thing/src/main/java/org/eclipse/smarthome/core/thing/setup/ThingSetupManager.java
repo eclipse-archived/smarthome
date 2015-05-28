@@ -79,7 +79,7 @@ public class ThingSetupManager {
         GroupItem groupItem = new GroupItem(itemName);
         groupItem.setLabel(label);
         groupItem.addTag(TAG_HOME_GROUP);
-        itemRegistry.add(groupItem);
+        addItemSafely(groupItem);
         return groupItem;
     }
 
@@ -251,8 +251,8 @@ public class ThingSetupManager {
                     item.addTags(channelType.getTags());
                     item.setCategory(channelType.getCategory());
                     item.setLabel(channelType.getLabel());
-                    this.itemRegistry.add(item);
-                    this.itemChannelLinkRegistry.add(new ItemChannelLink(itemName, channelUID));
+                    addItemSafely(item);
+                    addItemChannelLinkSafely(new ItemChannelLink(itemName, channelUID));
                 }
             }
         } else {
@@ -493,10 +493,9 @@ public class ThingSetupManager {
         groupItem.addTag(TAG_THING);
         groupItem.setLabel(label);
         groupItem.addGroupNames(groupNames);
-
-        thingRegistry.add(thing);
-        itemRegistry.add(groupItem);
-        itemThingLinkRegistry.add(new ItemThingLink(itemName, thing.getUID()));
+        addThingSafely(thing);
+        addItemSafely(groupItem);
+        addItemThingLinkSafely(new ItemThingLink(itemName, thing.getUID()));
 
         ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
         if (thingType != null) {
@@ -506,7 +505,7 @@ public class ThingSetupManager {
                         channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
                 channelGroupItem.addGroupName(itemName);
-                itemRegistry.add(channelGroupItem);
+                addItemSafely(channelGroupItem);
             }
         }
 
@@ -524,6 +523,35 @@ public class ThingSetupManager {
 
         return thing;
     }
+
+    private void addThingSafely(Thing thing) {
+        ThingUID thingUID = thing.getUID();
+        if(thingRegistry.get(thingUID) != null) {
+            thingRegistry.remove(thingUID);
+        }
+        thingRegistry.add(thing);
+    }
+
+    private void addItemSafely(Item item) {
+        String itemName = item.getName();
+        if(itemRegistry.get(itemName) != null) {
+            itemRegistry.remove(itemName);
+        }
+        itemRegistry.add(item);
+    }
+    
+    private void addItemThingLinkSafely(ItemThingLink itemThingLink) {
+        if(itemThingLinkRegistry.get(itemThingLink.getID()) == null) {
+            itemThingLinkRegistry.add(itemThingLink);
+        }
+    }
+	
+    private void addItemChannelLinkSafely(ItemChannelLink itemChannelLink) {
+        if (this.itemChannelLinkRegistry.get(itemChannelLink.getID()) == null) {
+            this.itemChannelLinkRegistry.add(itemChannelLink);
+        }
+    }
+
 
     private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
             ThingTypeUID thingTypeUID) {
