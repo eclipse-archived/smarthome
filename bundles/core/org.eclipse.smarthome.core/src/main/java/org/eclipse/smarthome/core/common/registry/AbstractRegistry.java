@@ -141,9 +141,9 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
                     default:
                         break;
                 }
-            } catch (Exception ex) {
+            } catch (Throwable throwable) {
                 logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + ex.getMessage(), ex);
+                        + "' event!: " + throwable.getMessage(), throwable);
             }
         }
     }
