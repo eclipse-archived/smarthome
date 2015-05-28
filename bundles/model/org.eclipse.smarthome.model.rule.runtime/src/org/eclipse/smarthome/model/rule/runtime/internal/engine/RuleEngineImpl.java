@@ -357,6 +357,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 
     @Override
     public void updated(Item oldItem, Item item) {
-        // nothing to do
+    	removed(oldItem);
+    	added(item);
     }
 }
