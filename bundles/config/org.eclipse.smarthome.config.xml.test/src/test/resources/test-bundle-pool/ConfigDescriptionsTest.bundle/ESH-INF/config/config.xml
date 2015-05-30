@@ -12,14 +12,13 @@
 			<description>Description Group 1</description>
 			<advanced>false</advanced>
 		</parameter-group>
-
 		<parameter-group name="group2">
 			<context>Context-Group2</context>
 			<label>Group 2</label>
 			<description>Description Group 2</description>
 			<advanced>true</advanced>
 		</parameter-group>
-			
+
 		<parameter name="ip" type="text" pattern="[0-9]{3}.[0-9]{3}.[0-9]{3}.[0-9]{3}" required="true" readOnly="true">
 	        <multipleLimit>4</multipleLimit>
 			<context>network-address</context>
@@ -70,6 +69,12 @@
 	            <criteria name="binding-id">hue</criteria>
 	        </filter>
 		</parameter>
+
+	    <action name="action1" type="text">
+	    	<label>Action 1 Label</label>
+	    	<description>Action 1 Description</description>
+	        <context>item</context>
+		</action>
 
 	</config-description>
 

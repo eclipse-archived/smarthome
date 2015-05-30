@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.FilterCriteria;
@@ -41,6 +42,7 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelGroupDefinitionBean;
+import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigActionBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
 import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterGroupBean;
@@ -162,7 +164,8 @@ public class ThingTypeResource implements RESTResource {
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
                 convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
                 thingType.getSupportedBridgeTypeUIDs(), thingType.getProperties(), thingType instanceof BridgeType,
-                convertToParameterGroupBeans(thingType.getConfigDescriptionURI(), locale));
+                convertToParameterGroupBeans(thingType.getConfigDescriptionURI(), locale),
+                convertToParameterActionBeans(thingType.getConfigDescriptionURI(), locale));
     }
 
     private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(
@@ -222,4 +225,26 @@ public class ThingTypeResource implements RESTResource {
         return parameterGroupBeans;
     }
 
+    private List<ConfigActionBean> convertToParameterActionBeans(URI configDescriptionURI, Locale locale) {
+
+        ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI,
+                locale);
+        List<ConfigActionBean> actionBeans = new ArrayList<>();
+        if (configDescription != null) {
+
+            List<ConfigDescriptionAction> configActions = configDescription.getActions();
+            for (ConfigDescriptionAction configAction : configActions) {
+                ConfigActionBean configActionBean = new ConfigActionBean(configAction.getName(),
+                        configAction.getType(), configAction.getMinimum(), configAction.getMaximum(),
+                        configAction.getStepSize(), configAction.getPattern(), configAction.isMultiple(),
+                        configAction.getContext(), String.valueOf(configAction.getDefault()), configAction.getLabel(),
+                        configAction.getDescription(), createBeansForOptions(configAction.getOptions()),
+                        createBeansForCriteria(configAction.getFilterCriteria()), configAction.getGroupName(),
+                        configAction.isAdvanced(), configAction.getLimitToOptions(), configAction.getMultipleLimit());
+                actionBeans.add(configActionBean);
+            }
+        }
+
+        return actionBeans;
+    }
 }

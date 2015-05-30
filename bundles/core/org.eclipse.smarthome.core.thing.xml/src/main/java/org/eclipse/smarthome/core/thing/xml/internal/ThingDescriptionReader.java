@@ -10,9 +10,11 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.FilterCriteria;
+import org.eclipse.smarthome.config.xml.ConfigDescriptionActionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterGroupConverter;
@@ -61,6 +63,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.registerConverter(new ChannelGroupTypeConverter());
         xstream.registerConverter(new StateDescriptionConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
+        xstream.registerConverter(new ConfigDescriptionActionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
         xstream.registerConverter(new ConfigDescriptionParameterGroupConverter());
         xstream.registerConverter(new FilterCriteriaConverter());
@@ -91,6 +94,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("config-descriptions", NodeList.class);
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);
+        xstream.alias("action", ConfigDescriptionAction.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
         xstream.alias("parameter-group", ConfigDescriptionParameterGroup.class);
         xstream.alias("filter", List.class);

@@ -12,6 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
@@ -165,6 +166,15 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat description, is("Description Group 2")
             assertThat advanced, is(true)
             assertThat context, is("Context-Group2")
+        }
+        
+        // Check actions
+        def actions = dummyConfigDescription.actions
+        
+        ConfigDescriptionAction action1 = actions.find { it.name.equals("action1") }
+        assertThat action1, is(notNullValue())
+        action1.with {
+            assertThat label, is("Action 1 Label")
         }
 
         // uninstall test bundle

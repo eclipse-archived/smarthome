@@ -24,6 +24,10 @@ import java.util.List;
  * devices with larger numbers of parameters can set the group member in the {@link ConfigDescriptionParameter} and then
  * provide group information as part of the {@link ConfigDescription} class.
  * <p>
+ * The {@link ConfigDescriptionAction} provides a method to define configuration actions. These are sent as immediate
+ * actions to the thing handler rather than being handled and persisted as parameters. This allows the ThingHandler to
+ * support immediate user interaction for configuration purposes such as resetting a device.
+ * <p>
  * The description is stored within the {@link ConfigDescriptionRegistry} under the given URI. The URI has to follow the
  * syntax {@code '<scheme>:<token>[:<token>]'} (e.g. {@code "binding:hue:bridge"}).
  * <p>
@@ -31,11 +35,12 @@ import java.util.List;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
- * @author Chris Jackson - Added parameter groups
+ * @author Chris Jackson - Added parameter groups and actions
  */
 public class ConfigDescription {
 
     private URI uri;
+    private List<ConfigDescriptionAction> actions;
     private List<ConfigDescriptionParameter> parameters;
     private List<ConfigDescriptionParameterGroup> parameterGroups;
 
@@ -46,7 +51,7 @@ public class ConfigDescription {
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri) throws IllegalArgumentException {
-        this(uri, null, null);
+        this(uri, null, null, null);
     }
 
     /**
@@ -61,7 +66,7 @@ public class ConfigDescription {
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
-        this(uri, parameters, null);
+        this(uri, parameters, null, null);
     }
 
     /**
@@ -72,13 +77,31 @@ public class ConfigDescription {
      *
      * @param parameters the description of a concrete configuration parameter
      *            (could be null or empty)
-     *            
+     *
      * @param groups the list of groups associated with the parameters
      *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters,
             List<ConfigDescriptionParameterGroup> groups) {
+        this(uri, parameters, groups, null);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uri the URI of this description within the {@link ConfigDescriptionRegistry} (must neither be null nor
+     *            empty)
+     *
+     * @param parameters the description of a concrete configuration parameter
+     *            (could be null or empty)
+     * 
+     * @param groups the list of groups associated with the parameters
+     *
+     * @throws IllegalArgumentException if the URI is null or invalid
+     */
+    public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters,
+            List<ConfigDescriptionParameterGroup> groups, List<ConfigDescriptionAction> actions) {
         if (uri == null) {
             throw new IllegalArgumentException("The URI must not be null!");
         }
@@ -101,6 +124,12 @@ public class ConfigDescription {
             this.parameterGroups = Collections.unmodifiableList(groups);
         } else {
             this.parameterGroups = Collections.unmodifiableList(new ArrayList<ConfigDescriptionParameterGroup>(0));
+        }
+
+        if (actions != null) {
+            this.actions = Collections.unmodifiableList(actions);
+        } else {
+            this.actions = Collections.unmodifiableList(new ArrayList<ConfigDescriptionAction>(0));
         }
     }
 
@@ -136,9 +165,21 @@ public class ConfigDescription {
         return this.parameterGroups;
     }
 
+    /**
+     * Returns the description of a concrete configuration action.
+     * <p>
+     * The returned list is immutable.
+     *
+     * @return the description of a concrete configuration action (not null, could be empty)
+     */
+    public List<ConfigDescriptionAction> getActions() {
+        return this.actions;
+    }
+
     @Override
     public String toString() {
-        return "ConfigDescription [uri=" + uri + ", parameters=" + parameters + ", groups=" + parameterGroups + "]";
+        return "ConfigDescription [uri=" + uri + ", parameters=" + parameters + ", groups=" + parameterGroups
+                + ", actions=" + actions + "]";
     }
 
 }

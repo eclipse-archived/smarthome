@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.xml.util.ConverterAssertion;
@@ -34,7 +35,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * This converter converts {@code config-description} XML tags.
  *
  * @author Michael Grammling - Initial Contribution
- * @author Chris Jackson - Added configuration groups
+ * @author Chris Jackson - Added configuration groups and actions
  */
 public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescription> {
 
@@ -68,7 +69,8 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
                     + "' is invalid!", ex);
         }
 
-        // create the lists to hold parameters and groups
+        // create the lists to hold parameters, groups and actions
+        List<ConfigDescriptionAction> configDescriptionActions = new ArrayList<ConfigDescriptionAction>();
         List<ConfigDescriptionParameter> configDescriptionParams = new ArrayList<ConfigDescriptionParameter>();
         List<ConfigDescriptionParameterGroup> configDescriptionGroups = new ArrayList<ConfigDescriptionParameterGroup>();
 
@@ -86,12 +88,15 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
             if (node instanceof ConfigDescriptionParameterGroup) {
                 configDescriptionGroups.add((ConfigDescriptionParameterGroup) node);
             }
+            if (node instanceof ConfigDescriptionAction) {
+                configDescriptionActions.add((ConfigDescriptionAction) node);
+            }
         }
 
         ConverterAssertion.assertEndOfType(reader);
 
         // create object
-        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
+        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups, configDescriptionActions);
 
         return configDescription;
     }

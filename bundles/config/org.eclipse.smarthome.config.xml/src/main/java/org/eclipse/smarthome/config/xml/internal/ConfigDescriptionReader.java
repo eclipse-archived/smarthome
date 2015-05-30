@@ -10,9 +10,11 @@ package org.eclipse.smarthome.config.xml.internal;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.FilterCriteria;
+import org.eclipse.smarthome.config.xml.ConfigDescriptionActionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterConverter;
 import org.eclipse.smarthome.config.xml.ConfigDescriptionParameterGroupConverter;
@@ -35,7 +37,7 @@ import com.thoughtworks.xstream.XStream;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended for options and filter criteria
- * @author Chris Jackson - Added configuration groups
+ * @author Chris Jackson - Added configuration groups and actions
  */
 public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescription>> {
 
@@ -52,6 +54,7 @@ public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescri
         xstream.registerConverter(new NodeListConverter());
         xstream.registerConverter(new NodeAttributesConverter());
         xstream.registerConverter(new ConfigDescriptionConverter());
+        xstream.registerConverter(new ConfigDescriptionActionConverter());
         xstream.registerConverter(new ConfigDescriptionParameterConverter());
         xstream.registerConverter(new ConfigDescriptionParameterGroupConverter());
         xstream.registerConverter(new FilterCriteriaConverter());
@@ -62,6 +65,7 @@ public class ConfigDescriptionReader extends XmlDocumentReader<List<ConfigDescri
         xstream.alias("config-descriptions", List.class);
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);
+        xstream.alias("action", ConfigDescriptionAction.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
         xstream.alias("parameter-group", ConfigDescriptionParameterGroup.class);
         xstream.alias("options", NodeList.class);
