@@ -95,7 +95,7 @@ Workflow {
 			fragment = validation.ValidatorFragment auto-inject {
 
 			// composedCheck = "org.eclipse.xtext.validation.ImportUriValidator"
-			// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+			   composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
 			}
 
 			// old scoping and exporting API
