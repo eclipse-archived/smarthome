@@ -7,13 +7,14 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
+import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+
+import nl.q42.jue.State;
+import nl.q42.jue.StateUpdate;
 
 /**
  * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome types to jue types and vice versa.
@@ -26,10 +27,15 @@ import org.eclipse.smarthome.core.library.types.PercentType;
  */
 public class LightStateConverter {
 
-    private static final double COLOR_TEMPERATURE_FACTOR = 3.46;
-    private static final int COLOR_TEMPERATURE_OFFSET = 154;
-    private static final int hue_FACTOR = 182;
-    private static final double SATURATION_AND_BRIGHTNESS_FACTOR = 2.54;
+    private static final int HUE_FACTOR = 182;
+    private static final double SATURATION_FACTOR = 2.54;
+    private static final double BRIGHTNESS_FACTOR = 2.54;
+
+    private static final int MIN_COLOR_TEMPERATURE = 153;
+    private static final int MAX_COLOR_TEMPERATURE = 500;
+    private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
+
+    private static final int DIM_STEPSIZE = 30;
 
     /**
      * Transforms the given {@link HSBType} into a light state.
@@ -39,11 +45,10 @@ public class LightStateConverter {
      * @return light state representing the {@link HSBType}.
      */
     public static StateUpdate toColorLightState(HSBType hsbType) {
-        int hue = new Long(Math.round(hsbType.getHue().doubleValue() * hue_FACTOR)).intValue();
-        int saturation = new Long(Math.round(hsbType.getSaturation().doubleValue() * SATURATION_AND_BRIGHTNESS_FACTOR))
-                .intValue();
-        int brightness = new Long(Math.round(hsbType.getBrightness().doubleValue() * SATURATION_AND_BRIGHTNESS_FACTOR))
-                .intValue();
+        int hue = (int) Math.round(hsbType.getHue().doubleValue() * HUE_FACTOR);
+        int saturation = (int) Math.round(hsbType.getSaturation().doubleValue() * SATURATION_FACTOR);
+        int brightness = (int) Math.round(hsbType.getBrightness().doubleValue() * BRIGHTNESS_FACTOR);
+
         StateUpdate stateUpdate = new StateUpdate().setHue(hue).setSat(saturation);
         if (brightness > 0) {
             stateUpdate.setBrightness(brightness);
@@ -59,7 +64,7 @@ public class LightStateConverter {
      *            on or off state
      * @return light state containing the 'on' value
      */
-    public static StateUpdate toColorLightState(OnOffType onOffType) {
+    public static StateUpdate toOnOffLightState(OnOffType onOffType) {
         StateUpdate stateUpdate = new StateUpdate().setOn(OnOffType.ON.equals(onOffType));
         return stateUpdate;
     }
@@ -72,15 +77,32 @@ public class LightStateConverter {
      *            brightness represented as {@link PercentType}
      * @return light state containing the brightness and the 'on' value
      */
-    public static StateUpdate toColorLightState(PercentType percentType) {
+    public static StateUpdate toBrightnessLightState(PercentType percentType) {
         boolean on = percentType.equals(PercentType.ZERO) ? false : true;
         final StateUpdate stateUpdate = new StateUpdate().setOn(on);
 
-        int brightness = new Long(Math.round(percentType.doubleValue() * SATURATION_AND_BRIGHTNESS_FACTOR)).intValue();
+        int brightness = (int) Math.round(percentType.floatValue() * BRIGHTNESS_FACTOR);
         if (brightness > 0) {
             stateUpdate.setBrightness(brightness);
         }
         return stateUpdate;
+    }
+
+    /**
+     * Adjusts the given brightness using the {@link IncreaseDecreaseType} and returns the updated value.
+     *
+     * @param type The {@link IncreaseDecreaseType} to be used
+     * @param currentBrightness The current brightness
+     * @return The adjusted brightness value
+     */
+    public static int toAdjustedBrightness(IncreaseDecreaseType command, int currentBrightness) {
+        int newBrightness;
+        if (command == IncreaseDecreaseType.DECREASE) {
+            newBrightness = Math.max(currentBrightness - DIM_STEPSIZE, 0);
+        } else {
+            newBrightness = Math.min(currentBrightness + DIM_STEPSIZE, (int) (BRIGHTNESS_FACTOR * 100));
+        }
+        return newBrightness;
     }
 
     /**
@@ -92,9 +114,27 @@ public class LightStateConverter {
      * @return light state containing the color temperature
      */
     public static StateUpdate toColorTemperatureLightState(PercentType percentType) {
-        int colorTemperature = COLOR_TEMPERATURE_OFFSET + (int) (COLOR_TEMPERATURE_FACTOR * percentType.intValue());
+        int colorTemperature = MIN_COLOR_TEMPERATURE
+                + Math.round((COLOR_TEMPERATURE_RANGE * percentType.floatValue()) / 100);
         StateUpdate stateUpdate = new StateUpdate().setColorTemperature(colorTemperature);
         return stateUpdate;
+    }
+
+    /**
+     * Adjusts the given color temperature using the {@link IncreaseDecreaseType} and returns the updated value.
+     *
+     * @param type The {@link IncreaseDecreaseType} to be used
+     * @param currentColorTemp The current color temperature
+     * @return The adjusted color temperature value
+     */
+    public static int toAdjustedColorTemp(IncreaseDecreaseType type, int currentColorTemp) {
+        int newColorTemp;
+        if (type == IncreaseDecreaseType.DECREASE) {
+            newColorTemp = Math.max(currentColorTemp - DIM_STEPSIZE, MIN_COLOR_TEMPERATURE);
+        } else {
+            newColorTemp = Math.min(currentColorTemp + DIM_STEPSIZE, MAX_COLOR_TEMPERATURE);
+        }
+        return newColorTemp;
     }
 
     /**
@@ -106,7 +146,7 @@ public class LightStateConverter {
      * @return percent type representing the color temperature
      */
     public static PercentType toColorTemperaturePercentType(State lightState) {
-        int percent = (int) ((lightState.getColorTemperature() - COLOR_TEMPERATURE_OFFSET) / COLOR_TEMPERATURE_FACTOR);
+        int percent = (lightState.getColorTemperature() - MIN_COLOR_TEMPERATURE) / COLOR_TEMPERATURE_RANGE;
         return new PercentType(restrictToBounds(percent));
     }
 
@@ -119,7 +159,7 @@ public class LightStateConverter {
      * @return percent type representing the brightness
      */
     public static PercentType toBrightnessPercentType(State lightState) {
-        int percent = (int) (lightState.getBrightness() / SATURATION_AND_BRIGHTNESS_FACTOR);
+        int percent = (int) (lightState.getBrightness() / BRIGHTNESS_FACTOR);
         return new PercentType(restrictToBounds(percent));
     }
 
@@ -133,16 +173,14 @@ public class LightStateConverter {
      */
     public static HSBType toHSBType(State lightState) {
         int hue = lightState.getHue();
-        int saturation = lightState.getSaturation();
-        int brightness = lightState.getBrightness();
 
-        int saturationInPercent = (int) (saturation / SATURATION_AND_BRIGHTNESS_FACTOR);
-        int brightnessInPercent = (int) (brightness / SATURATION_AND_BRIGHTNESS_FACTOR);
+        int saturationInPercent = (int) (lightState.getSaturation() / SATURATION_FACTOR);
+        int brightnessInPercent = (int) (lightState.getBrightness() / BRIGHTNESS_FACTOR);
 
         saturationInPercent = restrictToBounds(saturationInPercent);
         brightnessInPercent = restrictToBounds(brightnessInPercent);
 
-        HSBType hsbType = new HSBType(new DecimalType(hue / hue_FACTOR), new PercentType(saturationInPercent),
+        HSBType hsbType = new HSBType(new DecimalType(hue / HUE_FACTOR), new PercentType(saturationInPercent),
                 new PercentType(brightnessInPercent));
 
         return hsbType;
