@@ -189,7 +189,8 @@ public class ThingTypeResource implements RESTResource {
             ChannelType channelType = channelDefinition.getType();
             ChannelDefinitionBean channelDefinitionBean = new ChannelDefinitionBean(channelDefinition.getId(),
                     channelType.getLabel(), channelType.getDescription(), channelType.getTags(),
-                    channelType.getCategory(), channelType.getState(), channelType.isAdvanced());
+                    channelType.getCategory(), channelType.getState(), channelType.isAdvanced(),
+                    channelDefinition.getProperties());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;

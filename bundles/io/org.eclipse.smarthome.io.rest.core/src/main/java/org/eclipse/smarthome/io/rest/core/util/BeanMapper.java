@@ -65,7 +65,8 @@ public class BeanMapper {
         for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
-        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames);
+        return new ChannelBean(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
+                channel.getProperties());
     }
 
     public static DiscoveryResultBean mapDiscoveryResultToBean(DiscoveryResult discoveryResult) {

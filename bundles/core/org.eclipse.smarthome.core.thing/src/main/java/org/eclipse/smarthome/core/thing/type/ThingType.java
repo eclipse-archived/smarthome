@@ -177,8 +177,7 @@ public class ThingType extends AbstractDescriptionType {
     public URI getConfigDescriptionURI() {
         return this.configDescriptionURI;
     }
-    
-    
+
     /**
      * Returns the properties for this {@link ThingType}
      * 

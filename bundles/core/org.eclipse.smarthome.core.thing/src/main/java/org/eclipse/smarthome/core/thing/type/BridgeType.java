@@ -54,7 +54,7 @@ public class BridgeType extends ThingType {
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     *            
+     * 
      * @param properties the properties this Bridge type provides (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)

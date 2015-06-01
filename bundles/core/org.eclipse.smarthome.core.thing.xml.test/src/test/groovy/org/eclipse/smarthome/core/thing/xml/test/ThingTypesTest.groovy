@@ -71,6 +71,13 @@ class ThingTypesTest extends OSGiTest {
             assertThat size(), is(3)
             def colorChannel = it.find { it.id.equals("color") } as ChannelDefinition
             assertThat colorChannel, is(notNullValue())
+
+            colorChannel.with {
+                assertThat properties.size(), is(2)
+        	    assertThat properties.get("chan.key1"), is("value1")
+        	    assertThat properties.get("chan.key2"), is("value2")
+            }
+
             def colorChannelType = colorChannel.type
             assertThat colorChannelType, is(notNullValue())
             colorChannelType.with {
@@ -87,6 +94,7 @@ class ThingTypesTest extends OSGiTest {
 
             def colorTemperatureChannel = it.find { it.id.equals("color_temperature") } as ChannelDefinition
             assertThat colorTemperatureChannel, is(notNullValue())
+            assertThat colorTemperatureChannel.properties.size(), is(0)
             def colorTemperatureChannelType = colorTemperatureChannel.type
             assertThat colorTemperatureChannelType, is(notNullValue())
             colorTemperatureChannelType.with {
@@ -154,5 +162,4 @@ class ThingTypesTest extends OSGiTest {
         thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes)
     }
-
 }

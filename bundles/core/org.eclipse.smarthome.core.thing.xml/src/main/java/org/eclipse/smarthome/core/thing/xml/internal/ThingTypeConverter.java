@@ -10,7 +10,6 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
@@ -31,6 +30,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Chris Jackson - Added channel properties
  */
 public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTypeXmlResult> {
 
@@ -65,15 +65,15 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     }
 
     @SuppressWarnings("unchecked")
-    protected List<NodeAttributes>[] getChannelTypeReferenceObjects(NodeIterator nodeIterator)
+    protected List<ChannelXmlResult>[] getChannelTypeReferenceObjects(NodeIterator nodeIterator)
             throws ConversionException {
 
-        List<NodeAttributes> channelTypeReferences = null;
-        List<NodeAttributes> channelGroupTypeReferences = null;
+        List<ChannelXmlResult> channelTypeReferences = null;
+        List<ChannelXmlResult> channelGroupTypeReferences = null;
 
-        channelTypeReferences = (List<NodeAttributes>) nodeIterator.nextList("channels", false);
+        channelTypeReferences = (List<ChannelXmlResult>) nodeIterator.nextList("channels", false);
         if (channelTypeReferences == null) {
-            channelGroupTypeReferences = (List<NodeAttributes>) nodeIterator.nextList("channel-groups", false);
+            channelGroupTypeReferences = (List<ChannelXmlResult>) nodeIterator.nextList("channel-groups", false);
         }
 
         return new List[] { channelTypeReferences, channelGroupTypeReferences };
@@ -81,16 +81,16 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
 
     @SuppressWarnings("unchecked")
     protected List<NodeValue> getProperties(NodeIterator nodeIterator) {
-        return (List<NodeValue>) nodeIterator.nextList("properties", false); 
+        return (List<NodeValue>) nodeIterator.nextList("properties", false);
     }
-    
+
     @Override
     protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
-        
+
         ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(new ThingTypeUID(super.getUID(attributes,
                 context)), readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator), 
+                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator),
                 getProperties(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
