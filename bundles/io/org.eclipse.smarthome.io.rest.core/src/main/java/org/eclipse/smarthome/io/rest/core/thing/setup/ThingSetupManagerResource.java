@@ -87,10 +87,10 @@ public class ThingSetupManagerResource implements RESTResource {
 
         Thing thing = thingSetupManager.getThing(thingUID);
 
-        String label = thingBean.item.label;
-        List<String> groupNames = thingBean.item.groupNames;
+        if(thingBean.item != null && thing != null) {
+            String label = thingBean.item.label;
+            List<String> groupNames = thingBean.item.groupNames;
 
-        if (thing != null) {
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean labelChanged = false;
