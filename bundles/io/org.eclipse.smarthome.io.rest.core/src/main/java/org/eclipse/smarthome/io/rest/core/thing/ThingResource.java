@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map.Entry;
@@ -82,7 +83,7 @@ public class ThingResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Configuration configuration = new Configuration(thingBean.configuration);
+        Configuration configuration = getConfiguration(thingBean);
 
         managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID, configuration);
 
@@ -191,9 +192,7 @@ public class ThingResource implements RESTResource {
 
         thing.setBridgeUID(bridgeUID);
 
-        for (Entry<String, Object> entry : thingBean.configuration.entrySet()) {
-            thing.getConfiguration().put(entry.getKey(), entry.getValue());
-        }
+        updateConfiguration(thing, getConfiguration(thingBean));
 
         managedThingProvider.update(thing);
 
@@ -285,5 +284,24 @@ public class ThingResource implements RESTResource {
             }
         }
     }
+
+    public static Configuration getConfiguration(ThingBean thingBean) {
+        Configuration configuration = new Configuration();
+
+        for (Entry<String, Object> parameter : thingBean.configuration.entrySet()) {
+            String name = parameter.getKey();
+            Object value = parameter.getValue();
+            configuration.put(name, value instanceof Double ? new BigDecimal((Double) value) : value);
+        }
+
+        return configuration;
+    }
+
+    public static void updateConfiguration(Thing thing, Configuration configuration) {
+        for (String parameterName : configuration.keySet()) {
+            thing.getConfiguration().put(parameterName, configuration.get(parameterName));
+        }
+    }
+
 
 }
