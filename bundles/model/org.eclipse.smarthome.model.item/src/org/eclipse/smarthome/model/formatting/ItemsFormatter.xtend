@@ -31,7 +31,7 @@ class ItemsFormatter extends AbstractDeclarativeFormatter {
 		c.setIndentationIncrement.after(modelGroupItemRule)
 		c.setIndentationDecrement.before(modelGroupItemRule)
 
-		c.autoLinewrap = 120
+		c.autoLinewrap = 160
 		c.setLinewrap(0, 1, 2).before(SL_COMMENTRule)
 		c.setLinewrap(0, 1, 2).before(ML_COMMENTRule)
 		c.setLinewrap(0, 1, 1).after(ML_COMMENTRule)
