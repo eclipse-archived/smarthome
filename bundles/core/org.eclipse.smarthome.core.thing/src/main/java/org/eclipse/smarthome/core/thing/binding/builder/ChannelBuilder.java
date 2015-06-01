@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.binding.builder;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -19,6 +20,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended about default tags
+ * @author Chris Jackson - Added properties
  */
 public class ChannelBuilder {
 
@@ -26,6 +28,7 @@ public class ChannelBuilder {
     private String acceptedItemType;
     private Configuration configuration;
     private Set<String> defaultTags;
+    private Map<String, String> properties;
 
     private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
@@ -59,6 +62,16 @@ public class ChannelBuilder {
     }
 
     /**
+     * Adds properties to the channel
+     * @param properties properties to add
+     * @return channel builder
+     */
+    public ChannelBuilder withProperties(Map<String, String> properties) {
+        this.properties = properties;
+        return this;
+    }
+
+    /**
      * Appends default tags to the channel to build.
      *
      * @param defaultTags
@@ -76,6 +89,6 @@ public class ChannelBuilder {
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, acceptedItemType, configuration, defaultTags);
+        return new Channel(channelUID, acceptedItemType, configuration, defaultTags, properties);
     }
 }

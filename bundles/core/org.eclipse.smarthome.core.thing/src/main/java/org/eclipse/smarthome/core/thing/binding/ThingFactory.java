@@ -42,6 +42,7 @@ import com.google.common.collect.Lists;
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
  * @author Thomas Höfer - added thing and thing type properties
+ * @author Chris Jackson - Added properties
  */
 public class ThingFactory {
 
@@ -192,6 +193,8 @@ public class ThingFactory {
                 channelBuilder = channelBuilder.withConfiguration(config);
             }
         }
+
+        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
 
         Channel channel = channelBuilder.build();
         return channel;

@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
-import org.eclipse.smarthome.config.xml.util.NodeAttributes;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
@@ -34,7 +33,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
 public class BridgeTypeXmlResult extends ThingTypeXmlResult {
 
     public BridgeTypeXmlResult(ThingTypeUID bridgeTypeUID, List<String> supportedBridgeTypeUIDs, String label,
-            String description, List<NodeAttributes>[] channelTypeReferenceObjects, List<NodeValue> properties, 
+            String description, List<ChannelXmlResult>[] channelTypeReferenceObjects, List<NodeValue> properties,
             Object[] configDescriptionObjects) {
 
         super(bridgeTypeUID, supportedBridgeTypeUIDs, label, description, channelTypeReferenceObjects, properties,
@@ -58,7 +57,7 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
         return "BridgeTypeXmlResult [thingTypeUID=" + thingTypeUID + ", supportedBridgeTypeUIDs="
                 + supportedBridgeTypeUIDs + ", label=" + label + ", description=" + description
                 + ", channelTypeReferences=" + channelTypeReferences + ", channelGroupTypeReferences="
-                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI=" 
+                + channelGroupTypeReferences + ", properties=" + properties + ", configDescriptionURI="
                 + configDescriptionURI + ", configDescription=" + configDescription + "]";
     }
 
