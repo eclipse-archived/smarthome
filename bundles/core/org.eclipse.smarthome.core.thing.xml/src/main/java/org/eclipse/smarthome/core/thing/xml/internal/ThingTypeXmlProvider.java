@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.xml.internal;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * 
  * @author Michael Grammling - Initial Contribution
  * @author Ivan Iliev - Added support for system wide channel types
+ * @author Chris Jackson - Added configuration template concept
  * 
  * @see ThingTypeXmlProviderFactory
  */
@@ -125,7 +127,15 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     private void addConfigDescription(ConfigDescription configDescription) {
         if (configDescription != null) {
             try {
-                this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
+                if (configDescription.isTemplate() == true) {
+                    // This config description is set as a template so update the URI
+                    this.configDescriptionProvider.addConfigDescription(this.bundle, new ConfigDescription(new URI(
+                            configDescription.getURI() + "#template"), configDescription.getParameters(),
+                            configDescription.getParameterGroups(), true));
+
+                } else {
+                    this.configDescriptionProvider.addConfigDescription(this.bundle, configDescription);
+                }
             } catch (Exception ex) {
                 this.logger.error("Could not register ConfigDescription!", ex);
             }

@@ -35,6 +35,7 @@
 		</xs:sequence>
 		<xs:attribute name="uri"
 			type="config-description:uriRestrictionPattern" use="optional" />
+		<xs:attribute name="template" type="xs:boolean" use="optional" />
 	</xs:complexType>
 
 	<xs:complexType name="parameter">

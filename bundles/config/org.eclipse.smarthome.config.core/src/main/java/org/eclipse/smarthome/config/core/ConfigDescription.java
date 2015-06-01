@@ -31,13 +31,14 @@ import java.util.List;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
- * @author Chris Jackson - Added parameter groups
+ * @author Chris Jackson - Added parameter groups and template
  */
 public class ConfigDescription {
 
     private URI uri;
     private List<ConfigDescriptionParameter> parameters;
     private List<ConfigDescriptionParameterGroup> parameterGroups;
+    private boolean template;
 
     /**
      * Creates a new instance of this class with the specified parameter.
@@ -46,7 +47,7 @@ public class ConfigDescription {
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri) throws IllegalArgumentException {
-        this(uri, null, null);
+        this(uri, null, null, false);
     }
 
     /**
@@ -61,7 +62,7 @@ public class ConfigDescription {
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters) {
-        this(uri, parameters, null);
+        this(uri, parameters, null, false);
     }
 
     /**
@@ -72,13 +73,13 @@ public class ConfigDescription {
      *
      * @param parameters the description of a concrete configuration parameter
      *            (could be null or empty)
-     *            
+     * 
      * @param groups the list of groups associated with the parameters
      *
      * @throws IllegalArgumentException if the URI is null or invalid
      */
     public ConfigDescription(URI uri, List<ConfigDescriptionParameter> parameters,
-            List<ConfigDescriptionParameterGroup> groups) {
+            List<ConfigDescriptionParameterGroup> groups, boolean template) {
         if (uri == null) {
             throw new IllegalArgumentException("The URI must not be null!");
         }
@@ -90,6 +91,8 @@ public class ConfigDescription {
         }
 
         this.uri = uri;
+
+        this.template = template;
 
         if (parameters != null) {
             this.parameters = Collections.unmodifiableList(parameters);
@@ -136,9 +139,19 @@ public class ConfigDescription {
         return this.parameterGroups;
     }
 
+    /**
+     * Returns true if this is defined as a template
+     * 
+     * @return true if this is a template
+     */
+    public boolean isTemplate() {
+        return this.template;
+    }
+
     @Override
     public String toString() {
-        return "ConfigDescription [uri=" + uri + ", parameters=" + parameters + ", groups=" + parameterGroups + "]";
+        return "ConfigDescription [uri=" + uri + ", template=" + template + ", parameters=" + parameters + ", groups="
+                + parameterGroups + "]";
     }
 
 }
