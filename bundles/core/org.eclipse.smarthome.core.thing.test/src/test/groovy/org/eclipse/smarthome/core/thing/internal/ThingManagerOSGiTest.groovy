@@ -231,7 +231,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'ThingManager handles thing status updates "online" and "offline" correctly'() {
+    void 'ThingManager handles thing status updates online and offline correctly'() {
         ThingHandlerCallback callback;
         
         managedThingProvider.add(THING)
@@ -256,7 +256,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
     
     @Test
-    void 'ThingManager handles thing status updates "uninitialized" and "initializing" correctly'() {
+    void 'ThingManager handles thing status updates uninitialized and initializing correctly'() {
         def thingHandler = [
             setCallback: {
             }
@@ -286,7 +286,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
     
     @Test
-    void 'ThingManager handles thing status update "uninitialized" with an exception correctly'() {
+    void 'ThingManager handles thing status update uninitialized with an exception correctly'() {
         def exceptionMsg = "Some runtime exception occurred!"
         
         def thingHandler = [
@@ -310,7 +310,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     }
 
     @Test
-    void 'ThingManager handles bridge status updates "online" and "offline" correctly'() {
+    void 'ThingManager handles bridge status updates online and offline correctly'() {
         Bridge bridge = BridgeBuilder.create(new ThingUID(THING_TYPE_UID, "bridge-id")).build()
         Thing thingA = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-a-id")).withBridge(bridge.getUID())build()
         Thing thingB = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-b-id")).withBridge(bridge.getUID()).build()
