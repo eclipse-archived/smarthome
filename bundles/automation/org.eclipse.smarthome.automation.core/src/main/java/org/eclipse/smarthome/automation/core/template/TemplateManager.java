@@ -111,6 +111,6 @@ public class TemplateManager {
             t.setDescription(rt.getDescription());
             return t;
         }
-        throw new IllegalArgumentException("Invalid template type:" + template);
+        throw new IllegalArgumentException("Invalid template type: " + template);
     }
 }

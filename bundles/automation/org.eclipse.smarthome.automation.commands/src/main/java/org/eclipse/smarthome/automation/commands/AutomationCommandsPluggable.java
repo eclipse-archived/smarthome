@@ -58,7 +58,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements
 		ServiceTrackerCustomizer, ConsoleCommandExtension {
 
 	public static final String NAME = "automation";
-	public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes Resources.";
+	public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes resources.";
 	
 	private static final int MODULE_TYPE_REGISTRY = 3;
 	private static final int TEMPLATE_REGISTRY = 2;
