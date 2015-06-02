@@ -19,17 +19,17 @@ import org.eclipse.smarthome.automation.template.TemplateRegistry;
  */
 public class TemplateManagerImpl implements TemplateManager {
 
-  private TemplateRegistry templeteRegistry;
+  private TemplateRegistry templateRegistry;
 
   /**
    * 
    */
-  public TemplateManagerImpl(TemplateRegistry templeteRegistry) {
-    this.templeteRegistry = templeteRegistry;
+  public TemplateManagerImpl(TemplateRegistry templateRegistry) {
+    this.templateRegistry = templateRegistry;
   }
 
   public Template getTemplate(String templateUID) {
-    return templeteRegistry.get(templateUID, null);
+    return templateRegistry.get(templateUID, null);
   }
 
 }

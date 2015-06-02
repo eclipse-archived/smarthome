@@ -152,7 +152,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
         ModuleHandlerFactory msf = moduleHandlerFactories.get(mtId);
         if (msf == null) {
-            throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
+            throw new IllegalArgumentException("Invalid module handler factory: " + mtId);
         }
         return msf.create(m);
     }
@@ -330,7 +330,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 ConditionImpl c = (ConditionImpl) it.next();
                 Map<String, OutputValue> connectionObjects = c.getConnectedObjects();
                 if (connectionObjects == null) {
-                    connectionObjects = initConnectios(c, r);
+                    connectionObjects = initConnections(c, r);
                 }
                 ConditionHandler tHandler = c.getModuleHandler();
                 Map<String, ?> inputs = getInputValues(c.getInputMap(), connectionObjects);
@@ -360,7 +360,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
          * @param c condition implementation object
          * @return
          */
-        private Map<String, OutputValue> initConnectios(ConnectedModule c, Rule r) {
+        private Map<String, OutputValue> initConnections(ConnectedModule c, Rule r) {
             Set<Connection> connections = c.getConnections();
             Map<String, OutputValue> connectedObjects = new HashMap<String, OutputValue>(11);
             if (connections != null) {
@@ -404,7 +404,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 ActionImpl a = (ActionImpl) it.next();
                 Map<String, OutputValue> connectionObjects = a.getConnectedObjects();
                 if (connectionObjects == null) {
-                    connectionObjects = initConnectios(a, r);
+                    connectionObjects = initConnections(a, r);
                 }
                 ActionHandler aHandler = a.getModuleHandler();
                 Map<String, ?> inputs = getInputValues(a.getInputMap(), connectionObjects);

@@ -194,7 +194,7 @@ public class ModuleTypeManager {
             result = new ActionType(mType.getUID(), mType.getConfigurationDescription(), m.getInputs(), m.getOutputs());
 
         } else {
-            throw new IllegalArgumentException("Invalid template type:" + mType);
+            throw new IllegalArgumentException("Invalid template type: " + mType);
         }
         result.setTags(mType.getTags());
         result.setLabel(mType.getLabel());
