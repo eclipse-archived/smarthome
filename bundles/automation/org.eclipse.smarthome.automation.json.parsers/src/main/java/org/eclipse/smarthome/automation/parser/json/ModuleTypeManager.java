@@ -15,19 +15,19 @@ package org.eclipse.smarthome.automation.parser.json;
 import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  *
  */
 interface ModuleTypeManager {
 
-  /**
-   * This method is used to get ModuleType defined by its UID. The returned
-   * module type is localized by default locale.
-   * 
-   * @param typeUID the an unique id in scope of all registered ModuleTypes
-   * @return ModuleType instance or null when module type with specified UID
-   *         does not exists.
-   */
-  <T extends ModuleType> T getType(String typeUID);
+    /**
+     * This method is used to get ModuleType defined by its UID. The returned
+     * module type is localized by default locale.
+     *
+     * @param typeUID the an unique id in scope of all registered ModuleTypes
+     * @return ModuleType instance or null when module type with specified UID
+     *         does not exists.
+     */
+    <T extends ModuleType> T getType(String typeUID);
 
 }

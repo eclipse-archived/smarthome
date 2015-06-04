@@ -15,19 +15,19 @@ package org.eclipse.smarthome.automation.parser.json;
 import org.eclipse.smarthome.automation.template.Template;
 
 /**
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  *
  */
 public interface TemplateManager {
 
-  /**
-   * This method is used to get Template defined by its UID. The returned
-   * Template is localized by default locale.
-   * 
-   * @param templateUID the an unique id in scope of all registered Templates
-   * @return {@link Template} instance or null when Template with specified UID
-   *         does not exists.
-   */
-  public Template getTemplate(String templateUID);
+    /**
+     * This method is used to get Template defined by its UID. The returned
+     * Template is localized by default locale.
+     *
+     * @param templateUID the an unique id in scope of all registered Templates
+     * @return {@link Template} instance or null when Template with specified UID
+     *         does not exists.
+     */
+    public Template getTemplate(String templateUID);
 
 }

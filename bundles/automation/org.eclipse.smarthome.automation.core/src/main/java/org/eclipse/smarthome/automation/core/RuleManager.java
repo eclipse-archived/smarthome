@@ -17,10 +17,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Rule;
 import org.osgi.framework.BundleContext;
 
-import org.eclipse.smarthome.automation.Rule;
-
+/**
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ */
 public abstract class RuleManager {
 
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
@@ -50,12 +53,13 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#getRule(java.lang.String)
      */
     public synchronized Rule getRule(String ruleUID) {
-    	RuleImpl oldR = re.getRule(ruleUID);
-    	if (oldR == null) return null;
+        RuleImpl oldR = re.getRule(ruleUID);
+        if (oldR == null)
+            return null;
         return new RuleImpl(oldR);
     }
 
@@ -68,7 +72,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#getRulesByTag(java.lang.String )
      */
     public synchronized Collection<Rule> getRulesByTag(String tag) {
@@ -76,7 +80,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#addRule(com.prosyst.mbs.services .automation.Rule)
      */
     public synchronized void addRule(Rule rule) {
@@ -84,7 +88,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#addRule(com.prosyst.mbs.services .automation.Rule,
      *      java.lang.String)
      */
@@ -120,7 +124,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#updateRule(com.prosyst.mbs .services.automation.Rule)
      */
     public synchronized void updateRule(Rule rule) {
@@ -146,7 +150,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#removeRule(java.lang.String)
      */
     public synchronized boolean removeRule(String ruleUID) {
@@ -154,7 +158,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#removeRules(java.lang.String)
      */
     public synchronized void removeRules(String filter) {
@@ -162,7 +166,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#setRuleEnabled(java.lang. String, boolean)
      */
     public synchronized void setRuleEnabled(String ruleUID, boolean isEnabled) {
@@ -171,8 +175,8 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#isRuleEnabled(java.lang.String )
      */
     public synchronized boolean isRuleEnabled(String ruleUID) {
@@ -180,7 +184,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#isRuleRunning(java.lang.String )
      */
     public synchronized boolean isRuleRunning(String ruleUID) {
@@ -188,7 +192,7 @@ public abstract class RuleManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.RuleRegistry#getScopeIdentifiers()
      */
     public synchronized Collection<String> getScopeIdentifiers() {
@@ -231,7 +235,7 @@ public abstract class RuleManager {
 
     /**
      * Persist the rule
-     * 
+     *
      * @param rule object which has to be persist.
      */
     protected abstract void storeRule(RuleImpl rule);

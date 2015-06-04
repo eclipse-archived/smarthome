@@ -15,14 +15,13 @@ package org.eclipse.smarthome.automation.handler.script;
 import java.util.Map;
 
 /**
- * @author Ana Dimova
- *
+ * @author Ana Dimova - Initial Contribution
  */
 public interface Script<T> {
 
-  public static final String SCRIPT = "script";
- 
-  T execute(Map<String, Object> parameters);
-  
-  void dispose();
+    public static final String SCRIPT = "script";
+
+    T execute(Map<String, Object> parameters);
+
+    void dispose();
 }

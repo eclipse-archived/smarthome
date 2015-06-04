@@ -27,7 +27,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  *
  */
 public class RuleImpl implements Rule {
@@ -60,7 +60,7 @@ public class RuleImpl implements Rule {
 
     /**
      * Utility constructor creating copy of the Rule.
-     * 
+     *
      * @param rule
      */
     protected RuleImpl(RuleImpl rule) {
@@ -79,6 +79,7 @@ public class RuleImpl implements Rule {
     /**
      * @see org.eclipse.smarthome.automation.Rule#getUID()
      */
+    @Override
     public String getUID() {
         return uid;
     }
@@ -90,23 +91,26 @@ public class RuleImpl implements Rule {
     /**
      * @see org.eclipse.smarthome.automation.Rule#getName()
      */
+    @Override
     public String getName() {
         return name;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#setName(java.lang.String)
      */
+    @Override
     public void setName(String ruleName) throws IllegalStateException {
         this.name = ruleName;
 
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getTags()
      */
+    @Override
     public Set<String> getTags() {
         return tags;
     }
@@ -114,55 +118,62 @@ public class RuleImpl implements Rule {
     /**
      * @see org.eclipse.smarthome.automation.Rule#setTags(java.util.Set)
      */
+    @Override
     public void setTags(Set<String> ruleTags) throws IllegalStateException {
         this.tags = ruleTags;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getDescription()
      */
+    @Override
     public String getDescription() {
         return description;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#setDescription(java.lang.String)
      */
+    @Override
     public void setDescription(String ruleDescription) {
         this.description = ruleDescription;
 
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getConfigurationDescriptions()
      */
+    @Override
     public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getConfiguration()
      */
+    @Override
     public Map<String, Object> getConfiguration() {
         return configurations != null ? new HashMap<String, Object>(configurations) : null;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#setConfiguration(java.util.Map)
      */
+    @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
         this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getModule(java.lang.String)
      */
+    @Override
     public <T extends Module> T getModule(String moduleId) {
         Module m = getModule0(moduleId);
         return (T) m;
@@ -176,7 +187,7 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * 
+     *
      */
     private Map<String, Module> initModuleMap() {
         moduleMap = new HashMap<String, Module>(20);
@@ -206,6 +217,7 @@ public class RuleImpl implements Rule {
     /**
      * @see org.eclipse.smarthome.automation.Rule#getModules(java.lang.Class)
      */
+    @Override
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         List<T> result = null;
         if (moduleClazz == null || Trigger.class == moduleClazz) {
@@ -243,9 +255,10 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Rule#getScopeIdentifier()
      */
+    @Override
     public String getScopeIdentifier() {
         return scopeId;
     }
@@ -275,7 +288,7 @@ public class RuleImpl implements Rule {
     }
 
     /**
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override

@@ -22,140 +22,142 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.handler.parser.Status;
 
 /**
- * @author Ana Dimova
+ * @author Ana Dimova - Initial Contribution
  *
  */
 public class AutomationCommandImport extends AutomationCommand {
 
-  private static final String OPTION_P = "-p";
-  
-  private String parserType   = "json"; // parser type
-  private URL    url;  // input url
+    private static final String OPTION_P = "-p";
 
-  /**
-   * 
-   * @param command
-   * @param params
-   * @param adminType 
-   * @param autoCommands 
-   */
-  public AutomationCommandImport(String command, String[] params, int adminType, AutomationCommandsPluggable autoCommands) {
-    super(command, params, adminType, autoCommands);
-  }
+    private String parserType = "json"; // parser type
+    private URL url; // input url
 
-  /**
-   * @see org.eclipse.smarthome.automation.commands.AutomationCommand#execute()
-   */
-  @Override
-  public String execute() {
-    if (parsingResult != SUCCESS) {
-      return parsingResult;
+    /**
+     *
+     * @param command
+     * @param params
+     * @param adminType
+     * @param autoCommands
+     */
+    public AutomationCommandImport(String command, String[] params, int adminType,
+            AutomationCommandsPluggable autoCommands) {
+        super(command, params, adminType, autoCommands);
     }
-    Set<Status> status = null;
-    switch (adminType) {
-      case AutomationCommands.MODULE_TYPE_ADMIN:
-        status = autoCommands.importModuleTypes(parserType, url);
-        if (status == null || status.isEmpty()) {
-          return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command, FAIL, parserType);
+
+    /**
+     * @see org.eclipse.smarthome.automation.commands.AutomationCommand#execute()
+     */
+    @Override
+    public String execute() {
+        if (parsingResult != SUCCESS) {
+            return parsingResult;
         }
-        break;
-      case AutomationCommands.TEMPLATE_ADMIN:
-        status = autoCommands.importTemplates(parserType, url);
-        if (status == null || status.isEmpty()) {
-          return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command, FAIL, parserType);
+        Set<Status> status = null;
+        switch (adminType) {
+            case AutomationCommands.MODULE_TYPE_ADMIN:
+                status = autoCommands.importModuleTypes(parserType, url);
+                if (status == null || status.isEmpty()) {
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
+                            command, FAIL, parserType);
+                }
+                break;
+            case AutomationCommands.TEMPLATE_ADMIN:
+                status = autoCommands.importTemplates(parserType, url);
+                if (status == null || status.isEmpty()) {
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
+                            command, FAIL, parserType);
+                }
+                break;
+            case AutomationCommands.RULE_ADMIN:
+                status = autoCommands.importRules(parserType, url);
+                if (status == null || status.isEmpty()) {
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
+                            command, FAIL, parserType);
+                }
+                break;
         }
-        break;
-      case AutomationCommands.RULE_ADMIN:
-        status = autoCommands.importRules(parserType, url);
-        if (status == null || status.isEmpty()) {
-          return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command, FAIL, parserType);
-        }
-        break;
-    }
-    if (status != null && !status.isEmpty()) {
-      StringBuilder writer = new StringBuilder();
-      for (Status s : status) {
-        if (st && s.hasErrors()) {
-          Map<String, Throwable> errors = s.getErrors();
-          for (String key : errors.keySet()) {
-            Throwable t = errors.get(key);
-            writer.append(key + "\n");
-            StackTraceElement[] ste = t.getStackTrace();
-            for (int i = 0; i < ste.length; i++) {
-              writer.append(ste[i].toString() + "\n");
+        if (status != null && !status.isEmpty()) {
+            StringBuilder writer = new StringBuilder();
+            for (Status s : status) {
+                if (st && s.hasErrors()) {
+                    Map<String, Throwable> errors = s.getErrors();
+                    for (String key : errors.keySet()) {
+                        Throwable t = errors.get(key);
+                        writer.append(key + "\n");
+                        StackTraceElement[] ste = t.getStackTrace();
+                        for (int i = 0; i < ste.length; i++) {
+                            writer.append(ste[i].toString() + "\n");
+                        }
+                    }
+                } else {
+                    writer.append(s.toString() + "\n");
+                }
             }
-          }
-        } else {
-          writer.append(s.toString() + "\n");
+            return writer.toString();
         }
-      }
-      return writer.toString();
+        return FAIL;
     }
-    return FAIL;
-  }
-  
-  /**
-   * 
-   * @param command
-   * @param param
-   * @param writer
-   * @return
-   */
-  private URL initURL(String param) {
-    try {
-      return new URL(param);
-    } catch (MalformedURLException mue) {
-      File f = new File(param);
-      if (f.isFile()) {
-        try {
-          return f.toURI().toURL();
-        } catch (MalformedURLException e) {
-        }
-      }
-    }
-    return null;
-  }
 
-  /**
-   * @see org.eclipse.smarthome.automation.commands.AutomationCommand#parseOptionsAndParameters(PrintStream, String[])
-   */
-  @Override
-  protected String parseOptionsAndParameters(String[] params) {
-    String command = this.command;
-    boolean getUrl = true;
-    for (int i = 0; i < params.length; i++) {
-      if (null == params[i]) {
-        continue;
-      }
-      if (params[i].equals(OPTION_ST)) {
-        st = true;
-      } 
-      else if (params[i].equalsIgnoreCase(OPTION_P)) {
-        i++;
-        if (i >= params.length) {
-          return String.format(
-                  "[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
-                  command, OPTION_P);
+    /**
+     *
+     * @param command
+     * @param param
+     * @param writer
+     * @return
+     */
+    private URL initURL(String param) {
+        try {
+            return new URL(param);
+        } catch (MalformedURLException mue) {
+            File f = new File(param);
+            if (f.isFile()) {
+                try {
+                    return f.toURI().toURL();
+                } catch (MalformedURLException e) {
+                }
+            }
         }
-        parserType = params[i];
-      }
-      else if (params[i].charAt(0) == '-') {
-        return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command, params[i]);
-      }
-      else if (getUrl) {
-        url = initURL(params[i]);
-        if (url != null) {
-          getUrl = false;
+        return null;
+    }
+
+    /**
+     * @see org.eclipse.smarthome.automation.commands.AutomationCommand#parseOptionsAndParameters(PrintStream, String[])
+     */
+    @Override
+    protected String parseOptionsAndParameters(String[] params) {
+        String command = this.command;
+        boolean getUrl = true;
+        for (int i = 0; i < params.length; i++) {
+            if (null == params[i]) {
+                continue;
+            }
+            if (params[i].equals(OPTION_ST)) {
+                st = true;
+            } else if (params[i].equalsIgnoreCase(OPTION_P)) {
+                i++;
+                if (i >= params.length) {
+                    return String
+                            .format("[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
+                                    command, OPTION_P);
+                }
+                parserType = params[i];
+            } else if (params[i].charAt(0) == '-') {
+                return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
+                        params[i]);
+            } else if (getUrl) {
+                url = initURL(params[i]);
+                if (url != null) {
+                    getUrl = false;
+                }
+            } else {
+                return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
+                        params[i]);
+            }
         }
-      }
-      else {
-        return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command, params[i]);
-      }
+        if (getUrl) {
+            return String.format("[Automation Commands : Command \"%s\"] Missing source URL parameter!", command);
+        }
+        return SUCCESS;
     }
-    if (getUrl) {
-      return String.format("[Automation Commands : Command \"%s\"] Missing source URL parameter!", command);
-    }
-    return SUCCESS;
-  }
 
 }

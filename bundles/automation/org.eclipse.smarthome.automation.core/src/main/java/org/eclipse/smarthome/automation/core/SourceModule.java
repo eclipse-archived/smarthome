@@ -15,9 +15,7 @@ package org.eclipse.smarthome.automation.core;
 import java.util.Map;
 
 /**
- * @author Yordan Mihaylov
- * @param <T>
- *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public interface SourceModule {
 

@@ -22,13 +22,15 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * This interface is used to create module instances. It is registered as
  * service in OSGi registry.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface AutomationFactory {
 
     /**
      * This method creates and configures {@link Trigger} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule.
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this {@link Trigger}.
@@ -38,7 +40,7 @@ public interface AutomationFactory {
      *            <li><code>key</code> - the name of the {@link ConfigDescriptionParameter} ,
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
-     * 
+     *
      * @return {@link Trigger}
      * @throws IllegalArgumentException when the module id is already used or
      *             module type UID is not registered.
@@ -47,7 +49,7 @@ public interface AutomationFactory {
 
     /**
      * This method creates and configures {@link Condition} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule.
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this {@link Condition}
@@ -58,7 +60,7 @@ public interface AutomationFactory {
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
      * @param connections a {@link Set} of input {@link Connection}s.
-     * 
+     *
      * @return {@link Condition}
      * @throws IllegalArgumentException when the module id is already used or UID
      *             of module type is not registered.
@@ -67,7 +69,7 @@ public interface AutomationFactory {
 
     /**
      * This method creates and configures {@link Action} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule. for
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this Action
@@ -78,7 +80,7 @@ public interface AutomationFactory {
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
      * @param connections is a a {@link Set} of input {@link Connection}s.
-     * 
+     *
      * @return {@link Action}
      * @throws IllegalArgumentException when the module id is already used or UID
      *             of module type is not registered.
@@ -87,13 +89,13 @@ public interface AutomationFactory {
 
     /**
      * This method is used to create a {@link Rule} instance.
-     * 
+     *
      * @param triggers list of {@link Trigger}s of the {@link Rule}
      * @param conditions list of {@link Condition}s of the {@link Rule}
      * @param actions list of {@link Action} of the {@link Rule}
      * @param configDescriptions meta info of properties of the {@link Rule}.
      * @param configurations configuration values of the {@link Rule}
-     * 
+     *
      * @return {@link Rule} instance.
      */
     public Rule createRule(

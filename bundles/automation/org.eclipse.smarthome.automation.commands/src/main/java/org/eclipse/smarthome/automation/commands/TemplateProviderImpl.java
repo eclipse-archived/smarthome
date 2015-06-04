@@ -24,117 +24,118 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
 import org.eclipse.smarthome.automation.handler.parser.Parser;
 import org.eclipse.smarthome.automation.handler.parser.Status;
 import org.eclipse.smarthome.automation.handler.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
- * @author Ana Dimova
+ * @author Ana Dimova - Initial Contribution
  *
  */
 public class TemplateProviderImpl extends GeneralProvider implements TemplateProvider {
 
-  /**
-   * @param context
-   */
-  public TemplateProviderImpl(BundleContext context) {
-    super(context);
-  }
-  
-  /**
-   * @see org.eclipse.smarthome.automation.core.provider.GeneralResourceBundleProvider#addingService(ServiceReference)
-   */
-  @Override
-  public Object addingService(ServiceReference reference) {
-    if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_TEMPLATE)) {
-      return super.addingService(reference);
+    /**
+     * @param context
+     */
+    public TemplateProviderImpl(BundleContext context) {
+        super(context);
     }
-    return null;
-  }
 
-  /**
-   * @param parserType
-   * @param set
-   * @param file
-   */
-  public Status exportTemplates(String parserType, Set set, File file) {
-    return super.exportData(parserType, set, file);
-  }
-
-  /**
-   * @param parserType
-   * @param url
-   * @return
-   */
-  public Set<Status> importTemplates(String parserType, URL url) {
-    InputStreamReader inputStreamReader = null;
-    Parser parser = parsers.get(parserType);
-    if (parser != null)
-      try {
-        inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
-        ArrayList portfolio = new ArrayList();
-        return importData(url.toString(), parser, inputStreamReader, portfolio);
-      } catch (IOException e) {
-        Status s = new Status(log, 0, null);
-        s.error("Can't read from URL " + url, e);
-        LinkedHashSet<Status> res = new LinkedHashSet<Status>();
-        res.add(s);
-        return res;
-      } finally {
-        try {
-          if (inputStreamReader != null) {
-            inputStreamReader.close();
-          }
-        } catch (IOException e) {
+    /**
+     * @see org.eclipse.smarthome.automation.core.provider.GeneralResourceBundleProvider#addingService(ServiceReference)
+     */
+    @Override
+    public Object addingService(ServiceReference reference) {
+        if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_TEMPLATE)) {
+            return super.addingService(reference);
         }
-      }
-    return null;
-  }
-
-  /**
-   * @see org.eclipse.smarthome.automation.commands.GeneralProvider#getUID(java.lang.Object)
-   */
-  @Override
-  protected String getUID(Object providedObject) {
-    return ((RuleTemplate) providedObject).getUID();
-  }
-
-  /**
-   * @see org.eclipse.smarthome.automation.handler.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
-   */
-  public Template getTemplate(String UID, Locale locale) {
-    synchronized (lock) {
-      Localizer l = providedObjectsHolder.get(UID);
-      if (l != null) {
-        Template t = (Template) l.localize(locale);
-        return t;
-      }
+        return null;
     }
-    return null;
-  }
 
-  /**
-   * @see org.eclipse.smarthome.automation.handler.TemplateProvider#getTemplates(java.util.Locale)
-   */
-  public Collection<Template> getTemplates(Locale locale) {
-    ArrayList<Template> templatesList = new ArrayList<Template>();
-    synchronized (lock) {
-      Iterator i = providedObjectsHolder.values().iterator();
-      while (i.hasNext()) {
-        Localizer l = (Localizer) i.next();
-        if (l != null) {
-          Template t = (Template) l.localize(locale);
-          if (t != null)
-            templatesList.add(t);
+    /**
+     * @param parserType
+     * @param set
+     * @param file
+     */
+    public Status exportTemplates(String parserType, Set set, File file) {
+        return super.exportData(parserType, set, file);
+    }
+
+    /**
+     * @param parserType
+     * @param url
+     * @return
+     */
+    public Set<Status> importTemplates(String parserType, URL url) {
+        InputStreamReader inputStreamReader = null;
+        Parser parser = parsers.get(parserType);
+        if (parser != null)
+            try {
+                inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
+                ArrayList portfolio = new ArrayList();
+                return importData(url.toString(), parser, inputStreamReader, portfolio);
+            } catch (IOException e) {
+                Status s = new Status(log, 0, null);
+                s.error("Can't read from URL " + url, e);
+                LinkedHashSet<Status> res = new LinkedHashSet<Status>();
+                res.add(s);
+                return res;
+            } finally {
+                try {
+                    if (inputStreamReader != null) {
+                        inputStreamReader.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
+        return null;
+    }
+
+    /**
+     * @see org.eclipse.smarthome.automation.commands.GeneralProvider#getUID(java.lang.Object)
+     */
+    @Override
+    protected String getUID(Object providedObject) {
+        return ((RuleTemplate) providedObject).getUID();
+    }
+
+    /**
+     * @see org.eclipse.smarthome.automation.handler.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
+     */
+    @Override
+    public Template getTemplate(String UID, Locale locale) {
+        synchronized (lock) {
+            Localizer l = providedObjectsHolder.get(UID);
+            if (l != null) {
+                Template t = (Template) l.localize(locale);
+                return t;
+            }
         }
-      }
+        return null;
     }
-    return templatesList;
-  }
+
+    /**
+     * @see org.eclipse.smarthome.automation.handler.TemplateProvider#getTemplates(java.util.Locale)
+     */
+    @Override
+    public Collection<Template> getTemplates(Locale locale) {
+        ArrayList<Template> templatesList = new ArrayList<Template>();
+        synchronized (lock) {
+            Iterator i = providedObjectsHolder.values().iterator();
+            while (i.hasNext()) {
+                Localizer l = (Localizer) i.next();
+                if (l != null) {
+                    Template t = (Template) l.localize(locale);
+                    if (t != null)
+                        templatesList.add(t);
+                }
+            }
+        }
+        return templatesList;
+    }
 
 }

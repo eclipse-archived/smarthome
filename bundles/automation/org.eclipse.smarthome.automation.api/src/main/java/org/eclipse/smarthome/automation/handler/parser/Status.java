@@ -19,8 +19,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 /**
- * @author Ana Dimova
- *
+ * @author Ana Dimova - Initial Contribution
  */
 public class Status {
 

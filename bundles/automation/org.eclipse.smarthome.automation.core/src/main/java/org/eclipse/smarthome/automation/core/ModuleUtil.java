@@ -19,12 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.FrameworkUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
@@ -33,11 +29,14 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Util used for resolving references in {@link ConfigDescriptionParameter} , {@link Input} and {@link Output} in Module
- * 
- * @author v.ilchev
+ *
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class ModuleUtil {
     /**
@@ -58,7 +57,7 @@ public class ModuleUtil {
      * Configuration property can set its value to other Configuration properties with its context.
      * {@link ConfigDescriptionParameter#getContext()} i.e. Custom Config property can set its value to System Config
      * property
-     * 
+     *
      * @param moduleTypeUID the ModuleType UID
      * @param configuration the original configuration
      * @return Map with resolved configuration - {@link Module} will be ready to work with<br/>
@@ -93,7 +92,7 @@ public class ModuleUtil {
      * Resolves references between inputs. Returned Map is later on used in {@link #resolveInputs(Map, Map)}.
      * Input can set its value to other Inputs with its reference. {@link Input#getReference()}.
      * i.e. Custom Input can set its value to System Input.
-     * 
+     *
      * @param moduleTypeUID the ModuleType UID
      * @return Map with resolved Input references.<br/>
      *         key: Input with reference to other Inputs, value: the referred Inputs.
@@ -115,7 +114,7 @@ public class ModuleUtil {
 
     /**
      * Resolves Inputs.
-     * 
+     *
      * @param resolvedInputReferences the resolved Input references. Firstly must be called -
      *            {@link #resolveInputReferences(String)}
      * @param inputValues the Input values by the moment (i.e. custom Input values)
@@ -156,7 +155,7 @@ public class ModuleUtil {
     /**
      * Resolves Outputs of the given ModuleType.
      * Custom Outputs hold <code>reference</code> to System/Other Custom Output.
-     * 
+     *
      * @param moduleTypeUID the ModuleType UID
      * @param systemOutputs calculated System Outputs
      * @return Map with resolved Outputs (System Outputs & Custom Outputs)
@@ -241,7 +240,7 @@ public class ModuleUtil {
 
     /**
      * Collects all ModuleTypes for given ModuleTypeUID
-     * 
+     *
      * @param moduleTypeUID the source module type
      * @return list of all module types in the hierarchy
      */
@@ -275,7 +274,7 @@ public class ModuleUtil {
 
     /**
      * Fills up all referred config properties in the chain by the source config property.
-     * 
+     *
      * @param configDescription the source ConfigDescriptionParameter
      * @param configValue the value of the source config property
      * @param configDescriptionsMap map key: name of ConfigDescriptionParameter, value: the ConfigDescriptionParameter
@@ -295,7 +294,7 @@ public class ModuleUtil {
 
     /**
      * Fill up all referred Inputs in the chain by the source Input.
-     * 
+     *
      * @param input the source Input
      * @param inputDescriptionsMap Map with meta info for current ModuleType Inputs
      * @param resolvedInputReferences current resolved Map with references.<br/>
@@ -334,7 +333,7 @@ public class ModuleUtil {
      * Custom Output with set value or System Output that has already set value).
      * After Output with value is reached - this value is set to all Outputs that are passed in the chain to the source
      * Output(from where searching has begun)
-     * 
+     *
      * @param output the Custom output
      * @param outputDescriptions Map with all output descriptions
      * @param resolvedOutputs current resolved Outputs (System Outputs too)
@@ -385,7 +384,7 @@ public class ModuleUtil {
 
     /**
      * Gets default value recursively.
-     * 
+     *
      * @param configDescription the source ConfigDescriptionParameter
      * @param defaultValue the default value of the config property
      * @param configContextMap map key: name of ConfigDescriptionParameter, value: the ConfigDescriptionParameter
@@ -416,7 +415,7 @@ public class ModuleUtil {
 
     /**
      * Tries to convert raw value to its type.
-     * 
+     *
      * @param value raw value
      * @param type the type to be converted to
      * @return the converted value
@@ -453,7 +452,7 @@ public class ModuleUtil {
 
     /**
      * Validates if ConfigDescriptionParameter Type is equal to referred ConfigDescriptionParameter Type
-     * 
+     *
      * @param configDescription the source ConfigDescriptionParameter
      * @param referredConfigName the referred ConfigDescriptionParameter name
      * @param configDescriptionsMap Map with ConfigDescriptionParameter {@link #toConfigDescriptionMap(Set)}
@@ -472,7 +471,7 @@ public class ModuleUtil {
 
     /**
      * Validates source Input\Output value is assignableFrom Input\Output type.
-     * 
+     *
      * @param referredType the referred Input\Output type (fully qualified name i.e. java.lang.String)
      * @param value the source Input\Output value
      * @return true if is assignableFrom referred Input\Output type, false otherwise.
@@ -492,7 +491,7 @@ public class ModuleUtil {
     /**
      * Converts Set of ConfigDescriptionParameter to Map <br/>
      * <code>key</code>: name of ConfigDescriptionParamater, <code>value</code>: ConfigDescriptionParamater
-     * 
+     *
      * @param configurationDescriptions Set of ConfigDescriptionParameter
      * @return Map with ConfigDescriptionParameters
      */
@@ -509,7 +508,7 @@ public class ModuleUtil {
     /**
      * Converts Set of Input to Map <br/>
      * <code>key</code>: name of Input, <code>value</code>: Input
-     * 
+     *
      * @param inputs Set of Input
      * @return Map with Inputs
      */
@@ -524,7 +523,7 @@ public class ModuleUtil {
     /**
      * Converts Set of Output to Map <br/>
      * <code>key</code>: name of Input, <code>value</code>: Input
-     * 
+     *
      * @param inputs Set of Input
      * @return Map with Inputs
      */
@@ -538,7 +537,7 @@ public class ModuleUtil {
 
     /**
      * Checks if object is parsable or not(starts with {@link #PARSABLE_DOLLAR})
-     * 
+     *
      * @param obj the object to be checked
      * @return true if object is parsable, false otherwise
      */
@@ -548,7 +547,7 @@ public class ModuleUtil {
 
     /**
      * Simple parsing of context/reference starting with {@link #PARSABLE_DOLLAR}.
-     * 
+     *
      * @param parsable the parsable context/reference
      * @return parsed context/reference.
      */
@@ -558,7 +557,7 @@ public class ModuleUtil {
 
     /**
      * Gets parent moduleTypeUID if passed moduleTypeUID has parent
-     * 
+     *
      * @param childModuleTypeUID the UID of the moduleType
      * @return parent module type UID if passed moduleType has parent, null otherwise
      */

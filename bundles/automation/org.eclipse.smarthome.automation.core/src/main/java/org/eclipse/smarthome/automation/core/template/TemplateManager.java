@@ -17,16 +17,18 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * @author Yordan Mihaylov - Initial Contribution
+ */
 public class TemplateManager {
 
     private ServiceTracker templateProviderTracker;

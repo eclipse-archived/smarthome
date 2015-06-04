@@ -19,7 +19,7 @@ import java.util.Locale;
  * This interface has to be implemented by all providers of {@link Template}s.
  * The {@link TemplateRegistry} uses it to get access to available {@link Template} s.
  *
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public interface TemplateProvider {
 

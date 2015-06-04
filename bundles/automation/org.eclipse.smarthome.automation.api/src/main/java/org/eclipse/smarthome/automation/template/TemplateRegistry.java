@@ -21,7 +21,9 @@ import java.util.Locale;
  * When the parameter is not specified or there is no such localization
  * resources the returned template is localized with default locale.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface TemplateRegistry {
 

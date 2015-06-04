@@ -12,44 +12,43 @@
 
 package org.eclipse.smarthome.automation.commands;
 
-
 /**
- * @author Ana Dimova
+ * @author Ana Dimova - Initial Contribution
  *
  */
 public abstract class AutomationCommand {
 
-  static final String                   SUCCESS   = "SUCCESS";
-  static final String                   FAIL      = "FAIL";
+    static final String SUCCESS = "SUCCESS";
+    static final String FAIL = "FAIL";
 
-  protected static final String         OPTION_ST = "-st";
+    protected static final String OPTION_ST = "-st";
 
-  protected String                      parsingResult;
+    protected String parsingResult;
 
-  protected int                         adminType;
-  protected String                      command;
-  protected boolean                     st        = false;    // print stack trace option
-  protected AutomationCommandsPluggable autoCommands;
+    protected int adminType;
+    protected String command;
+    protected boolean st = false; // print stack trace option
+    protected AutomationCommandsPluggable autoCommands;
 
-  public AutomationCommand(String command, String[] params, int adminType, AutomationCommandsPluggable autoCommands) {
-    this.command = command;
-    this.adminType = adminType;
-    this.autoCommands = autoCommands;
-    parsingResult = parseOptionsAndParameters(params);
-  }
+    public AutomationCommand(String command, String[] params, int adminType, AutomationCommandsPluggable autoCommands) {
+        this.command = command;
+        this.adminType = adminType;
+        this.autoCommands = autoCommands;
+        parsingResult = parseOptionsAndParameters(params);
+    }
 
-  /**
+    /**
    *
    */
-  public abstract String execute();
+    public abstract String execute();
 
-  /**
-   * 
-   * @param writer
-   * @param params
-   * @param options
-   * @return
-   */
-  protected abstract String parseOptionsAndParameters(String[] params);
+    /**
+     *
+     * @param writer
+     * @param params
+     * @param options
+     * @return
+     */
+    protected abstract String parseOptionsAndParameters(String[] params);
 
 }

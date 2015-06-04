@@ -17,6 +17,9 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 
+/**
+ * @author Yordan Mihaylov - Initial Contribution
+ */
 public class TriggerImpl extends ModuleImpl<TriggerHandler> implements Trigger, SourceModule {
 
     private Map<String, ?> outputs;
@@ -29,10 +32,12 @@ public class TriggerImpl extends ModuleImpl<TriggerHandler> implements Trigger, 
         super(t);
     }
 
+    @Override
     public void setOuputs(Map<String, ?> outputs) {
         this.outputs = outputs;
     }
 
+    @Override
     public Object getOuputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
     }

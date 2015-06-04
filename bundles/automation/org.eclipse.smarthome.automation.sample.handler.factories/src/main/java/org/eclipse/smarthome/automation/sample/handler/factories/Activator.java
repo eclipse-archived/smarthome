@@ -15,25 +15,31 @@ package org.eclipse.smarthome.automation.sample.handler.factories;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-
+/**
+ * OSGi Bundle Activator
+ *
+ * @author Vasil Ilchev - Initial Contribution
+ */
 public class Activator implements BundleActivator {
-  
-  static BundleContext             bc;
-  private SampleHandlerFactory         sampleHandlerFactory;
-  private SampleHandlerFactoryCommands commands;
 
-  public void start(BundleContext context) throws Exception {
-    bc = context;
-    sampleHandlerFactory = new SampleHandlerFactory(bc);
-    commands = new SampleHandlerFactoryCommands(sampleHandlerFactory, bc);
-  }
+    static BundleContext bc;
+    private SampleHandlerFactory sampleHandlerFactory;
+    private SampleHandlerFactoryCommands commands;
 
-  public void stop(BundleContext context) throws Exception {
-    commands.stop();
-    sampleHandlerFactory.dispose();
-    commands = null;
-    sampleHandlerFactory = null;
-    bc = null;
-  }
+    @Override
+    public void start(BundleContext context) throws Exception {
+        bc = context;
+        sampleHandlerFactory = new SampleHandlerFactory(bc);
+        commands = new SampleHandlerFactoryCommands(sampleHandlerFactory, bc);
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        commands.stop();
+        sampleHandlerFactory.dispose();
+        commands = null;
+        sampleHandlerFactory = null;
+        bc = null;
+    }
 
 }

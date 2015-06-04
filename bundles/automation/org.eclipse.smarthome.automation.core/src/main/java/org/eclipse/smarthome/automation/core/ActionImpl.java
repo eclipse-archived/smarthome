@@ -32,8 +32,10 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * input data as source data of other Actions. Building elements of actions ( {@link ConfigDescriptionParameter}s,
  * {@link Input}s and {@link Output}s) are
  * defined by {@link ActionType}
- * 
- * @author Yordan Mihaylov, dimova, v.ilchev
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class ActionImpl extends ModuleImpl<ActionHandler> implements Action, ConnectedModule, SourceModule {
 
@@ -52,34 +54,42 @@ public class ActionImpl extends ModuleImpl<ActionHandler> implements Action, Con
         setConnections(a.getConnections());
     }
 
+    @Override
     public Set<Connection> getConnections() {
         return copyConnections(connections);
     }
 
+    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
+    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
+    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
+    @Override
     public void setOuputs(Map<String, ?> outputs) {
         this.outputs = outputs;
     }
 
+    @Override
     public Object getOuputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
     }
 
+    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
+    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
 
