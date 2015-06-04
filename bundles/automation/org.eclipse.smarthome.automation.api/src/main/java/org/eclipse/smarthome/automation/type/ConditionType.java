@@ -23,7 +23,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * id in scope of the rule engine and defines {@link ConfigDescriptionParameter} s and {@link Input}s of the
  * {@link Condition} instance.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class ConditionType extends ModuleType {
 
@@ -31,13 +33,13 @@ public class ConditionType extends ModuleType {
 
     /**
      * Constructor of condition type.
-     * 
+     *
      * @param UID unique id of the condition type.
-     * 
+     *
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param inputs is a {@link Set} of {@link Input} definitions.
      * @param visibility defines if this type can be used by other users.
-     * 
+     *
      */
     public ConditionType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Input> inputs) {
         super(UID, configDescriptions);
@@ -47,7 +49,7 @@ public class ConditionType extends ModuleType {
     /**
      * This method is used for getting the meta info of inputs defined by this
      * module type.
-     * 
+     *
      * @return a {@link Set} of {@link Input} definitions.
      */
     public Set<Input> getInputs() {

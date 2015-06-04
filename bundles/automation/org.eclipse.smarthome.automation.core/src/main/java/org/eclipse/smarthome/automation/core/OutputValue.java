@@ -12,6 +12,10 @@
 
 package org.eclipse.smarthome.automation.core;
 
+/**
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ */
 class OutputValue {
 
     private String outputName;
@@ -29,9 +33,9 @@ class OutputValue {
     public Object getValue() {
         return sourceModule.getOuputValue(outputName);
     }
-    
+
     @Override
     public String toString() {
-    	return "OutputValue:" + outputName + "="+ getValue();
+        return "OutputValue:" + outputName + "=" + getValue();
     }
 }

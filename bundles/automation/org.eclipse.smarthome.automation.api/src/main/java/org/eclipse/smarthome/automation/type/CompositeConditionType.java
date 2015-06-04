@@ -24,6 +24,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * condition hides internal logic
  * between participating conditions and it can be used as a regular {@link Condition} module.
  *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class CompositeConditionType extends ConditionType {
 
@@ -31,13 +34,13 @@ public class CompositeConditionType extends ConditionType {
 
     /**
      * Creates a CompositeTriggerDescriptor with ordered set of {@link Trigger}s
-     * 
+     *
      * @param UID unique id of composite condition module type
-     * 
+     *
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param modules is an ordered list of {@link Trigger}(s)
      * @param inputs is a {@link Set} of {@link Input} definitions.
-     * 
+     *
      */
     public CompositeConditionType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Input> inputs,
             List<Condition> modules) {

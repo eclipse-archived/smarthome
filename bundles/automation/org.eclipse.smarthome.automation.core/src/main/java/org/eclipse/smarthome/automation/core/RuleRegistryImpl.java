@@ -1,13 +1,15 @@
-/*
- * Copyright (c) 2015 by ProSyst Software GmbH
+/*******************************************************************************
+ * Copyright (c) 1997, 2015 by ProSyst Software GmbH
  * http://www.prosyst.com
- * All rights reserved.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
- * This software is the confidential and proprietary information
- * of ProSyst Software GmbH. You shall not disclose such Confidential
- * Information and shall use it only in accordance with the terms
- * of the license agreement you entered into with ProSyst.
- */
+ * Contributors:
+ *    ProSyst Software GmbH - initial API and implementation
+ *******************************************************************************/
+
 package org.eclipse.smarthome.automation.core;
 
 import java.util.Collection;
@@ -18,8 +20,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 
 /**
- * @author Yoradan Mihaylov
- *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements RuleRegistry {
 
@@ -30,61 +31,69 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements 
         this.addProvider(rp);
     }
 
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.core.common.registry.Registry#get(java.lang.Object)
      */
     @Override
     public Rule get(String key) {
-      return ruleManager.getRule(key);
+        return ruleManager.getRule(key);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.automation.RuleRegistry#getByTag(java.lang.String)
      */
     @Override
     public Collection<Rule> getByTag(String tag) {
-      return ruleManager.getRulesByTag(tag);
+        return ruleManager.getRulesByTag(tag);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.automation.RuleRegistry#setEnabled(java.lang.String, boolean)
      */
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-      ruleManager.setRuleEnabled(uid, isEnabled);
+        ruleManager.setRuleEnabled(uid, isEnabled);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.automation.RuleRegistry#isEnabled(java.lang.String)
      */
     @Override
     public boolean isEnabled(String uid) {
-      return ruleManager.isRuleEnabled(uid);
+        return ruleManager.isRuleEnabled(uid);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.automation.RuleRegistry#isRunning(java.lang.String)
      */
     @Override
     public boolean isRunning(String uid) {
-      return ruleManager.isRuleRunning(uid);
+        return ruleManager.isRuleRunning(uid);
     }
 
     protected void storeRule(RuleImpl rule) {
-      // TODO Auto-generated method stub
+        // TODO Auto-generated method stub
     }
 
     protected Set<RuleImpl> loadRules() {
         return null;
     }
 
-
     /**
-     * 
+     *
      */
     public void dispose() {
-      ruleManager.dispose();
+        ruleManager.dispose();
     }
 
 }

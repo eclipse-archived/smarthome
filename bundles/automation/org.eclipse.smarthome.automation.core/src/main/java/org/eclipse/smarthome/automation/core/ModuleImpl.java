@@ -20,9 +20,16 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
+/**
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
+ */
 public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
 
     /**
@@ -45,7 +52,7 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
 
     /**
      * Configuration values of the Module.
-     * 
+     *
      * @see {@link ConfigDescriptionParameter}.
      */
     protected Map<String, Object> configuration;
@@ -68,9 +75,10 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
 
     /**
      * This method is used for getting the {@link #id} of the {@link Module}.
-     * 
+     *
      * @return module id
      */
+    @Override
     public String getId() {
         return id;
     }
@@ -80,6 +88,7 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      * 
      * @see org.eclipse.smarthome.automation.Module#getModuleTypeUID()
      */
+    @Override
     public String getTypeUID() {
         return typeUID;
     }
@@ -88,9 +97,10 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      * This method is used for getting the label of the {@link Module}. The label
      * is a short, user friendly name of the {@link Module} defined by this
      * descriptor.
-     * 
+     *
      * @return the label of the module.
      */
+    @Override
     public String getLabel() {
         return label;
     }
@@ -99,9 +109,10 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      * This method is used for setting the label of the {@link Module}. The label
      * is a short, user friendly name of the {@link Module} defined by this
      * descriptor.
-     * 
+     *
      * @param label of the module.
      */
+    @Override
     public void setLabel(String label) {
         this.label = label;
     }
@@ -109,9 +120,10 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
     /**
      * This method is used for getting the description of the {@link Module}. The
      * description is a long, user friendly description of the {@link Module} defined by this descriptor.
-     * 
+     *
      * @return the description of the module.
      */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -119,17 +131,20 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
     /**
      * This method is used for setting the description of the {@link Module}. The
      * description is a long, user friendly description of the {@link Module} defined by this descriptor.
-     * 
+     *
      * @param description of the module.
      */
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public Map<String, Object> getConfiguration() {
         return configuration;
     }
 
+    @Override
     public void setConfiguration(Map<String, ?> configuration) {
         this.configuration = ModuleUtil.resolveConfiguration(typeUID, configuration);
     }

@@ -17,32 +17,32 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * @author Ana Dimova
+ * @author Ana Dimova - Initial Contribution
  *
  */
 public class Localizer {
 
-  private static Locale       DEFAULT        = Locale.getDefault();
-  private Map<Locale, Object> localeProvider = new HashMap<Locale, Object>();
+    private static Locale DEFAULT = Locale.getDefault();
+    private Map<Locale, Object> localeProvider = new HashMap<Locale, Object>();
 
-  /**
-   * @param providedObject
-   */
-  public Localizer(Object providedObject) {
-    localeProvider.put(DEFAULT, providedObject);
-  }
-
-  public Object localize(Locale locale) {
-    if (locale == null) {
-      return localeProvider.get(DEFAULT);
+    /**
+     * @param providedObject
+     */
+    public Localizer(Object providedObject) {
+        localeProvider.put(DEFAULT, providedObject);
     }
-    return localeProvider.get(locale) == null ? localize(locale, localeProvider.get(DEFAULT)) : localeProvider
-        .get(locale);
-  }
 
-  private Object localize(Locale locale, Object providedObject) {
-    // TODO
-    return providedObject;
-  }
-  
+    public Object localize(Locale locale) {
+        if (locale == null) {
+            return localeProvider.get(DEFAULT);
+        }
+        return localeProvider.get(locale) == null ? localize(locale, localeProvider.get(DEFAULT)) : localeProvider
+                .get(locale);
+    }
+
+    private Object localize(Locale locale, Object providedObject) {
+        // TODO
+        return providedObject;
+    }
+
 }

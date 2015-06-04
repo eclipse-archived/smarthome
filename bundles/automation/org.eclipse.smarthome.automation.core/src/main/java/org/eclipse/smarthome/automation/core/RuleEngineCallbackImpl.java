@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 
 /**
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  *
  */
 public class RuleEngineCallbackImpl implements RuleEngineCallback {
@@ -53,6 +53,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
      * @see org.eclipse.smarthome.automation.handler.RuleEngineCallback#triggered(org.eclipse.smarthome.automation.Trigger,
      *      java.util.Map)
      */
+    @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
         if (trigger instanceof SourceModule) {
             queue.add(new TriggerData(trigger, outputs));

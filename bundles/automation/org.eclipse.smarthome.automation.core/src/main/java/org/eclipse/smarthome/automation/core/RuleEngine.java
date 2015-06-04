@@ -21,20 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -42,10 +35,15 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.Input;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author Yordan Mihaylov
- *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */{
 
@@ -68,8 +66,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             runningRules = new HashMap<String, Thread>(20);
         }
         moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
-        msfTracker = new ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */(bc, ModuleHandlerFactory.class.getName(),
-                this);
+        msfTracker = new ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */(bc,
+                ModuleHandlerFactory.class.getName(), this);
         msfTracker.open();
 
     }
@@ -105,8 +103,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     result = true;
                 } catch (Throwable e) {
                     log.warn(
-                            "Missing handler: " + t.getTypeUID() + ", for the module: " + t.getId() + ". " + e.getMessage(),
-                            e);
+                            "Missing handler: " + t.getTypeUID() + ", for the module: " + t.getId() + ". "
+                                    + e.getMessage(), e);
                     if (all) {
                         return false;
                     }
@@ -214,9 +212,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     /**
-     * 
+     *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
+    @Override
     public ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */reference) {
         ModuleHandlerFactory msf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = msf.getTypes();
@@ -233,11 +232,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     /**
-     * 
+     *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
-    public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */Object service) {
+    @Override
+    public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */
+            Object service) {
         // TODO Auto-generated method stub
 
     }
@@ -246,7 +247,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
-    public void removedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */Object service) {
+    @Override
+    public void removedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */
+            Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
@@ -283,6 +286,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             this.reCallback = reCallback;
         }
 
+        @Override
         public void run() {
             TriggerData td = null;
             synchronized (reCallback) {

@@ -23,6 +23,9 @@ import org.eclipse.smarthome.automation.type.Input;
  * This interface is implemented by modules which have inputs.
  * ConditionImpl and ActionImpl implements this interface.
  *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface ConnectedModule {
 

@@ -17,12 +17,15 @@ package org.eclipse.smarthome.automation.handler;
  * itself. The callback has to implemented {@link RuleEngineCallback} interface
  * and it is used to notify the RuleEngine when {@link TriggerHandler} was triggered
  *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface TriggerHandler extends ModuleHandler {
 
     /**
      * This method is used to set a callback object to the RuleEngine
-     * 
+     *
      * @param ruleCallback a callback object to the RuleEngine.
      */
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback);

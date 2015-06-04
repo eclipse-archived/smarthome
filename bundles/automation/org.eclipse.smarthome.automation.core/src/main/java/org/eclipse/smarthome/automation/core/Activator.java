@@ -1,3 +1,15 @@
+/*******************************************************************************
+ * Copyright (c) 1997, 2015 by ProSyst Software GmbH
+ * http://www.prosyst.com
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    ProSyst Software GmbH - initial API and implementation
+ *******************************************************************************/
+
 package org.eclipse.smarthome.automation.core;
 
 import org.eclipse.smarthome.automation.AutomationFactory;
@@ -12,6 +24,13 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
+/**
+ * OSGi Bundle Activator
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
+ */
 public class Activator implements BundleActivator {
     private ServiceRegistration automationFactoryReg;
     private ServiceRegistration ruleAdminReg;
@@ -22,8 +41,9 @@ public class Activator implements BundleActivator {
     private static ModuleTypeRegistryImpl moduleTypeAdmin;
     private static BundleContext bc;
 
+    @Override
     public void start(BundleContext bc) throws Exception {
-        this.bc = bc;
+        Activator.bc = bc;
         // log = new Log(bc);
         if (automationFactoryReg == null) {
             automationFactoryReg = bc.registerService(AutomationFactory.class.getName(), new AutomationFactoryImpl(),
@@ -39,6 +59,7 @@ public class Activator implements BundleActivator {
         ruleAdminReg = bc.registerService(RuleRegistry.class.getName(), ruleAdmin, null);
     }
 
+    @Override
     public void stop(BundleContext bc) throws Exception {
         if (automationFactoryReg != null) {
             automationFactoryReg.unregister();

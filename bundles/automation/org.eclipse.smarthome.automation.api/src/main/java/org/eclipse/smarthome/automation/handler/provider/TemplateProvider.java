@@ -22,7 +22,7 @@ import org.eclipse.smarthome.automation.template.TemplateRegistry;
  * This interface has to be implemented by all providers of {@link Template}s.
  * The {@link TemplateRegistry} uses it to get access to available {@link Template} s.
  *
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public interface TemplateProvider {
 
@@ -30,7 +30,7 @@ public interface TemplateProvider {
      * This method is used to get localized Template. When the localization is not
      * specified or it is not supported a Template with default locale is
      * returned.
-     * 
+     *
      * @param UID unique id of Template.
      * @param locale defines localization of label and description of the {@link Template} or null.
      * @return localized Template.
@@ -41,7 +41,7 @@ public interface TemplateProvider {
      * This method is used to get localized Templates defined by this provider.
      * When localization is not specified or it is not supported a Templates with
      * default localization is returned.
-     * 
+     *
      * @param locale defines localization of label and description of the {@link Template}s or null.
      * @return collection of localized {@link Template} provided by this provider
      */

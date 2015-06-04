@@ -15,14 +15,14 @@ package org.eclipse.smarthome.automation.handler.script;
 import org.eclipse.smarthome.automation.Module;
 
 /**
- * @author Yordan Mihaylov, Ana Dimova
- *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
  */
 public interface ScriptEngine {
-  
-  public static final String LANGUAGE = "language";
-  
-  public static final String JUEL = "JUEL";
-  
-  Script createScript(Module module);
+
+    public static final String LANGUAGE = "language";
+
+    public static final String JUEL = "JUEL";
+
+    Script createScript(Module module);
 }

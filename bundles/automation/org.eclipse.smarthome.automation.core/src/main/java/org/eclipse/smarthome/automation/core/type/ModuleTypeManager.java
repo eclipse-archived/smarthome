@@ -17,9 +17,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
-
 import org.eclipse.smarthome.automation.handler.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
@@ -28,10 +25,11 @@ import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * @author Yordan Mihaylov
- *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public class ModuleTypeManager {
 
@@ -54,7 +52,7 @@ public class ModuleTypeManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getType(java.lang.String)
      */
     public <T extends ModuleType> T getType(String typeUID) {
@@ -62,7 +60,7 @@ public class ModuleTypeManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getType(java.lang.String, java.util.Locale)
      */
     public <T extends ModuleType> T getType(String typeUID, Locale locale) {
@@ -79,7 +77,7 @@ public class ModuleTypeManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getTypesByTag(java.lang.String)
      */
     public <T extends ModuleType> Collection<T> getTypesByTag(String tag) {
@@ -87,7 +85,7 @@ public class ModuleTypeManager {
     }
 
     /**
-     * 
+     *
      * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getTypesByTag(java.lang.String, java.util.Locale)
      */
     public <T extends ModuleType> Collection<T> getTypesByTag(String tag, Locale locale) {
@@ -122,7 +120,7 @@ public class ModuleTypeManager {
 
     /**
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getTypes(java.lang.Class, java.util.Locale)
      */
     public <T extends ModuleType> Collection<T> getTypes(Class<T> moduleType, Locale locale) {
@@ -148,7 +146,7 @@ public class ModuleTypeManager {
     }
 
     /**
-     * 
+     *
      */
     public void dispose() {
         moduleTypeTracker.close();

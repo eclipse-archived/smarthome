@@ -22,8 +22,8 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.type.Input;
 
 /**
- * 
- * @author Yordan Mihaylov
+ *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condition, ConnectedModule {
 
@@ -44,6 +44,7 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condi
     /**
      * @see org.eclipse.smarthome.automation.Condition#getConnections()
      */
+    @Override
     public Set<Connection> getConnections() {
         return copyConnections(connections);
     }
@@ -51,22 +52,27 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condi
     /**
      * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
      */
+    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
+    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
+    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
+    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
+    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
     }
