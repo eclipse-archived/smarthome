@@ -50,7 +50,8 @@ public class ModuleUtil {
      */
     public static final String MODULE_SEPARATOR = ":";
 
-    private static Logger log;
+    private static Logger log = LoggerFactory.getLogger(ModuleUtil.class);
+
 
     /**
      * Resolves references in configuration.
@@ -69,16 +70,16 @@ public class ModuleUtil {
             Map<String, ConfigDescriptionParameter> configDescriptionsMap = getAllModuleTypeConfigDescriptions(moduleTypeUID);
             if (configDescriptionsMap != null) {
                 resolvedConfiguration = new HashMap(); // initialize
-                for (ConfigDescriptionParameter configDescription : configDescriptionsMap.values()) {
-                    String configName = configDescription.getName();
+                for (ConfigDescriptionParameter configParameter : configDescriptionsMap.values()) {
+                    String configName = configParameter.getName();
                     if (!resolvedConfiguration.containsKey(configName)) {
                         Object configValue = configuration.get(configName);
                         if (configValue == null) {// get default value
-                            configValue = getConfigDefaultValue(configDescription, configDescriptionsMap, configuration);
+                            configValue = getConfigDefaultValue(configParameter, configDescriptionsMap, configuration);
                         }
                         resolvedConfiguration.put(configName, configValue);
                         // fill up all referred properties in the chain
-                        fillReferredConfigs(configDescription, configValue, configDescriptionsMap,
+                        fillReferredConfigs(configParameter, configValue, configDescriptionsMap,
                                 resolvedConfiguration);
                     }
                 }
@@ -141,7 +142,7 @@ public class ModuleUtil {
                     if (validateConnectionType(referredInput.getType(), inputValue)) {
                         resolvedInputs.put(referredInput.getName(), inputValue);
                     } else {
-                        getLog().error(
+                        log.error(
                                 "Input: " + input.getName() + " value type " + inputValue.getClass().getName()
                                         + " is not assignableFrom referred Input type " + referredInput.getType());
                     }
@@ -205,7 +206,7 @@ public class ModuleUtil {
                 } else {
                     // error case
                     inputs = null;
-                    getLog().error(
+                    log.error(
                             "From ModuleType uid=" + moduleTypeUID + " -> no suitable ModuleType uid="
                                     + moduleType.getUID());
                     break;
@@ -228,7 +229,7 @@ public class ModuleUtil {
                 } else {
                     // error case
                     outputs = null;
-                    getLog().error(
+                    log.error(
                             "From ModuleType uid=" + moduleTypeUID + " -> no suitable ModuleType uid="
                                     + moduleType.getUID());
                     break;
@@ -246,7 +247,6 @@ public class ModuleUtil {
      */
     private static List<ModuleType> getAllModuleTypes(String moduleTypeUID) {
         List<ModuleType> allModuleTypes = null;
-        // ModuleTypeManager moduleTypeRegistry = Activator.getModuleTypeManager();
         ModuleTypeManager moduleTypeRegistry = ModuleTypeManager.getInstance();
         if (moduleTypeRegistry != null) {
             allModuleTypes = new ArrayList();
@@ -260,14 +260,14 @@ public class ModuleUtil {
                 } else {
                     // error case
                     allModuleTypes = null;
-                    getLog().error(
+                    log.error(
                             "From ModuleType uid=" + moduleTypeUID + " -> ModuleType uid=" + currentModuleTypeUID
                                     + " is not available.");
                     break;
                 }
             } while (currentModuleTypeUID != null);
         } else {
-            getLog().error("ModuleTypeRegistry is not available.");
+            log.error("ModuleTypeRegistry is not available.");
         }
         return allModuleTypes;
     }
@@ -275,18 +275,18 @@ public class ModuleUtil {
     /**
      * Fills up all referred config properties in the chain by the source config property.
      *
-     * @param configDescription the source ConfigDescriptionParameter
+     * @param configParameter the source ConfigDescriptionParameter
      * @param configValue the value of the source config property
      * @param configDescriptionsMap map key: name of ConfigDescriptionParameter, value: the ConfigDescriptionParameter
      * @param resolvedConfiguration current resultConfiguration
      */
-    private static void fillReferredConfigs(ConfigDescriptionParameter configDescription, Object configValue,
+    private static void fillReferredConfigs(ConfigDescriptionParameter configParameter, Object configValue,
             Map<String, ConfigDescriptionParameter> configDescriptionsMap, Map resolvedConfiguration) {
 
-        String configContext = configDescription.getContext();
+        String configContext = configParameter.getContext();
         while (isParsable(configContext)) {
             String referredConfigName = parse(configContext);
-            validateConfigType(configDescription, referredConfigName, configDescriptionsMap);
+            validateConfigType(configParameter, referredConfigName, configDescriptionsMap);
             resolvedConfiguration.put(referredConfigName, configValue);
             configContext = configDescriptionsMap.get(referredConfigName).getContext();
         }
@@ -320,7 +320,7 @@ public class ModuleUtil {
             }
             resolvedInputReferences.put(input, referredInputs);
         } else {
-            getLog().error(
+            log.error(
                     "Can't find referred Input: " + referredInputName + ", referred by Input: " + input.getName());
         }
 
@@ -358,13 +358,13 @@ public class ModuleUtil {
                         currentOutput = referredOutput;// value not found - continue with the loop
                     }
                 } else {
-                    getLog().warn(
+                    log.warn(
                             "Can't find Output: " + parsedReference + ". Referenced by Output:"
                                     + currentOutput.getName());
                     return;
                 }
             } else {
-                getLog().warn(
+                log.warn(
                         "Can't parse reference of Output: " + currentOutput.getName() + ", reference: " + reference);
                 return;
             }
@@ -374,7 +374,7 @@ public class ModuleUtil {
             if (validateConnectionType(referencedOutput.getType(), outputValue)) {
                 resolvedOutputs.put(referencedOutput.getName(), outputValue);
             } else {
-                getLog().error(
+                log.error(
                         "Output: " + referencedOutput.getName() + " value type " + outputValue.getClass().getName()
                                 + " is not assignableFrom referred Output type " + referencedOutput.getType());
             }
@@ -385,29 +385,29 @@ public class ModuleUtil {
     /**
      * Gets default value recursively.
      *
-     * @param configDescription the source ConfigDescriptionParameter
+     * @param configParameter the source ConfigDescriptionParameter
      * @param defaultValue the default value of the config property
      * @param configContextMap map key: name of ConfigDescriptionParameter, value: the ConfigDescriptionParameter
      * @param configuration map with config properties
-     * @return the default config value for passed configDescription
+     * @return the default config value for passed configParameter
      */
-    private static Object getConfigDefaultValue(ConfigDescriptionParameter configDescription,
+    private static Object getConfigDefaultValue(ConfigDescriptionParameter configParameter,
             Map<String, ConfigDescriptionParameter> configContextMap, Map<String, ?> configuration) {
 
-        String configDefaultValue = configDescription.getDefault();
+        String configDefaultValue = configParameter.getDefault();
         Object resultValue = null;
         while (resultValue == null && isParsable(configDefaultValue)) {
             String referredConfigName = parse(configDefaultValue);
-            validateConfigType(configDescription, referredConfigName, configContextMap);
+            validateConfigType(configParameter, referredConfigName, configContextMap);
             resultValue = configuration.get(referredConfigName);
             configDefaultValue = configContextMap.get(referredConfigName).getDefault();
         }
         if (resultValue == null) {
             try {
-                resultValue = convertToConfigType(configDefaultValue, configContextMap.get(configDescription.getName())
+                resultValue = convertToConfigType(configDefaultValue, configContextMap.get(configParameter.getName())
                         .getType());
             } catch (Exception e) {
-                getLog().error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
         return resultValue;
@@ -453,19 +453,19 @@ public class ModuleUtil {
     /**
      * Validates if ConfigDescriptionParameter Type is equal to referred ConfigDescriptionParameter Type
      *
-     * @param configDescription the source ConfigDescriptionParameter
+     * @param configParameter the source ConfigDescriptionParameter
      * @param referredConfigName the referred ConfigDescriptionParameter name
      * @param configDescriptionsMap Map with ConfigDescriptionParameter {@link #toConfigDescriptionMap(Set)}
      */
-    private static void validateConfigType(ConfigDescriptionParameter configDescription, String referredConfigName,
+    private static void validateConfigType(ConfigDescriptionParameter configParameter, String referredConfigName,
             Map<String, ConfigDescriptionParameter> configDescriptionsMap) {
 
-        Type configType = configDescription != null ? configDescription.getType() : null;
+        Type configType = configParameter != null ? configParameter.getType() : null;
         ConfigDescriptionParameter referredConfig = configDescriptionsMap.get(referredConfigName);
-        Type refferedConfigType = referredConfig != null ? referredConfig.getType() : null;
-        if ((configType == null || refferedConfigType == null) || !configType.equals(refferedConfigType)) {
-            throw new IllegalArgumentException("ConfigProperties Type missmatch:" + configDescription.getName() + ":"
-                    + configType + "->" + referredConfigName + ":" + refferedConfigType);
+        Type referredConfigType = referredConfig != null ? referredConfig.getType() : null;
+        if ((configType == null || referredConfigType == null) || !configType.equals(referredConfigType)) {
+            throw new IllegalArgumentException("ConfigProperties Type missmatch:" + configParameter.getName() + ":"
+                    + configType + "->" + referredConfigName + ":" + referredConfigType);
         }
     }
 
@@ -492,15 +492,15 @@ public class ModuleUtil {
      * Converts Set of ConfigDescriptionParameter to Map <br/>
      * <code>key</code>: name of ConfigDescriptionParamater, <code>value</code>: ConfigDescriptionParamater
      *
-     * @param configurationDescriptions Set of ConfigDescriptionParameter
+     * @param configurationParameters Set of ConfigDescriptionParameter
      * @return Map with ConfigDescriptionParameters
      */
     private static Map<String, ConfigDescriptionParameter> toConfigDescriptionMap(
-            Set<ConfigDescriptionParameter> configurationDescriptions) {
+            Set<ConfigDescriptionParameter> configurationParameters) {
 
         Map<String, ConfigDescriptionParameter> configMap = new HashMap();
-        for (ConfigDescriptionParameter config : configurationDescriptions) {
-            configMap.put(config.getName(), config);
+        for (ConfigDescriptionParameter configurationParameter : configurationParameters) {
+            configMap.put(configurationParameter.getName(), configurationParameter);
         }
         return configMap;
     }
@@ -569,10 +569,4 @@ public class ModuleUtil {
         return parentModuleTypeUID;
     }
 
-    private static Logger getLog() {
-        if (log == null) {
-            log = LoggerFactory.getLogger(ModuleUtil.class);
-        }
-        return log;
-    }
 }
