@@ -147,9 +147,11 @@ It can happen that the binding wants to update the configuration or even the who
 
 ### Updating the Configuration
 
-Usually the configuration is maintained by the user and the binding is informed about the updated configuration. But if configuration can also be changed in the external system, the binding should reflect this configuration change and inform the framework about the changed configuration.
+Usually the configuration is maintained by the user, and the binding is informed about the updated configuration. But if the configuration can also be changed in the external system, the binding should reflect this change, and notify the framework about it.
  
-If the configuration should be updated the binding developer can use the method `editConfiguration` to get a copy of the configuration. This configuration can be modified and stored with `updateConfiguration`. The following code shows how to update two configuration parameters:
+If the configuration should be updated, then the binding developer can retrieve a copy of the current configuration by calling `editConfiguration()`. The updated configuration can be stored as a whole by calling `updateConfiguration(Configuration)`. 
+
+Suppose that an external system causes an update of the configuration, which is read in as a `DeviceConfig` instance. The following code shows how to update configuration:
 
 ```java
 protected void deviceConfigurationChanged(DeviceConfig deviceConfig) {
@@ -160,7 +162,7 @@ protected void deviceConfigurationChanged(DeviceConfig deviceConfig) {
 }
 ```
 
-The BaseThingHandler will delegate the update to the framework, which informs all registered listeners about the updated thing. But the update is **not** delegated back to the handler through the `thingUpdated` call.
+The `BaseThingHandler` will propagate the update to the framework, which then notifies all registered listeners about the updated thing. But the thing update is **not** propagated back to the handler through a `thingUpdated(Thing)` call.
 
 ### Updating Thing Properties
 
