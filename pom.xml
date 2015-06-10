@@ -57,7 +57,7 @@
 
   <modules>
     <module>bundles</module>
-    <module>addons</module>
+    <module>extensions</module>
     <module>features</module>
     <module>products</module>
     <module>tools</module>

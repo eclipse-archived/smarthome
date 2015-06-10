@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the openHAB Transformation Service
-Bundle-SymbolicName: org.eclipse.smarthome.core.transform.test
-Bundle-Version: 0.8.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.core.transform
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.junit;bundle-version="4.8.1"
