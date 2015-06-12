@@ -287,20 +287,17 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         if (itemName != null) {
             State state = null;
             String formatPattern = null;
-            int indexOpenBracket = label.indexOf("[");
-            int indexCloseBracket = label.indexOf("]");
 
             try {
                 Item item = getItem(itemName);
-                if (!label.contains("[") && item.getStateDescription() != null
+                if (getFormatPattern(label) == null && item.getStateDescription() != null
                         && item.getStateDescription().getPattern() != null) {
                     label = label + " [" + item.getStateDescription().getPattern() + "]";
                 }
 
-                if (label.contains("[")) {
-                    indexOpenBracket = label.indexOf("[");
-                    indexCloseBracket = label.indexOf("]");
-                    formatPattern = label.substring(indexOpenBracket + 1, indexCloseBracket);
+                String updatedPattern = getFormatPattern(label);
+                if (updatedPattern != null) {
+                    formatPattern = updatedPattern;
 
                     // TODO: TEE: we should find a more generic solution here! When
                     // using indexes in formatString this 'contains' will fail again
@@ -321,7 +318,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 logger.error("Cannot retrieve item for widget {}", w.eClass().getInstanceTypeName());
             }
 
-            if (label.contains("[")) {
+            if (formatPattern != null) {
                 if (state == null || state instanceof UnDefType) {
                     formatPattern = formatUndefined(formatPattern);
                 } else if (state instanceof Type) {
@@ -338,13 +335,25 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                     }
                 }
 
-                label = label.substring(0, indexOpenBracket + 1) + formatPattern + label.substring(indexCloseBracket);
+                label = label.trim().substring(0, label.indexOf("[") + 1) + formatPattern + "]";
             }
         }
 
         label = transform(label);
 
         return label;
+    }
+
+    private String getFormatPattern(String label) {
+        label = label.trim();
+        int indexOpenBracket = label.indexOf("[");
+        int indexCloseBracket = label.endsWith("]") ? label.length() - 1 : -1;
+
+        if ((indexOpenBracket > 0) && (indexCloseBracket > indexOpenBracket)) {
+            return label.substring(indexOpenBracket + 1, indexCloseBracket);
+        } else {
+            return null;
+        }
     }
 
     private String getLabelFromWidget(Widget w) {
@@ -392,7 +401,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * (e.g. "[MAP(en.map):%s]") and execute the transformation in this case.
      */
     private String transform(String label) {
-        if (label.contains("[") && label.endsWith("]")) {
+        if (getFormatPattern(label) != null) {
             Matcher matcher = EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(label);
             if (matcher.find()) {
                 String type = matcher.group(1);
@@ -987,7 +996,13 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     enum Condition {
-        EQUAL("=="), GTE(">="), LTE("<="), NOTEQUAL("!="), GREATER(">"), LESS("<"), NOT("!");
+        EQUAL("=="),
+        GTE(">="),
+        LTE("<="),
+        NOTEQUAL("!="),
+        GREATER(">"),
+        LESS("<"),
+        NOT("!");
 
         private String value;
 
