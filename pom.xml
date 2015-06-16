@@ -160,6 +160,9 @@
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
+        <configuration>
+        	<javaSourceVersion>1.7</javaSourceVersion>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
