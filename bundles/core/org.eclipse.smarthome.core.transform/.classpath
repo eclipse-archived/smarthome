@@ -4,5 +4,9 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
 	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources"/>
+	<classpathentry kind="lib" path="lib/json-path-2.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/json-smart-2.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/asm-3.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/asm-1.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
