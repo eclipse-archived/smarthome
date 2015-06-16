@@ -7,7 +7,8 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.core.transform.internal.TransformationActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.google.common.base,
+Import-Package: ch.qos.logback.classic",
+ com.google.common.base,
  com.google.common.collect,
  javax.script;resolution:=optional,
  javax.xml.parsers;resolution:=optional,
@@ -37,8 +38,14 @@ Import-Package: com.google.common.base,
  org.xml.sax;resolution:=optional
 Bundle-SymbolicName: org.eclipse.smarthome.core.transform
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/regexservice.xml, OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
-  OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/transformationaction.xml
-Bundle-ClassPath: .
+Service-Component: OSGI-INF/regexservice.xml, 
+  OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
+  OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/jsonpathservice.xml, 
+  OSGI-INF/transformationaction.xml
+Bundle-ClassPath: .,
+ lib/asm-3.3.1.jar,
+ lib/asm-1.0.2.jar,
+ lib/json-smart-2.1.1.jar,
+ lib/json-path-2.0.0.jar
 Export-Package: org.eclipse.smarthome.core.transform,org.eclipse.smart
  home.core.transform.actions
