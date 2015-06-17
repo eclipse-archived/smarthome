@@ -40,6 +40,7 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.ThingConfigAction;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
@@ -197,6 +198,28 @@ public class ThingResource implements RESTResource {
         managedThingProvider.update(thing);
 
         return Response.ok().build();
+    }
+    
+    @PUT
+    @Path("/{thingUID}/action/{actionId}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response action(@PathParam("thingUID") String thingUID, @PathParam("actionId") String actionId,
+            String actionValue) {
+
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
+        if (thing == null) {
+            logger.warn("Received HTTP PUT request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+        if(thing instanceof ThingConfigAction) {
+            ((ThingConfigAction)thing).handleConfigurationAction(thing, actionId, actionValue);
+            return Response.ok().build();
+        }
+        else {
+            logger.warn("Received HTTP PUT request at '{}' but thing does not support actions '{}'.", uriInfo.getPath(), thingUID);
+            return Response.status(Status.NOT_FOUND).build();
+        }
     }
 
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {

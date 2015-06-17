@@ -17,11 +17,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionAction;
+import org.eclipse.smarthome.config.core.ConfigDescriptionActionBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionActionI18nUtil;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionGroupI18nUtil;
 import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
@@ -39,12 +42,13 @@ import org.osgi.framework.Bundle;
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added locale support
  * @author Alex Tugarev - Extended for pattern and options
- * @author Chris Jackson - Modify to use config parameter builder
+ * @author Chris Jackson - Modify to use config parameter builder. Added groups and actions.
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
     private Map<Bundle, List<ConfigDescription>> bundleConfigDescriptionsMap;
 
+    private ConfigDescriptionActionI18nUtil configDescriptionActionI18nUtil;
     private ConfigDescriptionI18nUtil configDescriptionParamI18nUtil;
     private ConfigDescriptionGroupI18nUtil configDescriptionGroupI18nUtil;
 
@@ -185,12 +189,14 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
     public void seI18nProvider(I18nProvider i18nProvider) {
         this.configDescriptionParamI18nUtil = new ConfigDescriptionI18nUtil(i18nProvider);
         this.configDescriptionGroupI18nUtil = new ConfigDescriptionGroupI18nUtil(i18nProvider);
+        this.configDescriptionActionI18nUtil = new ConfigDescriptionActionI18nUtil(i18nProvider);
     }
 
     @Unbind
     public void unsetI18nProvider(I18nProvider i18nProvider) {
         this.configDescriptionParamI18nUtil = null;
         this.configDescriptionGroupI18nUtil = null;
+        this.configDescriptionActionI18nUtil = null;
     }
 
     private ConfigDescription getLocalizedConfigDescription(Bundle bundle, ConfigDescription configDescription,
@@ -217,8 +223,18 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                         bundle, configDescription, configDescriptionParameterGroup, locale);
                 localizedConfigDescriptionGroups.add(localizedConfigDescriptionGroup);
             }
+
+            List<ConfigDescriptionAction> localizedConfigDescriptionActions = new ArrayList<>(configDescription
+                    .getActions().size());
+
+            // Loop through all the configuration groups and localize them
+            for (ConfigDescriptionAction configDescriptionAction : configDescription.getActions()) {
+                ConfigDescriptionAction localizedConfigDescriptionAction = getLocalizedConfigDescriptionAction(
+                        bundle, configDescription, configDescriptionAction, locale);
+                localizedConfigDescriptionActions.add(localizedConfigDescriptionAction);
+            }
             return new ConfigDescription(configDescription.getURI(), localizedConfigDescriptionParameters,
-                    localizedConfigDescriptionGroups);
+                    localizedConfigDescriptionGroups, localizedConfigDescriptionActions);
         } else {
             return configDescription;
         }
@@ -271,6 +287,36 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                 group.isAdvanced(), label, description);
 
         return localizedGroup;
+    }
+
+    private ConfigDescriptionAction getLocalizedConfigDescriptionAction(Bundle bundle,
+            ConfigDescription configDescription, ConfigDescriptionAction action, Locale locale) {
+
+        URI configDescriptionURI = configDescription.getURI();
+        String actionName = action.getName();
+
+        String label = this.configDescriptionActionI18nUtil.getActionLabel(bundle, configDescriptionURI, actionName,
+                action.getLabel(), locale);
+
+        String description = this.configDescriptionActionI18nUtil.getActionDescription(bundle, configDescriptionURI,
+                actionName, action.getDescription(), locale);
+
+        String pattern = this.configDescriptionActionI18nUtil.getActionPattern(bundle, configDescriptionURI,
+                actionName, action.getPattern(), locale);
+
+        List<ParameterOption> options = getLocalizedOptions(action.getOptions(), bundle, configDescriptionURI,
+                actionName, locale);
+
+        ConfigDescriptionAction localizedAction = ConfigDescriptionActionBuilder
+                .create(actionName, action.getType()).withMinimum(action.getMinimum())
+                .withMaximum(action.getMaximum()).withStepSize(action.getStepSize()).withPattern(pattern)
+                .withMultiple(action.isMultiple()).withContext(action.getContext())
+                .withDefault(action.getDefault()).withLabel(label).withDescription(description).withOptions(options)
+                .withFilterCriteria(action.getFilterCriteria()).withGroupName(action.getGroupName())
+                .withAdvanced(action.isAdvanced()).withLimitToOptions(action.getLimitToOptions())
+                .withMultipleLimit(action.getMultipleLimit()).build();
+
+        return localizedAction;
     }
 
     private List<ParameterOption> getLocalizedOptions(List<ParameterOption> originalOptions, Bundle bundle,

@@ -23,6 +23,7 @@ public class ThingTypeBean {
     public List<ChannelDefinitionBean> channels;
     public List<ChannelGroupDefinitionBean> channelGroups;
     public List<ConfigDescriptionParameterBean> configParameters;
+    public List<ConfigActionBean> actions;
     public List<String> supportedBridgeTypeUIDs;
     public List<ParameterGroupBean> parameterGroups;
     public Map<String, String> properties;
@@ -38,7 +39,8 @@ public class ThingTypeBean {
     public ThingTypeBean(String UID, String label, String description,
             List<ConfigDescriptionParameterBean> configParameters, List<ChannelDefinitionBean> channels,
             List<ChannelGroupDefinitionBean> channelGroups, List<String> supportedBridgeTypeUIDs,
-            Map<String, String> properties, boolean bridge, List<ParameterGroupBean> parameterGroups) {
+            Map<String, String> properties, boolean bridge, List<ParameterGroupBean> parameterGroups,
+            List<ConfigActionBean> actions) {
         this.UID = UID;
         this.label = label;
         this.description = description;
@@ -49,6 +51,7 @@ public class ThingTypeBean {
         this.properties = properties;
         this.bridge = bridge;
         this.parameterGroups = parameterGroups;
+        this.actions = actions;
     }
 
 }
