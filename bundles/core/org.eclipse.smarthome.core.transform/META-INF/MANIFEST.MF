@@ -7,38 +7,12 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.core.transform.internal.TransformationActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: com.google.common.base,
- com.google.common.collect,
- javax.script;resolution:=optional,
- javax.xml.parsers;resolution:=optional,
- javax.xml.transform;resolution:=optional,
- javax.xml.transform.stream;resolution:=optional,
- javax.xml.xpath;resolution:=optional,
- org.apache.commons.collections,
- org.apache.commons.collections.list,
- org.apache.commons.io,
- org.apache.commons.lang,
- org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.core.events,
- org.eclipse.smarthome.core.items,
- org.eclipse.smarthome.core.library.items,
- org.eclipse.smarthome.core.library.types,
- org.eclipse.smarthome.core.scriptengine.action;resolution:=optional,
- org.eclipse.smarthome.core.service,
- org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.io.net.exec,
+Import-Package: org.eclipse.smarthome.core.scriptengine.action;resolution:=optional,
  org.osgi.framework,
- org.osgi.service.cm,
- org.osgi.service.component,
- org.osgi.service.event,
- org.osgi.util.tracker,
- org.slf4j,
- org.w3c.dom;resolution:=optional,
- org.xml.sax;resolution:=optional
+ org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core.transform
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/regexservice.xml, OSGI-INF/xpathservice.xml, OSGI-INF/xsltservice.xml,
-  OSGI-INF/execservice.xml,  OSGI-INF/javascriptservice.xml, OSGI-INF/mapservice.xml, OSGI-INF/transformationaction.xml
+Service-Component: OSGI-INF/transformationaction.xml
 Bundle-ClassPath: .
 Export-Package: org.eclipse.smarthome.core.transform,org.eclipse.smart
  home.core.transform.actions
