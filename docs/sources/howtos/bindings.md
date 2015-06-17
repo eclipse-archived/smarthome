@@ -2,7 +2,7 @@
 
 A binding is an extension to the Eclipse SmartHome runtime that integrates an external system like a service, a protocol or a single device. Therefore the main purpose of a binding is to translate events from the Eclipse SmartHome event bus to the external system and vice versa. The external system is represented as a set of *Things*. For each *Thing* the binding must provide a proper `ThingHandler` implementation that is able to handle the communication.
 
-In this tutorial you will learn how to implement a simple binding and you will get familiar with important concepts and APIs of Eclipse SmartHome. The [Yahoo Weather Binding](https://github.com/eclipse/smarthome/tree/master/addons/binding/org.eclipse.smarthome.binding.yahooweather) is taken as example.
+In this tutorial you will learn how to implement a simple binding and you will get familiar with important concepts and APIs of Eclipse SmartHome. The [Yahoo Weather Binding](https://github.com/eclipse/smarthome/tree/master/extensions/binding/org.eclipse.smarthome.binding.yahooweather) is taken as example.
 
 ## Structure of a binding
 
