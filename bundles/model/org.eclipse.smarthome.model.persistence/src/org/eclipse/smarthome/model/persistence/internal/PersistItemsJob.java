@@ -69,8 +69,9 @@ public class PersistItemsJob implements Job {
     private boolean hasStrategy(PersistenceModel persistModel, PersistenceConfiguration config, String strategyName) {
         // check if the strategy is directly defined on the config
         for (Strategy strategy : config.getStrategies()) {
-            if (strategy.getName().equals(strategyName))
+            if (strategyName.equals(strategy.getName())) {
                 return true;
+            }
         }
         // if no strategies are given, check the default strategies to use
         if (config.getStrategies().isEmpty() && isDefault(persistModel, strategyName)) {
