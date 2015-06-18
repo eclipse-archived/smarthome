@@ -520,7 +520,7 @@
         xsi:type="projects:ProjectsImportTask">
       <sourceLocator
           rootFolder="${git.clone.eclipsesmarthome.location/bundles}"
-          excludedPaths="${git.clone.eclipsesmarthome.location/bundles/io/org.eclipse.smarthome.io.console.karaf}"
+          excludedPaths="io/org.eclipse.smarthome.io.console.karaf"
           locateNestedProjects="true"/>
     </setupTask>
     <setupTask
