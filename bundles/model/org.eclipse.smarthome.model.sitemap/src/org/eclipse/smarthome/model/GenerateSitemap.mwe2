@@ -3,6 +3,7 @@ module org.eclipse.smarthome.model.Sitemap
 import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
+import org.eclipse.smarthome.model.lazygen.*
 
 var projectName = "org.eclipse.smarthome.model.sitemap"
 var fileExtensions = "sitemap"
@@ -13,18 +14,7 @@ var encoding = "UTF-8"
 
 Workflow {
 	bean = StandaloneSetup {
-	// use an XtextResourceset throughout the process, which is able to resolve classpath:/ URIs.
-		resourceSet = org.eclipse.xtext.resource.XtextResourceSet : theResourceSet {}
-
-		// add mappings from platform:/resource to classpath:/
-		//		uriMap = {
-		//			from = "platform:/resource/org.eclipse.xtext.xbase/"
-		//			to = "classpath:/"
-		//		}
-//		uriMap = {
-//			from = "platform:/resource/org.eclipse.smarthome.model.item/"
-//			to = "classpath:/"
-//		}
+        scanClassPath = true
 
 		// register current projects and its siblings for platform URI map, as they are not on the classpath.
 		platformUri = "${runtimeProject}/.."
@@ -32,10 +22,12 @@ Workflow {
 		// The following two lines can be removed, if Xbase is not used.
 		//registerGeneratedEPackage = "org.eclipse.xtext.xbase.XbasePackage"
 		//registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
-//		registerGeneratedEPackage = "org.eclipse.smarthome.model.items.ItemsPackage"
-//		registerGenModelFile = "platform:/resource/org.eclipse.smarthome.model.item/model/generated/Items.genmodel"
 	}
 
+    component = LazyStandaloneSetup {
+        
+    }
+    
 	component = DirectoryCleaner {
 		directory = "${runtimeProject}/src-gen"
 	}
@@ -48,15 +40,13 @@ Workflow {
 		directory = "${runtimeProject}.ui/src-gen"
 	}
 
-	component = Generator {
+	component = LazyGenerator {
 		pathRtProject = runtimeProject
 		pathUiProject = "${runtimeProject}.ui"// pathTestProject = "${runtimeProject}.tests"
 		projectNameRt = projectName
 		projectNameUi = "${projectName}.ui"
 		encoding = encoding
-		language = auto-inject {
-		// make sure we use the resourceSet created during standalone setup.
-			forcedResourceSet = theResourceSet
+		lazyLanguage = auto-inject {
 			uri = grammarURI
 			fileExtensions = fileExtensions
 			// Java API to access grammar elements (required by several other fragments)
