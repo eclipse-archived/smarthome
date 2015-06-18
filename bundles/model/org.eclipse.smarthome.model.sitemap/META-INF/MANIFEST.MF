@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.mwe2.launch;resolution:=optional,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
- org.antlr.runtime
+ org.antlr.runtime,
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.smarthome.model.core,

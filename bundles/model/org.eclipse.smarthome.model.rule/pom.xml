@@ -64,6 +64,11 @@
             <artifactId>org.eclipse.smarthome.model.script</artifactId>
             <version>${project.version}</version>
           </dependency>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
+            <version>${project.version}</version>
+          </dependency>
         </dependencies>
       </plugin>
       <plugin>
