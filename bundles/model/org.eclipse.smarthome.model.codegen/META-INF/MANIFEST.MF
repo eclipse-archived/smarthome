@@ -13,6 +13,7 @@ Require-Bundle: org.eclipse.emf.mwe2.launch;bundle-version="2.2.0",
  org.eclipse.smarthome.model.rule,
  org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.sitemap,
+ org.eclipse.smarthome.model.thing,
  org.eclipse.xtext.generator,
  org.eclipse.smarthome.model.persistence,
  org.objectweb.asm;bundle-version="3.3.1";resolution:=optional

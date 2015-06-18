@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.smarthome.model.item,
  org.eclipse.smarthome.model.script,
  org.eclipse.xtext.xbase.lib,
- org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional
+ org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: com.google.common.collect,
  org.apache.commons.lang,
  org.apache.commons.logging,

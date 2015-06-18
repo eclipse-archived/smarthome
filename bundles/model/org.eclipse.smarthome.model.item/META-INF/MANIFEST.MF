@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.eclipse.emf.common,
  org.antlr.runtime,
- org.eclipse.xtext.common.types
+ org.eclipse.xtext.common.types,
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model,org.eclipse.smarthome.mode
  l.formatting,org.eclipse.smarthome.model.generator,org.eclipse.smarth
