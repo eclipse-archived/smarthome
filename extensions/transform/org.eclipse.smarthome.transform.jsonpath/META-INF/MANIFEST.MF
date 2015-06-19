@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-Name: Eclipse SmartHome JSonPath Transformation Service
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.8.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Import-Package: org.eclipse.smarthome.core.transform,
+ org.slf4j
+Bundle-SymbolicName: org.eclipse.smarthome.transform.jsonpath
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/jsonpathservice.xml
+Bundle-ClassPath: .,
+ lib/asm-1.0.2.jar,
+ lib/json-path-2.0.0.jar,
+ lib/json-smart-2.2.jar
+
