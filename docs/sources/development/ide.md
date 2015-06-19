@@ -15,7 +15,7 @@ Here are the steps to follow for a successful setup:
 
 1. Create a local clone of the repository by running "git clone https://github.com/eclipse/smarthome.git" in a suitable folder.
 1. Download and execute the file [Eclipse SmartHome.yoxos](https://github.com/eclipse/smarthome/blob/master/targetplatform/Eclipse%20SmartHome.yoxos). Alternatively, you can install the required plugins on top of an existing Eclipse 4.4 installation using this [update site](http://yoxos.eclipsesource.com/userdata/profile/09528bbc51589d837ad95c819fdac25b).
-1. Install [Groovy Eclipse](http://groovy.codehaus.org/Eclipse+Plugin) in your Eclipse IDE.
+1. Install [Groovy Eclipse](http://docs.groovy-lang.org/latest/html/documentation/tools-groovyeclipse.html)(http://groovy.codehaus.org/Eclipse+Plugin) in your Eclipse IDE.
 1. Create a new workspace.
 1. Choose File->Import->General->Existing Projects into Workspace, enter your clone repository directory as the root directory and press "Finish".
 1. After the import is done, you have to select the target platform by selecting Window->Preferences->Plug-in Development->Target Platform->smarthome from the main menu. Ignore compilation problems at this step.
