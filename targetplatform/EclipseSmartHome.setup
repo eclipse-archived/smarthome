@@ -4,6 +4,7 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:jdt="http://www.eclipse.org/oomph/setup/jdt/1.0"
     xmlns:launching="http://www.eclipse.org/oomph/setup/launching/1.0"
     xmlns:predicates="http://www.eclipse.org/oomph/predicates/1.0"
     xmlns:projects="http://www.eclipse.org/oomph/setup/projects/1.0"
@@ -11,8 +12,8 @@
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
     xmlns:setup.workingsets="http://www.eclipse.org/oomph/setup/workingsets/1.0"
-    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/launching/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Launching.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
-    name="eclipse.smarthome"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/launching/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Launching.ecore http://www.eclipse.org/oomph/predicates/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Predicates.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore http://www.eclipse.org/oomph/setup/workingsets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupWorkingSets.ecore"
+    name="smarthome"
     label="Eclipse SmartHome">
   <setupTask
       xsi:type="setup:CompoundTask"
@@ -136,14 +137,6 @@
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.codeComplete.argumentSuffixes"/>
       <setupTask
           xsi:type="setup:PreferenceTask"
-          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_LIB"
-          value="/Library/Java/JavaVirtualMachines/jdk1.8.0.jdk/Contents/Home/jre/lib/rt.jar"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_SRC"
-          value="/Library/Java/JavaVirtualMachines/jdk1.8.0.jdk/Contents/Home/src.zip"/>
-      <setupTask
-          xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.classpathVariable.JRE_SRCROOT"
           value="src"/>
       <setupTask
@@ -219,40 +212,30 @@
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.formatter.insert_new_line_at_end_of_file_if_missing"
           value="true"/>
     </setupTask>
-    <setupTask
-        xsi:type="setup:CompoundTask"
-        id="org.eclipse.oomph.setup.ui"
-        name="org.eclipse.oomph.setup.ui">
-      <setupTask
-          xsi:type="setup:PreferenceTask"
-          key="/instance/org.eclipse.oomph.setup.ui/skip.startup.tasks"
-          value="false"/>
-    </setupTask>
   </setupTask>
-  <setupTask
-      xsi:type="setup:VariableTask"
-      name="train.url"
-      value="http://download.eclipse.org/releases/luna"/>
   <setupTask
       xsi:type="setup:VariableTask"
       id="eclipse.target.platform"
       name="eclipse.target.platform"
       value="Full"/>
   <setupTask
-      xsi:type="setup:VariableTask"
-      id="github.username"
-      name="github.username"
-      label="GitHub Username">
-    <description>The username at github to which changes should be pushed</description>
-  </setupTask>
+      xsi:type="jdt:JRETask"
+      version="JavaSE-1.7"
+      location="${jre.location-1.7}"/>
   <project name="core"
       label="Core">
     <setupTask
         xsi:type="git:GitCloneTask"
         id="git.clone.eclipsesmarthome"
-        remoteURI="https://github.com/eclipse/smarthome.git"
-        pushURI="https://github.com/${github.username}/smarthome.git"
-        checkoutBranch="master">
+        pushURI="https://github.com/${github.user.id}/smarthome.git"
+        remoteURI="https://github.com/eclipse/smarthome.git">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        <detail
+            key="label">
+          <value>Eclipse SmartHome Git Repository</value>
+        </detail>
+      </annotation>
       <description>Eclipse SmartHome</description>
     </setupTask>
     <setupTask
@@ -332,6 +315,29 @@
       <targlet
           name="Eclipse SmartHome Target Platform"
           activeRepositoryList="${eclipse.target.platform}">
+        <annotation
+            source="http:/www.eclipse.org/oomph/targlets/TargetDefinitionGenerator">
+          <detail
+              key="location">
+            <value>${git.clone.eclipsesmarthome.location/targetplatform/smarthome.target}</value>
+          </detail>
+          <detail
+              key="extraUnits">
+            <value>org.eclipse.equinox.executable.feature.group</value>
+          </detail>
+          <detail
+              key="includeAllPlatforms">
+            <value>false</value>
+          </detail>
+          <detail
+              key="includeSource">
+            <value>true</value>
+          </detail>
+          <detail
+              key="generateVersions">
+            <value>false</value>
+          </detail>
+        </annotation>
         <requirement
             name="org.eclipse.sdk.ide"/>
         <requirement
@@ -520,8 +526,9 @@
         xsi:type="projects:ProjectsImportTask">
       <sourceLocator
           rootFolder="${git.clone.eclipsesmarthome.location/bundles}"
-          excludedPaths="io/org.eclipse.smarthome.io.console.karaf"
-          locateNestedProjects="true"/>
+          locateNestedProjects="true">
+        <excludedPath>io/org.eclipse.smarthome.io.console.karaf</excludedPath>
+      </sourceLocator>
     </setupTask>
     <setupTask
         xsi:type="projects:ProjectsImportTask">
@@ -566,7 +573,6 @@
         excludedTriggers="STARTUP"
         predecessor="antlr-generator-3.2.0-patch"
         launcher="Generate All Models"/>
-
     <stream
         name="master"/>
   </project>
