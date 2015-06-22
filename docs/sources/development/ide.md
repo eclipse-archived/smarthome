@@ -1,23 +1,32 @@
-# Setting up a development environment
+# Setting Up a Development Environment
 
-_Note:_ We currently provide a [Yoxos profile](https://github.com/eclipse/smarthome/blob/master/targetplatform/Eclipse%20SmartHome.yoxos) to get you started with an appropriate Eclipse IDE. Unfortunately, it will require you to also manually install [Groovy Eclipse](http://groovy.codehaus.org/Eclipse+Plugin).
+Please ensure that you have the following prerequisites installed on your machine:
 
-For the future, we plan to integrate Eclipse SmartHome in [Project Oomph](http://wiki.eclipse.org/Eclipse_Oomph_Installer), which should provide an even easier setup.
+1. [Git](https://git-scm.com/downloads)
+1. [Maven 3.x](https://maven.apache.org/download.cgi)
+1. [Oracle JDK 7 or 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
-Ensure you have installed the following prerequisites:
+The Eclipse IDE is used for Eclipse SmartHome developments. The Eclipse Installer automatically prepares the IDE so that it comes with all required plug-ins, the correct workspace encoding settings, pre-configured code formatters and more. Simply follow these steps:
 
-1. Git
-1. Maven 3.x
-1. Oracle JDK 7
-1. [Yoxos Installer](https://yoxos.eclipsesource.com/downloadlauncher.html)
+1. Download the [Eclipse Installer](https://wiki.eclipse.org/Eclipse_Installer)
+2. Launch the Eclipse Installer and switch to „Advanced Mode“ in the top right menu:
+![Step 0](images/ide0.png)
+3. Choose the "Eclipse IDE for Java Developers" and select "Next":
+![Step 1](images/ide1.png)
+4. Expand the "SmartHome" entry, double click "Runtime and Designer" and select "Next":
+![Step 2](images/ide2.png)
+5. Now provide an installation folder and your Github id (used to push your changesets to) and select "Next":
+![Step 3](images/ide3.png)
+6. The installation will now begin when pressing "Finish".
+![Step 4](images/ide4.png)
+7. Once it is done, you will see the Eclipse Welcome Screen, which you can close by clicking "Workbench" on the top right. You will see that the installer not only set up an Eclipse IDE instance for you, but also checked out the Eclipse SmartHome git repository and imported all projects into the workspace. Don't worry that you still see error markers at that point, this will be addressed in the next steps.
+![Step 5](images/ide5.png)
+8. Now select "Help->Perform Setup Tasks..." from the menu and click "Finish":
+![Step 6](images/ide6.png)
+9. To remove the very last errors in the workspace, run a "project clean" on all projects that still show errors:
+![Step 7](images/ide7.png)
+10. Your workspace should now fully compile and you can start the runtime by launching the "SmartHome Runtime" launch configuration:
+![Step 8](images/ide8.png)
 
-Here are the steps to follow for a successful setup:
-
-1. Create a local clone of the repository by running "git clone https://github.com/eclipse/smarthome.git" in a suitable folder.
-1. Download and execute the file [Eclipse SmartHome.yoxos](https://github.com/eclipse/smarthome/blob/master/targetplatform/Eclipse%20SmartHome.yoxos). Alternatively, you can install the required plugins on top of an existing Eclipse 4.4 installation using this [update site](http://yoxos.eclipsesource.com/userdata/profile/09528bbc51589d837ad95c819fdac25b).
-1. Install [Groovy Eclipse](http://groovy.codehaus.org/Eclipse+Plugin) in your Eclipse IDE.
-1. Create a new workspace.
-1. Choose File->Import->General->Existing Projects into Workspace, enter your clone repository directory as the root directory and press "Finish".
-1. After the import is done, you have to select the target platform by selecting Window->Preferences->Plug-in Development->Target Platform->smarthome from the main menu. Ignore compilation problems at this step.
-1. Now you need to run code generation for a few parts of Eclipse SmartHome. To do so, go to the project org.eclipse.smarthome.model.codegen and run the prepared launch files. For each .launch file, select "Run As->x Generate abc Model" from the context menu. Please follow the order given by the numbers. On the very first code generation, you are asked in the console to download an ANTLR file, answer with "y" and press enter on the console.
-1. All your project in the workspace should now correctly compile without errors. If you still see error markers, try a "clean" on the concerned projects. If there are still errors, it could be that you use JDK 1.6 instead of JDK 1.7.
+Note that you will find the sources in a subfolder called "git" within your selected installation folder. You can use any kind of git client here, if you do not want to use the git support from within the Eclipse IDE.
+If you want to push changes, you need to do so to [your personal fork of the Eclipse SmartHome repository](https://github.com/eclipse/smarthome/fork) in order to create a pull request. You will find more details in the ["How to contribute"](contributing.md) documentation.
