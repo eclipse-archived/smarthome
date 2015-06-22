@@ -223,7 +223,7 @@
       version="JavaSE-1.7"
       location="${jre.location-1.7}"/>
   <project name="core"
-      label="Core">
+      label="Runtime and Designer">
     <setupTask
         xsi:type="git:GitCloneTask"
         id="git.clone.eclipsesmarthome"
