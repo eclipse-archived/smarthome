@@ -512,7 +512,7 @@
           <repository
               url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
           <repository
-              url="http://dist.springsource.org/release/GRECLIPSE/e4.5/"/>
+              url="http://dist.springsource.org/release/GRECLIPSE/e4.4/"/>
           <repository
               url="http://www.openhab.org/jupnp/update-site"/>
           <repository
