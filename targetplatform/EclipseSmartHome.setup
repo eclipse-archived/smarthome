@@ -292,6 +292,8 @@
           name="org.eclipse.emf.mwe.sdk.feature.group"
           versionRange="[1.3.2,1.3.3]"/>
       <requirement
+          name="org.codehaus.groovy.eclipse.feature.feature.group"/>
+      <requirement
           name="org.sonatype.tycho.m2e.feature.feature.group"/>
       <requirement
           name="org.eclipse.emf.sdk.feature.group"/>
@@ -309,6 +311,8 @@
           url="http://download.eclipse.org/modeling/tmf/xtext/updates/composite/releases/"/>
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/milestones/"/>
+      <repository
+          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.5/"/>          
     </setupTask>
     <setupTask
         xsi:type="setup.targlets:TargletTask">
@@ -508,7 +512,7 @@
           <repository
               url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
           <repository
-              url="http://dist.springsource.org/release/GRECLIPSE/e4.4/"/>
+              url="http://dist.springsource.org/release/GRECLIPSE/e4.5/"/>
           <repository
               url="http://www.openhab.org/jupnp/update-site"/>
           <repository
