@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -169,6 +170,19 @@ public abstract class BaseThingHandler implements ThingHandler {
     public void thingUpdated(Thing thing) {
         dispose();
         this.thing = thing;
+        initialize();
+    }
+
+    public void configurationChanged(Map<String, String> changedParameters) throws Exception {
+        Configuration editConfiguration = editConfiguration();
+        Set<Entry<String, String>> entrySet = changedParameters.entrySet();
+
+        for (Entry<String, String> entry : entrySet) {
+            editConfiguration.put(entry.getKey(), entry.getValue());
+        }
+
+        updateConfiguration(editConfiguration);
+        dispose();
         initialize();
     }
 

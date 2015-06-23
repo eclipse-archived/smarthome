@@ -7,24 +7,37 @@
  */
 package org.eclipse.smarthome.io.monitor.internal;
 
-import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
+import java.util.Set;
+
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
+import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EventLogger extends AbstractEventSubscriber {
+import com.google.common.collect.ImmutableSet;
+
+public class EventLogger implements EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger("runtime.busevents");
 
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(EventSubscriber.ALL_EVENT_TYPES);
+
     @Override
-    public void receiveCommand(String itemName, Command command) {
-        logger.info("{} received command {}", itemName, command);
+    public Set<String> getSubscribedEventTypes() {
+        return subscribedEventTypes;
     }
 
     @Override
-    public void receiveUpdate(String itemName, State newStatus) {
-        logger.info("{} state updated to {}", itemName, newStatus);
+    public EventFilter getEventFilter() {
+        return null;
+    }
+
+    @Override
+    public void receive(Event event) {
+        logger.trace("Received event of type '{}' under the topic '{}' with payload: '{}'", event.getType(),
+                event.getTopic(), event.getPayload());
+        logger.debug(event.toString());
     }
 
 }

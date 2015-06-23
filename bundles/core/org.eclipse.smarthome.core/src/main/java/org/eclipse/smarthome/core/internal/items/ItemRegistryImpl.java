@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,17 +39,12 @@ import org.slf4j.LoggerFactory;
  * thus it is a core part for all stateful services.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Stefan Bußweiler - Migration to new event mechanism 
  *
  */
 public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
-
-    /**
-     * if an EventPublisher service is available, we provide it to all items, so
-     * that they can communicate over the bus
-     */
-    protected EventPublisher eventPublisher;
 
     protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
 
@@ -302,15 +298,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
+    @Override
     protected void setEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
+        super.setEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(eventPublisher);
         }
     }
 
+    @Override
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = null;
+        super.unsetEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(null);
         }
@@ -383,4 +381,23 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             throw new IllegalStateException("ManagedProvider is not available");
         }
     }
+
+    @Override
+    protected void notifyListenersAboutAddedElement(Item element) {
+        super.notifyListenersAboutAddedElement(element);
+        postEvent(ItemEventFactory.createAddedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutRemovedElement(Item element) {
+        super.notifyListenersAboutRemovedElement(element);
+        postEvent(ItemEventFactory.createRemovedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
+    }
+    
 }

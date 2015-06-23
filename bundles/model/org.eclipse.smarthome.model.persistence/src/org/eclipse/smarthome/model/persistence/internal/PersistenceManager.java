@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -67,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class PersistenceManager extends AbstractEventSubscriber implements ModelRepositoryChangeListener,
+public class PersistenceManager implements ModelRepositoryChangeListener,
         ItemRegistryChangeListener, StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);

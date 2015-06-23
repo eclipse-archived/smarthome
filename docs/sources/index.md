@@ -45,6 +45,7 @@ These chapters explain different technical aspects of the Eclipse SmartHome fram
 * [Thing Definition](architecture/thing-definition.md) - Binding Thing definition guide
 * [Thing Handler](architecture/thing-handler.md) - Binding Thing Hander implementation guide
 * [Thing Status](architecture/thing-status.md) - Overview of the Thing Status concept
+* [Events](architecture/events.md) - Overview of the Eclipse SmartHome event mechanism
  
 ## Development
 

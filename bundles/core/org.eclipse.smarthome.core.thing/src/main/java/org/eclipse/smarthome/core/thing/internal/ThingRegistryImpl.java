@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,18 +74,21 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     protected void notifyListenersAboutAddedElement(Thing element) {
         super.notifyListenersAboutAddedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
+        postEvent(ThingEventFactory.createAddedEvent(element));
     }
 
     @Override
     protected void notifyListenersAboutRemovedElement(Thing element) {
         super.notifyListenersAboutRemovedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_REMOVED);
+        postEvent(ThingEventFactory.createRemovedEvent(element));
     }
 
     @Override
     protected void notifyListenersAboutUpdatedElement(Thing oldElement, Thing element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         notifyTrackers(element, ThingTrackerEvent.THING_UPDATED);
+        postEvent(ThingEventFactory.createUpdateEvent(element, oldElement));
     }
 
     @Override
