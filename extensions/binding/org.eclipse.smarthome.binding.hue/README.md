@@ -1,3 +1,9 @@
+---
+layout: documentation
+---
+
+{% include base.html %}
+
 # Philips Hue Binding
 
 This binding integrates the [Philips Hue Lighting system](http://www.meethue.com).

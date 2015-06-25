@@ -1,3 +1,9 @@
+---
+layout: documentation
+---
+
+{% include base.html %}
+
 # Belkin Wemo Binding
 
 This binding integrates the [Belkin WeMo Family](http://www.belkin.com/us/Products/c/home-automation/).
