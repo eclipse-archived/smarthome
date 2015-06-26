@@ -41,7 +41,7 @@ public class IconServlet extends HttpServlet {
 
     private final Logger logger = LoggerFactory.getLogger(IconServlet.class);
 
-    private static final String SERVLET_NAME = "/images";
+    private static final String SERVLET_NAME = "/icon";
 
     private long startupTime;
 
