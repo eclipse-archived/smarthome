@@ -54,7 +54,7 @@ public class WebAppServlet extends BaseServlet {
     private static final long TIMEOUT_IN_MS = 30000L;
 
     /** the name of the servlet to be used in the URL */
-    public static final String SERVLET_NAME = "classicui";
+    public static final String SERVLET_NAME = "app";
 
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
@@ -80,9 +80,9 @@ public class WebAppServlet extends BaseServlet {
         }
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
             httpService.registerResources(WEBAPP_ALIAS, "web", null);
-            logger.info("Started Classic UI at " + WEBAPP_ALIAS + SERVLET_NAME);
+            logger.info("Started Classic UI at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);
         } catch (ServletException e) {

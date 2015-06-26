@@ -51,10 +51,10 @@ public class CmdServlet extends BaseServlet {
 
     protected void activate() {
         try {
-            logger.debug("Starting up CMD servlet at " + WEBAPP_ALIAS + SERVLET_NAME);
+            logger.debug("Starting up CMD servlet at " + WEBAPP_ALIAS + "/" + SERVLET_NAME);
 
             Hashtable<String, String> props = new Hashtable<String, String>();
-            httpService.registerServlet(WEBAPP_ALIAS + SERVLET_NAME, this, props, createHttpContext());
+            httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
 
         } catch (NamespaceException e) {
             logger.error("Error during servlet startup", e);
