@@ -1,8 +1,12 @@
-Group Weather
+Group:Switch:OR(ON,OFF) DemoSwitchGroup
 
-Group Weather_Chart	(Weather)
+Switch DemoSwitch					(DemoSwitchGroup)
+Dimmer DemoDimmer					(DemoSwitchGroup)
+Rollershutter DemoRollershutter
+Color DemoColor						(DemoSwitchGroup)
+DateTime DemoDateTime
+Location DemoLocation
+String DemoString
+Contact DemoContact
+
 Number Weather_Temperature 		"Outside Temperature [%.1f °C]"	<temperature> (Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
-Number Weather_Temp_Max 		"Todays Maximum [%.1f °C]"	<temperature> (Weather_Chart)
-Number Weather_Temp_Min 		"Todays Minimum [%.1f °C]"	<temperature> (Weather_Chart)
-Number Weather_Chart_Period		"Chart Period"
-DateTime Weather_LastUpdate		"Last Update [%1$ta %1$tR]"	<clock>
