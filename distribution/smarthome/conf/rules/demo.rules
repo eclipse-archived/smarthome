@@ -1,7 +1,9 @@
-// Creates an item that stores the last update time of this item
-rule "Records last weather update time"
+rule "Initialize demo items"
 when
-  Item Weather_Temperature received update
+  System started
 then
-  postUpdate(Weather_LastUpdate, new DateTimeType())
+  DemoLocation.postUpdate("52,9")
+  DemoContact.postUpdate(OPEN)
+  DemoString.postUpdate("Hello SmartHome!")
+  DemoDateTime.postUpdate(new DateTimeType())
 end
