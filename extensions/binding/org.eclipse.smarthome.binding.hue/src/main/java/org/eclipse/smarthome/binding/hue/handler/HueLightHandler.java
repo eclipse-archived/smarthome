@@ -7,33 +7,9 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_BRIGHTNESS;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLOR;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.CHANNEL_COLORTEMPERATURE;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_CLASSIC_A60_RGBW;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT002;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LCT003;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC006;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC007;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC010;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC011;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC012;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LLC013;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LST001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWB004;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_LWL001;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_SURFACE_LIGHT_TW;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_ZLL_LIGHT;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Set;
-
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
@@ -41,9 +17,9 @@ import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -52,6 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+
+import nl.q42.jue.FullLight;
+import nl.q42.jue.HueBridge;
+import nl.q42.jue.State;
+import nl.q42.jue.StateUpdate;
 
 /**
  * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueBridgeHandler} to execute the actual
@@ -70,7 +51,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             THING_TYPE_LCT003, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007, THING_TYPE_LLC010,
             THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001, THING_TYPE_LST001,
             THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW,
-            THING_TYPE_ZLL_LIGHT);
+            THING_TYPE_ZLL_LIGHT, THING_TYPE_LLC020);
 
     private static final int DIM_STEPSIZE = 30;
 
