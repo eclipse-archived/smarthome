@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.io.rest.sse.internal.async;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.glassfish.jersey.internal.inject.CustomAnnotationImpl;
+import org.glassfish.jersey.internal.inject.CustomAnnotationLiteral;
 import org.glassfish.jersey.servlet.spi.AsyncContextDelegateProvider;
 
 /**
@@ -26,7 +26,7 @@ public class BlockingAsyncBinder extends AbstractBinder {
         // the qualifiedBy is needed in order for our implementation to be used
         // if there are multiple implementations of AsyncContextDelegateProvider
         bind(new BlockingAsyncContextDelegateProvider()).to(AsyncContextDelegateProvider.class).qualifiedBy(
-                new CustomAnnotationImpl());
+                CustomAnnotationLiteral.INSTANCE);
     }
 
 }
