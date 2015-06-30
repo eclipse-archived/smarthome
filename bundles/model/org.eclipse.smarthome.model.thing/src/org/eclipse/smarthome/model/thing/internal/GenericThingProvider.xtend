@@ -38,6 +38,8 @@ import org.eclipse.smarthome.model.thing.thing.ModelBridge
 import org.eclipse.smarthome.core.common.registry.AbstractProvider
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import java.util.concurrent.CopyOnWriteArrayList
+import org.eclipse.smarthome.model.thing.internal.GenericThingProvider.QueueContent
+import java.util.ArrayList
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -46,7 +48,9 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @author niehues - Fix ESH Bug 450236
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
- *
+ * @author Simon Kaufmann - Added asynchronous retry in case the handler 
+ *         factory cannot load a thing yet (bug 470368) 
+ * 
  */
 class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvider, ModelRepositoryChangeListener {
 
@@ -58,6 +62,9 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
 	private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<ThingHandlerFactory>()
 
+    private val List<QueueContent> queue = new CopyOnWriteArrayList
+    private var Thread lazyRetryThread = null
+    
 	private static final Logger logger = LoggerFactory.getLogger(GenericThingProvider)
 
 	def void activate() {
@@ -176,16 +183,33 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory specific) {
 		if (specific != null && specific.supportsThingType(thingTypeUID)) {
 			logger.trace("Creating thing from specific ThingHandlerFactory {} for thingType {}", specific, thingTypeUID)
-			return specific.createThing(thingTypeUID, configuration, thingUID, bridgeUID)
+			return getThingFromThingHandlerFactory(thingTypeUID, configuration, thingUID, bridgeUID, specific)
 		}
 		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
 			logger.trace("Searching thingHandlerFactory for thingType: {}", thingTypeUID)
 			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-				return thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+			    return getThingFromThingHandlerFactory(thingTypeUID, configuration, thingUID, bridgeUID, thingHandlerFactory)
 			}
 		}
 		null
 	}
+	
+	def private getThingFromThingHandlerFactory(ThingTypeUID thingTypeUID, Configuration configuration,
+        ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory thingHandlerFactory) {
+        val thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID)
+        if (thing == null) {
+            // Apparently the HandlerFactory's eyes were bigger than its stomach...
+            // Possible cause: Asynchronous loading of the XML files
+            // Add the data to the queue in order to retry it later
+            logger.debug("ThingHandlerFactory '{}' claimed it can handle '{}' type but actually did not. Queued for later refresh.", thingHandlerFactory.class.simpleName, thingTypeUID.asString)
+            queue.add(new QueueContent(thingTypeUID, configuration, thingUID, bridgeUID, thingHandlerFactory))
+            if (lazyRetryThread == null || !lazyRetryThread.alive) {
+                lazyRetryThread = new Thread(lazyRetryRunnable)
+                lazyRetryThread.start
+            }
+        }
+        return thing
+    }
 
 	def dispatch void merge(Thing targetThing, Thing sourceThing) {
 		targetThing.bridgeUID = sourceThing.bridgeUID
@@ -365,4 +389,56 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			}
 		]
 	}
+
+    private val lazyRetryRunnable = new Runnable() {
+        override run() {
+            logger.debug("Starting lazy retry thread")
+            while (!queue.empty) {
+                if (!queue.empty) {
+                    val newThings = new ArrayList
+                    queue.forEach [ qc |
+                        logger.trace("Searching thingHandlerFactory for thingType: {}", qc.thingTypeUID)
+                        val thing = qc.thingHandlerFactory.createThing(qc.thingTypeUID, qc.configuration, qc.thingUID,
+                            qc.bridgeUID)
+                        if (thing != null) {
+                            queue.remove(qc)
+                            logger.debug("Successfully loaded '{}' during retry", qc.thingUID)
+                            newThings.add(thing)
+                        }
+                    ]
+                    if (!newThings.empty) {
+                        newThings.forEach [ newThing |
+                            val modelName = thingsMap.keySet.findFirst[mName|
+                                !thingsMap.get(mName).filter[it.UID == newThing.UID].empty]
+                            val oldThing = thingsMap.get(modelName).findFirst[it.UID == newThing.UID]
+                            if (oldThing != null) {
+                                thingsMap.get(modelName).remove(oldThing)
+                                thingsMap.get(modelName).add(newThing)
+                                logger.debug("Refreshing thing '{}' after successful retry", newThing.UID)
+                                if (!ThingHelper.equals(oldThing, newThing)) {
+                                    notifyListenersAboutUpdatedElement(oldThing, newThing)
+                                }
+                            } else {
+                                throw new IllegalStateException(String.format("Item %s not yet known", newThing.UID))
+                            }
+                        ]
+                    }
+                }
+                if (!queue.empty) {
+                    Thread.sleep(1000)
+                }
+            }
+            logger.debug("Lazy retry thread ran out of work. Good bye.")
+        }
+    }
+
+    @Data
+    private static final class QueueContent {
+        ThingTypeUID thingTypeUID
+        Configuration configuration
+        ThingUID thingUID
+        ThingUID bridgeUID
+        ThingHandlerFactory thingHandlerFactory
+    }
+
 }
