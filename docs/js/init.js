@@ -39,7 +39,8 @@ function initEffects() {
     // Striped Tables
     $('section#documentation table').addClass('striped');
     
-    $('body.documentation section#documentation h2').click(function(event) {
+    // Linkable Headers
+    $('body.documentation section#documentation h2, body.documentation section#documentation h3').click(function(event) {
 		var id = $(event.target).attr('id');
 		window.location.hash = id;
 	});
