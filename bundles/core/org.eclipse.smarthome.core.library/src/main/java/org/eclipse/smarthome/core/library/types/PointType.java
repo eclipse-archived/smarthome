@@ -119,7 +119,14 @@ public class PointType implements ComplexType, Command, State {
 
     @Override
     public String toString() {
-        return String.format("%1$.2f°N, %2$.2f°W, %3$.2f m", latitude, longitude, altitude);
+        StringBuilder sb = new StringBuilder(latitude.toPlainString());
+        sb.append(',');
+        sb.append(longitude.toPlainString());
+        if (!altitude.equals(BigDecimal.ZERO)) {
+            sb.append(',');
+            sb.append(altitude.toPlainString());
+        };
+        return sb.toString();
     }
 
     @Override
