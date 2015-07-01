@@ -13,7 +13,10 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.RefreshType
+import org.eclipse.smarthome.core.types.State
+import org.junit.Assert
 import org.junit.Test
 
 
@@ -42,4 +45,42 @@ class GroupItemTest {
         assertThat groupItem.acceptedCommandTypes, hasItems(RefreshType)
     }
 	
+
+    @Test
+    public void testGetAllMembers() {
+        GroupItem rootGroupItem = new GroupItem("root");
+        rootGroupItem.addMember(new TestItem("member1"));
+        rootGroupItem.addMember(new TestItem("member2"));
+        rootGroupItem.addMember(new TestItem("member2"));
+        GroupItem subGroup = new GroupItem("subGroup1");
+        subGroup.addMember(new TestItem("subGroup member 1"));
+        subGroup.addMember(new TestItem("subGroup member 2"));
+        subGroup.addMember(new TestItem("subGroup member 3"));
+        subGroup.addMember(new TestItem("member1"));
+        rootGroupItem.addMember(subGroup);
+        int expectedAmountOfMembers = 5;
+        Assert.assertEquals(expectedAmountOfMembers, rootGroupItem.getAllMembers().size());
+        for (Item member : rootGroupItem.getAllMembers()) {
+            if (member instanceof GroupItem) {
+                fail("There are no GroupItems allowed in this Collection");
+            }
+        }
+    }
+
+    class TestItem extends GenericItem {
+
+        public TestItem(String name) {
+            super("Test", name);
+        }
+
+        @Override
+        public List<Class<? extends State>> getAcceptedDataTypes() {
+            return null;
+        }
+
+        @Override
+        public List<Class<? extends Command>> getAcceptedCommandTypes() {
+            return null;
+        }
+    }
 }

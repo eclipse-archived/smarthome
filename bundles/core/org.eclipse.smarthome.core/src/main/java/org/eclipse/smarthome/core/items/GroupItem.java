@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -178,7 +179,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         if (eventPublisher != null) {
             for (Item member : members) {
                 // try to send the command to the bus
-                eventPublisher.sendCommand(member.getName(), command);
+                eventPublisher.post(ItemEventFactory.createCommandEvent(member.getName(), command));
             }
         }
     }
