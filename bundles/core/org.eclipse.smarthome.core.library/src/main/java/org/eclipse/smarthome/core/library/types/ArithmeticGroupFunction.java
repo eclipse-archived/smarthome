@@ -404,8 +404,8 @@ public interface ArithmeticGroupFunction extends GroupFunction {
 	/**
 	 * This calculates the number of items in the group matching the
 	 * regular expression passed in parameter
-	 * Group:String:COUNT(".") will count all items having a string state of one character
-	 * Group:String:COUNT("[5-9]") will count all items having a string state between 5 and 9
+	 * Group:Number:COUNT(".") will count all items having a string state of one character
+	 * Group:Number:COUNT("[5-9]") will count all items having a string state between 5 and 9
 	 * ...
 	 * 
 	 * @author Gaël L'hopital
