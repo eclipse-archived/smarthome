@@ -162,8 +162,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                     eventSubscriber.receive(event);
                 }
             } catch (Throwable t) {
-                logger.error("Dispatching/filtering of ESH-Event failed, because one of the "
-                        + "registered subscriber/filter has thrown an exception: " + t.getMessage(), t);
+                logger.error("Dispatching/filtering event failed: " + t.getMessage(), t);
             }
         }
     }
