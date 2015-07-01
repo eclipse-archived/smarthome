@@ -19,6 +19,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -37,6 +38,7 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - Added tags
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
 abstract public class GenericItem implements ActiveItem {
@@ -167,7 +169,7 @@ abstract public class GenericItem implements ActiveItem {
     protected void internalSend(Command command) {
         // try to send the command to the bus
         if (eventPublisher != null) {
-            eventPublisher.sendCommand(this.getName(), command);
+            eventPublisher.post(ItemEventFactory.createCommandEvent(this.getName(), command));
         }
     }
 

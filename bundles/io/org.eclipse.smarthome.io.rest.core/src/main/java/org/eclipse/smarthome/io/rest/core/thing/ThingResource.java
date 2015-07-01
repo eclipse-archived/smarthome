@@ -40,12 +40,11 @@ import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +73,7 @@ public class ThingResource implements RESTResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(ThingBean thingBean) throws IOException {
+    public Response create(ThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -95,7 +94,7 @@ public class ThingResource implements RESTResource {
     public Response getAll() {
 
         Collection<Thing> things = thingRegistry.getAll();
-        Set<ThingBean> thingBeans = convertToListBean(things);
+        Set<EnrichedThingDTO> thingBeans = convertToListBean(things);
 
         return Response.ok(thingBeans).build();
     }
@@ -106,7 +105,7 @@ public class ThingResource implements RESTResource {
     public Response getByUID(@PathParam("thingUID") String thingUID) {
         Thing thing = thingRegistry.get((new ThingUID(thingUID)));
         if (thing != null) {
-            return Response.ok(BeanMapper.mapThingToBean(thing)).build();
+            return Response.ok(EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri())).build();
         } else {
             return Response.noContent().build();
         }
@@ -176,7 +175,7 @@ public class ThingResource implements RESTResource {
     @PUT
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("thingUID") String thingUID, ThingBean thingBean) throws IOException {
+    public Response update(@PathParam("thingUID") String thingUID, ThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
         ThingUID bridgeUID = null;
@@ -255,10 +254,10 @@ public class ThingResource implements RESTResource {
         this.thingRegistry = null;
     }
 
-    private Set<ThingBean> convertToListBean(Collection<Thing> things) {
-        Set<ThingBean> thingBeans = new LinkedHashSet<>();
+    private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things) {
+        Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            ThingBean thingBean = BeanMapper.mapThingToBean(thing);
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri());
             thingBeans.add(thingBean);
         }
         return thingBeans;
@@ -285,7 +284,7 @@ public class ThingResource implements RESTResource {
         }
     }
 
-    public static Configuration getConfiguration(ThingBean thingBean) {
+    public static Configuration getConfiguration(ThingDTO thingBean) {
         Configuration configuration = new Configuration();
 
         for (Entry<String, Object> parameter : thingBean.configuration.entrySet()) {
