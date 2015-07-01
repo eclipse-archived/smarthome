@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
+import org.eclipse.smarthome.config.xml.util.GenericUnmarshaller;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 
@@ -24,17 +25,18 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * to convert channel information within an XML document
  * into a {@link ChannelXmlResult} object.
  * <p>
- * This converter converts {@code channel} XML tags. It uses the {@link AbstractDescriptionTypeConverter} which offers
- * base functionality for each type definition.
+ * This converter converts {@code channel} XML tags.
  * 
  * @author Chris Jackson - Initial Contribution
+ * @author Simon Kaufmann - Fixing wrong inheritance
  */
-public class ChannelConverter extends AbstractDescriptionTypeConverter<ChannelXmlResult> {
+public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
 
+    private ConverterAttributeMapValidator attributeMapValidator;
     public ChannelConverter() {
-        super(ChannelXmlResult.class, "channel");
+        super(ChannelXmlResult.class);
 
-        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
+        attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
                 { "typeId", "false" } });
     }
 
@@ -43,7 +45,6 @@ public class ChannelConverter extends AbstractDescriptionTypeConverter<ChannelXm
         return (List<NodeValue>) nodeIterator.nextList("properties", false);
     }
 
-    @Override
     protected ChannelXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
@@ -55,4 +56,21 @@ public class ChannelConverter extends AbstractDescriptionTypeConverter<ChannelXm
 
         return channelXmlResult;
     }
+    
+    @Override
+    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+        // read attributes
+        Map<String, String> attributes = this.attributeMapValidator.readValidatedAttributes(reader);
+
+        // read values
+        List<?> nodes = (List<?>) context.convertAnother(context, List.class);
+        NodeIterator nodeIterator = new NodeIterator(nodes);
+
+        // create object
+        Object object = unmarshalType(reader, context, attributes, nodeIterator);
+
+        nodeIterator.assertEndOfType();
+
+        return object;
+    }    
 }

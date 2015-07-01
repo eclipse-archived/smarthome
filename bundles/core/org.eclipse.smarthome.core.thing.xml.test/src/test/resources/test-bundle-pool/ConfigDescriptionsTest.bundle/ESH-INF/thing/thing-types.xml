@@ -58,6 +58,10 @@
 	<thing-type id="dummy">
 		<label>Dummy thing</label>
 		
+        <channels>
+           <channel id="color" typeId="color" />
+        </channels>
+        
 		<config-description>
 			
 			<parameter name="unit" type="text">
