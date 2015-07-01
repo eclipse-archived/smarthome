@@ -39,7 +39,7 @@ import org.osgi.framework.Bundle;
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added locale support
  * @author Alex Tugarev - Extended for pattern and options
- * @author Chris Jackson - Modify to use config parameter builder
+ * @author Chris Jackson - Modify to use config parameter builder and add configuration templates
  */
 public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
@@ -212,13 +212,14 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                     .getParameterGroups().size());
 
             // Loop through all the configuration groups and localize them
-            for (ConfigDescriptionParameterGroup configDescriptionParameterGroup : configDescription.getParameterGroups()) {
+            for (ConfigDescriptionParameterGroup configDescriptionParameterGroup : configDescription
+                    .getParameterGroups()) {
                 ConfigDescriptionParameterGroup localizedConfigDescriptionGroup = getLocalizedConfigDescriptionGroup(
                         bundle, configDescription, configDescriptionParameterGroup, locale);
                 localizedConfigDescriptionGroups.add(localizedConfigDescriptionGroup);
             }
             return new ConfigDescription(configDescription.getURI(), localizedConfigDescriptionParameters,
-                    localizedConfigDescriptionGroups);
+                    localizedConfigDescriptionGroups, configDescription.isTemplate());
         } else {
             return configDescription;
         }
@@ -230,8 +231,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         URI configDescriptionURI = configDescription.getURI();
         String parameterName = parameter.getName();
 
-        String label = this.configDescriptionParamI18nUtil.getParameterLabel(bundle, configDescriptionURI, parameterName,
-                parameter.getLabel(), locale);
+        String label = this.configDescriptionParamI18nUtil.getParameterLabel(bundle, configDescriptionURI,
+                parameterName, parameter.getLabel(), locale);
 
         String description = this.configDescriptionParamI18nUtil.getParameterDescription(bundle, configDescriptionURI,
                 parameterName, parameter.getDescription(), locale);
@@ -264,8 +265,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         String label = this.configDescriptionGroupI18nUtil.getGroupLabel(bundle, configDescriptionURI, name,
                 group.getLabel(), locale);
 
-        String description = this.configDescriptionGroupI18nUtil.getGroupDescription(bundle, configDescriptionURI, name,
-                group.getDescription(), locale);
+        String description = this.configDescriptionGroupI18nUtil.getGroupDescription(bundle, configDescriptionURI,
+                name, group.getDescription(), locale);
 
         ConfigDescriptionParameterGroup localizedGroup = new ConfigDescriptionParameterGroup(name, group.getContext(),
                 group.isAdvanced(), label, description);

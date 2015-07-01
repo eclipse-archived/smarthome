@@ -34,7 +34,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * This converter converts {@code config-description} XML tags.
  *
  * @author Michael Grammling - Initial Contribution
- * @author Chris Jackson - Added configuration groups
+ * @author Chris Jackson - Added configuration groups and template attribute
  */
 public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescription> {
 
@@ -43,7 +43,8 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
     public ConfigDescriptionConverter() {
         super(ConfigDescription.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "uri", "false" } });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "uri", "false" },
+                { "template", "false" } });
     }
 
     @SuppressWarnings("unchecked")
@@ -66,6 +67,11 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         } catch (NullPointerException | URISyntaxException ex) {
             throw new ConversionException("The URI '" + uriText + "' in node '" + reader.getNodeName()
                     + "' is invalid!", ex);
+        }
+
+        boolean template = false;
+        if (Boolean.parseBoolean(attributes.get("template")) == true) {
+            template = true;
         }
 
         // create the lists to hold parameters and groups
@@ -91,7 +97,7 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         ConverterAssertion.assertEndOfType(reader);
 
         // create object
-        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups);
+        configDescription = new ConfigDescription(uri, configDescriptionParams, configDescriptionGroups, template);
 
         return configDescription;
     }
