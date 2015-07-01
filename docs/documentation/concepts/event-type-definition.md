@@ -1,3 +1,9 @@
+---
+layout: documentation
+---
+
+{% include base.html %}
+
 # Event Type Definition
 
 Eclipse SmartHome provides the possibility to easily implement new event types and event factories. 
