@@ -43,6 +43,7 @@ public class SunriseEvent extends AbstractEvent {
 ```
 
 The listing below summarizes some coding guidelines as illustrated in the example above:
+
 - Events should only be created by event factories. Constructors do not have any access specifier in order to make the class package private.
 - The serialization of the payload into a data transfer object (e.g. `SunriseDTO`) should be part of the event factory and will be assigned to a class member via the constructor. 
 - A public member `TYPE` represents the event type as string representation and is usually the name of the class.
@@ -67,13 +68,13 @@ public class SunEventFactory extends AbstractEventFactory {
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         Event event = null;
         if (eventType.equals(SunriseEvent.TYPE)) {
-			createSunriseEvent(topic, payload);
+            createSunriseEvent(topic, payload);
         } 
         return event;
     }
     
     private createSunriseEvent(String topic, String payload) {
-    	SunriseDTO sunriseDTO = deserializePayload(payload, SunriseDTO.class);
+        SunriseDTO sunriseDTO = deserializePayload(payload, SunriseDTO.class);
         return new SunriseEvent(topic, payload, sunriseDTO);
     }
     

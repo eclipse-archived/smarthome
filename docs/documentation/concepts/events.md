@@ -33,32 +33,32 @@ The event source is optional and represents the name of the source identifying t
 
 #### Item Events
 
-| Event         		|Description 								      |Topic  		       				  |
+| Event                 |Description                                       |Topic                                   |
 |-----------------------|-------------------------------------------------|-----------------------------------|
-| ItemAddedEvent 		|An item has been added to the item registry.     |smarthome/items/{itemName}/added   |
-| ItemRemovedEvent 		|An item has been removed from the item registry. |smarthome/items/{itemName}/removed |
-| ItemUpdateEvent 		|An item has been updated in the item registry.   |smarthome/items/{itemName}/updated |
-| ItemCommandEvent 		|A command is sent to an item via a channel. 	  |smarthome/items/{itemName}/command |
-| ItemStateEvent 		|The state of an item is updated. 		 	 	  |smarthome/items/{itemName}/state   |
+| ItemAddedEvent         |An item has been added to the item registry.     |smarthome/items/{itemName}/added   |
+| ItemRemovedEvent         |An item has been removed from the item registry. |smarthome/items/{itemName}/removed |
+| ItemUpdateEvent         |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated |
+| ItemCommandEvent         |A command is sent to an item via a channel.       |smarthome/items/{itemName}/command |
+| ItemStateEvent         |The state of an item is updated.                     |smarthome/items/{itemName}/state   |
 
 
 #### Thing Events
 
-| Event         		|Description 								      |Topic  		       				  |
+| Event                 |Description                                       |Topic                                   |
 |-----------------------|-------------------------------------------------|-----------------------------------|
-| ThingAddedEvent 		|A thing has been added to the thing registry.    |smarthome/things/{thingUID}/added  |
-| ThingRemovedEvent  	|A thing has been removed from the thing registry.|smarthome/things/{thingUID}/removed|
-| ThingUpdatedEvent 	|A thing has been updated in the thing registry.  |smarthome/things/{thingUID}/updated|
-| ThingStatusInfoEvent	|The status of a thing is updated.			      |smarthome/things/{thingUID}/status |
+| ThingAddedEvent         |A thing has been added to the thing registry.    |smarthome/things/{thingUID}/added  |
+| ThingRemovedEvent      |A thing has been removed from the thing registry.|smarthome/things/{thingUID}/removed|
+| ThingUpdatedEvent     |A thing has been updated in the thing registry.  |smarthome/things/{thingUID}/updated|
+| ThingStatusInfoEvent    |The status of a thing is updated.                  |smarthome/things/{thingUID}/status |
 
 
 #### Inbox Events
 
-| Event         		|Description 								        |Topic  		       				  |
+| Event                 |Description                                         |Topic                                   |
 |-----------------------|---------------------------------------------------|-----------------------------------|
-| InboxAddedEvent 		|A discovery result has been added to the inbox     |smarthome/inbox/{thingUID}/added   |
-| InboxRemovedEvent 	|A discovery result has been removed from the inbox |smarthome/inbox/{thingUID}/removed |
-| InboxUpdateEvent 		|A discovery result has been updated in the inbox   |smarthome/inbox/{thingUID}/updated |
+| InboxAddedEvent         |A discovery result has been added to the inbox     |smarthome/inbox/{thingUID}/added   |
+| InboxRemovedEvent     |A discovery result has been removed from the inbox |smarthome/inbox/{thingUID}/removed |
+| InboxUpdateEvent         |A discovery result has been updated in the inbox   |smarthome/inbox/{thingUID}/updated |
 
 ## Receive Events
 
@@ -77,25 +77,25 @@ public class SomeItemEventSubscriber implements EventSubscriber {
     }
 
     @Override
-	public EventFilter getEventFilter() {
-		return eventFilter;
-	}
+    public EventFilter getEventFilter() {
+        return eventFilter;
+    }
 
     @Override
-	public void receive(Event event) {
-		String topic = event.getTopic();
-		String type = event.getType();
-		String payload = event.getPayload();
-		if (event instanceof ItemCommandEvent) {
-			ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
-			String itemName = itemCommandEvent.getItemName();
-			Command command = itemCommandEvent.getItemCommand();
-			// ...
+    public void receive(Event event) {
+        String topic = event.getTopic();
+        String type = event.getType();
+        String payload = event.getPayload();
+        if (event instanceof ItemCommandEvent) {
+            ItemCommandEvent itemCommandEvent = (ItemCommandEvent) event;
+            String itemName = itemCommandEvent.getItemName();
+            Command command = itemCommandEvent.getItemCommand();
+            // ...
         } else if (event instanceof ItemStateEvent) {
-			ItemStateEvent itemCommandEvent = (ItemStateEvent) event;
-			// ...
+            ItemStateEvent itemCommandEvent = (ItemStateEvent) event;
+            // ...
         }
-	}
+    }
 }
 ```
 The `SomeItemEventSubscriber` is subscribed to the event types `ItemStateEvent` and `ItemCommandEvent`, provided by the method `getSubscribedEventTypes()`. A string representation of an event type can be found by a public member `TYPE` which usually presents the name of the class. To subscribe to all available event types, use the public member `ALL_EVENT_TYPES` of the event subscriber interface.
@@ -133,16 +133,16 @@ public class SomeItemEventSubscriber extends AbstractItemEventSubscriber {
     private final EventFilter eventFiter = new TopicEventFilter("smarthome/items/ItemX/.*");
 
     @Override
-	public EventFilter getEventFilter() {
-		return eventFilter;
-	}
-	
-	@Override    
+    public EventFilter getEventFilter() {
+        return eventFilter;
+    }
+    
+    @Override    
     protected void receiveCommand(ItemCommandEvent commandEvent) {
         // do something
     }
 
-	@Override
+    @Override
     protected void receiveUpdate(ItemStateEvent stateEvent) {
         // do something
     }
@@ -152,16 +152,17 @@ public class SomeItemEventSubscriber extends AbstractItemEventSubscriber {
 ## Send Events
 
 Usually the core events are only sent by the Eclipse SmartHome framework. But it is possible to sent events explicitly, e.g. ItemCommandEvents and ItemStateEvents. The Java snippet below illustrates how to send events via the EventPublisher. The Eclipse SmartHome core events can only be created via the corresponding event factory.
+
 ```java 
 public class SomeComponentWantsToPost {
-	private EventPublisher eventPublisher; 
+    private EventPublisher eventPublisher; 
 
-	public void postSomething() {
-		ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent("ItemX", OnOffType.ON);
-		eventPublisher.postEvent(itemCommandEvent);
-	}
+    public void postSomething() {
+        ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent("ItemX", OnOffType.ON);
+        eventPublisher.postEvent(itemCommandEvent);
+    }
 
-	protected void setEventPublisher(EventPublisher eventPublisher) {
+    protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }
     
@@ -175,9 +176,9 @@ The EventPublisher will be injected via OSGi Declarative Services.
 
 ```xml
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="SomeComponentWantsToPost">
-	<!-- ... -->
+    <!-- ... -->
    <reference bind="setEventPublisher" cardinality="1..1" interface="org.eclipse.smarthome.core.events.EventPublisher" 
-   		name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
+           name="EventPublisher" policy="static" unbind="unsetEventPublisher"/>
 </scr:component>
 ```
 
