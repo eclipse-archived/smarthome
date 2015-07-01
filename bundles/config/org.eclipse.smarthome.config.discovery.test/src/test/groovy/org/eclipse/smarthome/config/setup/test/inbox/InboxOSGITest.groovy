@@ -17,7 +17,11 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxRemovedEvent
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
@@ -27,6 +31,8 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+
+import com.google.common.collect.Sets
 
 
 class InboxOSGITest extends OSGiTest {
@@ -566,5 +572,36 @@ class InboxOSGITest extends OSGiTest {
         expectedList.each {
             assertTrue actualList.contains(it)
         }
+    }
+    
+    @Test
+    void 'assert that InboxEventSubscribers receive events about discovery result changes'() {
+        def thingUID = new ThingUID("some:thing:uid")
+        def receivedEvent = null
+        def inboxEventSubscriber = [
+            receive: { event -> receivedEvent = event },
+            getSubscribedEventTypes: { Sets.newHashSet(InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService inboxEventSubscriber
+
+        // add discovery result
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(thingUID, null, null, null, null, DEFAULT_TTL)
+        addDiscoveryResult(discoveryResult)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(InboxAddedEvent))
+        receivedEvent = null
+
+        // update discovery result
+        discoveryResult = new DiscoveryResultImpl(thingUID, null, null, null, null, DEFAULT_TTL)
+        addDiscoveryResult(discoveryResult)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(InboxUpdatedEvent))
+        receivedEvent = null
+
+        // remove discovery result
+        removeDiscoveryResult(thingUID)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(InboxRemovedEvent))
     }
 }
