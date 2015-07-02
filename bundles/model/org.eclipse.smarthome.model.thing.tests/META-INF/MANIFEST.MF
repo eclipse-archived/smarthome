@@ -27,4 +27,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Fragment-Host: org.eclipse.smarthome.model.thing
 Export-Package: org.eclipse.smarthome.model.thing
 Service-Component: OSGI-INF/HueThingHandlerFactory.xml,
- OSGI-INF/HueThingTypeProvider.xml
+ OSGI-INF/HueThingTypeProvider.xml,
+ OSGI-INF/DumbThingTypeProvider.xml
+ 
