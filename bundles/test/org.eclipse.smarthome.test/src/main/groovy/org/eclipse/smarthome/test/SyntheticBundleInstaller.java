@@ -22,6 +22,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.smarthome.config.xml.osgi.AbstractAsyncBundleProcessor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -37,7 +38,19 @@ public class SyntheticBundleInstaller {
         Bundle syntheticBundle = bundleContext.installBundle(testBundleName, new ByteArrayInputStream(
                 syntheticBundleBytes));
         syntheticBundle.start(Bundle.ACTIVE);
+        waitUntilLoadingFinished(syntheticBundle);
         return syntheticBundle;
+    }
+
+    public static void waitUntilLoadingFinished(Bundle bundle) {
+        while (!AbstractAsyncBundleProcessor.isBundleFinishedLoading(bundle)) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void uninstall(BundleContext bundleContext, String testBundleName) throws BundleException {

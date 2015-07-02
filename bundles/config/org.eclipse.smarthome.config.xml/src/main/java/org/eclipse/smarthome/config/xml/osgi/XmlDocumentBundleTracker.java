@@ -33,14 +33,16 @@ import org.slf4j.LoggerFactory;
  */
 public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
-    private Logger logger = LoggerFactory.getLogger(XmlDocumentBundleTracker.class);
+    private final Logger logger = LoggerFactory.getLogger(XmlDocumentBundleTracker.class);
 
-    private String xmlDirectory;
+    private final String xmlDirectory;
 
-    private XmlDocumentReader<T> xmlDocumentTypeReader;
-    private XmlDocumentProviderFactory<T> xmlDocumentProviderFactory;
+    private final XmlDocumentReader<T> xmlDocumentTypeReader;
+    private final XmlDocumentProviderFactory<T> xmlDocumentProviderFactory;
 
-    private Map<Bundle, XmlDocumentProvider<T>> bundleDocumentProviderMap;
+    private final Map<Bundle, XmlDocumentProvider<T>> bundleDocumentProviderMap;
+    
+    private final AbstractAsyncBundleProcessor asyncLoader;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -80,6 +82,49 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         this.xmlDocumentProviderFactory = xmlDocumentProviderFactory;
 
         this.bundleDocumentProviderMap = new HashMap<>();
+        
+        this.asyncLoader = new AbstractAsyncBundleProcessor() {
+
+            @Override
+            protected boolean isBundleRelevant(Bundle bundle) {
+                return isDirectoryPresent(bundle, XmlDocumentBundleTracker.this.xmlDirectory);
+            }
+
+            @Override
+            protected void processBundle(Bundle bundle) {
+                Enumeration<String> xmlDocumentPaths = bundle.getEntryPaths(XmlDocumentBundleTracker.this.xmlDirectory);
+
+                if (xmlDocumentPaths != null) {
+                    int numberOfParsedXmlDocuments = 0;
+
+                    while (xmlDocumentPaths.hasMoreElements()) {
+                        String moduleName = bundle.getSymbolicName();
+                        String xmlDocumentPath = xmlDocumentPaths.nextElement();
+                        URL xmlDocumentURL = bundle.getEntry(xmlDocumentPath);
+                        String xmlDocumentFile = xmlDocumentURL.getFile();
+
+                        try {
+                            XmlDocumentBundleTracker.this.logger.debug(
+                                    "Reading the XML document '{}' in module '{}'...", xmlDocumentFile, moduleName);
+
+                            T object = XmlDocumentBundleTracker.this.xmlDocumentTypeReader.readFromXML(xmlDocumentURL);
+                            addingObject(bundle, object);
+
+                            numberOfParsedXmlDocuments++;
+                        } catch (Exception ex) {
+                            XmlDocumentBundleTracker.this.logger
+                                    .warn(String.format("The XML document '%s' in module '%s' could not be parsed: %s",
+                                            xmlDocumentFile, moduleName, ex.getLocalizedMessage()), ex);
+                        }
+                    }
+
+                    if (numberOfParsedXmlDocuments > 0) {
+                        addingFinished(bundle);
+                    }
+                }
+            }
+
+        };
     }
 
     @Override
@@ -154,44 +199,15 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     @Override
     public final synchronized Bundle addingBundle(Bundle bundle, BundleEvent event) {
-        Enumeration<String> xmlDocumentPaths = bundle.getEntryPaths(this.xmlDirectory);
-
-        if (xmlDocumentPaths != null) {
-            int numberOfParsedXmlDocuments = 0;
-
-            while (xmlDocumentPaths.hasMoreElements()) {
-                String moduleName = bundle.getSymbolicName();
-                String xmlDocumentPath = xmlDocumentPaths.nextElement();
-                URL xmlDocumentURL = bundle.getEntry(xmlDocumentPath);
-                String xmlDocumentFile = xmlDocumentURL.getFile();
-
-                try {
-                    this.logger.debug("Reading the XML document '{}' in module '{}'...", xmlDocumentFile, moduleName);
-
-                    T object = this.xmlDocumentTypeReader.readFromXML(xmlDocumentURL);
-                    addingObject(bundle, object);
-
-                    numberOfParsedXmlDocuments++;
-                } catch (Exception ex) {
-                    this.logger.warn(String.format("The XML document '%s' in module '%s' could not be parsed: %s",
-                            xmlDocumentFile, moduleName, ex.getLocalizedMessage()), ex);
-                }
-            }
-
-            if (numberOfParsedXmlDocuments > 0) {
-                addingFinished(bundle);
-
-                return bundle;
-            }
-        }
-
-        return null;
+        asyncLoader.addingBundle(bundle);
+        return bundle;
     }
 
     @Override
     public final synchronized void removedBundle(Bundle bundle, BundleEvent event, Bundle object) {
         this.logger.debug("Removing the XML related objects from module '{}'...", bundle.getSymbolicName());
 
+        asyncLoader.removeBundle(bundle);
         releaseXmlDocumentProvider(bundle);
     }
 
