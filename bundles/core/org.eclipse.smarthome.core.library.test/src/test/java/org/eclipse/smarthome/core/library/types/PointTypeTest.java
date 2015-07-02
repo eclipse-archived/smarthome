@@ -22,10 +22,9 @@ public class PointTypeTest {
     public void testDistance() {
         PointType pointParis = new PointType("48.8566140,2.3522219");
 
-        
         assertEquals(2.3522219, pointParis.getLongitude().doubleValue(), 0.0000001);
         assertEquals(48.856614, pointParis.getLatitude().doubleValue(), 0.0000001);
-        
+
         PointType pointBerlin = new PointType("52.5200066,13.4049540");
 
         LocationItem locationParis = new LocationItem("paris");
@@ -51,6 +50,11 @@ public class PointTypeTest {
         assertTrue(lon3 < 180);
         assertTrue(lon3 > -180);
 
+        PointType pointTest1 = new PointType("48.8566140,2.3522219,118");
+        PointType pointTest2 = new PointType(pointTest1.toString());
+        assertEquals(pointTest1.getAltitude().longValue(), pointTest2.getAltitude().longValue());
+        assertEquals(pointTest1.getLatitude().longValue(), pointTest2.getLatitude().longValue());
+        assertEquals(pointTest1.getLongitude().longValue(), pointTest2.getLongitude().longValue());
     }
 
 }
