@@ -198,7 +198,7 @@ public class HttpUtil {
 
             String responseBody = IOUtils.toString(method.getResponseBodyAsStream());
             if (!responseBody.isEmpty()) {
-                logger.debug(responseBody);
+                logger.trace(responseBody);
             }
 
             return responseBody;
