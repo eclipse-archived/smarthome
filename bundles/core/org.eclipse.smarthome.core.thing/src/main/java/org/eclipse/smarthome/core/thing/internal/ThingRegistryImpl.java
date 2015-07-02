@@ -17,6 +17,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * Default implementation of {@link ThingRegistry}.
  *
  * @author Michael Grammling - Added dynamic configuration update
+ * @author Simon Kaufmann - Added forceRemove
  */
 public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
 
@@ -157,6 +159,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
                     case THING_ADDED:
                         thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
                         break;
+                    case THING_REMOVING:
+                        thingTracker.thingRemoving(thing, ThingTrackerEvent.THING_REMOVING);
+                        break;
                     case THING_REMOVED:
                         thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);
                         break;
@@ -183,6 +188,41 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         for (Thing thing : getAll()) {
             thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
         }
+    }
+
+    /**
+     * Removes the {@link Thing} specified by the given {@link ThingUID}.
+     *
+     * If the corresponding {@link ThingHandler} should be given the chance to perform 
+     * any removal operations, use {@link #remove(ThingUID)} instead.
+     * 
+     * @param thingUID Identificator of the {@link Thing} to be removed
+     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
+     */
+    public Thing forceRemove(ThingUID thingUID) {
+        return super.remove(thingUID);
+    }
+
+    /**
+     * Initiates the removal process for the {@link Thing} specified by the given {@link ThingUID}.
+     * 
+     * Unlike in other {@link Registry}s, {@link Thing}s don't get removed immediately. 
+     * Instead, the corresponding {@link ThingHandler} is given the chance to perform
+     * any required removal handling before it actually gets removed. 
+     * <p>
+     * If for any reasons the {@link Thing} should be removed immediately without any prior 
+     * processing, use {@link #forceRemove(ThingUID)} instead.
+     *  
+     * @param thingUID Identificator of the {@link Thing} to be removed
+     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
+     */
+    @Override
+    public Thing remove(ThingUID thingUID) {
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            notifyTrackers(thing, ThingTrackerEvent.THING_REMOVING);
+        }
+        return thing;
     }
 
 }
