@@ -59,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism 
+ * @author Simon Kaufmann - Added remove handling  
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
@@ -140,6 +141,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
+            if (ThingStatus.REMOVING.equals(thing.getStatus())
+                    && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
+                // only allow REMOVING -> REMOVED transition and
+                // ignore all other state changes
+                return;
+            }
 
             setThingStatus(thing, thingStatus);
 
@@ -155,6 +162,19 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         setThingStatus(bridgeThing, statusInfo);
                     }
                 }
+            }
+
+            if (ThingStatus.REMOVING.equals(thing.getStatus())) {
+                logger.debug("Asking handler of thing '{}' to handle its removal.", thing.getUID());
+                try {
+                    thing.getHandler().handleRemoval();
+                } catch (Exception e) {
+                    logger.error("The ItemHandler caused an exception while handling the removal of its thing", e);
+                }
+                logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
+            } else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
+                logger.debug("Removal handling of thing '{}' completed. Going to remove it now.", thing.getUID());
+                thingRegistry.forceRemove(thing.getUID());
             }
         }
 
@@ -289,6 +309,11 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             handlerAdded(thing, thingHandler);
         }
         this.thingLinkManager.thingAdded(thing);
+    }
+
+    @Override
+    public void thingRemoving(Thing thing, ThingTrackerEvent thingTrackerEvent) {
+        thingHandlerCallback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.REMOVING).build());
     }
 
     @Override

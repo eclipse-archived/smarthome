@@ -11,9 +11,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventFilter;
+import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -29,6 +34,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -42,17 +48,19 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * The {@link ThingSetupManager} provides various method to manage things. In
  * contrast to the {@link ThingRegistry}, the {@link ThingManager} also creates
  * Items and Links automatically and removes it, when the according thing is
  * removed.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - addThing operation returns created Thing instance
  * @author Chris Jackson - Remove children when deleted bridge
  */
-public class ThingSetupManager {
+public class ThingSetupManager implements EventSubscriber {
 
     public static final String TAG_CHANNEL_GROUP = "channel-group";
     public static final String TAG_HOME_GROUP = "home-group";
@@ -66,6 +74,9 @@ public class ThingSetupManager {
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+
+    private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingRemovedEvent.TYPE);
+    private final EventFilter eventFiter = new TopicEventFilter("smarthome/things/.*/removed");
 
     /**
      * Adds a group to the system with the a 'home-group' tag.
@@ -89,7 +100,7 @@ public class ThingSetupManager {
      * channels.
      *
      * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
-     * 
+     *
      * @return created {@link Thing} instance (can be null)
      */
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
@@ -100,7 +111,7 @@ public class ThingSetupManager {
      * Adds a thing without group names, but enables all channels.
      *
      * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
-     * 
+     *
      * @return created {@link Thing} instance (can be null)
      */
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
@@ -111,7 +122,7 @@ public class ThingSetupManager {
      * Adds a thing and enables all channels.
      *
      * See {@link ThingSetupManager#addThing(ThingUID, Configuration, ThingUID, String, List, boolean)}
-     * 
+     *
      * @return created {@link Thing} instance (can be null)
      */
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
@@ -152,7 +163,7 @@ public class ThingSetupManager {
 
     /**
      * Adds a new thing to the system and creates the according items and links.
-     * 
+     *
      * @param thingUID
      *            UID of the thing (must not be null)
      * @param configuration
@@ -180,12 +191,13 @@ public class ThingSetupManager {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
 
-        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels, properties);
+        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels,
+                properties);
     }
 
     /**
      * Adds a new thing to the system and creates the according items and links.
-     * 
+     *
      * @param thingTypeUID
      *            UID of the thing type (must not be null)
      * @param configuration
@@ -209,7 +221,7 @@ public class ThingSetupManager {
 
     /**
      * Adds a new thing to the system and creates the according items and links.
-     * 
+     *
      * @param thingTypeUID
      *            UID of the thing type (must not be null)
      * @param configuration
@@ -264,7 +276,8 @@ public class ThingSetupManager {
         if (linkedItem != null) {
             addToHomeGroup(linkedItem, groupItemName);
         } else {
-            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID, groupItemName);
+            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID,
+                    groupItemName);
         }
     }
 
@@ -398,30 +411,26 @@ public class ThingSetupManager {
      * Remove a thing and all its links and items.
      * If this is a bridge, also remove child things by calling
      * removeThing recursively
+     * 
      * @param thingUID
      */
     public void removeThing(ThingUID thingUID) {
-    	// Lookup the thing in the registry
-    	Thing thing = thingRegistry.get(thingUID);
-    	if(thing == null) {
-    		return;
-    	}
+        // Lookup the thing in the registry
+        Thing thing = thingRegistry.get(thingUID);
+        if (thing == null) {
+            return;
+        }
 
-    	// If this is a bridge, remove all child things, their items and links
+        // If this is a bridge, remove all child things, their items and links
         if (thing instanceof Bridge) {
             Bridge bridge = (Bridge) thing;
             for (Thing bridgeThing : bridge.getThings()) {
-            	ThingUID bridgeThingUID = bridgeThing.getUID();
-                removeThing(bridgeThingUID);           	
+                ThingUID bridgeThingUID = bridgeThing.getUID();
+                removeThing(bridgeThingUID);
             }
         }
 
-        // Now remove the original thing
-        String itemName = toItemName(thingUID);
         thingRegistry.remove(thingUID);
-        itemRegistry.remove(itemName, true);
-        itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
-        itemChannelLinkRegistry.removeLinksForThing(thingUID);
     }
 
     /**
@@ -448,7 +457,7 @@ public class ThingSetupManager {
 
     /**
      * Sets the given label for the home group identified by the given item name.
-     * 
+     *
      * @param itemName the name of the home group
      * @param label the new label for the home group
      */
@@ -553,7 +562,7 @@ public class ThingSetupManager {
                     thingTypeUID);
             return null;
         }
-        
+
         if (properties != null) {
             for (String key : properties.keySet()) {
                 thing.setProperty(key, properties.get(key));
@@ -573,8 +582,8 @@ public class ThingSetupManager {
         if (thingType != null) {
             List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
-                        channelGroupDefinition.getId()));
+                GroupItem channelGroupItem = new GroupItem(
+                        getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
                 channelGroupItem.addGroupName(itemName);
                 addItemSafely(channelGroupItem);
@@ -587,7 +596,7 @@ public class ThingSetupManager {
                 ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
                 if (channelType != null && !channelType.isAdvanced()) {
                     enableChannel(channel.getUID());
-                } else if(channelType == null) {
+                } else if (channelType == null) {
                     logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
                 }
             }
@@ -598,7 +607,7 @@ public class ThingSetupManager {
 
     private void addThingSafely(Thing thing) {
         ThingUID thingUID = thing.getUID();
-        if(thingRegistry.get(thingUID) != null) {
+        if (thingRegistry.get(thingUID) != null) {
             thingRegistry.remove(thingUID);
         }
         thingRegistry.add(thing);
@@ -606,24 +615,23 @@ public class ThingSetupManager {
 
     private void addItemSafely(Item item) {
         String itemName = item.getName();
-        if(itemRegistry.get(itemName) != null) {
+        if (itemRegistry.get(itemName) != null) {
             itemRegistry.remove(itemName);
         }
         itemRegistry.add(item);
     }
-    
+
     private void addItemThingLinkSafely(ItemThingLink itemThingLink) {
-        if(itemThingLinkRegistry.get(itemThingLink.getID()) == null) {
+        if (itemThingLinkRegistry.get(itemThingLink.getID()) == null) {
             itemThingLinkRegistry.add(itemThingLink);
         }
     }
-	
+
     private void addItemChannelLinkSafely(ItemChannelLink itemChannelLink) {
         if (this.itemChannelLinkRegistry.get(itemChannelLink.getID()) == null) {
             this.itemChannelLinkRegistry.add(itemChannelLink);
         }
     }
-
 
     private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
             ThingTypeUID thingTypeUID) {
@@ -675,5 +683,27 @@ public class ThingSetupManager {
             }
         }
         return null;
+    }
+
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return subscribedEventTypes;
+    }
+
+    @Override
+    public EventFilter getEventFilter() {
+        return eventFiter;
+    }
+
+    @Override
+    public void receive(Event event) {
+        if (event instanceof ThingRemovedEvent) {
+            ThingRemovedEvent thingRemovedEvent = (ThingRemovedEvent) event;
+            ThingUID thingUID = new ThingUID(thingRemovedEvent.getThing().UID);
+            String itemName = toItemName(thingUID);
+            itemRegistry.remove(itemName, true);
+            itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
+            itemChannelLinkRegistry.removeLinksForThing(thingUID);
+        }
     }
 }

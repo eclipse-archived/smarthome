@@ -11,6 +11,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -67,6 +68,14 @@ public interface ThingHandler {
     /**
      * This method is called before a thing will be removed.
      * An implementing class can handle the removal in order to trigger some tidying work for a thing.
+     * <p>
+     * The framework expects this method to return quickly. 
+     * For longer running tasks, the implementation has to take care of spawning another thread.
+     * <p>
+     * The {@link Thing} is in {@link ThingStatus#REMOVING} when this method is called.
+     * Implementations of this method must signal to the framework that the handling has been 
+     * completed by setting the {@link Thing}s state to {@link ThingStatus#REMOVED}.
+     * Only then it will be removed completely.  
      */
     void handleRemoval();
 
