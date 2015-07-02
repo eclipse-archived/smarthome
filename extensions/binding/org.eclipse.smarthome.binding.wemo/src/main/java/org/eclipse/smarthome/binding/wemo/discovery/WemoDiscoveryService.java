@@ -76,11 +76,11 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 	static boolean discoveryRunning = false;
 	
 	/**
-	 * The Refresh intervall for discovering WeMo devices
+	 * The refresh interval for discovering WeMo devices
 	 */
 	private long refreshInterval = 600;
 	private ScheduledFuture<?> wemoDiscoveryJob;
-	private Runnable wemoDiscoveryRunnable = new Runnable (){
+	private Runnable wemoDiscoveryRunnable = new Runnable () {
 			@Override
 			public void run() {
 				discoverWemo();		}
@@ -95,13 +95,13 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
     }
  
 	protected void startScan() {
-		logger.debug("Start WeMo Device discovery");
+		logger.debug("Starting WeMo Device discovery");
 		discoverWemo();
 	}
 
 	@Override
 	protected void startBackgroundDiscovery() {
-		logger.debug("Start WeMo device background discovery");
+		logger.trace("Start WeMo device background discovery");
 		if (wemoDiscoveryJob == null || wemoDiscoveryJob.isCancelled()) {
 			wemoDiscoveryJob = scheduler.scheduleAtFixedRate(wemoDiscoveryRunnable, 0, refreshInterval, TimeUnit.SECONDS);
 		}
@@ -145,7 +145,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 			discoveryMessage.append("MAN: \"ssdp:discover\"\r\n");
 			discoveryMessage.append("MX: 5\r\n");
 			discoveryMessage.append("\r\n");
-		    logger.debug("Request: {}", discoveryMessage.toString());
+		    logger.trace("Request: {}", discoveryMessage.toString());
 			byte[] discoveryMessageBytes = discoveryMessage.toString().getBytes();
 			DatagramPacket discoveryPacket = new DatagramPacket(
 					discoveryMessageBytes, discoveryMessageBytes.length, dstAddress);
@@ -176,7 +176,6 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 
 				while (true) {
 					try {
-						logger.debug("Receive SSDP Message.");
 						receivePacket = new DatagramPacket(new byte[1536], 1536);
 						wemoReceiveSocket.receive(receivePacket);
 						final String message = new String(receivePacket.getData());
