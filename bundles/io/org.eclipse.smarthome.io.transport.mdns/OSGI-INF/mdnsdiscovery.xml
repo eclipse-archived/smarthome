@@ -8,10 +8,10 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.io.transport.mdns.discovery">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.io.transport.mdns.discovery">
    <implementation class="org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryService"/>
    <reference bind="addMdnsDiscoveryParticipant" cardinality="1..n" interface="org.eclipse.smarthome.io.transport.mdns.discovery.MDNSDiscoveryParticipant" name="MDNSDiscoveryParticipant" policy="dynamic" unbind="removeMdnsDiscoveryParticipant"/>
-   <reference bind="setMDNSClient" cardinality="0..1" interface="org.eclipse.smarthome.io.transport.mdns.MDNSClient" name="MDNSClient" policy="dynamic" unbind="unsetMDNSClient"/>
+   <reference bind="setMDNSClient" cardinality="1..1" interface="org.eclipse.smarthome.io.transport.mdns.MDNSClient" name="MDNSClient" policy="static" unbind="unsetMDNSClient"/>
    <service>
       <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
    </service>
