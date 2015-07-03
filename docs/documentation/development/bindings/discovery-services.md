@@ -10,7 +10,7 @@ Bindings can implement the `DiscoveryService` interface and register it as an OS
 
 To simplify the implementation of own discovery services, an abstract base class `AbstractDiscoveryService` implements the `DiscoveryService`, that must only be extended. Subclasses of `AbstractDiscoveryService` do not need to handle the `DiscoveryListeners` themselves, they can use the methods `thingDiscovered` and `thingRemoved` to notify the registered listeners. Most of the descriptions in this chapter refer to the `AbstractDiscoveryService`.
 
-For UPnP there is already a built-in discovery service. Bindings need to implement a `UpnpDiscoveryParticipant`. For details refer to the chapter [UPnP Discovery](#upnp-discovery). 
+For UPnP and mDNS there are already generic discovery services available. Bindings only need to implement a `UpnpDiscoveryParticipant` resp. `mDNSDiscoveryParticipant`. For details refer to the chapters [UPnP Discovery](#upnp-discovery) and [mDNS Discovery](#mdns-discovery). 
 
 The following example is taken from the `HueLightDiscoveryService`, it calls `thingDiscovered` for a each found light. It uses the `DiscoveryResultBuilder` to create the discovery result. 
 
@@ -93,10 +93,10 @@ Normally, older discovery results already in the inbox are left untouched by a n
 
 ## UPnP Discovery
 
-UPnP discovery is implemented in the framework as `UpnpDiscoveryService`. It is widely used in bindings. To simplify the development binding developers only need to implement a `UpnpDiscoveryParticipant`. Here the developer only needs to implement three simple methods: 
+UPnP discovery is implemented in the framework as `UpnpDiscoveryService`. It is widely used in bindings. To facilitate the development, binding developers only need to implement a `UpnpDiscoveryParticipant`. Here the developer only needs to implement three simple methods: 
 
 - `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports. The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
-- `getThingUID` - Creates a thing UID out of the UPnP result or return `null` if this is not possible. This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
+- `getThingUID` - Creates a thing UID out of the UPnP result or returns `null` if this is not possible. This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
 - `createResult` - Creates the `DiscoveryResult` out of the UPnP result. This method is called from the discovery service to create the actual discovery result. It uses the `getThingUID` method to create the thing UID of the result. 
 
 The following example shows the implementation of the UPnP discovery participant for the Hue binding, the `HueBridgeDiscoveryParticipant`. 
@@ -144,6 +144,11 @@ public class HueBridgeDiscoveryParticipant implements UpnpDiscoveryParticipant {
 }
 ```
 
+## mDNS Discovery
 
+mDNS discovery is implemented in the framework as `MDNSDiscoveryService`. To facilitate the development, binding developers only need to implement a `MDNSDiscoveryParticipant`. Here the developer only needs to implement four simple methods: 
 
- 
+- `getServiceType` - Defines the [mDNS service type](http://www.dns-sd.org/ServiceTypes.html).
+- `getSupportedThingTypeUIDs` - Returns the list of thing type UIDs that this participant supports. The discovery service uses this method of all registered discovery participants to return the list of currently supported thing type UIDs. 
+- `getThingUID` - Creates a thing UID out of the mDNS service info or returns `null` if this is not possible. This method is called from the discovery service during result creation to provide a unique thing UID for the result. 
+- `createResult` - Creates the `DiscoveryResult` out of the UPnP result. This method is called from the discovery service to create the actual discovery result. It uses the `getThingUID` method to create the thing UID of the result. 
