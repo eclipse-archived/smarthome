@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * and can thus contribute {@link DiscoveryResult}s from
  * mDNS scans.
  *
- * @author Tobias Br�utigam - Initial contribution
+ * @author Tobias Bräutigam - Initial contribution
  *
  */
 public interface MDNSDiscoveryParticipant {
