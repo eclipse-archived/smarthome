@@ -63,10 +63,7 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
             hexValue = "#" + Integer.toHexString(hsbState.getRGB()).substring(2);
         }
         String label = getLabel(cp);
-        String purelabel = label;
-        if (label.contains("<span>")) {
-            purelabel = purelabel.substring(0, label.indexOf("<span>"));
-        }
+        String purelabel = itemUIRegistry.getLabel(w);
 
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(cp));
         snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(cp)));
