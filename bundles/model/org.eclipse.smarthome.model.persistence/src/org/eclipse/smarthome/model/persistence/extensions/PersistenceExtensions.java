@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Eichstaedt-Engelen
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
- * @author Jan N. Klug
  *
  */
 public class PersistenceExtensions implements ManagedService {
@@ -394,47 +393,6 @@ public class PersistenceExtensions implements ManagedService {
         average /= quantity;
 
         return new DecimalType(average);
-    }
-
-    /**
-     * Gets the sum of the state of a given <code>item</code> since a certain point in time. 
-     * The default persistence service is used. 
-     * 
-     * @param item the item to get the average state value for
-     * @param the point in time to start the check 
-     * @return the average state value since the given point in time
-     */
-    static public DecimalType sumSince(Item item, AbstractInstant timestamp) {
-        if(isDefaultServiceAvailable()) {
-            return sumSince(item, timestamp, defaultService);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Gets the sum of the state of a given <code>item</code> since a certain point in time. 
-     * The {@link PersistenceService} identified by the <code>serviceName</code> is used. 
-     * 
-     * @param item the item to get the average state value for
-     * @param the point in time to start the check 
-     * @param serviceName the name of the {@link PersistenceService} to use
-     * @return the sum state value since the given point in time
-     */
-
-    static public DecimalType sumSince(Item item, AbstractInstant timestamp, String serviceName) {
-        Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
-        Iterator<HistoricItem> it = result.iterator();
-        
-        double sum = 0;
-        while(it.hasNext()) {
-            State state = it.next().getState();
-            if (state instanceof DecimalType) {
-                sum += ((DecimalType) state).doubleValue();
-            }
-        }
-
-        return new DecimalType(sum);
     }
 
     static private Iterable<HistoricItem> getAllStatesSince(Item item, AbstractInstant timestamp, String serviceName) {
