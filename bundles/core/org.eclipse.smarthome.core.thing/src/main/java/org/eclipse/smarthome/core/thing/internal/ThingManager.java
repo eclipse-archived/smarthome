@@ -15,9 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.smarthome.core.events.AbstractEventSubscriber;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
+import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -31,6 +34,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.types.Command;
@@ -54,9 +58,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
- * @author Stefan Bußweiler - Added new thing status handling 
+ * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism 
  */
-public class ThingManager extends AbstractEventSubscriber implements ThingTracker {
+public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -122,7 +126,7 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void stateUpdated(ChannelUID channelUID, State state) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.postUpdate(item, state, channelUID.toString());
+                eventPublisher.post(ItemEventFactory.createStateEvent(item, state, channelUID.toString()));
             }
         }
         
@@ -130,33 +134,25 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         public void postCommand(ChannelUID channelUID, Command command) {
             Set<String> items = itemChannelLinkRegistry.getLinkedItems(channelUID);
             for (String item : items) {
-                eventPublisher.postCommand(item, command, channelUID.toString());
+                eventPublisher.post(ItemEventFactory.createCommandEvent(item, command, channelUID.toString()));
             }
         }
 
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
-            // Only update the status if it has changed
-            if(thing.getStatusInfo().equals(thingStatus)) {
-                return;
-            }
-            
-            thing.setStatusInfo(thingStatus);
-            logger.debug("Status of {} changed to {}", thing.getUID(), thingStatus.toString());
-            // TODO: send event
+
+            setThingStatus(thing, thingStatus);
 
             if (thing instanceof Bridge) {
                 Bridge bridge = (Bridge) thing;
                 for (Thing bridgeThing : bridge.getThings()) {
                     if (thingStatus.getStatus() == ThingStatus.ONLINE) {
                         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build();
-                        bridgeThing.setStatusInfo(statusInfo);
-                        // TODO: send event
+                        setThingStatus(bridgeThing, statusInfo);
                     } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
                         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
                                 ThingStatusDetail.BRIDGE_OFFLINE).build();
-                        bridgeThing.setStatusInfo(statusInfo);
-                        // TODO: send event
+                        setThingStatus(bridgeThing, statusInfo);
                     }
                 }
             }
@@ -210,16 +206,18 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
         thing.setHandler(null);
         ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR);
-        thing.setStatusInfo(statusInfo);
+        setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
     }
-
+    
     @Override
-    public void receiveCommand(String itemName, Command command, String source) {
+    protected void receiveCommand(ItemCommandEvent commandEvent) {
+        String itemName = commandEvent.getItemName();
+        Command command = commandEvent.getItemCommand();
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure a command event is not sent back to its source
-            if (!channelUID.toString().equals(source)) {
+            if (!channelUID.toString().equals(commandEvent.getSource())) {
                 Thing thing = getThing(channelUID.getThingUID());
                 if (thing != null) {
                     ThingHandler handler = thing.getHandler();
@@ -246,11 +244,13 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
     }
 
     @Override
-    public void receiveUpdate(String itemName, State newState, String source) {
+    protected void receiveUpdate(ItemStateEvent updateEvent) {
+        String itemName = updateEvent.getItemName();
+        State newState = updateEvent.getItemState();
         Set<ChannelUID> boundChannels = this.itemChannelLinkRegistry.getBoundChannels(itemName);
         for (ChannelUID channelUID : boundChannels) {
             // make sure an update event is not sent back to its source
-            if (!channelUID.toString().equals(source)) {
+            if (!channelUID.toString().equals(updateEvent.getSource())) {
                 Thing thing = getThing(channelUID.getThingUID());
                 if (thing != null) {
                     ThingHandler handler = thing.getHandler();
@@ -386,12 +386,12 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
         logger.debug("Creating handler for thing '{}'.", thing.getUID());
         try {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
-            thing.setStatusInfo(statusInfo);
+            setThingStatus(thing, statusInfo);
             thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
         } catch (Exception ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
-            thing.setStatusInfo(statusInfo);
+            setThingStatus(thing, statusInfo);
             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
         }
     }
@@ -502,6 +502,17 @@ public class ThingManager extends AbstractEventSubscriber implements ThingTracke
 
     private ThingStatusInfo buildStatusInfo(ThingStatus thingStatus, ThingStatusDetail thingStatusDetail) {
         return buildStatusInfo(thingStatus, thingStatusDetail, null);
+    }
+    
+    private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
+        thing.setStatusInfo(thingStatusInfo);
+        if(eventPublisher != null) {
+            try {
+                eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
+            } catch (Exception ex) {
+                logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
+            }
+        }
     }
 
 }

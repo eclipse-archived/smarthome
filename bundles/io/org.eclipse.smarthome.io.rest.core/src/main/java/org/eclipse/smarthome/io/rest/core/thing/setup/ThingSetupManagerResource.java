@@ -27,15 +27,17 @@ import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
+import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTO;
+import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTOMapper;
 import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**
  * This class acts as a REST resource for the setup manager.
@@ -53,7 +55,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addThing(ThingBean thingBean) throws IOException {
+    public Response addThing(EnrichedThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -73,7 +75,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateThing(ThingBean thingBean) throws IOException {
+    public Response updateThing(EnrichedThingDTO thingBean) throws IOException {
 
         ThingUID thingUID = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -86,7 +88,7 @@ public class ThingSetupManagerResource implements RESTResource {
 
         Thing thing = thingSetupManager.getThing(thingUID);
 
-        if(thingBean.item != null && thing != null) {
+        if (thingBean.item != null && thing != null) {
             String label = thingBean.item.label;
             List<String> groupNames = thingBean.item.groupNames;
 
@@ -140,10 +142,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @Path("things")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getThings() {
-        List<ThingBean> thingBeans = new ArrayList<>();
+        List<EnrichedThingDTO> thingBeans = new ArrayList<>();
         Collection<Thing> things = thingSetupManager.getThings();
         for (Thing thing : things) {
-            ThingBean thingItemBean = BeanMapper.mapThingToBean(thing, uriInfo.getBaseUri().toASCIIString());
+            EnrichedThingDTO thingItemBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri());
             thingBeans.add(thingItemBean);
         }
         return Response.ok(thingBeans).build();
@@ -180,10 +182,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @Path("groups")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHomeGroups() {
-        List<ItemBean> itemBeans = new ArrayList<>();
+        List<EnrichedItemDTO> itemBeans = new ArrayList<>();
         Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
-            ItemBean itemBean = BeanMapper.mapItemToBean(homeGroupItem, true, uriInfo.getBaseUri().toASCIIString());
+            EnrichedItemDTO itemBean = EnrichedItemDTOMapper.map(homeGroupItem, true, uriInfo.getBaseUri());
             itemBeans.add(itemBean);
         }
         return Response.ok(itemBeans).build();
@@ -192,7 +194,7 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("groups")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addHomeGroup(ItemBean itemBean) {
+    public Response addHomeGroup(ItemDTO itemBean) {
         thingSetupManager.addHomeGroup(itemBean.name, itemBean.label);
         return Response.ok().build();
     }

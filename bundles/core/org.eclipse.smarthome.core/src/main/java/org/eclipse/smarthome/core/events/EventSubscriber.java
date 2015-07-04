@@ -7,53 +7,42 @@
  */
 package org.eclipse.smarthome.core.events;
 
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
+import java.util.Set;
 
 /**
  * The {@link EventSubscriber} defines the callback interface for receiving events from
- * the <i>Eclipse SmartHome</i> event bus.
- * <p>
- * Any events containing a command or a status update can be received by this listener interface. Use the
- * {@link AbstractEventSubscriber} class as concrete implementation of this listener interface.
- * <p>
- * For further information about sending events through the event bus check the {@link EventPublisher} service
- * specification.
- *
- * @see EventPublisher
- * @see AbstractEventSubscriber
- *
- * @author Kai Kreuzer - Initial contribution and API
- * @author Michael Grammling - Javadoc extended, Checkstyle compliancy
+ * the Eclipse SmartHome event bus.
+ * 
+ * @author Stefan Bußweiler - Initial contribution
  */
 public interface EventSubscriber {
 
     /**
-     * Callback method if a command was sent on the event bus.
-     * <p>
-     * Any exceptions, which may occur in this callback method, are caught and logged.
-     * <p>
-     * Hint: Do not block the reception of this event for long-term tasks. For long-term tasks create an own thread.
-     *
-     * @param itemName the item for which a command was sent
-     *            (not null, not empty, follows the item name specification)
-     *
-     * @param command the command that was sent (not null)
+     * The constant {@link #ALL_EVENT_TYPES} must be returned by the {@link #getSubscribedEventTypes()} method, if the
+     * event subscriber should subscribe to all event types.
      */
-    void receiveCommand(String itemName, Command command);
+    public static String ALL_EVENT_TYPES = "ALL";
 
     /**
-     * Callback method if a state update was sent on the event bus.
-     * <p>
-     * Any exceptions, which may occur in this callback method, are caught and logged.
-     * <p>
-     * Hint: Do not block the reception of this event for long-term tasks. For long-term tasks create an own thread.
-     *
-     * @param itemName the item for which a command was sent
-     *            (not null, not empty, follows the item name specification)
-     *
-     * @param state the state that was sent (not null)
+     * Gets the event types to which the event subscriber is subscribed to.
+     * 
+     * @return subscribed event types (not null) 
      */
-    void receiveUpdate(String itemName, State newStatus);
+    Set<String> getSubscribedEventTypes();
 
+    /**
+     * Gets an {@link EventFilter} in order to receive specific events if the filter applies. If there is no
+     * filter all subscribed event types are received.
+     * 
+     * @return the event filter, or null
+     */
+    EventFilter getEventFilter();
+
+    /**
+     * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus. This method is called for
+     * every event where the event subscriber is subscribed to and the event filter applies.
+     * 
+     * @param event the received event (not null)
+     */
+    void receive(Event event);
 }

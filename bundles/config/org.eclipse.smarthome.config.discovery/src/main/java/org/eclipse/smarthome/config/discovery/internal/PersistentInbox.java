@@ -27,7 +27,9 @@ import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
+import org.eclipse.smarthome.config.discovery.inbox.events.InboxEventFactory;
 import org.eclipse.smarthome.config.discovery.util.DiscoveryThreadPool;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -103,6 +105,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private Storage<DiscoveryResult> discoveryResultStorage;
     
     private ScheduledFuture<?> timeToLiveChecker; 
+
+    private EventPublisher eventPublisher;
 
     @Override
     public synchronized boolean add(DiscoveryResult result) throws IllegalStateException {
@@ -350,6 +354,29 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 logger.error(errorMessage, ex);
             }
         }
+        postEvent(result, type);
+    }
+
+    private void postEvent(DiscoveryResult result, EventType eventType) {
+        if (eventPublisher != null) {
+            try {
+                switch (eventType) {
+                    case added:
+                        eventPublisher.post(InboxEventFactory.createAddedEvent(result));
+                        break;
+                    case removed:
+                        eventPublisher.post(InboxEventFactory.createRemovedEvent(result));
+                        break;
+                    case updated:
+                        eventPublisher.post(InboxEventFactory.createUpdatedEvent(result));
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Could not post event of type '" + eventType.name() + "'.", ex);
+            }
+        }
     }
 
     protected void activate(ComponentContext componentContext) {
@@ -403,6 +430,14 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
     protected void unsetStorageService(StorageService storageService) {
         this.discoveryResultStorage = null;
+    }
+    
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
     }
 
 }

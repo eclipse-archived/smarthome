@@ -48,6 +48,10 @@ public enum EventType {
      */
     THING_UPDATED("smarthome", "things", "updated"),
     /**
+     * Thing was updated in the thing registry.
+     */
+    THING_STATUS_UPDATED("smarthome", "things", "status"),
+    /**
      * Thing was added to the inbox.
      */
     INBOX_THING_ADDED("smarthome", "inbox", "added"),

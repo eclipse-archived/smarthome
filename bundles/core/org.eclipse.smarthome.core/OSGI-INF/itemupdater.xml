@@ -12,7 +12,6 @@
    <implementation class="org.eclipse.smarthome.core.internal.items.ItemUpdater"/>
    <reference bind="setItemRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.items.ItemRegistry" name="ItemRegistry" policy="dynamic" unbind="unsetItemRegistry"/>
    <service>
-      <provide interface="org.osgi.service.event.EventHandler"/>
+      <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
    </service>
-   <property name="event.topics" type="String" value="smarthome/*"/>
 </scr:component>

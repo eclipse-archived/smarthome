@@ -27,13 +27,13 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
+import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.discovery.beans.DiscoveryResultBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 
 /**
  * This class acts as a REST resource for the inbox and is registered with the
@@ -97,7 +97,7 @@ public class InboxResource implements RESTResource {
     @Produces({ MediaType.WILDCARD })
     public Response getAll() {
         List<DiscoveryResult> discoveryResults = inbox.getAll();
-        Set<DiscoveryResultBean> discoveryResultBeans = convertToListBean(discoveryResults);
+        Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
 
         return Response.ok(discoveryResultBeans).build();
     }
@@ -117,10 +117,10 @@ public class InboxResource implements RESTResource {
     }
 
 
-    private Set<DiscoveryResultBean> convertToListBean(List<DiscoveryResult> discoveryResults) {
-        Set<DiscoveryResultBean> discoveryResultBeans = new LinkedHashSet<>();
+    private Set<DiscoveryResultDTO> convertToListBean(List<DiscoveryResult> discoveryResults) {
+        Set<DiscoveryResultDTO> discoveryResultBeans = new LinkedHashSet<>();
         for (DiscoveryResult discoveryResult : discoveryResults) {
-            discoveryResultBeans.add(BeanMapper.mapDiscoveryResultToBean(discoveryResult));
+            discoveryResultBeans.add(DiscoveryResultDTOMapper.map(discoveryResult));
         }
         return discoveryResultBeans;
     }
