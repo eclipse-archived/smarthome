@@ -140,12 +140,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
-            // Only update the status if it has changed
-            if(thing.getStatusInfo().equals(thingStatus)) {
-                return;
-            }
+
             setThingStatus(thing, thingStatus);
-            logger.debug("Status of {} changed to {}", thing.getUID(), thingStatus.toString());
 
             if (thing instanceof Bridge) {
                 Bridge bridge = (Bridge) thing;
@@ -514,7 +510,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             try {
                 eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
             } catch (Exception ex) {
-                logger.error("Could not inform event subscribers about the 'ThingStatusInfoEvent' event.", ex);
+                logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
             }
         }
     }
