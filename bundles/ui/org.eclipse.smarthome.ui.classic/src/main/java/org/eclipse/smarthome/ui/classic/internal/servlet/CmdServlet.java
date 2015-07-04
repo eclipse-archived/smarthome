@@ -18,6 +18,7 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.types.Command;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * commands to the bus.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  *
  */
 public class CmdServlet extends BaseServlet {
@@ -89,7 +91,7 @@ public class CmdServlet extends BaseServlet {
 
                     Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandName);
                     if (command != null) {
-                        eventPublisher.sendCommand(itemName, command);
+                        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
                     } else {
                         logger.warn("Received unknown command '{}' for item '{}'", commandName, itemName);
                     }

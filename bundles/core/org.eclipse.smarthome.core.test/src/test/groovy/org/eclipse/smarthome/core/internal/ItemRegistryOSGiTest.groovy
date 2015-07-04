@@ -13,18 +13,24 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener
 import org.eclipse.smarthome.core.items.ItemsChangeListener
+import org.eclipse.smarthome.core.items.events.ItemAddedEvent
+import org.eclipse.smarthome.core.items.events.ItemRemovedEvent
+import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.NumberItem
-import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.items.StringItem
+import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
+
+import com.google.common.collect.Sets
 
 /**
  * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.  
@@ -290,4 +296,38 @@ class ItemRegistryOSGiTest extends OSGiTest {
         waitFor({numberOfSuccessfulGetItemCalls.get() >= 100})
         assertThat numberOfSuccessfulGetItemCalls.get(), is(100)
     }
+
+    @Test
+    void 'assert ItemRegistryEventSubscribers receive events about item changes'() {
+        registerService itemProvider
+
+        def receivedEvent = null
+        def itemRegistryEventSubscriber = [
+            receive: { event -> receivedEvent = event },
+            getSubscribedEventTypes: { Sets.newHashSet(ItemAddedEvent.TYPE, ItemRemovedEvent.TYPE, ItemUpdatedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService itemRegistryEventSubscriber
+
+        // add new item
+        def item = new SwitchItem("SomeSwitch")
+        itemsChangeListener.added(itemProvider, item)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(ItemAddedEvent))
+        receivedEvent = null
+
+        // update item
+        def oldItem = item;
+        def newItem = new SwitchItem("SomeSwitch")
+        itemsChangeListener.updated(itemProvider, oldItem, newItem)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(ItemUpdatedEvent))
+        receivedEvent = null
+
+        // remove item
+        itemsChangeListener.removed(itemProvider, newItem)
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent, is(instanceOf(ItemRemovedEvent))
+    }
+
 }

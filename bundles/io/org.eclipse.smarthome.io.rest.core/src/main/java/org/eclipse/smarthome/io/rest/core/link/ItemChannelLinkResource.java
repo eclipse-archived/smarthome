@@ -24,8 +24,8 @@ import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.link.beans.ItemChannelLinkBean;
 
 /**
  * This class acts as a REST resource for links.
@@ -75,10 +75,10 @@ public class ItemChannelLinkResource implements RESTResource {
         this.managedItemChannelLinkProvider = null;
     }
 
-    private Collection<ItemChannelLinkBean> toBeans(Collection<ItemChannelLink> links) {
-        Collection<ItemChannelLinkBean> beans = new ArrayList<>();
+    private Collection<ItemChannelLinkDTO> toBeans(Collection<ItemChannelLink> links) {
+        Collection<ItemChannelLinkDTO> beans = new ArrayList<>();
         for (ItemChannelLink link : links) {
-            ItemChannelLinkBean bean = new ItemChannelLinkBean(link.getItemName(), link.getUID().toString());
+            ItemChannelLinkDTO bean = new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
             beans.add(bean);
         }
         return beans;

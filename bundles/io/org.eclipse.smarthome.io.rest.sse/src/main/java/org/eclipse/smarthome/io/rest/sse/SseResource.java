@@ -26,6 +26,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
@@ -104,25 +105,20 @@ public class SseResource {
     }
 
     /**
-     * Broadcasts an event described by the given parameters to all currently
+     * Broadcasts an event described by the given parameter to all currently
      * listening clients.
-     *
-     * @param objectIdentifier
-     *            - identifier of the event object
-     * @param eventType
-     *            - event type
-     * @param eventObject
-     *            - bean that can be converted to a JSON object.
+     * 
+     * @param sseEventType the SSE event type
+     * @param event the event
      */
-    public void broadcastEvent(final String objectIdentifier, final EventType eventType, final Object eventObject) {
+    public void broadcastEvent(final EventType sseEventType, final Event event) {
         executorService.execute(new Runnable() {
 
             @Override
             public void run() {
-                broadcasterMap.get(eventType).broadcast(SseUtil.buildEvent(eventType, objectIdentifier, eventObject));
+                broadcasterMap.get(sseEventType).broadcast(SseUtil.buildEvent(event));
             }
         });
-
     }
 
     /**

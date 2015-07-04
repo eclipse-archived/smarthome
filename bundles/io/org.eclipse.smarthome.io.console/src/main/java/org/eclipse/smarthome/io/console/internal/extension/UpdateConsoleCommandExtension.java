@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.console.Console;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  * 
  */
 public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -53,7 +55,7 @@ public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtensi
                     String stateName = args[1];
                     State state = TypeParser.parseState(item.getAcceptedDataTypes(), stateName);
                     if (state != null) {
-                        this.eventPublisher.postUpdate(item.getName(), state);
+                        eventPublisher.post(ItemEventFactory.createStateEvent(item.getName(), state));
                         console.println("Update has been sent successfully.");
                     } else {
                         console.println("Error: State '" + stateName + "' is not valid for item '" + itemName + "'");

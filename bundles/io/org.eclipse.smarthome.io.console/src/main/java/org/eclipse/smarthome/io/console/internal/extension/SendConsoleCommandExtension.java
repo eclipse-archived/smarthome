@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.console.Console;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  * 
  */
 public class SendConsoleCommandExtension extends AbstractConsoleCommandExtension {
@@ -52,7 +54,7 @@ public class SendConsoleCommandExtension extends AbstractConsoleCommandExtension
                     String commandName = args[1];
                     Command command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), commandName);
                     if (command != null) {
-                        eventPublisher.sendCommand(itemName, command);
+                        eventPublisher.post(ItemEventFactory.createCommandEvent(itemName, command));
                         console.println("Command has been sent successfully.");
                     } else {
                         console.println("Error: Command '" + commandName + "' is not valid for item '" + itemName + "'");

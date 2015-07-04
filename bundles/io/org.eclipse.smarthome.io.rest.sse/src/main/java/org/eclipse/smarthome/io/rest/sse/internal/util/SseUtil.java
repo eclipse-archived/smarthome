@@ -10,7 +10,7 @@ package org.eclipse.smarthome.io.rest.sse.internal.util;
 import javax.servlet.ServletRequest;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.smarthome.io.rest.sse.EventType;
+import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.io.rest.sse.beans.EventBean;
 import org.glassfish.jersey.media.sse.OutboundEvent;
 
@@ -39,29 +39,23 @@ public class SseUtil {
     public static final boolean SERVLET3_SUPPORT;
 
     /**
-     * Creates a new {@link OutboundEvent} object containing an {@link EventBean} created for the given eventType,
-     * objectIdentifier,
-     * eventObject.
-     *
-     * @param eventType
-     *            - the event type for the event
-     * @param objectIdentifier
-     *            - the identifier for the main event object
-     * @param eventObject
-     *            - the eventObject to be included
-     * @return a new OutboundEvent.
+     * Creates a new {@link OutboundEvent} object containing an {@link EventBean} created for the given Eclipse
+     * SmartHome {@link Event}.
+     * 
+     * @param event the event
+     * 
+     * @return a new OutboundEvent
      */
-    public static OutboundEvent buildEvent(EventType eventType, String objectIdentifier, Object eventObject) {
-
+    public static OutboundEvent buildEvent(Event event) {
         EventBean eventBean = new EventBean();
-        eventBean.topic = eventType.getFullNameWithIdentifier(objectIdentifier);
-        eventBean.object = eventObject;
+        eventBean.topic = event.getTopic();
+        eventBean.object = event.getPayload();
 
         OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
-        OutboundEvent event = eventBuilder.name("message").mediaType(MediaType.APPLICATION_JSON_TYPE).data(eventBean)
-                .build();
+        OutboundEvent outboundEvent = eventBuilder.name("message").mediaType(MediaType.APPLICATION_JSON_TYPE)
+                .data(eventBean).build();
 
-        return event;
+        return outboundEvent;
     }
 
     /**

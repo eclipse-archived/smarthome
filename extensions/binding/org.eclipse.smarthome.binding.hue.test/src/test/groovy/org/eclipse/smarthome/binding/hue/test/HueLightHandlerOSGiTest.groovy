@@ -18,6 +18,7 @@ import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.types.HSBType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
@@ -371,7 +372,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 	        EventPublisher eventPublisher = getService(EventPublisher)
 	        assertThat eventPublisher, is(notNullValue())
 						
-	        eventPublisher.postCommand(item, command)
+	        eventPublisher.post(ItemEventFactory.createCommandEvent(item, command))
 			
 	        waitForAssert({assertTrue addressWrapper.isSet}, 10000)
 	        waitForAssert({assertTrue bodyWrapper.isSet}, 10000)
