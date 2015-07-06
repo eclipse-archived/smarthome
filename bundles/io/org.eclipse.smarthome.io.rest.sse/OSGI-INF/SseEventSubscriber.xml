@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.rest.sse.internal.listeners.SSEEventSubscriber">
-   <implementation class="org.eclipse.smarthome.io.rest.sse.internal.listeners.SSEEventSubscriber"/>
+   <implementation class="org.eclipse.smarthome.io.rest.sse.internal.listeners.SseEventSubscriber"/>
 	<service>
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
    </service>
