@@ -36,7 +36,8 @@ All events are represented as JSON objects on the stream with the following form
 ```json
 {
     "topic": "smarthome/inbox/yahooweather:weather:12811438/added",
-    "data": "{
+    "type": "InboxAddedEvent",
+    "payload": "{
         "flag": "NEW",
         "label": "Yahoo weather Berlin, Germany",
         "properties": {
@@ -48,26 +49,38 @@ All events are represented as JSON objects on the stream with the following form
 ```
 
 * `topic`: the event topic (see also [Runtime Events](../concepts/events.html))
-* `data`: String, which contains the payload of the Eclipse SmartHome event. For all core events, the payload will be in the JSON format. For example the `smarthome/items/item123/added` event will include the new item that was added and the `smarthome/items/item123/updated` event will include both old and new item.
+* `type`: the event type (see also [Runtime Events](../concepts/event-type-definition.html))
+* `payload`: String, which contains the payload of the Eclipse SmartHome event. For all core events, the payload will be in the JSON format. For example the `smarthome/items/item123/added` event will include the new item that was added and the `smarthome/items/item123/updated` event will include both old and new item.
   
 ### Filtering
 
 By default when listening to `/rest/events` a developer will receive all events that are currently broadcasted. In order to listen for specific events the `topics` query parameter can be used.
 
-For example while listening to `/services/events?topics=smarthome/items/*` a developer would receive notifications about item events only. The wildcard character(\*) can be used replacing one (or multiple) parts of the topic.
+For example while listening to `/services/events?topics=smarthome/items/*` a developer would receive notifications about item events only. The wildcard character (\*) can be used replacing one (or multiple) parts of the topic.
 
-The `topics` query parameter allows for multiple filters to be specified using a comma(,) for a separator - `?topics=smarthome/items/*, smarthome/things/*`.
+The `topics` query parameter also allows for multiple filters to be specified using a comma (,) for a separator - `?topics=smarthome/items/*, smarthome/things/*`.
 
 ### Example
 
 An example of listing events in JavaScript using the HTML5 EventSource object is provided below:
 
 ```js
-var eventSource = new EventSource("/rest/events?topics=smarthome/*/added,smarthome/inbox/*");	
+//subscribe for all kind of 'added' and 'inbox' events
+var eventSource = new EventSource("/rest/events?topics=smarthome/*/added,smarthome/inbox/*");
 
-eventSource.addEventListener('message', function (event) {
+eventSource.addEventListener('message', function (eventPayload) {
+
+    var event = JSON.parse(eventPayload.data);
     console.log(event.topic);
-    console.log(event.data);		
+    console.log(event.type);
+    console.log(event.payload);
+
+    if (event.type === 'InboxAddedEvent') {
+        var discoveryResult = JSON.parse(event.payload);
+        console.log(discoveryResult.flag);
+        console.log(discoveryResult.label);
+        console.log(discoveryResult.thingUID);
+    }
 });
 ```
 
