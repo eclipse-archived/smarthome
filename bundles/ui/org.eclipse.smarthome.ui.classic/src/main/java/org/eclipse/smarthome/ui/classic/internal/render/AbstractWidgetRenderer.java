@@ -105,10 +105,16 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     public String getLabel(Widget w) {
 
         String label = itemUIRegistry.getLabel(w);
-
-        // insert the span between the left and right side of the label, if state section exists
-        label = label.replaceAll("\\[", "<span style=\"%valuestyle%\">").replaceAll("\\]", "</span>");
-
+        int index = label.indexOf('[');
+        
+        if (index != -1) {
+        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label.substring(0, index) + "</span>" + label.substring(index);
+        	// insert the span between the left and right side of the label, if state section exists
+            label = label.replaceAll("\\[", "<span class=\"iValue\" style=\"%valuestyle%\">").replaceAll("\\]", "</span>");
+        } else {
+        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label + "</span>";
+        }
+        
         return label;
     }
 
