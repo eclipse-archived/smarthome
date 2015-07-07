@@ -11,15 +11,15 @@ There are two different kinds of approaches for testing Eclipse SmartHome. One i
 Test fragment
 ---
 
-In OSGi tests are implemented in a separate fragment bundle, which host is the bundle, that should be tested. The name of the test fragment bundle should be the same as the bundle to test with a ".test" suffix. The MANIFEST.MF file must contain a `Fragment-Host` entry. Fragment bundles inherit all imported packages from the host bundle. In addition the fragment bundle must import the `org.junit` package with a minimum version of 4.0.0 specified. The following code snippet shows a manifest file of the test fragment for the `org.eclipse.smarthome.core.library` bundle.
+In OSGi tests are implemented in a separate fragment bundle, which host is the bundle, that should be tested. The name of the test fragment bundle should be the same as the bundle to test with a ".test" suffix. The MANIFEST.MF file must contain a `Fragment-Host` entry. Fragment bundles inherit all imported packages from the host bundle. In addition the fragment bundle must import the `org.junit` package with a minimum version of 4.0.0 specified. The following code snippet shows a manifest file of the test fragment for the `org.eclipse.smarthome.core` bundle.
 
 	Manifest-Version: 1.0
 	Bundle-ManifestVersion: 2
-	Bundle-Name: Tests for the Eclipse SmartHome Core Library
-	Bundle-SymbolicName: org.eclipse.smarthome.core.library.test
-	Bundle-Version: 0.7.0.qualifier
+	Bundle-Name: Tests for the openHAB Core
+	Bundle-SymbolicName: org.eclipse.smarthome.core.test
+	Bundle-Version: 0.8.0.qualifier
 	Bundle-Vendor: Eclipse.org/SmartHome
-	Fragment-Host: org.eclipse.smarthome.core.library
+	Fragment-Host: org.eclipse.smarthome.core
 	Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 	Import-Package: org.junit;version="4.0.0"
 
