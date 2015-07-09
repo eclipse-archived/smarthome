@@ -52,11 +52,11 @@ a[rel=action],a[rel=back]{display:none}
 	margin:-4px 11px -5px 0;
 }
 .iMenu li.__lod:not(.iMore) span{padding-right:8px}
-.iMenu li:not(.iMore) span.iValue,
+.iMenu li:not(.iMore):not(.iRadio) span.iValue,
 .iPanel li span.iValue {
 	color:#324f85;
 	font-weight:normal;
-	order: 10;
+	padding-right: 11px;
 }
 .iPanel li,
 .iMenu li:not(.iGroup),
