@@ -16,7 +16,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
+import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.eclipse.smarthome.core.common.SafeMethodCaller.ActionWithException;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -153,16 +156,25 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
     }
 
     private void dispatchESHEvent(final Set<EventSubscriber> eventSubscribers, final Event event) {
-        for (EventSubscriber eventSubscriber : eventSubscribers) {
+        for (final EventSubscriber eventSubscriber : eventSubscribers) {
             try {
                 EventFilter filter = eventSubscriber.getEventFilter();
-                if (filter == null) {
-                    eventSubscriber.receive(event);
-                } else if (filter.apply(event)) {
-                    eventSubscriber.receive(event);
+                if (filter == null || filter.apply(event)) {
+                    SafeMethodCaller.call(new ActionWithException<Void>() {
+
+                        @Override
+                        public Void call() throws Exception {
+                            eventSubscriber.receive(event);
+                            return null;
+                        }
+                    });
                 }
+            } catch (TimeoutException timeoutException) {
+                logger.error("Dispatching event to subscriber '" + EventSubscriber.class.getName() + "' timed out.",
+                        timeoutException);
             } catch (Throwable t) {
-                logger.error("Dispatching/filtering event failed: " + t.getMessage(), t);
+                logger.error("Dispatching/filtering event for subscriber '" + EventSubscriber.class.getName()
+                        + "' failed: " + t.getMessage(), t);
             }
         }
     }
