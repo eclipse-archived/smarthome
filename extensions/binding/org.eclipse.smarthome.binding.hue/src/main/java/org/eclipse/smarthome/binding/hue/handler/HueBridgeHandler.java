@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - improved state handling
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
  * @author Thomas Höfer - added thing properties
- * @author Stefan Bußweiler - Added new thing status handling 
+ * @author Stefan Bußweiler - Added new thing status handling
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
 
@@ -337,8 +337,14 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         List<FullLight> lights = null;
         if (bridge != null) {
             try {
-                lights = bridge.getFullConfig().getLights();
-            } catch (IOException | ApiException e) {
+                try {
+                    lights = bridge.getFullConfig().getLights();
+                } catch (UnauthorizedException | IllegalStateException e) {
+                    lastBridgeConnectionState = false;
+                    onNotAuthenticated(bridge);
+                    lights = bridge.getFullConfig().getLights();
+                }
+            } catch (Exception e) {
                 logger.error("Bridge cannot search for new lights.", e);
             }
         }
@@ -349,7 +355,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         if (bridge != null) {
             try {
                 bridge.startSearch();
-            } catch (IOException | ApiException e) {
+            } catch (Exception e) {
                 logger.error("Bridge cannot start search mode", e);
             }
         }
@@ -359,7 +365,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         if (bridge != null) {
             try {
                 bridge.startSearch(serialNumbers);
-            } catch (IOException | ApiException e) {
+            } catch (Exception e) {
                 logger.error("Bridge cannot start search mode", e);
             }
         }
