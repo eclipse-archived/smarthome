@@ -15,5 +15,4 @@
       <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
    </service>
    <reference bind="setBindingInfoRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.binding.BindingInfoRegistry" name="BindingInfoRegistry" policy="static" unbind="unsetBindingInfoRegistry"/>
-   <reference bind="setThingTypeResource" cardinality="1..1" interface="org.eclipse.smarthome.io.rest.core.thing.ThingTypeResource" name="ThingTypeResource" policy="static" unbind="unsetThingTypeResource"/>
 </scr:component>
