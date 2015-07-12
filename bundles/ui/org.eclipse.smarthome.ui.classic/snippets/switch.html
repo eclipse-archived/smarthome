@@ -1,5 +1,8 @@
-<li>
-	<img src="../icon/%icon%.png" width=29 height=29 class="iFull" />
-	%label%
-	<input type="checkbox" id="%item%" class="iToggle" title="I|O" %checked% onclick="ChangeState('CMD?%item%=TOGGLE')"/>
-</li>
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+	<label class="mdl-form__label" for="oh-checkbox-%item%">
+		%label%
+	</label>
+	<span class="mdl-form__control mdl-switch mdl-js-switch mdl-js-ripple-effect" data-control-type="checkbox">
+		<input type="checkbox" %checked% id="oh-checkbox-%item%" data-item="%item%" class="mdl-switch__input" />
+	</span>
+</div>

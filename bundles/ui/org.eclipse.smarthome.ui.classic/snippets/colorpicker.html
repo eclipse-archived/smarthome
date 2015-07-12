@@ -1,7 +1,16 @@
-<li>
-	<img src="../icon/%icon%.png" width=28 height=28 class="iFull" />
-	%label%
-	<img src="images/_down.png" ontouchstart="repeatedRequest('CMD?%item%=DECREASE', %frequency%, 1)" onmousedown="repeatedRequest('CMD?%item%=DECREASE', %frequency%, 1)" onmouseup="stopRepeatedRequest('CMD?%item%=OFF')" />
-	<img src="images/colorwheel.png" width=28 height=28 border=0 onclick="colorItem='%item%';document.getElementById('waColorpicker').title='%purelabel%';document.getElementById('colorPickerInput').value='%state%';$.minicolors.refresh();document.location.href='#_Colorpicker'" />
-	<img src="images/_up.png" ontouchstart="repeatedRequest('CMD?%item%=INCREASE', %frequency%, 1)" onmousedown="repeatedRequest('CMD?%item%=INCREASE', %frequency%, 1)" onmouseup="stopRepeatedRequest('CMD?%item%=ON')" />
-</li>
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+	<span class="mdl-form__label">
+		%label%
+	</span>
+	<div class="mdl-form__control mdl-form__colorpicker" data-control-type="colorpicker" data-item="%item%">
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__colorpicker--up">
+			<i class="material-icons">keyboard_arrow_up</i>
+		</button>
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__colorpicker--pick">
+			<i class="material-icons">color_lens</i>
+		</button>
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__colorpicker--down">
+			<i class="material-icons">keyboard_arrow_down</i>
+		</button>
+	</div>
+</div>

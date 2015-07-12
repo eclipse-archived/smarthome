@@ -1,6 +1,13 @@
-<li style="%labelstyle%">
-	<img src="../icon/%icon%.png" width=29 height=29 class="iFull" />
-	%label%
-	<img src="images/_down.png" ontouchstart="ChangeState('CMD?%item%=%newlowerstate%')" onmousedown="ChangeState('CMD?%item%=%newlowerstate%')" />
-	<img src="images/_up.png" ontouchstart="ChangeState('CMD?%item%=%newhigherstate%')" onmousedown="ChangeState('CMD?%item%=%newhigherstate%')" />
-</li>
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+	<span class="mdl-form__label">
+		%label%
+	</span>
+	<div class="mdl-form__control mdl-form__setpoint" data-control-type="setpoint" data-item="%item%">
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect">
+			<i class="material-icons">keyboard_arrow_up</i>
+		</button>
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect">
+			<i class="material-icons">keyboard_arrow_down</i>
+		</button>
+	</div>
+</div>
