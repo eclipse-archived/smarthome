@@ -38,8 +38,15 @@ public class FrameRenderer extends AbstractWidgetRenderer {
     @Override
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         String snippet = getSnippet("frame");
+        String label = StringEscapeUtils.escapeHtml(itemUIRegistry.getLabel(w));
 
-        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(itemUIRegistry.getLabel(w)));
+        snippet = StringUtils.replace(snippet, "%label%", label);
+
+        if (label.isEmpty()) {
+            snippet = StringUtils.replace(snippet, "%frame_class%", "mdl-form--no-label");
+        } else {
+            snippet = StringUtils.replace(snippet, "%frame_class%", "");
+        }
 
         // Process the color tags
         snippet = processColor(w, snippet);
