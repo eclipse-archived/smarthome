@@ -719,8 +719,8 @@
     <setupTask
         xsi:type="git:GitCloneTask"
         id="git.clone.eclipsesmarthome"
-        pushURI="https://github.com/${github.user.id}/smarthome.git"
-        remoteURI="https://github.com/eclipse/smarthome.git">
+        remoteURI="https://github.com/eclipse/smarthome.git"
+        pushURI="https://github.com/${github.user.id}/smarthome.git">
       <annotation
           source="http://www.eclipse.org/oomph/setup/InducedChoices">
         <detail
@@ -804,36 +804,13 @@
       <repository
           url="http://download.eclipse.org/modeling/emf/emf/updates/milestones/"/>
       <repository
-          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.5/"/>          
+          url="http://dist.springsource.org/snapshot/GRECLIPSE/e4.5/"/>
     </setupTask>
     <setupTask
         xsi:type="setup.targlets:TargletTask">
       <targlet
           name="Eclipse SmartHome Target Platform"
           activeRepositoryList="${eclipse.target.platform}">
-        <annotation
-            source="http:/www.eclipse.org/oomph/targlets/TargetDefinitionGenerator">
-          <detail
-              key="location">
-            <value>${git.clone.eclipsesmarthome.location/targetplatform/smarthome.target}</value>
-          </detail>
-          <detail
-              key="extraUnits">
-            <value>org.eclipse.equinox.executable.feature.group</value>
-          </detail>
-          <detail
-              key="includeAllPlatforms">
-            <value>false</value>
-          </detail>
-          <detail
-              key="includeSource">
-            <value>true</value>
-          </detail>
-          <detail
-              key="generateVersions">
-            <value>false</value>
-          </detail>
-        </annotation>
         <requirement
             name="org.eclipse.sdk.ide"/>
         <requirement
@@ -1008,7 +985,7 @@
           <repository
               url="http://www.openhab.org/jupnp/update-site"/>
           <repository
-              url="http://hstaudacher.github.io/osgi-jax-rs-connector/4.3.0"/>
+              url="http://hstaudacher.github.io/osgi-jax-rs-connector/5.0.0"/>
         </repositoryList>
       </targlet>
     </setupTask>
