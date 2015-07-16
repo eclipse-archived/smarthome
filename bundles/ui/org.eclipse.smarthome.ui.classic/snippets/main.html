@@ -20,7 +20,15 @@
 		<link rel="stylesheet/less" type="text/css" href="smarthome.less" />
 		
 		<script src="mdl/material.js"></script>
+		<script src="smarthome.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
+		<script type="text/html" id="template-modal">
+			<div class="mdl-modal">
+				<div class="mdl-modal__content mdl-color--white mdl-shadow--2dp">
+					{content}
+				</div>
+			</div>
+		</script>
 	</head>
 	<body class="mdl-color--grey-100 mdl-color-text--grey-700">
 	<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -35,6 +43,7 @@
 				<span class="mdl-layout-title">%label%</span>
 				<div class="mdl-layout-spacer"></div>
 			</div>
+			<div class="ui__loading mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
 		</header>
 		<main class="mdl-layout__content mdl-color--grey-100">
 			<div class="page-content mdl-grid">
@@ -42,5 +51,5 @@
 			</div>
 		</main>
 	</div>
-</body>
+	</body>
 </html>

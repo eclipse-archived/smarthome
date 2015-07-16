@@ -78,6 +78,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%item%", w.getItem());
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
+        snippet = StringUtils.replace(snippet, "%count%", Integer.toString(s.getMappings().size()));
 
         State state = itemUIRegistry.getState(w);
 

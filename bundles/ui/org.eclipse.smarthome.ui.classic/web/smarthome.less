@@ -12,6 +12,8 @@
 
 @mdl-grid-spacing: 8px;
 
+@item-separator-color: lighten(black, 80);
+
 .user-select (@val) {
 	-webkit-touch-callout: @val;
 	-webkit-user-select: @val;
@@ -47,6 +49,13 @@
      -moz-align-items: @align;
       -ms-align-items: @align;
           align-items: @align;
+}
+
+.expand() {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
 
 .mdl-layout {
@@ -117,7 +126,7 @@
 		padding: 4px @mdl-grid-spacing;
 		margin: 0;
 		
-		border-bottom: 1px solid lighten(black, 80);
+		border-bottom: 1px solid @item-separator-color;
 		
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			height: @form-row-mobile-height;
@@ -186,7 +195,7 @@
 		padding-top: 4px;
 	}
 	&__selection {
-		&--rows {
+		&-rows {
 			display: none;
 		}
 	}
@@ -196,11 +205,72 @@
 		margin-bottom: 10px;
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			margin-left: @form-row-mobile-padding + @mdl-grid-spacing;
-		} 
+		}
 	}
 	&--no-label {
 		.mdl-form__title {
 			display: none;
 		}
 	}
+}
+
+.mdl-modal {
+	position: absolute;
+	background: rgba(50, 50, 50, 0.3);
+	z-index: 10;
+	
+	.expand();
+	.flex-display(flex);
+	overflow-y: scroll;
+	
+	align-items: center;
+	justify-content: center;
+	
+	&--overflow {
+		display: block;
+	}
+	&__content {
+		flex-grow: 2;
+		max-width: 800px;
+		margin: 40px 100px;
+		@media screen and (max-width: @layout-tablet-size-threshold) {
+			margin: 20px;
+		}
+	}
+}
+
+.mdl-radio {
+	width: 100%;
+	&__item {
+		border-bottom: 1px solid @item-separator-color;
+		padding-left: 20px;
+	}
+	&__group &__label {
+		padding-top: 17px;
+		width: 100%;
+		display: inline-block;
+		height: @form-row-desktop-height + 14px;
+		box-sizing: border-box;
+	}
+	&__group & {
+		padding-left: 35px;
+	}
+	&__outer-circle, &__inner-circle, &__ripple-container {
+		margin-top: 20px;
+	}
+}
+
+.mdl-layout {
+    &__header {
+        position: relative;
+    }
+}
+
+.ui {
+    &__loading {
+        display: none;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+    }
 }
