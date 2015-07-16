@@ -14,4 +14,4 @@ Import-Package: javax.net,
  org.slf4j
 Service-Component: OSGI-INF/mqtt-*.xml
 Bundle-ClassPath: .,
- lib/mqtt-client-0.4.0.jar
+ lib/org.eclipse.paho.client.mqttv3-1.0.2.jar
