@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -447,11 +449,22 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     return null;
                 }
             });
+        } catch (ExecutionException ex) {
+            String message = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, message);
+            setThingStatus(thing, statusInfo);
+            logger.error("Exception occured while calling thing handler: " + message, ex.getCause());
+        } catch (TimeoutException ex) {
+            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
+            setThingStatus(thing, statusInfo);
+            logger.error("Registering thing handler timed out: " + ex.getMessage(), ex);
         } catch (Exception ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+            logger.error("Unkown Exception occured while calling thing handler: " + ex.getMessage(), ex);
         }
     }
 
