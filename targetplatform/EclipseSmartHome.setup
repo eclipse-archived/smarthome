@@ -834,6 +834,8 @@
         <requirement
             name="org.jupnp.feature.feature.group"/>
         <requirement
+            name="org.eclipse.paho.client.mqttv3.feature.group"/>
+        <requirement
             name="com.eclipsesource.jaxrs.provider.gson.feature.feature.group"/>
         <requirement
             name="com.eclipsesource.jaxrs.connector.feature.feature.group"/>
@@ -982,6 +984,8 @@
               url="http://download.eclipse.org/modeling/emft/mwe/updates/releases/R201406110919/mwe"/>
           <repository
               url="http://download.eclipse.org/modeling/emf/emf/updates/2.10/core/R201405190339"/>
+          <repository
+              url="http://download.eclipse.org/paho/"/>
           <repository
               url="http://dist.springsource.org/release/GRECLIPSE/e4.4/"/>
           <repository
