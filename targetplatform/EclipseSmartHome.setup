@@ -834,7 +834,7 @@
         <requirement
             name="org.jupnp.feature.feature.group"/>
         <requirement
-            name="org.eclipse.paho.client.mqttv3.feature.group"/>
+            name="org.eclipse.paho.client.mqttv3"/>
         <requirement
             name="com.eclipsesource.jaxrs.provider.gson.feature.feature.group"/>
         <requirement
