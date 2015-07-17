@@ -39,7 +39,7 @@ The following diagram shows the allowed status transitions:
 
 The initial state of a thing is UNINITIALIZED. From UNINITIALIZED the thing goes into INITIALIZING. If the initialization fails, the thing goes back to UNINITIALIZED. If the initialization succeeds, the binding sets the status of the thing to ONLINE or OFFLINE, which both means, that the thing is INITIALIZED. From one of this states the thing can go back into UNINITIALIZED, REMOVING or REMOVED. The status REMOVING and REMOVED can also be reached from any other state. 
 
-## #Status Details
+## Status Details
 
 A status is detailed further with a status detail object. The following table lists the different status details:
 

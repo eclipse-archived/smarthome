@@ -13,9 +13,11 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
-import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.events.ThingAddedEvent
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent
@@ -83,5 +85,44 @@ class ThingRegistryOSGiTest extends OSGiTest {
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent, is(instanceOf(ThingRemovedEvent))
         receivedEvent = null
+    }
+
+    @Test
+    void 'assert that ThingRegistry delegates config update to thing handler'() {
+        def changedParameters = null
+        def thingUID = new ThingUID("binding:type:thing")
+        def thingHandler = [
+            handleConfigurationUpdate: { a ->  changedParameters = a } ]  as ThingHandler
+
+        def thing = ThingBuilder.create(thingUID).build();
+        thing.thingHandler = thingHandler;
+
+        def thingProvider = [
+            addProviderChangeListener: {},
+            removeProviderChangeListener: {},
+            getAll: { [thing ] as List}
+        ] as ThingProvider
+
+        registerService(thingProvider)
+
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+
+        def parameters = [
+            param1: 'value1',
+            param2: 1
+        ] as Map;
+        thingRegistry.updateConfiguration(thingUID, parameters)
+
+        assertThat changedParameters.entrySet(), is(equalTo(parameters.entrySet()))
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that ThingRegistry throws Exception for config update of non existing thing'() {
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+        def thingUID = new ThingUID("binding:type:thing")
+        def parameters = [
+            param: 'value1'
+        ] as Map;
+        thingRegistry.updateConfiguration(thingUID, parameters)
     }
 }

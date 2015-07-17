@@ -191,8 +191,7 @@ public class ThingSetupManager implements EventSubscriber {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
 
-        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels,
-                properties);
+        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels, properties);
     }
 
     /**
@@ -276,8 +275,7 @@ public class ThingSetupManager implements EventSubscriber {
         if (linkedItem != null) {
             addToHomeGroup(linkedItem, groupItemName);
         } else {
-            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID,
-                    groupItemName);
+            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID, groupItemName);
         }
     }
 
@@ -408,13 +406,21 @@ public class ThingSetupManager implements EventSubscriber {
     }
 
     /**
+     * Calls {@link ThingSetupManager#removeThing(ThingUID, boolean)} with force = false.
+     */
+    public void removeThing(ThingUID thingUID) {
+        removeThing(thingUID, false);
+    }
+
+    /**
      * Remove a thing and all its links and items.
      * If this is a bridge, also remove child things by calling
      * removeThing recursively
      * 
-     * @param thingUID
+     * @param thingUID thing UID
+     * @param force if the thing should be removed without asking the binding
      */
-    public void removeThing(ThingUID thingUID) {
+    public void removeThing(ThingUID thingUID, boolean force) {
         // Lookup the thing in the registry
         Thing thing = thingRegistry.get(thingUID);
         if (thing == null) {
@@ -426,11 +432,15 @@ public class ThingSetupManager implements EventSubscriber {
             Bridge bridge = (Bridge) thing;
             for (Thing bridgeThing : bridge.getThings()) {
                 ThingUID bridgeThingUID = bridgeThing.getUID();
-                removeThing(bridgeThingUID);
+                removeThing(bridgeThingUID, force);
             }
         }
 
-        thingRegistry.remove(thingUID);
+        if (force) {
+            thingRegistry.forceRemove(thingUID);
+        } else {
+            thingRegistry.remove(thingUID);
+        }
     }
 
     /**
@@ -582,8 +592,8 @@ public class ThingSetupManager implements EventSubscriber {
         if (thingType != null) {
             List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                GroupItem channelGroupItem = new GroupItem(
-                        getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
+                GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
+                        channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
                 channelGroupItem.addGroupName(itemName);
                 addItemSafely(channelGroupItem);
@@ -701,9 +711,15 @@ public class ThingSetupManager implements EventSubscriber {
             ThingRemovedEvent thingRemovedEvent = (ThingRemovedEvent) event;
             ThingUID thingUID = new ThingUID(thingRemovedEvent.getThing().UID);
             String itemName = toItemName(thingUID);
-            itemRegistry.remove(itemName, true);
-            itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
-            itemChannelLinkRegistry.removeLinksForThing(thingUID);
+            if (itemRegistry.get(itemName) != null) {
+                try {
+                    itemRegistry.remove(itemName, true);
+                    itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
+                    itemChannelLinkRegistry.removeLinksForThing(thingUID);
+                } catch (Exception ex) {
+                    logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);
+                }
+            }
         }
     }
 }

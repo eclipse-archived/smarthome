@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -64,7 +66,7 @@ public interface ThingHandler {
      * @param thing the {@link Thing}, that has been updated
      */
     void thingUpdated(Thing thing);
-    
+
     /**
      * This method is called before a thing will be removed.
      * An implementing class can handle the removal in order to trigger some tidying work for a thing.
@@ -78,6 +80,14 @@ public interface ThingHandler {
      * Only then it will be removed completely.  
      */
     void handleRemoval();
+
+    /**
+     * This method is called when the configuration of a thing should be updated.
+     * An implementing class needs to persist the configuration changes if necessary.
+     * 
+     * @param configurationParameters map of changed configuration parameters
+     */
+    void handleConfigurationUpdate(Map<String, Object> configurationParameters);
 
     /**
      * This method is called, before the handler is shut down.

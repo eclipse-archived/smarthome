@@ -120,7 +120,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         unregisterService(ThingHandlerFactory.class.name)
         thingHandlerFactory.deactivate(componentContext)
     }
-    
+
     class AnotherSimpleThingHandlerFactory extends BaseThingHandlerFactory {
 
         @Override
@@ -133,71 +133,71 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             return new AnotherSimpleThingHandler(thing)
         }
     }
-    
+
     def bridgeInitCalled = false;
     def bridgeDisposedCalled = false;
-    
+
     class AnotherSimpleThingHandler extends BaseThingHandler {
 
         public AnotherSimpleThingHandler(Thing thing) {
             super(thing)
         }
-        
+
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
         }
-        
+
         @Override
         protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
             updateStatus(ThingStatus.ONLINE)
             bridgeInitCalled = true
         }
-        
+
         @Override
         protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
             updateStatus(ThingStatus.OFFLINE)
             bridgeDisposedCalled = true
         }
     }
-    
-    
+
+
     @Test
     void 'assert bridgeInitialized is called by BaseThingHandler'() {
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new AnotherSimpleThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-        
+
         def bridge = BridgeBuilder.create(new ThingUID("bindingId:type1:bridgeId")).build()
         def thing = ThingBuilder.create(new ThingUID("bindingId:type2:thingId")).withBridge(bridge.getUID()).build()
 
         // add thing first
         managedThingProvider.add(thing)
         managedThingProvider.add(bridge)
-        
+
         assertThat bridgeInitCalled, is(true)
         assertThat bridgeDisposedCalled, is(false)
         assertThat thing.status, is(ThingStatus.ONLINE)
-        
+
         // remove bridge
         managedThingProvider.remove(bridge.UID)
-        
+
         assertThat bridgeDisposedCalled, is(true)
         assertThat thing.status, is(ThingStatus.OFFLINE)
-        
+
         managedThingProvider.remove(thing.UID)
         bridgeInitCalled = false
         bridgeDisposedCalled = false
-        
+
         // add bridge first
         managedThingProvider.add(bridge)
         managedThingProvider.add(thing)
-        
+
         assertThat bridgeInitCalled, is(true)
     }
-    
+
     class YetAnotherThingHandlerFactory extends BaseThingHandlerFactory {
-        
+
         @Override
         public boolean supportsThingType(ThingTypeUID thingTypeUID) {
             true
@@ -208,7 +208,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             return new YetAnotherThingHandler(thing)
         }
     }
-        
+
     class YetAnotherThingHandler extends BaseThingHandler {
 
         YetAnotherThingHandler(Thing thing) {
@@ -219,48 +219,51 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         public void initialize() {
             super.initialize()
             ThingBuilder thingBuilder = editThing()
-            thingBuilder.withChannels([new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")])
+            thingBuilder.withChannels([
+                new Channel(new ChannelUID("bindingId:type:thingId:1"), "String")
+            ])
             updateThing(thingBuilder.build())
         }
-        
+
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
-   
+
         }
-        
+
         public updateConfig() {
             Configuration configuration = editConfiguration()
             configuration.put("key", "value")
             updateConfiguration(configuration)
         }
-        
+
         public updateProperties() {
             def properties = editProperties()
             properties.put(Thing.PROPERTY_MODEL_ID, "1234")
             updateProperties(properties)
         }
-        
+
         public updateProperty() {
             updateProperty(Thing.PROPERTY_VENDOR, "vendor")
         }
     }
-    
+
     @Test
     void 'assert thing can be updated from ThingHandler'() {
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new YetAnotherThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-        
-        def thingUpdated = false 
+
+        def thingUpdated = false
         Thing updatedThing = null
         ThingRegistry thingRegistry = getService(ThingRegistry)
-        
+
         def registryChangeListener = [
             added: {thing -> },
-            updated: {old, updated -> thingUpdated = true; updatedThing = updated} 
+            updated: {old, updated ->
+                thingUpdated = true; updatedThing = updated}
         ] as RegistryChangeListener
-        
+
         try {
             thingRegistry.addRegistryChangeListener(registryChangeListener)
             def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).build()
@@ -268,49 +271,81 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             managedThingProvider.add(thing)
             assertThat thingUpdated, is(true)
             assertThat updatedThing.channels.size(), is(1)
-            
+
             updatedThing.getHandler().updateConfig()
             assertThat updatedThing.getConfiguration().get("key"), is("value")
         } finally {
             thingRegistry.removeRegistryChangeListener(registryChangeListener)
         }
     }
-    
+
     @Test
     void 'assert properties can be updated from ThingHandler'() {
         def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
         def thingHandlerFactory = new YetAnotherThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-        
+
         def thingUpdated = false
         Thing updatedThing = null
         ThingRegistry thingRegistry = getService(ThingRegistry)
-        
+
         def registryChangeListener = [
             added: {thing -> },
-            updated: {old, updated -> thingUpdated = true; updatedThing = updated}
+            updated: {old, updated ->
+                thingUpdated = true; updatedThing = updated}
         ] as RegistryChangeListener
-        
+
         try {
             thingRegistry.addRegistryChangeListener(registryChangeListener)
             def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).build()
-            
+
             managedThingProvider.add(thing)
-            
+
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_MODEL_ID), is(null)
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_VENDOR), is(null)
-            
+
             updatedThing.getHandler().updateProperties()
-                       
+
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_MODEL_ID), is("1234")
-            
+
             updatedThing.getHandler().updateProperty()
-            
+
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_VENDOR), is("vendor")
         } finally {
             thingRegistry.removeRegistryChangeListener(registryChangeListener)
         }
     }
-    
+
+    @Test
+    void 'assert configuration will be updated by default implementation'() {
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new SimpleThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        def thingUpdated = false
+        Thing updatedThing = null
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+
+        def registryChangeListener = [
+            added: {thing -> },
+            updated: {old, updated ->
+                thingUpdated = true; updatedThing = updated}
+        ] as RegistryChangeListener
+
+        try {
+            thingRegistry.addRegistryChangeListener(registryChangeListener)
+            def thingUID = new ThingUID("bindingId:type:thingId")
+            def thing = ThingBuilder.create(thingUID).build()
+
+            managedThingProvider.add(thing)
+
+            thingRegistry.updateConfiguration(thingUID, [parameter: 'value'] as Map)
+
+            assertThat updatedThing.getConfiguration().get('parameter'), is('value')
+        } finally {
+            thingRegistry.removeRegistryChangeListener(registryChangeListener)
+        }
+    }
 }
