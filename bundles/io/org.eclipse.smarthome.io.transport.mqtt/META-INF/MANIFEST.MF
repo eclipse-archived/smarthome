@@ -9,9 +9,12 @@ Export-Package: org.eclipse.smarthome.io.transport.mqtt
 Import-Package: javax.net,
  javax.net.ssl,
  org.apache.commons.lang,
+ org.eclipse.paho.client.mqttv3,
+ org.eclipse.paho.client.mqttv3.logging,
+ org.eclipse.paho.client.mqttv3.persist,
+ org.eclipse.paho.client.mqttv3.util,
  org.eclipse.smarthome.core.events,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/mqtt-*.xml
-Bundle-ClassPath: .,
- lib/mqtt-client-0.4.0.jar
+Bundle-ClassPath: .
