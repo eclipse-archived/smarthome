@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.smarthome.config.discovery.util.DiscoveryThreadPool;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
@@ -39,10 +39,12 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
+    private static final String DISCOVERY_THREADPOOL_NAME = "discovery";
+
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    static protected final ScheduledExecutorService scheduler = DiscoveryThreadPool.getScheduler(); 
-    
+    static protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(DISCOVERY_THREADPOOL_NAME);
+
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected ScanListener scanListener = null;
 
@@ -67,7 +69,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *            the discovery timeout in seconds after which the discovery
      *            service automatically stops its forced discovery process (>=
      *            0).
-     * 
+     *
      * @param backgroundDiscoveryEnabledByDefault
      *            defines, whether the default for this discovery service is to
      *            enable background discovery or not.
@@ -103,7 +105,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      *
      * @throws IllegalArgumentException if the timeout < 0
      */
-    public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout) throws IllegalArgumentException {
+    public AbstractDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout)
+            throws IllegalArgumentException {
         this(supportedThingTypes, timeout, true);
     }
 
@@ -190,7 +193,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
                 scheduledStop = scheduler.schedule(runnable, getScanTimeout(), TimeUnit.SECONDS);
             }
-            this.timestampOfLastScan = new Date().getTime(); 
+            this.timestampOfLastScan = new Date().getTime();
 
             try {
                 startScan();
@@ -277,25 +280,25 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
             cachedResults.remove(thingUID);
         }
     }
-    
+
     /**
      * Call to remove all results of all {@link #supportedThingTypes} that are
      * older than the given timestamp. To remove all left over results after a
      * full scan, this method could be called {@link #getTimestampOfLastScan()}
      * as timestamp.
-     * 
+     *
      * @param timestamp
      *            timestamp, older results will be removed
      */
     protected void removeOlderResults(long timestamp) {
         removeOlderResults(timestamp, null);
     }
-    
+
     /**
      * Call to remove all results of the given types that are older than the
      * given timestamp. To remove all left over results after a full scan, this
      * method could be called {@link #getTimestampOfLastScan()} as timestamp.
-     * 
+     *
      * @param timestamp
      *            timestamp, older results will be removed
      * @param thingTypeUIDs
@@ -331,7 +334,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      * OSGi declarative service and does not override the method. The method
      * implementation calls {@link AbstractDiscoveryService#startBackgroundDiscovery()} if background
      * discovery is enabled by default and not overridden by the configuration.
-     * 
+     *
      * @param configProperties configuration properties
      */
     protected void activate(Map<String, Object> configProperties) {
@@ -366,7 +369,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
                 if (this.backgroundDiscoveryEnabled && !enabled) {
                     stopBackgroundDiscovery();
-                    logger.debug("Background discovery for discovery service '{}' disabled.", this.getClass().getName());
+                    logger.debug("Background discovery for discovery service '{}' disabled.",
+                            this.getClass().getName());
                 } else if (!this.backgroundDiscoveryEnabled && enabled) {
                     startBackgroundDiscovery();
                     logger.debug("Background discovery for discovery service '{}' enabled.", this.getClass().getName());
@@ -410,7 +414,7 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     /**
      * Get the timestamp of the last call of {@link #startScan()}.
-     * 
+     *
      * @return timestamp as long
      */
     protected long getTimestampOfLastScan() {
