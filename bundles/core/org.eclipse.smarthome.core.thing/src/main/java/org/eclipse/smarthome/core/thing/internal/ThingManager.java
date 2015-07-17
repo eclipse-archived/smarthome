@@ -15,11 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
@@ -67,6 +66,8 @@ import org.slf4j.LoggerFactory;
  * @author Simon Kaufmann - Added remove handling
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
+
+    private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -146,7 +147,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void statusUpdated(final Thing thing, ThingStatusInfo thingStatus) {
-            if (ThingStatus.REMOVING.equals(thing.getStatus()) && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
+            if (ThingStatus.REMOVING.equals(thing.getStatus())
+                    && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
                 // only allow REMOVING -> REMOVED transition and
                 // ignore all other state changes
                 return;
@@ -161,8 +163,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build();
                         setThingStatus(bridgeThing, statusInfo);
                     } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
-                        ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
-                                ThingStatusDetail.BRIDGE_OFFLINE).build();
+                        ThingStatusInfo statusInfo = ThingStatusInfoBuilder
+                                .create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build();
                         setThingStatus(bridgeThing, statusInfo);
                     }
                 }
@@ -180,7 +182,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 logger.debug("Removal handling of thing '{}' completed. Going to remove it now.", thing.getUID());
 
                 // call asynchronous to avoid deadlocks in thing handler
-                executorService.execute(new Runnable() {
+                ThreadPoolManager.getPool(FORCEREMOVE_THREADPOOL_NAME).execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -222,8 +224,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private Set<ThingUID> thingUpdatedLock = new HashSet<>();
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
-
     /**
      * Method is called when a {@link ThingHandler} is added.
      *
@@ -249,7 +249,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
         logger.debug("Unassigning handler for thing '{}' and setting status to UNINITIALIZED.", thing.getUID());
         thing.setHandler(null);
-        ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR);
+        ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_MISSING_ERROR);
         setThingStatus(thing, statusInfo);
         thingHandler.setCallback(null);
     }
@@ -285,9 +286,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 + "propertly initialized.", command, itemName, channelUID);
                     }
                 } else {
-                    logger.warn("Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
-                            + "because no thing with the UID '{}' could be found.", command, itemName, channelUID,
-                            channelUID.getThingUID());
+                    logger.warn(
+                            "Cannot delegate command '{}' for item '{}' to handler for channel '{}', "
+                                    + "because no thing with the UID '{}' could be found.",
+                            command, itemName, channelUID, channelUID.getThingUID());
                 }
             }
         }
@@ -325,9 +327,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     }
 
                 } else {
-                    logger.warn("Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
-                            + "because no thing with the UID '{}' could be found.", newState, itemName, channelUID,
-                            channelUID.getThingUID());
+                    logger.warn(
+                            "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
+                                    + "because no thing with the UID '{}' could be found.",
+                            newState, itemName, channelUID, channelUID.getThingUID());
                 }
             }
         }
@@ -505,9 +508,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             });
         } catch (Exception ex) {
-            logger.error(
-                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                            + ex.getMessage(), ex);
+            logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
+                    + ex.getMessage(), ex);
         }
     }
 
