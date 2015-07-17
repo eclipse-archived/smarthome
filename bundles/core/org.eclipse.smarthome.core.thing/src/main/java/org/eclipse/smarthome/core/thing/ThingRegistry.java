@@ -7,7 +7,10 @@
  */
 package org.eclipse.smarthome.core.thing;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.core.common.registry.Registry;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker;
 
 /**
@@ -28,6 +31,39 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @return thing for a given UID or null if no thing was found
      */
     @Override
-    public abstract Thing get(ThingUID uid);
+    Thing get(ThingUID uid);
 
+    /**
+     * Updates the configuration of a thing for the given UID.
+     * 
+     * @param thingUID thing UID
+     * @param configurationParameters configuration parameters
+     */
+    void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters);
+
+    /**
+     * Initiates the removal process for the {@link Thing} specified by the given {@link ThingUID}.
+     * 
+     * Unlike in other {@link Registry}s, {@link Thing}s don't get removed immediately.
+     * Instead, the corresponding {@link ThingHandler} is given the chance to perform
+     * any required removal handling before it actually gets removed.
+     * <p>
+     * If for any reasons the {@link Thing} should be removed immediately without any prior processing, use
+     * {@link #forceRemove(ThingUID)} instead.
+     * 
+     * @param thingUID Identificator of the {@link Thing} to be removed
+     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
+     */
+    Thing remove(ThingUID thingUID);
+
+    /**
+     * Removes the {@link Thing} specified by the given {@link ThingUID}.
+     *
+     * If the corresponding {@link ThingHandler} should be given the chance to perform
+     * any removal operations, use {@link #remove(ThingUID)} instead.
+     * 
+     * @param thingUID Identificator of the {@link Thing} to be removed
+     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
+     */
+    Thing forceRemove(ThingUID thingUID);
 }
