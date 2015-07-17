@@ -11,7 +11,7 @@
 		for (var c in a) {
 			b[c] = a[c];
 		}
-	};
+	}
 	
 	function createDOM(text) {
 		var 
@@ -56,11 +56,12 @@
 		request.send(data);
 	}
 	
-	function RenderTemplate(id, contents) {
+	function renderTemplate(id, contents) {
 		var
 			text = document.getElementById(id).innerHTML;
 		
 		return text.replace(/\{([\w]+)\}/, function(match, capture) {
+			//jshint unused:false
 			if (typeof contents[capture] != "undefined") {
 				return contents[capture];
 			} else {
@@ -70,7 +71,8 @@
 	}
 
 	function UI(root) {
-		const 
+		/* const */
+		var 
 			NavigationState = {
 				Loading: 1,
 				Idle:    2
@@ -173,7 +175,7 @@
 			_t = this;
 		
 		_t.templateId = "template-modal";
-		_t.text = RenderTemplate(_t.templateId, {
+		_t.text = renderTemplate(_t.templateId, {
 			content: text
 		});
 		
@@ -195,11 +197,11 @@
 		_t.show = function() {
 			append(document.body, createDOM(_t.text));
 			init();
-		}
+		};
 		_t.hide = function() {
 			document.body.querySelector(o.modal).remove();
 			destroy();
-		}
+		};
 	}
 	
 	function DebounceProxy(callback, timeout) {
@@ -220,7 +222,7 @@
 		_t.finish = function() {
 			clear();
 			callback();
-		}
+		};
 	}
 	
 	/* class Control */
@@ -244,7 +246,7 @@
 			_t.buttons.forEach(function(button) {
 				button.classList.remove(o.buttonActiveClass);
 			});
-		}
+		};
 
 		_t.onclick = function(event) {
 			var
@@ -263,7 +265,7 @@
 					value: value
 				}
 			}));
-		}
+		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
 		_t.setValue = function(value) {
@@ -271,7 +273,7 @@
 			if (_t.valueMap !== undefined) {
 				_t.valueMap[value].classList.add(o.buttonActiveClass);
 			}
-		}
+		};
 		
 		_t.buttons.forEach.call(_t.buttons, function(button) {
 			var
@@ -329,7 +331,7 @@
 				componentHandler.upgradeElement(control, "MaterialRadio");
 				control.addEventListener("change", onRadioChange);
 			});
-		}
+		};
 		
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
 	}
