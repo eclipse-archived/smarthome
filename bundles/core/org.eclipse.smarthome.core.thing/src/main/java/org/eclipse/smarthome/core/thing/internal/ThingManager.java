@@ -443,7 +443,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
                 @Override
                 public Void call() throws Exception {
-                    thingHandlerFactory.registerHandler(thing, this.thingHandlerCallback);
+                    thingHandlerFactory.registerHandler(thing, ThingManager.this.thingHandlerCallback);
                     return null;
                 }
             });
