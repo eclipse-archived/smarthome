@@ -10,18 +10,22 @@ package org.eclipse.smarthome.io.rest.core.thing;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -148,9 +152,17 @@ public class ThingResource implements RESTResource {
 
     @DELETE
     @Path("/{thingUID}")
-    public Response remove(@PathParam("thingUID") String thingUID) {
+    public Response remove(@PathParam("thingUID") String thingUID,
+            @DefaultValue("false") @QueryParam("force") boolean force) {
 
-        if (managedThingProvider.remove(new ThingUID(thingUID)) == null) {
+        Thing removedThing = null;
+        if (force) {
+            removedThing = thingRegistry.forceRemove(new ThingUID(thingUID));
+        } else {
+            removedThing = thingRegistry.remove(new ThingUID(thingUID));
+        }
+
+        if (removedThing == null) {
             logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -186,6 +198,8 @@ public class ThingResource implements RESTResource {
 
         Thing thing = managedThingProvider.get(thingUIDObject);
         if (thing == null) {
+            logger.info("Received HTTP PUT request for update at '{}' for the unknown thing '{}'.", uriInfo.getPath(),
+                    thingUID);
             return Response.status(Status.NOT_FOUND).build();
         }
 
@@ -194,6 +208,24 @@ public class ThingResource implements RESTResource {
         updateConfiguration(thing, getConfiguration(thingBean));
 
         managedThingProvider.update(thing);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{thingUID}/config")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateConfiguration(@PathParam("thingUID") String thingUID,
+            Map<String, Object> configurationParameters) throws IOException {
+
+        try {
+            thingRegistry.updateConfiguration(new ThingUID(thingUID),
+                    convertDoublesToBigDecimal(configurationParameters));
+        } catch (IllegalArgumentException ex) {
+            logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
+            return Response.status(Status.NOT_FOUND).build();
+        }
 
         return Response.ok().build();
     }
@@ -287,13 +319,20 @@ public class ThingResource implements RESTResource {
     public static Configuration getConfiguration(ThingDTO thingBean) {
         Configuration configuration = new Configuration();
 
-        for (Entry<String, Object> parameter : thingBean.configuration.entrySet()) {
-            String name = parameter.getKey();
-            Object value = parameter.getValue();
-            configuration.put(name, value instanceof Double ? new BigDecimal((Double) value) : value);
-        }
+        Map<String, Object> convertDoublesToBigDecimal = convertDoublesToBigDecimal(thingBean.configuration);
+        configuration.setProperties(convertDoublesToBigDecimal);
 
         return configuration;
+    }
+
+    private static Map<String, Object> convertDoublesToBigDecimal(Map<String, Object> configuration) {
+        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        for (Entry<String, Object> parameter : configuration.entrySet()) {
+            String name = parameter.getKey();
+            Object value = parameter.getValue();
+            convertedConfiguration.put(name, value instanceof Double ? new BigDecimal((Double) value) : value);
+        }
+        return convertedConfiguration;
     }
 
     public static void updateConfiguration(Thing thing, Configuration configuration) {
@@ -301,6 +340,5 @@ public class ThingResource implements RESTResource {
             thing.getConfiguration().put(parameterName, configuration.get(parameterName));
         }
     }
-
 
 }
