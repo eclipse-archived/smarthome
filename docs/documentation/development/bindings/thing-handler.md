@@ -147,6 +147,31 @@ If your binding contains resource-intensive logic in your initialize method, you
 
 For configuration updates, which are triggered from the binding, the framework does not call the `thingUpdated` method to avoid infinite loops.
 
+## Handling Configuration Updates
+
+For changes of the configuration the `ThingHandler` has a separate callback named  `handleConfigurationUpdate(Map<String, Object> configurationParameters)`. This method is called with a map of changed configuration parameters. Depending on the UI multiple parameters can be sent at once, or just a subset or even a single parameter.
+
+The default implementation of this method in the `BaseThingHandler` class does simply apply the configuration parameters, updates the configuration of the thing and reinitializes the handler:
+
+```java
+ @Override
+public void handleConfigurationUpdate(Map<String, Object> configurationParmeters) {
+    // can be overridden by subclasses
+    Configuration configuration = editConfiguration();
+    for (Entry<String, Object> configurationParmeter : configurationParmeters.entrySet()) {
+        configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
+    }
+        
+    // reinitialize with new configuration and persist changes
+    dispose();
+    updateConfiguration(configuration);
+    initialize();
+}
+```
+
+If configuration needs to be sent to devices, this method should be overridden and some binding-specific logic should be performed. The binding is also responsible for updating the thing, so as in the default implementation `updateConfiguration` should be called, if the configuration was successfully updated. In some radio protocols configuration can not directly be transmitted to devices, because the communication is done in specific intervals only. The binding could indicate a not yet transmitted configuration change for a device by setting the thing status detail to `CONFIGURATION_PENDING` (see [Thing Status Section](../../concepts/things.html#status-details)).
+
+
 ## Updating the Thing from a Binding
 
 It can happen that the binding wants to update the configuration or even the whole structure of a thing. If the `BaseThingHandler` class is used, it provides some helper methods for modifying the thing. 

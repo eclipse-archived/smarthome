@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -16,8 +17,8 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
@@ -59,6 +60,35 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
             }
         }
         return null;
+    }
+
+    @Override
+    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters) {
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            ThingHandler thingHandler = thing.getHandler();
+            if (thingHandler != null) {
+                thingHandler.handleConfigurationUpdate(configurationParameters);
+            } else {
+                throw new IllegalStateException("Thing with UID " + thingUID + " has no handler attached.");
+            }
+        } else {
+            throw new IllegalArgumentException("Thing with UID " + thingUID + " does not exists.");
+        }
+    }
+
+    @Override
+    public Thing forceRemove(ThingUID thingUID) {
+        return super.remove(thingUID);
+    }
+
+    @Override
+    public Thing remove(ThingUID thingUID) {
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            notifyTrackers(thing, ThingTrackerEvent.THING_REMOVING);
+        }
+        return thing;
     }
 
     /**
@@ -121,10 +151,10 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         onRemoveElement(thing);
         onAddElement(thing);
     }
-    
+
     private void preserveDynamicState(Thing thing) {
         final Thing existingThing = get(thing.getUID());
-        if(existingThing != null) {
+        if (existingThing != null) {
             thing.setHandler(existingThing.getHandler());
             thing.setStatusInfo(existingThing.getStatusInfo());
         }
@@ -188,41 +218,6 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         for (Thing thing : getAll()) {
             thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
         }
-    }
-
-    /**
-     * Removes the {@link Thing} specified by the given {@link ThingUID}.
-     *
-     * If the corresponding {@link ThingHandler} should be given the chance to perform 
-     * any removal operations, use {@link #remove(ThingUID)} instead.
-     * 
-     * @param thingUID Identificator of the {@link Thing} to be removed
-     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
-     */
-    public Thing forceRemove(ThingUID thingUID) {
-        return super.remove(thingUID);
-    }
-
-    /**
-     * Initiates the removal process for the {@link Thing} specified by the given {@link ThingUID}.
-     * 
-     * Unlike in other {@link Registry}s, {@link Thing}s don't get removed immediately. 
-     * Instead, the corresponding {@link ThingHandler} is given the chance to perform
-     * any required removal handling before it actually gets removed. 
-     * <p>
-     * If for any reasons the {@link Thing} should be removed immediately without any prior 
-     * processing, use {@link #forceRemove(ThingUID)} instead.
-     *  
-     * @param thingUID Identificator of the {@link Thing} to be removed
-     * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
-     */
-    @Override
-    public Thing remove(ThingUID thingUID) {
-        Thing thing = get(thingUID);
-        if (thing != null) {
-            notifyTrackers(thing, ThingTrackerEvent.THING_REMOVING);
-        }
-        return thing;
     }
 
 }
