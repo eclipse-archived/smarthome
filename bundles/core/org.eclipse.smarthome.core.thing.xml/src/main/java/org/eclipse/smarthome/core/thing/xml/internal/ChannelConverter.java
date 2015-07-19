@@ -29,10 +29,12 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * 
  * @author Chris Jackson - Initial Contribution
  * @author Simon Kaufmann - Fixing wrong inheritance
+ * @author Chris Jackson - Added label and description
  */
 public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
 
     private ConverterAttributeMapValidator attributeMapValidator;
+
     public ChannelConverter() {
         super(ChannelXmlResult.class);
 
@@ -50,13 +52,15 @@ public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
 
         String id = attributes.get("id");
         String typeId = attributes.get("typeId");
+        String label = (String) nodeIterator.nextValue("label", false);
+        String description = (String) nodeIterator.nextValue("description", false);
         List<NodeValue> properties = getProperties(nodeIterator);
 
-        ChannelXmlResult channelXmlResult = new ChannelXmlResult(id, typeId, properties);
+        ChannelXmlResult channelXmlResult = new ChannelXmlResult(id, typeId, label, description, properties);
 
         return channelXmlResult;
     }
-    
+
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
         // read attributes
@@ -72,5 +76,5 @@ public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
         nodeIterator.assertEndOfType();
 
         return object;
-    }    
+    }
 }

@@ -31,7 +31,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * contains all fields needed to create a concrete {@link ThingType} object.
  * <p>
  * If a {@link ConfigDescription} object exists, it must be added to the according {@link ConfigDescriptionProvider}.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Ivan Iliev - Added support for system wide channel types
  * @author Thomas Höfer - Added thing and thing type properties
@@ -96,7 +96,8 @@ public class ThingTypeXmlResult {
                             propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
                         }
 
-                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType, propertiesMap);
+                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType, propertiesMap,
+                                channelTypeReference.getLabel(), channelTypeReference.getDescription());
                         channelTypeDefinitions.add(channelDefinition);
                     } else {
                         throw new ConversionException("The channel type for '" + typeUID + "' is missing!");
@@ -128,7 +129,8 @@ public class ThingTypeXmlResult {
                     ChannelGroupType channelGroupType = channelGroupTypes.get(typeUID);
 
                     if (channelGroupType != null) {
-                        ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id, channelGroupType);
+                        ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id,
+                                channelGroupType);
 
                         channelGroupTypeDefinitions.add(channelGroupDefinition);
                     } else {
