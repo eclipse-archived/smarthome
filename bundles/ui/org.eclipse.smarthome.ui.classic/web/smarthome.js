@@ -69,6 +69,24 @@
 			}
 		});
 	}
+	
+	function HistoryStack() {
+		var
+			_t = this,
+			levelChangeCallback,
+			stack = [];
+		
+		_t.push = function() {
+			
+		}
+		
+		_t.pop = function() {
+			
+		}
+		
+		// TODO: bind document navigation event
+		// TODO: emit an event when stack level is changed
+	}
 
 	function UI(root) {
 		/* const */
@@ -98,7 +116,7 @@
 				page = xmlResponse.documentElement;
 
 			if (page.tagName !== "page") {
-				console.log("Unexcepted response received");
+				console.error("Unexcepted response received");
 				return;
 			}
 
@@ -114,6 +132,32 @@
 			contentElement.insertAdjacentHTML("beforeend", page.children[1].textContent);
 		}
 		
+		_t.upgradeComponents = function() {
+			var
+				upgrade = componentHandler.upgradeElement;
+						
+			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
+				switch (e.getAttribute("data-control-type")) {
+				case "setpoint":
+				case "rollershutter":
+				case "colorpicker":
+				case "selection":
+					[].forEach.call(e.querySelectorAll("button"), function(button) {
+						upgrade(button, "MaterialButton");
+					});
+					break;
+				case "checkbox":
+					upgrade(e, "MaterialSwitch");
+					break;
+				case "slider":
+					upgrade(e.querySelector("input[type=range]"), "MaterialSlider");
+					break;
+				default:
+					break;
+				}
+			});
+		}
+				
 		_t.showLoadingBar = function() {
 			_t.loading.style.display = 'block';
 		};
@@ -124,7 +168,10 @@
 		
 		_t.navigateCallback = function(request) {
 			state = NavigationState.Idle;
+			
 			replaceContent(request.responseXML);
+			_t.upgradeComponents();
+			_t.initControls();
 
 			_t.hideLoadingBar();
 		};
@@ -196,8 +243,22 @@
 		
 		_t.show = function() {
 			append(document.body, createDOM(_t.text));
+
+			var
+				modalBg = document.querySelector(o.modal),
+				modalContainer = modalBg.querySelector(o.modalContainer);
+
+			modalBg.addEventListener("click", function() {
+				_t.hide();
+			});
+
+			modalContainer.addEventListener("click", function(event) {
+				event.stopPropagation();
+			});
+
 			init();
 		};
+
 		_t.hide = function() {
 			document.body.querySelector(o.modal).remove();
 			destroy();
@@ -315,18 +376,8 @@
 			_t.modal.show();
 			
 			var
-				modalBg = document.querySelector(o.modal),
-				modalContainer = modalBg.querySelector(o.modalContainer),
 				controls = [].slice.call(modalBg.querySelectorAll(o.formRadio));
-			
-			modalBg.addEventListener("click", function() {
-				_t.modal.hide();
-			});
-			
-			modalContainer.addEventListener("click", function(event) {
-				event.stopPropagation();
-			});
-			
+
 			controls.forEach(function(control) {
 				componentHandler.upgradeElement(control, "MaterialRadio");
 				control.addEventListener("change", onRadioChange);
@@ -334,6 +385,41 @@
 		};
 		
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
+	}
+	
+	/* class ControlColorpicker extends Control */
+	function ControlColorpicker(parentNode) {
+		extend(this, new Control(parentNode));
+		
+		var
+			_t = this;
+				
+		_t.showModal = function() {
+			var
+				content = "";
+
+			_t.modal = new Modal(content);
+			_t.modal.show();
+		};
+
+		_t.parentNode.addEventListener("click", _t.showModal);
+	}
+	
+	/* class ControlRollerblinds extends Control */
+	function ControlRollerblinds(parentNode) {
+		extend(this, new Control(parentNode));
+		
+		var
+			_t = this;
+				
+	}
+	
+	/* class ControlSetpoint extends Control */
+	function ControlSetpoint(parentNode) {
+		extend(this, new Control(parentNode));
+
+		var
+			_t = this;
 	}
 	
 	/* class ControlSwitch extends Control */
