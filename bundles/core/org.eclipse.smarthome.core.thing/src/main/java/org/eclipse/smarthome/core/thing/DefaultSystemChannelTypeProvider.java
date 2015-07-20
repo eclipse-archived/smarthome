@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
  * Implementation providing default system wide channel types
  * 
  * @author Ivan Iliev - Initial Contribution
+ * @author Chris Jackson - Aded battery level
  * 
  */
 public class DefaultSystemChannelTypeProvider implements SystemChannelTypeProvider {
@@ -37,11 +38,17 @@ public class DefaultSystemChannelTypeProvider implements SystemChannelTypeProvid
     public static final ChannelType SYSTEM_CHANNEL_LOW_BATTERY = new ChannelType(new ChannelTypeUID(
             "system:low-battery"), false, "Switch", "Low Battery", null, "Battery", null, null, null);
 
+    /**
+     * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
+     */
+    public static final ChannelType SYSTEM_CHANNEL_BATTERY_LEVEL = new ChannelType(new ChannelTypeUID(
+            "system:battery-level"), false, "Number", "Battery Level", null, "Battery", null, null, null);
+
     private final Collection<ChannelType> channelTypes;
 
     public DefaultSystemChannelTypeProvider() {
         this.channelTypes = Collections.unmodifiableCollection(Arrays.asList(new ChannelType[] {
-                SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY }));
+                SYSTEM_CHANNEL_SIGNAL_STRENGTH, SYSTEM_CHANNEL_LOW_BATTERY, SYSTEM_CHANNEL_BATTERY_LEVEL }));
 
     }
 
