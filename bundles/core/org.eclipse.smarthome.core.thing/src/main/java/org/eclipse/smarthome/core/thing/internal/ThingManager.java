@@ -76,7 +76,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public ThingHandler addingService(ServiceReference<ThingHandler> reference) {
-            ThingUID thingId = getThingId(reference);
+            ThingUID thingId = getThingUID(reference);
 
             logger.debug("Thing handler for thing '{}' added.", thingId);
 
@@ -95,17 +95,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
         @Override
         public void removedService(ServiceReference<ThingHandler> reference, ThingHandler service) {
-            ThingUID thingId = getThingId(reference);
-            logger.debug("Thing handler for thing '{}' removed.", thingId);
-            Thing thing = getThing(thingId);
+            ThingUID thingUID = getThingUID(reference);
+            logger.debug("Thing handler for thing '{}' removed.", thingUID);
+            Thing thing = getThing(thingUID);
             if (thing != null) {
                 handlerRemoved(thing, service);
             }
-            thingHandlers.remove(getThingId(reference));
+            thingHandlers.remove(thingUID);
         }
 
-        private ThingUID getThingId(ServiceReference<ThingHandler> reference) {
-            return (ThingUID) reference.getProperty("thing.id");
+        private ThingUID getThingUID(ServiceReference<ThingHandler> reference) {
+            return (ThingUID) reference.getProperty(ThingHandler.SERVICE_PROPERTY_THING_ID);
         }
 
     }
@@ -183,7 +183,16 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 executorService.execute(new Runnable() {
                     @Override
                     public void run() {
-                        thingRegistry.forceRemove(thing.getUID());
+                        try {
+                            thingRegistry.forceRemove(thing.getUID());
+                        } catch (IllegalStateException ex) {
+                            logger.debug("Could not remove thing {}. Most likely because it is not managed.",
+                                    thing.getUID(), ex);
+                        } catch (Exception ex) {
+                            logger.error(
+                                    "Could not remove thing {}, because an unknwon Exception occured. Most likely because it is not managed.",
+                                    thing.getUID(), ex);
+                        }
                     }
                 });
 
@@ -238,7 +247,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
      *            thing handler
      */
     public void handlerRemoved(Thing thing, ThingHandler thingHandler) {
-        logger.debug("Removing handler and setting status to OFFLINE.", thing.getUID());
+        logger.debug("Unassigning handler for thing '{}' and setting status to UNINITIALIZED.", thing.getUID());
         thing.setHandler(null);
         ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR);
         setThingStatus(thing, statusInfo);
@@ -346,13 +355,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     @Override
     public void thingRemoved(final Thing thing, ThingTrackerEvent thingTrackerEvent) {
         this.thingLinkManager.thingRemoved(thing);
-        if (thingTrackerEvent == ThingTrackerEvent.THING_REMOVED) {
-            ThingUID thingId = thing.getUID();
-            ThingHandler thingHandler = thingHandlers.get(thingId);
-            if (thingHandler != null) {
-                final ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing);
-                if (thingHandlerFactory != null) {
-                    unregisterHandler(thing, thingHandlerFactory);
+
+        ThingUID thingId = thing.getUID();
+        ThingHandler thingHandler = thingHandlers.get(thingId);
+        if (thingHandler != null) {
+            final ThingHandlerFactory thingHandlerFactory = findThingHandlerFactory(thing);
+            if (thingHandlerFactory != null) {
+                unregisterHandler(thing, thingHandlerFactory);
+                if (thingTrackerEvent == ThingTrackerEvent.THING_REMOVED) {
                     SafeMethodCaller.call(new SafeMethodCaller.Action<Void>() {
                         @Override
                         public Void call() throws Exception {
@@ -360,11 +370,12 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                             return null;
                         }
                     });
-                } else {
-                    logger.warn("Cannot unregister handler. No handler factory for thing '{}' found.", thing.getUID());
                 }
+            } else {
+                logger.warn("Cannot unregister handler. No handler factory for thing '{}' found.", thing.getUID());
             }
         }
+
         logger.debug("Thing '{}' is no longer tracked by ThingManager.", thing.getUID());
         this.things.remove(thing);
     }
@@ -449,7 +460,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void registerHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
-        logger.debug("Creating handler for thing '{}'.", thing.getUID());
+        logger.debug("Calling registerHandler handler for thing '{}' at '{}'.", thing.getUID(), thingHandlerFactory);
         try {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
             setThingStatus(thing, statusInfo);
@@ -466,7 +477,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, message);
             setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while calling thing handler: " + message, ex.getCause());
+            logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
+                    + message, ex.getCause());
         } catch (TimeoutException ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
@@ -476,12 +488,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
-            logger.error("Unkown Exception occured while calling thing handler: " + ex.getMessage(), ex);
+            logger.error(
+                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
+                            + ex.getMessage(), ex);
         }
     }
 
     private void unregisterHandler(final Thing thing, final ThingHandlerFactory thingHandlerFactory) {
-        logger.debug("Removing handler for thing '{}'.", thing.getUID());
+        logger.debug("Calling unregisterHandler handler for thing '{}' at '{}'.", thing.getUID(), thingHandlerFactory);
         try {
             SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                 @Override
@@ -527,8 +541,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     protected void deactivate(ComponentContext componentContext) {
-        this.thingHandlerTracker.close();
         this.thingRegistry.removeThingTracker(this);
+        this.thingHandlerTracker.close();
         this.thingLinkManager.stopListening();
     }
 
