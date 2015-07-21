@@ -98,7 +98,7 @@ public class WebAppServlet extends BaseServlet {
     }
 
     protected void deactivate() {
-        httpService.unregister(WEBAPP_ALIAS + SERVLET_NAME);
+        httpService.unregister(WEBAPP_ALIAS + "/" + SERVLET_NAME);
         httpService.unregister(WEBAPP_ALIAS);
         logger.info("Stopped Classic UI");
     }
@@ -177,7 +177,7 @@ public class WebAppServlet extends BaseServlet {
 
     /**
      * Defines the response to return on a polling timeout.
-     * 
+     *
      * @return the response of the servlet on a polling timeout
      */
     private String getTimeoutResponse() {
@@ -186,7 +186,7 @@ public class WebAppServlet extends BaseServlet {
 
     /**
      * This method only returns when a change has occurred to any item on the page to display
-     * 
+     *
      * @param widgets the widgets of the page to observe
      */
     private boolean waitForChanges(EList<Widget> widgets) {
@@ -215,7 +215,7 @@ public class WebAppServlet extends BaseServlet {
 
     /**
      * Collects all items that are represented by a given list of widgets
-     * 
+     *
      * @param widgets the widget list to get the items for
      * @return all items that are represented by the list of widgets
      */
@@ -247,7 +247,7 @@ public class WebAppServlet extends BaseServlet {
     /**
      * This is a state change listener, which is merely used to determine, if a state
      * change has occurred on one of a list of items.
-     * 
+     *
      * @author Kai Kreuzer - Initial contribution and API
      *
      */
@@ -265,7 +265,7 @@ public class WebAppServlet extends BaseServlet {
 
         /**
          * determines, whether a state change has occurred since its creation
-         * 
+         *
          * @return true, if a state has changed
          */
         public boolean hasChangeOccurred() {
