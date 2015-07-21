@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
@@ -61,8 +63,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
- * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism 
- * @author Simon Kaufmann - Added remove handling  
+ * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism
+ * @author Simon Kaufmann - Added remove handling
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
 
@@ -143,9 +145,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         @Override
-        public void statusUpdated(Thing thing, ThingStatusInfo thingStatus) {
-            if (ThingStatus.REMOVING.equals(thing.getStatus())
-                    && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
+        public void statusUpdated(final Thing thing, ThingStatusInfo thingStatus) {
+            if (ThingStatus.REMOVING.equals(thing.getStatus()) && !ThingStatus.REMOVED.equals(thingStatus.getStatus())) {
                 // only allow REMOVING -> REMOVED transition and
                 // ignore all other state changes
                 return;
@@ -177,7 +178,15 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
             } else if (ThingStatus.REMOVED.equals(thing.getStatus())) {
                 logger.debug("Removal handling of thing '{}' completed. Going to remove it now.", thing.getUID());
-                thingRegistry.forceRemove(thing.getUID());
+
+                // call asynchronous to avoid deadlocks in thing handler
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        thingRegistry.forceRemove(thing.getUID());
+                    }
+                });
+
             }
         }
 
@@ -201,7 +210,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private ThingLinkManager thingLinkManager;
 
     private Set<ThingUID> registerHandlerLock = new HashSet<>();
+
     private Set<ThingUID> thingUpdatedLock = new HashSet<>();
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     /**
      * Method is called when a {@link ThingHandler} is added.
@@ -479,7 +491,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 }
             });
         } catch (Exception ex) {
-            logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
+            logger.error(
+                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
+                            + ex.getMessage(), ex);
         }
     }
 
