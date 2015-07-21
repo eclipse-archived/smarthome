@@ -70,22 +70,27 @@
 		});
 	}
 	
-	function HistoryStack() {
+	function HistoryStack(ui) {
 		var
 			_t = this,
 			levelChangeCallback,
 			stack = [];
 		
-		_t.push = function() {
+		_t.push = function(page) {
+			history.pushState({page: page}, document.title.textContent);
+		}
+		
+		_t.replace = function(page, url) {
+			history.replaceState({page: page}, document.title.textContent, url);
+		}
+		
+		_t.onpop = function() {
 			
 		}
 		
-		_t.pop = function() {
-			
-		}
-		
-		// TODO: bind document navigation event
-		// TODO: emit an event when stack level is changed
+		window.addEventListener('popstate', function(e) {
+			smarthome.UI.navigate(e.state.page, false);
+		}, false);
 	}
 
 	function UI(root) {
@@ -98,8 +103,11 @@
 		
 		var
 			_t = this,
-			state = NavigationState.Idle;
+			state = NavigationState.Idle,
+			historyStack = new HistoryStack();
 
+		_t.page = document.body.getAttribute("data-page-id");
+		_t.destination = null;
 		_t.root = root;
 		_t.loading = _t.root.querySelector(o.uiLoadingBar);
 		_t.layoutTitle = document.querySelector(o.layoutTitle);
@@ -125,9 +133,9 @@
 			var
 				contentElement = document.querySelector(".page-content");
 
-			[].forEach.call(contentElement.children, function(e) {
-				e.remove();
-			});
+			while (contentElement.firstChild) {
+				contentElement.removeChild(contentElement.firstChild);
+			}
 			
 			contentElement.insertAdjacentHTML("beforeend", page.children[1].textContent);
 		}
@@ -169,23 +177,39 @@
 		_t.navigateCallback = function(request) {
 			state = NavigationState.Idle;
 			
+			if (_t.pushState) {
+				historyStack.push(_t.page);
+			}
+			
 			replaceContent(request.responseXML);
+			
+			if (_t.pushState) {
+				historyStack.replace(_t.newPage, _t.destination);
+			}
+			
+			_t.page = _t.newPage;
 			_t.upgradeComponents();
 			_t.initControls();
 
 			_t.hideLoadingBar();
 		};
 		
-		_t.navigate = function(page) {
+		_t.navigate = function(page, pushState) {
 			if (state != NavigationState.Idle) {
 				return;
 			}
-			
+
 			state = NavigationState.Loading;
-			_t.showLoadingBar();
+			_t.pushState = 
+				((pushState === undefined) ||
+				 (pushState == true));
+			_t.newPage = page;
 			
+			_t.showLoadingBar();
+			_t.destination = "/classicui/app?w=" + page;
+
 			ajax({
-				url: "/classicui/app?w=" + page + "&__async=true",
+				url: _t.destination + "&__async=true",
 				callback: _t.navigateCallback
 			});
 		};
@@ -215,6 +239,8 @@
 				e.addEventListener("control-change", controlChangeHandler);
 			});
 		};
+		
+		historyStack.replace(_t.page, document.location.href);
 	}
 	
 	function Modal(text) {
@@ -467,7 +493,7 @@
 		_t.target = parentNode.getAttribute("data-target");
 		
 		parentNode.parentNode.addEventListener("click", function() {
-			smarthome.UI.navigate(_t.target);
+			smarthome.UI.navigate(_t.target, true);
 		});
 	}
 
