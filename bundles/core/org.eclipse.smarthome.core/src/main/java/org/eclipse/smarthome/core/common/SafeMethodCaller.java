@@ -72,7 +72,7 @@ public class SafeMethodCaller {
      */
     public static <V> V call(ActionWithException<V> action, int timeout) throws TimeoutException, ExecutionException {
         try {
-            return callAsynchrnous(action, timeout);
+            return callAsynchronous(action, timeout);
         } catch (InterruptedException ex) {
             throw new IllegalStateException("Thread was interrupted.", ex);
         }
@@ -103,7 +103,7 @@ public class SafeMethodCaller {
      */
     public static <V> V call(Action<V> action, int timeout) {
         try {
-            return callAsynchrnous(action, timeout);
+            return callAsynchronous(action, timeout);
         } catch (ExecutionException ex) {
             StackTraceElement stackTraceElement = findCalledMethod(ex, action.getClass());
             if (stackTraceElement != null) {
@@ -154,7 +154,7 @@ public class SafeMethodCaller {
         return null;
     }
 
-    private static <V> V callAsynchrnous(Callable<V> callable, int timeout) throws InterruptedException,
+    private static <V> V callAsynchronous(Callable<V> callable, int timeout) throws InterruptedException,
             ExecutionException, TimeoutException {
         Future<V> future = executorService.submit(callable);
         return future.get(timeout, TimeUnit.MILLISECONDS);
