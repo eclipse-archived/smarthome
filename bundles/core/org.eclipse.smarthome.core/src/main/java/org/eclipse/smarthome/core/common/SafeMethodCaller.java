@@ -117,7 +117,9 @@ public class SafeMethodCaller {
             }
             return null;
         } catch (TimeoutException ex) {
-            getLogger().error("Timeout occured while calling method.", ex);
+            getLogger().error(
+                    "Timeout occured while calling method. Execution took longer than " + timeout + " milliseconds.",
+                    ex);
             return null;
         } catch (Throwable throwable) {
             getLogger().error("Unkown Exception or Error occured while calling action", throwable);

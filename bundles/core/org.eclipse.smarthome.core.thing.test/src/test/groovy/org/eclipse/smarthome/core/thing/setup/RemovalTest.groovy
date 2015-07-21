@@ -45,6 +45,7 @@ import org.osgi.service.component.ComponentContext
  * RemovalTest is a test for the framework's behavior regarding the removal of things.
  *
  * @author Simon Kaufmann - Initial contribution
+ * @author Dennis Nobel - Added test for dead lock bug (#473143)
  */
 class RemovalTest extends OSGiTest {
 
@@ -90,6 +91,17 @@ class RemovalTest extends OSGiTest {
         }
     }
 
+    class SynchronousDefaultThingHandler extends BaseThingHandler {
+
+        public SynchronousDefaultThingHandler(Thing thing) {
+            super(thing)
+        }
+
+        @Override
+        public void handleCommand(ChannelUID channelUID, Command command) {
+        }
+    }
+
     class DefaultThingHandlerFactory extends BaseThingHandlerFactory {
 
         @Override
@@ -99,7 +111,7 @@ class RemovalTest extends OSGiTest {
 
         @Override
         protected ThingHandler createHandler(Thing thing) {
-            return new DefaultThingHandler(thing);
+            return !thing.UID.toString().contains("synchronous") ? new DefaultThingHandler(thing) : new SynchronousDefaultThingHandler(thing);
         }
     }
 
@@ -111,7 +123,7 @@ class RemovalTest extends OSGiTest {
         itemRegistry = getService(ItemRegistry)
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
         itemThingLinkRegistry = getService(ItemThingLinkRegistry)
-        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def componentContext = [getBundleContext: { bundleContext }] as ComponentContext
         def thingHandlerFactory = new DefaultThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
@@ -224,4 +236,21 @@ class RemovalTest extends OSGiTest {
         }, 10000, 100)
     }
 
+    @Test
+    void 'synchronous remove Thing terminates fast (no deadlock)'() {
+
+        def thingUID1 = new ThingUID("removal-binding", "thing-type", "thing-synchronous")
+        thingSetupManager.addThing(thingUID1, new Configuration(), null, "MyThing", [] as List, true)
+
+        def start = System.currentTimeMillis()
+        thingSetupManager.removeThing(thingUID1)
+        def duration = System.currentTimeMillis() - start;
+
+        // timeout would be 5 seconds
+        assertTrue(duration < 1000)
+
+        waitForAssert({
+            assertThat thingRegistry.getAll().size(), is(0)
+        })
+    }
 }
