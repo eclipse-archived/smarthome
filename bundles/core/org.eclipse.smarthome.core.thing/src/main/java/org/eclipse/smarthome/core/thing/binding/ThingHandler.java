@@ -71,20 +71,20 @@ public interface ThingHandler {
      * This method is called before a thing will be removed.
      * An implementing class can handle the removal in order to trigger some tidying work for a thing.
      * <p>
-     * The framework expects this method to return quickly. 
-     * For longer running tasks, the implementation has to take care of spawning another thread.
+     * The framework expects this method to be non-blocking and return quickly.
+     * For longer running tasks, the implementation has to take care of scheduling a separate job.
      * <p>
      * The {@link Thing} is in {@link ThingStatus#REMOVING} when this method is called.
-     * Implementations of this method must signal to the framework that the handling has been 
+     * Implementations of this method must signal to the framework that the handling has been
      * completed by setting the {@link Thing}s state to {@link ThingStatus#REMOVED}.
-     * Only then it will be removed completely.  
+     * Only then it will be removed completely.
      */
     void handleRemoval();
 
     /**
      * This method is called when the configuration of a thing should be updated.
      * An implementing class needs to persist the configuration changes if necessary.
-     * 
+     *
      * @param configurationParameters map of changed configuration parameters
      */
     void handleConfigurationUpdate(Map<String, Object> configurationParameters);
@@ -104,7 +104,7 @@ public interface ThingHandler {
      * Sets the {@link ThingHandlerCallback} of the handler, which must be used for informing the framework about
      * changes. After the handler was disposed, this method is called again with null as argument, to remove the
      * callback.
-     * 
+     *
      * @param thingHandlerCallback
      *            callback (can be null)
      */
@@ -112,14 +112,14 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler that a channel was linked.
-     * 
+     *
      * @param channelUID UID of the linked channel
      */
     void channelLinked(ChannelUID channelUID);
 
     /**
      * Notifies the handler that a channel was unlinked.
-     * 
+     *
      * @param channelUID UID of the unlinked channel
      */
     void channelUnlinked(ChannelUID channelUID);
