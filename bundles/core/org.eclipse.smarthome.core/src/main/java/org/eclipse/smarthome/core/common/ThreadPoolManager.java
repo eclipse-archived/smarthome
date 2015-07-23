@@ -10,12 +10,12 @@ package org.eclipse.smarthome.core.common;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -35,13 +35,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The configuration can be done as
  * <br/>
- * {@code org.eclipse.smarthome.threadpool:<poolName>=<poolSize>[,<minSize>]}
+ * {@code org.eclipse.smarthome.threadpool:<poolName>=<poolSize>[,<maxSize>]}
  * <br/>
- * where minSize is only applicable for non-scheduled thread pools and is the number of threads to keep, even if idle.
- * All other threads will time out after {@link THREAD_TIMEOUT}.
- * </p>
- * <p>
- * All non-scheduled pools are created with maximum queue size of {@link MAX_THREAD_QUEUE_SIZE}.
+ * where maxSize is only applicable for non-scheduled thread pools and is the number of maximum threads to create.
+ * All threads will time out after {@link THREAD_TIMEOUT}.
  * </p>
  *
  * @author Kai Kreuzer - Initial contribution
@@ -51,9 +48,8 @@ public class ThreadPoolManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
 
-    private static final int DEFAULT_THREAD_POOL_SIZE = 3;
-    private static final int DEFAULT_THREAD_POOL_CORE_SIZE = 1;
-    private static final int MAX_THREAD_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_THREAD_POOL_MAX_SIZE = 10;
+    private static final int DEFAULT_THREAD_POOL_CORE_SIZE = 5;
 
     private static final long THREAD_TIMEOUT = 65L;
 
@@ -67,7 +63,8 @@ public class ThreadPoolManager {
 
     protected void modified(Map<String, Object> properties) {
         for (Entry<String, Object> entry : properties.entrySet()) {
-            if (entry.getKey().equals("service.pid") || entry.getKey().equals("component.name"))
+            if (entry.getKey().equals("service.pid") || entry.getKey().equals("component.id")
+                    || entry.getKey().equals("component.name"))
                 continue;
             String poolName = entry.getKey();
             Object config = entry.getValue();
@@ -82,10 +79,12 @@ public class ThreadPoolManager {
                     continue;
                 }
                 try {
+                    Integer coreSize = Integer.valueOf(segments[0]);
                     int[] cfg = (segments.length == 1)
-                            ? new int[] { Integer.valueOf(segments[0]), DEFAULT_THREAD_POOL_CORE_SIZE }
-                            : new int[] { Integer.valueOf(segments[0]), Integer.valueOf(segments[1]) };
-                    if (cfg[0] < cfg[1]) {
+                            ? new int[] { coreSize,
+                                    coreSize > DEFAULT_THREAD_POOL_MAX_SIZE ? coreSize : DEFAULT_THREAD_POOL_MAX_SIZE }
+                            : new int[] { coreSize, Integer.valueOf(segments[1]) };
+                    if (cfg[0] > cfg[1]) {
                         logger.warn(
                                 "Ignoring invalid configuration for pool '{}': {} - max value must be bigger than min value",
                                 new Object[] { poolName, config });
@@ -105,11 +104,10 @@ public class ThreadPoolManager {
                             logger.debug("Updated scheduled thread pool '{}' to size {}",
                                     new Object[] { poolName, cfg[0] });
                         } else {
-                            // the configured pool size is the max size
-                            pool.setMaximumPoolSize(cfg[0]);
-                            pool.setCorePoolSize(cfg[1]);
+                            pool.setCorePoolSize(cfg[0]);
+                            pool.setMaximumPoolSize(cfg[1]);
                             logger.debug("Updated thread pool '{}' to size {}-{}",
-                                    new Object[] { poolName, cfg[1], cfg[0] });
+                                    new Object[] { poolName, cfg[0], cfg[1] });
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -166,9 +164,11 @@ public class ThreadPoolManager {
                 pool = pools.get(poolName);
                 if (pool == null) {
                     int[] cfg = getConfig(poolName);
-                    pool = new CommonThreadExecutor(poolName, cfg[1], cfg[0], MAX_THREAD_QUEUE_SIZE);
+                    pool = new CommonThreadExecutor(poolName, cfg[0], cfg[1]);
+                    ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
+                    ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created thread pool '{}' with size {}-{}", new Object[] { poolName, cfg[1], cfg[0] });
+                    logger.debug("Created thread pool '{}' with size {}-{}", new Object[] { poolName, cfg[0], cfg[1] });
                 }
             }
         }
@@ -177,13 +177,13 @@ public class ThreadPoolManager {
 
     private static int[] getConfig(String poolName) {
         int[] cfg = configs.get(poolName);
-        return (cfg != null) ? cfg : new int[] { DEFAULT_THREAD_POOL_SIZE, DEFAULT_THREAD_POOL_CORE_SIZE };
+        return (cfg != null) ? cfg : new int[] { DEFAULT_THREAD_POOL_CORE_SIZE, DEFAULT_THREAD_POOL_MAX_SIZE };
     }
 
     private static class CommonThreadExecutor extends ThreadPoolExecutor {
 
-        public CommonThreadExecutor(final String poolName, int corePoolSize, int maxPoolSize, int maxQueueSize) {
-            this(poolName, corePoolSize, maxPoolSize, maxQueueSize, new NamedThreadFactory(poolName),
+        public CommonThreadExecutor(final String poolName, int corePoolSize, int maxPoolSize) {
+            this(poolName, corePoolSize, maxPoolSize, new NamedThreadFactory(poolName),
                     new ThreadPoolExecutor.DiscardPolicy() {
                         // The pool is bounded and rejections will happen during shutdown
                         @Override
@@ -196,11 +196,11 @@ public class ThreadPoolManager {
                     });
         }
 
-        public CommonThreadExecutor(String threadPool, int corePoolSize, int maxPoolSize, int maxQueueSize,
-                ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
+        public CommonThreadExecutor(String threadPool, int corePoolSize, int maxPoolSize, ThreadFactory threadFactory,
+                RejectedExecutionHandler rejectedHandler) {
             // This is the same as Executors.newCachedThreadPool
-            super(corePoolSize, maxPoolSize, THREAD_TIMEOUT, TimeUnit.SECONDS,
-                    new ArrayBlockingQueue<Runnable>(maxQueueSize), threadFactory, rejectedHandler);
+            super(corePoolSize, maxPoolSize, THREAD_TIMEOUT, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
+                    threadFactory, rejectedHandler);
         }
 
         @Override

@@ -37,14 +37,14 @@ import com.google.common.collect.SetMultimap;
 
 /**
  * The {@link OSGiEventManager} provides an OSGi based default implementation of the Eclipse SmartHome event bus.
- * 
+ *
  * The OSGiEventHandler tracks {@link EventSubscriber}s and {@link EventFactory}s, receives OSGi events (by
  * implementing the OSGi {@link EventHandler} interface) and dispatches the received OSGi events as ESH {@link Event}s
  * to the {@link EventSubscriber}s if the provided filter applies.
- * 
+ *
  * The {@link OSGiEventManager} also serves as {@link EventPublisher} by implementing the EventPublisher interface.
  * Events are send in an asynchronous way via OSGi Event Admin mechanism.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class OSGiEventManager implements EventHandler, EventPublisher {
@@ -122,8 +122,9 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                 handleEvent(typeStr, payloadStr, topicStr, sourceStr);
             }
         } else {
-            logger.error("The handled OSGi event is invalid. Expect properties as string named 'type', 'payload' and 'topic'. "
-                    + "Received event properties are: " + osgiEvent.getPropertyNames());
+            logger.error(
+                    "The handled OSGi event is invalid. Expect properties as string named 'type', 'payload' and 'topic'. "
+                            + "Received event properties are: " + osgiEvent.getPropertyNames());
         }
     }
 
@@ -170,8 +171,7 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                     });
                 }
             } catch (TimeoutException timeoutException) {
-                logger.error("Dispatching event to subscriber '" + EventSubscriber.class.getName() + "' timed out.",
-                        timeoutException);
+                logger.warn("Dispatching event to subscriber '{}' timed out.", eventSubscriber.toString());
             } catch (Throwable t) {
                 logger.error("Dispatching/filtering event for subscriber '" + EventSubscriber.class.getName()
                         + "' failed: " + t.getMessage(), t);
@@ -217,8 +217,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
             });
         } catch (PrivilegedActionException pae) {
             Exception e = pae.getException();
-            throw new IllegalStateException(
-                    "Cannot post the event via the event bus. Error message: " + e.getMessage(), e);
+            throw new IllegalStateException("Cannot post the event via the event bus. Error message: " + e.getMessage(),
+                    e);
         }
     }
 
