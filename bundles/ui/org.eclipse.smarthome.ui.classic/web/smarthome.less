@@ -134,7 +134,7 @@
 		@media screen and (min-width: @layout-tablet-size-threshold) {
 			&:last-child,
 			&:nth-last-child(2):nth-child(even) {
-    			border: none;
+				border: none;
 			}
 		}
 		& > * {
@@ -261,16 +261,121 @@
 }
 
 .mdl-layout {
-    &__header {
-        position: relative;
-    }
+	&__header {
+		position: relative;
+	}
 }
 
 .ui {
-    &__loading {
-        display: none;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-    }
+	&__loading {
+		display: none;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+	}
+}
+
+// Colorpicker
+
+@slider-height: 20px;
+@colorpicker-desktop-size: 300px;
+@colorpicker-mobile-size: 230px;
+
+.slider-track() {
+	display: block;
+	height: @slider-height;
+	border-radius: 0;
+	background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
+	background: linear-gradient(to right, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
+	color: transparent;
+	border: none;
+}
+
+.slider-thumb() {
+	-webkit-appearance: none;
+	width: @slider-height;
+	height: @slider-height;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border-radius: 0;
+	background: transparent;
+	border: 1px solid #aaa;
+	background: url("images/slider-thumb.png") no-repeat center center;
+}
+
+.colorpicker {
+	&__image {
+		display: block;
+		width: @colorpicker-desktop-size;
+		height: @colorpicker-desktop-size;
+		background: darkslategray url("images/colorwheel.png") no-repeat center center;
+	}
+	&__brightness {
+		-webkit-appearance: none;
+		position: absolute;
+		background: none;
+		
+		top: 15px;
+		padding: 0;
+		margin: 0;
+		
+		width: @colorpicker-desktop-size - 30px;
+		height: @slider-height;
+		z-index: 3;
+
+		&::-ms-track {
+			.slider-track();
+		}
+		&::-webkit-slider-runnable-track {
+			.slider-track();
+		}
+		&::-moz-range-track {
+			.slider-track();
+		}
+		&::-moz-range-thumb {
+			.slider-thumb();
+		}
+		&::-webkit-slider-thumb {
+			.slider-thumb();
+		}
+		&::-ms-thumb {
+			.slider-thumb();
+		}
+		&::-ms-fill-upper {
+			background: none;
+		}
+		&::-ms-fill-lower {
+			background: none;
+		}
+		&::-ms-ticks {
+			background: none;
+			display: none;
+		}
+	}
+	&__background {
+		position: relative;
+		z-index: 2;
+		bottom: 0;
+		width: @colorpicker-desktop-size - 30px;
+		height: @slider-height;
+		background: maroon;
+	}
+	&__handle {
+		display: none;
+	}
+	&__controls {
+		position: relative;
+		padding: 15px;
+		border-bottom: 1px solid @item-separator-color;
+	}
+	&__buttons {
+		padding: 5px;
+	}
+	position: relative;
+}
+
+.mdl-modal {
+	&--colorpicker {
+		max-width: @colorpicker-desktop-size;
+	}
 }

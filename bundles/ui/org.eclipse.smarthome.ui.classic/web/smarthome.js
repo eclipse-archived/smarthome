@@ -1,5 +1,6 @@
-/* jshint unused:strict */
-/* jshint strict: true */
+/*eslint-env browser */
+/*eslint no-undef:2*/
+/*eslint no-underscore-dangle:0*/
 
 (function(o) {
 	'use strict';
@@ -147,11 +148,12 @@
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
 				switch (e.getAttribute("data-control-type")) {
 				case "setpoint":
-				case "rollershutter":
+				case "rollerblind":
 				case "colorpicker":
 				case "selection":
 					[].forEach.call(e.querySelectorAll("button"), function(button) {
 						upgrade(button, "MaterialButton");
+						upgrade(button, "MaterialRipple");
 					});
 					break;
 				case "checkbox":
@@ -217,6 +219,12 @@
 		_t.initControls = function() {
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
 				switch (e.getAttribute("data-control-type")) {
+				case "setpoint":
+					new ControlSetpoint(e);
+					break;
+				case "rollerblind":
+					new ControlRollerblinds(e);
+					break;
 				case "buttons":
 					new ControlSelection(e);
 					break;
@@ -232,6 +240,9 @@
 				case "text-link":
 				case "group":
 					new ControlLink(e);
+					break;
+				case "colorpicker":
+					new ControlColorpicker(e);
 					break;
 				default:
 					break;
@@ -270,15 +281,14 @@
 		_t.show = function() {
 			append(document.body, createDOM(_t.text));
 
-			var
-				modalBg = document.querySelector(o.modal),
-				modalContainer = modalBg.querySelector(o.modalContainer);
+			_t.bg = document.querySelector(o.modal),
+			_t.container = _t.bg.querySelector(o.modalContainer);
 
-			modalBg.addEventListener("click", function() {
+			_t.bg.addEventListener("click", function() {
 				_t.hide();
 			});
 
-			modalContainer.addEventListener("click", function(event) {
+			_t.container.addEventListener("click", function(event) {
 				event.stopPropagation();
 			});
 
@@ -413,31 +423,76 @@
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
 	}
 	
-	/* class ControlColorpicker extends Control */
-	function ControlColorpicker(parentNode) {
-		extend(this, new Control(parentNode));
-		
-		var
-			_t = this;
-				
-		_t.showModal = function() {
-			var
-				content = "";
-
-			_t.modal = new Modal(content);
-			_t.modal.show();
-		};
-
-		_t.parentNode.addEventListener("click", _t.showModal);
-	}
-	
 	/* class ControlRollerblinds extends Control */
 	function ControlRollerblinds(parentNode) {
 		extend(this, new Control(parentNode));
 		
 		var
-			_t = this;
-				
+			_t = this,
+			longpressTimeout = 300,
+			longPress,
+			timeout;
+
+		_t.buttonUp = _t.parentNode.querySelector(o.rollerblind.up);
+		_t.buttonDown = _t.parentNode.querySelector(o.rollerblind.down);
+		_t.buttonStop = _t.parentNode.querySelector(o.rollerblind.stop);
+
+		function emitEvent(value) {
+			_t.parentNode.dispatchEvent(new CustomEvent(
+				"control-change", {
+				detail: {
+					item: _t.item,
+					value: value
+				}
+			}));
+		}
+
+		function onMouseDown(command) {
+			longPress = false;
+
+			timeout = setTimeout(function() {
+				longPress = true;
+				emitEvent(command);
+			}, longpressTimeout);
+		}
+
+		function onMouseUp(command) {
+			clearTimeout(timeout);
+			if (longPress) {
+				emitEvent("STOP");
+			} else {
+				emitEvent(command);
+			}
+		}
+
+		function onStop() {
+			emitEvent("STOP");
+		}
+
+		var
+			upButtonMouseUp = onMouseUp.bind(null, "UP"),
+			upButtonMouseDown = onMouseDown.bind(null, "UP"),
+
+			downButtonMouseUp = onMouseUp.bind(null, "DOWN"),
+			downButtonMouseDown = onMouseDown.bind(null, "DOWN");
+
+		// Up button
+		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
+		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
+
+		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
+		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
+
+		// Down button
+		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
+		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
+
+		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
+
+		// Stop button
+		_t.buttonStop.addEventListener("mousedown", onStop);
+		_t.buttonStop.addEventListener("touchstart", onStop);
 	}
 	
 	/* class ControlSetpoint extends Control */
@@ -446,8 +501,223 @@
 
 		var
 			_t = this;
+
+		_t.up = _t.parentNode.querySelector(o.setpoint.up);
+		_t.down = _t.parentNode.querySelector(o.setpoint.down);
+
+		_t.value = _t.parentNode.getAttribute("data-value");
+		_t.max = parseFloat(_t.parentNode.getAttribute("data-max"));
+		_t.min = parseFloat(_t.parentNode.getAttribute("data-min"));
+		_t.step = parseFloat(_t.parentNode.getAttribute("data-step"));
+
+		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
+
+		function onMouseDown(up) {
+			var
+				value = _t.value + ((up === true) ? _t.step : -_t.step );
+
+			value = value > _t.max ? _t.max : value;
+			value = value < _t.min ? _t.min : value;
+
+			_t.parentNode.dispatchEvent(new CustomEvent(
+				"control-change", {
+				detail: {
+					item: _t.item,
+					value: value
+				}
+			}));
+
+			_t.value = value;
+		}
+
+		var
+			increaseHandler = onMouseDown.bind(null, true),
+			decreaseHandler = onMouseDown.bind(null, false);
+
+		_t.up.addEventListener("mousedown", increaseHandler);
+		_t.up.addEventListener("touchstart", increaseHandler);
+
+		_t.down.addEventListener("mousedown", decreaseHandler);
+		_t.down.addEventListener("touchstart", decreaseHandler);
 	}
-	
+	/* class ControlColorpicker extends Control */
+	function ControlColorpicker(parentNode) {
+		extend(this, new Control(parentNode));
+
+		var
+			_t = this,
+			repeatInterval = 300,
+			interval;
+
+		(function(hex) {
+			_t.value = {
+				r: parseInt(hex.substr(0, 2), 16),
+				g: parseInt(hex.substr(2, 2), 16),
+				b: parseInt(hex.substr(4, 2), 16)
+			};
+		})(_t.parentNode.getAttribute("data-value"));
+
+		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
+		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
+		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+
+		/* rgb2hsv and hsv2rgb are modified versions from http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c */
+		function rgb2hsl(rgbColor) {
+			var
+				r = rgbColor.r,
+				g = rgbColor.g,
+				b = rgbColor.b;
+
+			r = r / 255;
+			g = g / 255;
+			b = b / 255;
+
+			var
+				max = Math.max(r, g, b),
+				min = Math.min(r, g, b);
+
+			var
+				h,
+				s,
+				v = max;
+
+			var
+				d = max - min;
+
+			s = max === 0 ? 0 : d / max;
+
+			if (max === min) {
+				h = 0; // achromatic
+			} else {
+				switch (max) {
+					case r:
+						h = (g - b) / d + (g < b ? 6 : 0);
+						break;
+					case g:
+						h = (b - r) / d + 2;
+						break;
+					case b:
+						h = (r - g) / d + 4;
+						break;
+				}
+				h /= 6;
+			}
+
+			return {
+				h: h,
+				s: s,
+				v: v
+			};
+		}
+
+		function hsv2rgb(hsvColor) {
+			var
+				h = hsvColor.h,
+				s = hsvColor.s,
+				v = hsvColor.v,
+				r,
+				g,
+				b;
+
+			var
+				i = Math.floor(h * 6),
+				f = h * 6 - i,
+				p = v * (1 - s),
+				q = v * (1 - f * s),
+				t = v * (1 - (1 - f) * s);
+
+			switch (i % 6) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3:
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+			}
+
+			return {
+				r: r * 255,
+				g: g * 255,
+				b: b * 255
+			};
+		}
+
+		function emitEvent(value) {
+			_t.parentNode.dispatchEvent(new CustomEvent(
+				"control-change", {
+				detail: {
+					item: _t.item,
+					value: value
+				}
+			}));
+		}
+
+		function onMouseDown(command) {
+			interval = setInterval(function() {
+				emitEvent(command);
+			}, repeatInterval);
+		}
+
+		function onMouseUp() {
+			clearInterval(interval);
+		}
+
+		function onPick() {
+			_t.modal = new Modal(renderTemplate("template-colorpicker"));
+			_t.modal.show();
+			_t.modal.container.classList.add(o.colorpicker.modalClass);
+
+			var
+				button = _t.modal.container.querySelector(o.controlButton);
+			componentHandler.upgradeElement(button, "MaterialButton");
+			componentHandler.upgradeElement(button, "MaterialRipple");
+		}
+
+		var
+			upButtonMouseDown = onMouseDown.bind(null, "INCREASE"),
+			downButtonMouseDown = onMouseDown.bind(null, "DECREASE");
+
+		// Up button
+		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
+		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
+
+		_t.buttonUp.addEventListener("touchend", onMouseUp);
+		_t.buttonUp.addEventListener("mouseup", onMouseUp);
+
+		// Down button
+		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
+		_t.buttonDown.addEventListener("mousedown", downButtonMouseDown);
+
+		_t.buttonDown.addEventListener("touchend", onMouseUp);
+		_t.buttonDown.addEventListener("mouseup", onMouseUp);
+
+		// Stop button
+		_t.buttonPick.addEventListener("click", onPick);
+	}
 	/* class ControlSwitch extends Control */
 	function ControlSwitch(parentNode) {
 		extend(this, new Control(parentNode));
@@ -522,5 +792,20 @@
 	formControls: ".mdl-form__control",
 	formRadio: ".mdl-radio",
 	uiLoadingBar: ".ui__loading",
-	layoutTitle: ".mdl-layout-title"
+	layoutTitle: ".mdl-layout-title",
+	rollerblind: {
+		up: ".mdl-form__rollerblind--up",
+		down: ".mdl-form__rollerblind--down",
+		stop: ".mdl-form__rollerblind--stop"
+	},
+	setpoint: {
+		up: ".mdl-form__setpoint--up",
+		down: ".mdl-form__setpoint--down"
+	},
+	colorpicker: {
+		up: ".mdl-form__colorpicker--up",
+		down: ".mdl-form__colorpicker--down",
+		pick: ".mdl-form__colorpicker--pick",
+		modalClass: "mdl-modal--colorpicker"
+	}
 });
