@@ -277,6 +277,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                     return null;
                                 }
                             });
+                        } catch (TimeoutException ex) {
+                            logger.warn("Handler for thing {} took more than {}ms for processing event",
+                                    handler.getThing().getUID().toString(), SafeMethodCaller.DEFAULT_TIMEOUT);
                         } catch (Exception ex) {
                             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                         }
@@ -317,6 +320,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                     return null;
                                 }
                             });
+                        } catch (TimeoutException ex) {
+                            logger.warn("Handler for thing {} took more than {}ms for processing event",
+                                    handler.getThing().getUID().toString(), SafeMethodCaller.DEFAULT_TIMEOUT);
                         } catch (Exception ex) {
                             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                         }
@@ -480,8 +486,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, message);
             setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                    + message, ex.getCause());
+            logger.error(
+                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': " + message,
+                    ex.getCause());
         } catch (TimeoutException ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
@@ -491,9 +498,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
-            logger.error(
-                    "Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                            + ex.getMessage(), ex);
+            logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
+                    + ex.getMessage(), ex);
         }
     }
 
