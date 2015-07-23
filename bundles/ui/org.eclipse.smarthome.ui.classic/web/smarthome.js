@@ -214,6 +214,10 @@
 				url: _t.destination + "&__async=true",
 				callback: _t.navigateCallback
 			});
+
+			if (smarthome.UI.currentModal !== undefined) {
+				smarthome.UI.currentModal.hide();
+			}
 		};
 		
 		_t.initControls = function() {
@@ -284,6 +288,7 @@
 			_t.bg = document.querySelector(o.modal),
 			_t.container = _t.bg.querySelector(o.modalContainer);
 
+			smarthome.UI.currentModal = _t;
 			_t.bg.addEventListener("click", function() {
 				_t.hide();
 			});
@@ -297,6 +302,7 @@
 
 		_t.hide = function() {
 			document.body.querySelector(o.modal).remove();
+			delete smarthome.UI.currentModal;
 			destroy();
 		};
 	}
