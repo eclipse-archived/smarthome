@@ -2,7 +2,6 @@ package org.eclipse.smarthome.core.common;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,7 +41,6 @@ public class SafeMethodCaller {
      * Default timeout for actions in milliseconds.
      */
     public static int DEFAULT_TIMEOUT = 5000 /* milliseconds */;
-    private static ExecutorService executorService = ThreadPoolManager.getPool("safeCall");
 
     /**
      * Executes the action in a new thread with a default timeout (see {@link SafeMethodCaller#DEFAULT_TIMEOUT}). If an
@@ -155,7 +153,7 @@ public class SafeMethodCaller {
 
     private static <V> V callAsynchronous(Callable<V> callable, int timeout)
             throws InterruptedException, ExecutionException, TimeoutException {
-        Future<V> future = executorService.submit(callable);
+        Future<V> future = ThreadPoolManager.getPool("safeCall").submit(callable);
         return future.get(timeout, TimeUnit.MILLISECONDS);
     }
 
