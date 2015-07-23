@@ -28,7 +28,7 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.inbox.InboxListener;
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxEventFactory;
-import org.eclipse.smarthome.config.discovery.util.DiscoveryThreadPool;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
@@ -64,7 +64,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
      * Internal enumeration to identify the correct type of the event to be fired.
      */
     private enum EventType {
-        added, removed, updated
+        added,
+        removed,
+        updated
     }
 
     private class TimeToLiveCheckingThread implements Runnable {
@@ -77,7 +79,7 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
 
         @Override
         public void run() {
-            long now = new Date().getTime(); 
+            long now = new Date().getTime();
             for (DiscoveryResult result : inbox.getAll()) {
                 if (isResultExpired(result, now)) {
                     logger.debug("Inbox entry for thing {} is expired and will be removed", result.getThingUID());
@@ -85,15 +87,15 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 }
             }
         }
-        
+
         private boolean isResultExpired(DiscoveryResult result, long now) {
             if (result.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED) {
-                return false; 
+                return false;
             }
-            return (result.getTimestamp() + result.getTimeToLive() * 1000 < now); 
+            return (result.getTimestamp() + result.getTimeToLive() * 1000 < now);
         }
     }
-    
+
     private final Logger logger = LoggerFactory.getLogger(PersistentInbox.class);
 
     private Set<InboxListener> listeners = new CopyOnWriteArraySet<>();
@@ -103,8 +105,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     private ManagedThingProvider managedThingProvider;
 
     private Storage<DiscoveryResult> discoveryResultStorage;
-    
-    private ScheduledFuture<?> timeToLiveChecker; 
+
+    private ScheduledFuture<?> timeToLiveChecker;
 
     private EventPublisher eventPublisher;
 
@@ -131,8 +133,8 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                         logger.debug("Updated discovery result for '{}'.", thingUID);
                         return true;
                     } else {
-                        logger.warn("Cannot synchronize result with implementation class '{}'.", inboxResult.getClass()
-                                .getName());
+                        logger.warn("Cannot synchronize result with implementation class '{}'.",
+                                inboxResult.getClass().getName());
                     }
                 }
             } else {
@@ -229,30 +231,27 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     public void thingRemoved(DiscoveryService source, ThingUID thingUID) {
         remove(thingUID);
     }
-    
 
     @Override
     public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
             Collection<ThingTypeUID> thingTypeUIDs) {
-        HashSet<ThingUID> removedThings = new HashSet<>(); 
+        HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
             ThingUID thingUID = discoveryResult.getThingUID();
-            if (thingTypeUIDs.contains(thingUID.getThingTypeUID())
-                    && discoveryResult.getTimestamp() < timestamp) {
+            if (thingTypeUIDs.contains(thingUID.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp) {
                 removedThings.add(thingUID);
-                remove(thingUID); 
-                logger.debug("Removed {} from inbox because it was older than {}", thingUID,
-                        new Date(timestamp));
+                remove(thingUID);
+                logger.debug("Removed {} from inbox because it was older than {}", thingUID, new Date(timestamp));
             }
         }
-        return removedThings; 
+        return removedThings;
     }
 
     @Override
     public void added(Thing thing) {
         if (remove(thing.getUID())) {
-            logger.debug("Discovery result removed from inbox, because it was added as a Thing"
-                    + " to the ThingRegistry.");
+            logger.debug(
+                    "Discovery result removed from inbox, because it was added as a Thing" + " to the ThingRegistry.");
         }
     }
 
@@ -380,21 +379,21 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void activate(ComponentContext componentContext) {
-        this.timeToLiveChecker = DiscoveryThreadPool.getScheduler().scheduleWithFixedDelay(
-                new TimeToLiveCheckingThread(this), 0, 30, TimeUnit.SECONDS);
+        this.timeToLiveChecker = ThreadPoolManager.getScheduledPool("discovery")
+                .scheduleWithFixedDelay(new TimeToLiveCheckingThread(this), 0, 30, TimeUnit.SECONDS);
         this.discoveryServiceRegistry.addDiscoveryListener(this);
     }
-    
+
     void setTimeToLiveCheckingInterval(int interval) {
-        this.timeToLiveChecker.cancel(true); 
-        this.timeToLiveChecker = DiscoveryThreadPool.getScheduler().scheduleWithFixedDelay(
-                new TimeToLiveCheckingThread(this), 0, interval, TimeUnit.SECONDS);
+        this.timeToLiveChecker.cancel(true);
+        this.timeToLiveChecker = ThreadPoolManager.getScheduledPool("discovery")
+                .scheduleWithFixedDelay(new TimeToLiveCheckingThread(this), 0, interval, TimeUnit.SECONDS);
     }
 
     protected void deactivate(ComponentContext componentContext) {
         this.discoveryServiceRegistry.removeDiscoveryListener(this);
         this.listeners.clear();
-        this.timeToLiveChecker.cancel(true); 
+        this.timeToLiveChecker.cancel(true);
     }
 
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
@@ -424,14 +423,14 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
     }
 
     protected void setStorageService(StorageService storageService) {
-        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(), this.getClass()
-                .getClassLoader());
+        this.discoveryResultStorage = storageService.getStorage(DiscoveryResult.class.getName(),
+                this.getClass().getClassLoader());
     }
 
     protected void unsetStorageService(StorageService storageService) {
         this.discoveryResultStorage = null;
     }
-    
+
     protected void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
     }

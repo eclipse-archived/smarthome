@@ -3,7 +3,6 @@ package org.eclipse.smarthome.core.common;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * thread is opened, so that a method call can not block the execution of the system. It also catches Errors and wraps
  * them into a {@link ExecutionException}, so that the caller does not have to catch {@link Throwable}. This helper
  * class is useful when calling third party code like bindings.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 public class SafeMethodCaller {
@@ -43,13 +42,13 @@ public class SafeMethodCaller {
      * Default timeout for actions in milliseconds.
      */
     public static int DEFAULT_TIMEOUT = 5000 /* milliseconds */;
-    private static ExecutorService executorService = Executors.newCachedThreadPool();
+    private static ExecutorService executorService = ThreadPoolManager.getPool("safeCall");
 
     /**
      * Executes the action in a new thread with a default timeout (see {@link SafeMethodCaller#DEFAULT_TIMEOUT}). If an
      * exception occurs while calling the action or the action does not terminate within the timeout this method
      * rethrows the exception.
-     * 
+     *
      * @param action action to be called
      * @return result
      * @throws TimeoutException if the action does not terminate within the timeout
@@ -62,7 +61,7 @@ public class SafeMethodCaller {
     /**
      * Executes the action in a new thread with a given timeout. If an exception occurs while calling the action or the
      * action does not terminate within the timeout this method rethrows the exception.
-     * 
+     *
      * @param action action to be called
      * @param timeout timeout of the action in milliseconds. If the action takes longer than the defined timeout a
      *            {@link TimeoutException} is thrown
@@ -83,7 +82,7 @@ public class SafeMethodCaller {
      * an exception occurs while calling the action or the action does not terminate within the timeout this method just
      * logs the exception, but does not rethrow it. In case an exception occurred or the action timeout the result will
      * always be null.
-     * 
+     *
      * @param action action to be called
      * @return result or null if an exception occurred or the timeout was reached
      */
@@ -95,7 +94,7 @@ public class SafeMethodCaller {
      * Executes the action in a new thread with a given timeout. If an exception occurs while calling the action or the
      * action does not terminate within the timeout this method just logs the exception, but does not rethrow it. In
      * case an exception occurred or the action timeout the result will always be null.
-     * 
+     *
      * @param action action to be called
      * @param timeout timeout of the action in milliseconds. If the action takes longer than the defined timeout an
      *            exception is logged and this method returns null
@@ -129,7 +128,7 @@ public class SafeMethodCaller {
 
     /**
      * This method tries to find the method which was called within the action.
-     * 
+     *
      * @param eex ExecutionException
      * @param actionClass action class
      * @return stack trace element for the called method or null
@@ -154,8 +153,8 @@ public class SafeMethodCaller {
         return null;
     }
 
-    private static <V> V callAsynchronous(Callable<V> callable, int timeout) throws InterruptedException,
-            ExecutionException, TimeoutException {
+    private static <V> V callAsynchronous(Callable<V> callable, int timeout)
+            throws InterruptedException, ExecutionException, TimeoutException {
         Future<V> future = executorService.submit(callable);
         return future.get(timeout, TimeUnit.MILLISECONDS);
     }
