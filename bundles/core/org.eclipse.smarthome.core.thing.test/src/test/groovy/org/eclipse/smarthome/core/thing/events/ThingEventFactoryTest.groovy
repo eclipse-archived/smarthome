@@ -12,14 +12,13 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.Event
-import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
-import org.eclipse.smarthome.core.thing.ThingStatusInfo
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper
 import org.eclipse.smarthome.core.thing.internal.ThingImpl
+import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Test
 
 import com.google.gson.Gson
@@ -29,10 +28,10 @@ import com.google.gson.Gson
  *
  * @author Stefan Bußweiler - Initial contribution
  */
-class ThingEventFactoryTest {
+class ThingEventFactoryTest extends OSGiTest {
     def THING_STATUS_INFO = ThingStatusInfoBuilder
-            .create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR)
-            .withDescription("Some description").build();
+    .create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR)
+    .withDescription("Some description").build();
 
     ThingEventFactory factory = new ThingEventFactory()
 
