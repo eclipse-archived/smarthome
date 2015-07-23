@@ -17,8 +17,10 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.dto.ItemDTO;
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.Type;
+import org.eclipse.smarthome.core.types.UnDefType;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -26,10 +28,12 @@ import com.google.common.collect.Sets;
 /**
  * An {@link ItemEventFactory} is responsible for creating item event instances, e.g. {@link ItemCommandEvent}s and
  * {@link ItemStateEvent}s.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ItemEventFactory extends AbstractEventFactory {
+
+    private static final String CORE_LIBRARY_PACKAGE = "org.eclipse.smarthome.core.library.types.";
 
     private static final String ITEM_COMAND_EVENT_TOPIC = "smarthome/items/{itemName}/command";
 
@@ -71,7 +75,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         Command command = null;
         try {
-            command = (Command) parse(bean.getClazz(), bean.getValue());
+            command = (Command) parse(bean.getType(), bean.getValue());
         } catch (Exception e) {
             throw new IllegalArgumentException("Parsing of item command event failed.", e);
         }
@@ -83,7 +87,7 @@ public class ItemEventFactory extends AbstractEventFactory {
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
         State state = null;
         try {
-            state = (State) parse(bean.getClazz(), bean.getValue());
+            state = (State) parse(bean.getType(), bean.getValue());
         } catch (Exception e) {
             throw new IllegalArgumentException("Parsing of item state event failed.", e);
         }
@@ -97,8 +101,14 @@ public class ItemEventFactory extends AbstractEventFactory {
         return topicElements[2];
     }
 
-    private Object parse(String className, String valueToParse) throws Exception {
-        Class<?> stateClass = Class.forName(className);
+    private Object parse(String typeName, String valueToParse) throws Exception {
+        if (typeName.equals(UnDefType.class.getSimpleName())) {
+            return UnDefType.valueOf(valueToParse);
+        }
+        if (typeName.equals(RefreshType.class.getSimpleName())) {
+            return RefreshType.valueOf(valueToParse);
+        }
+        Class<?> stateClass = Class.forName(CORE_LIBRARY_PACKAGE + typeName);
         Method valueOfMethod = stateClass.getMethod("valueOf", String.class);
         return valueOfMethod.invoke(stateClass, valueToParse);
     }
@@ -123,31 +133,31 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an item command event.
-     * 
+     *
      * @param itemName the name of the item to send the command for
      * @param command the command to send
      * @param source the name of the source identifying the sender (can be null)
-     * 
+     *
      * @return the created item command event
-     * 
+     *
      * @throws IllegalArgumentException if itemName or command is null
      */
     public static ItemCommandEvent createCommandEvent(String itemName, Command command, String source) {
         assertValidArguments(itemName, command, "command");
         String topic = buildTopic(ITEM_COMAND_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(command.getClass().getName(), command.toString());
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(command.getClass().getSimpleName(), command.toString());
         String payload = serializePayload(bean);
         return new ItemCommandEvent(topic, payload, itemName, command, source);
     }
 
     /**
      * Creates an item command event.
-     * 
+     *
      * @param itemName the name of the item to send the command for
      * @param command the command to send
-     * 
+     *
      * @return the created item command event
-     * 
+     *
      * @throws IllegalArgumentException if itemName or command is null
      */
     public static ItemCommandEvent createCommandEvent(String itemName, Command command) {
@@ -156,31 +166,31 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an item state event.
-     * 
+     *
      * @param itemName the name of the item to send the state update for
      * @param state the new state to send
      * @param source the name of the source identifying the sender (can be null)
-     * 
+     *
      * @return the created item state event
-     * 
+     *
      * @throws IllegalArgumentException if itemName or state is null
      */
     public static ItemStateEvent createStateEvent(String itemName, State state, String source) {
         assertValidArguments(itemName, state, "state");
         String topic = buildTopic(ITEM_STATE_EVENT_TOPIC, itemName);
-        ItemEventPayloadBean bean = new ItemEventPayloadBean(state.getClass().getName(), state.toString());
+        ItemEventPayloadBean bean = new ItemEventPayloadBean(state.getClass().getSimpleName(), state.toString());
         String payload = serializePayload(bean);
         return new ItemStateEvent(topic, payload, itemName, state, source);
     }
 
     /**
      * Creates an item state event.
-     * 
+     *
      * @param itemName the name of the item to send the state update for
      * @param state the new state to send
-     * 
+     *
      * @return the created item state event
-     * 
+     *
      * @throws IllegalArgumentException if itemName or state is null
      */
     public static ItemStateEvent createStateEvent(String itemName, State state) {
@@ -189,11 +199,11 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an item added event.
-     * 
+     *
      * @param item the item
-     * 
+     *
      * @return the created item added event
-     * 
+     *
      * @throws IllegalArgumentException if item is null
      */
     public static ItemAddedEvent createAddedEvent(Item item) {
@@ -206,11 +216,11 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an item removed event.
-     * 
+     *
      * @param item the item
-     * 
+     *
      * @return the created item removed event
-     * 
+     *
      * @throws IllegalArgumentException if item is null
      */
     public static ItemRemovedEvent createRemovedEvent(Item item) {
@@ -223,12 +233,12 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     /**
      * Creates an item updated event.
-     * 
+     *
      * @param item the item
      * @param oldItem the old item
-     * 
+     *
      * @return the created item updated event
-     * 
+     *
      * @throws IllegalArgumentException if item or oldItem is null
      */
     public static ItemUpdatedEvent createUpdateEvent(Item item, Item oldItem) {
@@ -266,16 +276,16 @@ public class ItemEventFactory extends AbstractEventFactory {
      * This is a java bean that is used to serialize/deserialize item event payload.
      */
     private static class ItemEventPayloadBean {
-        private String clazz;
+        private String type;
         private String value;
 
-        public ItemEventPayloadBean(String clazz, String value) {
-            this.clazz = clazz;
+        public ItemEventPayloadBean(String type, String value) {
+            this.type = type;
             this.value = value;
         }
 
-        public String getClazz() {
-            return clazz;
+        public String getType() {
+            return type;
         }
 
         public String getValue() {
