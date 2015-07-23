@@ -412,7 +412,7 @@
 			_t.modal.show();
 			
 			var
-				controls = [].slice.call(modalBg.querySelectorAll(o.formRadio));
+				controls = [].slice.call(_t.modal.container.querySelectorAll(o.formRadio));
 
 			controls.forEach(function(control) {
 				componentHandler.upgradeElement(control, "MaterialRadio");
