@@ -15,7 +15,6 @@
 @item-separator-color: lighten(black, 80);
 
 .user-select (@val) {
-	-webkit-touch-callout: @val;
 	-webkit-user-select: @val;
 	-moz-user-select: @val;
 	-ms-user-select: @val;
@@ -279,14 +278,14 @@
 
 @slider-height: 20px;
 @colorpicker-desktop-size: 300px;
-@colorpicker-mobile-size: 230px;
+@colorpicker-mobile-size: 270px;
 
 .slider-track() {
 	display: block;
 	height: @slider-height;
 	border-radius: 0;
-	background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
-	background: linear-gradient(to right, rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
+	background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
+	background: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);
 	color: transparent;
 	border: none;
 }
@@ -300,15 +299,24 @@
 	border-radius: 0;
 	background: transparent;
 	border: 1px solid #aaa;
-	background: url("images/slider-thumb.png") no-repeat center center;
+	background: url("images/colorpicker-thumb.png") no-repeat center center;
 }
 
 .colorpicker {
 	&__image {
 		display: block;
+		position: relative;
 		width: @colorpicker-desktop-size;
 		height: @colorpicker-desktop-size;
-		background: darkslategray url("images/colorwheel.png") no-repeat center center;
+		@media screen and (max-width: @layout-mobile-size-threshold) {
+			width: @colorpicker-mobile-size;
+			height: @colorpicker-mobile-size;
+		}
+		background: url("images/colorwheel.png") no-repeat;
+		background-size: 100%;
+		.user-select(none);
+		overflow: hidden;
+		cursor: pointer;
 	}
 	&__brightness {
 		-webkit-appearance: none;
@@ -320,6 +328,9 @@
 		margin: 0;
 		
 		width: @colorpicker-desktop-size - 30px;
+		@media screen and (max-width: @layout-mobile-size-threshold) {
+			width: @colorpicker-mobile-size - 30px;
+		}
 		height: @slider-height;
 		z-index: 3;
 
@@ -357,11 +368,30 @@
 		z-index: 2;
 		bottom: 0;
 		width: @colorpicker-desktop-size - 30px;
+		@media screen and (max-width: @layout-mobile-size-threshold) {
+			width: @colorpicker-mobile-size - 30px;
+		}
 		height: @slider-height;
-		background: maroon;
 	}
 	&__handle {
-		display: none;
+		@handle-size: 24px;
+
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+
+		border: 4px solid white;
+		width: @handle-size;
+		height: @handle-size;
+		margin: -(@handle-size / 2) -0 0 -(@handle-size / 2);
+		border-radius: @handle-size / 2;
+		box-shadow: 
+			0 0 0 2px #aaa inset,
+			0 0 0 2px #aaa;
+
+		pointer-events: none;
 	}
 	&__controls {
 		position: relative;
@@ -377,5 +407,8 @@
 .mdl-modal {
 	&--colorpicker {
 		max-width: @colorpicker-desktop-size;
+		@media screen and (max-width: @layout-mobile-size-threshold) {
+			max-width: @colorpicker-mobile-size;
+		}
 	}
 }

@@ -7,6 +7,17 @@
 
 	var
 		smarthome = {};
+
+	var
+		featureSupport = {
+			eventLayerXY: (function() {
+				if (UIEvent === undefined) {
+					return false;
+				}
+				return (new UIEvent("", {}).layerX !== undefined);
+			})(),
+			pointerEvents: (document.createElement("div").style.pointerEvents !== undefined)
+		};
 	
 	function extend(b, a) {
 		for (var c in a) {
@@ -307,27 +318,29 @@
 		};
 	}
 	
-	function DebounceProxy(callback, timeout) {
+	function DebounceProxy(callback, callInterval) {
 		var
-			_t = this;
-		
-		function clear() {
-			if (_t.timeout !== undefined) {
-				clearTimeout(_t.timeout);
+			_t = this,
+			lock = false,
+			interval,
+			args;
+
+		_t.call = function() {
+			args = arguments;
+			if (!lock) {
+				callback.apply(null, args);
+				lock = true;
+				interval = setTimeout(function() {
+					lock = false;
+				}, callInterval);
 			}
 		}
-		
-		_t.call = function() {
-			clear();
-			_t.timeout = setTimeout(callback, timeout);
-		};
-		
+
 		_t.finish = function() {
-			clear();
-			callback();
-		};
+			callback.apply(null, args);
+		}
 	}
-	
+
 	/* class Control */
 	function Control(parentNode) {
 		var
@@ -546,29 +559,28 @@
 		_t.down.addEventListener("mousedown", decreaseHandler);
 		_t.down.addEventListener("touchstart", decreaseHandler);
 	}
-	/* class ControlColorpicker extends Control */
-	function ControlColorpicker(parentNode) {
-		extend(this, new Control(parentNode));
-
+	/* class Colorpicker */
+	function Colorpicker(parentNode, color, callback) {
 		var
-			_t = this,
-			repeatInterval = 300,
-			interval;
+			_t = this;
 
-		(function(hex) {
-			_t.value = {
-				r: parseInt(hex.substr(0, 2), 16),
-				g: parseInt(hex.substr(2, 2), 16),
-				b: parseInt(hex.substr(4, 2), 16)
-			};
-		})(_t.parentNode.getAttribute("data-value"));
+		_t.container = parentNode;
+		_t.value = color;
+		_t.hsvValue = {h: 0, s: 0, v: 0};
+		_t.interval = null;
 
-		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
-		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
-		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+		_t.colorpicker = _t.container.querySelector(o.colorpicker.colorpicker);
+		_t.image = _t.container.querySelector(o.colorpicker.image);
+		_t.background = _t.container.querySelector(o.colorpicker.background);
+		_t.handle = _t.container.querySelector(o.colorpicker.handle);
+		_t.slider = _t.container.querySelector(o.colorpicker.slider);
+		_t.button = _t.container.querySelector(o.controlButton);
+
+		componentHandler.upgradeElement(_t.button, "MaterialButton");
+		componentHandler.upgradeElement(_t.button, "MaterialRipple");
 
 		/* rgb2hsv and hsv2rgb are modified versions from http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c */
-		function rgb2hsl(rgbColor) {
+		function rgb2hsv(rgbColor) {
 			var
 				r = rgbColor.r,
 				g = rgbColor.g,
@@ -613,6 +625,23 @@
 				h: h,
 				s: s,
 				v: v
+			};
+		}
+
+		function hsv2hsl(hsvColor) {
+			var
+				hue = hsvColor.h,
+				sat = hsvColor.s,
+				val = hsvColor.v;
+
+			var
+				d = ((2 - sat) * val),
+				c = d < 1 ? d : 2 - d;
+
+			return {
+				h: hue,
+				s: c === 0 ? 0 : sat * val / c,
+				l: d / 2
 			};
 		}
 
@@ -672,6 +701,176 @@
 			};
 		}
 
+		function updateValue(event) {
+			var
+				pos;
+
+			if (event.touches !== undefined) {
+				pos = {
+					x: event.touches[0].pageX - _t.colorpicker.offsetLeft,
+					y: event.touches[0].pageY - _t.colorpicker.offsetTop
+				};
+			} else {
+				if (featureSupport.eventLayerXY && featureSupport.pointerEvents) {
+					pos = {
+						x: event.layerX,
+						y: event.layerY
+					};
+				} else {
+					pos = {
+						x: event.pageX - _t.colorpicker.offsetLeft,
+						y: event.pageY - _t.colorpicker.offsetTop
+					};
+				}
+			}
+			var
+				maxR = _t.image.clientWidth / 2,
+				offsetX = pos.x - maxR,
+				offsetY = pos.y - maxR,
+				r = (offsetY * offsetY) + (offsetX * offsetX);
+
+			if (r > (maxR * maxR)) {
+				var
+					ratio = 1 - Math.abs(maxR / Math.sqrt(r));
+
+				pos.x -= (offsetX * ratio);
+				pos.y -= (offsetY * ratio);
+			}
+
+			_t.handle.style.left = (pos.x / _t.image.clientWidth) * 100 + "%";
+			_t.handle.style.top = (pos.y / _t.image.clientWidth) * 100 + "%";
+
+			var
+				angle = offsetX >= 0 ?
+						(Math.PI * 2 - Math.atan(offsetY / offsetX) + Math.PI / 2) / (Math.PI * 2) :
+						(Math.PI * 2 - Math.atan(offsetY / offsetX) - Math.PI / 2) / (Math.PI * 2),
+				hsv = {
+					h: isNaN(angle) ? 0 : angle,
+					s: Math.sqrt(r) / maxR,
+					v: 1
+				},
+				hsl = hsv2hsl(hsv);
+
+			_t.hsvValue = {
+				h: hsv.h,
+				s: hsv.s,
+				v: _t.slider.value / 100
+			};
+
+			hsl.l = hsl.l < 0.5 ? 0.5 : hsl.l;
+			_t.background.style.background = "hsl(" + hsl.h * 360 + ", 100%, " + (Math.round(hsl.l * 100)) + "%)";
+		}
+
+		function setColor(c) {
+			var
+				hsv = rgb2hsv(c);
+
+			_t.slider.value = hsv.v * 100;
+
+			var
+				x = 50 + Math.round(hsv.s * Math.cos(2 * Math.PI * hsv.h) * 50),
+				y = 50 + Math.round(hsv.s * Math.sin(2 * Math.PI * hsv.h) * 50);
+
+			_t.handle.style.top = x + "%";
+			_t.handle.style.left = y + "%";
+
+			hsv.v = 1;
+
+			var
+				correctedrgb = hsv2rgb(hsv);
+
+			_t.background.style.background = 
+				"rgb(" +
+					Math.round(correctedrgb.r) + "," +
+					Math.round(correctedrgb.g) + "," +
+					Math.round(correctedrgb.b) + ")";
+		}
+
+		function onWindowMouseup() {
+			if (_t.interval !== null) {
+				clearInterval(_t.interval);
+				_t.interval = null;
+			}
+			window.removeEventListener("mouseup", onWindowMouseup);
+		}
+
+		function onMouseDown(event) {
+			_t.interval = setInterval(function() {
+				callback(_t.hsvValue);
+			}, 300);
+
+			window.addEventListener("mouseup", onWindowMouseup);
+
+			updateValue(event);
+			callback(_t.hsvValue);
+
+			event.stopPropagation();
+		}
+
+		function onMove(event) {
+			if (
+				(event.touches === undefined) &&
+				(!(event.buttons & 0x01))
+			) {
+				return;
+			}
+
+			updateValue(event);
+
+			event.stopPropagation();
+			event.preventDefault();
+		}
+
+		function onMouseUp(event) {
+			if (_t.interval !== null) {
+				clearInterval(_t.interval);
+				_t.interval = null;
+			}
+			event.stopPropagation();
+		}
+
+		function onSliderChange() {
+			_t.hsvValue.v = _t.slider.value / 100;
+			callback(_t.hsvValue);
+		}
+
+		_t.slider.addEventListener("change", onSliderChange);
+
+		_t.image.addEventListener("mousedown", onMove);
+		_t.image.addEventListener("mousemove", onMove);
+		
+		_t.image.addEventListener("touchmove", onMove);
+		_t.image.addEventListener("touchstart", onMove);
+
+		_t.image.addEventListener("touchend", onMouseUp);
+		_t.image.addEventListener("mouseup", onMouseUp);
+
+		_t.image.addEventListener("mousedown", onMouseDown);
+		_t.image.addEventListener("touchstart", onMouseDown);
+
+		setColor(color);
+	}
+	/* class ControlColorpicker extends Control */
+	function ControlColorpicker(parentNode) {
+		extend(this, new Control(parentNode));
+
+		var
+			_t = this,
+			repeatInterval = 300,
+			interval;
+
+		(function(hex) {
+			_t.value = {
+				r: parseInt(hex.substr(1, 2), 16),
+				g: parseInt(hex.substr(3, 2), 16),
+				b: parseInt(hex.substr(5, 2), 16)
+			};
+		})(_t.parentNode.getAttribute("data-value"));
+
+		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
+		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
+		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+
 		function emitEvent(value) {
 			_t.parentNode.dispatchEvent(new CustomEvent(
 				"control-change", {
@@ -697,10 +896,17 @@
 			_t.modal.show();
 			_t.modal.container.classList.add(o.colorpicker.modalClass);
 
-			var
-				button = _t.modal.container.querySelector(o.controlButton);
-			componentHandler.upgradeElement(button, "MaterialButton");
-			componentHandler.upgradeElement(button, "MaterialRipple");
+			_t.modalControl = new Colorpicker(_t.modal.container, _t.value, function(color) {
+				emitEvent(
+					Math.round((color.h * 360) % 360) + "," + 
+					Math.round((color.s * 100) % 100) + "," + 
+					Math.round(color.v * 100)
+				);
+			});
+
+			_t.modal.container.querySelector(o.colorpicker.button).addEventListener("click", function() {
+				_t.modal.hide();
+			});
 		}
 
 		var
@@ -812,6 +1018,12 @@
 		up: ".mdl-form__colorpicker--up",
 		down: ".mdl-form__colorpicker--down",
 		pick: ".mdl-form__colorpicker--pick",
-		modalClass: "mdl-modal--colorpicker"
+		modalClass: "mdl-modal--colorpicker",
+		image: ".colorpicker__image",
+		handle: ".colorpicker__handle",
+		slider: ".colorpicker__brightness",
+		background: ".colorpicker__background",
+		colorpicker: ".colorpicker",
+		button: ".colorpicker__buttons > button"
 	}
 });
