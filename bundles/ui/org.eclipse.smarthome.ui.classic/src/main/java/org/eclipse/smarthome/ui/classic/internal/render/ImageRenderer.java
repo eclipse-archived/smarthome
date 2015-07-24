@@ -57,7 +57,7 @@ public class ImageRenderer extends AbstractWidgetRenderer {
 
         String sitemap = w.eResource().getURI().path();
 
-        String url = "proxy?sitemap=" + sitemap + "&widgetId=" + widgetId + "&t=" + (new Date()).getTime();
+        String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId + "&t=" + (new Date()).getTime();
         snippet = StringUtils.replace(snippet, "%url%", url);
 
         sb.append(snippet);
