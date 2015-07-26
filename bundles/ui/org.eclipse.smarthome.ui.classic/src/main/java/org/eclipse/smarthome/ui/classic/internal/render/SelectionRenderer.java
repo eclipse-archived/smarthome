@@ -41,6 +41,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
 
         snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
         snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w));
+        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
         snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
 
         String state = itemUIRegistry.getState(w).toString();

@@ -97,25 +97,37 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     }
 
     /**
-     * Retrieves the label for a widget and formats it for the WebApp.Net framework
-     * 
+     * Retrieves the label for a widget
+     *
      * @param w the widget to retrieve the label for
      * @return the label to use for the widget
      */
     public String getLabel(Widget w) {
-
         String label = itemUIRegistry.getLabel(w);
         int index = label.indexOf('[');
-        
+
         if (index != -1) {
-        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label.substring(0, index) + "</span>" + label.substring(index);
-        	// insert the span between the left and right side of the label, if state section exists
-            label = label.replaceAll("\\[", "<span class=\"iValue\" style=\"%valuestyle%\">").replaceAll("\\]", "</span>");
-        } else {
-        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label + "</span>";
+            label = label.substring(0, index);
         }
-        
+
         return label;
+    }
+
+    /**
+     * Returns formatted value of the item associated to widget
+     *
+     * @param w widget to get value for
+     * @return value to use for the widget
+     */
+    public String getValue(Widget w) {
+        String label = itemUIRegistry.getLabel(w);
+        int index = label.indexOf('[');
+
+        if (index != -1) {
+            return label.substring(index + 1, label.length() - 1);
+        } else {
+            return null;
+        }
     }
 
     /**
