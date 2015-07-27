@@ -855,7 +855,7 @@
     <setupTask
         xsi:type="pde:TargetPlatformTask"
         id="smarthome.target"
-        name="Eclipse SmartHome Target Platform">
+        name="SmartHome">
       <description>
         Manually maintained target platform
       </description>
