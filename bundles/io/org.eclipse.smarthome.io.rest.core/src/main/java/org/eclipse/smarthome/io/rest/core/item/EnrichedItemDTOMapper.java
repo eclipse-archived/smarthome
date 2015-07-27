@@ -21,9 +21,9 @@ import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 
 /**
  * The {@link EnrichedItemDTOMapper} is a utility class to map items into enriched item data transform objects (DTOs).
- * 
+ *
  * @author Dennis Nobel - Initial contribution
- * 
+ * @author Jochen Hiller - Fix #473630 - handle optional dependency to TransformationHelper
  */
 public class EnrichedItemDTOMapper {
 
@@ -31,7 +31,7 @@ public class EnrichedItemDTOMapper {
 
     /**
      * Maps item into enriched item DTO object.
-     * 
+     *
      * @param item the item
      * @param drillDown the drill down
      * @param uri the uri
@@ -78,15 +78,27 @@ public class EnrichedItemDTOMapper {
         if (desc == null || desc.getPattern() == null) {
             return desc;
         } else {
-            return TransformationHelper.isTransform(desc.getPattern()) ? new StateDescription(desc.getMinimum(),
-                    desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
+            try {
+                return TransformationHelper.isTransform(desc.getPattern()) ? new StateDescription(desc.getMinimum(),
+                        desc.getMaximum(), desc.getStep(), "", desc.isReadOnly(), desc.getOptions()) : desc;
+            } catch (NoClassDefFoundError ex) {
+                // TransformationHelper is optional dependency, so ignore if class not found
+                // return state description as it is without transformation
+                return desc;
+            }
         }
     }
 
     private static String considerTransformation(String state, StateDescription stateDescription) {
         if (stateDescription != null && stateDescription.getPattern() != null) {
-            return TransformationHelper.transform(RESTCoreActivator.getBundleContext(), stateDescription.getPattern(),
-                    state.toString());
+            try {
+                return TransformationHelper.transform(RESTCoreActivator.getBundleContext(),
+                        stateDescription.getPattern(), state.toString());
+            } catch (NoClassDefFoundError ex) {
+                // TransformationHelper is optional dependency, so ignore if class not found
+                // return state as it is without transformation
+                return state;
+            }
         } else {
             return state;
         }
