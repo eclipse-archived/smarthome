@@ -1,12 +1,15 @@
 /*eslint-env browser */
 /*eslint no-undef:2*/
+/*eslint no-new:0 */
 /*eslint no-underscore-dangle:0*/
 
 (function(o) {
 	'use strict';
 
 	var
-		smarthome = {};
+		smarthome = {
+			dataModel: {}
+		};
 
 	var
 		featureSupport = {
@@ -130,8 +133,6 @@
 		}
 		
 		function replaceContent(xmlResponse) {
-			console.log(xmlResponse);
-			
 			var
 				page = xmlResponse.documentElement;
 
@@ -232,32 +233,48 @@
 		};
 		
 		_t.initControls = function() {
+			smarthome.dataModel = {};
+
+			function appendControl(control) {
+				if (
+					(smarthome.dataModel[control.item] === undefined) ||
+					(smarthome.dataModel[control.item].widgets === undefined)
+				) {
+					smarthome.dataModel[control.item] = { widgets: [] };
+				}
+
+				smarthome.dataModel[control.item].widgets.push(control);
+			}
+
 			[].forEach.call(document.querySelectorAll(o.formControls), function(e) {
 				switch (e.getAttribute("data-control-type")) {
 				case "setpoint":
-					new ControlSetpoint(e);
+					appendControl(new ControlSetpoint(e));
 					break;
 				case "rollerblind":
-					new ControlRollerblinds(e);
+					appendControl(new ControlRollerblinds(e));
 					break;
 				case "buttons":
-					new ControlSelection(e);
+					appendControl(new ControlSelection(e));
 					break;
 				case "selection":
-					new ControlRadio(e);
+					appendControl(new ControlRadio(e));
 					break;
 				case "checkbox":
-					new ControlSwitch(e);
+					appendControl(new ControlSwitch(e));
 					break;
 				case "slider":
-					new ControlSlider(e);
+					appendControl(new ControlSlider(e));
 					break;
 				case "text-link":
 				case "group":
 					new ControlLink(e);
 					break;
+				case "text":
+					appendControl(new ControlText(e));
+					break;
 				case "colorpicker":
-					new ControlColorpicker(e);
+					appendControl(new ControlColorpicker(e));
 					break;
 				default:
 					break;
@@ -344,15 +361,42 @@
 	/* class Control */
 	function Control(parentNode) {
 		var
-			_t = this;
+			_t = this,
+			suppress = false;
 		
 		_t.parentNode = parentNode;
 		_t.item = _t.parentNode.getAttribute(o.itemAttribute);
+		
+		_t.setValue = function(value) {
+			if (suppress) {
+				suppress = false;
+			} else {
+				_t.setValuePrivate(value);
+			}
+		};
+
+		_t.setValuePrivate = function() {};
+
+		_t.supressUpdate = function() {
+			suppress = true;
+		}
+	}
+
+	/* class ControlText extends Control */
+	function ControlText(parentNode) {
+		Control.call(this, parentNode);
+
+		var
+			_t = this;
+
+		_t.setValue = function(value) {
+			parentNode.innerHTML = value;
+		};
 	}
 
 	/* class ControlSelection extends Control */
 	function ControlSelection(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 		
 		var
 			_t = this;
@@ -381,6 +425,7 @@
 					value: value
 				}
 			}));
+			_t.supressUpdate();
 		};
 		_t.valueMap = {};
 		_t.buttons = [].slice.call(_t.parentNode.querySelectorAll(o.controlButton));
@@ -402,11 +447,13 @@
 
 	/* class ControlRadio extends Control */
 	function ControlRadio(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 		
 		var
 			_t = this;
 		
+		_t.value = null;
+
 		function onRadioChange(event) {
 			var
 				value = event.target.getAttribute("value");
@@ -425,7 +472,8 @@
 		
 		_t.showModal = function() {
 			var
-				content = _t.parentNode.querySelector(o.selectionRows).innerHTML;
+				content = _t.parentNode.querySelector(o.selectionRows).innerHTML,
+				dom = createDOM(content);
 
 			_t.modal = new Modal(content);
 			_t.modal.show();
@@ -433,18 +481,32 @@
 			var
 				controls = [].slice.call(_t.modal.container.querySelectorAll(o.formRadio));
 
+			if (_t.value !== null) {
+				[].forEach.call(_t.modal.container.querySelectorAll("input[type=radio]"), function(radioItem) {
+					if (radioItem.value === _t.value) {
+						radioItem.checked = true;
+					} else {
+						radioItem.checked = false;
+					}
+				});
+			}
+
 			controls.forEach(function(control) {
 				componentHandler.upgradeElement(control, "MaterialRadio");
 				control.addEventListener("change", onRadioChange);
 			});
 		};
-		
+
+		_t.setValuePrivate = function(value) {
+			_t.value = "" + value;
+		}
+
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
 	}
 	
 	/* class ControlRollerblinds extends Control */
 	function ControlRollerblinds(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 		
 		var
 			_t = this,
@@ -516,7 +578,7 @@
 	
 	/* class ControlSetpoint extends Control */
 	function ControlSetpoint(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 
 		var
 			_t = this;
@@ -645,62 +707,6 @@
 			};
 		}
 
-		function hsv2rgb(hsvColor) {
-			var
-				h = hsvColor.h,
-				s = hsvColor.s,
-				v = hsvColor.v,
-				r,
-				g,
-				b;
-
-			var
-				i = Math.floor(h * 6),
-				f = h * 6 - i,
-				p = v * (1 - s),
-				q = v * (1 - f * s),
-				t = v * (1 - (1 - f) * s);
-
-			switch (i % 6) {
-				case 0:
-					r = v;
-					g = t;
-					b = p;
-					break;
-				case 1:
-					r = q;
-					g = v;
-					b = p;
-					break;
-				case 2:
-					r = p;
-					g = v;
-					b = t;
-					break;
-				case 3:
-					r = p;
-					g = q;
-					b = v;
-					break;
-				case 4:
-					r = t;
-					g = p;
-					b = v;
-					break;
-				case 5:
-					r = v;
-					g = p;
-					b = q;
-					break;
-			}
-
-			return {
-				r: r * 255,
-				g: g * 255,
-				b: b * 255
-			};
-		}
-
 		function updateValue(event) {
 			var
 				pos;
@@ -777,7 +783,7 @@
 			hsv.v = 1;
 
 			var
-				correctedrgb = hsv2rgb(hsv);
+				correctedrgb = Colorpicker.hsv2rgb(hsv);
 
 			_t.background.style.background = 
 				"rgb(" +
@@ -850,26 +856,95 @@
 
 		setColor(color);
 	}
+
+	Colorpicker.hsv2rgb = function(hsvColor) {
+		var
+			h = hsvColor.h,
+			s = hsvColor.s,
+			v = hsvColor.v,
+			r,
+			g,
+			b;
+
+		var
+			i = Math.floor(h * 6),
+			f = h * 6 - i,
+			p = v * (1 - s),
+			q = v * (1 - f * s),
+			t = v * (1 - (1 - f) * s);
+
+		switch (i % 6) {
+			case 0:
+				r = v;
+				g = t;
+				b = p;
+				break;
+			case 1:
+				r = q;
+				g = v;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = v;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = v;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = v;
+				break;
+			case 5:
+				r = v;
+				g = p;
+				b = q;
+				break;
+		}
+
+		return {
+			r: r * 255,
+			g: g * 255,
+			b: b * 255
+		};
+	};
+
 	/* class ControlColorpicker extends Control */
 	function ControlColorpicker(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 
 		var
 			_t = this,
 			repeatInterval = 300,
 			interval;
 
-		(function(hex) {
-			_t.value = {
+		function hex2rgb(hex) {
+			return {
 				r: parseInt(hex.substr(1, 2), 16),
 				g: parseInt(hex.substr(3, 2), 16),
 				b: parseInt(hex.substr(5, 2), 16)
 			};
-		})(_t.parentNode.getAttribute("data-value"));
+		}
 
+		_t.value = hex2rgb(_t.parentNode.getAttribute("data-value"));
 		_t.buttonUp = _t.parentNode.querySelector(o.colorpicker.up);
 		_t.buttonDown = _t.parentNode.querySelector(o.colorpicker.down);
 		_t.buttonPick = _t.parentNode.querySelector(o.colorpicker.pick);
+
+		_t.setValue = function(value) {
+			var
+				t = value.split(","),
+				hsv = {
+					h: t[0] / 360,
+					s: t[1] / 100,
+					v: t[2] / 100
+				};
+			_t.value = Colorpicker.hsv2rgb(hsv);
+		};
 
 		function emitEvent(value) {
 			_t.parentNode.dispatchEvent(new CustomEvent(
@@ -932,7 +1007,7 @@
 	}
 	/* class ControlSwitch extends Control */
 	function ControlSwitch(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 
 		var
 			_t = this;
@@ -945,12 +1020,26 @@
 					value: _t.input.checked ? "ON" : "OFF"
 				}
 			}));
+			_t.supressUpdate();
 		});
+
+		_t.setValuePrivate = function(v) {
+			var
+				value = v === "ON";
+
+			_t.input.checked = value;
+
+			if (value) {
+				_t.parentNode.MaterialSwitch.on();
+			} else {
+				_t.parentNode.MaterialSwitch.off();
+			}
+		};
 	}
 	
 	/* class ControlSlider extends Control */
 	function ControlSlider(parentNode) {
-		extend(this, new Control(parentNode));
+		Control.call(this, parentNode);
 
 		var
 			_t = this;
@@ -964,11 +1053,19 @@
 					value: _t.input.value
 				}
 			}));
+			_t.supressUpdate();
 		});
+
+		_t.setValue = function(value) {
+			_t.input.value = value;
+			_t.input.MaterialSlider.change();
+		};
 	}
 	
 	/* class ControlLink */
 	function ControlLink(parentNode) {
+		Control.call(this, parentNode);
+
 		var
 			_t = this;
 		
@@ -980,8 +1077,6 @@
 	}
 
 	function controlChangeHandler(event) {
-		console.log(event.detail);
-		
 		ajax({
 			type: "POST",
 			url: "/rest/items/" + event.detail.item,
@@ -990,9 +1085,39 @@
 		});
 	}
 	
+	function ChangeListener() {
+		if (!("EventSource" in window)) {
+			return;
+		}
+
+		var
+			_t = this;
+
+		_t.source = new EventSource("/rest/events?topics=smarthome/items/*/state");
+		_t.source.addEventListener("message", function(payload) {
+			var
+				data = JSON.parse(payload.data),
+				dataPayload = JSON.parse(data.payload),
+				value = dataPayload.value,
+				item = (function(topic) {
+					topic = topic.split("/");
+					return topic[topic.length - 2];
+				})(data.topic);
+
+			if (!(item in smarthome.dataModel)) {
+				return;
+			}
+
+			smarthome.dataModel[item].widgets.forEach(function(widget) {
+				widget.setValue(value);
+			});
+		});
+	}
+
 	document.addEventListener("DOMContentLoaded", function() {
 		smarthome.UI = new UI(document);
 		smarthome.UI.initControls();
+		smarthome.changeListener = new ChangeListener();
 	});
 })({
 	itemAttribute: "data-item",
