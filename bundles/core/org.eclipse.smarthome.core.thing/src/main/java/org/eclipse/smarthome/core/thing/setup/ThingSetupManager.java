@@ -58,7 +58,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - addThing operation returns created Thing instance
- * @author Chris Jackson - Remove children when deleted bridge
+ * @author Chris Jackson - Remove children when deleted bridge. Add label/description.
  */
 public class ThingSetupManager implements EventSubscriber {
 
@@ -303,6 +303,21 @@ public class ThingSetupManager implements EventSubscriber {
      *            channel UID (must not be null)
      */
     public void enableChannel(ChannelUID channelUID) {
+        // Get the thing so we can check if channel labels are defined
+        Thing thing = getThing(channelUID.getThingUID());
+        if(thing == null) {
+            logger.warn("Could not enable channel '{}', because no thing was found.", channelUID);
+            return;
+        }
+
+        // Get the channel, 
+        Channel channel = thing.getChannel(channelUID.getId());
+        if(channel == null) {
+            logger.warn("Could not enable channel '{}', because no channel was found.", channelUID);
+            return;
+        }
+        
+        // Enable the channel
         ChannelType channelType = thingTypeRegistry.getChannelType(channelUID);
         if (channelType != null) {
             String itemType = channelType.getItemType();
@@ -321,7 +336,13 @@ public class ThingSetupManager implements EventSubscriber {
                     }
                     item.addTags(channelType.getTags());
                     item.setCategory(channelType.getCategory());
-                    item.setLabel(channelType.getLabel());
+
+                    // Set the label - use the thing defined label if it is set
+                    if(channel.getLabel() != null) {
+                        item.setLabel(channel.getLabel());
+                    } else {
+                        item.setLabel(channelType.getLabel());
+                    }
                     addItemSafely(item);
                     addItemChannelLinkSafely(new ItemChannelLink(itemName, channelUID));
                 }
@@ -398,8 +419,6 @@ public class ThingSetupManager implements EventSubscriber {
      *
      * @param itemName
      *            name of group to be added
-     * @param label
-     *            label of the group to be added
      */
     public void removeHomeGroup(String itemName) {
         itemRegistry.remove(itemName);
@@ -416,7 +435,7 @@ public class ThingSetupManager implements EventSubscriber {
      * Remove a thing and all its links and items.
      * If this is a bridge, also remove child things by calling
      * removeThing recursively
-     * 
+     *
      * @param thingUID thing UID
      * @param force if the thing should be removed without asking the binding
      */
@@ -592,8 +611,8 @@ public class ThingSetupManager implements EventSubscriber {
         if (thingType != null) {
             List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                GroupItem channelGroupItem = new GroupItem(getChannelGroupItemName(itemName,
-                        channelGroupDefinition.getId()));
+                GroupItem channelGroupItem = new GroupItem(
+                        getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
                 channelGroupItem.addGroupName(itemName);
                 addItemSafely(channelGroupItem);
@@ -605,6 +624,9 @@ public class ThingSetupManager implements EventSubscriber {
             for (Channel channel : channels) {
                 ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
                 if (channelType != null && !channelType.isAdvanced()) {
+                    // Enable the channel.
+                    // Pass the channel label. This will be null if it's not set, and the enableChannel method will use
+                    // the label from the channelType
                     enableChannel(channel.getUID());
                 } else if (channelType == null) {
                     logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());

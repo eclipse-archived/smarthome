@@ -20,7 +20,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended about default tags
- * @author Chris Jackson - Added properties
+ * @author Chris Jackson - Added properties and label/description
  */
 public class ChannelBuilder {
 
@@ -29,6 +29,8 @@ public class ChannelBuilder {
     private Configuration configuration;
     private Set<String> defaultTags;
     private Map<String, String> properties;
+    private String label;
+    private String description;
 
     private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
@@ -72,6 +74,26 @@ public class ChannelBuilder {
     }
 
     /**
+     * Sets the channel label. This allows overriding of the default label set in the {@link ChannelType}
+     * @param label the channel label to override the label set in the {@link ChannelType}
+     * @return channel builder
+     */
+    public ChannelBuilder withLabel(String label) {
+        this.label = label;
+        return this;
+    }
+
+    /**
+     * Sets the channel label. This allows overriding of the default label set in the {@link ChannelType}
+     * @param label the channel label to override the label set in the {@link ChannelType}
+     * @return channel builder
+     */
+    public ChannelBuilder withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    /**
      * Appends default tags to the channel to build.
      *
      * @param defaultTags
@@ -89,6 +111,6 @@ public class ChannelBuilder {
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, acceptedItemType, configuration, defaultTags, properties);
+        return new Channel(channelUID, acceptedItemType, configuration, defaultTags, properties, label, description);
     }
 }

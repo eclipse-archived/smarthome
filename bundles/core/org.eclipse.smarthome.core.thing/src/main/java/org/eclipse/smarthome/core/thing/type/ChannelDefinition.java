@@ -22,13 +22,15 @@ import org.eclipse.smarthome.core.thing.Thing;
  * <b>Hint:</b> This class is immutable.
  *
  * @author Michael Grammling - Initial Contribution
- * @author Chris Jackson - Added properties
+ * @author Chris Jackson - Added properties and label/description
  */
 public class ChannelDefinition {
 
     private String id;
     private ChannelType type;
     private final Map<String, String> properties;
+    private final String label;
+    private final String description;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -39,7 +41,7 @@ public class ChannelDefinition {
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
     public ChannelDefinition(String id, ChannelType type) throws IllegalArgumentException {
-        this(id, type, null);
+        this(id, type, null, null, null);
     }
 
     /**
@@ -48,11 +50,13 @@ public class ChannelDefinition {
      * @param id the identifier of the channel (must neither be null nor empty)
      * @param type the type of the channel (must not be null)
      * @param properties the properties this Channel provides (could be null)
+     * @param label the label for the channel to override channelType (could be null)
+     * @param description the description for the channel to override channelType (could be null)
      *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelType type, Map<String, String> properties)
-            throws IllegalArgumentException {
+    public ChannelDefinition(String id, ChannelType type, Map<String, String> properties, String label,
+            String description) throws IllegalArgumentException {
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }
@@ -69,6 +73,8 @@ public class ChannelDefinition {
 
         this.id = id;
         this.type = type;
+        this.label = label;
+        this.description = description;
     }
 
     /**
@@ -90,8 +96,29 @@ public class ChannelDefinition {
     }
 
     /**
+     * Returns the label (if set).
+     * If no label is set, getLabel will return null and the default label for the {@link ChannelType} is used.
+     *
+     * @return the label for the channel. Can be null.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Returns the description (if set).
+     * If no description is set, getDescription will return null and the default description for the {@link ChannelType}
+     * is used.
+     *
+     * @return the description for the channel. Can be null.
+     */
+    public String getDescription() {
+        return this.description;
+    }
+
+    /**
      * Returns the properties for this {@link ChannelDefinition}
-     * 
+     *
      * @return the properties for this {@link ChannelDefinition} (not null)
      */
     public Map<String, String> getProperties() {

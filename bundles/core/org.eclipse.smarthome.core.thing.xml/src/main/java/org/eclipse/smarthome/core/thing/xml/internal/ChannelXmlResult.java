@@ -21,11 +21,24 @@ public class ChannelXmlResult {
 
     private String id;
     private String typeId;
+    String label;
+    String description;
     List<NodeValue> properties;
 
-    public ChannelXmlResult(String id, String typeId, List<NodeValue> properties) {
+    /**
+     * Constructs a new {@link ChannelXmlResult}
+     * 
+     * @param id the channel id
+     * @param typeId the channel type id
+     * @param label the channel label
+     * @param description the channel description
+     * @param properties a {@link List} of channel properties
+     */
+    public ChannelXmlResult(String id, String typeId, String label, String description, List<NodeValue> properties) {
         this.id = id;
         this.typeId = typeId;
+        this.label = label;
+        this.description = description;
         this.properties = properties;
     }
 
@@ -57,6 +70,24 @@ public class ChannelXmlResult {
             return new ArrayList<>(0);
         }
         return this.properties;
+    }
+
+    /**
+     * Get the label for this channel
+     * 
+     * @return the channel label. Can be null
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * Get the description for this channel
+     * 
+     * @return the channel description. Can be null
+     */
+    public String getDescription() {
+        return description;
     }
 
     @Override

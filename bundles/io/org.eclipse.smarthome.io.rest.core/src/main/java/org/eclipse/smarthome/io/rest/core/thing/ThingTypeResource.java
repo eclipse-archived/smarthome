@@ -187,10 +187,22 @@ public class ThingTypeResource implements RESTResource {
         List<ChannelDefinitionDTO> channelDefinitionBeans = new ArrayList<>();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = channelDefinition.getType();
-            ChannelDefinitionDTO channelDefinitionBean = new ChannelDefinitionDTO(channelDefinition.getId(),
-                    channelType.getLabel(), channelType.getDescription(), channelType.getTags(),
-                    channelType.getCategory(), channelType.getState(), channelType.isAdvanced(),
-                    channelDefinition.getProperties());
+
+            // Default to the channelDefinition label to override the channelType
+            String label = channelDefinition.getLabel();
+            if (label == null) {
+                label = channelType.getLabel();
+            }
+
+            // Default to the channelDefinition description to override the channelType
+            String description = channelDefinition.getDescription();
+            if (description == null) {
+                description = channelType.getDescription();
+            }
+
+            ChannelDefinitionDTO channelDefinitionBean = new ChannelDefinitionDTO(channelDefinition.getId(), label,
+                    description, channelType.getTags(), channelType.getCategory(), channelType.getState(),
+                    channelType.isAdvanced(), channelDefinition.getProperties());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;
@@ -206,7 +218,8 @@ public class ThingTypeResource implements RESTResource {
         return thingTypeBeans;
     }
 
-    private List<ConfigDescriptionParameterGroupDTO> convertToParameterGroupBeans(URI configDescriptionURI, Locale locale) {
+    private List<ConfigDescriptionParameterGroupDTO> convertToParameterGroupBeans(URI configDescriptionURI,
+            Locale locale) {
 
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI,
                 locale);
@@ -215,8 +228,9 @@ public class ThingTypeResource implements RESTResource {
 
             List<ConfigDescriptionParameterGroup> parameterGroups = configDescription.getParameterGroups();
             for (ConfigDescriptionParameterGroup parameterGroup : parameterGroups) {
-                parameterGroupBeans.add(new ConfigDescriptionParameterGroupDTO(parameterGroup.getName(), parameterGroup.getContext(),
-                        parameterGroup.isAdvanced(), parameterGroup.getLabel(), parameterGroup.getDescription()));
+                parameterGroupBeans.add(new ConfigDescriptionParameterGroupDTO(parameterGroup.getName(), parameterGroup
+                        .getContext(), parameterGroup.isAdvanced(), parameterGroup.getLabel(), parameterGroup
+                        .getDescription()));
             }
         }
 
