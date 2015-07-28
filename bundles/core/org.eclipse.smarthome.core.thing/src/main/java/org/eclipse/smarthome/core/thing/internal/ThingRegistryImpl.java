@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Grammling - Added dynamic configuration update
  * @author Simon Kaufmann - Added forceRemove
+ * @author Chris Jackson - ensure thing added event is sent before linked events
  */
 public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
 
@@ -105,8 +106,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     @Override
     protected void notifyListenersAboutAddedElement(Thing element) {
         super.notifyListenersAboutAddedElement(element);
-        notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
         postEvent(ThingEventFactory.createAddedEvent(element));
+        notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
     }
 
     @Override
