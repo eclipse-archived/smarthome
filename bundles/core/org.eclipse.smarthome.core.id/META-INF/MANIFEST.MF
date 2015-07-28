@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-Name: Eclipse SmartHome Core ID
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.8.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Bundle-SymbolicName: org.eclipse.smarthome.core.id
+Export-Package: org.eclipse.smarthome.core.id
+Bundle-ClassPath: .
+Import-Package: javax.ws.rs;resolution:=optional,
+ javax.ws.rs.core;resolution:=optional,
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.io.rest;resolution:=optional,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

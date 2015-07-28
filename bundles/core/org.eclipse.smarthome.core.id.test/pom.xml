@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome.core</groupId>
+  <artifactId>org.eclipse.smarthome.core.id.test</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+  <version>0.8.0-SNAPSHOT</version>
+  <name>Eclipse SmartHome Thing Tests</name>
+  <parent>
+    <groupId>org.eclipse.smarthome.bundles</groupId>
+    <artifactId>core</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
+  </parent>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <bundleStartLevel>
+            <bundle>
+              <id>org.eclipse.smarthome.core</id>
+              <level>3</level>
+              <autoStart>true</autoStart>
+            </bundle>
+          </bundleStartLevel>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </build>
+</project>
