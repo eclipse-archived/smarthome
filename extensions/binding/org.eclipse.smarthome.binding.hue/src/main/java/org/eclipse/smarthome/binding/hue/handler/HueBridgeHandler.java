@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * @author Andre Fuechsel - implemented getFullLights(), startSearch()
  * @author Thomas Höfer - added thing properties
  * @author Stefan Bußweiler - Added new thing status handling
+ * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
 
@@ -378,7 +379,9 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     && state1.getBrightness() == state2.getBrightness()
                     && state1.getColorMode().equals(state2.getColorMode())
                     && state1.getColorTemperature() == state2.getColorTemperature()
-                    && state1.getHue() == state2.getHue() && state1.getSaturation() == state2.getSaturation();
+                    && state1.getHue() == state2.getHue()
+                    && state1.getSaturation() == state2.getSaturation()
+                    && state1.isReachable() == state2.isReachable();
         } catch (Exception e) {
             // if a device does not support color, the Jue library throws an NPE
             // when testing for color-related properties

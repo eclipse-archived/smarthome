@@ -19,6 +19,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
@@ -43,7 +44,7 @@ import nl.q42.jue.StateUpdate;
  * @author Kai Kreuzer - stabilized code
  * @author Andre Fuechsel - implemented switch off when brightness == 0
  * @author Thomas Höfer - added thing properties
- *
+ * @author Jochen Hiller - fixed status updates for reachable=true/false
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
@@ -260,6 +261,15 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (fullLight.getId().equals(lightId)) {
             lastSentColorTemp = null;
             lastSentBrightness = null;
+            
+            // update status (ONLINE, OFFLINE)
+            if (fullLight.getState().isReachable()) {
+                updateStatus(ThingStatus.ONLINE);
+            } else {
+                // we assume OFFLINE without any error, as this is an 
+                // expected state (when bulb powered off)
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge reports light as reachable=false");
+            }
 
             HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
             if (!fullLight.getState().isOn()) {
