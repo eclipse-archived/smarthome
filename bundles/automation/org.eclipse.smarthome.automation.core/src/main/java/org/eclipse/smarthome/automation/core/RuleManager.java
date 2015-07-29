@@ -13,12 +13,15 @@
 package org.eclipse.smarthome.automation.core;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatus;
 
 /**
  *
@@ -27,21 +30,17 @@ import org.osgi.framework.BundleContext;
 public abstract class RuleManager {
 
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
-    private static RuleEngine re;
+    protected BundleContext bc;
+    protected static RuleEngine re;
+    protected Logger log;
 
-    private static int maxId;
+    protected static int maxId = 0;
 
     public RuleManager(BundleContext bc) {
-        Set<RuleImpl> rules = loadRules();
-        if (rules == null) {
-            rules = new HashSet<RuleImpl>(20);
-        }
-        maxId = getMaxId(ID_PREFIX, rules) + 1;
+        this.bc = bc;
+        log = LoggerFactory.getLogger(RuleManager.class);
         if (re == null) {
             re = new RuleEngine(bc);
-        }
-        for (Iterator<RuleImpl> it = rules.iterator(); it.hasNext();) {
-            re.setRule(it.next());
         }
     }
 
@@ -52,10 +51,6 @@ public abstract class RuleManager {
         }
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#getRule(java.lang.String)
-     */
     public synchronized Rule getRule(String ruleUID) {
         RuleImpl oldR = re.getRule(ruleUID);
         if (oldR == null)
@@ -63,35 +58,26 @@ public abstract class RuleManager {
         return new RuleImpl(oldR);
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.RuleRegistry#getRules(java.lang.String)
-     */
-    public synchronized Collection<Rule> getRules(String ruleFilter) {
-        // TODO impl filtering
-        return re.getRules(ruleFilter);
-    }
-
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#getRulesByTag(java.lang.String )
-     */
     public synchronized Collection<Rule> getRulesByTag(String tag) {
         return re.getRulesByTag(tag);
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#addRule(com.prosyst.mbs.services .automation.Rule)
-     */
+    public synchronized Collection<Rule> getRulesByTags(Set<String> tags) {
+        return re.getRulesByTags(tags);
+    }
+
+    public synchronized Collection<Rule> getRules() {
+        return re.getRulesByTag((String) null);
+    }
+
+    public synchronized RuleStatus getRuleStatus(String rUID) {
+        return RuleEngine.getRuleStatus(rUID);
+    }
+
     public synchronized void addRule(Rule rule) {
         addRule0(rule, getScopeIdentifier());
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#addRule(com.prosyst.mbs.services .automation.Rule,
-     *      java.lang.String)
-     */
     public synchronized void addRule(Rule rule, String identity) {
         // TODO check permissions
         addRule0(rule, identity);
@@ -102,7 +88,7 @@ public abstract class RuleManager {
      * @param identity
      * @throws IllegalArgumentException when the rule is already added or tring to add illegal instance of rule.
      */
-    private void addRule0(Rule rule, String identity) {
+    protected RuleImpl addRule0(Rule rule, String identity) {
         if (!(rule instanceof RuleImpl)) {
             throw new IllegalArgumentException("Illegal instance of Rule: " + rule);
         }
@@ -119,15 +105,16 @@ public abstract class RuleManager {
         RuleImpl r1 = new RuleImpl(r);
         r1.setScopeIdentifier(identity);
         r1.setUID(rUID);
-        storeRule(r1);
+        re.setRule(r1);
+        return r1;
+    }
+
+    public synchronized void updateRule(Rule rule) {
+        RuleImpl r1 = assertRule(rule);
         re.setRule(r1);
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#updateRule(com.prosyst.mbs .services.automation.Rule)
-     */
-    public synchronized void updateRule(Rule rule) {
+    protected RuleImpl assertRule(Rule rule) {
         if (rule instanceof RuleImpl) {
             throw new IllegalArgumentException("Illegal instance of Rule: " + rule);
         }
@@ -141,60 +128,20 @@ public abstract class RuleManager {
             throw new IllegalArgumentException("The rule: " + rUID
                     + " is not added. Please add the rule before update it.");
         }
-        if (oldR.isEnabled()) {
-            throw new IllegalStateException("The rule: " + rUID
-                    + " is enabled. Please dissable the rule before update operation.");
-        }
         RuleImpl r1 = new RuleImpl(r);
-        re.setRule(r);
+        return r1;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#removeRule(java.lang.String)
-     */
     public synchronized boolean removeRule(String ruleUID) {
-        return re.removeRule(ruleUID) != null;
+        RuleImpl r = re.removeRule(ruleUID);
+        return r != null;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#removeRules(java.lang.String)
-     */
-    public synchronized void removeRules(String filter) {
-        // TODO implement it.
-    }
-
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#setRuleEnabled(java.lang. String, boolean)
-     */
     public synchronized void setRuleEnabled(String ruleUID, boolean isEnabled) {
         re.setRuleEnable(ruleUID, isEnabled);
 
     }
 
-    /**
-     *
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#isRuleEnabled(java.lang.String )
-     */
-    public synchronized boolean isRuleEnabled(String ruleUID) {
-        return re.getRule(ruleUID).isEnabled();
-    }
-
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#isRuleRunning(java.lang.String )
-     */
-    public synchronized boolean isRuleRunning(String ruleUID) {
-        return re.isRunning(ruleUID);
-    }
-
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#getScopeIdentifiers()
-     */
     public synchronized Collection<String> getScopeIdentifiers() {
         // TODO check permissions
         return re.getScopeIds();
@@ -214,7 +161,7 @@ public abstract class RuleManager {
      * @param rules2
      * @return
      */
-    private int getMaxId(String idPrefix, Collection<RuleImpl> col) {
+    protected int getMaxId(String idPrefix, Collection<RuleImpl> col) {
         int result = 0;
         if (col != null) {
             for (Iterator<RuleImpl> it = col.iterator(); it.hasNext();) {
@@ -233,16 +180,8 @@ public abstract class RuleManager {
         return result;
     }
 
-    /**
-     * Persist the rule
-     *
-     * @param rule object which has to be persist.
-     */
-    protected abstract void storeRule(RuleImpl rule);
-
-    /**
-     * @return set of persisted rules.
-     */
-    protected abstract Set<RuleImpl> loadRules();
+    public RuleStatus getStatus(String ruleUID) {
+        return re.getRuleStatus(ruleUID);
+    }
 
 }

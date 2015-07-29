@@ -30,23 +30,19 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class AutomationFactoryImpl implements AutomationFactory {
 
-    @Override
     public Trigger createTrigger(String id, String typeUID, Map<String, ?> configurations) {
         return new TriggerImpl(id, typeUID, configurations);
     }
 
-    @Override
     public Condition createCondition(String id, String typeUID, Map<String, ?> configuration,
             Set<Connection> connections) {
-        return new ConditionImpl(typeUID, typeUID, configuration, connections);
+        return new ConditionImpl(id, typeUID, configuration, connections);
     }
 
-    @Override
     public Action createAction(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
         return new ActionImpl(id, typeUID, configuration, connections);
     }
 
-    @Override
     public Rule createRule(List<Trigger> triggers, List<Condition> conditions, List<Action> actions,
             Set<ConfigDescriptionParameter> configDescriptions, Map<String, ?> configurations) {
         return new RuleImpl(triggers, conditions, actions, configDescriptions, configurations);
@@ -57,6 +53,10 @@ public class AutomationFactoryImpl implements AutomationFactory {
      */
     private String getScopeId() {
         return null;
+    }
+
+    public Rule createRule(String ruleTemplateUID, Map<String, Object> configurations) {
+        return new RuleImpl(ruleTemplateUID, configurations);
     }
 
 }

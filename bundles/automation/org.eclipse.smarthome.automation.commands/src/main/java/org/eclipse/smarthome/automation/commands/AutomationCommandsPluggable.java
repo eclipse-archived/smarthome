@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -49,9 +50,9 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     private ServiceTracker tracker;
 
-    private RuleRegistry ruleReg;
-    private TemplateRegistry templateReg;
-    private ModuleTypeRegistry moduleTypeReg;
+    static RuleRegistry ruleReg;
+    static TemplateRegistry templateRegistry;
+    static ModuleTypeRegistry moduleTypeRegistry;
     private ServiceRegistration commandsServiceReg;
 
     /**
@@ -91,13 +92,13 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
     public Object addingService(ServiceReference reference) {
         Object service = bc.getService(reference);
         if (service instanceof TemplateRegistry) {
-            this.templateReg = (TemplateRegistry) service;
+            this.templateRegistry = (TemplateRegistry) service;
         }
         if (service instanceof RuleRegistry) {
             this.ruleReg = (RuleRegistry) service;
         }
         if (service instanceof ModuleTypeRegistry) {
-            this.moduleTypeReg = (ModuleTypeRegistry) service;
+            this.moduleTypeRegistry = (ModuleTypeRegistry) service;
         }
         return service;
     }
@@ -116,14 +117,14 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
      */
     @Override
     public void removedService(ServiceReference reference, Object service) {
-        if (service == templateReg) {
-            templateReg = null;
+        if (service == templateRegistry) {
+            templateRegistry = null;
         }
         if (service == ruleReg) {
             ruleReg = null;
         }
-        if (service == moduleTypeReg) {
-            moduleTypeReg = null;
+        if (service == moduleTypeRegistry) {
+            moduleTypeRegistry = null;
         }
     }
 
@@ -215,28 +216,14 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
     }
 
     /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getRules(java.lang.String)
-     */
-
-    @Override
-    public Collection<Rule> getRules(String ruleFilter) {
-        if (ruleReg != null) {
-            if (ruleFilter == null)
-                return ruleReg.getAll();
-            return ruleReg.getByTag(ruleFilter);
-        }
-        return null;
-    }
-
-    /**
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getTemplate(java.lang.String,
      *      java.util.Locale)
      */
 
     @Override
     public Template getTemplate(String templateUID, Locale locale) {
-        if (templateReg != null) {
-            return templateReg.get(templateUID, locale);
+        if (templateRegistry != null) {
+            return templateRegistry.get(templateUID, locale);
         }
         return null;
     }
@@ -247,8 +234,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public Collection<Template> getTemplates(Locale locale) {
-        if (templateReg != null) {
-            return templateReg.getAll(locale);
+        if (templateRegistry != null) {
+            return templateRegistry.getAll(locale);
         }
         return null;
     }
@@ -260,8 +247,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public ModuleType getModuleType(String typeUID, Locale locale) {
-        if (moduleTypeReg != null) {
-            return moduleTypeReg.get(typeUID, locale);
+        if (moduleTypeRegistry != null) {
+            return moduleTypeRegistry.get(typeUID, locale);
         }
         return null;
     }
@@ -273,8 +260,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale) {
-        if (moduleTypeReg != null) {
-            return moduleTypeReg.get(clazz, locale);
+        if (moduleTypeRegistry != null) {
+            return moduleTypeRegistry.get(clazz, locale);
         }
         return null;
     }
@@ -302,12 +289,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
     public boolean removeRules(String ruleFilter) {
         boolean res = false;
         if (ruleReg != null) {
-            Collection<Rule> rules = getRules(ruleFilter);
-            if (rules != null && !rules.isEmpty()) {
-                for (Rule rule : rules) {
-                    res &= ruleReg.remove(rule.getUID()) != null;
-                }
-            }
+            ruleReg.remove(ruleFilter);
         }
         return res;
     }
@@ -389,6 +371,24 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
      */
     protected String buildCommandUsage(final String syntax, final String description) {
         return String.format("%s %s - %s", getCommand(), syntax, description);
+    }
+
+    @Override
+    public Collection<Rule> getRules() {
+        if (ruleReg != null) {
+            return ruleReg.getAll();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public RuleStatus getRuleStatus(String ruleUID) {
+        if (ruleReg != null) {
+            return ruleReg.getStatus(ruleUID);
+        } else {
+            return null;
+        }
     }
 
 }

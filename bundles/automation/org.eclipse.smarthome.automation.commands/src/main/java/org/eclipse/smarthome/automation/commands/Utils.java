@@ -15,11 +15,19 @@ package org.eclipse.smarthome.automation.commands;
 import java.util.Hashtable;
 
 /**
+ * This class contains methods for facilitating sorting and filtering lists stored in {@link Hashtable}s.
+ * 
  * @author Ana Dimova - Initial Contribution
  *
  */
 public class Utils {
 
+    /**
+     * This method sorts lexicographically and sets an index of the UIDs of the automation objects.
+     * 
+     * @param objects holds the list with automation objects for sorting and indexing.
+     * @return sorted and indexed list with UIDs of the automation objects.
+     */
     static Hashtable<String, String> sortList(Hashtable<String, ?> objects) {
         if (objects == null || objects.isEmpty())
             return null;
@@ -32,6 +40,13 @@ public class Utils {
         return sorted;
     }
 
+    /**
+     * This method filters the list with UIDs of the automation objects to correspond to the list with the automation objects.
+     * 
+     * @param listObjects holds the list with automation objects  for filter criteria.
+     * @param listUIDs holds the list with UIDs of the automation objects for filtering.
+     * @return filtered list with UIDs of the automation objects.
+     */
     static Hashtable<String, String> filterList(Hashtable<String, ?> listObjects, Hashtable<String, String> listUIDs) {
         Hashtable<String, String> filtered = new Hashtable<String, String>();
         for (String id : listUIDs.keySet()) {

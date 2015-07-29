@@ -78,7 +78,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
                 console.println(currentTriggers.get(i).getTriggerID());
             }
         } else {
-            console.println("No created TriggerSpi. List is Empty");
+            console.println("No created TriggerHandler. List is Empty");
         }
 
     }

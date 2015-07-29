@@ -12,9 +12,13 @@
 
 package org.eclipse.smarthome.automation.core;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
@@ -26,40 +30,24 @@ import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
  */
 public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
-    private static Map<String, RuleEngineCallback> reCallbacks = new HashMap<String, RuleEngineCallback>();
+    private RuleImpl r;
 
-    LinkedList<TriggerData> queue;
+    private ExecutorService executor;
 
-    private RuleEngine re;
+    private Future<?> feature;
 
-    private Rule r;
+    private static final Logger log = LoggerFactory.getLogger(RuleEngineCallback.class);
 
-    private RuleEngineCallbackImpl(Rule r, RuleEngine re) {
+    protected RuleEngineCallbackImpl(RuleImpl r) {
         this.r = r;
-        this.re = re;
-        queue = new LinkedList<TriggerData>();
+        executor = Executors.newSingleThreadExecutor();
     }
 
-    public static RuleEngineCallback getInstance(Rule r, RuleEngine re) {
-        RuleEngineCallback result = reCallbacks.get(r.getUID());
-        if (result == null) {
-            result = new RuleEngineCallbackImpl(r, re);
-            reCallbacks.put(r.getUID(), result);
-        }
-        return result;
-    }
-
-    /**
-     * @see org.eclipse.smarthome.automation.handler.RuleEngineCallback#triggered(org.eclipse.smarthome.automation.Trigger,
-     *      java.util.Map)
-     */
-    @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
         if (trigger instanceof SourceModule) {
-            queue.add(new TriggerData(trigger, outputs));
-            re.runRule(this);
+            feature = executor.submit(new TriggerData(trigger, outputs));
         } else {
-            // log error
+            log.error("The trigger " + trigger.getId() + " is not data source!");
         }
 
     }
@@ -68,11 +56,11 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
         return r;
     }
 
-    public TriggerData getTriggeredData() {
-        return queue.size() > 0 ? queue.removeFirst() : null;
+    public boolean isRunning() {
+        return feature == null || !feature.isDone();
     }
 
-    class TriggerData {
+    class TriggerData implements Runnable {
 
         private Trigger trigger;
 
@@ -80,16 +68,26 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
             return trigger;
         }
 
-        public Map getOutputs() {
+        public Map<String, ?> getOutputs() {
             return outputs;
         }
 
-        private Map outputs;
+        private Map<String, ?> outputs;
 
-        public TriggerData(Trigger t, Map outputs) {
+        public TriggerData(Trigger t, Map<String, ?> outputs) {
             this.trigger = t;
             this.outputs = outputs;
         }
+
+        public void run() {
+            RuleEngine.runRule(r, this);
+        }
+    }
+
+    public void dispose() {
+        executor.shutdownNow();
+        executor = null;
+        r = null;
     }
 
 }

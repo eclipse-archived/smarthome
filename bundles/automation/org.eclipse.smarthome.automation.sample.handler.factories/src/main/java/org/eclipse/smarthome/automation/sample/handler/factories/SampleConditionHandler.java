@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH
+s * Copyright (c) 1997, 2015 by ProSyst Software GmbH
  * http://www.prosyst.com
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -15,16 +15,12 @@ package org.eclipse.smarthome.automation.sample.handler.factories;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.type.ConditionType;
-import org.osgi.framework.BundleContext;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
-/**
- * Condition Handler sample implementation
- *
- * @author Vasil Ilchev - Initial Contribution
- */
-public class SampleConditionHandler implements ConditionHandler {
+public class SampleConditionHandler extends AbstractModuleHandler implements ConditionHandler {
     public static final String OPERATOR_LESS = "<";
     public static final String OPERATOR_GREATER = ">";
     public static final String OPERATOR_EQUAL = "=";
@@ -38,11 +34,10 @@ public class SampleConditionHandler implements ConditionHandler {
     private Condition condition;
     private ConditionType conditionType;
     //
-    private BundleContext bc;
     private SampleHandlerFactory handlerFactory;
 
-    public SampleConditionHandler(SampleHandlerFactory handlerFactory, Condition condition,
-            ConditionType conditionType, BundleContext bc) {
+    public SampleConditionHandler(SampleHandlerFactory handlerFactory, Condition condition, ConditionType conditionType) {
+        super(condition);
         this.condition = condition;
         this.conditionType = conditionType;
         this.configuration = condition.getConfiguration();
@@ -50,20 +45,20 @@ public class SampleConditionHandler implements ConditionHandler {
     }
 
     @Override
-    public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration;
-    }
-
-    @Override
     public void dispose() {
+        super.dispose();
         handlerFactory.disposeHandler(this);
     }
 
-    @Override
     public boolean isSatisfied(Map<String, ?> inputs) {
-        String conditionInput = (String) inputs.get(CONDITION_INPUT_NAME);
-        String operator = (String) configuration.get(PROPERTY_OPERATOR);
-        String constraint = (String) configuration.get(PROPERTY_CONSTRAINT);
+        Map resolvedInputs = getResolvedInputs(inputs);
+        Map resolvedConfiguration = getResolvedConfiguration(resolvedInputs);
+        String conditionInput = (String) resolvedInputs.get(CONDITION_INPUT_NAME);
+        if (conditionInput == null) {
+            conditionInput = "";
+        }
+        String operator = (String) resolvedConfiguration.get(PROPERTY_OPERATOR);
+        String constraint = (String) resolvedConfiguration.get(PROPERTY_CONSTRAINT);
         boolean satisfied = false;
         if (OPERATOR_EQUAL.equals(operator)) {
             satisfied = conditionInput.equals(constraint);
@@ -75,8 +70,15 @@ public class SampleConditionHandler implements ConditionHandler {
         } else if (OPERATOR_GREATER.equals(operator)) {
             int comperison = conditionInput.compareTo(constraint);
             satisfied = comperison > 0 ? true : false;
+        } else {
+            throw new IllegalArgumentException("[SampleConditionHandler]Invalid comparison operator: " + operator);
         }
         return satisfied;
+    }
+
+    @Override
+    protected ModuleTypeRegistry getModuleTypeRegistry() {
+        return SampleHandlerFactory.getModuleTypeRegistry();
     }
 
 }

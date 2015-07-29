@@ -32,13 +32,11 @@ public class TriggerImpl extends ModuleImpl<TriggerHandler> implements Trigger, 
         super(t);
     }
 
-    @Override
-    public void setOuputs(Map<String, ?> outputs) {
+    public void setOutputs(Map<String, ?> outputs) {
         this.outputs = outputs;
     }
 
-    @Override
-    public Object getOuputValue(String outName) {
+    public Object getOutputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
     }
 

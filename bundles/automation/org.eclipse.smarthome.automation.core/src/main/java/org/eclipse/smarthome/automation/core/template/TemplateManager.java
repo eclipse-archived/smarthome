@@ -16,15 +16,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.provider.TemplateProvider;
-import org.eclipse.smarthome.automation.template.RuleTemplate;
-import org.eclipse.smarthome.automation.template.Template;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+
+import org.eclipse.smarthome.automation.provider.TemplateProvider;
+import org.eclipse.smarthome.automation.template.Template;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
@@ -51,7 +49,7 @@ public class TemplateManager {
         for (int i = 0; providers != null && i < providers.length; i++) {
             template = ((TemplateProvider) providers[i]).getTemplate(templateUID, locale);
             if (template != null) {
-                return createCopy(template);
+                return template;
             }
         }
         return null;
@@ -73,10 +71,43 @@ public class TemplateManager {
                     if (tag != null) {
                         Collection<String> tags = t.getTags();
                         if (tags != null && tags.contains(tag)) {
-                            result.add(createCopy(t));
+                            result.add(t);
                         }
                     } else {
-                        result.add(createCopy(t));
+                        result.add(t);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public Collection<Template> getTemplatesByTags(Set<String> tags) {
+        return getTemplatesByTags(tags, null);
+    }
+
+    public Collection<Template> getTemplatesByTags(Set<String> tags, Locale locale) {
+        Collection<Template> result = new ArrayList<Template>(20);
+        Collection<Template> templates = null;
+        Object[] providers = templateProviderTracker.getServices();
+        for (int i = 0; providers != null && i < providers.length; i++) {
+            templates = ((TemplateProvider) providers[i]).getTemplates(locale);
+            if (templates != null) {
+                for (Iterator<Template> it = templates.iterator(); it.hasNext();) {
+                    Template t = it.next();
+                    if (tags != null) {
+                        Collection<String> rTags = t.getTags();
+                        if (rTags != null) {
+                            for (Iterator<String> itt = rTags.iterator(); itt.hasNext();) {
+                                String tag = itt.next();
+                                if (tags.contains(tag)) {
+                                    result.add(t);
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        result.add(t);
                     }
                 }
             }
@@ -97,22 +128,4 @@ public class TemplateManager {
         templateProviderTracker = null;
     }
 
-    private Template createCopy(Template template) {
-        if (template == null) {
-            return null;
-        }
-        if (template instanceof RuleTemplate) {
-            RuleTemplate rt = (RuleTemplate) template;
-            RuleTemplate t = new RuleTemplate(template.getUID(),//
-                    rt.getModules(Trigger.class), //
-                    rt.getModules(Condition.class), //
-                    rt.getModules(Action.class), //
-                    rt.getConfigurationDescription(), rt.getVisibility());
-            t.setTags(rt.getTags());
-            t.setLabel(rt.getLabel());
-            t.setDescription(rt.getDescription());
-            return t;
-        }
-        throw new IllegalArgumentException("Invalid template type: " + template);
-    }
 }

@@ -12,10 +12,11 @@
 
 package org.eclipse.smarthome.automation.core;
 
-import java.util.Collection;
 import java.util.Set;
+import java.util.Collection;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 
@@ -61,24 +62,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements 
         ruleManager.setRuleEnabled(uid, isEnabled);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.RuleRegistry#isEnabled(java.lang.String)
-     */
     @Override
-    public boolean isEnabled(String uid) {
-        return ruleManager.isRuleEnabled(uid);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.RuleRegistry#isRunning(java.lang.String)
-     */
-    @Override
-    public boolean isRunning(String uid) {
-        return ruleManager.isRuleRunning(uid);
+    public RuleStatus getStatus(String ruleUID) {
+        return ruleManager.getRuleStatus(ruleUID);
     }
 
     protected void storeRule(RuleImpl rule) {

@@ -15,57 +15,98 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.handler.parser.Parser;
-import org.eclipse.smarthome.automation.handler.parser.Status;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.parser.Status;
 
 /**
+ * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
+ * bundle resources. It extends functionality of {@link AbstractResourceBundleProvider} by specifying:
+ * <ul>
+ * <li>the path to resources, corresponding to the {@link Rule}s - root directory
+ * {@link AbstractResourceBundleProvider#PATH} with sub-directory "rules".
+ * <li>type of the {@link Parser}s, corresponding to the {@link Rule}s - {@link Parser#PARSER_RULE}
+ * <li>specific functionality for loading the {@link Rule}s
+ * <li>tracking the managing service of the {@link Rule}s.
+ * </ul>
+ * 
  * @author Ana Dimova - Initial Contribution
- *
+ * 
  */
-public class RuleResourceBundleImporter extends GeneralResourceBundleProvider {
+public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBundleProvider<Vendor, PE> {
 
-    private RuleRegistry ruleRegistry;
-    private ServiceTracker adminTracker;
+    protected RuleRegistry ruleRegistry;
+    private ServiceTracker rulesTracker;
 
     /**
-     * @param bc
+     * This constructor is responsible for initializing the path to resources and tracking the managing service of the
+     * {@link Rule}s.
+     * 
+     * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
+     *            provider.
      */
-    public RuleResourceBundleImporter(BundleContext context) {
-        super(context);
+    public RuleResourceBundleImporter(BundleContext context, Class providerClass) {
+        super(context, providerClass);
         path = PATH + "/rules/";
-        adminTracker = new ServiceTracker(context, RuleRegistry.class.getName(), this);
-        adminTracker.open();
+        rulesTracker = new ServiceTracker(context, RuleRegistry.class.getName(),
+                new ServiceTrackerCustomizer<RuleRegistry, RuleRegistry>() {
+
+                    public RuleRegistry addingService(ServiceReference<RuleRegistry> reference) {
+                        ruleRegistry = bc.getService(reference);
+                        if (isReady && queue != null)
+                            queue.open();
+                        return ruleRegistry;
+                    }
+
+                    public void modifiedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
+                    }
+
+                    public void removedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
+                        ruleRegistry = null;
+                    }
+                });
+        rulesTracker.open();
     }
 
+    /**
+     * This method is inherited from {@link AbstractResourceBundleProvider}.
+     * <p>
+     * Extends parent's functionality with closing the {@link #rulesTracker} and
+     * <p>
+     * sets {@code null} to {@link #ruleRegistry}.
+     * 
+     * @see AbstractResourceBundleProvider#close()
+     */
     @Override
     public void close() {
-        if (adminTracker != null) {
-            adminTracker.close();
-            adminTracker = null;
+        if (rulesTracker != null) {
+            rulesTracker.close();
+            rulesTracker = null;
+            ruleRegistry = null;
         }
         super.close();
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.core.provider.GeneralResourceBundleProvider#addingService(ServiceReference)
+     * @see AbstractResourceBundleProvider#addingService(ServiceReference)
      */
     @Override
     public Object addingService(ServiceReference reference) {
-        Object service = bc.getService(reference);
-        if (service instanceof RuleRegistry) {
-            ruleRegistry = (RuleRegistry) service;
-            return service;
-        }
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_RULE)) {
             return super.addingService(reference);
         }
@@ -73,21 +114,26 @@ public class RuleResourceBundleImporter extends GeneralResourceBundleProvider {
     }
 
     /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(ServiceReference, Object)
+     * This method provides functionality for processing the bundles with rule resources.
+     * <p>
+     * Checks for availability of the needed {@link Parser} and for availability of the rules managing service. If one
+     * of them is not available - the bundle is added into {@link #waitingProviders} and the execution of the method
+     * ends.
+     * <p>
+     * If both are available, the execution of the method continues with checking if the version of the bundle is
+     * changed. If the version is changed - removes persistence of old variants of the rules, provided by this bundle.
+     * <p>
+     * Continues with loading the new version of these rules. If this bundle is added for the very first time, only
+     * loads the provided rules.
+     * <p>
+     * The loading can fail because of {@link IOException}.
+     * 
+     * @param bundle it is a {@link Bundle} which has to be processed, because it provides resources for automation
+     *            rules.
      */
     @Override
-    public void removedService(ServiceReference reference, Object service) {
-        if (service instanceof RuleRegistry) {
-            ruleRegistry = null;
-        } else {
-            super.removedService(reference, service);
-        }
-    }
-
-    @Override
     protected void processAutomationProvider(Bundle bundle) {
-        String parserType = (String) bundle.getHeaders().get(
-                AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
+        String parserType = bundle.getHeaders().get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
         Parser parser = parsers.get(parserType);
         if (parser == null || ruleRegistry == null) {
             synchronized (waitingProviders) {
@@ -95,66 +141,89 @@ public class RuleResourceBundleImporter extends GeneralResourceBundleProvider {
             }
             return;
         }
+        synchronized (providerPortfolio) {
+            for (Vendor vendor : providerPortfolio.keySet()) {
+                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
+                        && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
+                    remove(vendor.getVendorId());
+                    break;
+                }
+            }
+        }
         Enumeration<URL> urls = bundle.findEntries(path, null, false);
         if (urls == null) {
             return;
         }
+        ArrayList portfolio = new ArrayList();
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             try {
-                importData(parser, new InputStreamReader(url.openStream()));
+                Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+                importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
-                log.error("Can't read from URL " + url, e);
+                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
             }
         }
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.core.provider.GeneralResourceBundleProvider#getUID(java.lang.Object)
+     * This method provides functionality for processing the uninstalled bundles with rule resources.
+     * <p>
+     * When some of the bundles that provides rule resources is uninstalled, this method will remove it from
+     * {@link #waitingProviders}, if it is still there or from {@link #providerPortfolio} in the other case.
+     * <p>
+     * Will remove these rules from {@link #providedObjectsHolder} and will remove their persistence, 
+     * injected in the system from this bundle.
+     * 
+     * @param bundle the uninstalled {@link Bundle}, provider of automation rules.
      */
     @Override
-    protected String getUID(Object providedObject) {
-        return ((Rule) providedObject).getUID();
+    protected void processAutomationProviderUninstalled(Bundle bundle) {
+        synchronized (waitingProviders) {
+            if (waitingProviders.remove(new Long(bundle.getBundleId())) != null)
+                return;
+        }
+        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+        List portfolio = null;
+        synchronized (providerPortfolio) {
+            if (providerPortfolio.isEmpty())
+                return;
+            portfolio = providerPortfolio.get(vendor);
+        }
+        remove(vendor.getVendorId());
+        if (portfolio == null || portfolio.isEmpty())
+            return;
+        Iterator ip = portfolio.iterator();
+        while (ip.hasNext()) {
+            String uid = (String) ip.next();
+            ruleRegistry.remove(uid);
+        }
     }
 
-    /**
-     *
-     * @param parser
-     * @param inputStreamReader
+    /** 
+     * @see AbstractResourceBundleProvider#importData(Vendor, Parser, java.io.InputStreamReader, java.util.ArrayList)
      */
-    private Set<Status> importData(Parser parser, InputStreamReader inputStreamReader) {
+    @Override
+    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
+            ArrayList<String> portfolio) {
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
-            Iterator i = providedRulesStatus.iterator();
+            Iterator<Status> i = providedRulesStatus.iterator();
             while (i.hasNext()) {
-                Status status = (Status) i.next();
-                Rule rule = (Rule) status.getResult();
-                if (rule != null)
+                Rule rule = (Rule) i.next().getResult();
+                if (rule != null) {
                     ruleRegistry.add(rule);
+                    portfolio.add(rule.getUID());
+                }
+            }// while
+            if (vendor != null) {
+                synchronized (providerPortfolio) {
+                    providerPortfolio.put(vendor, portfolio);
+                }
+                add(vendor);
             }
         }
         return providedRulesStatus;
-    }
-
-    protected Object getKey(Object element) {
-        Rule r = (Rule) element;
-        return r.getUID();
-    }
-
-    protected String getStorageName() {
-        return "automation-rules";
-    }
-
-    protected String keyToString(Object key) {
-        return (String) key;
-    }
-
-    protected Object toElement(String key, Object persistableElement) {
-        return persistableElement;
-    }
-
-    protected Object toPersistableElement(Object element) {
-        return element;
     }
 
 }

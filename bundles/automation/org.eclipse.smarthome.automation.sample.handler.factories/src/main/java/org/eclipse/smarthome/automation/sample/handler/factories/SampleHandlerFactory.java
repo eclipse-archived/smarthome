@@ -18,6 +18,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
@@ -29,13 +37,6 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Module Handler Factory sample implementation
@@ -46,11 +47,11 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
     public static final String SUPPORTED_TRIGGER = "SampleTrigger";
     public static final String SUPPORTED_CONDITION = "SampleCondition";
     public static final String SUPPORTED_ACTION = "SampleAction";
-    public static final String MODULE_SPI_FACTORY_NAME = "[SampleHandlerFactory]";
+    public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
     public static final String UID_SEPARATOR = ":";
     private BundleContext bc;
     private Logger log;
-    private ModuleTypeRegistry moduleTypeRegistry;
+    private static ModuleTypeRegistry moduleTypeRegistry;
     private ServiceTracker moduleTypeRegistryTracker;
     private ServiceReference moduleTypeRegistryRef;
     private List<SampleTriggerHandler> createdTriggerHandler;
@@ -67,68 +68,66 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
 
     public SampleHandlerFactory(BundleContext bc) {
         this.bc = bc;
+        createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
+        log = LoggerFactory.getLogger(SampleHandlerFactory.class);
+
         moduleTypeRegistryTracker = new ServiceTracker(bc, ModuleTypeRegistry.class.getName(), this);
         moduleTypeRegistryTracker.open();
-        log = LoggerFactory.getLogger(SampleHandlerFactory.class);
-        createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
-        serviceReg = bc.registerService(ModuleHandlerFactory.class.getName(), this, null);
     }
 
     protected void disposeHandler(ModuleHandler handler) {
         createdTriggerHandler.remove(handler);
     }
 
-    @Override
     public Object addingService(ServiceReference reference) {
         Object result = null;
         if (moduleTypeRegistryRef == null && reference != null) {
             result = moduleTypeRegistry = (ModuleTypeRegistry) bc.getService(reference);
         }
+        if (serviceReg == null) {
+            serviceReg = bc.registerService(ModuleHandlerFactory.class.getName(), this, null);
+        }
+
         return result;
     }
 
-    @Override
     public void modifiedService(ServiceReference reference, Object service) {
         // do nothing
     }
 
-    @Override
     public void removedService(ServiceReference reference, Object service) {
         if (moduleTypeRegistry == service) {
-            // dispose();
+            dispose0();
         }
     }
 
-    @Override
     public Collection<String> getTypes() {
         return types;
     }
 
-    @Override
     public <T extends ModuleHandler> T create(Module module) {
         ModuleHandler moduleHandler = null;
         if (moduleTypeRegistry != null) {
             String typeUID = module.getTypeUID();
-            // calculate fiHandler
             String handlerId = getHandlerUID(typeUID);
-            ModuleType moduleType = moduleTypeRegistry.get(handlerId, null);
+            ModuleType moduleType = moduleTypeRegistry.get(handlerId);
             if (moduleType != null) {
                 // create needed handler
                 if (SUPPORTED_TRIGGER.equals(handlerId)) {
-                    moduleHandler = new SampleTriggerHandler(this, (Trigger) module, (TriggerType) moduleType, bc, log);
+                    moduleHandler = new SampleTriggerHandler(this, (Trigger) module, (TriggerType) moduleType, log);
                     createdTriggerHandler.add((SampleTriggerHandler) moduleHandler);
                 } else if (SUPPORTED_CONDITION.equals(handlerId)) {
-                    moduleHandler = new SampleConditionHandler(this, (Condition) module, (ConditionType) moduleType, bc);
+                    moduleHandler = new SampleConditionHandler(this, (Condition) module, (ConditionType) moduleType);
                 } else if (SUPPORTED_ACTION.equals(handlerId)) {
-                    moduleHandler = new SampleActionHandler(this, (Action) module, (ActionType) moduleType, bc);
+                    moduleHandler = new SampleActionHandler(this, (Action) module, (ActionType) moduleType);
                 } else {
-                    log.error(MODULE_SPI_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
+                    log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
                 }
             } else {
-                log.error(MODULE_SPI_FACTORY_NAME + "Not supported moduleType: " + typeUID);
+                log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleType: " + typeUID);
             }
         } else {
-            log.error(MODULE_SPI_FACTORY_NAME + "ModuleTypeRegistry service is not available");
+            log.error(MODULE_HANDLER_FACTORY_NAME + "ModuleTypeRegistry service is not available");
         }
         return (T) moduleHandler;
     }
@@ -137,12 +136,16 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
      * Release used resources
      */
     public void dispose() {
+        if (moduleTypeRegistryTracker != null) {
+            moduleTypeRegistryTracker.close();
+        }
+        dispose0();
+    }
+
+    public void dispose0() {
         if (moduleTypeRegistryRef != null) {
             bc.ungetService(moduleTypeRegistryRef);
             moduleTypeRegistryRef = null;
-        }
-        if (moduleTypeRegistryTracker != null) {
-            moduleTypeRegistryTracker.close();
         }
         moduleTypeRegistry = null;
         if (serviceReg != null) {
@@ -159,5 +162,9 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
     private String getHandlerUID(String moduleTypeUID) {
         StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, UID_SEPARATOR);
         return tokenizer.nextToken();
+    }
+
+    static ModuleTypeRegistry getModuleTypeRegistry() {
+        return moduleTypeRegistry;
     }
 }

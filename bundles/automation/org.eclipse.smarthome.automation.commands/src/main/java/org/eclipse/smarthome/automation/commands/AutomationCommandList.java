@@ -12,7 +12,6 @@
 
 package org.eclipse.smarthome.automation.commands;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -20,6 +19,7 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ActionType;
@@ -31,20 +31,37 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
+ * This class provides common functionality of commands:
+ * <ul>
+ * <p>
+ * {@link AutomationCommands#LIST_MODULE_TYPES}
+ * <p>
+ * {@link AutomationCommands#LIST_TEMPLATES}
+ * <p>
+ * {@link AutomationCommands#LIST_RULES}
+ * </ul>
+ * 
  * @author Ana Dimova - Initial Contribution
- *
+ * 
  */
 public class AutomationCommandList extends AutomationCommand {
 
-    private String id; // uid of rule, template, etc., or filter, or sequence number
-    private Locale locale = Locale.getDefault();
+    /**
+     * This field serves to keep the UID of a {@link Rule}, {@link Template} or {@link ModuleType}, or part of it, or
+     * sequence number of a {@link Rule}, {@link Template}, or {@link ModuleType} in the list.
+     */
+    private String id;
 
     /**
-     *
-     * @param command
-     * @param params
-     * @param adminType
-     * @param autoCommands
+     * This field is used to search for rules, templates or types of modules, which have been translated to the language
+     * from the locale.
+     */
+    private Locale locale = Locale.getDefault(); // For now is initialized with the default locale, but when the
+                                                 // localization is implemented, it will be initialized with a parameter
+                                                 // of the command.
+
+    /**
+     * @see AutomationCommand#AutomationCommand(String, String[], int, AutomationCommandsPluggable)
      */
     public AutomationCommandList(String command, String[] params, int adminType,
             AutomationCommandsPluggable autoCommands) {
@@ -52,60 +69,82 @@ public class AutomationCommandList extends AutomationCommand {
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.commands.AutomationCommand#execute()
+     * This method is responsible for execution of commands:
+     * <ul>
+     * <p>
+     * {@link AutomationCommands#LIST_MODULE_TYPES}
+     * <p>
+     * {@link AutomationCommands#LIST_TEMPLATES}
+     * <p>
+     * {@link AutomationCommands#LIST_RULES}
+     * </ul>
      */
     @Override
     public String execute() {
         if (parsingResult != SUCCESS) {
             return parsingResult;
         }
-        if (adminType == AutomationCommands.MODULE_TYPE_ADMIN) {
+        if (providerType == AutomationCommands.MODULE_TYPE_PROVIDER) {
             return listModuleTypes();
         }
-        if (adminType == AutomationCommands.TEMPLATE_ADMIN) {
+        if (providerType == AutomationCommands.TEMPLATE_PROVIDER) {
             return listTemplates();
         }
-        if (adminType == AutomationCommands.RULE_ADMIN) {
+        if (providerType == AutomationCommands.RULE_PROVIDER) {
             return listRules();
         }
         return FAIL;
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.commands.AutomationCommand#parseOptionsAndParameters(PrintStream, String[])
+     * This method is invoked from the constructor to parse all parameters and options of the command <b>LIST</b>.
+     * This command has:
+     * <p>
+     * <b>Options:</b>
+     * <ul>
+     * <b>PrintStackTrace</b> which is common for all commands
+     * </ul>
+     * <p>
+     * <b>Parameters:</b>
+     * <ul>
+     * <b>id</b> which is optional
+     * </ul>
+     * If there are redundant parameters or options the result will be the failure of the command.
      */
     @Override
-    protected String parseOptionsAndParameters(String[] params) {
+    protected String parseOptionsAndParameters(String[] parameterValues) {
         boolean getId = true;
-        for (int i = 0; i < params.length; i++) {
-            if (null == params[i]) {
+        for (int i = 0; i < parameterValues.length; i++) {
+            if (null == parameterValues[i]) {
                 continue;
             }
-            if (params[i].charAt(0) == '-') {
-                if (params[i].equals(OPTION_ST)) {
+            if (parameterValues[i].charAt(0) == '-') {
+                if (parameterValues[i].equals(OPTION_ST)) {
                     st = true;
                     continue;
                 }
                 return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
-                        params[i]);
+                        parameterValues[i]);
             }
             if (getId) {
-                id = params[i];
+                id = parameterValues[i];
                 getId = false;
             }
             if (getId)
                 return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                        params[i]);
+                        parameterValues[i]);
         }
         return SUCCESS;
     }
 
     /**
-     *
-     * @return
+     * This method is responsible for execution of command {@link AutomationCommands#LIST_RULES}.
+     * 
+     * @return a string representing understandable for the user message containing information on the outcome of the
+     *         command {@link AutomationCommands#LIST_RULES}.
      */
     private String listRules() {
-        Collection collection = autoCommands.getRules(null);
+        Collection collection = autoCommands.getRules();
         Hashtable<String, Rule> rules = new Hashtable<String, Rule>();
         Hashtable<String, String> listRules = null;
         if (collection != null && !collection.isEmpty()) {
@@ -116,7 +155,8 @@ public class AutomationCommandList extends AutomationCommand {
                 if (collection.size() == 1) {
                     Rule r = (Rule) collection.toArray()[0];
                     if (r != null) {
-                        return Printer.printRule(r);
+                        RuleStatus status = autoCommands.getRuleStatus(r.getUID());
+                        return Printer.printRule(r, status);
                     } else {
                         return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
                     }
@@ -129,14 +169,18 @@ public class AutomationCommandList extends AutomationCommand {
                     listRules = Utils.filterList(rules, listRules);
                 }
             }
-            return Printer.print(listRules, command, id);
+            if (listRules != null && !listRules.isEmpty()) {
+                return Printer.print(listRules);
+            }
         }
         return String.format("[Automation Commands : Command \"%s\"] There are no Rules available!", command);
     }
 
     /**
-     *
-     * @return
+     * This method is responsible for execution of command {@link AutomationCommands#LIST_TEMPLATES}.
+     * 
+     * @return a string representing understandable for the user message containing information on the outcome of the
+     *         command {@link AutomationCommands#LIST_TEMPLATES}.
      */
     private String listTemplates() {
         Collection collection = autoCommands.getTemplates(locale);
@@ -163,14 +207,18 @@ public class AutomationCommandList extends AutomationCommand {
                     listTemplates = Utils.filterList(templates, listTemplates);
                 }
             }
-            return Printer.print(listTemplates, command, id);
+            if (listTemplates != null && !listTemplates.isEmpty()) {
+                return Printer.print(listTemplates);
+            }
         }
         return String.format("[Automation Commands : Command \"%s\"] There are no Templates available!", command);
     }
 
     /**
-     *
-     * @return
+     * This method is responsible for execution of command {@link AutomationCommands#LIST_MODULE_TYPES}.
+     * 
+     * @return a string representing understandable for the user message containing information on the outcome of the
+     *         command {@link AutomationCommands#LIST_MODULE_TYPES}.
      */
     private String listModuleTypes() {
         Collection collection = null;
@@ -208,16 +256,18 @@ public class AutomationCommandList extends AutomationCommand {
             }
         }
         if (listModuleTypes != null && !listModuleTypes.isEmpty()) {
-            return Printer.print(listModuleTypes, command, id);
+            return Printer.print(listModuleTypes);
         }
         return String.format("[Automation Commands : Command \"%s\"] There are no Module Types available!", command);
     }
 
     /**
-     *
-     * @param ruleRegistry
-     * @param list
-     * @return
+     * This method reduces the list of {@link Rule}s so that their unique identifier or part of it to match the
+     * {@link #id} or
+     * the index in the <tt>list</tt> to match the {@link #id}.
+     * 
+     * @param list is the list of {@link Rule}s for reducing.
+     * @return a collection of {@link Rule}s that match the filter.
      */
     private Collection<Rule> getRuleByFilter(Hashtable<String, String> list) {
         Collection<Rule> rules = new ArrayList();
@@ -236,15 +286,10 @@ public class AutomationCommandList extends AutomationCommand {
                     rules.add(r);
                     return rules;
                 } else {
-                    for (String ruleUID : list.keySet()) {
-                        if (ruleUID.indexOf(id) != -1) {
+                    for (String ruleUID : list.values()) {
+                        if (ruleUID.indexOf(id) > -1) {
                             rules.add(autoCommands.getRule(ruleUID));
                         }
-                    }
-                    if (rules.isEmpty()) {
-                        return autoCommands.getRules(id);
-                    } else {
-                        return rules;
                     }
                 }
             }
@@ -253,10 +298,12 @@ public class AutomationCommandList extends AutomationCommand {
     }
 
     /**
-     *
-     * @param templateRegistry
-     * @param list
-     * @return
+     * This method reduces the list of {@link Template}s so that their unique identifier or part of it to match the
+     * {@link #id} or
+     * the index in the <tt>list</tt> to match the {@link #id}.
+     * 
+     * @param list is the list of {@link Template}s for reducing.
+     * @return a collection of {@link Template}s that match the filter.
      */
     private Collection<Template> getTemplateByFilter(Hashtable<String, String> list) {
         Collection<Template> templates = new ArrayList();
@@ -287,10 +334,12 @@ public class AutomationCommandList extends AutomationCommand {
     }
 
     /**
-     *
-     * @param moduleRegistry
-     * @param list
-     * @return
+     * This method reduces the list of {@link ModuleType}s so that their unique identifier or part of it to match the
+     * {@link #id} or
+     * the index in the <tt>list</tt> to match the {@link #id}.
+     * 
+     * @param list is the list of {@link ModuleType}s for reducing.
+     * @return a collection of {@link ModuleType}s that match the filter.
      */
     private Collection<ModuleType> getModuleTypeByFilter(Hashtable<String, String> list) {
         Collection<ModuleType> moduleTypes = new ArrayList();
@@ -320,6 +369,15 @@ public class AutomationCommandList extends AutomationCommand {
         return moduleTypes;
     }
 
+    /**
+     * This method converts a {@link Collection} of {@link Rule}s, {@link Template}s or {@link ModuleType}s to a
+     * {@link Hashtable} with keys - the UID of the object and values - the object.
+     * 
+     * @param collection is the {@link Collection} of {@link Rule}s, {@link Template}s or {@link ModuleType}s which
+     *            must be converted.
+     * @param list is the {@link Hashtable} with keys - the UID of the object and values - the object, which must be
+     *            filled with the objects from <tt>collection</tt>.
+     */
     private void addCollection(Collection collection, Hashtable list) {
         if (collection != null && !collection.isEmpty()) {
             Iterator i = collection.iterator();
@@ -336,6 +394,22 @@ public class AutomationCommandList extends AutomationCommand {
                 }
             }
         }
+    }
+
+    public String getRuleStatus(RuleStatus status) {
+        if (status != null) {
+            StringBuffer writer = new StringBuffer();
+            writer.append(" [").append(status.isEnabled() ? "enabled, " : "not enabled, ");
+            writer.append(status.isRunning() ? "running, " : "idle, ");
+            if (status.isInitialize()) {
+                writer.append("initialized]");
+            } else {
+                writer.append("not initialized]");
+            }
+
+            return writer.toString();
+        }
+        return null;
     }
 
 }

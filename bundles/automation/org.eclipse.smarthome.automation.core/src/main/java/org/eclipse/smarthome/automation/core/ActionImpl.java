@@ -46,7 +46,7 @@ public class ActionImpl extends ModuleImpl<ActionHandler> implements Action, Con
 
     public ActionImpl(String UID, String templateUID, Map<String, ?> configuration, Set<Connection> connections) {
         super(UID, templateUID, configuration);
-        this.connections = connections;
+        setConnections(connections);
     }
 
     protected ActionImpl(ActionImpl a) {
@@ -54,42 +54,34 @@ public class ActionImpl extends ModuleImpl<ActionHandler> implements Action, Con
         setConnections(a.getConnections());
     }
 
-    @Override
     public Set<Connection> getConnections() {
         return copyConnections(connections);
     }
 
-    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
-    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
-    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
-    @Override
-    public void setOuputs(Map<String, ?> outputs) {
+    public void setOutputs(Map<String, ?> outputs) {
         this.outputs = outputs;
     }
 
-    @Override
-    public Object getOuputValue(String outName) {
+    public Object getOutputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
     }
 
-    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
-    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
 

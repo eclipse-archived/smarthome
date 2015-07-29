@@ -77,4 +77,9 @@ public class TemplateRegistryImpl extends AbstractRegistry<Template, String> imp
         templateManager.dispose();
     }
 
+    @Override
+    public <T extends Template> Collection<T> getByTag(String tag) {
+        return getByTag(tag, null);
+    }
+
 }

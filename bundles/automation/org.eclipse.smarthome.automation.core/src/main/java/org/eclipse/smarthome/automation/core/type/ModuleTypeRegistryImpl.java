@@ -77,4 +77,14 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>
         moduleTypeManager.dispose();
     }
 
+    @Override
+    public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag) {
+        return moduleTypeManager.getTypesByTag(moduleTypeTag);
+    }
+
+    @Override
+    public <T extends ModuleType> Collection<T> get(Class<T> classModuleType) {
+        return moduleTypeManager.getTypes(classModuleType);
+    }
+
 }

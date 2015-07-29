@@ -22,31 +22,58 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.handler.parser.Parser;
-import org.eclipse.smarthome.automation.handler.parser.Status;
-import org.eclipse.smarthome.automation.handler.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+
+import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
+ * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractProviderImpl}.
+ * <p>
+ * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link ModuleType}s:
+ * <ul> <p>
+ * - imports the {@link ModuleType}s from local files or from URL resources
+ * <p>
+ * - provides functionality for persistence of the {@link ModuleType}s
+ * <p>
+ * - removes the {@link ModuleType}s and their persistence
+ * <p>
+ * - lists the {@link ModuleType}s and their details
+ * </ul> <p>
+ * accordingly to the used command.
+ * 
  * @author Ana Dimova - Initial Contribution
- *
+ * 
  */
-public class ModuleTypeProviderImpl extends GeneralProvider implements ModuleTypeProvider {
+public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE> implements ModuleTypeProvider {
 
     /**
-     * @param context
+     * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
+     * add any new
+     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
+     * constructor.
+     * 
+     * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
+     *            provider.
      */
-    public ModuleTypeProviderImpl(BundleContext context) {
-        super(context);
+    public ModuleTypeProviderImpl(BundleContext context, Class providerClass) {
+        super(context, providerClass);
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.core.provider.GeneralResourceBundleProvider#addingService(ServiceReference)
+     * This method differentiates what type of {@link Parser}s is tracked by the tracker.
+     * For this concrete provider, this type is a {@link ModuleType} {@link Parser}.
+     * 
+     * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
     public Object addingService(ServiceReference reference) {
@@ -57,18 +84,14 @@ public class ModuleTypeProviderImpl extends GeneralProvider implements ModuleTyp
     }
 
     /**
-     * @param parserType
-     * @param set
-     * @param file
+     * @see AutomationCommandsPluggable#importModuleTypes(String, URL)
      */
     public Status exportModuleTypes(String parserType, Set set, File file) {
         return super.exportData(parserType, set, file);
     }
 
     /**
-     * @param parserType
-     * @param url
-     * @return
+     * @see AutomationCommandsPluggable#exportModuleTypes(String, Set, File)
      */
     public Set<Status> importModuleTypes(String parserType, URL url) {
         InputStreamReader inputStreamReader = null;
@@ -78,8 +101,7 @@ public class ModuleTypeProviderImpl extends GeneralProvider implements ModuleTyp
                 InputStream is = url.openStream();
                 BufferedInputStream bis = new BufferedInputStream(is);
                 inputStreamReader = new InputStreamReader(bis);
-                ArrayList portfolio = new ArrayList();
-                return importData(url.toString(), parser, inputStreamReader, portfolio);
+                return importData(url, parser, inputStreamReader);
             } catch (IOException e) {
                 Status s = new Status(log, 0, null);
                 s.error("Can't read from URL " + url, e);
@@ -98,47 +120,94 @@ public class ModuleTypeProviderImpl extends GeneralProvider implements ModuleTyp
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.commands.GeneralProvider#getUID(java.lang.Object)
+     * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
      */
-    @Override
-    protected String getUID(Object providedObject) {
-        return ((ModuleType) providedObject).getUID();
-    }
-
-    /**
-     * @see org.eclipse.smarthome.automation.handler.ModuleTypeResourceBundleProvider#getModuleType(java.lang.String,
-     *      java.util.Locale)
-     */
-    @Override
     public ModuleType getModuleType(String UID, Locale locale) {
-        synchronized (lock) {
-            Localizer l = providedObjectsHolder.get(UID);
-            if (l != null) {
-                ModuleType mt = (ModuleType) l.localize(locale);
-                return mt;
-            }
+        Localizer l = null;
+        synchronized (providedObjectsHolder) {
+            l = providedObjectsHolder.get(UID);
+        }
+        if (l != null) {
+            ModuleType mt = (ModuleType) l.getPerLocale(locale);
+            return mt;
         }
         return null;
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.handler.ModuleTypeResourceBundleProvider#getModuleTypes(java.util.Locale)
+     * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleTypes(java.util.Locale)
      */
-    @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
         ArrayList moduleTypesList = new ArrayList();
-        synchronized (lock) {
+        synchronized (providedObjectsHolder) {
             Iterator i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {
                 Localizer l = (Localizer) i.next();
                 if (l != null) {
-                    ModuleType mt = (ModuleType) l.localize(locale);
+                    ModuleType mt = (ModuleType) l.getPerLocale(locale);
                     if (mt != null)
                         moduleTypesList.add(mt);
                 }
             }
         }
         return moduleTypesList;
+    }
+
+    /**
+     * @see AbstractProviderImpl#importData(URL, Parser, InputStreamReader)
+     */
+    @Override
+    protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
+        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        if (providedObjects != null && !providedObjects.isEmpty()) {
+            String uid = null;
+            List<String> portfolio = new ArrayList<String>();
+            synchronized (providerPortfolio) {
+                providerPortfolio.put(url, portfolio);
+            }
+            for (Status s : providedObjects) {
+                if (s.hasErrors())
+                    continue;
+                ModuleType providedObject = (ModuleType) s.getResult();
+                uid = providedObject.getUID();
+                if (checkExistence(uid, s))
+                    continue;
+                portfolio.add(uid);
+                Localizer lProvidedObject = new Localizer(providedObject);
+                synchronized (providedObjectsHolder) {
+                    providedObjectsHolder.put(uid, lProvidedObject);
+                }
+                add(providedObject);
+            }
+        }
+        return providedObjects;
+    }
+
+    /**
+     * This method is responsible for checking the existence of {@link ModuleType}s with the same
+     * UIDs before these objects to be added in the system.
+     * 
+     * @param uid UID of the newly created {@link ModuleType}, which to be checked.
+     * @param status {@link Status} of the {@link AutomationCommand} operation. Can be successful or can fail for these
+     *            {@link ModuleType}s, for which a {@link ModuleType} with the same UID, exists.
+     * @return <code>true</code> if {@link ModuleType} with the same UID exists or <code>false</code> in the opposite
+     *         case.
+     */
+    protected boolean checkExistence(String uid, Status s) {
+        if (AutomationCommandsPluggable.moduleTypeRegistry == null) {
+            s.error("Failed to create Module Type with UID \"" + uid
+                    + "\"! Can't guarantee yet that other Module Type with the same UID does not exist.",
+                    new IllegalArgumentException());
+            s.success(null);
+            return true;
+        }
+        if (AutomationCommandsPluggable.moduleTypeRegistry.get(uid) != null) {
+            s.error("Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
+                    new IllegalArgumentException());
+            s.success(null);
+            return true;
+        }
+        return false;
     }
 
 }

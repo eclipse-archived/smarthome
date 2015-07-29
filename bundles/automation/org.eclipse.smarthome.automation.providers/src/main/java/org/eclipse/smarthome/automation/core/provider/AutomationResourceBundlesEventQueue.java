@@ -16,45 +16,98 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.smarthome.automation.template.Template;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.provider.TemplateProvider;
+
 /**
+ * This class is responsible for tracking the bundles providing automation resources and delegating the processing to
+ * the responsible providers in separate thread.
+ * 
  * @author Ana Dimova - Initial Contribution
- *
+ * 
  */
 class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer {
 
+    /**
+     * This static field serves as criteria for recognizing bundles providing automation resources. If these bundles
+     * have such manifest header this means that they are such providers.
+     */
     public static final String AUTOMATION_RESOURCES_HEADER = "Automation-ResourceType";
 
+    /**
+     * This field serves for saving the bundles providing automation resources until their processing completes.
+     */
     private List queue = new ArrayList();
 
+    /**
+     * These fields are for synchronization purposes
+     */
     private boolean running = false;
     private boolean closed = false;
     private boolean shared = false;
 
+    /**
+     * This field is a bundle tracker for bundles providing automation resources.
+     */
     private BundleTracker bTracker;
-    private TemplateResourceBundleProvider tProvider;
-    private ModuleTypeResourceBundleProvider mProvider;
-    private RuleResourceBundleImporter rProvider;
 
+    /**
+     * This field holds a reference to an implementation of {@link TemplateProvider}.
+     */
+    private TemplateResourceBundleProvider tProvider;
+
+    /**
+     * This field holds a reference to an implementation of {@link ModuleTypeProvider}.
+     */
+    private ModuleTypeResourceBundleProvider mProvider;
+
+    /**
+     * This field holds a reference to an importer for {@link Rule}s.
+     */
+    private RuleResourceBundleImporter rImporter;
+
+    /**
+     * This constructor is responsible for initializing the tracker for bundles providing automation resources and their
+     * providers.
+     * 
+     * @param bc is the execution context of the bundle being started, serves for creation of the tracker.
+     * @param tProvider is a reference to an implementation of {@link TemplateProvider}.
+     * @param mProvider is a reference to an implementation of {@link ModuleTypeProvider}.
+     * @param rImporter is a reference to an importer for {@link Rule}s.
+     */
     public AutomationResourceBundlesEventQueue(BundleContext bc, TemplateResourceBundleProvider tProvider,
-            ModuleTypeResourceBundleProvider mProvider, RuleResourceBundleImporter rProvider) {
+            ModuleTypeResourceBundleProvider mProvider, RuleResourceBundleImporter rImporter) {
         this.tProvider = tProvider;
         this.mProvider = mProvider;
-        this.rProvider = rProvider;
+        this.rImporter = rImporter;
         bTracker = new BundleTracker(bc, ~Bundle.UNINSTALLED, this);
     }
 
+    /**
+     * This method serves to open the bundle tracker when all providers are ready for work.
+     */
     public void open() {
-        bTracker.open();
+        if (tProvider.isReady() && mProvider.isReady() && rImporter.isReady())
+            bTracker.open();
     }
 
-    @Override
+    /**
+     * When a new event for a bundle providing automation resources is received, this will causes a creation of a new
+     * thread if there is no other created yet. If the thread already exists, then it will be notified for the event.
+     * Starting the thread will cause the execution of this method in separate thread.
+     * <p>
+     * The general contract of this method <code>run</code> is invoking of the
+     * {@link #processBundleChanged(BundleEvent)} method and executing it in separate thread.
+     * 
+     * @see java.lang.Thread#run()
+     */
     public void run() {
         boolean waitForEvents = true;
         while (true) {
@@ -80,13 +133,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
                 l_queue = queue;
                 shared = true;
             }
-            try {
-                Iterator events = l_queue.iterator();
-                while (events.hasNext()) {
-                    processBundleChanged((BundleEvent) events.next());
-                }
-            } catch (Throwable t) {
-                t.printStackTrace(); // TODO
+            Iterator events = l_queue.iterator();
+            while (events.hasNext()) {
+                processBundleChanged((BundleEvent) events.next());
             }
             synchronized (this) {
                 if (shared)
@@ -98,6 +147,10 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         }
     }
 
+    /**
+     * This method is invoked when the bundle stops to close the bundle tracker and to stop the separate thread if still
+     * running.
+     */
     public void stop() {
         synchronized (this) {
             closed = true;
@@ -107,10 +160,21 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     }
 
     /**
-     * @see org.osgi.util.tracker.BundleTrackerCustomizer#addingBundle(org.osgi.framework.Bundle,
-     *      org.osgi.framework.BundleEvent)
+     * A bundle that provides automation resources is being added to the {@code BundleTracker}.
+     * 
+     * <p>
+     * This method is called before a bundle that provides automation resources is added to the {@code BundleTracker}.
+     * This method returns the object to be tracked for the specified {@code Bundle}. The returned object is stored in
+     * the {@code BundleTracker} and is available from the {@link BundleTracker#getObject(Bundle) getObject} method.
+     * 
+     * @param bundle The {@code Bundle} being added to the {@code BundleTracker} .
+     * @param event The bundle event which caused this customizer method to be
+     *            called or {@code null} if there is no bundle event associated with
+     *            the call to this method.
+     * @return The object to be tracked for the specified {@code Bundle} object
+     *         or {@code null} if the specified {@code Bundle} object should not
+     *         be tracked.
      */
-    @Override
     public Object addingBundle(Bundle bundle, BundleEvent event) {
         if (isAnAutomationProvider(bundle)) {
             addEvent(event == null ? new BundleEvent(BundleEvent.INSTALLED, bundle) : event);
@@ -119,10 +183,17 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     }
 
     /**
-     * @see org.osgi.util.tracker.BundleTrackerCustomizer#modifiedBundle(org.osgi.framework.Bundle,
-     *      org.osgi.framework.BundleEvent, java.lang.Object)
+     * A bundle tracked by the {@code BundleTracker} has been modified.
+     * 
+     * <p>
+     * This method is called when a bundle being tracked by the {@code BundleTracker} has had its state modified.
+     * 
+     * @param bundle The {@code Bundle} whose state has been modified.
+     * @param event The bundle event which caused this customizer method to be
+     *            called or {@code null} if there is no bundle event associated with
+     *            the call to this method.
+     * @param object The tracked object for the specified bundle.
      */
-    @Override
     public void modifiedBundle(Bundle bundle, BundleEvent event, Object object) {
         if (isAnAutomationProvider(bundle) && event.getType() == BundleEvent.UPDATED) {
             addEvent(event);
@@ -130,10 +201,17 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     }
 
     /**
-     * @see org.osgi.util.tracker.BundleTrackerCustomizer#removedBundle(org.osgi.framework.Bundle,
-     *      org.osgi.framework.BundleEvent, java.lang.Object)
+     * A bundle tracked by the {@code BundleTracker} has been removed.
+     * 
+     * <p>
+     * This method is called after a bundle is no longer being tracked by the {@code BundleTracker}.
+     * 
+     * @param bundle The {@code Bundle} that has been removed.
+     * @param event The bundle event which caused this customizer method to be
+     *            called or {@code null} if there is no bundle event associated with
+     *            the call to this method.
+     * @param object The tracked object for the specified bundle.
      */
-    @Override
     public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
         if (!closed) {
             if (isAnAutomationProvider(bundle)) {
@@ -143,16 +221,25 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     }
 
     /**
-     * This method is used to check if the specified {@link Bundle} contains resource files providing {@link Template}s.
-     *
+     * This method is used to check if the specified {@code Bundle} contains resource files providing automation
+     * resources.
+     * 
      * @param bundle is a {@link Bundle} object to check.
-     * @return <tt>true</tt> if the specified {@link Bundle} contains resource files providing {@link Template}s,
-     *         <tt>false</tt> otherwise.
+     * @return <tt>true</tt> if the specified {@link Bundle} contains resource files providing automation
+     *         resources, <tt>false</tt> otherwise.
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
         return bundle.getHeaders().get(AUTOMATION_RESOURCES_HEADER) != null;
     }
 
+    /**
+     * This method is called when a new event for a bundle providing automation resources is received. It causes a
+     * creation of a new thread if there is no other created yet and starting the thread. If the thread already exists,
+     * it is waiting for events and will be notified for the event.
+     * 
+     * @param event for a bundle tracked by the {@code BundleTracker}. It has been for adding, modifying or removing the
+     *            bundle.
+     */
     private synchronized void addEvent(BundleEvent event) {
         if (closed)
             return;
@@ -164,33 +251,68 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
             if (running)
                 notifyAll();
             else {
-                Thread th = new Thread(this, "Template Provider Processing Queue");
+                Thread th = new Thread(this, "Automation Provider Processing Queue");
                 th.start();
                 running = true;
             }
         }
     }
 
+    /**
+     * Depending on the action committed against the bundle supplier of automation resources, this method performs the
+     * appropriate actions - calls for the each provider:
+     * <ul>
+     * <p>
+     * {@link AbstractResourceBundleProvider#processAutomationProviderUninstalled(Bundle)} method,
+     * <p>
+     * {@link AbstractResourceBundleProvider#processAutomationProvider(Bundle)} method
+     * <p>
+     * or both in this order.
+     * <p>
+     * </ul>
+     * 
+     * @param event for a bundle tracked by the {@code BundleTracker}. It has been for adding, modifying or removing the
+     *            bundle.
+     */
     private void processBundleChanged(BundleEvent event) {
         Bundle bundle = event.getBundle();
+        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         switch (event.getType()) {
             case BundleEvent.UPDATED:
-                rProvider.processAutomationProviderUninstalled(bundle);
-                tProvider.processAutomationProviderUninstalled(bundle);
-                mProvider.processAutomationProviderUninstalled(bundle);
-                mProvider.processAutomationProvider(bundle);
-                tProvider.processAutomationProvider(bundle);
-                rProvider.processAutomationProvider(bundle);
+                if (!mProvider.isProviderProcessed(vendor)) {
+                    mProvider.processAutomationProviderUninstalled(bundle);
+                    mProvider.processAutomationProvider(bundle);
+                }
+                if (!tProvider.isProviderProcessed(vendor)) {
+                    tProvider.processAutomationProviderUninstalled(bundle);
+                    tProvider.processAutomationProvider(bundle);
+                }
+                if (!rImporter.isProviderProcessed(vendor)) {
+                    rImporter.processAutomationProviderUninstalled(bundle);
+                    rImporter.processAutomationProvider(bundle);
+                }
                 break;
             case BundleEvent.UNINSTALLED:
-                rProvider.processAutomationProviderUninstalled(bundle);
-                tProvider.processAutomationProviderUninstalled(bundle);
-                mProvider.processAutomationProviderUninstalled(bundle);
+                if (!mProvider.isProviderProcessed(vendor)) {
+                    mProvider.processAutomationProviderUninstalled(bundle);
+                }
+                if (!tProvider.isProviderProcessed(vendor)) {
+                    tProvider.processAutomationProviderUninstalled(bundle);
+                }
+                if (!rImporter.isProviderProcessed(vendor)) {
+                    rImporter.processAutomationProviderUninstalled(bundle);
+                }
                 break;
             default:
-                mProvider.processAutomationProvider(bundle);
-                tProvider.processAutomationProvider(bundle);
-                rProvider.processAutomationProvider(bundle);
+                if (!mProvider.isProviderProcessed(vendor)) {
+                    mProvider.processAutomationProvider(bundle);
+                }
+                if (!tProvider.isProviderProcessed(vendor)) {
+                    tProvider.processAutomationProvider(bundle);
+                }
+                if (!rImporter.isProviderProcessed(vendor)) {
+                    rImporter.processAutomationProvider(bundle);
+                }
         }
     }
 }
