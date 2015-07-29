@@ -14,14 +14,62 @@
 	var
 		featureSupport = {
 			eventLayerXY: (function() {
-				if (UIEvent === undefined) {
-					return false;
+				var
+					event;
+
+				if (document.createEvent === undefined) {
+					event = new MouseEvent(null);
+				} else {
+					event = document.createEvent("MouseEvent");
 				}
-				return (new UIEvent("", {}).layerX !== undefined);
+
+				return (event.layerX !== undefined);
 			})(),
-			pointerEvents: (document.createElement("div").style.pointerEvents !== undefined)
-		};
-	
+			pointerEvents: (document.createElement("div").style.pointerEvents !== undefined),
+			customEvent: (function() {
+				var
+					supported = true;
+
+				try {
+					new CustomEvent("event", {});
+				} catch (e) {
+					supported = false;
+				}
+
+				return supported;
+			})(),
+			elementRemove: Element.prototype.remove !== undefined
+		},
+		createEvent;
+
+	// Add polyfills for unsupported features
+	(function() {
+		// CustomEvent
+		if (featureSupport.customEvent) {
+			createEvent = function(name, data) {
+				return new CustomEvent(
+					name, {
+						detail: data
+					}
+				);
+			};
+		} else {
+			createEvent = function(name, data) {
+				var
+					event = document.createEvent("CustomEvent");
+				event.initCustomEvent(name, true, false, data);
+				return event;
+			};
+		}
+
+		// Element.prototype.remove
+		if (!featureSupport.elementRemove) {
+			Element.prototype.remove = function() {
+				this.parentNode.removeChild(this);
+			};
+		}
+	})();
+
 	function extend(b, a) {
 		for (var c in a) {
 			b[c] = a[c];
@@ -134,14 +182,21 @@
 		
 		function replaceContent(xmlResponse) {
 			var
-				page = xmlResponse.documentElement;
+				page = xmlResponse.documentElement,
+				nodeArray = [];
 
 			if (page.tagName !== "page") {
 				console.error("Unexcepted response received");
 				return;
 			}
 
-			setTitle(page.children[0].innerHTML);
+			[].forEach.call(page.childNodes, function(node) {
+				if (!(node instanceof Text)) {
+					nodeArray.push(node);
+				}
+			});
+
+			setTitle(nodeArray[0].textContent);
 
 			var
 				contentElement = document.querySelector(".page-content");
@@ -149,8 +204,8 @@
 			while (contentElement.firstChild) {
 				contentElement.removeChild(contentElement.firstChild);
 			}
-			
-			contentElement.insertAdjacentHTML("beforeend", page.children[1].textContent);
+
+			contentElement.insertAdjacentHTML("beforeend", nodeArray[1].textContent);
 		}
 		
 		_t.upgradeComponents = function() {
@@ -418,12 +473,10 @@
 				target.classList.add(o.buttonActiveClass);
 			}
 
-			_t.parentNode.dispatchEvent(new CustomEvent(
+			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
-				detail: {
 					item: _t.item,
 					value: value
-				}
 			}));
 			_t.supressUpdate();
 		};
@@ -458,11 +511,9 @@
 			var
 				value = event.target.getAttribute("value");
 			
-			_t.parentNode.dispatchEvent(new CustomEvent("control-change", {
-				detail: {
-					item: _t.item,
-					value: value
-				}
+			_t.parentNode.dispatchEvent(createEvent("control-change", {
+				item: _t.item,
+				value: value
 			}));
 			
 			setTimeout(function() {
@@ -519,12 +570,10 @@
 		_t.buttonStop = _t.parentNode.querySelector(o.rollerblind.stop);
 
 		function emitEvent(value) {
-			_t.parentNode.dispatchEvent(new CustomEvent(
+			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
-				detail: {
 					item: _t.item,
 					value: value
-				}
 			}));
 		}
 
@@ -600,12 +649,10 @@
 			value = value > _t.max ? _t.max : value;
 			value = value < _t.min ? _t.min : value;
 
-			_t.parentNode.dispatchEvent(new CustomEvent(
+			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
-				detail: {
 					item: _t.item,
 					value: value
-				}
 			}));
 
 			_t.value = value;
@@ -947,12 +994,10 @@
 		};
 
 		function emitEvent(value) {
-			_t.parentNode.dispatchEvent(new CustomEvent(
+			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
-				detail: {
 					item: _t.item,
 					value: value
-				}
 			}));
 		}
 
@@ -1014,11 +1059,9 @@
 		
 		_t.input = _t.parentNode.querySelector("input[type=checkbox]");
 		_t.input.addEventListener("change", function() {
-			_t.parentNode.dispatchEvent(new CustomEvent("control-change", {
-				detail: {
-					item: _t.item,
-					value: _t.input.checked ? "ON" : "OFF"
-				}
+			_t.parentNode.dispatchEvent(createEvent("control-change", {
+				item: _t.item,
+				value: _t.input.checked ? "ON" : "OFF"
 			}));
 			_t.supressUpdate();
 		});
@@ -1047,11 +1090,9 @@
 		_t.input = _t.parentNode.querySelector("input[type=range]");
 		
 		_t.input.addEventListener("change", function() {
-			_t.parentNode.dispatchEvent(new CustomEvent("control-change", {
-				detail: {
-					item: _t.item,
-					value: _t.input.value
-				}
+			_t.parentNode.dispatchEvent(createEvent("control-change", {
+				item: _t.item,
+				value: _t.input.value
 			}));
 			_t.supressUpdate();
 		});
