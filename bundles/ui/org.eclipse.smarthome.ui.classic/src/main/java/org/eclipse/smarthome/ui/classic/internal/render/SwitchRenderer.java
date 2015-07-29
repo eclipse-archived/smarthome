@@ -78,6 +78,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%item%", w.getItem());
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
+        snippet = StringUtils.replace(snippet, "%count%", Integer.toString(s.getMappings().size()));
 
         State state = itemUIRegistry.getState(w);
 
@@ -98,9 +99,9 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                 button = StringUtils.replace(button, "%cmd%", mapping.getCmd());
                 button = StringUtils.replace(button, "%label%", mapping.getLabel());
                 if (s.getMappings().size() > 1 && state.toString().equals(mapping.getCmd())) {
-                    button = StringUtils.replace(button, "%type%", "Warn"); // button with red color
+                    button = StringUtils.replace(button, "%class%", "mdl-button--accent");
                 } else {
-                    button = StringUtils.replace(button, "%type%", "Action"); // button with blue color
+                    button = StringUtils.replace(button, "%class%", "mdl-button");
                 }
                 buttons.insert(0, button);
             }

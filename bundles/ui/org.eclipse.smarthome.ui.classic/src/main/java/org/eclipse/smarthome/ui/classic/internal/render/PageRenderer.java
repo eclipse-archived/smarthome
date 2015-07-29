@@ -96,9 +96,11 @@ public class PageRenderer extends AbstractWidgetRenderer {
         if (!children.isEmpty()) {
             EObject firstChild = children.get(0);
             EObject parent = firstChild.eContainer();
-            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap || parent instanceof List)) {
+            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
+                    || parent instanceof List)) {
                 String frameSnippet = getSnippet("frame");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
+                frameSnippet = StringUtils.replace(frameSnippet, "%frame_class%", "mdl-form--no-label");
 
                 String[] parts = frameSnippet.split("%children%");
                 if (parts.length > 1) {

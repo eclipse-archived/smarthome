@@ -1,6 +1,16 @@
-<li>
-	<img src="../icon/%icon%.png" width=29 height=29 class="iFull" />
-	%label%
-	<img src="images/_down.png" ontouchstart="buttonPressed('CMD?%item%=DOWN')" onMouseDown="buttonPressed('CMD?%item%=DOWN')" onMouseUp="buttonReleased('CMD?%item%=DOWN', 'CMD?%item%=STOP')" />
-	<img src="images/_stop.png" onclick="ChangeState('CMD?%item%=STOP')" /><img src="images/_up.png" ontouchstart="buttonPressed('CMD?%item%=UP')" onMouseDown="buttonPressed('CMD?%item%=UP')" onMouseUp="buttonReleased('CMD?%item%=UP', 'CMD?%item%=STOP')" />
-</li>
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+	<span class="mdl-form__label">
+		%label%
+	</span>
+	<div class="mdl-form__control mdl-form__rollerblind" data-control-type="rollerblind" data-item="%item%">
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__rollerblind--up">
+			<i class="material-icons">keyboard_arrow_up</i>
+		</button>
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__rollerblind--stop">
+			<i class="material-icons">close</i>
+		</button>
+		<button class="mdl-button mdl-button--raised mdl-js-button mdl-js-ripple-effect mdl-form__rollerblind--down">
+			<i class="material-icons">keyboard_arrow_down</i>
+		</button>
+	</div>
+</div>

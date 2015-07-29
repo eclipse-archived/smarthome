@@ -1,6 +1,17 @@
-<li style="%labelstyle%">
-    <img src="../icon/%icon%.png" width=29 height=29 class="iFull" />
-    %label%
-    <img src="images/_down.png" ontouchstart="repeatedRequest('CMD?%item%=DECREASE', %frequency%, %switch%)" onmousedown="repeatedRequest('CMD?%item%=DECREASE', %frequency%, %switch%)" onmouseup="stopRepeatedRequest('CMD?%item%=OFF')" />
-    <img src="images/_up.png" ontouchstart="repeatedRequest('CMD?%item%=INCREASE', %frequency%, %switch%)" onmousedown="repeatedRequest('CMD?%item%=INCREASE', %frequency%, %switch%)" onmouseup="stopRepeatedRequest('CMD?%item%=ON')" />
-</li>
+<div class="mdl-form__row mdl-cell mdl-cell--6-col mdl-cell--8-col-tablet">
+	<span class="mdl-form__label">
+		%label%
+	</span>
+	<span class="mdl-form__control" data-control-type="slider" data-item="%item%">
+		<input 
+			data-freq="%frequency%" 
+			data-state="%state%"
+			class="mdl-slider mdl-js-slider" 
+			type="range"  
+			min="0" 
+			max="100" 
+			tabindex="0"
+			value="0"
+		/>
+	</span>
+</div>
