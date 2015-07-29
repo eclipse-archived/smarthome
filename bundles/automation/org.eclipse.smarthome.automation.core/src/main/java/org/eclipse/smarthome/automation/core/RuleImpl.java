@@ -12,26 +12,36 @@
 
 package org.eclipse.smarthome.automation.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.util.ConnectionValidator;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
  *
  */
 public class RuleImpl implements Rule {
-
+    /**
+     * Module configuration properties can have reference to Rule configuration properties.
+     * This symbol is put as prefix to the name of the Rule configuration property.
+     */
+    private static final char REFERENCE_SYMBOL = '$';
     private String uid;
     private String name;
     private Set<String> tags;
@@ -39,16 +49,23 @@ public class RuleImpl implements Rule {
     protected List<Trigger> triggers;
     protected List<Condition> conditions;
     protected List<Action> actions;
-    private Set<ConfigDescriptionParameter> configDescriptions;
+    protected Set<ConfigDescriptionParameter> configDescriptions;
     private Map<String, ?> configurations;
     private String scopeId;
     private Map<String, Module> moduleMap;
-    private boolean isEnabled = true;
+
+    protected boolean initialEnabled = true;
+
+    // private boolean isInitialized = false;
+    // private List<RuleError> errors;
 
     public RuleImpl(List<Trigger> triggers, //
             List<Condition> conditions, //
             List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,//
             Map<String, ?> configurations) {
+
+        // the rule must not be created if connections are incorrect
+        ConnectionValidator.validateConnections(Activator.moduleTypeRegistry, triggers, conditions, actions);
 
         this.triggers = triggers;
         this.conditions = conditions;
@@ -56,30 +73,48 @@ public class RuleImpl implements Rule {
         this.configDescriptions = configDescriptions;
         this.configurations = configurations;
 
+        handleModuleConfigReferences(triggers, conditions, actions, configurations);
     }
 
     /**
-     * Utility constructor creating copy of the Rule.
+     * @param ruleTemplateUID
+     * @param configurations
+     * @throws Exception
+     */
+    public RuleImpl(String ruleTemplateUID, Map<String, Object> configurations) {
+        RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
+        this.triggers = template.getModules(Trigger.class);
+        this.conditions = template.getModules(Condition.class);
+        this.actions = template.getModules(Action.class);
+        configDescriptions = template.getConfigurationDescription();
+
+        // the rule must not be created if configuration is incorrect
+        validateConfiguration(configDescriptions, new HashMap(configurations));
+        this.configurations = configurations;
+        handleModuleConfigReferences(triggers, conditions, actions, configurations);
+    }
+
+    /**
+     * Utility constructor creating copy of the Rule or create a new empty instance.
      *
-     * @param rule
+     * @param rule a rule which has to be copied or null when an empty instance of rule
+     *            has to be created.
      */
     protected RuleImpl(RuleImpl rule) {
-        this(rule.getModules(Trigger.class), //
-                rule.getModules(Condition.class),//
-                rule.getModules(Action.class), //
-                rule.getConfigurationDescriptions(), //
-                rule.getConfiguration());
-        uid = rule.getUID();
-        setName(rule.getName());
-        setTags(rule.getTags());
-        setDescription(rule.getDescription());
-        setEnabled(rule.isEnabled());
+        if (rule != null) {
+            this.triggers = rule.getModules(Trigger.class);
+            this.conditions = rule.getModules(Condition.class);
+            this.actions = rule.getModules(Action.class);
+            this.configDescriptions = rule.getConfigurationDescriptions();
+            this.configurations = rule.getConfiguration();
+            uid = rule.getUID();
+            setName(rule.getName());
+            setTags(rule.getTags());
+            setDescription(rule.getDescription());
+            // setEnabled(rule.isEnabled());
+        }
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Rule#getUID()
-     */
-    @Override
     public String getUID() {
         return uid;
     }
@@ -88,92 +123,44 @@ public class RuleImpl implements Rule {
         this.uid = uid;
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Rule#getName()
-     */
-    @Override
     public String getName() {
         return name;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#setName(java.lang.String)
-     */
-    @Override
     public void setName(String ruleName) throws IllegalStateException {
         this.name = ruleName;
 
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getTags()
-     */
-    @Override
     public Set<String> getTags() {
         return tags;
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Rule#setTags(java.util.Set)
-     */
-    @Override
     public void setTags(Set<String> ruleTags) throws IllegalStateException {
         this.tags = ruleTags;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getDescription()
-     */
-    @Override
     public String getDescription() {
         return description;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#setDescription(java.lang.String)
-     */
-    @Override
     public void setDescription(String ruleDescription) {
         this.description = ruleDescription;
 
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getConfigurationDescriptions()
-     */
-    @Override
     public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getConfiguration()
-     */
-    @Override
     public Map<String, Object> getConfiguration() {
         return configurations != null ? new HashMap<String, Object>(configurations) : null;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#setConfiguration(java.util.Map)
-     */
-    @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
         this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getModule(java.lang.String)
-     */
-    @Override
     public <T extends Module> T getModule(String moduleId) {
         Module m = getModule0(moduleId);
         return (T) m;
@@ -214,10 +201,6 @@ public class RuleImpl implements Rule {
         return moduleMap;
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Rule#getModules(java.lang.Class)
-     */
-    @Override
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         List<T> result = null;
         if (moduleClazz == null || Trigger.class == moduleClazz) {
@@ -254,11 +237,6 @@ public class RuleImpl implements Rule {
         return new ArrayList<T>();
     }
 
-    /**
-     *
-     * @see org.eclipse.smarthome.automation.Rule#getScopeIdentifier()
-     */
-    @Override
     public String getScopeIdentifier() {
         return scopeId;
     }
@@ -267,12 +245,8 @@ public class RuleImpl implements Rule {
         this.scopeId = scopeId;
     }
 
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
-    public void setEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
+    protected boolean isInitialEnabled() {
+        return initialEnabled;
     }
 
     /**
@@ -298,4 +272,145 @@ public class RuleImpl implements Rule {
         }
         return super.hashCode();
     }
+
+    /**
+     * @param configDescriptions
+     * @param configurations
+     * @throws Exception
+     */
+    private void validateConfiguration(Set<ConfigDescriptionParameter> configDescriptions,
+            Map<String, Object> configurations) {
+        if (configurations == null || configurations.isEmpty()) {
+            if (isOptionalConfig(configDescriptions)) {
+                return;
+            } else
+                throw new IllegalArgumentException("Missing required configuration properties!");
+        } else {
+            for (ConfigDescriptionParameter configParameter : configDescriptions) {
+                String configParameterName = configParameter.getName();
+                Object configValue = configurations.remove(configParameterName);
+                if (configValue != null) {
+                    processValue(configValue, configParameter);
+                }
+            }
+            if (!configurations.isEmpty()) {
+                String msg = "\"";
+                Iterator<ConfigDescriptionParameter> i = configDescriptions.iterator();
+                while (i.hasNext()) {
+                    ConfigDescriptionParameter configParameter = i.next();
+                    if (i.hasNext())
+                        msg = msg + configParameter.getName() + "\", ";
+                    else
+                        msg = msg + configParameter.getName();
+                }
+                throw new IllegalArgumentException("Extra configuration properties : " + msg + "\"!");
+            }
+        }
+
+    }
+
+    private boolean isOptionalConfig(Set<ConfigDescriptionParameter> configDescriptions) {
+        if (configDescriptions != null && !configDescriptions.isEmpty()) {
+            boolean required = false;
+            Iterator<ConfigDescriptionParameter> i = configDescriptions.iterator();
+            while (i.hasNext()) {
+                ConfigDescriptionParameter param = i.next();
+                required = required || param.isRequired();
+            }
+            return !required;
+        }
+        return true;
+    }
+
+    private void processValue(Object configValue, ConfigDescriptionParameter configParameter) {
+        if (configValue != null) {
+            checkType(configValue, configParameter);
+            return;
+        }
+        if (configParameter.getDefault() != null) {
+            return;
+        }
+        if (configParameter.isRequired()) {
+            throw new IllegalArgumentException("Required configuration property missing: \""
+                    + configParameter.getName() + "\"!");
+        }
+    }
+
+    /**
+     * @param configValue
+     * @param configParameter
+     * @throws Exception
+     */
+    private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
+        Type type = configParameter.getType();
+        if (configParameter.isMultiple()) {
+            if (configValue instanceof JSONArray) {
+                int size = ((JSONArray) configValue).length();
+                for (int index = 0; index < size; index++) {
+                    try {
+                        if (Type.TEXT.equals(type))
+                            ((JSONArray) configValue).getString(index);
+                        else if (Type.BOOLEAN.equals(type))
+                            ((JSONArray) configValue).getBoolean(index);
+                        else if (Type.INTEGER.equals(type))
+                            ((JSONArray) configValue).getLong(index);
+                        else if (Type.DECIMAL.equals(type))
+                            ((JSONArray) configValue).getDouble(index);
+                    } catch (JSONException e) {
+                        throw new IllegalArgumentException("Unexpected value for configuration property \""
+                                + configParameter.getName() + "\". " + e.getMessage());
+                    }
+                }
+            }
+            throw new IllegalArgumentException("Unexpected value for configuration property \""
+                    + configParameter.getName() + "\". Expected is Array with type for elements : " + type.toString()
+                    + "!");
+        } else {
+            if (Type.TEXT.equals(type) && configValue instanceof String)
+                return;
+            else if (Type.BOOLEAN.equals(type) && configValue instanceof Boolean)
+                return;
+            else if (Type.INTEGER.equals(type)
+                    && (configValue instanceof Short || configValue instanceof Byte || configValue instanceof Integer || configValue instanceof Long))
+                return;
+            else if (Type.DECIMAL.equals(type) && (configValue instanceof Float || configValue instanceof Double))
+                return;
+            else {
+                throw new IllegalArgumentException("Unexpected value for configuration property \""
+                        + configParameter.getName() + "\". Expected is " + type.toString() + "!");
+            }
+        }
+    }
+
+    private void handleModuleConfigReferences(List<? extends Module> triggers, List<? extends Module> conditions,
+            List<? extends Module> actions, Map<String, ?> ruleConfiguration) {
+        if (ruleConfiguration != null) {
+            handleModuleConfigReferences0(triggers, ruleConfiguration);
+            handleModuleConfigReferences0(conditions, ruleConfiguration);
+            handleModuleConfigReferences0(actions, ruleConfiguration);
+        }
+    }
+
+    private void handleModuleConfigReferences0(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
+        if (modules != null) {
+            for (Module module : modules) {
+                Map<String, Object> moduleConfiguration = module.getConfiguration();
+                if (moduleConfiguration != null) {
+                    for (Map.Entry<String, Object> entry : moduleConfiguration.entrySet()) {
+                        String configName = entry.getKey();
+                        Object configValue = entry.getValue();
+                        if (configValue instanceof String) {
+                            String configValueStr = (String) configValue;
+                            if (configValueStr.charAt(0) == REFERENCE_SYMBOL) {
+                                String referredRuleConfigName = configValueStr.substring(1);
+                                Object referredRuleConfigValue = ruleConfiguration.get(referredRuleConfigName);
+                                moduleConfiguration.put(configName, referredRuleConfigValue);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

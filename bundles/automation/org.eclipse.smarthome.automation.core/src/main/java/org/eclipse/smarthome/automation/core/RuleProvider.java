@@ -21,7 +21,7 @@ public class RuleProvider extends AbstractProvider implements ManagedProvider {
 
     @Override
     public Collection getAll() {
-        return rm.getRules(null);
+        return rm.getRules();
     }
 
     @Override

@@ -12,7 +12,6 @@
 
 package org.eclipse.smarthome.automation.core;
 
-import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 
@@ -27,29 +26,6 @@ public class RuleManagerImpl extends RuleManager {
      */
     public RuleManagerImpl(BundleContext bc) {
         super(bc);
-        // TODO Auto-generated constructor stub
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.core.RuleManager#storeRule(org.eclipse.smarthome.automation.core.RuleImpl)
-     */
-    @Override
-    protected void storeRule(RuleImpl rule) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.core.RuleManager#loadRules()
-     */
-    @Override
-    protected Set<RuleImpl> loadRules() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

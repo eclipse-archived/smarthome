@@ -1,0 +1,15 @@
+[
+  {  
+    "name": "RuleByTemplate",
+    "template.uid": "SampleRuleTemplate",
+    "tags": [  
+      "rule",
+      "template"
+    ],
+    "active": true,
+    "config": {  
+      "condition_operator": "!=",
+      "condition_constraint": "template"
+    }
+  }
+]

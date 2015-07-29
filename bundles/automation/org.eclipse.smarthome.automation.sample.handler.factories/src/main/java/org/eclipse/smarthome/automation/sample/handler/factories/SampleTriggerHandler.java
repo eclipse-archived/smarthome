@@ -16,20 +16,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.type.Output;
-import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
+
+import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
+import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.Output;
+import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
  * Trigger Handler sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
  */
-public class SampleTriggerHandler implements TriggerHandler {
+public class SampleTriggerHandler extends AbstractModuleHandler implements TriggerHandler {
     public static final String PARSE_OUTPUT_REFERENCE = "consoleInput";
     public static final String PARSE_DOLLAR_SYMBOL = "$";
     protected Map<String, ?> configuration;
@@ -37,28 +40,22 @@ public class SampleTriggerHandler implements TriggerHandler {
     protected Trigger trigger;
     protected TriggerType triggerType;
     //
-    protected BundleContext bc;
     private RuleEngineCallback ruleCallBack;
     private Logger log;
     private SampleHandlerFactory handlerFactory;
 
-    public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger trigger, TriggerType triggerType,
-            BundleContext bc, Logger log) {
+    public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger trigger, TriggerType triggerType, Logger log) {
+        super(trigger);
         this.trigger = trigger;
         this.triggerType = triggerType;
         this.configuration = trigger.getConfiguration();
-        this.bc = bc;
         this.log = log;
         this.handlerFactory = handlerFactory;
     }
 
     @Override
-    public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration;
-    }
-
-    @Override
     public void dispose() {
+        super.dispose();
         handlerFactory.disposeHandler(this);
     }
 
@@ -104,14 +101,16 @@ public class SampleTriggerHandler implements TriggerHandler {
         return reference;
     }
 
-    @Override
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.ruleCallBack = ruleCallback;
     }
 
     public void trigger(String param) {
         if (ruleCallBack != null) {
-            ruleCallBack.triggered(trigger, getSystemOutputsValues(triggerType.getOutputs(), param));
+            Map resolvedConfiguration = getResolvedConfiguration(null);
+            Map systemOutputs = getSystemOutputsValues(triggerType.getOutputs(), param);
+            Map resolvedOutputs = getResolvedOutputs(resolvedConfiguration, null, systemOutputs);
+            ruleCallBack.triggered(trigger, resolvedOutputs);
         } else {
             log.error("RuleCallback in TriggerHandler is null");
         }
@@ -119,5 +118,10 @@ public class SampleTriggerHandler implements TriggerHandler {
 
     String getTriggerID() {
         return trigger.getId();
+    }
+    
+    @Override
+    protected ModuleTypeRegistry getModuleTypeRegistry() {
+        return SampleHandlerFactory.getModuleTypeRegistry();
     }
 }

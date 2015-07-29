@@ -3,13 +3,12 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.handler.factories
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Name: Automation sample.handler.factories
-Automation-ResourceType: json
 Import-Package: 
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
- org.eclipse.smarthome.automation.handler.parser,
- org.eclipse.smarthome.automation.handler.provider,
- org.eclipse.smarthome.automation.handler.script,
+ org.eclipse.smarthome.automation.parser,
+ org.eclipse.smarthome.automation.provider,
+ org.eclipse.smarthome.automation.script,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,

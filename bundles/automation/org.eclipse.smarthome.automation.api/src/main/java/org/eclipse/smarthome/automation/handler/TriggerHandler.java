@@ -13,7 +13,7 @@
 package org.eclipse.smarthome.automation.handler;
 
 /**
- * This SPI interface is used by the RuleEngine to set a callback interface to
+ * This Handler interface is used by the RuleEngine to set a callback interface to
  * itself. The callback has to implemented {@link RuleEngineCallback} interface
  * and it is used to notify the RuleEngine when {@link TriggerHandler} was triggered
  *

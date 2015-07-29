@@ -20,7 +20,6 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
@@ -78,17 +77,10 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      *
      * @return module id
      */
-    @Override
     public String getId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.Module#getModuleTypeUID()
-     */
-    @Override
     public String getTypeUID() {
         return typeUID;
     }
@@ -100,7 +92,6 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      *
      * @return the label of the module.
      */
-    @Override
     public String getLabel() {
         return label;
     }
@@ -112,7 +103,6 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      *
      * @param label of the module.
      */
-    @Override
     public void setLabel(String label) {
         this.label = label;
     }
@@ -123,7 +113,6 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      *
      * @return the description of the module.
      */
-    @Override
     public String getDescription() {
         return description;
     }
@@ -134,19 +123,16 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
      *
      * @param description of the module.
      */
-    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @Override
     public Map<String, Object> getConfiguration() {
         return configuration;
     }
 
-    @Override
     public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = ModuleUtil.resolveConfiguration(typeUID, configuration);
+        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     /**

@@ -34,6 +34,15 @@ public interface TemplateRegistry {
      * @param locale user locale
      * @return template instance or null.
      */
+    public <T extends Template> T get(String uid);
+
+    /**
+     * This method is used to get template of specified by type.
+     *
+     * @param uid the an unique id in scope of registered templates
+     * @param locale user locale
+     * @return template instance or null.
+     */
     public <T extends Template> T get(String uid, Locale locale);
 
     /**
@@ -42,7 +51,23 @@ public interface TemplateRegistry {
      * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all templates.
      * @return the templates, which correspond to the specified filter.
      */
+    public <T extends Template> Collection<T> getByTag(String tag);
+
+    /**
+     * This method is used for getting the templates filtered by tag.
+     *
+     * @param tag specifies the filter for getting the templates, if it is <code>null</code> then returns all templates.
+     * @return the templates, which correspond to the specified filter.
+     */
     public <T extends Template> Collection<T> getByTag(String tag, Locale locale);
+
+    /**
+     * This method is used for getting all templates, localized by specified locale,
+     *
+     * @param moduleType the class of module which is looking for.
+     * @return collection of templates, corresponding to specified type
+     */
+    public <T extends Template> Collection<T> getAll();
 
     /**
      * This method is used for getting all templates, localized by specified locale,

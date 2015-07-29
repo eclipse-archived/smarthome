@@ -19,8 +19,8 @@ import java.util.Map;
  */
 public interface SourceModule {
 
-    void setOuputs(Map<String, ?> outputs);
+    void setOutputs(Map<String, ?> outputs);
 
-    Object getOuputValue(String outName);
+    Object getOutputValue(String outName);
 
 }

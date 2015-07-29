@@ -31,7 +31,7 @@ class OutputValue {
     }
 
     public Object getValue() {
-        return sourceModule.getOuputValue(outputName);
+        return sourceModule.getOutputValue(outputName);
     }
 
     @Override

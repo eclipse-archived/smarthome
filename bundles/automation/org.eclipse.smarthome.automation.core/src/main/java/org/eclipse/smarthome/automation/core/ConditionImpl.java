@@ -31,8 +31,8 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condi
     private Map<String, OutputValue> connectedObjects;
     private Map<Input, List<Input>> inputMap;
 
-    public ConditionImpl(String id, String templateUID, Map<String, ?> configuration, Set<Connection> connections) {
-        super(id, templateUID, configuration);
+    public ConditionImpl(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+        super(id, typeUID, configuration);
         this.connections = connections;
     }
 
@@ -41,38 +41,26 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condi
         setConnections(c.getConnections());
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Condition#getConnections()
-     */
-    @Override
     public Set<Connection> getConnections() {
         return copyConnections(connections);
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
-     */
-    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
-    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
-    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
-    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
-    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
     }
