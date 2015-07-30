@@ -201,7 +201,8 @@ public class Introspector {
                 boolean isJsonObject = false;
                 for (int i = 0; i < array.length(); i++) {
                     Object o = array.get(i);
-                    if (isJsonObject = o instanceof JSONObject) {
+                    isJsonObject = o instanceof JSONObject;
+                    if (isJsonObject) {
                         String elementTypeName = optString(((JSONObject) o), "json.elementType");
                         if (elementTypeName != null && elementTypeName.length() > 0) {
                             try {
