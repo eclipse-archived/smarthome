@@ -302,6 +302,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     logger.info("User '{}' has been successfully added to Hue bridge.", userName);
                 } catch (Exception ex) {
                     logger.debug("Failed adding user '{}' to Hue bridge.", userName);
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                            "Not authenticated - press pairing button on the bridge or change username.");
                 }
             }
         }
