@@ -20,6 +20,10 @@ There are the following categories of bundles:
 
 ## Core Services
 
+### Optional Bundles
+
+ - `org.eclipse.smarthome.core.id`: [Unique instance IDs](core/id.html)
+
 Besides the very core framework that is mandatory for all solutions, there are many optional features like the support for textual configurations (DSLs), the REST API or the sitemap support.
 
 ## Extensions
