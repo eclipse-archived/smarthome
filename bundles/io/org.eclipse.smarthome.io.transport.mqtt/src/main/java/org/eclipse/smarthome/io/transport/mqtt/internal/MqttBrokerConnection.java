@@ -128,6 +128,17 @@ public class MqttBrokerConnection implements MqttCallback {
         }
 
         logger.info("Starting MQTT broker connection '{}'", name);
+
+        if (client != null) {
+            if (!this.url.equals(client.getServerURI()) || !this.clientId.equals(client.getClientId())) {
+                if (client.isConnected()) {
+                    logger.info("MQTT broker server URI or client ID changed. Removing previous connection.");
+                    client.disconnect();
+                }
+                client = null;
+            }
+        }
+
         openConnection();
 
         if (reconnectTimer != null) {
@@ -275,6 +286,15 @@ public class MqttBrokerConnection implements MqttCallback {
      */
     public void setClientId(String value) {
         this.clientId = value;
+    }
+
+    /**
+     * Get client id to use when connecting to the broker.
+     *
+     * @return value clientId to use.
+     */
+    public String getClientId() {
+        return clientId;
     }
 
     /**
