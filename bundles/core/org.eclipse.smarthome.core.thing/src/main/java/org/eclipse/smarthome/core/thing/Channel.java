@@ -8,8 +8,10 @@
 package org.eclipse.smarthome.core.thing;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -26,14 +28,21 @@ import com.google.common.collect.ImmutableSet;
  * @author Alex Tugarev - Extended about default tags
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
+ * @author Chris Jackson - Added properties, label, description
  */
 public class Channel {
 
     private String acceptedItemType;
 
     private ChannelUID uid;
+    
+    private String label;
+    
+    private String description;
 
     private Configuration configuration;
+    
+    private Map<String, String> properties;
 
     private Set<String> defaultTags;
 
@@ -49,23 +58,34 @@ public class Channel {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = new Configuration();
+        this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration) {
-        this(uid, acceptedItemType, configuration, new HashSet<String>(0));
+        this(uid, acceptedItemType, configuration, new HashSet<String>(0), null, null, null);
     }
 
     public Channel(ChannelUID uid, String acceptedItemType, Set<String> defaultTags) {
-        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags);
+        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null, null);
     }
 
-    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags) {
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags, Map<String, String> properties) {
+        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, properties, null, null);
+    }
+
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label, String description) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
+        this.label = label;
+        this.description = description;
+        this.properties = properties;
         this.defaultTags = Collections.<String> unmodifiableSet(new HashSet<String>(defaultTags));
         if (this.configuration == null) {
             this.configuration = new Configuration();
+        }
+        if(this.properties == null) {
+            this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
         }
     }
 
@@ -88,12 +108,41 @@ public class Channel {
     }
 
     /**
+     * Returns the label (if set).
+     * If no label is set, getLabel will return null and the default label for the {@link Channel} is used.
+     * 
+     * @return the label for the channel. Can be null.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Returns the description (if set).
+     * If no description is set, getDescription will return null and the default description for the {@link Channel} is used.
+     * 
+     * @return the description for the channel. Can be null.
+     */
+    public String getDescription() {
+        return this.description;
+    }
+
+    /**
      * Returns the channel configuration
      *
-     * @return channel configuration or null
+     * @return channel configuration (not null)
      */
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    /**
+     * Returns the channel properties
+     *
+     * @return channel properties (not null)
+     */
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     /**

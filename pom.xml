@@ -57,7 +57,7 @@
 
   <modules>
     <module>bundles</module>
-    <module>addons</module>
+    <module>extensions</module>
     <module>features</module>
     <module>products</module>
     <module>tools</module>
@@ -160,6 +160,9 @@
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
+        <configuration>
+        	<javaSourceVersion>1.7</javaSourceVersion>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -305,6 +308,40 @@
                 <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>QA</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.4.201502262128</version>
+            <configuration>
+              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
+              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
+              <append>true</append>
+              <excludes>
+                <exclude>**/*Test.*</exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>default-prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>default-prepare-agent-integration</id>
+                <goals>
+                  <goal>prepare-agent-integration</goal>
                 </goals>
               </execution>
             </executions>

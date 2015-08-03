@@ -10,10 +10,11 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Executors;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -45,7 +46,9 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
-    protected final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
+    private static final String THING_HANDLER_THREADPOOL_NAME = "thingHandler";
+
+    protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
     protected ThingRegistry thingRegistry;
     protected BundleContext bundleContext;
@@ -141,6 +144,20 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         updateStatus(ThingStatus.REMOVED);
     }
+    
+    @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParmeters) {
+        // can be overridden by subclasses
+        Configuration configuration = editConfiguration();
+        for (Entry<String, Object> configurationParmeter : configurationParmeters.entrySet()) {
+            configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
+        }
+        
+        // reinitialize with new configuration and persist changes
+        dispose();
+        updateConfiguration(configuration);
+        initialize();
+    }
 
     @Override
     public void dispose() {
@@ -232,10 +249,10 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * 
+     *
      * Updates the state of the thing. Will use the thing UID to infer the
      * unique channel UID.
-     * 
+     *
      * @param channel
      *            ID id of the channel, which was updated
      * @param state
@@ -285,7 +302,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Updates the status of the thing.
-     * 
+     *
      * @param status the status
      * @param statusDetail the detail of the status
      * @param description the description of the status
@@ -310,7 +327,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *
      * @param status the status
      * @param statusDetail the detail of the status
-     * 
+     *
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
@@ -320,9 +337,9 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Updates the status of the thing. The detail of the status will be 'NONE'.
-     * 
+     *
      * @param status the status
-     * 
+     *
      * @throws IllegalStateException
      *             if handler is not initialized correctly, because no callback is present
      */
@@ -333,7 +350,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Creates a thing builder, which allows to modify the thing. The method
      * {@link BaseThingHandler#updateThing(Thing)} must be called to persist the changes.
-     * 
+     *
      * @return {@link ThingBuilder} which builds an exact copy of the thing (not null)
      */
     protected ThingBuilder editThing() {
@@ -344,7 +361,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Informs the framework, that a thing was updated. This method must be called after the configuration or channels
      * was changed.
-     * 
+     *
      * @param thing
      *            thing, that was updated and should be persisted
      *
@@ -365,7 +382,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Returns a copy of the configuration, that can be modified. The method
      * {@link BaseThingHandler#updateConfiguration(Configuration)} must be called to persist the configuration.
-     * 
+     *
      * @return copy of the thing configuration (not null)
      */
     protected Configuration editConfiguration() {
@@ -375,7 +392,7 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Informs the framework, that the given configuration of the thing was updated.
-     * 
+     *
      * @param configuration
      *            configuration, that was updated and should be persisted
      *
@@ -396,7 +413,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Returns a copy of the properties map, that can be modified. The method {@link
      * BaseThingHandler#updateProperties(Map<String, String> properties)} must be called to persist the properties.
-     * 
+     *
      * @return copy of the thing properties (not null)
      */
     protected Map<String, String> editProperties() {
@@ -407,7 +424,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     /**
      * Informs the framework, that the given properties map of the thing was updated. This method performs a check, if
      * the properties were updated. If the properties did not change, the framework is not informed about changes.
-     * 
+     *
      * @param properties
      *            properties map, that was updated and should be persisted
      *
@@ -442,11 +459,11 @@ public abstract class BaseThingHandler implements ThingHandler {
      * set for the given property name if there has not been set any value yet or if the value has been changed. If the
      * value of the property to be set is null then the property is removed.
      * </p>
-     * 
+     *
      * This method also informs the framework about the updated thing, which in fact will persists the changes. So, if
      * multiple properties should be changed at the same time, the {@link BaseThingHandler#editProperties()} method
      * should be used.
-     * 
+     *
      * @param name the name of the property to be set
      * @param value the value of the property
      */

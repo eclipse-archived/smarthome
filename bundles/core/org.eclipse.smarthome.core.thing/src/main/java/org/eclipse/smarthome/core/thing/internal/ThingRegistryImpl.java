@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -16,6 +17,8 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +27,8 @@ import org.slf4j.LoggerFactory;
  * Default implementation of {@link ThingRegistry}.
  *
  * @author Michael Grammling - Added dynamic configuration update
+ * @author Simon Kaufmann - Added forceRemove
+ * @author Chris Jackson - ensure thing added event is sent before linked events
  */
 public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
 
@@ -44,7 +49,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
@@ -56,6 +61,35 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
             }
         }
         return null;
+    }
+
+    @Override
+    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters) {
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            ThingHandler thingHandler = thing.getHandler();
+            if (thingHandler != null) {
+                thingHandler.handleConfigurationUpdate(configurationParameters);
+            } else {
+                throw new IllegalStateException("Thing with UID " + thingUID + " has no handler attached.");
+            }
+        } else {
+            throw new IllegalArgumentException("Thing with UID " + thingUID + " does not exists.");
+        }
+    }
+
+    @Override
+    public Thing forceRemove(ThingUID thingUID) {
+        return super.remove(thingUID);
+    }
+
+    @Override
+    public Thing remove(ThingUID thingUID) {
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            notifyTrackers(thing, ThingTrackerEvent.THING_REMOVING);
+        }
+        return thing;
     }
 
     /**
@@ -72,6 +106,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     @Override
     protected void notifyListenersAboutAddedElement(Thing element) {
         super.notifyListenersAboutAddedElement(element);
+        postEvent(ThingEventFactory.createAddedEvent(element));
         notifyTrackers(element, ThingTrackerEvent.THING_ADDED);
     }
 
@@ -79,12 +114,14 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     protected void notifyListenersAboutRemovedElement(Thing element) {
         super.notifyListenersAboutRemovedElement(element);
         notifyTrackers(element, ThingTrackerEvent.THING_REMOVED);
+        postEvent(ThingEventFactory.createRemovedEvent(element));
     }
 
     @Override
     protected void notifyListenersAboutUpdatedElement(Thing oldElement, Thing element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         notifyTrackers(element, ThingTrackerEvent.THING_UPDATED);
+        postEvent(ThingEventFactory.createUpdateEvent(element, oldElement));
     }
 
     @Override
@@ -115,10 +152,10 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
         onRemoveElement(thing);
         onAddElement(thing);
     }
-    
+
     private void preserveDynamicState(Thing thing) {
         final Thing existingThing = get(thing.getUID());
-        if(existingThing != null) {
+        if (existingThing != null) {
             thing.setHandler(existingThing.getHandler());
             thing.setStatusInfo(existingThing.getStatusInfo());
         }
@@ -152,6 +189,9 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
                 switch (event) {
                     case THING_ADDED:
                         thingTracker.thingAdded(thing, ThingTrackerEvent.THING_ADDED);
+                        break;
+                    case THING_REMOVING:
+                        thingTracker.thingRemoving(thing, ThingTrackerEvent.THING_REMOVING);
                         break;
                     case THING_REMOVED:
                         thingTracker.thingRemoved(thing, ThingTrackerEvent.THING_REMOVED);

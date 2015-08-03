@@ -12,19 +12,29 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.mwe2.launch;resolution:=optional,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
- org.antlr.runtime
-Import-Package: org.apache.log4j,
+ org.antlr.runtime,
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
+Import-Package: org.apache.commons.lang,
+ org.apache.log4j,
+ org.eclipse.smarthome.core.items.dto,
+ org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.model.core,
+ org.eclipse.xtext.xbase.lib,
  org.osgi.framework,
  org.osgi.service.cm,
- org.slf4j,
- org.eclipse.xtext.xbase.lib
-Export-Package: org.eclipse.smarthome.model,org.eclipse.smarthome.mode
- l.formatting,org.eclipse.smarthome.model.scoping,org.eclipse.smarthom
- e.model.sitemap,org.eclipse.smarthome.model.validation,org.eclipse.sm
- arthome.model.services,org.eclipse.smarthome.model.sitemap.impl,org.e
- clipse.smarthome.model.sitemap.util,org.eclipse.smarthome.model.parse
- r.antlr,org.eclipse.smarthome.model.parser.antlr.internal,org.eclipse
- .smarthome.model.serializer,org.eclipse.smarthome.model.generator
+ org.slf4j
+Export-Package: org.eclipse.smarthome.model,
+ org.eclipse.smarthome.model.dto,
+ org.eclipse.smarthome.model.formatting,
+ org.eclipse.smarthome.model.generator,
+ org.eclipse.smarthome.model.parser.antlr,
+ org.eclipse.smarthome.model.parser.antlr.internal,
+ org.eclipse.smarthome.model.scoping,
+ org.eclipse.smarthome.model.serializer,
+ org.eclipse.smarthome.model.services,
+ org.eclipse.smarthome.model.sitemap,
+ org.eclipse.smarthome.model.sitemap.impl,
+ org.eclipse.smarthome.model.sitemap.util,
+ org.eclipse.smarthome.model.validation
 Service-Component: OSGI-INF/sitemapprovider.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.model.sitemap.internal;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
@@ -20,6 +24,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SitemapProviderImpl implements SitemapProvider {
+
+    protected static final String SITEMAP_FILEEXT = ".sitemap";
 
     private final Logger logger = LoggerFactory.getLogger(SitemapProviderImpl.class);
 
@@ -52,6 +58,19 @@ public class SitemapProviderImpl implements SitemapProvider {
             logger.debug("No model repository service is available");
             return null;
         }
+    }
+
+    @Override
+    public Set<String> getSitemapNames() {
+        Set<String> names = new HashSet<>();
+        if (modelRepo != null) {
+            for(String name : modelRepo.getAllModelNamesOfType("sitemap")) {
+                names.add(StringUtils.removeEnd(name, SITEMAP_FILEEXT));
+            }
+        } else {
+            logger.debug("No model repository service is available");
+        }
+        return names;
     }
 
 }

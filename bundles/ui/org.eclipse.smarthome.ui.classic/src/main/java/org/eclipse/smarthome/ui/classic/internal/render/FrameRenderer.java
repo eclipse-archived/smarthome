@@ -39,7 +39,7 @@ public class FrameRenderer extends AbstractWidgetRenderer {
     public EList<Widget> renderWidget(Widget w, StringBuilder sb) throws RenderException {
         String snippet = getSnippet("frame");
 
-        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(getLabel(w)));
+        snippet = StringUtils.replace(snippet, "%label%", StringEscapeUtils.escapeHtml(itemUIRegistry.getLabel(w)));
 
         // Process the color tags
         snippet = processColor(w, snippet);

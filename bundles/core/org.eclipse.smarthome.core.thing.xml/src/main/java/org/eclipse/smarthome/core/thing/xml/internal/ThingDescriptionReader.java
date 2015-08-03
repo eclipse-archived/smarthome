@@ -38,7 +38,7 @@ import com.thoughtworks.xstream.XStream;
  * @author Michael Grammling - Initial Contribution
  * @author Alex Tugarev - Extended by options and filter criteria
  * @author Thomas Höfer - Added thing and thing type properties
- * @author Chris Jackson - Added parameter groups
+ * @author Chris Jackson - Added parameter groups and channel properties
  */
 public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
 
@@ -57,6 +57,7 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.registerConverter(new ThingDescriptionConverter());
         xstream.registerConverter(new ThingTypeConverter());
         xstream.registerConverter(new BridgeTypeConverter());
+        xstream.registerConverter(new ChannelConverter());
         xstream.registerConverter(new ChannelTypeConverter());
         xstream.registerConverter(new ChannelGroupTypeConverter());
         xstream.registerConverter(new StateDescriptionConverter());
@@ -79,9 +80,9 @@ public class ThingDescriptionReader extends XmlDocumentReader<List<?>> {
         xstream.alias("label", NodeValue.class);
         xstream.alias("description", NodeValue.class);
         xstream.alias("channels", NodeList.class);
-        xstream.alias("channel", NodeAttributes.class);
+        xstream.alias("channel", ChannelXmlResult.class);
         xstream.alias("channel-groups", NodeList.class);
-        xstream.alias("channel-group", NodeAttributes.class);
+        xstream.alias("channel-group", ChannelXmlResult.class);
         xstream.alias("category", NodeValue.class);
         xstream.alias("tags", NodeList.class);
         xstream.alias("tag", NodeValue.class);

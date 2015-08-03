@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.transport.mdns.discovery;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * Support for further devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
  * 
  * @author Tobias Bräutigam - Initial contribution
+ * @author Kai Kreuzer - Improved startup behavior and background discovery
  *
  */
 public class MDNSDiscoveryService extends AbstractDiscoveryService implements ServiceListener {
@@ -44,21 +46,52 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     public void setMDNSClient(MDNSClient mdnsClient) {
         this.mdnsClient = mdnsClient;
-        startScan();
+        if (isBackgroundDiscoveryEnabled()) {
+            for (MDNSDiscoveryParticipant participant : participants) {
+                mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+            }
+        }
     }
 
     public void unsetMDNSClient(MDNSClient mdnsClient) {
+        for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+        }
         this.mdnsClient = null;
     }
 
-    protected void activate() {
+    @Override
+    protected void startBackgroundDiscovery() {
+        scheduler.schedule(new Runnable() {
+            public void run() {
+                startScan();
+            }
+        }, 0, TimeUnit.SECONDS);
+        for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+        }
+    }
 
+    @Override
+    protected void stopBackgroundDiscovery() {
+        for (MDNSDiscoveryParticipant participant : participants) {
+            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+        }
     }
 
     @Override
     protected void startScan() {
         logger.debug("mDNS discovery service started");
-        initializeParticipants();
+        for (MDNSDiscoveryParticipant participant : participants) {
+            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
+            logger.debug(services.length + " services found for " + participant.getServiceType());
+            for (ServiceInfo service : services) {
+                DiscoveryResult result = participant.createResult(service);
+                if (result != null) {
+                    thingDiscovered(result);
+                }
+            }
+        }
     }
 
     protected void initializeParticipants() {
@@ -67,7 +100,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
             ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
             logger.debug(services.length + " services found for " + participant.getServiceType());
             for (ServiceInfo service : services) {
-            	DiscoveryResult result = participant.createResult(service);
+                DiscoveryResult result = participant.createResult(service);
                 if (result != null) {
                     thingDiscovered(result);
                 }
@@ -78,18 +111,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     protected void addMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.add(participant);
-        logger.debug("adding mDNS listener to type: " + participant.getServiceType());
-        if (mdnsClient != null && mdnsClient.getClient() != null) {
-
-            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
-
-            logger.debug(services.length + " services found");
-            for (ServiceInfo service : services) {
-            	DiscoveryResult result = participant.createResult(service);
-                if (result != null) {
-                    thingDiscovered(result);
-                }
-            }
+        if (mdnsClient != null && isBackgroundDiscoveryEnabled()) {
             mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
         }
     }

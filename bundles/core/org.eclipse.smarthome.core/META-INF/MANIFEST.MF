@@ -1,10 +1,16 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.smarthome.core.binding,
+ org.eclipse.smarthome.core.binding.dto,
+ org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events;uses:="org.eclipse.smarthome.core.items,org.osgi.service.event,org.eclipse.smarthome.core.types",
  org.eclipse.smarthome.core.i18n,
  org.eclipse.smarthome.core.items;uses:="org.eclipse.smarthome.core.types,org.eclipse.smarthome.core.events",
+ org.eclipse.smarthome.core.items.dto,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.items,
+ org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.service,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.types
@@ -23,6 +29,7 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ com.google.gson,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.osgi.framework,

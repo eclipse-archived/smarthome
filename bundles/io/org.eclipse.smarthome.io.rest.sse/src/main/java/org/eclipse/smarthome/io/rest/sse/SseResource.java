@@ -8,10 +8,6 @@
 package org.eclipse.smarthome.io.rest.sse;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,8 +20,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.io.rest.sse.internal.SseEventOutput;
 import org.eclipse.smarthome.io.rest.sse.internal.util.SseUtil;
 import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
@@ -33,15 +33,15 @@ import org.glassfish.jersey.media.sse.SseFeature;
 
 /**
  * SSE Resource for pushing events to currently listening clients.
- *
+ * 
  * @author Ivan Iliev - Initial Contribution and API
- *
+ * 
  */
 @Path("events")
 @Singleton
 public class SseResource {
 
-    private final Map<EventType, SseBroadcaster> broadcasterMap;
+    private final SseBroadcaster broadcaster;
 
     private final ExecutorService executorService;
 
@@ -55,22 +55,14 @@ public class SseResource {
     private HttpServletRequest request;
 
     public SseResource() {
-        HashMap<EventType, SseBroadcaster> mutableMap = new HashMap<EventType, SseBroadcaster>();
-
-        for (EventType eventType : EventType.values()) {
-            mutableMap.put(eventType, new SseBroadcaster());
-        }
-
-        this.broadcasterMap = Collections.unmodifiableMap(mutableMap);
-
         this.executorService = Executors.newSingleThreadExecutor();
-
+        this.broadcaster = new SseBroadcaster();
     }
 
     /**
      * Subscribes the connecting client to the stream of events filtered by the
      * given eventFilter.
-     *
+     * 
      * @param eventFilter
      * @return {@link EventOutput} object associated with the incoming
      *         connection.
@@ -80,9 +72,14 @@ public class SseResource {
     @GET
     @Produces(SseFeature.SERVER_SENT_EVENTS)
     public Object getEvents(@QueryParam("topics") String eventFilter) throws IOException, InterruptedException {
-        final EventOutput eventOutput = new EventOutput();
 
-        subscribeOutput(eventFilter, eventOutput);
+        if (!SseUtil.isValidTopicFilter(eventFilter)) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        // construct an EventOutput that will only write out events that match the given filter
+        final EventOutput eventOutput = new SseEventOutput(eventFilter);
+        broadcaster.add(eventOutput);
 
         if (!SseUtil.SERVLET3_SUPPORT) {
             // if we don't have sevlet 3.0 async support, we want to make sure
@@ -104,41 +101,18 @@ public class SseResource {
     }
 
     /**
-     * Broadcasts an event described by the given parameters to all currently
+     * Broadcasts an event described by the given parameter to all currently
      * listening clients.
-     *
-     * @param objectIdentifier
-     *            - identifier of the event object
-     * @param eventType
-     *            - event type
-     * @param eventObject
-     *            - bean that can be converted to a JSON object.
+     * 
+     * @param sseEventType the SSE event type
+     * @param event the event
      */
-    public void broadcastEvent(final String objectIdentifier, final EventType eventType, final Object eventObject) {
+    public void broadcastEvent(final Event event) {
         executorService.execute(new Runnable() {
-
             @Override
             public void run() {
-                broadcasterMap.get(eventType).broadcast(SseUtil.buildEvent(eventType, objectIdentifier, eventObject));
+                broadcaster.broadcast(SseUtil.buildEvent(event));
             }
         });
-
     }
-
-    /**
-     *
-     * Subscribes the given eventOutput to all EventTypes matching the given
-     * filter.
-     *
-     * @param eventFilter
-     * @param eventOutput
-     */
-    private void subscribeOutput(String eventFilter, final EventOutput eventOutput) {
-        List<EventType> eventTypesToListen = EventType.getEventTopicByFilter(eventFilter);
-
-        for (EventType eventType : eventTypesToListen) {
-            broadcasterMap.get(eventType).add(eventOutput);
-        }
-    }
-
 }

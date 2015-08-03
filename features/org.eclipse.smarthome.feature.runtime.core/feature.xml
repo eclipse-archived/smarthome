@@ -34,13 +34,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.core.library"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.smarthome.config.core"
          download-size="0"
          install-size="0"
@@ -70,6 +63,48 @@
 
    <plugin
          id="org.eclipse.smarthome.core.transform"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.exec"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.javascript"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.map"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.regex"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.xpath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+   <plugin
+         id="org.eclipse.smarthome.transform.xslt"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -59,7 +59,7 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
 
         storage.put(keyAsString, toPersistableElement(element));
         notifyListenersAboutAddedElement(element);
-        logger.debug("Added new element to {}.", this.getClass().getSimpleName());
+        logger.debug("Added new element {} to {}.", keyAsString, this.getClass().getSimpleName());
     }
 
     @Override
@@ -112,7 +112,7 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
             E element = toElement(keyAsString, persistableElement);
             if (element != null) {
                 notifyListenersAboutRemovedElement(element);
-                logger.debug("Removed element from {}.", this.getClass().getSimpleName());
+                logger.debug("Removed element {} from {}.", keyAsString, this.getClass().getSimpleName());
                 return element;
             }
         }
@@ -132,7 +132,7 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
             PE persistableElement = storage.put(key, toPersistableElement(element));
             E oldElement = toElement(key, persistableElement);
             notifyListenersAboutUpdatedElement(oldElement, element);
-            logger.debug("Updated element in {}.", this.getClass().getSimpleName());
+            logger.debug("Updated element {} in {}.", key, this.getClass().getSimpleName());
             return oldElement;
         } else {
             logger.warn("Could not update element with key {} in {}, because it does not exists.", key, this.getClass()

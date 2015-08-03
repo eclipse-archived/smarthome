@@ -7,10 +7,13 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -63,12 +66,28 @@ public interface ThingHandler {
      * @param thing the {@link Thing}, that has been updated
      */
     void thingUpdated(Thing thing);
-    
+
     /**
      * This method is called before a thing will be removed.
      * An implementing class can handle the removal in order to trigger some tidying work for a thing.
+     * <p>
+     * The framework expects this method to be non-blocking and return quickly.
+     * For longer running tasks, the implementation has to take care of scheduling a separate job.
+     * <p>
+     * The {@link Thing} is in {@link ThingStatus#REMOVING} when this method is called.
+     * Implementations of this method must signal to the framework that the handling has been
+     * completed by setting the {@link Thing}s state to {@link ThingStatus#REMOVED}.
+     * Only then it will be removed completely.
      */
     void handleRemoval();
+
+    /**
+     * This method is called when the configuration of a thing should be updated.
+     * An implementing class needs to persist the configuration changes if necessary.
+     *
+     * @param configurationParameters map of changed configuration parameters
+     */
+    void handleConfigurationUpdate(Map<String, Object> configurationParameters);
 
     /**
      * This method is called, before the handler is shut down.
@@ -85,7 +104,7 @@ public interface ThingHandler {
      * Sets the {@link ThingHandlerCallback} of the handler, which must be used for informing the framework about
      * changes. After the handler was disposed, this method is called again with null as argument, to remove the
      * callback.
-     * 
+     *
      * @param thingHandlerCallback
      *            callback (can be null)
      */
@@ -93,14 +112,14 @@ public interface ThingHandler {
 
     /**
      * Notifies the handler that a channel was linked.
-     * 
+     *
      * @param channelUID UID of the linked channel
      */
     void channelLinked(ChannelUID channelUID);
 
     /**
      * Notifies the handler that a channel was unlinked.
-     * 
+     *
      * @param channelUID UID of the unlinked channel
      */
     void channelUnlinked(ChannelUID channelUID);

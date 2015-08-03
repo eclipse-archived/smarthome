@@ -3,6 +3,7 @@ module org.eclipse.smarthome.model.thing.GenerateThing
 import org.eclipse.emf.mwe.utils.*
 import org.eclipse.xtext.generator.*
 import org.eclipse.xtext.ui.generator.*
+import org.eclipse.smarthome.model.lazygen.*
 
 var fileExtensions = "things"
 var projectName = "org.eclipse.smarthome.model.thing"
@@ -20,6 +21,10 @@ Workflow {
     	//registerGenModelFile = "platform:/resource/org.eclipse.xtext.xbase/model/Xbase.genmodel"
     }
     
+    component = LazyStandaloneSetup {
+        
+    }
+    
     component = DirectoryCleaner {
     	directory = "${runtimeProject}/src-gen"
     }
@@ -33,13 +38,13 @@ Workflow {
     }
 
     
-    component = Generator {
+    component = LazyGenerator {
     	pathRtProject = runtimeProject
     	pathUiProject = "${runtimeProject}.ui"
     	projectNameRt = projectName
     	projectNameUi = "${projectName}.ui"
     	encoding = encoding
-    	language = auto-inject {
+    	lazyLanguage = auto-inject {
     		uri = grammarURI
     
     		// Java API to access grammar elements (required by several other fragments)

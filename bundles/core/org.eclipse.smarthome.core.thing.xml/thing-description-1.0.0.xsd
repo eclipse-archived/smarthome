@@ -94,6 +94,11 @@
     </xs:simpleType>
 
     <xs:complexType name="channel">
+        <xs:sequence>
+            <xs:element name="label" type="xs:string" minOccurs="0"/>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+            <xs:element name="properties" type="thing-description:properties" minOccurs="0"/>
+        </xs:sequence>
         <xs:attribute name="id" type="config-description:idRestrictionPattern" use="required"/>
         <xs:attribute name="typeId" type="thing-description:namespaceIdRestrictionPattern" use="required"/>
     </xs:complexType>

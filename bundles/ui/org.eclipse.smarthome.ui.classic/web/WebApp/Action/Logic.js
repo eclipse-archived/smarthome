@@ -195,7 +195,7 @@ function _XX(){var o=$$("ul");for(var i=0;i<o.length;i++){var p=o[i].parentNode;
 }
 function _YY(r,p){for(var j=0;j<r.length;j++){with(r[j]){if(type=="radio"&&(checked||getAttribute("checked"))){checked=true;p=$$("span",p||_b(r[j],"li"))[0];p.innerHTML=_e(parentNode);break}}
 }}
-function _ZZ(p){var o=$$("li",p);for(var i=0;i<o.length;i++){if(_X(o[i],"iRadio")&&!_X(o[i],"__done")){var lnk=_R("a");var sel=_R("span");var inp=$$("input",o[i]);lnk.appendChild(sel);while(o[i].hasChildNodes()){lnk.appendChild(o[i].firstChild)}
+function _ZZ(p){var o=$$("li",p);for(var i=0;i<o.length;i++){if(_X(o[i],"iRadio")&&!_X(o[i],"__done")){var lnk=_R("a");var sel=_R("span");var inp=$$("input",o[i]);sel.setAttribute("class","iValue");lnk.appendChild(sel);while(o[i].hasChildNodes()){lnk.appendChild(o[i].firstChild)}
 o[i].appendChild(lnk);lnk.href="#";_Z(o[i],"__done");_YY(inp,o[i])}}
 var s="wa__22";if(!$(s)){_HH(s)}}
 function _aa(a,u){var p=_22;var x=$$("input",p);var y=$$("a",u);for(var i=0;i<y.length;i++){if(y[i]==a){if(x[i].disabled){return false}

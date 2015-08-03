@@ -41,7 +41,7 @@ public class VideoRenderer extends AbstractWidgetRenderer {
         String widgetId = itemUIRegistry.getWidgetId(w);
         String sitemap = w.eResource().getURI().path();
 
-        String url = "proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
+        String url = "../proxy?sitemap=" + sitemap + "&widgetId=" + widgetId;
         snippet = StringUtils.replace(snippet, "%url%", url);
 
         sb.append(snippet);

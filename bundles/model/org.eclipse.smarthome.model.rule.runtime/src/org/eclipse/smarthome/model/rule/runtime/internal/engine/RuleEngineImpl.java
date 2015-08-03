@@ -7,8 +7,6 @@
  */
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
-import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_PREFIX;
-import static org.eclipse.smarthome.core.events.EventConstants.TOPIC_SEPERATOR;
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.CHANGE;
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.COMMAND;
 import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.SHUTDOWN;
@@ -30,12 +28,13 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemRegistryChangeListener;
 import org.eclipse.smarthome.core.items.StateChangeListener;
+import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
+import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.scriptengine.Script;
 import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.core.scriptengine.ScriptExecutionThread;
 import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.EventType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.core.ModelRepositoryChangeListener;
@@ -45,8 +44,6 @@ import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.runtime.RuleEngine;
 import org.eclipse.xtext.naming.QualifiedName;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +60,7 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
-public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener, StateChangeListener,
+public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemRegistryChangeListener, StateChangeListener,
         ModelRepositoryChangeListener, RuleEngine {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
@@ -207,8 +204,11 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
         }
     }
 
-    public void receiveCommand(String itemName, Command command) {
+    @Override
+    protected void receiveCommand(ItemCommandEvent commandEvent) {
         if (triggerManager != null && itemRegistry != null) {
+            String itemName = commandEvent.getItemName();
+            Command command = commandEvent.getItemCommand();
             try {
                 Item item = itemRegistry.getItem(itemName);
                 Iterable<Rule> rules = triggerManager.getRules(COMMAND, item, command);
@@ -224,28 +224,6 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
             genericItem.addStateChangeListener(this);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void handleEvent(Event event) {
-        String itemName = (String) event.getProperty("item");
-
-        String topic = event.getTopic();
-        String[] topicParts = topic.split(TOPIC_SEPERATOR);
-
-        if (!(topicParts.length > 2) || !topicParts[0].equals(TOPIC_PREFIX)) {
-            return; // we have received an event with an invalid topic
-        }
-        String operation = topicParts[1];
-
-        if (operation.equals(EventType.COMMAND.toString())) {
-            Command command = (Command) event.getProperty("command");
-            if (command != null)
-                receiveCommand(itemName, command);
         }
     }
 
@@ -357,6 +335,7 @@ public class RuleEngineImpl implements EventHandler, ItemRegistryChangeListener,
 
     @Override
     public void updated(Item oldItem, Item item) {
-        // nothing to do
+    	removed(oldItem);
+    	added(item);
     }
 }

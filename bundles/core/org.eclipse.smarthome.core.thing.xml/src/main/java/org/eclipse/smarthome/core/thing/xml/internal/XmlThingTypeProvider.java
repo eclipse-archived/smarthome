@@ -40,7 +40,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * <p>
  * This implementation manages any {@link ThingType} objects associated to specific modules. If a specific module
  * disappears, any registered {@link ThingType} objects associated with that module are released.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Added locale support
  * @author Ivan Iliev - Added support for system wide channel types
@@ -83,7 +83,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
      * specified module.
      * <p>
      * This method returns silently, if any of the parameters is {@code null}.
-     * 
+     *
      * @param bundle
      *            the module to which the Thing type to be added
      * @param thingType
@@ -118,7 +118,9 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                     channelType.getItemType(), label, description, channelType.getCategory(), channelType.getTags(),
                     state, channelType.getConfigDescriptionURI());
 
-            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType);
+            return new ChannelDefinition(channelDefinition.getId(), localizedChannelType,
+                    channelDefinition.getProperties(), channelDefinition.getLabel(),
+                    channelDefinition.getDescription());
         }
         return channelDefinition;
     }
@@ -179,8 +181,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             String description = this.thingTypeI18nUtil.getDescription(bundle, thingType.getUID(),
                     thingType.getDescription(), locale);
 
-            List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(thingType.getChannelDefinitions()
-                    .size());
+            List<ChannelDefinition> localizedChannelDefinitions = new ArrayList<>(
+                    thingType.getChannelDefinitions().size());
 
             for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
                 ChannelDefinition localizedChannelDefinition = createLocalizedChannelDefinition(bundle,
@@ -188,8 +190,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
                 localizedChannelDefinitions.add(localizedChannelDefinition);
             }
 
-            List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(thingType
-                    .getChannelGroupDefinitions().size());
+            List<ChannelGroupDefinition> localizedChannelGroupDefinitions = new ArrayList<>(
+                    thingType.getChannelGroupDefinitions().size());
             for (ChannelGroupDefinition channelGroupDefinition : thingType.getChannelGroupDefinitions()) {
                 ChannelGroupDefinition localizedchannelGroupDefinition = createLocalizedChannelGroupDefinition(bundle,
                         channelGroupDefinition, locale);
@@ -250,7 +252,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
      * with the specified module.
      * <p>
      * This method returns silently if the module is {@code null}.
-     * 
+     *
      * @param bundle
      *            the module for which all associated Thing types to be removed
      */

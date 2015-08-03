@@ -42,6 +42,7 @@ import com.google.common.collect.Lists;
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
  * @author Thomas Höfer - added thing and thing type properties
+ * @author Chris Jackson - Added properties, label, description
  */
 public class ThingFactory {
 
@@ -175,7 +176,17 @@ public class ThingFactory {
                 new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType()).withDefaultTags(
                 type.getTags());
 
-        // initializing channels with default-values
+        // If we want to override the label, add it...
+        if(channelDefinition.getLabel() != null) {
+            channelBuilder = channelBuilder.withLabel(channelDefinition.getLabel());
+        }
+
+        // If we want to override the description, add it...
+        if(channelDefinition.getDescription() != null) {
+            channelBuilder = channelBuilder.withDescription(channelDefinition.getDescription());
+        }
+
+        // Initialize channel configuration with default-values
         if (configDescriptionRegistry != null) {
             ConfigDescription cd = configDescriptionRegistry.getConfigDescription(type.getConfigDescriptionURI());
             if (cd != null) {
@@ -192,6 +203,8 @@ public class ThingFactory {
                 channelBuilder = channelBuilder.withConfiguration(config);
             }
         }
+
+        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
 
         Channel channel = channelBuilder.build();
         return channel;

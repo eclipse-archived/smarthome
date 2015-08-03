@@ -29,7 +29,14 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
+import org.eclipse.smarthome.config.core.dto.FilterCriteriaDTO;
+import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
+import org.eclipse.smarthome.config.core.dto.ParameterOptionDTO;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
+import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
+import org.eclipse.smarthome.core.thing.dto.ThingTypeDTO;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
@@ -39,13 +46,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.LocaleUtil;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelDefinitionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ChannelGroupDefinitionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ConfigDescriptionParameterBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.FilterCriteriaBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterGroupBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ParameterOptionBean;
-import org.eclipse.smarthome.io.rest.core.thing.beans.ThingTypeBean;
 
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
@@ -82,7 +82,7 @@ public class ThingTypeResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll(@HeaderParam("Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
-        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes(locale), locale);
+        Set<ThingTypeDTO> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes(locale), locale);
         return Response.ok(thingTypeBeans).build();
     }
 
@@ -100,16 +100,16 @@ public class ThingTypeResource implements RESTResource {
         }
     }
 
-    public List<ConfigDescriptionParameterBean> getConfigDescriptionParameterBeans(URI configDescriptionURI,
+    public List<ConfigDescriptionParameterDTO> getConfigDescriptionParameterBeans(URI configDescriptionURI,
             Locale locale) {
 
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI,
                 locale);
         if (configDescription != null) {
-            List<ConfigDescriptionParameterBean> configDescriptionParameterBeans = new ArrayList<>(configDescription
+            List<ConfigDescriptionParameterDTO> configDescriptionParameterBeans = new ArrayList<>(configDescription
                     .getParameters().size());
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-                ConfigDescriptionParameterBean configDescriptionParameterBean = new ConfigDescriptionParameterBean(
+                ConfigDescriptionParameterDTO configDescriptionParameterBean = new ConfigDescriptionParameterDTO(
                         configDescriptionParameter.getName(), configDescriptionParameter.getType(),
                         configDescriptionParameter.getMinimum(), configDescriptionParameter.getMaximum(),
                         configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
@@ -129,35 +129,35 @@ public class ThingTypeResource implements RESTResource {
         return null;
     }
 
-    private List<FilterCriteriaBean> createBeansForCriteria(List<FilterCriteria> filterCriteria) {
+    private List<FilterCriteriaDTO> createBeansForCriteria(List<FilterCriteria> filterCriteria) {
         if (filterCriteria == null)
             return null;
-        List<FilterCriteriaBean> result = new LinkedList<FilterCriteriaBean>();
+        List<FilterCriteriaDTO> result = new LinkedList<FilterCriteriaDTO>();
         for (FilterCriteria criteria : filterCriteria) {
-            result.add(new FilterCriteriaBean(criteria.getName(), criteria.getValue()));
+            result.add(new FilterCriteriaDTO(criteria.getName(), criteria.getValue()));
         }
         return result;
     }
 
-    private List<ParameterOptionBean> createBeansForOptions(List<ParameterOption> options) {
+    private List<ParameterOptionDTO> createBeansForOptions(List<ParameterOption> options) {
         if (options == null)
             return null;
-        List<ParameterOptionBean> result = new LinkedList<ParameterOptionBean>();
+        List<ParameterOptionDTO> result = new LinkedList<ParameterOptionDTO>();
         for (ParameterOption option : options) {
-            result.add(new ParameterOptionBean(option.getValue(), option.getLabel()));
+            result.add(new ParameterOptionDTO(option.getValue(), option.getLabel()));
         }
         return result;
     }
 
-    public Set<ThingTypeBean> getThingTypeBeans(String bindingId, Locale locale) {
+    public Set<ThingTypeDTO> getThingTypeBeans(String bindingId, Locale locale) {
 
         List<ThingType> thingTypes = thingTypeRegistry.getThingTypes(bindingId);
-        Set<ThingTypeBean> thingTypeBeans = convertToThingTypeBeans(thingTypes, locale);
+        Set<ThingTypeDTO> thingTypeBeans = convertToThingTypeBeans(thingTypes, locale);
         return thingTypeBeans;
     }
 
-    private ThingTypeBean convertToThingTypeBean(ThingType thingType, Locale locale) {
-        return new ThingTypeBean(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
+    private ThingTypeDTO convertToThingTypeBean(ThingType thingType, Locale locale) {
+        return new ThingTypeDTO(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
                 getConfigDescriptionParameterBeans(thingType.getConfigDescriptionURI(), locale),
                 convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
                 convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
@@ -165,9 +165,9 @@ public class ThingTypeResource implements RESTResource {
                 convertToParameterGroupBeans(thingType.getConfigDescriptionURI(), locale));
     }
 
-    private List<ChannelGroupDefinitionBean> convertToChannelGroupDefinitionBeans(
+    private List<ChannelGroupDefinitionDTO> convertToChannelGroupDefinitionBeans(
             List<ChannelGroupDefinition> channelGroupDefinitions) {
-        List<ChannelGroupDefinitionBean> channelGroupDefinitionBeans = new ArrayList<>();
+        List<ChannelGroupDefinitionDTO> channelGroupDefinitionBeans = new ArrayList<>();
         for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
             String id = channelGroupDefinition.getId();
             ChannelGroupType channelGroupType = channelGroupDefinition.getType();
@@ -175,28 +175,41 @@ public class ThingTypeResource implements RESTResource {
             String label = channelGroupType.getLabel();
             String description = channelGroupType.getDescription();
             List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
-            List<ChannelDefinitionBean> channelDefinitionBeans = convertToChannelDefinitionBeans(channelDefinitions);
+            List<ChannelDefinitionDTO> channelDefinitionBeans = convertToChannelDefinitionBeans(channelDefinitions);
 
-            channelGroupDefinitionBeans.add(new ChannelGroupDefinitionBean(id, label, description,
+            channelGroupDefinitionBeans.add(new ChannelGroupDefinitionDTO(id, label, description,
                     channelDefinitionBeans));
         }
         return channelGroupDefinitionBeans;
     }
 
-    private List<ChannelDefinitionBean> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions) {
-        List<ChannelDefinitionBean> channelDefinitionBeans = new ArrayList<>();
+    private List<ChannelDefinitionDTO> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions) {
+        List<ChannelDefinitionDTO> channelDefinitionBeans = new ArrayList<>();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = channelDefinition.getType();
-            ChannelDefinitionBean channelDefinitionBean = new ChannelDefinitionBean(channelDefinition.getId(),
-                    channelType.getLabel(), channelType.getDescription(), channelType.getTags(),
-                    channelType.getCategory(), channelType.getState(), channelType.isAdvanced());
+
+            // Default to the channelDefinition label to override the channelType
+            String label = channelDefinition.getLabel();
+            if (label == null) {
+                label = channelType.getLabel();
+            }
+
+            // Default to the channelDefinition description to override the channelType
+            String description = channelDefinition.getDescription();
+            if (description == null) {
+                description = channelType.getDescription();
+            }
+
+            ChannelDefinitionDTO channelDefinitionBean = new ChannelDefinitionDTO(channelDefinition.getId(), label,
+                    description, channelType.getTags(), channelType.getCategory(), channelType.getState(),
+                    channelType.isAdvanced(), channelDefinition.getProperties());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;
     }
 
-    private Set<ThingTypeBean> convertToThingTypeBeans(List<ThingType> thingTypes, Locale locale) {
-        Set<ThingTypeBean> thingTypeBeans = new HashSet<>();
+    private Set<ThingTypeDTO> convertToThingTypeBeans(List<ThingType> thingTypes, Locale locale) {
+        Set<ThingTypeDTO> thingTypeBeans = new HashSet<>();
 
         for (ThingType thingType : thingTypes) {
             thingTypeBeans.add(convertToThingTypeBean(thingType, locale));
@@ -205,17 +218,19 @@ public class ThingTypeResource implements RESTResource {
         return thingTypeBeans;
     }
 
-    private List<ParameterGroupBean> convertToParameterGroupBeans(URI configDescriptionURI, Locale locale) {
+    private List<ConfigDescriptionParameterGroupDTO> convertToParameterGroupBeans(URI configDescriptionURI,
+            Locale locale) {
 
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI,
                 locale);
-        List<ParameterGroupBean> parameterGroupBeans = new ArrayList<>();
+        List<ConfigDescriptionParameterGroupDTO> parameterGroupBeans = new ArrayList<>();
         if (configDescription != null) {
 
             List<ConfigDescriptionParameterGroup> parameterGroups = configDescription.getParameterGroups();
             for (ConfigDescriptionParameterGroup parameterGroup : parameterGroups) {
-                parameterGroupBeans.add(new ParameterGroupBean(parameterGroup.getName(), parameterGroup.getContext(),
-                        parameterGroup.isAdvanced(), parameterGroup.getLabel(), parameterGroup.getDescription()));
+                parameterGroupBeans.add(new ConfigDescriptionParameterGroupDTO(parameterGroup.getName(), parameterGroup
+                        .getContext(), parameterGroup.isAdvanced(), parameterGroup.getLabel(), parameterGroup
+                        .getDescription()));
             }
         }
 

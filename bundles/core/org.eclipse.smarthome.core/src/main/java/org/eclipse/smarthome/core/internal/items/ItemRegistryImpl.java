@@ -27,6 +27,7 @@ import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,79 +39,84 @@ import org.slf4j.LoggerFactory;
  * thus it is a core part for all stateful services.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Stefan Bußweiler - Migration to new event mechanism 
  *
  */
 public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
-    /**
-     * if an EventPublisher service is available, we provide it to all items, so
-     * that they can communicate over the bus
-     */
-    protected EventPublisher eventPublisher;
-
     protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
-    	
-    	Map<String, Item> oldItemsMap = new HashMap<>();
+
+        Map<String, Item> oldItemsMap = new HashMap<>();
         Collection<Item> oldItems = elementMap.get(provider);
-    	
-    	// if the provider did not provide any old item names, we check if we
+
+        // if the provider did not provide any old item names, we check if we
         // know them and pass them further on to our listeners
         if (oldItemNames == null || oldItemNames.isEmpty()) {
             oldItemNames = new HashSet<String>();
             if (oldItems != null && oldItems.size() > 0) {
                 for (Item oldItem : oldItems) {
-                	oldItemsMap.put(oldItem.getName(), oldItem);
+                    oldItemsMap.put(oldItem.getName(), oldItem);
                 }
             }
         } else {
-        	for(Item item : oldItems) {
-        		if(oldItemNames.contains(item.getName())) {
-        			oldItemsMap.put(item.getName(), item);
-        		}
-        	}
-        }
-
-        List<Item> items = new CopyOnWriteArrayList<Item>();
-        elementMap.put(provider, items);
-        for (Item item : provider.getAll()) {
-            try {
-                onAddElement(item);
-                items.add(item);
-            } catch (IllegalArgumentException ex) {
-                logger.warn("Could not add item: " + ex.getMessage(), ex);
-            }
-        }
-
-    	for(Item item : items) {
-            Item oldItem = oldItemsMap.get(item.getName());
-            for (RegistryChangeListener<Item> listener : listeners) {
-                if(oldItem != null) {
-                	if(!oldItem.equals(item)) {
-                		listener.updated(oldItem, item);
-                	}
-                } else {
-                	listener.added(item);
+            for (Item item : oldItems) {
+                if (oldItemNames.contains(item.getName())) {
+                    oldItemsMap.put(item.getName(), item);
                 }
             }
-        	oldItemsMap.remove(item.getName());
         }
-    	
-    	for(Item removedItem : oldItemsMap.values()) {
-            for (RegistryChangeListener<Item> listener : listeners) {
-            	listener.removed(removedItem);
+
+        Collection<Item> providedItems = provider.getAll();
+        List<Item> items = new CopyOnWriteArrayList<Item>();
+        elementMap.put(provider, items);
+        for (Item item : providedItems) {
+            Item oldItem = oldItemsMap.get(item.getName());
+            if (oldItem == null) {
+                // it is a new item
+                try {
+                    onAddElement(item);
+                    items.add(item);
+                    for (RegistryChangeListener<Item> listener : listeners) {
+                        listener.added(item);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    logger.warn("Could not add item: " + ex.getMessage(), ex);
+                }
+            } else if (!oldItem.equals(item)) {
+                // it is a modified item
+                try {
+                    onAddElement(item);
+                    items.add(item);
+                    for (RegistryChangeListener<Item> listener : listeners) {
+                        listener.updated(oldItem, item);
+                    }
+                } catch (IllegalArgumentException ex) {
+                    logger.warn("Could not add item: " + ex.getMessage(), ex);
+                }
+            } else {
+                // it has not been modified, so keep the old instance
+                items.add(oldItem);
             }
-    	}
+            oldItemsMap.remove(item.getName());
+        }
+
+        // send a remove notification for all remaining old items
+        for (Item removedItem : oldItemsMap.values()) {
+            for (RegistryChangeListener<Item> listener : listeners) {
+                listener.removed(removedItem);
+            }
+        }
 
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
      * .String)
@@ -138,7 +144,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
      * (java.lang.String)
@@ -161,7 +167,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
      */
     @Override
@@ -184,7 +190,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
      * lang.String)
@@ -292,15 +298,17 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         }
     }
 
+    @Override
     protected void setEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
+        super.setEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(eventPublisher);
         }
     }
 
+    @Override
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = null;
+        super.unsetEventPublisher(eventPublisher);
         for (Item item : getItems()) {
             ((GenericItem) item).setEventPublisher(null);
         }
@@ -308,7 +316,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     protected void addStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
         this.stateDescriptionProviders.add(stateDescriptionProvider);
-        for (Item item : getItems()) {            
+        for (Item item : getItems()) {
             ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
         }
     }
@@ -373,4 +381,23 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             throw new IllegalStateException("ManagedProvider is not available");
         }
     }
+
+    @Override
+    protected void notifyListenersAboutAddedElement(Item element) {
+        super.notifyListenersAboutAddedElement(element);
+        postEvent(ItemEventFactory.createAddedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutRemovedElement(Item element) {
+        super.notifyListenersAboutRemovedElement(element);
+        postEvent(ItemEventFactory.createRemovedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
+    }
+    
 }

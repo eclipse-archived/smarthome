@@ -21,8 +21,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class TransformationActivator implements BundleActivator {
 
-    public static final String TRANSFORM_FOLDER_NAME = "transform";
-
     private final Logger logger = LoggerFactory.getLogger(TransformationActivator.class);
 
     private static BundleContext context;

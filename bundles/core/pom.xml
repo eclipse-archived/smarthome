@@ -19,15 +19,12 @@
     <module>org.eclipse.smarthome.core</module>
     <module>org.eclipse.smarthome.core.autoupdate</module>
     <module>org.eclipse.smarthome.core.test</module>
-    <module>org.eclipse.smarthome.core.library</module>
-    <module>org.eclipse.smarthome.core.library.test</module>
     <module>org.eclipse.smarthome.core.thing</module>
     <module>org.eclipse.smarthome.core.thing.test</module>
     <module>org.eclipse.smarthome.core.persistence</module>
     <module>org.eclipse.smarthome.core.scheduler</module>
     <module>org.eclipse.smarthome.core.scriptengine</module>
     <module>org.eclipse.smarthome.core.transform</module>
-    <module>org.eclipse.smarthome.core.transform.test</module>
     <module>org.eclipse.smarthome.core.binding.xml</module>
     <module>org.eclipse.smarthome.core.binding.xml.test</module>
     <module>org.eclipse.smarthome.core.thing.xml</module>

@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +25,8 @@ import com.google.common.collect.Iterables;
  * base class for {@link Registry} implementations.
  *
  * @author Dennis Nobel - Initial contribution
- *
+ * @author Stefan Bußweiler - Migration to new event mechanism 
+ * 
  * @param <E>
  *            type of the element
  */
@@ -36,9 +39,12 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
     protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
+
     protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
 
     protected ManagedProvider<E, K> managedProvider;
+
+    protected EventPublisher eventPublisher;
 
     @Override
     public void added(Provider<E> provider, E element) {
@@ -141,9 +147,9 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
                     default:
                         break;
                 }
-            } catch (Exception ex) {
+            } catch (Throwable throwable) {
                 logger.error("Could not inform the listener '" + listener + "' about the '" + eventType.name()
-                        + "' event!: " + ex.getMessage(), ex);
+                        + "' event!: " + throwable.getMessage(), throwable);
             }
         }
     }
@@ -262,4 +268,28 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         }
     }
 
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
+
+    /**
+     * This method can be used in a subclass in order to post events through the Eclipse SmartHome events bus. A common
+     * use case is to notify event subscribers about an element which has been added/removed/updated to the registry.
+     * 
+     * @param event the event
+     */
+    protected void postEvent(Event event) {
+        if (eventPublisher != null) {
+            try {
+                eventPublisher.post(event);
+            } catch (Exception ex) {
+                logger.error("Could not post event of type '" + event.getType() + "'.", ex);
+            }
+        }
+    }
+    
 }

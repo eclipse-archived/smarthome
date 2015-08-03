@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the openHAB Core Library
-Bundle-SymbolicName: org.eclipse.smarthome.core.library.test
-Bundle-Version: 0.8.0.qualifier
-Bundle-Vendor: Eclipse.org/SmartHome
-Fragment-Host: org.eclipse.smarthome.core.library
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.junit

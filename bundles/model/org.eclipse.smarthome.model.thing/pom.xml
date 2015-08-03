@@ -62,6 +62,11 @@
             <artifactId>org.eclipse.xtext.xbase</artifactId>
             <version>${xtext-version}</version>
           </dependency>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
+            <version>${project.version}</version>
+          </dependency>
         </dependencies>
       </plugin>
       <plugin>

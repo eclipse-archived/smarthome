@@ -39,6 +39,8 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
+import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -47,8 +49,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.item.beans.ItemBean;
-import org.eclipse.smarthome.io.rest.core.util.BeanMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +70,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Added methods for item management
  * @author Andre Fuechsel - Added tag support
  * @author Chris Jackson - Added method to write complete item bean
+ * @author Stefan Bußweiler - Migration to new ESH event concept
  */
 @Path(ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
@@ -162,7 +163,7 @@ public class ItemResource implements RESTResource {
             State state = TypeParser.parseState(item.getAcceptedDataTypes(), value);
             if (state != null) {
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                eventPublisher.postUpdate(itemname, state);
+                eventPublisher.post(ItemEventFactory.createStateEvent(itemname, state));
                 return Response.ok().build();
             } else {
                 logger.warn("Received HTTP PUT request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
@@ -199,7 +200,7 @@ public class ItemResource implements RESTResource {
             }
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
-                eventPublisher.postCommand(itemname, command);
+                eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
                 return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
@@ -340,7 +341,7 @@ public class ItemResource implements RESTResource {
     @PUT
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemBean item) {
+    public Response createOrUpdateItem(@PathParam("itemname") String itemname, ItemDTO item) {
 
     	// If we didn't get an item bean, then return!
     	if (item == null) {
@@ -398,8 +399,8 @@ public class ItemResource implements RESTResource {
         return null;
     }
 
-    private List<ItemBean> getItemBeans(String type, String tags, boolean recursive) {
-        List<ItemBean> beans = new LinkedList<ItemBean>();
+    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive) {
+        List<EnrichedItemDTO> beans = new LinkedList<>();
         Collection<Item> items;
         if (tags == null) {
             if (type == null) {
@@ -417,16 +418,16 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(BeanMapper.mapItemToBean(item, recursive, uriInfo.getBaseUri().toASCIIString()));
+                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri()));
             }
         }
         return beans;
     }
 
-    private ItemBean getItemDataBean(String itemname) {
+    private EnrichedItemDTO getItemDataBean(String itemname) {
         Item item = getItem(itemname);
         if (item != null) {
-            return BeanMapper.mapItemToBean(item, true, uriInfo.getBaseUri().toASCIIString());
+            return EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri());
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             throw new WebApplicationException(404);

@@ -5,9 +5,12 @@ Bundle-SymbolicName: org.eclipse.smarthome.config.discovery
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.google.common.collect,
+Import-Package: com.google.common.base,
+ com.google.common.collect,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.storage,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.thing.setup,
@@ -23,5 +26,7 @@ Import-Package: com.google.common.collect,
  org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.config.discovery,org.eclipse.sma
- rthome.config.discovery.inbox
+Export-Package: org.eclipse.smarthome.config.discovery,
+ org.eclipse.smarthome.config.discovery.dto,
+ org.eclipse.smarthome.config.discovery.inbox,
+ org.eclipse.smarthome.config.discovery.inbox.events
