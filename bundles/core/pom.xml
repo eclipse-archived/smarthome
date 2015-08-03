@@ -18,6 +18,8 @@
   <modules>
     <module>org.eclipse.smarthome.core</module>
     <module>org.eclipse.smarthome.core.autoupdate</module>
+    <module>org.eclipse.smarthome.core.id</module>
+    <module>org.eclipse.smarthome.core.id.test</module>
     <module>org.eclipse.smarthome.core.test</module>
     <module>org.eclipse.smarthome.core.thing</module>
     <module>org.eclipse.smarthome.core.thing.test</module>
