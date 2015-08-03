@@ -31,7 +31,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * describing them. They help for classifying the items and allow them to be
  * found.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface Rule {
 

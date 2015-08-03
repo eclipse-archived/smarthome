@@ -21,6 +21,9 @@ import org.eclipse.smarthome.automation.Condition;
  * RuleEngine, when it has to check if the {@link Condition} is satisfied or
  * not.
  *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface ConditionHandler extends ModuleHandler {
 

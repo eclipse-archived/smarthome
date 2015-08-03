@@ -1,0 +1,22 @@
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.handler.factories
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Name: Automation sample.handler.factories
+Import-Package: 
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.parser,
+ org.eclipse.smarthome.automation.provider,
+ org.eclipse.smarthome.automation.script,
+ org.eclipse.smarthome.automation.template,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
+ org.slf4j,
+ org.osgi.framework,
+ org.osgi.service.event,
+ org.osgi.util.tracker;version="1.4.0"
+Bundle-Activator: org.eclipse.smarthome.automation.sample.handler.factories.Activator
+

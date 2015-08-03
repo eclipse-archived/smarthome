@@ -19,7 +19,7 @@ import java.util.Locale;
  * This interface has to be implemented by all providers of {@link ModuleType}s.
  * The {@link ModuleTypeRegistry} uses it to get access to available {@link ModuleType}s.
  *
- * @author Yordan Mihaylov
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public interface ModuleTypeProvider {
 

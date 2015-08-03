@@ -18,6 +18,12 @@
   <modules>
     <module>org.eclipse.smarthome.automation.api</module>
     <module>org.eclipse.smarthome.automation.json</module>
+    <module>org.eclipse.smarthome.automation.commands</module>
+    <module>org.eclipse.smarthome.automation.parser.json</module>
+    <module>org.eclipse.smarthome.automation.providers</module>
+    <module>org.eclipse.smarthome.automation.core</module>
+    <module>org.eclipse.smarthome.automation.sample.handler.factories</module>
+	<module>org.eclipse.smarthome.automation.sample.handler.resources</module>
   </modules>
 
   <build>
@@ -32,5 +38,21 @@
         </plugin>
       </plugins>
     </pluginManagement>
-  </build>  
+  </build>
+  
+<dependencies>
+	<dependency>
+		<groupId>de.twentyeleven.skysail</groupId>
+		<artifactId>org.json-osgi</artifactId>
+		<version>20080701</version>
+	</dependency>
+<!--
+	<dependency>
+	<groupId>org.json</groupId>
+	<artifactId>json</artifactId>
+	<version>20141113</version>
+	</dependency>
+-->
+</dependencies>   
+  
 </project>
