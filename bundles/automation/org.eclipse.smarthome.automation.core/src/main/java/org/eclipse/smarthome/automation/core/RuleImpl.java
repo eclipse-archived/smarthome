@@ -12,23 +12,20 @@
 
 package org.eclipse.smarthome.automation.core;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
@@ -61,7 +58,7 @@ public class RuleImpl implements Rule {
 
     public RuleImpl(List<Trigger> triggers, //
             List<Condition> conditions, //
-            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,//
+            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
             Map<String, ?> configurations) {
 
         // the rule must not be created if connections are incorrect
@@ -115,6 +112,7 @@ public class RuleImpl implements Rule {
         }
     }
 
+    @Override
     public String getUID() {
         return uid;
     }
@@ -123,44 +121,54 @@ public class RuleImpl implements Rule {
         this.uid = uid;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String ruleName) throws IllegalStateException {
         this.name = ruleName;
 
     }
 
+    @Override
     public Set<String> getTags() {
         return tags;
     }
 
+    @Override
     public void setTags(Set<String> ruleTags) throws IllegalStateException {
         this.tags = ruleTags;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(String ruleDescription) {
         this.description = ruleDescription;
 
     }
 
+    @Override
     public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions;
     }
 
+    @Override
     public Map<String, Object> getConfiguration() {
         return configurations != null ? new HashMap<String, Object>(configurations) : null;
     }
 
+    @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
         this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
     }
 
+    @Override
     public <T extends Module> T getModule(String moduleId) {
         Module m = getModule0(moduleId);
         return (T) m;
@@ -201,6 +209,7 @@ public class RuleImpl implements Rule {
         return moduleMap;
     }
 
+    @Override
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         List<T> result = null;
         if (moduleClazz == null || Trigger.class == moduleClazz) {
@@ -237,6 +246,7 @@ public class RuleImpl implements Rule {
         return new ArrayList<T>();
     }
 
+    @Override
     public String getScopeIdentifier() {
         return scopeId;
     }
@@ -331,8 +341,8 @@ public class RuleImpl implements Rule {
             return;
         }
         if (configParameter.isRequired()) {
-            throw new IllegalArgumentException("Required configuration property missing: \""
-                    + configParameter.getName() + "\"!");
+            throw new IllegalArgumentException(
+                    "Required configuration property missing: \"" + configParameter.getName() + "\"!");
         }
     }
 
@@ -344,34 +354,43 @@ public class RuleImpl implements Rule {
     private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
         Type type = configParameter.getType();
         if (configParameter.isMultiple()) {
-            if (configValue instanceof JSONArray) {
-                int size = ((JSONArray) configValue).length();
+            if (configValue instanceof List) {
+                int size = ((List) configValue).size();
                 for (int index = 0; index < size; index++) {
-                    try {
-                        if (Type.TEXT.equals(type))
-                            ((JSONArray) configValue).getString(index);
-                        else if (Type.BOOLEAN.equals(type))
-                            ((JSONArray) configValue).getBoolean(index);
-                        else if (Type.INTEGER.equals(type))
-                            ((JSONArray) configValue).getLong(index);
-                        else if (Type.DECIMAL.equals(type))
-                            ((JSONArray) configValue).getDouble(index);
-                    } catch (JSONException e) {
+                    boolean error = false;
+                    if (Type.TEXT.equals(type)) {
+                        if (((List) configValue).get(index) instanceof String) {
+                            error = true;
+                        }
+                    } else if (Type.BOOLEAN.equals(type)) {
+                        if (((List) configValue).get(index) instanceof Boolean) {
+                            error = true;
+                        }
+                    } else if (Type.INTEGER.equals(type)) {
+                        if (((List) configValue).get(index) instanceof Integer) {
+                            error = true;
+                        }
+                    } else if (Type.DECIMAL.equals(type)) {
+                        if (((List) configValue).get(index) instanceof Double) {
+                            error = true;
+                        }
+                    }
+                    if (error) {
                         throw new IllegalArgumentException("Unexpected value for configuration property \""
-                                + configParameter.getName() + "\". " + e.getMessage());
+                                + configParameter.getName() + "\". Expected type: " + type);
                     }
                 }
             }
-            throw new IllegalArgumentException("Unexpected value for configuration property \""
-                    + configParameter.getName() + "\". Expected is Array with type for elements : " + type.toString()
-                    + "!");
+            throw new IllegalArgumentException(
+                    "Unexpected value for configuration property \"" + configParameter.getName()
+                            + "\". Expected is Array with type for elements : " + type.toString() + "!");
         } else {
             if (Type.TEXT.equals(type) && configValue instanceof String)
                 return;
             else if (Type.BOOLEAN.equals(type) && configValue instanceof Boolean)
                 return;
-            else if (Type.INTEGER.equals(type)
-                    && (configValue instanceof Short || configValue instanceof Byte || configValue instanceof Integer || configValue instanceof Long))
+            else if (Type.INTEGER.equals(type) && (configValue instanceof Short || configValue instanceof Byte
+                    || configValue instanceof Integer || configValue instanceof Long))
                 return;
             else if (Type.DECIMAL.equals(type) && (configValue instanceof Float || configValue instanceof Double))
                 return;

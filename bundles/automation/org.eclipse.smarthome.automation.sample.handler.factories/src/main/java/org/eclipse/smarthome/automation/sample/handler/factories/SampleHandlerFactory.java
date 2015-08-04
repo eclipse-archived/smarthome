@@ -18,7 +18,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
+import org.eclipse.smarthome.automation.parser.Converter;
+import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.ConditionType;
+import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
@@ -26,24 +40,16 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.ModuleHandler;
-import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
-import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.ConditionType;
-import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.automation.type.TriggerType;
-
 /**
  * Module Handler Factory sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
  */
 public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTrackerCustomizer {
+    private static final String FILTER = //
+    "(|(" + Constants.OBJECTCLASS + '=' + ModuleTypeRegistry.class.getName() + ')' + //$NON-NLS-1$
+            '(' + Constants.OBJECTCLASS + '=' + Converter.class.getName() + "))";
+
     public static final String SUPPORTED_TRIGGER = "SampleTrigger";
     public static final String SUPPORTED_CONDITION = "SampleCondition";
     public static final String SUPPORTED_ACTION = "SampleAction";
@@ -52,8 +58,10 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
     private BundleContext bc;
     private Logger log;
     private static ModuleTypeRegistry moduleTypeRegistry;
-    private ServiceTracker moduleTypeRegistryTracker;
+    private static Converter converter;
+    private ServiceTracker tracker;
     private ServiceReference moduleTypeRegistryRef;
+    private ServiceReference converterRef;
     private List<SampleTriggerHandler> createdTriggerHandler;
     private static final Collection<String> types;
     private ServiceRegistration serviceReg;
@@ -66,45 +74,65 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
         types = Collections.unmodifiableCollection(temp);
     }
 
-    public SampleHandlerFactory(BundleContext bc) {
+    public SampleHandlerFactory(BundleContext bc) throws InvalidSyntaxException {
         this.bc = bc;
         createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
         log = LoggerFactory.getLogger(SampleHandlerFactory.class);
 
-        moduleTypeRegistryTracker = new ServiceTracker(bc, ModuleTypeRegistry.class.getName(), this);
-        moduleTypeRegistryTracker.open();
+        tracker = new ServiceTracker(bc, bc.createFilter(FILTER), this);
+        tracker.open();
     }
 
     protected void disposeHandler(ModuleHandler handler) {
         createdTriggerHandler.remove(handler);
     }
 
+    @Override
     public Object addingService(ServiceReference reference) {
         Object result = null;
-        if (moduleTypeRegistryRef == null && reference != null) {
-            result = moduleTypeRegistry = (ModuleTypeRegistry) bc.getService(reference);
+        if (reference != null) {
+            result = bc.getService(reference);
+            if (result != null) {
+                if (moduleTypeRegistryRef == null && result instanceof ModuleTypeRegistry) {
+                    moduleTypeRegistryRef = reference;
+                    moduleTypeRegistry = (ModuleTypeRegistry) result;
+                }
+                if (converterRef == null && result instanceof Converter) {
+                    converterRef = reference;
+                    converter = (Converter) result;
+                }
+            }
         }
-        if (serviceReg == null) {
+        if (serviceReg == null && moduleTypeRegistry != null) {
             serviceReg = bc.registerService(ModuleHandlerFactory.class.getName(), this, null);
         }
 
         return result;
     }
 
+    @Override
     public void modifiedService(ServiceReference reference, Object service) {
         // do nothing
     }
 
+    @Override
     public void removedService(ServiceReference reference, Object service) {
+        if (converter == service) {
+            bc.ungetService(converterRef);
+            converterRef = null;
+            converter = null;
+        }
         if (moduleTypeRegistry == service) {
             dispose0();
         }
     }
 
+    @Override
     public Collection<String> getTypes() {
         return types;
     }
 
+    @Override
     public <T extends ModuleHandler> T create(Module module) {
         ModuleHandler moduleHandler = null;
         if (moduleTypeRegistry != null) {
@@ -136,8 +164,8 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
      * Release used resources
      */
     public void dispose() {
-        if (moduleTypeRegistryTracker != null) {
-            moduleTypeRegistryTracker.close();
+        if (tracker != null) {
+            tracker.close();
         }
         dispose0();
     }
@@ -166,5 +194,9 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
 
     static ModuleTypeRegistry getModuleTypeRegistry() {
         return moduleTypeRegistry;
+    }
+
+    static Converter getConverter() {
+        return converter;
     }
 }

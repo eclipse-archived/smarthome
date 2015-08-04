@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
@@ -36,7 +37,8 @@ public class SampleConditionHandler extends AbstractModuleHandler implements Con
     //
     private SampleHandlerFactory handlerFactory;
 
-    public SampleConditionHandler(SampleHandlerFactory handlerFactory, Condition condition, ConditionType conditionType) {
+    public SampleConditionHandler(SampleHandlerFactory handlerFactory, Condition condition,
+            ConditionType conditionType) {
         super(condition);
         this.condition = condition;
         this.conditionType = conditionType;
@@ -50,6 +52,7 @@ public class SampleConditionHandler extends AbstractModuleHandler implements Con
         handlerFactory.disposeHandler(this);
     }
 
+    @Override
     public boolean isSatisfied(Map<String, ?> inputs) {
         Map resolvedInputs = getResolvedInputs(inputs);
         Map resolvedConfiguration = getResolvedConfiguration(resolvedInputs);
@@ -81,4 +84,8 @@ public class SampleConditionHandler extends AbstractModuleHandler implements Con
         return SampleHandlerFactory.getModuleTypeRegistry();
     }
 
+    @Override
+    protected Converter getConverter() {
+        return SampleHandlerFactory.getConverter();
+    }
 }

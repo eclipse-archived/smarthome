@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * This class serves for creating the Auxiliary automation objects (ConfigDescriptionParameter, Input, Output,
@@ -50,8 +49,9 @@ public class ConfigPropertyJSONParser {
      *
      * @param configPropertyName is a name of a configuration parameter.
      * @param configDescription is a JSON description of the configuration parameter.
-     * @param status is used to log the errors and to return the result of creation of {@link ConfigDescriptionParameter}.
-     * @return the newly created {@link ConfigDescriptionParameter} if the creation is successful 
+     * @param status is used to log the errors and to return the result of creation of
+     *            {@link ConfigDescriptionParameter}.
+     * @return the newly created {@link ConfigDescriptionParameter} if the creation is successful
      *         or <code>null</code> if it is unsuccessful.
      */
     static ConfigDescriptionParameter createConfigPropertyDescription(String configPropertyName,
@@ -62,8 +62,8 @@ public class ConfigPropertyJSONParser {
         }
         typeStr = typeStr.toUpperCase();
         List<FilterCriteria> filter = new ArrayList<FilterCriteria>();
-        JSONArray jsonFilter = JSONUtility.getJSONArray(JSONStructureConstants.FILTER_CRITERIA, true,
-                configDescription, status);
+        JSONArray jsonFilter = JSONUtility.getJSONArray(JSONStructureConstants.FILTER_CRITERIA, true, configDescription,
+                status);
         if (jsonFilter != null) {
             for (int i = 0; i < jsonFilter.length(); i++) {
                 JSONObject criteria = JSONUtility.getJSONObject(JSONStructureConstants.FILTER_CRITERIA, i, jsonFilter,
@@ -100,10 +100,10 @@ public class ConfigPropertyJSONParser {
         String pattern = JSONUtility.getString(JSONStructureConstants.PATTERN, true, configDescription, status);
         String context = JSONUtility.getString(JSONStructureConstants.CONTEXT, true, configDescription, status);
         String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, configDescription, status);
-        BigDecimal min = (BigDecimal) JSONUtility
-                .getNumber(JSONStructureConstants.MIN, true, configDescription, status);
-        BigDecimal max = (BigDecimal) JSONUtility
-                .getNumber(JSONStructureConstants.MAX, true, configDescription, status);
+        BigDecimal min = (BigDecimal) JSONUtility.getNumber(JSONStructureConstants.MIN, true, configDescription,
+                status);
+        BigDecimal max = (BigDecimal) JSONUtility.getNumber(JSONStructureConstants.MAX, true, configDescription,
+                status);
         BigDecimal step = (BigDecimal) JSONUtility.getNumber(JSONStructureConstants.STEP, true, configDescription,
                 status);
         Boolean required = JSONUtility.getBoolean(JSONStructureConstants.REQUIRED, true, false, configDescription,
@@ -132,7 +132,7 @@ public class ConfigPropertyJSONParser {
     /**
      * This method is used to provide to the map "config" the pairs of configuration parameter names and configuration
      * parameter values.
-     * 
+     *
      * @param jsonConfig is a JSON representation of the Configuration.
      * @return a map with pairs of configuration parameter names and configuration parameter values.
      */
@@ -157,8 +157,8 @@ public class ConfigPropertyJSONParser {
      * Supplies to the map "config" the pairs of configuration parameter names and configuration parameter values.
      * Also completes the set with the descriptions of the configuration parameters.
      *
-     * @param jsonConfigInfo is a JSON representation of the Configuration. 
-     *                       It contains descriptions of the parameters and parameter values.
+     * @param jsonConfigInfo is a JSON representation of the Configuration.
+     *            It contains descriptions of the parameters and parameter values.
      * @return a map with pairs of configuration parameter names and configuration parameter values.
      */
     static Map<String, Object> getConfiguration(JSONObject jsonConfigInfo,
@@ -169,13 +169,13 @@ public class ConfigPropertyJSONParser {
         while (i.hasNext()) {
             Object configValue = null;
             String configPropertyName = (String) i.next();
-            JSONObject configPropertyInfo = JSONUtility
-                    .getJSONObject(configPropertyName, false, jsonConfigInfo, status);
+            JSONObject configPropertyInfo = JSONUtility.getJSONObject(configPropertyName, false, jsonConfigInfo,
+                    status);
             if (configPropertyInfo == null) {
                 continue;
             }
-            ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser.createConfigPropertyDescription(
-                    configPropertyName, configPropertyInfo, status);
+            ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser
+                    .createConfigPropertyDescription(configPropertyName, configPropertyInfo, status);
             if (configProperty == null) {
                 continue;
             }
@@ -198,7 +198,7 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
-     * 
+     *
      * @param configValue
      * @param configProperty
      * @param status
@@ -220,7 +220,7 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
-     * 
+     *
      * @param configValue
      * @param configProperty
      * @param status
@@ -236,18 +236,19 @@ public class ConfigPropertyJSONParser {
                     if (Type.TEXT.equals(type))
                         value = JSONUtility.getString(configProperty.getName(), index, (JSONArray) configValue, status);
                     else if (Type.BOOLEAN.equals(type))
-                        value = JSONUtility
-                                .getBoolean(configProperty.getName(), index, (JSONArray) configValue, status);
+                        value = JSONUtility.getBoolean(configProperty.getName(), index, (JSONArray) configValue,
+                                status);
                     else
                         value = JSONUtility.getNumber(configProperty.getName(), index, (JSONArray) configValue, status);
                     if (JSONUtility.verifyType(type, value, status) == null) {
                         return FAIL;
                     }
                 }
-                return configValue;
+                return toList((JSONArray) configValue);
             }
-            status.error("Unexpected value for configuration property \"" + configProperty.getName()
-                    + "\". Expected is JSONArray with type for elements : " + type.toString() + "!",
+            status.error(
+                    "Unexpected value for configuration property \"" + configProperty.getName()
+                            + "\". Expected is JSONArray with type for elements : " + type.toString() + "!",
                     new IllegalArgumentException());
         } else {
             value = JSONUtility.verifyType(type, configValue, status);
@@ -257,10 +258,10 @@ public class ConfigPropertyJSONParser {
 
     /**
      * This method converts {@link ConfigDescriptionParameter} to JSON format.
-     * 
+     *
      * @param configParameter the {@link ConfigDescriptionParameter} to convert.
      * @param writer is the {@link OutputStreamWriter} used to encode into bytes the {@link ConfigDescriptionParameter}.
-     * 
+     *
      * @return JSONObject representing the {@link ConfigDescriptionParameter}.
      * @throws IOException
      * @throws JSONException
@@ -416,8 +417,8 @@ public class ConfigPropertyJSONParser {
                 if (configPropertyInfo == null) {
                     return null;
                 }
-                ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser.createConfigPropertyDescription(
-                        configPropertyName, configPropertyInfo, status);
+                ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser
+                        .createConfigPropertyDescription(configPropertyName, configPropertyInfo, status);
                 if (configProperty == null) {
                     return null;
                 }
@@ -482,6 +483,25 @@ public class ConfigPropertyJSONParser {
         optionMap.put("label", option.getLabel());
         optionMap.put("value", option.getValue());
         return new JSONObject(optionMap);
+    }
+
+    /**
+     * @param jsonArr
+     * @return
+     */
+    private static List toList(JSONArray jsonArr) {
+        List list = null;
+        if (jsonArr != null) {
+            list = new ArrayList();
+            for (int i = 0; i < jsonArr.length(); i++) {
+                try {
+                    list.add(jsonArr.get(i));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return list;
     }
 
 }

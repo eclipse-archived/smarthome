@@ -14,14 +14,12 @@ package org.eclipse.smarthome.automation.parser.json;
 
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
-
-import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.util.Introspector;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
 /**
  * @author Ana Dimova - Initial Contribution
@@ -124,16 +122,16 @@ public class JSONUtility {
      * @throws IllegalArgumentException if the types are not compatible.
      * @throws ClassNotFoundException
      */
-    static void verifyType(BundleContext bc, String type, Object value) throws IllegalArgumentException,
-            ClassNotFoundException {
+    static void verifyType(BundleContext bc, String type, Object value)
+            throws IllegalArgumentException, ClassNotFoundException {
         if (value == null)
             return;
         Class<?> clazz = bc.getBundle().loadClass(type);
         if (clazz.isAssignableFrom(value.getClass())) {
             return;
         }
-        throw new IllegalArgumentException("Incompatible types : \"" + type + "\" and \"" + value.getClass().getName()
-                + "\".");
+        throw new IllegalArgumentException(
+                "Incompatible types : \"" + type + "\" and \"" + value.getClass().getName() + "\".");
     }
 
     /**
@@ -211,8 +209,8 @@ public class JSONUtility {
      * @throws IllegalAccessException
      * @throws JSONException
      */
-    static Object convertValue(BundleContext bc, String type, Object value) throws ClassNotFoundException,
-            JSONException, IllegalAccessException, InvocationTargetException {
+    static Object convertValue(BundleContext bc, String type, Object value)
+            throws ClassNotFoundException, JSONException, IllegalAccessException, InvocationTargetException {
         if (value instanceof JSONObject) {
             Class<?> clazz = bc.getBundle().loadClass(type);
             Introspector i = new Introspector();

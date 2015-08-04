@@ -10,7 +10,7 @@
  *    ProSyst Software GmbH - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.smarthome.automation.util;
+package org.eclipse.smarthome.automation.parser.json;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;

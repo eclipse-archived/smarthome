@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
@@ -54,6 +55,7 @@ public class SampleActionHandler extends AbstractModuleHandler implements Action
         return resolvedConfigration != null ? resolvedConfigration.get("message") : null;
     }
 
+    @Override
     public Map<String, Object> execute(Map<String, ?> inputs) {
         Map resolvedInputs = getResolvedInputs(inputs);
         Map resolvedConfigration = getResolvedConfiguration(resolvedInputs);
@@ -69,5 +71,10 @@ public class SampleActionHandler extends AbstractModuleHandler implements Action
     @Override
     protected ModuleTypeRegistry getModuleTypeRegistry() {
         return SampleHandlerFactory.getModuleTypeRegistry();
+    }
+
+    @Override
+    protected Converter getConverter() {
+        return SampleHandlerFactory.getConverter();
     }
 }

@@ -15,15 +15,15 @@ package org.eclipse.smarthome.automation.parser.json;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.parser.Converter;
+import org.eclipse.smarthome.automation.parser.Parser;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-
-import org.eclipse.smarthome.automation.AutomationFactory;
-import org.eclipse.smarthome.automation.parser.Parser;
 
 /**
  * @author Ana Dimova
@@ -35,17 +35,20 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     private ServiceReference afRef;
     private AutomationFactory automationFactory;
 
-    private ServiceRegistration /* <Parser> */mpReg;
-    private ServiceRegistration /* <Parser> */tpReg;
-    private ServiceRegistration /* <Parser> */rpReg;
+    private ServiceRegistration /* <Parser> */ mpReg;
+    private ServiceRegistration /* <Parser> */ tpReg;
+    private ServiceRegistration /* <Parser> */ rpReg;
+    private ServiceRegistration converterReg;
 
     private ServiceTracker automationTracker;
 
     /**
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         bc = context;
+        converterReg = bc.registerService(Converter.class.getName(), new ConverterImpl(), null);
         automationTracker = new ServiceTracker(context, AutomationFactory.class.getName(), this);
         automationTracker.open();
     }
@@ -53,7 +56,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     /**
      * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
+        if (converterReg != null) {
+            converterReg.unregister();
+            converterReg = null;
+        }
         if (automationTracker != null) {
             automationTracker.close();
             automationTracker = null;
@@ -63,6 +71,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
     /**
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
+    @Override
     public Object addingService(ServiceReference reference) {
         Object service = bc.getService(reference);
         if (service instanceof AutomationFactory && afRef == null) {
@@ -94,6 +103,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
+    @Override
     public void modifiedService(ServiceReference reference, Object service) {
         // do nothing
     }
@@ -102,6 +112,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
+    @Override
     public void removedService(ServiceReference reference, Object service) {
         bc.ungetService(reference);
         if (service instanceof AutomationFactory) {

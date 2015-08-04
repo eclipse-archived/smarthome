@@ -14,6 +14,7 @@ package org.eclipse.smarthome.automation.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,17 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
@@ -41,6 +36,8 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class used for resolving references in {@link ConfigDescriptionParameter} , {@link Input} and {@link Output}
@@ -145,10 +142,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      */
     public static final String PROPERTY_CONTEXT_VALUEREF = "valueRef";
 
-    private ServiceReference moduleTypeRegistryRef;
     private ModuleTypeRegistry moduleTypeRegistry;
     private Module module;
-    private BundleContext bc;
     private Logger log;
     // descriptions
     private List<ModuleType> moduleTypes;
@@ -177,10 +172,11 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         init();
     }
 
+    @Override
     public void dispose() {
         moduleTypeRegistry = null;
     }
-    
+
     /**
      * Initialize all needed utilities.
      */
@@ -201,7 +197,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         inputConnectionsMap = getInputConnections(inputDescriptionsMap);
         outputConnectionsMap = getOutputConnections(outputDescriptionsMap);
     }
-    
+
     /**
      * Getting ModuleTypeRegistry.
      */
@@ -220,16 +216,17 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * For example:
      *
      * inputName: {
-     *  ....,
-     *  reference: $parentInputName,
-     *  ....
+     * ....,
+     * reference: $parentInputName,
+     * ....
      * }
      *
-     * It means that current Input with name 'inputName' have to set its value to its parent ModuleType's Input with name 'parentInputName'.
+     * It means that current Input with name 'inputName' have to set its value to its parent ModuleType's Input with
+     * name 'parentInputName'.
      *
      * @param inputValues the Input values by the moment (i.e. custom Input values)
      * @return Map with the resolved Inputs values - {@link Module} will be ready to work with<br/>
-     * key: Name of the Input, value: Input value
+     *         key: Name of the Input, value: Input value
      */
     protected final Map<String, Object> getResolvedInputs(Map<String, ?> inputValues) {
 
@@ -321,14 +318,24 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
 
         return !resolvedOutputs.isEmpty() ? resolvedOutputs : null;
     }
-    
+
+    /**
+     * Inheritors must provide implementation of {@link Converter}.
+     *
+     * @return converter
+     */
+    protected Converter getConverter() {
+        return null;
+    }
+
     /**
      * Inheritors must provide the {@link ModuleTypeRegistry} service.
      * It is used for retrieving meta-information about Module.
+     *
      * @return ModuleTypeRegistry service
      */
     protected abstract ModuleTypeRegistry getModuleTypeRegistry();
-    
+
     /**
      * Utility method for getting ConfigurationProperty's value.
      * Priority search is as follows:
@@ -348,16 +355,11 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         if (configuration != null && configuration.containsKey(configName)) {// get user configuration value
             configValue = configuration.get(configName);
         } else {// priority: 1context, 2defaultValue
-            JSONObject context = getContextJSON(configParameter);
-            if (context != null && context.has(PROPERTY_CONTEXT_VALUEREF)) {
-                String referredInput = "";
-                try {
-                    referredInput = context.getString(PROPERTY_CONTEXT_VALUEREF);
-                } catch (JSONException e) {
-                    log.error("cannot get context property " + PROPERTY_CONTEXT_VALUEREF, e);
-                }
-                if (isParsable(referredInput)) {// get context value
-                    String inputName = parse(referredInput);
+            Dictionary context = getContextDictionary(configParameter);
+            if (context != null) {
+                String valueRef = getPropertyContextString(context, PROPERTY_CONTEXT_VALUEREF);
+                if (valueRef != null && isParsable(valueRef)) {// get context value
+                    String inputName = parse(valueRef);
                     if (resolvedInputValues != null && resolvedInputValues.containsKey(inputName)) {
                         configValue = resolvedInputValues.get(inputName);
                     } else {// get default value
@@ -534,7 +536,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return reversed Map: key: outputN value to take from, value: Set of the all Outputs(sourceOutput too) that value
      *         must be set.
      */
-    private Map<String, Set<String>> processOutputConnections(Map<String, LinkedList<String>> currentOutputConnections) {
+    private Map<String, Set<String>> processOutputConnections(
+            Map<String, LinkedList<String>> currentOutputConnections) {
 
         Map<String, Set<String>> resultOutputConnections = new HashMap();
         for (Map.Entry<String, LinkedList<String>> entry : currentOutputConnections.entrySet()) {
@@ -596,12 +599,12 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         String sourceConfigName = configParamater.getName();
         String currentConfigName = sourceConfigName;
         ConfigDescriptionParameter currentConfigParameter = configParamater;
-        JSONObject currentContext = getContextJSON(currentConfigParameter);
+        Dictionary currentContext = getContextDictionary(currentConfigParameter);
         Set<String> referredConfigNames = new HashSet();
         while (!visitedConfigs.contains(currentConfigName) && currentContext != null) {
             visitedConfigs.add(currentConfigName); // mark config as visited
-            String nameRef = currentContext.optString(PROPERTY_CONTEXT_NAMEREF, null);
-            if (isParsable(nameRef)) {
+            String nameRef = getPropertyContextString(currentContext, PROPERTY_CONTEXT_NAMEREF);
+            if (nameRef != null && isParsable(nameRef)) {
                 String referredConfigName = parse(nameRef);
                 currentConfigParameter = configDescriptionsMap.get(referredConfigName);
                 if (currentConfigParameter != null) { // check if ConfigDescriptionParamaeter with parsed name exists
@@ -616,7 +619,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                         referredConfigNames.add(referredConfigName);
                     }
                     currentConfigName = currentConfigParameter.getName();
-                    currentContext = getContextJSON(currentConfigParameter);
+                    currentContext = getContextDictionary(currentConfigParameter);
                 } else {
                     log.error("Can't find referred ConfigurationProperty: " + referredConfigName
                             + ", referred by ConfigurationProperty: " + sourceConfigName);
@@ -882,7 +885,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     private String getParentModuleTypeUID(String childModuleTypeUID) {
         String parentModuleTypeUID = null;
         if (childModuleTypeUID.indexOf(MODULE_TYPE_SEPARATOR) != -1) {
-            parentModuleTypeUID = childModuleTypeUID.substring(0, childModuleTypeUID.lastIndexOf(MODULE_TYPE_SEPARATOR));
+            parentModuleTypeUID = childModuleTypeUID.substring(0,
+                    childModuleTypeUID.lastIndexOf(MODULE_TYPE_SEPARATOR));
         }
         return parentModuleTypeUID;
     }
@@ -965,17 +969,29 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param configParameter the configParameter
      * @return context as JSON or <code>null</code>
      */
-    private JSONObject getContextJSON(ConfigDescriptionParameter configParameter) {
-        JSONObject context = null;
+    private Dictionary getContextDictionary(ConfigDescriptionParameter configParameter) {
+        Dictionary context = null;
         String contextStr = configParameter.getContext();
-        if (contextStr != null && contextStr.length() > 0) {
-            try {
-                context = new JSONObject(contextStr);
-            } catch (JSONException e) {
-                log.error("Context property of ConfigurationProperty is not a valid JSON.", e);
+        if (contextStr != null && contextStr.length() > 0 && contextStr.charAt(0) == '{') {
+            Converter converter = getConverter();
+            if (converter != null) {
+                context = converter.getAsDictionary(contextStr);
+            } else {
+                log.error("Converter is not available.");
             }
         }
         return context;
+    }
+
+    private String getPropertyContextString(Dictionary dict, String property) {
+        String propertyValue = null;
+        Object obj = dict.get(property);
+        if (property instanceof String) {
+            propertyValue = (String) obj;
+        } else {
+            throw new IllegalArgumentException("Context property: " + property + " must be String.");
+        }
+        return propertyValue;
     }
 
     /**
