@@ -454,8 +454,8 @@ public abstract class AutomationCommands {
                         for (String uid : portfolio) {
                             moduleTypeProvider.remove(uid);
                         }
-                    return true;
-                }
+                        return true;
+                    }
                 }
                 return false;
             case AutomationCommands.TEMPLATE_PROVIDER:

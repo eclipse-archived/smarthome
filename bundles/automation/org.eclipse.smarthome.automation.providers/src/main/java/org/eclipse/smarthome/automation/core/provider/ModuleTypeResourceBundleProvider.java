@@ -41,8 +41,8 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResourceBundleProvider<ModuleType, PE> implements
-        ModuleTypeProvider {
+public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResourceBundleProvider<ModuleType, PE>
+        implements ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
     private ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry> moduleTypesTracker;
@@ -58,7 +58,8 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     public ModuleTypeResourceBundleProvider(BundleContext context, Class providerClass) {
         super(context, providerClass);
         path = PATH + "/moduletypes/";
-        moduleTypesTracker = new ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry>(context, ModuleTypeRegistry.class.getName(),
+        moduleTypesTracker = new ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry>(context,
+                ModuleTypeRegistry.class.getName(),
                 new ServiceTrackerCustomizer<ModuleTypeRegistry, ModuleTypeRegistry>() {
 
                     public ModuleTypeRegistry addingService(ServiceReference<ModuleTypeRegistry> reference) {
@@ -69,16 +70,18 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
                         return moduleTypeRegistry;
                     }
 
-                    public void modifiedService(ServiceReference<ModuleTypeRegistry> reference, ModuleTypeRegistry service) {
+                    public void modifiedService(ServiceReference<ModuleTypeRegistry> reference,
+                            ModuleTypeRegistry service) {
                     }
 
-                    public void removedService(ServiceReference<ModuleTypeRegistry> reference, ModuleTypeRegistry service) {
+                    public void removedService(ServiceReference<ModuleTypeRegistry> reference,
+                            ModuleTypeRegistry service) {
                         moduleTypeRegistry = null;
                     }
                 });
         moduleTypesTracker.open();
     }
-    
+
     /**
      * This method is inherited from {@link AbstractResourceBundleProvider}.
      * <p>
@@ -189,8 +192,9 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      */
     private boolean checkExistence(String uid, Status status) {
         if (moduleTypeRegistry.get(uid) != null) {
-            status.error("Module Type with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!", new IllegalArgumentException());
+            status.error(
+                    "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
+                    new IllegalArgumentException());
             status.success(null);
             return true;
         }

@@ -58,7 +58,8 @@ public interface Rule {
     public void setName(String ruleName) throws IllegalStateException;
 
     /**
-     * Rules can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
+     * Rules can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
      * used for getting the tags assign to this Rule. The tags are used to filter the rules.
      *
      * @return a list of tags
@@ -66,7 +67,8 @@ public interface Rule {
     public Set<String> getTags();
 
     /**
-     * Rules can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
+     * Rules can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. This method is
      * used for setting the tags to this rule. This property can be changed only when the Rule is not in active state.
      * The tags are used to filter the rules.
      *

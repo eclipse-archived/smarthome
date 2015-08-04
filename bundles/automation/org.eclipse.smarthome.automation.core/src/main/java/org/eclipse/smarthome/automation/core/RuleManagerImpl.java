@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-
 import org.osgi.framework.BundleContext;
 
 /**

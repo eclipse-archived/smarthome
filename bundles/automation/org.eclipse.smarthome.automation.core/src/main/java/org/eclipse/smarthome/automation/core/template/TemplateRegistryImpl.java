@@ -17,7 +17,7 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class TemplateRegistryImpl extends AbstractRegistry<Template, String> implements TemplateRegistry {
+public class TemplateRegistryImpl extends AbstractRegistry<Template, String>implements TemplateRegistry {
 
     private TemplateManager templateManager;
 
@@ -66,8 +66,8 @@ public class TemplateRegistryImpl extends AbstractRegistry<Template, String> imp
     }
 
     /**
-   *
-   */
+    *
+    */
     public void dispose() {
         templateManager.dispose();
     }

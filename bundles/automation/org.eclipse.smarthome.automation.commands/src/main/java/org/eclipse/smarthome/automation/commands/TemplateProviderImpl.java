@@ -47,11 +47,14 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE> implements TemplateProvider {
+public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE>
+        implements TemplateProvider {
 
     /**
-     * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add any new
-     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's constructor.
+     * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
+     * any new
+     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
+     * constructor.
      * 
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
@@ -60,7 +63,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     public TemplateProviderImpl(BundleContext context, Class providerClass) {
         super(context, providerClass);
     }
-    
+
     /**
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link RuleTemplate} {@link Parser}.
@@ -165,9 +168,8 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
                             ruleT.getModules(Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error(
-                            "Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                                    + e.getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
+                            + e.getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))
@@ -203,7 +205,8 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
         }
         if (AutomationCommandsPluggable.templateRegistry.get(uid) != null) {
             s.error("Rule Template with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!", new IllegalArgumentException());
+                    + "\" already exists! Failed to create a second with the same UID!",
+                    new IllegalArgumentException());
             s.success(null);
             return true;
         }

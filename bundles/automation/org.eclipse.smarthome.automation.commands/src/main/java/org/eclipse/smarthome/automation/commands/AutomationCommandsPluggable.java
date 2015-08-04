@@ -33,8 +33,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class AutomationCommandsPluggable extends AutomationCommands implements ServiceTrackerCustomizer,
-        ConsoleCommandExtension {
+public class AutomationCommandsPluggable extends AutomationCommands
+        implements ServiceTrackerCustomizer, ConsoleCommandExtension {
 
     public static final String NAME = "automation";
     public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes resources.";
@@ -68,8 +68,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
     }
 
     /**
-	 *
-	 */
+     *
+     */
     @Override
     public void stop() {
         commandsServiceReg.unregister();
@@ -151,33 +151,32 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public List<String> getUsages() {
-        return Arrays
-                .asList(new String[] {
-                        buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
-                                "lists all Module Types. If filter is present, lists only matching Module Types"),
-                        buildCommandUsage(LIST_TEMPLATES + " [-st] <filter>",
-                                "lists all Templates. If filter is present, lists only matching Templates"),
-                        buildCommandUsage(LIST_RULES + " [-st] <filter>",
-                                "lists all Rules. If filter is present, lists only matching Rules"),
-                        buildCommandUsage(REMOVE_MODULE_TYPES + " [-st] <url>",
-                                "Removes the Module Types, loaded from the given url"),
-                        buildCommandUsage(REMOVE_TEMPLATES + " [-st] <url>",
-                                "Removes the Templates, loaded from the given url"),
-                        buildCommandUsage(REMOVE_RULE + " [-st] <uid>", "Removes the rule, specified by given UID"),
-                        buildCommandUsage(REMOVE_RULES + " [-st] <filter>",
-                                "Removes the rules. If filter is present, removes only matching Rules"),
-                        buildCommandUsage(IMPORT_MODULE_TYPES + " [-p] <parserType> [-st] <url>",
-                                "Imports Module Types from given url. If parser type missing, \"json\" parser will be set as default"),
-                        buildCommandUsage(IMPORT_TEMPLATES + " [-p] <parserType> [-st] <url>",
-                                "Imports Templates from given url. If parser type missing, \"json\" parser will be set as default"),
-                        buildCommandUsage(IMPORT_RULES + " [-p] <parserType> [-st] <url>",
-                                "Imports Rules from given url. If parser type missing, \"json\" parser will be set as default"),
-                        buildCommandUsage(EXPORT_MODULE_TYPES + " [-p] <parserType> [-st] <file>",
-                                "Exports Module Types in a file. If parser type missing, \"json\" parser will be set as default"),
-                        buildCommandUsage(EXPORT_TEMPLATES + " [-p] <parserType> [-st] <file>",
-                                "Exports Templates in a file. If parser type missing, \"json\" parser will be set as default"),
-                        buildCommandUsage(EXPORT_RULES + " [-p] <parserType> [-st] <file>",
-                                "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default") });
+        return Arrays.asList(new String[] {
+                buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
+                        "lists all Module Types. If filter is present, lists only matching Module Types"),
+                buildCommandUsage(LIST_TEMPLATES + " [-st] <filter>",
+                        "lists all Templates. If filter is present, lists only matching Templates"),
+                buildCommandUsage(LIST_RULES + " [-st] <filter>",
+                        "lists all Rules. If filter is present, lists only matching Rules"),
+                buildCommandUsage(REMOVE_MODULE_TYPES + " [-st] <url>",
+                        "Removes the Module Types, loaded from the given url"),
+                buildCommandUsage(REMOVE_TEMPLATES + " [-st] <url>",
+                        "Removes the Templates, loaded from the given url"),
+                buildCommandUsage(REMOVE_RULE + " [-st] <uid>", "Removes the rule, specified by given UID"),
+                buildCommandUsage(REMOVE_RULES + " [-st] <filter>",
+                        "Removes the rules. If filter is present, removes only matching Rules"),
+                buildCommandUsage(IMPORT_MODULE_TYPES + " [-p] <parserType> [-st] <url>",
+                        "Imports Module Types from given url. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(IMPORT_TEMPLATES + " [-p] <parserType> [-st] <url>",
+                        "Imports Templates from given url. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(IMPORT_RULES + " [-p] <parserType> [-st] <url>",
+                        "Imports Rules from given url. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(EXPORT_MODULE_TYPES + " [-p] <parserType> [-st] <file>",
+                        "Exports Module Types in a file. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(EXPORT_TEMPLATES + " [-p] <parserType> [-st] <file>",
+                        "Exports Templates in a file. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(EXPORT_RULES + " [-p] <parserType> [-st] <file>",
+                        "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default") });
     }
 
     /**

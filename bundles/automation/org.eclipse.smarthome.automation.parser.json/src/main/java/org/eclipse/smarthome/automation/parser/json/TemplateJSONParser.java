@@ -70,8 +70,8 @@ public class TemplateJSONParser implements Parser {
                             ruleTemplatesStatus.add(createRuleTemplate(jsonRT, statusPerTemplate));
                     }
                 } else {
-                    ruleTemplatesStatus.add(createRuleTemplate((JSONObject) jsonRuleTemplates, new Status(log,
-                            Status.TEMPLATE, null)));
+                    ruleTemplatesStatus.add(
+                            createRuleTemplate((JSONObject) jsonRuleTemplates, new Status(log, Status.TEMPLATE, null)));
                 }
             }
         } catch (JSONException e) {
@@ -124,8 +124,8 @@ public class TemplateJSONParser implements Parser {
      * @throws JSONException is thrown when the parameter for the constructor of the JSON not amiss.
      * @throws IOException
      */
-    private void ruleTemplateToJSON(RuleTemplate ruleTemplate, OutputStreamWriter writer) throws JSONException,
-            IOException {
+    private void ruleTemplateToJSON(RuleTemplate ruleTemplate, OutputStreamWriter writer)
+            throws JSONException, IOException {
         writer.write("  {\n");
         String uid = ruleTemplate.getUID();
         if (uid != null)
@@ -140,8 +140,8 @@ public class TemplateJSONParser implements Parser {
             writer.write("    \"" + JSONStructureConstants.DESCRIPTION + "\":\"" + description + "\",\n");
 
         Visibility visibility = ruleTemplate.getVisibility();
-        writer.write("    \"" + JSONStructureConstants.VISIBILITY + "\":\"" + visibility.toString().toLowerCase()
-                + "\",\n");
+        writer.write(
+                "    \"" + JSONStructureConstants.VISIBILITY + "\":\"" + visibility.toString().toLowerCase() + "\",\n");
 
         Set<String> tags = ruleTemplate.getTags();
         if (tags != null && !tags.isEmpty()) {
@@ -250,8 +250,8 @@ public class TemplateJSONParser implements Parser {
                     fail = true;
                     continue;
                 }
-                ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser.createConfigPropertyDescription(
-                        configPropertyName, configPropertyInfo, status);
+                ConfigDescriptionParameter configProperty = ConfigPropertyJSONParser
+                        .createConfigPropertyDescription(configPropertyName, configPropertyInfo, status);
                 if (configProperty != null)
                     configDescriptions.add(configProperty);
                 else
@@ -291,8 +291,8 @@ public class TemplateJSONParser implements Parser {
         // get label of rule template
         String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonRuleTemplate, status);
         // create rule template
-        RuleTemplate template = new RuleTemplate(ruleTemplateUID, label, description, tags, triggers, conditions, actions,
-                    configDescriptions, visibility);
+        RuleTemplate template = new RuleTemplate(ruleTemplateUID, label, description, tags, triggers, conditions,
+                actions, configDescriptions, visibility);
         status.success(template);
         return status;
     }

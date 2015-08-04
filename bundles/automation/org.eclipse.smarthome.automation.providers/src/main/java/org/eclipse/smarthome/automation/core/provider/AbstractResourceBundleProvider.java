@@ -52,8 +52,8 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPersistentProvider<E, PE> implements
-        ServiceTrackerCustomizer {
+public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPersistentProvider<E, PE>
+        implements ServiceTrackerCustomizer {
 
     /**
      * This static field provides a root directory for automation object resources in the bundle resources.
@@ -165,7 +165,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * @return the service object to be tracked for the specified {@code ServiceReference}.
      */
     public Object addingService(ServiceReference reference) {
-        Parser service = (Parser)bc.getService(reference);
+        Parser service = (Parser) bc.getService(reference);
         String key = (String) reference.getProperty(Parser.FORMAT);
         key = key == null ? Parser.FORMAT_JSON : key;
         parsers.put(key, service);
@@ -174,8 +174,8 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
             while (i.hasNext()) {
                 Long bundleId = (Long) i.next();
                 Bundle bundle = waitingProviders.get(bundleId);
-                String parserType = bundle.getHeaders().get(
-                        AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
+                String parserType = bundle.getHeaders()
+                        .get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
                 Parser parser = parsers.get(parserType);
                 if (parser != null && bundle.getState() != Bundle.UNINSTALLED) {
                     queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));

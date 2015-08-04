@@ -18,7 +18,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * Modules are building components of the {@link Rule}s. Each Module is
  * identified by id, which is unique in scope of the {@link Rule}. It also has a {@link ModuleType} which provides meta
  * data of the module. The meta data
- * defines {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s parameters of the {@link Module}. <br>
+ * defines {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s parameters of the {@link Module}.
+ * <br>
  * Setters of the module don't have immediate effect on the Rule. To apply the
  * changes, they should be set on the {@link Rule} and the Rule has to be
  * updated by RuleManager

@@ -49,7 +49,8 @@ public interface Template {
     public String getUID();
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
+     * Templates can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for getting the assign tags to this Template.
      *
      * @return tags of the template

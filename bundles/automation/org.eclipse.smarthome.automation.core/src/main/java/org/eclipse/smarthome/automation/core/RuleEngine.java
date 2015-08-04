@@ -44,7 +44,7 @@ import org.eclipse.smarthome.automation.type.Input;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */{
+public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */ {
 
     public static final int MODULE_TYPE_SEPARATOR = ':';
     public static final String LOG_HEADER = "[Automation] ";
@@ -53,7 +53,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private static Map<String, Set<String>> mapHandlerTypeToRule = new HashMap<String, Set<String>>();
 
     private Map<String, RuleImpl> rules;
-    private ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */mhfTracker;
+    private ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */ mhfTracker;
     private BundleContext bc;
     private Map<String, ModuleHandlerFactory> moduleHandlerFactories;
     private Map<String, Set<String>> mapTypeToRules;
@@ -347,7 +347,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
-    public synchronized ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */reference) {
+    public synchronized ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */ reference) {
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
         Set<String> notInitailizedRules = null;
@@ -362,8 +362,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 for (String rUID : rules) {
                     RuleStatus status = getRuleStatus(rUID);
                     if (status == null || !status.isInitialize()) {
-                        notInitailizedRules = notInitailizedRules != null ? notInitailizedRules : new HashSet<String>(
-                                20);
+                        notInitailizedRules = notInitailizedRules != null ? notInitailizedRules
+                                : new HashSet<String>(20);
                         notInitailizedRules.add(rUID);
                     }
 
@@ -384,7 +384,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
-    public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */Object service) {
+    public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
+            /* ModuleHandlerFactory */Object service) {
         // TODO Auto-generated method stub
 
     }
@@ -393,7 +394,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
-    public synchronized void removedService(ServiceReference/* <ModuleHandlerFactory> */reference, /* ModuleHandlerFactory */
+    public synchronized void removedService(
+            ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
         Map<String, List<String>> mapMissingHanlers = null;

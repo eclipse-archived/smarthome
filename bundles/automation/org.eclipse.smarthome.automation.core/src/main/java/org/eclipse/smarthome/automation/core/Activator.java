@@ -20,18 +20,18 @@ import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
 public class Activator implements BundleActivator {
-    
+
     static ModuleTypeRegistryImpl moduleTypeRegistry;
     static TemplateRegistryImpl templateRegistry;
     static BundleContext bc;
-    
+
     protected static AutomationFactory automationFactory;
-    
-    private ServiceRegistration /* <?> */automationFactoryReg;
-    private ServiceRegistration/* <?> */ruleRegistryReg;
+
+    private ServiceRegistration /* <?> */ automationFactoryReg;
+    private ServiceRegistration/* <?> */ ruleRegistryReg;
     private RuleRegistryImpl ruleRegistry;
-    private ServiceRegistration/* <?> */templateRegistryReg;
-    private ServiceRegistration/* <?> */moduleTypeRegistryReg;
+    private ServiceRegistration/* <?> */ templateRegistryReg;
+    private ServiceRegistration/* <?> */ moduleTypeRegistryReg;
 
     public void start(BundleContext bc) throws Exception {
         Activator.bc = bc;
@@ -44,7 +44,7 @@ public class Activator implements BundleActivator {
         templateRegistryReg = bc.registerService(TemplateRegistry.class.getName(), templateRegistry, null);
         moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc));
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
-        
+
         RuleManagerImpl rm = new RuleManagerImpl(bc);
         RuleProvider rp = new RuleProvider(rm, bc);
         ruleRegistry = new RuleRegistryImpl(rm, rp);

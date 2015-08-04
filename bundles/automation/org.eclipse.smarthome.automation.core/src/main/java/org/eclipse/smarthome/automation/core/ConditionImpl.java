@@ -20,7 +20,7 @@ import org.eclipse.smarthome.automation.type.Input;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class ConditionImpl extends ModuleImpl<ConditionHandler> implements Condition, ConnectedModule {
+public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condition, ConnectedModule {
 
     private Set<Connection> connections;
     private Map<String, OutputValue> connectedObjects;

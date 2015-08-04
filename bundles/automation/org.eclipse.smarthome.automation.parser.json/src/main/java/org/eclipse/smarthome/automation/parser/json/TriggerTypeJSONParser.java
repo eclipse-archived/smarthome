@@ -36,7 +36,8 @@ class TriggerTypeJSONParser {
      * @throws IOException
      * @throws JSONException
      */
-    static void triggerTypeToJSON(TriggerType triggerType, OutputStreamWriter writer) throws IOException, JSONException {
+    static void triggerTypeToJSON(TriggerType triggerType, OutputStreamWriter writer)
+            throws IOException, JSONException {
         ModuleTypeJSONParser.moduleTypeToJSON(triggerType, writer);
         Set<Output> outputs = triggerType.getOutputs();
         if (outputs != null && !outputs.isEmpty()) {
@@ -83,8 +84,8 @@ class TriggerTypeJSONParser {
      * @throws IOException
      * @throws JSONException
      */
-    static void writeTriggerTypes(Map<String, TriggerType> triggers, OutputStreamWriter writer) throws IOException,
-            JSONException {
+    static void writeTriggerTypes(Map<String, TriggerType> triggers, OutputStreamWriter writer)
+            throws IOException, JSONException {
         if (!triggers.isEmpty()) {
             writer.write(" " + JSONStructureConstants.TRIGGERS + ":{\n");
             Iterator<String> triggersI = triggers.keySet().iterator();

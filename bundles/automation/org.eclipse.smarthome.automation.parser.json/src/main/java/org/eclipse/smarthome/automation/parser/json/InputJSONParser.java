@@ -69,8 +69,8 @@ public class InputJSONParser {
         boolean required = JSONUtility.getBoolean(JSONStructureConstants.REQUIRED, true, false, jsonInputDescription,
                 status);
         String reference = JSONUtility.getString(JSONStructureConstants.REFERENCE, true, jsonInputDescription, status);
-        Object defaultValue = jsonInputDescription.has(JSONStructureConstants.DEFAULT_VALUE) ? jsonInputDescription
-                .opt(JSONStructureConstants.DEFAULT_VALUE) : null;
+        Object defaultValue = jsonInputDescription.has(JSONStructureConstants.DEFAULT_VALUE)
+                ? jsonInputDescription.opt(JSONStructureConstants.DEFAULT_VALUE) : null;
         Object convDefaultValue = null;
         if (defaultValue != null) {
             try {

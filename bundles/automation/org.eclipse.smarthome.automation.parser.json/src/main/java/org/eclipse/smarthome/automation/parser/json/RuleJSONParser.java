@@ -109,8 +109,8 @@ public class RuleJSONParser implements Parser {
         Rule rule = null;
         String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.TEMPLATE_UID, true, jsonRule, status);
         if (ruleTemplateUID != null) {
-                JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
-                configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
+            configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
             try {
                 rule = automationFactory.createRule(ruleTemplateUID, configurations);
             } catch (Exception e) {

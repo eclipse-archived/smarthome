@@ -37,10 +37,10 @@ public class PersistentModuleTypeProviderImpl extends ModuleTypeProviderImpl<Per
     protected String keyToString(String key) {
         return key;
     }
-    
+
     @Override
     protected ModuleType toElement(String key, PersistableModuleType persistableElement) {
-     // TODO Auto-generated method stub
+        // TODO Auto-generated method stub
         return null;
     }
 

@@ -29,7 +29,7 @@ public interface ModuleTypeRegistry {
      * @return ModuleType instance or null.
      */
     public <T extends ModuleType> T get(String moduleTypeUID);
-    
+
     /**
      * This method is used to get ModuleType of specified by type.
      *

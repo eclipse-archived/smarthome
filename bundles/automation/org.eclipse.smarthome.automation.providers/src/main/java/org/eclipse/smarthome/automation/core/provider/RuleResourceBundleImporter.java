@@ -167,7 +167,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      * When some of the bundles that provides rule resources is uninstalled, this method will remove it from
      * {@link #waitingProviders}, if it is still there or from {@link #providerPortfolio} in the other case.
      * <p>
-     * Will remove these rules from {@link #providedObjectsHolder} and will remove their persistence, 
+     * Will remove these rules from {@link #providedObjectsHolder} and will remove their persistence,
      * injected in the system from this bundle.
      * 
      * @param bundle the uninstalled {@link Bundle}, provider of automation rules.
@@ -195,7 +195,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
         }
     }
 
-    /** 
+    /**
      * @see AbstractResourceBundleProvider#importData(Vendor, Parser, java.io.InputStreamReader, java.util.ArrayList)
      */
     @Override
@@ -210,7 +210,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
                     ruleRegistry.add(rule);
                     portfolio.add(rule.getUID());
                 }
-            }// while
+            } // while
             if (vendor != null) {
                 synchronized (providerPortfolio) {
                     providerPortfolio.put(vendor, portfolio);

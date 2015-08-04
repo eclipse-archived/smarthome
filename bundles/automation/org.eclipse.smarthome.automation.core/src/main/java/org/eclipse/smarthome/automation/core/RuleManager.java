@@ -120,8 +120,8 @@ public abstract class RuleManager {
         }
         RuleImpl oldR = re.getRule(rUID);
         if (oldR == null) {
-            throw new IllegalArgumentException("The rule: " + rUID
-                    + " is not added. Please add the rule before update it.");
+            throw new IllegalArgumentException(
+                    "The rule: " + rUID + " is not added. Please add the rule before update it.");
         }
         RuleImpl r1 = new RuleImpl(r);
         return r1;

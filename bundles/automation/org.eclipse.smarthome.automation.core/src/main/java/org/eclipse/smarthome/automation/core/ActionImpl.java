@@ -32,7 +32,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class ActionImpl extends ModuleImpl<ActionHandler> implements Action, ConnectedModule, SourceModule {
+public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, ConnectedModule, SourceModule {
 
     private Map<Input, List<Input>> inputMap = null;
     private Set<Connection> connections;

@@ -635,7 +635,8 @@ public class Printer {
     }
 
     /**
-     * This method is responsible for the printing a symbol - <tt>ch</tt> as many times as specified by the parameter of the method
+     * This method is responsible for the printing a symbol - <tt>ch</tt> as many times as specified by the parameter of
+     * the method
      * - <tt>count</tt> and skip a line or not depending on other parameter of the method - a <tt>nl</tt>.
      * 
      * @param sb is a {@link StringBuffer} for appending the specified symbol.

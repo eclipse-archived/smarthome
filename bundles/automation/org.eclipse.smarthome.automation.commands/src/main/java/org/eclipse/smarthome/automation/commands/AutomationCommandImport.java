@@ -78,22 +78,22 @@ public class AutomationCommandImport extends AutomationCommand {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 status = autoCommands.importModuleTypes(parserType, url);
                 if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
-                            command, FAIL, parserType);
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
+                            FAIL, parserType);
                 }
                 break;
             case AutomationCommands.TEMPLATE_PROVIDER:
                 status = autoCommands.importTemplates(parserType, url);
                 if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
-                            command, FAIL, parserType);
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
+                            FAIL, parserType);
                 }
                 break;
             case AutomationCommands.RULE_PROVIDER:
                 status = autoCommands.importRules(parserType, url);
                 if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available",
-                            command, FAIL, parserType);
+                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
+                            FAIL, parserType);
                 }
                 break;
         }
@@ -174,9 +174,9 @@ public class AutomationCommandImport extends AutomationCommand {
             } else if (parameterValues[i].equalsIgnoreCase(OPTION_P)) {
                 i++;
                 if (i >= parameterValues.length) {
-                    return String
-                            .format("[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
-                                    command, OPTION_P);
+                    return String.format(
+                            "[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
+                            command, OPTION_P);
                 }
                 parserType = parameterValues[i];
             } else if (parameterValues[i].charAt(0) == '-') {

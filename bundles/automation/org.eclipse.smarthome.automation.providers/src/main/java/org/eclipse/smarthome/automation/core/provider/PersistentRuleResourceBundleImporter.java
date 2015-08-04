@@ -28,7 +28,7 @@ public class PersistentRuleResourceBundleImporter extends RuleResourceBundleImpo
     protected String getStorageName() {
         return "providers_rules";
     }
-    
+
     @Override
     protected String keyToString(String key) {
         return key;

@@ -68,12 +68,12 @@ public class OutputJSONParser {
         String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonOutputDescription, status);
         String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonOutputDescription,
                 status);
-        String reference = JSONUtility
-                .getString(JSONStructureConstants.REFERENCE, false, jsonOutputDescription, status);
+        String reference = JSONUtility.getString(JSONStructureConstants.REFERENCE, false, jsonOutputDescription,
+                status);
         if (reference == null)
             return null;
-        Object defaultValue = jsonOutputDescription.has(JSONStructureConstants.DEFAULT_VALUE) ? jsonOutputDescription
-                .opt(JSONStructureConstants.DEFAULT_VALUE) : null;
+        Object defaultValue = jsonOutputDescription.has(JSONStructureConstants.DEFAULT_VALUE)
+                ? jsonOutputDescription.opt(JSONStructureConstants.DEFAULT_VALUE) : null;
         Object convDefaultValue = null;
         if (defaultValue != null) {
             try {

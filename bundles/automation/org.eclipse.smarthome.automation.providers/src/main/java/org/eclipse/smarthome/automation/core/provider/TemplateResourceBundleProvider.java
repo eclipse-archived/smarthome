@@ -50,7 +50,8 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourceBundleProvider<RuleTemplate, PE> implements TemplateProvider {
+public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourceBundleProvider<RuleTemplate, PE>
+        implements TemplateProvider {
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
@@ -100,7 +101,7 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
             e.printStackTrace();
         }
     }
-    
+
     /**
      * This method is inherited from {@link AbstractResourceBundleProvider}.
      * <p>
@@ -187,9 +188,8 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
                             ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error(
-                            "Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                                    + e.getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
+                            + e.getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))
@@ -217,8 +217,10 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
      */
     private boolean checkExistence(String uid, Status status) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            status.error("Rule Template with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!", new IllegalArgumentException());
+            status.error(
+                    "Rule Template with UID \"" + uid
+                            + "\" already exists! Failed to create a second with the same UID!",
+                    new IllegalArgumentException());
             status.success(null);
             return true;
         }

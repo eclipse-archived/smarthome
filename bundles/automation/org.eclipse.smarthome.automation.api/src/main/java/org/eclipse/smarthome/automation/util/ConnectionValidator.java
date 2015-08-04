@@ -75,7 +75,8 @@ public class ConnectionValidator {
             actionsMap.put(a.getId(), a);
         }
         ActionType type = (ActionType) admin.get(action.getTypeUID());
-        if (type == null) throw new IllegalArgumentException("Action Type with UID \"" + action.getTypeUID() + "\" not exists!");
+        if (type == null)
+            throw new IllegalArgumentException("Action Type with UID \"" + action.getTypeUID() + "\" not exists!");
         Set<Input> inputs = type.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             for (Input input : inputs) {
@@ -96,8 +97,8 @@ public class ConnectionValidator {
                     String triggerTypeUID = trigger.getTypeUID();
                     TriggerType triggerType = admin.get(triggerTypeUID);
                     if (triggerType == null) {
-                        throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
-                                + "\" not exists!");
+                        throw new IllegalArgumentException(
+                                msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
                     }
                     outputs = triggerType.getOutputs();
                 } else {
@@ -108,8 +109,8 @@ public class ConnectionValidator {
                     String processorTypeUID = processor.getTypeUID();
                     ActionType processorType = admin.get(processorTypeUID);
                     if (processorType == null) {
-                        throw new IllegalArgumentException(msg + " Action Type with UID \"" + processorTypeUID
-                                + "\" not exists!");
+                        throw new IllegalArgumentException(
+                                msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
                     }
                     outputs = processorType.getOutputs();
                 }
@@ -140,7 +141,8 @@ public class ConnectionValidator {
      * @param triggers
      * @throws IllegalArgumentException
      */
-    private static void validateConditionConnections(ModuleTypeRegistry admin, Condition condition, List<Trigger> triggers) {
+    private static void validateConditionConnections(ModuleTypeRegistry admin, Condition condition,
+            List<Trigger> triggers) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Iterator<Connection> connectionsI = condition.getConnections().iterator();
         while (connectionsI.hasNext()) {
@@ -153,7 +155,9 @@ public class ConnectionValidator {
             triggersMap.put(trigger.getId(), trigger);
         }
         ConditionType type = (ConditionType) admin.get(condition.getTypeUID());
-        if (type == null) throw new IllegalArgumentException("Condition Type with UID \"" + condition.getTypeUID() + "\" not exists!");
+        if (type == null)
+            throw new IllegalArgumentException(
+                    "Condition Type with UID \"" + condition.getTypeUID() + "\" not exists!");
         Set<Input> inputs = type.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             for (Input input : inputs) {
@@ -174,8 +178,8 @@ public class ConnectionValidator {
                 String triggerTypeUID = trigger.getTypeUID();
                 TriggerType triggerType = admin.get(triggerTypeUID);
                 if (triggerType == null) {
-                    throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
-                            + "\" not exists!");
+                    throw new IllegalArgumentException(
+                            msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
                 }
                 Set<Output> outputs = triggerType.getOutputs();
                 boolean notFound = true;

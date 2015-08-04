@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Introspector {
 
-    static final WeakHashMap /* <Class, List<MEntry>> */METHOD_CACHE = new WeakHashMap();
+    static final WeakHashMap /* <Class, List<MEntry>> */ METHOD_CACHE = new WeakHashMap();
     static final String NAN = "NaN"; //$NON-NLS-1$
     static final String N_INFINITY = "-Infinity"; //$NON-NLS-1$
     static final String P_INFINITY = "Infinity"; //$NON-NLS-1$
@@ -206,15 +206,17 @@ public class Introspector {
                                 if (log != null) {
                                     log.warn(
                                             "Unable to get the Class object associated with the class or interface with the given name : "
-                                                    + elementTypeName, t);
+                                                    + elementTypeName,
+                                            t);
                                 }
                             }
                             continue;
                         }
                     }
-                    o = defaultElementType != null ? deserialize(o, defaultElementType) : isJsonObject ? deserialize(o,
-                            Map.class) : o instanceof JSONArray ? deserialize(o, List.class) : deserialize(o,
-                            Object.class);
+                    o = defaultElementType != null ? deserialize(o, defaultElementType)
+                            : isJsonObject ? deserialize(o, Map.class)
+                                    : o instanceof JSONArray ? deserialize(o, List.class)
+                                            : deserialize(o, Object.class);
                     res.add(o);
                 }
                 return res;
@@ -252,7 +254,8 @@ public class Introspector {
                         if (log != null) {
                             log.warn(
                                     "Unable to get the Class object associated with the class or interface with the given name : "
-                                            + elTypeName, t);
+                                            + elTypeName,
+                                    t);
                         }
                     }
                 }
@@ -291,7 +294,8 @@ public class Introspector {
                         if (log != null) {
                             log.warn(
                                     "Unable to get the Class object associated with the class or interface with the given name :  "
-                                            + elTypeName, t);
+                                            + elTypeName,
+                                    t);
                         }
                     }
                 }
@@ -347,9 +351,10 @@ public class Introspector {
      *            infinite loops.
      * @param circularObjects
      * @return
-     * @throws JSONException 
+     * @throws JSONException
      */
-    private Object serializeObjectToJSON(final Object o, Set<Object> circularDependencies, Set<Object> circularObjects) throws JSONException {
+    private Object serializeObjectToJSON(final Object o, Set<Object> circularDependencies, Set<Object> circularObjects)
+            throws JSONException {
 
         if (circularObjects.contains(o)) {
             return null;
@@ -479,7 +484,7 @@ public class Introspector {
     private JSONObject beanToJSON2(final Object o, final Set<Object> circularDependencies,
             final Set<Object> circularObjects) throws JSONException {
         final Class clazz = o.getClass();
-        final List/* <MEntry> */methods = getSerializableMethods(clazz);
+        final List/* <MEntry> */ methods = getSerializableMethods(clazz);
         final JSONObject json = new JSONObject();
         for (int i = 0; null != methods && i < methods.size(); i++) {
             final MEntry m = (MEntry) methods.get(i);
@@ -503,8 +508,8 @@ public class Introspector {
         return json;
     }
 
-    private List/* <MEntry> */getSerializableMethods(Class clazz) {
-        List/* <MEntry> */ret = (List/* <MEntry> */) METHOD_CACHE.get(clazz);
+    private List/* <MEntry> */ getSerializableMethods(Class clazz) {
+        List/* <MEntry> */ ret = (List/* <MEntry> */) METHOD_CACHE.get(clazz);
         if (null != ret) {
             return ret;
         }
@@ -620,10 +625,9 @@ public class Introspector {
         Method[] methods = fromClass.getMethods();
         for (int j = 0; j < methods.length; j++) {
             final Class[] paramTypes = methods[j].getParameterTypes();
-            if (methods[j].getName().equals(name)
-                    && methods[j].getReturnType().equals(returnType)
-                    && (param == null && paramTypes.length == 0 || paramTypes.length == 1
-                            && paramTypes[0].equals(param))) {
+            if (methods[j].getName().equals(name) && methods[j].getReturnType().equals(returnType)
+                    && (param == null && paramTypes.length == 0
+                            || paramTypes.length == 1 && paramTypes[0].equals(param))) {
                 return methods[j];
             }
         }

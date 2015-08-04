@@ -30,8 +30,8 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
 
     private AutomationResourceBundlesEventQueue queue;
 
-    private ServiceRegistration /* <S> */tpReg;
-    private ServiceRegistration /* <T> */mtpReg;
+    private ServiceRegistration /* <S> */ tpReg;
+    private ServiceRegistration /* <T> */ mtpReg;
 
     private TemplateResourceBundleProvider tProvider;
     private ModuleTypeResourceBundleProvider mProvider;
@@ -39,11 +39,12 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
 
     /**
      * This method is called when this bundle is started so the Framework can perform the
-     * bundle-specific activities as: 
-     * <ul> <p>
+     * bundle-specific activities as:
+     * <ul>
+     * <p>
      * Initializing {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider}, {@link PersistentRuleResourceBundleImporter} and
-     * {@link AutomationResourceBundlesEventQueue} objects. 
+     * {@link AutomationResourceBundlesEventQueue} objects.
      * <p>
      * Registering {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} as services, respectively {@link ModuleTypeProvider},
@@ -52,14 +53,15 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
      * Setting to {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} and {@link PersistentRuleResourceBundleImporter} the
      * {@link AutomationResourceBundlesEventQueue} object and opens the queue.
-     * <p> </ul> 
+     * <p>
+     * </ul>
      * This method must complete and return to its caller in a timely manner.
      * 
      * @param context The execution context of the bundle being started.
      * @throws Exception If this method throws an exception, this bundle is
-     *         marked as stopped and the Framework will remove this bundle's
-     *         listeners, unregister all services registered by this bundle, and
-     *         release all services used by this bundle.
+     *             marked as stopped and the Framework will remove this bundle's
+     *             listeners, unregister all services registered by this bundle, and
+     *             release all services used by this bundle.
      */
     public void start(BundleContext context) throws Exception {
 
@@ -77,8 +79,8 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
                 new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class.getName() }, mProvider,
                 null);
 
-        tpReg = context.registerService(new String[] { TemplateProvider.class.getName(), TemplateProvider.class.getName() },
-                tProvider, null);
+        tpReg = context.registerService(
+                new String[] { TemplateProvider.class.getName(), TemplateProvider.class.getName() }, tProvider, null);
 
         queue.open();
     }
@@ -88,19 +90,21 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
      * bundle-specific activities necessary to stop the bundle. In general, this
      * method should undo the work that the {@code BundleActivator.start} method
      * started:
-     * <ul> <p>
+     * <ul>
+     * <p>
      * Unregisters {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} as services.
      * <p>
      * Stops the queue and closes the providers and importer.
-     * <p> </ul> 
+     * <p>
+     * </ul>
      * This method must complete and return to its caller in a timely manner.
      * 
      * @param context The execution context of the bundle being stopped.
      * @throws Exception If this method throws an exception, the bundle is still
-     *         marked as stopped, and the Framework will remove the bundle's
-     *         listeners, unregister all services registered by the bundle, and
-     *         release all services used by the bundle.
+     *             marked as stopped, and the Framework will remove the bundle's
+     *             listeners, unregister all services registered by the bundle, and
+     *             release all services used by the bundle.
      */
     public void stop(BundleContext context) throws Exception {
         tpReg.unregister();

@@ -37,8 +37,8 @@ public class ConditionTypeJSONParser {
      * @throws IOException
      * @throws JSONException
      */
-    static void conditionTypeToJSON(ConditionType conditionType, OutputStreamWriter writer) throws IOException,
-            JSONException {
+    static void conditionTypeToJSON(ConditionType conditionType, OutputStreamWriter writer)
+            throws IOException, JSONException {
         ModuleTypeJSONParser.moduleTypeToJSON(conditionType, writer);
         Set<Input> inputs = conditionType.getInputs();
         if (inputs != null && !inputs.isEmpty()) {

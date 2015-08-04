@@ -44,5 +44,4 @@ public class PersistentTemplateResourceBundleProvider extends TemplateResourceBu
         return new PersistableRuleTemplate();
     }
 
-
 }

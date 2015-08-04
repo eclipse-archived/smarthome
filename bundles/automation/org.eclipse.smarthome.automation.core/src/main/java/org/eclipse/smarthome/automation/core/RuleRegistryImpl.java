@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements RuleRegistry {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
 
     private RuleManager ruleManager;
 

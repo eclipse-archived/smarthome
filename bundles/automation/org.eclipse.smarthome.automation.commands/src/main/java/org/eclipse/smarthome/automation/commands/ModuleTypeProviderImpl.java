@@ -34,7 +34,8 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractProviderImpl}.
  * <p>
  * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link ModuleType}s:
- * <ul> <p>
+ * <ul>
+ * <p>
  * - imports the {@link ModuleType}s from local files or from URL resources
  * <p>
  * - provides functionality for persistence of the {@link ModuleType}s
@@ -42,13 +43,15 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * - removes the {@link ModuleType}s and their persistence
  * <p>
  * - lists the {@link ModuleType}s and their details
- * </ul> <p>
+ * </ul>
+ * <p>
  * accordingly to the used command.
  * 
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE> implements ModuleTypeProvider {
+public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE>
+        implements ModuleTypeProvider {
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not

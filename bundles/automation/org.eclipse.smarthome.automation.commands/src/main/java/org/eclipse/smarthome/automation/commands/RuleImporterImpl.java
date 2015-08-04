@@ -43,7 +43,8 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
 
     /**
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new
-     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's constructor.
+     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
+     * constructor.
      * 
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
@@ -120,7 +121,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
                     String uid = rule.getUID();
                     portfolio.add(uid);
                 }
-            }// while
+            } // while
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }

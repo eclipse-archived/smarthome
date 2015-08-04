@@ -11,7 +11,8 @@ import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 
-public class PersistentModuleTypeResourceBundleProvider extends ModuleTypeResourceBundleProvider<PersistableModuleType> {
+public class PersistentModuleTypeResourceBundleProvider
+        extends ModuleTypeResourceBundleProvider<PersistableModuleType> {
 
     public PersistentModuleTypeResourceBundleProvider(BundleContext context) {
         super(context, PersistentModuleTypeResourceBundleProvider.class);

@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.provider.util;
 
-
 /**
  * This class is responsible for custom serialization and deserialization of the {@link RuleTemplate}s. It is necessary
  * for the persistence of the {@link RuleTemplate}s. Implements {@link Externalizable}.

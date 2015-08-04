@@ -95,8 +95,7 @@ public interface AutomationFactory {
      * @return {@link Rule} instance.
      * @throws IllegalArgumentException is thrown if the connections between modules are incorrect.
      */
-    public Rule createRule(
-            List<Trigger> triggers, //
+    public Rule createRule(List<Trigger> triggers, //
             List<Condition> conditions, List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,
             Map<String, ?> configurations);
 

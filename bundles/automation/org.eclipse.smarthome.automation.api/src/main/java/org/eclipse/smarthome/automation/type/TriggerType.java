@@ -59,8 +59,8 @@ public class TriggerType extends ModuleType {
      *            {@link Visibility#PUBLIC} or only by its creator if it is {@link Visibility#PRIVATE}.
      * @param outputs is a {@link Set} of {@link Output} meta-information descriptions.
      */
-    public TriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, String label,
-            String description, Set<String> tags, Visibility visibility, Set<Output> outputs) {
+    public TriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, String label, String description,
+            Set<String> tags, Visibility visibility, Set<Output> outputs) {
         super(UID, configDescriptions, label, description, tags, visibility);
         this.outputs = outputs;
     }

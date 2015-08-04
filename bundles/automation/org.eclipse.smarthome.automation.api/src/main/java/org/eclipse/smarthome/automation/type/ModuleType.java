@@ -128,7 +128,8 @@ public abstract class ModuleType {
     }
 
     /**
-     * {@link ModuleType}s can have <li><code>tags</code> which are non-hierarchical keywords or terms for describing
+     * {@link ModuleType}s can have
+     * <li><code>tags</code> which are non-hierarchical keywords or terms for describing
      * them. The tags are used to filter the ModuleTypes. This method is used for getting the tags assign to this
      * {@link ModuleType}.
      * 

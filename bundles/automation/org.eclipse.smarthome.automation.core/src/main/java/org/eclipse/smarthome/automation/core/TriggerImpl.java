@@ -15,7 +15,7 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class TriggerImpl extends ModuleImpl<TriggerHandler> implements Trigger, SourceModule {
+public class TriggerImpl extends ModuleImpl<TriggerHandler>implements Trigger, SourceModule {
 
     private Map<String, ?> outputs;
 

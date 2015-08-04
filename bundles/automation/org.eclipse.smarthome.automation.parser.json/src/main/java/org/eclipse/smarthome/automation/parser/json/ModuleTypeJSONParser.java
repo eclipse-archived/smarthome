@@ -86,7 +86,8 @@ public class ModuleTypeJSONParser implements Parser {
             createModuleTypes(JSONUtility.TRIGGERS,
                     JSONUtility.getJSONObject(JSONStructureConstants.TRIGGERS, true, json, status), moduleTypesStatus);
             createModuleTypes(JSONUtility.CONDITIONS,
-                    JSONUtility.getJSONObject(JSONStructureConstants.CONDITIONS, true, json, status), moduleTypesStatus);
+                    JSONUtility.getJSONObject(JSONStructureConstants.CONDITIONS, true, json, status),
+                    moduleTypesStatus);
             createModuleTypes(JSONUtility.ACTIONS,
                     JSONUtility.getJSONObject(JSONStructureConstants.ACTIONS, true, json, status), moduleTypesStatus);
             createModuleTypes(JSONUtility.COMPOSITE,
@@ -134,7 +135,8 @@ public class ModuleTypeJSONParser implements Parser {
      *      java.io.OutputStreamWriter)
      */
     private void sortModuleTypesByTypes(Set<?> moduleTypes, Map<String, TriggerType> triggers,
-            Map<String, ConditionType> conditions, Map<String, ActionType> actions, Map<String, ModuleType> composites) {
+            Map<String, ConditionType> conditions, Map<String, ActionType> actions,
+            Map<String, ModuleType> composites) {
         Iterator<?> i = moduleTypes.iterator();
         while (i.hasNext()) {
             ModuleType moduleType = (ModuleType) i.next();
@@ -175,7 +177,7 @@ public class ModuleTypeJSONParser implements Parser {
      */
     private void writeCompositeTypes(Map<String, ModuleType> composites, Map<String, ActionType> actions,
             Map<String, ConditionType> conditions, Map<String, TriggerType> triggers, OutputStreamWriter writer)
-            throws IOException, JSONException {
+                    throws IOException, JSONException {
         if (!composites.isEmpty()) {
             if (triggers.isEmpty() && conditions.isEmpty() && actions.isEmpty())
                 writer.write(" " + JSONStructureConstants.COMPOSITE + ":{\n");
@@ -255,8 +257,8 @@ public class ModuleTypeJSONParser implements Parser {
                 }
             }
             String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
-            String description = JSONUtility
-                    .getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType,
+                    status);
             LinkedHashSet<Input> inputs = new LinkedHashSet<Input>();
             LinkedHashSet<Output> outputs = new LinkedHashSet<Output>();
             switch (type) {
@@ -265,8 +267,8 @@ public class ModuleTypeJSONParser implements Parser {
                             jsonModuleType, status);
                     if (jsonTriggerOutputs != null) {
                         if (OutputJSONParser.collectOutputs(bc, jsonTriggerOutputs, outputs, status))
-                            moduleType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags,
-                                    v, outputs);
+                            moduleType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
+                                    outputs);
                     } else
                         moduleType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
                                 null);
@@ -294,8 +296,8 @@ public class ModuleTypeJSONParser implements Parser {
                                     moduleType = new ActionType(moduleTypeUID, configDescriptions, label, description,
                                             tags, v, inputs, outputs);
                             } else
-                                moduleType = new ActionType(moduleTypeUID, configDescriptions, label, description,
-                                        tags, v, inputs, null);
+                                moduleType = new ActionType(moduleTypeUID, configDescriptions, label, description, tags,
+                                        v, inputs, null);
                         }
                     } else
                         moduleType = new ActionType(moduleTypeUID, configDescriptions, null);
@@ -329,8 +331,8 @@ public class ModuleTypeJSONParser implements Parser {
             Visibility v) {
         Set<Input> inputs = null;
         Set<Output> outputs = null;
-        JSONArray jsonTriggers = JSONUtility
-                .getJSONArray(JSONStructureConstants.TRIGGERS, true, jsonModuleType, status);
+        JSONArray jsonTriggers = JSONUtility.getJSONArray(JSONStructureConstants.TRIGGERS, true, jsonModuleType,
+                status);
         if (jsonTriggers != null) {
             JSONObject jsonTriggerOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true,
                     jsonModuleType, status);
@@ -340,10 +342,10 @@ public class ModuleTypeJSONParser implements Parser {
                     return null;
             }
             List<Trigger> triggerModules = new ArrayList<Trigger>();
-            if (ModuleJSONParser.createTrigerModules(status, automationFactory, moduleTypesStatus,
-                    triggerModules, jsonTriggers))
-                return new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
-                        outputs, triggerModules);
+            if (ModuleJSONParser.createTrigerModules(status, automationFactory, moduleTypesStatus, triggerModules,
+                    jsonTriggers))
+                return new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v, outputs,
+                        triggerModules);
             return null;
         }
         JSONArray jsonConditions = JSONUtility.getJSONArray(JSONStructureConstants.CONDITIONS, true, jsonModuleType,
@@ -357,8 +359,8 @@ public class ModuleTypeJSONParser implements Parser {
                     return null;
             }
             List<Condition> conditionModules = new ArrayList<Condition>();
-            if (ModuleJSONParser.createConditionModules(status, automationFactory, moduleTypesStatus,
-                    conditionModules, jsonConditions))
+            if (ModuleJSONParser.createConditionModules(status, automationFactory, moduleTypesStatus, conditionModules,
+                    jsonConditions))
                 return new CompositeConditionType(moduleTypeUID, configDescriptions, label, description, tags, v,
                         inputs, conditionModules);
             return null;
@@ -384,8 +386,8 @@ public class ModuleTypeJSONParser implements Parser {
                 return null;
         }
         List<Action> actionModules = new ArrayList<Action>();
-        if (ModuleJSONParser.createActionModules(status, automationFactory, moduleTypesStatus,
-                actionModules, jsonActions))
+        if (ModuleJSONParser.createActionModules(status, automationFactory, moduleTypesStatus, actionModules,
+                jsonActions))
             return new CompositeActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
                     outputs, actionModules);
         return null;
@@ -409,8 +411,8 @@ public class ModuleTypeJSONParser implements Parser {
             writer.write("    \"" + JSONStructureConstants.DESCRIPTION + "\":\"" + description + "\",\n");
 
         Visibility visibility = moduleType.getVisibility();
-        writer.write("    \"" + JSONStructureConstants.VISIBILITY + "\":\"" + visibility.toString().toLowerCase()
-                + "\",\n");
+        writer.write(
+                "    \"" + JSONStructureConstants.VISIBILITY + "\":\"" + visibility.toString().toLowerCase() + "\",\n");
 
         Set<String> tags = moduleType.getTags();
         if (tags != null) {

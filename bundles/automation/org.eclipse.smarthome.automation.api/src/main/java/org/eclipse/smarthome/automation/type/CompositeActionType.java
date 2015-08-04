@@ -16,7 +16,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * {@code CompositeActionType} is as {@link ActionType} which logically combines {@link Action} instances. The composite
- * action hides internal logic and inner connections between participating {@link Action}s and it can be used as a regular
+ * action hides internal logic and inner connections between participating {@link Action}s and it can be used as a
+ * regular
  * {@link Action} module.
  * 
  * @author Yordan Mihaylov - Initial Contribution
@@ -28,7 +29,8 @@ public class CompositeActionType extends ActionType {
     private List<Action> modules;
 
     /**
-     * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}s.
+     * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}
+     * s.
      * It initialize only base properties of the {@code CompositeActionType}.
      * 
      * @param UID is the unique id of this module type in scope of the RuleEngine.
@@ -45,14 +47,17 @@ public class CompositeActionType extends ActionType {
     }
 
     /**
-     * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}s.
+     * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}
+     * s.
      * It initialize all properties of the {@code CompositeActionType}.
      * 
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param label is a short and accurate name of the {@code CompositeActionType}.
-     * @param description is a short and understandable description of which can be used the {@code CompositeActionType}.
-     * @param tags defines categories that fit the {@code CompositeActionType} and which can serve as criteria for searching
+     * @param description is a short and understandable description of which can be used the {@code CompositeActionType}
+     *            .
+     * @param tags defines categories that fit the {@code CompositeActionType} and which can serve as criteria for
+     *            searching
      *            or filtering it.
      * @param visibility determines whether the {@code CompositeActionType} can be used by anyone if it is
      *            {@link Visibility#PUBLIC} or only by its creator if it is {@link Visibility#PRIVATE}.

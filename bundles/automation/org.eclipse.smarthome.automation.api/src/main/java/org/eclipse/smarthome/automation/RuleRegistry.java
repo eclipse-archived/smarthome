@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation;
 
-
 import java.util.Collection;
 import org.eclipse.smarthome.core.common.registry.Registry;
 

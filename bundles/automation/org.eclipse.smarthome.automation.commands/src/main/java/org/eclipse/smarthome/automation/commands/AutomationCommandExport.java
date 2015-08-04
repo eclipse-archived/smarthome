@@ -160,9 +160,9 @@ public class AutomationCommandExport extends AutomationCommand {
             } else if (parameterValues[i].equalsIgnoreCase(OPTION_P)) {
                 i++;
                 if (i >= parameterValues.length) {
-                    return String
-                            .format("[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
-                                    command, OPTION_P);
+                    return String.format(
+                            "[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
+                            command, OPTION_P);
                 }
                 parserType = parameterValues[i];
             } else if (parameterValues[i].charAt(0) == '-') {

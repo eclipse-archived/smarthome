@@ -36,9 +36,10 @@ public class Utils {
     }
 
     /**
-     * This method filters the list with UIDs of the automation objects to correspond to the list with the automation objects.
+     * This method filters the list with UIDs of the automation objects to correspond to the list with the automation
+     * objects.
      * 
-     * @param listObjects holds the list with automation objects  for filter criteria.
+     * @param listObjects holds the list with automation objects for filter criteria.
      * @param listUIDs holds the list with UIDs of the automation objects for filtering.
      * @return filtered list with UIDs of the automation objects.
      */

@@ -43,7 +43,8 @@ import org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider
  * @author Ana Dimova - Initial Contribution
  * 
  */
-public abstract class AbstractProviderImpl<E, PE>  extends AbstractPersistentProvider<E, PE>  implements ServiceTrackerCustomizer {
+public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProvider<E, PE>
+        implements ServiceTrackerCustomizer {
 
     /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.
@@ -56,7 +57,7 @@ public abstract class AbstractProviderImpl<E, PE>  extends AbstractPersistentPro
      * This field is a {@link ServiceTracker} for {@link Parser} services.
      */
     protected ServiceTracker parserTracker;
-    
+
     /**
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
      * performance at runtime of the system.
@@ -71,7 +72,7 @@ public abstract class AbstractProviderImpl<E, PE>  extends AbstractPersistentPro
      * The Map has for keys UIDs of the objects and for values {@link Localizer}s of the objects.
      */
     protected Map<String, Localizer> providedObjectsHolder = new HashMap<String, Localizer>();
-    
+
     /**
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.
      * 

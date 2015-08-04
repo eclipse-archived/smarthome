@@ -17,7 +17,7 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String> implements ModuleTypeRegistry {
+public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>implements ModuleTypeRegistry {
 
     private ModuleTypeManager moduleTypeManager;
 
@@ -66,8 +66,8 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>
     }
 
     /**
-   *
-   */
+    *
+    */
     public void dispose() {
         moduleTypeManager.dispose();
     }

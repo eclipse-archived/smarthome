@@ -47,5 +47,4 @@ public class PersistentRuleImporter extends RuleImporterImpl<List<String>> {
         return null;
     }
 
-
 }

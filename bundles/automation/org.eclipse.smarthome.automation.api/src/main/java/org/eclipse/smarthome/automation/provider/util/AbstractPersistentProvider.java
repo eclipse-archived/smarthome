@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
  * @param <PE>
  * @param <K>
  */
-public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedProvider<E, String, PE> implements
-        Runnable {
+public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedProvider<E, String, PE>
+        implements Runnable {
 
     protected Logger log;
 
@@ -86,8 +86,8 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
                             setStorageService(storage);
                         }
                         if (factory != null && storage != null) {
-                            new Thread(AbstractPersistentProvider.this, "Automation Storage Loader: "
-                                    + getStorageName()).start();
+                            new Thread(AbstractPersistentProvider.this,
+                                    "Automation Storage Loader: " + getStorageName()).start();
                         }
                     }
                     return service;
@@ -102,8 +102,7 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
                     if (service == storage) {
                         unsetStorageService(storage);
                         storage = null;
-                    }
-                    else if (service == factory) {
+                    } else if (service == factory) {
                         factory = null;
                     }
                 }
