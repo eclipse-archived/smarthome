@@ -1,0 +1,101 @@
+{  
+  "triggers": {
+    "SampleTrigger": {
+      "label": "SampleTrigger label",
+      "description": "Sample Trigger description.",
+      "output": {
+        "triggerOutput": {
+          "type": "java.lang.String",
+          "label": "TriggerOutput label",
+          "description": "Text from user input or default message.",
+          "reference": "consoleInput",
+          "defaultValue": "dtag"
+        }
+      }
+	  }, 
+    "SampleTrigger:CustomTrigger": {
+      "label": "CustomTrigger label",
+      "description": "Custom Trigger description.",
+      "output": {
+        "customTriggerOutput": {
+          "type": "java.lang.String",
+          "label": "CustomTriggerOutput label",
+          "description": "Text from user input or default message.",
+          "reference": "$triggerOutput"
+        }
+      }
+    }
+  },
+  "conditions": {
+    "SampleCondition": {
+      "label": "SampleCondition label",
+      "description": "Sample Condition description",
+      "config": {
+        "operator": {
+          "type": "TEXT",
+          "description": "Valid operators are =,>,<,!=",
+          "required": true
+        },
+        "constraint": {
+          "type": "TEXT",
+          "description": "Right operand which is compared with the input.",
+          "required": true
+        }
+      },
+      "input": {
+        "conditionInput": {
+          "type": "java.lang.String",
+          "label": "ConditionInput",
+          "description": "Left operand which will be evaluated.",
+          "required": true
+        }
+      }
+    }
+  },
+  "actions": {
+  	"SampleAction": {
+      "label": "SampleAction label",
+      "description": "Sample Action description.",
+      "config": {  
+        "message": {  
+          "type": "TEXT",
+          "label": "message label",
+          "description": "Defines the message description.",
+          "defaultValue": "Default message",
+          "required": false
+        }
+  	  },
+      "input": {  
+        "actionInput": {
+          "type": "java.lang.String",
+          "label": "ActionInput label",
+          "description": "Text that will be printed.",
+          "required": true
+        }
+      }
+    },
+    "SampleAction:CustomAction": {
+      "label": "CustomAction label",
+      "description": "Custom Action description.",
+      "config": {  
+        "customMessage": {
+          "type": "TEXT",
+          "label": "custom message label",
+          "description": "Defines the custom message description.",
+          "context": "{\"nameRef\": \"$message\", \"valueRef\": \"$customActionInput\"}",
+          "defaultValue": ">>> Default Custom Message",
+          "required": false
+        }
+      },
+      "input": {  
+        "customActionInput": {
+          "type": "java.lang.String",
+          "label": "ActionInput label",
+          "description": "Text that will be printed.",
+          "reference": "$actionInput",
+          "required": true
+        }
+      }
+    }
+  }
+}

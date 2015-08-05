@@ -8,12 +8,20 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: 
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.storage,
+ org.json,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.osgi.util.tracker,
  org.slf4j
-Export-Package: org.eclipse.smarthome.automation,
+Export-Package: 
+ org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.parser,
+ org.eclipse.smarthome.automation.provider,
+ org.eclipse.smarthome.automation.provider.util,
+ org.eclipse.smarthome.automation.script,
+ org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
- org.eclipse.smarthome.automation.template
+ org.eclipse.smarthome.automation.util

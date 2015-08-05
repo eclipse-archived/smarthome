@@ -20,6 +20,10 @@ import org.eclipse.smarthome.automation.Rule;
 /**
  * This interface is implemented by external modules which are called by the
  * RuleEngine to execute {@link Action}s of the {@link Rule}s.
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public interface ActionHandler extends ModuleHandler {
 

@@ -26,7 +26,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * defines {@link Input}s, {@link Output}s and {@link ConfigDescriptionParameter}s parameters of the {@link Module}. <br>
  * Setters of the module don't have immediate effect on the Rule. To apply the
  * changes, they should be set on the {@link Rule} and the Rule has to be
- * updated by {@link RuleRegistry}
+ * updated by RuleManager
  *
  * @author Yordan Mihaylov - Initial Contribution
  *
