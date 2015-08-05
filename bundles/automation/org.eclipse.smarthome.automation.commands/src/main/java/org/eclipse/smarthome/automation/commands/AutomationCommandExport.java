@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.automation.commands;
 
 import java.io.File;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -31,9 +31,9 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * <p>
  * {@link AutomationCommands#EXPORT_RULES}
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class AutomationCommandExport extends AutomationCommand {
 
@@ -63,12 +63,14 @@ public class AutomationCommandExport extends AutomationCommand {
      * {@link AutomationCommands#EXPORT_RULES}
      * </ul>
      */
+    @SuppressWarnings("unchecked")
     @Override
     public String execute() {
         if (parsingResult != SUCCESS) {
             return parsingResult;
         }
-        Set set = new LinkedHashSet();
+        @SuppressWarnings("rawtypes")
+        Set set = new HashSet();
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 set.addAll(autoCommands.getModuleTypes(TriggerType.class, locale));
@@ -114,7 +116,7 @@ public class AutomationCommandExport extends AutomationCommand {
 
     /**
      * This method serves to create a {@link File} object from a string that is passed as a parameter of the command.
-     * 
+     *
      * @param parameterValue is a string that is passed as parameter of the command and it supposed to be a file
      *            representation.
      * @return a {@link File} object created from the string that is passed as a parameter of the command or <b>null</b>

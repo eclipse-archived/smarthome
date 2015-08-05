@@ -15,10 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -30,13 +26,16 @@ import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class provides mechanism to separate the Automation Commands implementation from the Automation Core
  * implementation.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class AutomationCommands {
 
@@ -148,7 +147,7 @@ public abstract class AutomationCommands {
     /**
      * This static field is an identifier of the command {@link AutomationCommandRemove} for {@link ModuleType}s.
      */
-    protected static final String REMOVE_MODULE_TYPES = "removetModuleTypes";
+    protected static final String REMOVE_MODULE_TYPES = "removeModuleTypes";
 
     /**
      * This static field is a short identifier of the command {@link AutomationCommandRemove} for {@link ModuleType}s.
@@ -194,33 +193,33 @@ public abstract class AutomationCommands {
     /**
      * This field holds a reference to the {@link ModuleTypeProviderImpl} instance.
      */
-    protected ModuleTypeProviderImpl moduleTypeProvider;
+    protected ModuleTypeProviderImpl<?> moduleTypeProvider;
 
     /**
      * This field holds a reference to the {@link TemplateProviderImpl} instance.
      */
-    protected TemplateProviderImpl templateProvider;
+    protected TemplateProviderImpl<?> templateProvider;
 
     /**
      * This field holds a reference to the {@link RuleImporterImpl} instance.
      */
-    protected RuleImporterImpl ruleImporter;
+    protected RuleImporterImpl<?> ruleImporter;
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
      */
-    protected ServiceRegistration tpReg;
+    protected ServiceRegistration<?> tpReg;
 
     /**
      * This field holds a reference to the {@link TemplateProvider} service registration.
      */
-    protected ServiceRegistration mtpReg;
+    protected ServiceRegistration<?> mtpReg;
 
     /**
      * This constructor is responsible for initializing instances of {@link ModuleTypeProviderImpl},
      * {@link TemplateProviderImpl} and {@link RuleImporterImpl} and for registering the services
      * {@link ModuleTypeProvider} and {@link TemplateProvider}
-     * 
+     *
      * @param bc it is the {@link BundleContext}. It serves here to register the services {@link ModuleTypeProvider} and
      *            {@link TemplateProvider}
      */
@@ -240,7 +239,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is used for getting the rule corresponding to the specified UID from the RuleEngine.
-     * 
+     *
      * @param uid specifies the wanted {@link Rule} uniquely.
      * @return a {@link Rule}, corresponding to the specified UID.
      */
@@ -248,7 +247,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is used to get the all existing rules from the RuleEngine.
-     * 
+     *
      * @return a collection of all existing rules in the RuleEngine.
      */
     public abstract Collection<Rule> getRules();
@@ -258,7 +257,7 @@ public abstract class AutomationCommands {
     /**
      * This method is used for getting the {@link RuleTemplate} corresponding to the specified UID from the manager of
      * the {@link Template}s.
-     * 
+     *
      * @param templateUID specifies the wanted {@link RuleTemplate} uniquely.
      * @param locale a {@link Locale} that specifies the variant of the {@link RuleTemplate} that the user wants to see.
      *            Can be <code>null</code> and then the default locale will be used.
@@ -269,7 +268,7 @@ public abstract class AutomationCommands {
     /**
      * This method is used for getting the collection of {@link RuleTemplate}s corresponding to the specified locale
      * from the manager of the {@link Template}s.
-     * 
+     *
      * @param locale a {@link Locale} that specifies the variant of the {@link RuleTemplate}s that the user wants to
      *            see.
      *            Can be <code>null</code> and then the default locale will be used.
@@ -280,7 +279,7 @@ public abstract class AutomationCommands {
     /**
      * This method is used for getting the {@link ModuleType} corresponding to the specified UID from the manager of the
      * {@link ModuleType}s.
-     * 
+     *
      * @param typeUID specifies the wanted {@link ModuleType} uniquely.
      * @param locale a {@link Locale} that specifies the variant of the {@link ModuleType} that the user wants to see.
      *            Can be <code>null</code> and then the default locale will be used.
@@ -291,7 +290,7 @@ public abstract class AutomationCommands {
     /**
      * This method is used for getting the collection of {@link ModuleType}s corresponding to the specified class and
      * locale from the manager of the {@link ModuleType}s.
-     * 
+     *
      * @param clazz can be {@link TriggerType}, {@link ConditionType} or {@link ActionType} class.
      * @param locale a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see.
      *            Can be <code>null</code> and then the default locale will be used.
@@ -301,7 +300,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is used for removing a rule corresponding to the specified UID from the RuleEngine.
-     * 
+     *
      * @param uid specifies the wanted {@link Rule} uniquely.
      * @return <b>true</b> if succeeds and <b>false</b> if fails.
      */
@@ -309,7 +308,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is used for removing the rules from the RuleEngine, corresponding to the specified filter.
-     * 
+     *
      * @param ruleFilter specifies the wanted {@link Rule}s.
      * @return <b>true</b> if succeeds and <b>false</b> if fails.
      */
@@ -318,7 +317,7 @@ public abstract class AutomationCommands {
     /**
      * This method is responsible for choosing a particular class of commands and creates an instance of this class on
      * the basis of the identifier of the command.
-     * 
+     *
      * @param command is the identifier of the command.
      * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
      *            command. The order for their description is a random.
@@ -328,14 +327,14 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for exporting a set of {@link ModuleType}s in a specified file.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link ModuleType}s in text.
      * @param set a set of {@link ModuleType}s to export.
      * @param file a specified file for export.
      * @return a {@link Status} object, representing understandable for the user message containing information on the
      *         outcome of the export.
      */
-    public Status exportModuleTypes(String parserType, Set set, File file) {
+    public Status exportModuleTypes(String parserType, Set<ModuleType> set, File file) {
         if (moduleTypeProvider != null) {
             return moduleTypeProvider.exportModuleTypes(parserType, set, file);
         }
@@ -346,14 +345,14 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for exporting a set of {@link Template}s in a specified file.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link Template}s in text.
      * @param set a set of {@link Template}s to export.
      * @param file a specified file for export.
      * @return a {@link Status} object, representing understandable for the user message containing information on the
      *         outcome of the export.
      */
-    public Status exportTemplates(String parserType, Set set, File file) {
+    public Status exportTemplates(String parserType, Set<Template> set, File file) {
         if (templateProvider != null) {
             return templateProvider.exportTemplates(parserType, set, file);
         }
@@ -364,14 +363,14 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for exporting a set of {@link Rule}s in a specified file.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link Rule}s in text.
      * @param set a set of {@link Rule}s to export.
      * @param file a specified file for export.
      * @return a {@link Status} object, representing understandable for the user message containing information on the
      *         outcome of the export.
      */
-    public Status exportRules(String parserType, Set set, File file) {
+    public Status exportRules(String parserType, Set<Rule> set, File file) {
         if (ruleImporter != null) {
             return ruleImporter.exportRules(parserType, set, file);
         }
@@ -382,7 +381,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for importing a set of {@link ModuleType}s from a specified file or URL resource.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link ModuleType}s from text.
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
@@ -401,7 +400,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for importing a set of {@link Template}s from a specified file or URL resource.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link Template}s from text.
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
@@ -420,7 +419,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for importing a set of {@link Rule}s from a specified file or URL resource.
-     * 
+     *
      * @param parserType is relevant to the format that you need for conversion of the {@link Rule}s from text.
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
@@ -439,7 +438,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for removing a set of objects loaded from a specified file or URL resource.
-     * 
+     *
      * @param providerType specifies the provider responsible for removing the objects loaded from a specified file or
      *            URL resource.
      * @param url is a specified file or URL resource.
@@ -449,10 +448,11 @@ public abstract class AutomationCommands {
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 if (moduleTypeProvider != null) {
-                    List<String> portfolio = (List<String>) moduleTypeProvider.providerPortfolio.remove(url);
+                    List<String> portfolio = moduleTypeProvider.providerPortfolio.remove(url);
                     if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
                             moduleTypeProvider.remove(uid);
+                            moduleTypeProvider.providedObjectsHolder.remove(uid);
                         }
                         return true;
                     }
@@ -460,10 +460,11 @@ public abstract class AutomationCommands {
                 return false;
             case AutomationCommands.TEMPLATE_PROVIDER:
                 if (templateProvider != null) {
-                    List<String> portfolio = (List<String>) templateProvider.providerPortfolio.remove(url);
+                    List<String> portfolio = templateProvider.providerPortfolio.remove(url);
                     if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
                             templateProvider.remove(uid);
+                            templateProvider.providedObjectsHolder.remove(uid);
                         }
                         return true;
                     }
@@ -475,7 +476,7 @@ public abstract class AutomationCommands {
 
     /**
      * This method is responsible for execution of every particular command and to return the result of the execution.
-     * 
+     *
      * @param command is an identifier of the command.
      * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
      *            command.

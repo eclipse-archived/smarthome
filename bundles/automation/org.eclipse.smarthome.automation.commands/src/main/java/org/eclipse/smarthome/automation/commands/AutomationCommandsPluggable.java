@@ -33,6 +33,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Ana Dimova - Initial Contribution
  *
  */
+@SuppressWarnings("rawtypes")
 public class AutomationCommandsPluggable extends AutomationCommands
         implements ServiceTrackerCustomizer, ConsoleCommandExtension {
 
@@ -54,6 +55,7 @@ public class AutomationCommandsPluggable extends AutomationCommands
      *
      * @param bc
      */
+    @SuppressWarnings("unchecked")
     public AutomationCommandsPluggable(BundleContext bc) {
         super(bc);
         try {
@@ -83,17 +85,18 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Object addingService(ServiceReference reference) {
         Object service = bc.getService(reference);
         if (service instanceof TemplateRegistry) {
-            this.templateRegistry = (TemplateRegistry) service;
+            AutomationCommandsPluggable.templateRegistry = (TemplateRegistry) service;
         }
         if (service instanceof RuleRegistry) {
-            this.ruleReg = (RuleRegistry) service;
+            AutomationCommandsPluggable.ruleReg = (RuleRegistry) service;
         }
         if (service instanceof ModuleTypeRegistry) {
-            this.moduleTypeRegistry = (ModuleTypeRegistry) service;
+            AutomationCommandsPluggable.moduleTypeRegistry = (ModuleTypeRegistry) service;
         }
         return service;
     }

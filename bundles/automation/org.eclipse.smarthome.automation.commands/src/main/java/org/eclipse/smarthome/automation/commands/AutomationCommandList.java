@@ -35,9 +35,9 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * <p>
  * {@link AutomationCommands#LIST_RULES}
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class AutomationCommandList extends AutomationCommand {
 
@@ -66,12 +66,9 @@ public class AutomationCommandList extends AutomationCommand {
     /**
      * This method is responsible for execution of commands:
      * <ul>
-     * <p>
-     * {@link AutomationCommands#LIST_MODULE_TYPES}
-     * <p>
-     * {@link AutomationCommands#LIST_TEMPLATES}
-     * <p>
-     * {@link AutomationCommands#LIST_RULES}
+     * <li>{@link AutomationCommands#LIST_MODULE_TYPES}
+     * <li>{@link AutomationCommands#LIST_TEMPLATES}
+     * <li>{@link AutomationCommands#LIST_RULES}
      * </ul>
      */
     @Override
@@ -134,12 +131,12 @@ public class AutomationCommandList extends AutomationCommand {
 
     /**
      * This method is responsible for execution of command {@link AutomationCommands#LIST_RULES}.
-     * 
+     *
      * @return a string representing understandable for the user message containing information on the outcome of the
      *         command {@link AutomationCommands#LIST_RULES}.
      */
     private String listRules() {
-        Collection collection = autoCommands.getRules();
+        Collection<Rule> collection = autoCommands.getRules();
         Hashtable<String, Rule> rules = new Hashtable<String, Rule>();
         Hashtable<String, String> listRules = null;
         if (collection != null && !collection.isEmpty()) {
@@ -173,12 +170,12 @@ public class AutomationCommandList extends AutomationCommand {
 
     /**
      * This method is responsible for execution of command {@link AutomationCommands#LIST_TEMPLATES}.
-     * 
+     *
      * @return a string representing understandable for the user message containing information on the outcome of the
      *         command {@link AutomationCommands#LIST_TEMPLATES}.
      */
     private String listTemplates() {
-        Collection collection = autoCommands.getTemplates(locale);
+        Collection<Template> collection = autoCommands.getTemplates(locale);
         Hashtable<String, Template> templates = new Hashtable<String, Template>();
         Hashtable<String, String> listTemplates = null;
         if (collection != null && !collection.isEmpty()) {
@@ -211,12 +208,12 @@ public class AutomationCommandList extends AutomationCommand {
 
     /**
      * This method is responsible for execution of command {@link AutomationCommands#LIST_MODULE_TYPES}.
-     * 
+     *
      * @return a string representing understandable for the user message containing information on the outcome of the
      *         command {@link AutomationCommands#LIST_MODULE_TYPES}.
      */
     private String listModuleTypes() {
-        Collection collection = null;
+        Collection<? extends ModuleType> collection = null;
         Hashtable<String, ModuleType> moduleTypes = new Hashtable<String, ModuleType>();
         Hashtable<String, String> listModuleTypes = null;
         collection = autoCommands.getModuleTypes(TriggerType.class, locale);
@@ -260,12 +257,12 @@ public class AutomationCommandList extends AutomationCommand {
      * This method reduces the list of {@link Rule}s so that their unique identifier or part of it to match the
      * {@link #id} or
      * the index in the <tt>list</tt> to match the {@link #id}.
-     * 
+     *
      * @param list is the list of {@link Rule}s for reducing.
      * @return a collection of {@link Rule}s that match the filter.
      */
     private Collection<Rule> getRuleByFilter(Hashtable<String, String> list) {
-        Collection<Rule> rules = new ArrayList();
+        Collection<Rule> rules = new ArrayList<Rule>();
         if (!list.isEmpty()) {
             Rule r = null;
             String uid = list.get(id);
@@ -296,12 +293,12 @@ public class AutomationCommandList extends AutomationCommand {
      * This method reduces the list of {@link Template}s so that their unique identifier or part of it to match the
      * {@link #id} or
      * the index in the <tt>list</tt> to match the {@link #id}.
-     * 
+     *
      * @param list is the list of {@link Template}s for reducing.
      * @return a collection of {@link Template}s that match the filter.
      */
     private Collection<Template> getTemplateByFilter(Hashtable<String, String> list) {
-        Collection<Template> templates = new ArrayList();
+        Collection<Template> templates = new ArrayList<Template>();
         if (!list.isEmpty()) {
             Template t = null;
             String uid = list.get(id);
@@ -332,12 +329,12 @@ public class AutomationCommandList extends AutomationCommand {
      * This method reduces the list of {@link ModuleType}s so that their unique identifier or part of it to match the
      * {@link #id} or
      * the index in the <tt>list</tt> to match the {@link #id}.
-     * 
+     *
      * @param list is the list of {@link ModuleType}s for reducing.
      * @return a collection of {@link ModuleType}s that match the filter.
      */
     private Collection<ModuleType> getModuleTypeByFilter(Hashtable<String, String> list) {
-        Collection<ModuleType> moduleTypes = new ArrayList();
+        Collection<ModuleType> moduleTypes = new ArrayList<ModuleType>();
         if (!list.isEmpty()) {
             ModuleType mt = null;
             String uid = list.get(id);
@@ -367,12 +364,13 @@ public class AutomationCommandList extends AutomationCommand {
     /**
      * This method converts a {@link Collection} of {@link Rule}s, {@link Template}s or {@link ModuleType}s to a
      * {@link Hashtable} with keys - the UID of the object and values - the object.
-     * 
+     *
      * @param collection is the {@link Collection} of {@link Rule}s, {@link Template}s or {@link ModuleType}s which
      *            must be converted.
      * @param list is the {@link Hashtable} with keys - the UID of the object and values - the object, which must be
      *            filled with the objects from <tt>collection</tt>.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private void addCollection(Collection collection, Hashtable list) {
         if (collection != null && !collection.isEmpty()) {
             Iterator i = collection.iterator();

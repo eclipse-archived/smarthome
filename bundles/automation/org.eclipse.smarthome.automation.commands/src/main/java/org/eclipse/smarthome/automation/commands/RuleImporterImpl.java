@@ -15,15 +15,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 
 /**
  * This class is a {@link Rule}s importer. It extends functionality of {@link AbstractProviderImpl}.
@@ -35,9 +35,9 @@ import org.eclipse.smarthome.automation.parser.Status;
  * <li>removes the {@link Rule}s and their persistence
  * <li>lists the {@link Rule}s and their details
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE> {
 
@@ -45,19 +45,19 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new
      * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
-     * 
+     *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
      *            provider.
      */
-    public RuleImporterImpl(BundleContext context, Class providerClass) {
+    public RuleImporterImpl(BundleContext context, Class<?> providerClass) {
         super(context, providerClass);
     }
 
     /**
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link Rule} {@link Parser}.
-     * 
+     *
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
@@ -71,7 +71,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
     /**
      * @see AutomationCommandsPluggable#exportRules(String, Set, File)
      */
-    public Status exportRules(String parserType, Set set, File file) {
+    public Status exportRules(String parserType, Set<Rule> set, File file) {
         return super.exportData(parserType, set, file);
     }
 
@@ -110,7 +110,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
-            ArrayList portfolio = new ArrayList();
+            List<String> portfolio = new ArrayList<String>();
             while (i.hasNext()) {
                 Status s = i.next();
                 if (s.hasErrors())

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- */
+* Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*/
 package org.eclipse.smarthome.automation.commands;
 
 import java.io.File;
@@ -26,9 +26,9 @@ import org.eclipse.smarthome.automation.parser.Status;
  * <p>
  * {@link AutomationCommands#IMPORT_RULES}
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class AutomationCommandImport extends AutomationCommand {
 
@@ -122,7 +122,7 @@ public class AutomationCommandImport extends AutomationCommand {
     /**
      * This method serves to create an {@link URL} object or {@link File} object from a string that is passed as
      * a parameter of the command. From the {@link File} object the URL is constructed.
-     * 
+     *
      * @param parameterValue is a string that is passed as parameter of the command and it supposed to be an URL
      *            representation.
      * @return an {@link URL} object created from the string that is passed as parameter of the command or <b>null</b>
@@ -193,7 +193,9 @@ public class AutomationCommandImport extends AutomationCommand {
             }
         }
         if (getUrl) {
-            return String.format("[Automation Commands : Command \"%s\"] Missing source URL parameter!", command);
+            return String.format(
+                    "[Automation Commands : Command \"%s\"] Missing source URL parameter or its value is incorrect!",
+                    command);
         }
         return SUCCESS;
     }

@@ -11,14 +11,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -26,6 +21,11 @@ import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It serves for providing {@link ModuleType}s by loading
@@ -37,9 +37,9 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
  * <li>specific functionality for loading the {@link ModuleType}s
  * <li>tracking the managing service of the {@link ModuleType}s.
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResourceBundleProvider<ModuleType, PE>
         implements ModuleTypeProvider {
@@ -50,18 +50,20 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link ModuleType}s.
-     * 
+     *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
      *            provider.
      */
-    public ModuleTypeResourceBundleProvider(BundleContext context, Class providerClass) {
+    public ModuleTypeResourceBundleProvider(BundleContext context,
+            Class<PersistentModuleTypeResourceBundleProvider> providerClass) {
         super(context, providerClass);
         path = PATH + "/moduletypes/";
         moduleTypesTracker = new ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry>(context,
                 ModuleTypeRegistry.class.getName(),
                 new ServiceTrackerCustomizer<ModuleTypeRegistry, ModuleTypeRegistry>() {
 
+                    @Override
                     public ModuleTypeRegistry addingService(ServiceReference<ModuleTypeRegistry> reference) {
                         moduleTypeRegistry = bc.getService(reference);
                         if (moduleTypeRegistry != null && isReady && queue != null) {
@@ -70,10 +72,12 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
                         return moduleTypeRegistry;
                     }
 
+                    @Override
                     public void modifiedService(ServiceReference<ModuleTypeRegistry> reference,
                             ModuleTypeRegistry service) {
                     }
 
+                    @Override
                     public void removedService(ServiceReference<ModuleTypeRegistry> reference,
                             ModuleTypeRegistry service) {
                         moduleTypeRegistry = null;
@@ -88,7 +92,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      * Extends parent's functionality with closing the {@link #moduleTypesTracker} and
      * <p>
      * sets <code>null</code> to {@link #moduleTypeRegistry}.
-     * 
+     *
      * @see AbstractResourceBundleProvider#close()
      */
     @Override
@@ -104,6 +108,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     /**
      * @see ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
      */
+    @Override
     public ModuleType getModuleType(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providedObjectsHolder) {
@@ -119,12 +124,13 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     /**
      * @see ModuleTypeProvider#getModuleTypes(java.util.Locale)
      */
+    @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
-        ArrayList moduleTypesList = new ArrayList();
+        List<ModuleType> moduleTypesList = new ArrayList<ModuleType>();
         synchronized (providedObjectsHolder) {
-            Iterator i = providedObjectsHolder.values().iterator();
+            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {
-                Localizer l = (Localizer) i.next();
+                Localizer l = i.next();
                 if (l != null) {
                     ModuleType mt = (ModuleType) l.getPerLocale(locale);
                     if (mt != null)
@@ -151,7 +157,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      */
     @Override
     protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            ArrayList<String> portfolio) {
+            List<String> portfolio) {
         if (vendor != null) {
             synchronized (providerPortfolio) {
                 providerPortfolio.put(vendor, portfolio);
@@ -159,9 +165,9 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
         }
         Set<Status> providedObjects = parser.importData(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            Iterator i = providedObjects.iterator();
+            Iterator<Status> i = providedObjects.iterator();
             while (i.hasNext()) {
-                Status status = (Status) i.next();
+                Status status = i.next();
                 ModuleType providedObject = (ModuleType) status.getResult();
                 if (providedObject != null) {
                     String uid = providedObject.getUID();
@@ -182,7 +188,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     /**
      * This method is responsible for checking the existence of {@link ModuleType}s or {@link Template}s with the same
      * UIDs before these objects to be added in the system.
-     * 
+     *
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
      * @param status {@link Status} of the import operation. Can be successful or can fail for these {@link ModuleType}
      *            s,

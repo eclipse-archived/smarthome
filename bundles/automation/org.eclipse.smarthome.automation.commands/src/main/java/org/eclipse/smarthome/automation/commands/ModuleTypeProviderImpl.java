@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractProviderImpl}.
@@ -46,9 +45,9 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * </ul>
  * <p>
  * accordingly to the used command.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE>
         implements ModuleTypeProvider {
@@ -58,19 +57,19 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
      * add any new
      * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
-     * 
+     *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
      *            provider.
      */
-    public ModuleTypeProviderImpl(BundleContext context, Class providerClass) {
+    public ModuleTypeProviderImpl(BundleContext context, Class<?> providerClass) {
         super(context, providerClass);
     }
 
     /**
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link ModuleType} {@link Parser}.
-     * 
+     *
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
@@ -84,7 +83,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
     /**
      * @see AutomationCommandsPluggable#importModuleTypes(String, URL)
      */
-    public Status exportModuleTypes(String parserType, Set set, File file) {
+    public Status exportModuleTypes(String parserType, Set<ModuleType> set, File file) {
         return super.exportData(parserType, set, file);
     }
 
@@ -120,6 +119,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
     /**
      * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
      */
+    @Override
     public ModuleType getModuleType(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providedObjectsHolder) {
@@ -135,12 +135,13 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
     /**
      * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleTypes(java.util.Locale)
      */
+    @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
-        ArrayList moduleTypesList = new ArrayList();
+        List<ModuleType> moduleTypesList = new ArrayList<ModuleType>();
         synchronized (providedObjectsHolder) {
-            Iterator i = providedObjectsHolder.values().iterator();
+            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {
-                Localizer l = (Localizer) i.next();
+                Localizer l = i.next();
                 if (l != null) {
                     ModuleType mt = (ModuleType) l.getPerLocale(locale);
                     if (mt != null)
@@ -184,7 +185,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
     /**
      * This method is responsible for checking the existence of {@link ModuleType}s with the same
      * UIDs before these objects to be added in the system.
-     * 
+     *
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
      * @param status {@link Status} of the {@link AutomationCommand} operation. Can be successful or can fail for these
      *            {@link ModuleType}s, for which a {@link ModuleType} with the same UID, exists.

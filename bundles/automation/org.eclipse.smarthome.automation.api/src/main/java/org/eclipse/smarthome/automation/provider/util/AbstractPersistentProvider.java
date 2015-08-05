@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.automation.provider.util;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
  * <p>
  * It starts its own thread for loading the persistent {@link ModuleType}s or {@link Template}s. This provides
  * opportunity for high performance on startup of the system.
- * 
- * @author Ana Dimova
+ *
+ * @author Ana Dimova - Initial Contribution
  * @param <E>
  * @param <PE>
  * @param <K>
@@ -116,9 +116,10 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
      * This method is used for loading the objects persisted in the storage, in
      * a separately executed thread with the idea of not delaying the startup of
      * the system.
-     * 
+     *
      * @see java.lang.Thread#run()
      */
+    @Override
     public void run() {
         getAll();
     }

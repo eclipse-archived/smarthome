@@ -79,6 +79,7 @@ public class RuleTemplate implements Template {
      *
      * @return the unique id of Template.
      */
+    @Override
     public String getUID() {
         return UID;
     }
@@ -90,6 +91,7 @@ public class RuleTemplate implements Template {
      *
      * @return tags of the template
      */
+    @Override
     public Set<String> getTags() {
         if (tags == null || tags.isEmpty())
             return null;
@@ -102,6 +104,7 @@ public class RuleTemplate implements Template {
      *
      * @return the label of the Template.
      */
+    @Override
     public String getLabel() {
         return label;
     }
@@ -113,6 +116,7 @@ public class RuleTemplate implements Template {
      *
      * @return the description of the Template.
      */
+    @Override
     public String getDescription() {
         return description;
     }
@@ -122,6 +126,7 @@ public class RuleTemplate implements Template {
      *
      * @return visibility of template
      */
+    @Override
     public Visibility getVisibility() {
         if (visibility == null) {
             return Visibility.PUBLIC;
@@ -137,6 +142,8 @@ public class RuleTemplate implements Template {
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
     public Set<ConfigDescriptionParameter> getConfigurationDescription() {
+        if (configDescriptions == null)
+            return null;
         return new HashSet<ConfigDescriptionParameter>(configDescriptions);
     }
 

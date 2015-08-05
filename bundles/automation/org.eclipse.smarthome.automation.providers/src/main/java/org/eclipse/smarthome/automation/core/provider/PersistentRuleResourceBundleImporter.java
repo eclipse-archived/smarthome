@@ -7,13 +7,26 @@
  */
 package org.eclipse.smarthome.automation.core.provider;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.automation.Rule;
 import org.osgi.framework.BundleContext;
 
+/**
+ * This class extends functionality of {@link RuleResourceBundleImporter} by providing functionality for reading,
+ * writing and
+ * deleting persistence of {@link Rule}s provisioning from storage.
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
+ */
 public class PersistentRuleResourceBundleImporter extends RuleResourceBundleImporter<List<String>> {
 
+    /**
+     * This constructor extends the parent constructor functionality with initializing the version of persistence.
+     *
+     * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     */
     public PersistentRuleResourceBundleImporter(BundleContext context) {
         super(context, PersistentRuleResourceBundleImporter.class);
         isReady = true;
@@ -36,14 +49,24 @@ public class PersistentRuleResourceBundleImporter extends RuleResourceBundleImpo
 
     @Override
     protected Vendor toElement(String key, List<String> persistableElement) {
-        // TODO Auto-generated method stub
-        return null;
+        String vendorVersion = persistableElement.remove(0);
+        Vendor vendor = new Vendor(key, vendorVersion);
+        synchronized (providerPortfolio) {
+            providerPortfolio.put(vendor, persistableElement);
+        }
+        return vendor;
     }
 
     @Override
     protected List<String> toPersistableElement(Vendor element) {
-        // TODO Auto-generated method stub
-        return new ArrayList<String>();
+        List<String> portfolio = null;
+        synchronized (providerPortfolio) {
+            portfolio = providerPortfolio.get(element);
+            if (portfolio != null && !portfolio.isEmpty()) {
+                portfolio.add(0, element.getVendorVersion());
+            }
+        }
+        return portfolio;
     }
 
 }

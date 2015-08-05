@@ -16,12 +16,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -29,10 +26,13 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.provider.TemplateProvider;
-import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.util.ConnectionValidator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractProviderImpl}.
@@ -43,9 +43,9 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * <li>provides functionality for persistence of the {@link RuleTemplate}s
  * <li>removes the {@link RuleTemplate}s and their persistence
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE>
         implements TemplateProvider {
@@ -55,19 +55,19 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      * any new
      * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
-     * 
+     *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
      *            provider.
      */
-    public TemplateProviderImpl(BundleContext context, Class providerClass) {
+    public TemplateProviderImpl(BundleContext context, Class<?> providerClass) {
         super(context, providerClass);
     }
 
     /**
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link RuleTemplate} {@link Parser}.
-     * 
+     *
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
@@ -81,7 +81,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     /**
      * @see AutomationCommandsPluggable#exportTemplates(String, Set, File)
      */
-    public Status exportTemplates(String parserType, Set set, File file) {
+    public Status exportTemplates(String parserType, Set<Template> set, File file) {
         return super.exportData(parserType, set, file);
     }
 
@@ -115,6 +115,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
+    @Override
     public Template getTemplate(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providerPortfolio) {
@@ -130,12 +131,13 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplates(java.util.Locale)
      */
+    @Override
     public Collection<Template> getTemplates(Locale locale) {
         ArrayList<Template> templatesList = new ArrayList<Template>();
         synchronized (providedObjectsHolder) {
-            Iterator i = providedObjectsHolder.values().iterator();
+            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {
-                Localizer l = (Localizer) i.next();
+                Localizer l = i.next();
                 if (l != null) {
                     Template t = (Template) l.getPerLocale(locale);
                     if (t != null)
@@ -153,7 +155,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            ArrayList portfolio = new ArrayList();
+            List<String> portfolio = new ArrayList<String>();
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
@@ -188,7 +190,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     /**
      * This method is responsible for checking the existence of {@link Template}s with the same
      * UIDs before these objects to be added in the system.
-     * 
+     *
      * @param uid UID of the newly created {@link Template}, which to be checked.
      * @param status {@link Status} of the {@link AutomationCommand} operation. Can be successful or can fail for these
      *            {@link ModuleType}s or {@link Template}s, for which a {@link Template} with the same UID, exists.

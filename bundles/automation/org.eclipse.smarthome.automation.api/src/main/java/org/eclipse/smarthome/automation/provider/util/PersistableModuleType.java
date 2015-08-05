@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.automation.provider.util;
 
+import java.io.Externalizable;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -18,17 +22,29 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 /**
  * This class is responsible for custom serialization and deserialization of the {@link ModuleType}s. It is necessary
  * for the persistence of the {@link ModuleType}s. Implements {@link Externalizable}.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
  * @param <T> is one of {@link TriggerType}, {@link CompositeTriggerType}, {@link ConditionType},
  *            {@link CompositeConditionType}, {@link ActionType} or {@link CompositeActionType}.
- * 
+ *
  */
-public class PersistableModuleType {
+public final class PersistableModuleType {
+
+    public String vendorId;
+    public String vendorVersion;
+    public String url;
+    public int type;
+    public Set<ActionType> localizedActionTypes = new HashSet<ActionType>();
+    public Set<PersistableCompositeActionType> localizedCActionTypes = new HashSet<PersistableCompositeActionType>();
+    public Set<ConditionType> localizedConditionTypes = new HashSet<ConditionType>();
+    public Set<PersistableCompositeConditionType> localizedCConditionTypes = new HashSet<PersistableCompositeConditionType>();
+    public Set<TriggerType> localizedTriggerTypes = new HashSet<TriggerType>();
+    public Set<PersistableCompositeTriggerType> localizedCTriggerTypes = new HashSet<PersistableCompositeTriggerType>();
+    public Set<String> languages;
 
     /**
      * This constructor is used for deserialization of the {@link ModuleType}s.
-     * 
+     *
      */
     public PersistableModuleType() {
     }

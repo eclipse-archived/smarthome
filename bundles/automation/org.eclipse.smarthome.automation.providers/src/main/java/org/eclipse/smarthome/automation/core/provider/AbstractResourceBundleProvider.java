@@ -18,15 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.BundleTrackerCustomizer;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -35,6 +26,14 @@ import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.BundleTrackerCustomizer;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
@@ -48,9 +47,9 @@ import org.eclipse.smarthome.automation.type.ModuleType;
  * {@link AutomationResourceBundlesEventQueue} by implementing a {@link BundleTrackerCustomizer}
  * <p>
  * but {@code AbstractResourceBundleProvider} provides common functionality for processing the tracked bundles.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPersistentProvider<E, PE>
         implements ServiceTrackerCustomizer {
@@ -76,7 +75,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This field is a {@link ServiceTracker} for {@link Parser} services.
      */
-    protected ServiceTracker parserTracker;
+    protected ServiceTracker<Parser, Parser> parserTracker;
 
     /**
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
@@ -118,12 +117,12 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
 
     /**
      * This constructor is responsible for creation of a tracker for {@link Parser} services.
-     * 
+     *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this
      *            specific provider.
      */
-    public AbstractResourceBundleProvider(BundleContext context, Class providerClass) {
+    public AbstractResourceBundleProvider(BundleContext context, Class<?> providerClass) {
         super(context, providerClass);
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
     }
@@ -131,7 +130,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This method is used to initialize field {@link #queue}, when the instance of
      * {@link AutomationResourceBundlesEventQueue} is created.
-     * 
+     *
      * @param queue
      */
     public void setQueue(AutomationResourceBundlesEventQueue queue) {
@@ -143,7 +142,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This method is used in {@link AutomationResourceBundlesEventQueue#open()} to ensure that all persistent objects
      * are loaded into the memory.
-     * 
+     *
      * @return {@code true} if all persistent objects are loaded into the memory and {@code false} in the
      *         other case.
      */
@@ -160,19 +159,20 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * missing {@link Parser} for particular format,
      * <p>
      * and then the {@link Parser} service appears, they will be processed.
-     * 
+     *
      * @param reference The reference to the service being added to the {@code ServiceTracker}.
      * @return the service object to be tracked for the specified {@code ServiceReference}.
      */
+    @Override
     public Object addingService(ServiceReference reference) {
-        Parser service = (Parser) bc.getService(reference);
+        Parser service = bc.getService(reference);
         String key = (String) reference.getProperty(Parser.FORMAT);
         key = key == null ? Parser.FORMAT_JSON : key;
         parsers.put(key, service);
         synchronized (waitingProviders) {
-            Iterator i = waitingProviders.keySet().iterator();
+            Iterator<Long> i = waitingProviders.keySet().iterator();
             while (i.hasNext()) {
-                Long bundleId = (Long) i.next();
+                Long bundleId = i.next();
                 Bundle bundle = waitingProviders.get(bundleId);
                 String parserType = bundle.getHeaders()
                         .get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
@@ -189,10 +189,11 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This method is called when the service being tracked by the {@code ServiceTracker} has had it properties
      * modified. This case is not useful for the {@link Parser} services, so this method do nothing.
-     * 
+     *
      * @param reference The reference to the service that has been modified.
      * @param service The service object for the specified referenced service.
      */
+    @Override
     public void modifiedService(ServiceReference reference, Object service) {
         // do nothing
     }
@@ -200,10 +201,11 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This method is called after a service is no longer being tracked by the {@code ServiceTracker} and removes the
      * {@link Parser} service objects from the structure Map "{@link #parsers}".
-     * 
+     *
      * @param reference The reference to the service that has been removed.
      * @param service The service object for the specified referenced service.
      */
+    @Override
     public void removedService(ServiceReference reference, Object service) {
         String key = (String) reference.getProperty(Parser.FORMAT);
         key = key == null ? Parser.FORMAT_JSON : key;
@@ -241,7 +243,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     /**
      * This method is called from {@link AutomationResourceBundlesEventQueue} to ensure that the tracked bundle is
      * already processed and its version is the same.
-     * 
+     *
      * @param vendor is a {@link Vendor} object, corresponding to the tracked bundle and serves as key in
      *            {@link #providerPortfolio}
      * @return {@code true} if the bundle ID and the version on the tracked bundle are matching to these on the
@@ -269,7 +271,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * loads the provided objects.
      * <p>
      * The loading can fail because of {@link IOException}.
-     * 
+     *
      * @param bundle it is a {@link Bundle} which has to be processed, because it provides resources for automation
      *            objects.
      */
@@ -298,7 +300,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
         Enumeration<URL> urls = bundle.findEntries(path, null, false);
         if (urls == null)
             return;
-        ArrayList portfolio = new ArrayList();
+        List<String> portfolio = new ArrayList<String>();
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
@@ -319,7 +321,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * <p>
      * Will remove the provided objects from {@link #providedObjectsHolder} and will remove their persistence, injected
      * in the system from this bundle.
-     * 
+     *
      * @param bundle the uninstalled {@link Bundle}, provider of automation objects.
      */
     protected void processAutomationProviderUninstalled(Bundle bundle) {
@@ -330,30 +332,33 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
         List<String> portfolio = null;
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         synchronized (providerPortfolio) {
-            portfolio = providerPortfolio.remove(vendor);
+            portfolio = providerPortfolio.get(vendor);
         }
         if (portfolio == null || portfolio.isEmpty())
             return;
-        Iterator i = portfolio.iterator();
+        Iterator<String> i = portfolio.iterator();
         while (i.hasNext()) {
-            String uid = (String) i.next();
+            String uid = i.next();
             synchronized (providedObjectsHolder) {
                 providedObjectsHolder.remove(uid);
             }
             remove(uid); // this method removes persistence
+        }
+        synchronized (providerPortfolio) {
+            portfolio = providerPortfolio.remove(vendor);
         }
     }
 
     /**
      * This method is called from {@link #processAutomationProvider(Bundle)} to process the loading of the provided
      * objects.
-     * 
+     *
      * @param parser the {@link Parser} which is responsible for parsing of a particular format in which the provided
      *            objects are presented
      * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
      * @return a set of {@link Status}es, each of them shows the result of loading per object.
      */
     protected abstract Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            ArrayList<String> portfolio);
+            List<String> portfolio);
 
 }

@@ -7,12 +7,15 @@
  */
 package org.eclipse.smarthome.automation.core.provider;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import java.util.List;
 
 import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.provider.TemplateProvider;
+import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
+import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is an activator of this bundle. It is responsible for initializing {@link ModuleTypeProvider} and
@@ -22,20 +25,20 @@ import org.eclipse.smarthome.automation.provider.TemplateProvider;
  * The automation objects come from bundles providing resources in some particular format. So the
  * {@link AutomationResourceBundlesEventQueue} is initialized to track these bundles and it is set to the providers and
  * the importer.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
-public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvider> */implements BundleActivator {
+public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider> implements BundleActivator {
 
     private AutomationResourceBundlesEventQueue queue;
 
-    private ServiceRegistration /* <S> */ tpReg;
-    private ServiceRegistration /* <T> */ mtpReg;
+    private ServiceRegistration<S> tpReg;
+    private ServiceRegistration<T> mtpReg;
 
-    private TemplateResourceBundleProvider tProvider;
-    private ModuleTypeResourceBundleProvider mProvider;
-    private RuleResourceBundleImporter rImporter;
+    private TemplateResourceBundleProvider<PersistableLocalizedRuleTemplate> tProvider;
+    private ModuleTypeResourceBundleProvider<PersistableModuleType> mProvider;
+    private RuleResourceBundleImporter<List<String>> rImporter;
 
     /**
      * This method is called when this bundle is started so the Framework can perform the
@@ -56,14 +59,18 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
      * <p>
      * </ul>
      * This method must complete and return to its caller in a timely manner.
-     * 
+     *
      * @param context The execution context of the bundle being started.
      * @throws Exception If this method throws an exception, this bundle is
      *             marked as stopped and the Framework will remove this bundle's
      *             listeners, unregister all services registered by this bundle, and
      *             release all services used by this bundle.
      */
+    @Override
+    @SuppressWarnings("unchecked")
     public void start(BundleContext context) throws Exception {
+
+        System.out.println(" ************* " + context.getDataFile("").getAbsolutePath());
 
         mProvider = new PersistentModuleTypeResourceBundleProvider(context);
         tProvider = new PersistentTemplateResourceBundleProvider(context);
@@ -75,12 +82,9 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
         tProvider.setQueue(queue);
         rImporter.setQueue(queue);
 
-        mtpReg = context.registerService(
-                new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class.getName() }, mProvider,
-                null);
+        mtpReg = (ServiceRegistration<T>) context.registerService(ModuleTypeProvider.class.getName(), mProvider, null);
 
-        tpReg = context.registerService(
-                new String[] { TemplateProvider.class.getName(), TemplateProvider.class.getName() }, tProvider, null);
+        tpReg = (ServiceRegistration<S>) context.registerService(TemplateProvider.class.getName(), tProvider, null);
 
         queue.open();
     }
@@ -99,13 +103,14 @@ public class Activator/* <T extends ModuleTypeProvider, S extends TemplateProvid
      * <p>
      * </ul>
      * This method must complete and return to its caller in a timely manner.
-     * 
+     *
      * @param context The execution context of the bundle being stopped.
      * @throws Exception If this method throws an exception, the bundle is still
      *             marked as stopped, and the Framework will remove the bundle's
      *             listeners, unregister all services registered by the bundle, and
      *             release all services used by the bundle.
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         tpReg.unregister();
         mtpReg.unregister();

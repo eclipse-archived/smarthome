@@ -7,21 +7,34 @@
  */
 package org.eclipse.smarthome.automation.commands;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.smarthome.automation.Rule;
 import org.osgi.framework.BundleContext;
 
+/**
+ * This class extends functionality of {@link RuleImporterImpl} by providing functionality for creating, getting and
+ * deleting persistence of {@link Rule}s provisioning from storage.
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
+ */
 public class PersistentRuleImporter extends RuleImporterImpl<List<String>> {
 
+    /**
+     * This constructor extends the parent constructor functionality with initializing the version of persistence.
+     *
+     * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
+     */
     public PersistentRuleImporter(BundleContext context) {
         super(context, PersistentRuleImporter.class);
     }
 
     @Override
     protected String getKey(URL element) {
-        // TODO Auto-generated method stub
-        return null;
+        return element.toString();
     }
 
     @Override
@@ -31,20 +44,29 @@ public class PersistentRuleImporter extends RuleImporterImpl<List<String>> {
 
     @Override
     protected String keyToString(String key) {
-        // TODO Auto-generated method stub
-        return null;
+        return key;
     }
 
     @Override
     protected URL toElement(String key, List<String> persistableElement) {
-        // TODO Auto-generated method stub
-        return null;
+        URL url = null;
+        try {
+            url = new URL(key);
+            synchronized (providerPortfolio) {
+                providerPortfolio.put(url, persistableElement);
+            }
+        } catch (MalformedURLException e) {
+        }
+        return url;
     }
 
     @Override
     protected List<String> toPersistableElement(URL element) {
-        // TODO Auto-generated method stub
-        return null;
+        List<String> portfolio = null;
+        synchronized (providerPortfolio) {
+            portfolio = providerPortfolio.get(element);
+        }
+        return portfolio;
     }
 
 }

@@ -16,17 +16,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
-
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
 
 /**
  * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
@@ -38,29 +37,31 @@ import org.eclipse.smarthome.automation.parser.Status;
  * <li>specific functionality for loading the {@link Rule}s
  * <li>tracking the managing service of the {@link Rule}s.
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBundleProvider<Vendor, PE> {
 
     protected RuleRegistry ruleRegistry;
-    private ServiceTracker rulesTracker;
+    private ServiceTracker<RuleRegistry, RuleRegistry> rulesTracker;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link Rule}s.
-     * 
+     *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
      *            provider.
      */
-    public RuleResourceBundleImporter(BundleContext context, Class providerClass) {
+    public RuleResourceBundleImporter(BundleContext context,
+            Class<PersistentRuleResourceBundleImporter> providerClass) {
         super(context, providerClass);
         path = PATH + "/rules/";
-        rulesTracker = new ServiceTracker(context, RuleRegistry.class.getName(),
+        rulesTracker = new ServiceTracker<RuleRegistry, RuleRegistry>(context, RuleRegistry.class.getName(),
                 new ServiceTrackerCustomizer<RuleRegistry, RuleRegistry>() {
 
+                    @Override
                     public RuleRegistry addingService(ServiceReference<RuleRegistry> reference) {
                         ruleRegistry = bc.getService(reference);
                         if (isReady && queue != null)
@@ -68,9 +69,11 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
                         return ruleRegistry;
                     }
 
+                    @Override
                     public void modifiedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
                     }
 
+                    @Override
                     public void removedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
                         ruleRegistry = null;
                     }
@@ -84,7 +87,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      * Extends parent's functionality with closing the {@link #rulesTracker} and
      * <p>
      * sets {@code null} to {@link #ruleRegistry}.
-     * 
+     *
      * @see AbstractResourceBundleProvider#close()
      */
     @Override
@@ -122,7 +125,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      * loads the provided rules.
      * <p>
      * The loading can fail because of {@link IOException}.
-     * 
+     *
      * @param bundle it is a {@link Bundle} which has to be processed, because it provides resources for automation
      *            rules.
      */
@@ -149,16 +152,18 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
         if (urls == null) {
             return;
         }
-        ArrayList portfolio = new ArrayList();
+        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+        List<String> portfolio = new ArrayList<String>();
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             try {
-                Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
                 importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
                 log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
             }
         }
+        if (!portfolio.isEmpty())
+            add(vendor);
     }
 
     /**
@@ -169,7 +174,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      * <p>
      * Will remove these rules from {@link #providedObjectsHolder} and will remove their persistence,
      * injected in the system from this bundle.
-     * 
+     *
      * @param bundle the uninstalled {@link Bundle}, provider of automation rules.
      */
     @Override
@@ -179,7 +184,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
                 return;
         }
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
-        List portfolio = null;
+        List<String> portfolio = null;
         synchronized (providerPortfolio) {
             if (providerPortfolio.isEmpty())
                 return;
@@ -188,10 +193,13 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
         remove(vendor.getVendorId());
         if (portfolio == null || portfolio.isEmpty())
             return;
-        Iterator ip = portfolio.iterator();
+        Iterator<String> ip = portfolio.iterator();
         while (ip.hasNext()) {
-            String uid = (String) ip.next();
+            String uid = ip.next();
             ruleRegistry.remove(uid);
+        }
+        synchronized (providerPortfolio) {
+            portfolio = providerPortfolio.remove(vendor);
         }
     }
 
@@ -200,7 +208,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      */
     @Override
     protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            ArrayList<String> portfolio) {
+            List<String> portfolio) {
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
@@ -211,11 +219,10 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
                     portfolio.add(rule.getUID());
                 }
             } // while
-            if (vendor != null) {
-                synchronized (providerPortfolio) {
+            synchronized (providerPortfolio) {
+                if (providerPortfolio.get(vendor) == null && !portfolio.isEmpty()) {
                     providerPortfolio.put(vendor, portfolio);
                 }
-                add(vendor);
             }
         }
         return providedRulesStatus;
