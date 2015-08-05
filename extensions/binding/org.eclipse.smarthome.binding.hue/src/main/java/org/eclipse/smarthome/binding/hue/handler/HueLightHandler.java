@@ -261,14 +261,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         if (fullLight.getId().equals(lightId)) {
             lastSentColorTemp = null;
             lastSentBrightness = null;
-            
+
             // update status (ONLINE, OFFLINE)
             if (fullLight.getState().isReachable()) {
                 updateStatus(ThingStatus.ONLINE);
             } else {
-                // we assume OFFLINE without any error, as this is an 
+                // we assume OFFLINE without any error (NONE), as this is an
                 // expected state (when bulb powered off)
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge reports light as reachable=false");
+                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "Bridge reports light as not reachable");
             }
 
             HSBType hsbType = LightStateConverter.toHSBType(fullLight.getState());
