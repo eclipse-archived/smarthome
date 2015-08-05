@@ -16,7 +16,7 @@ import org.eclipse.smarthome.automation.type.Output;
  * module where the current is connected to. <br>
  * The input of the current module is defined by name of the {@link Input}. The {@link Output} of the external module is
  * defined by id of the module and name of the output.
- * 
+ *
  * @author Yordan Mihaylov - Initial Contribution
  */
 public class Connection {
@@ -27,7 +27,7 @@ public class Connection {
 
     /**
      * This constructor is responsible for creation of connections between modules in the rule.
-     * 
+     *
      * @param inputName is an unique name of the {@code Input} in scope of the {@link Module}.
      * @param ouputModuleId is an unique id of the {@code Module} in scope of the {@link Rule}.
      * @param outputName is an unique name of the {@code Output} in scope of the {@link Module}.
@@ -44,7 +44,7 @@ public class Connection {
     /**
      * This method is used to get id of external {@link Module} of this
      * connection.
-     * 
+     *
      * @return id of external {@link Module}
      */
     public String getOuputModuleId() {
@@ -54,7 +54,7 @@ public class Connection {
     /**
      * This method is used to get output name of external {@link Module} of this
      * connection.
-     * 
+     *
      * @return name of {@link Output} of external {@link Module}
      */
     public String getOutputName() {
@@ -64,13 +64,16 @@ public class Connection {
     /**
      * This method is used to get input name of current {@link Module} of this
      * connection.
-     * 
+     *
      * @return name {@link Input} of the current {@link Module}
      */
     public String getInputName() {
         return inputName;
     }
 
+    /**
+     * Compare two connection objects.
+     */
     @Override
     public boolean equals(Object obj) {
         return (inputName != null && obj instanceof Connection) && inputName.equals(((Connection) obj).getInputName());
@@ -84,7 +87,7 @@ public class Connection {
 
     /**
      * This method is used to validate the connection.
-     * 
+     *
      * @param field serves to construct an understandable message that indicates what property of the connection is not
      *            correct.
      * @param id is the value of the specified property. It can't be empty string.

@@ -36,26 +36,32 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condit
         setConnections(c.getConnections());
     }
 
+    @Override
     public Set<Connection> getConnections() {
-        return copyConnections(connections);
+        return connections;
     }
 
+    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
+    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
+    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
+    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
+    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
     }

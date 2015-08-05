@@ -50,7 +50,7 @@ public interface Module {
      * This method is used for getting the label of the Module. The label is a
      * short, user friendly name of the Module.
      *
-     * @return the label of the module.
+     * @return the label of the module or null.
      */
     public String getLabel();
 
@@ -65,7 +65,7 @@ public interface Module {
      * This method is used for getting the description of the Module. The
      * description is a long, user friendly description of the Module.
      *
-     * @return the description of the module.
+     * @return the description of the module or null.
      */
     public String getDescription();
 
@@ -81,7 +81,7 @@ public interface Module {
      * The key is id of the {@link ConfigDescriptionParameter} and the value is
      * the configuration value.
      *
-     * @return current configuration values
+     * @return current configuration values or null.
      */
     public Map<String, Object> getConfiguration();
 

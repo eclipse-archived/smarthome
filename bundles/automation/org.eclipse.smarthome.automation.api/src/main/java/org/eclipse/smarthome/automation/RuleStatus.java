@@ -15,16 +15,38 @@ import java.util.List;
  * must stop work for temporary period of time. The rule can me running when it is
  * executing triggered data. The rule can be not initialized when some of module handlers
  * are not available.
- * 
+ *
  * @author Yordan Mihaylov
  */
 public interface RuleStatus {
 
+    /**
+     * Gets enable status of the rule. When it is disabled the rule must not be executed.
+     * This property can be set by the user through the {@link RuleRegistry#setEnabled(String, boolean)} method.
+     * 
+     * @return true when the rule is enabled, false otherwise.
+     */
     boolean isEnabled();
 
+    /**
+     * Gets running status of the rule. The is running when it executes triggered data.
+     * 
+     * @return true when it is running, false when the rule is idle.
+     */
     boolean isRunning();
 
+    /**
+     * Gets initialization status of the rule. It is initialized when the rule engine accept the rule without
+     * {@link RuleError}s
+     * 
+     * @return true when it is initialized, false when rule error is appeared.
+     */
     boolean isInitialize();
 
+    /**
+     * Gets rule error of not initialized rule.
+     * 
+     * @return list of {@link RuleError}s or null when the rule is initialized.
+     */
     public List<RuleError> getErrors();
 }

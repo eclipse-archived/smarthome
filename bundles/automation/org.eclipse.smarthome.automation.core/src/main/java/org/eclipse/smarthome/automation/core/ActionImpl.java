@@ -39,44 +39,70 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
     private Map<String, OutputValue> connectedObjects;
     private Map<String, ?> outputs;
 
-    public ActionImpl(String UID, String templateUID, Map<String, ?> configuration, Set<Connection> connections) {
-        super(UID, templateUID, configuration);
+    /**
+     * Constructor of Action object.
+     *
+     * @param UID action unique id.
+     * @param typeUID module type unique id.
+     * @param configuration map of configuration values.
+     * @param connections set of connections to other modules (triggers and other actions).
+     */
+    public ActionImpl(String UID, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+        super(UID, typeUID, configuration);
         setConnections(connections);
     }
 
-    protected ActionImpl(ActionImpl a) {
-        super(a);
-        setConnections(a.getConnections());
+    /**
+     * Utility constructor creating copy of passed action.
+     *
+     * @param action another action which is uses as base of created
+     */
+    protected ActionImpl(ActionImpl action) {
+        super(action);
+        setConnections(action.getConnections());
     }
 
+    @Override
     public Set<Connection> getConnections() {
-        return copyConnections(connections);
+        return connections;
     }
 
+    /**
+     * This method set deep copy of passed connections as connections of for this module.
+     * 
+     * @see org.eclipse.smarthome.automation.Action#setConnections(java.util.Set)
+     */
+    @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
+    @Override
     public Map<String, OutputValue> getConnectedObjects() {
         return connectedObjects;
     }
 
+    @Override
     public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
+    @Override
     public void setOutputs(Map<String, ?> outputs) {
         this.outputs = outputs;
     }
 
+    @Override
     public Object getOutputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
     }
 
+    @Override
     public Map<Input, List<Input>> getInputMap() {
         return inputMap;
     }
 
+    @Override
     public void setInputMap(Map<Input, List<Input>> map) {
         this.inputMap = map;
 
