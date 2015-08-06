@@ -7,30 +7,44 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.type.Input;
 
 /**
+ * This class is implementation of {@link Condition} modules used in {@link Rule}s. The {@link Condition} modules are
+ * also {@link ConnectedModule} becouse the can have inputs.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
 public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condition, ConnectedModule {
 
     private Set<Connection> connections;
-    private Map<String, OutputValue> connectedObjects;
-    private Map<Input, List<Input>> inputMap;
+    private Map<String, OutputRef> connectedObjects;
 
+    /**
+     * Constructor of {@link Condition} module object.
+     *
+     * @param id id of the module.
+     * @param typeUID unique module type id.
+     * @param configuration configuration values of the {@link Condition} module.
+     * @param connections set of {@link Connection}s used by this module.
+     */
     public ConditionImpl(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
         super(id, typeUID, configuration);
         this.connections = connections;
     }
 
+    /**
+     * Cloning constructor of {@link Condition} module. It is used to create a new {@link Condition} module base on
+     * passed {@link Condition} module.
+     *
+     * @param c
+     */
     public ConditionImpl(ConditionImpl c) {
         super(c);
         setConnections(c.getConnections());
@@ -41,29 +55,25 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condit
         return connections;
     }
 
+    /**
+     * Creates deep copy of passed connection. The copy is used to unlink connection used by this module with the
+     * connection object passed as source. In this way the connection can't be changed runtime except by this method.
+     *
+     * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
+     */
     @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
     }
 
     @Override
-    public Map<String, OutputValue> getConnectedObjects() {
+    public Map<String, OutputRef> getConnectedOutputs() {
         return connectedObjects;
     }
 
     @Override
-    public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
+    public void setConnectedOutputs(Map<String, OutputRef> connectedObjects) {
         this.connectedObjects = connectedObjects;
-    }
-
-    @Override
-    public Map<Input, List<Input>> getInputMap() {
-        return inputMap;
-    }
-
-    @Override
-    public void setInputMap(Map<Input, List<Input>> map) {
-        this.inputMap = map;
     }
 
 }

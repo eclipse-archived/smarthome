@@ -7,15 +7,14 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Connection;
-import org.eclipse.smarthome.automation.type.Input;
 
 /**
- * This interface is implemented by modules which have inputs.
+ * This internal interface is implemented by modules implementations which have inputs.
+ * It is used for unified access to modules with inputs.
  * ConditionImpl and ActionImpl implements this interface.
  *
  * @author Yordan Mihaylov - Initial Contribution
@@ -24,15 +23,33 @@ import org.eclipse.smarthome.automation.type.Input;
  */
 public interface ConnectedModule {
 
+    /**
+     * Gets unique module type id.
+     *
+     * @return uid of module type.
+     */
     String getTypeUID();
 
+    /**
+     * Gets set of connections for this module.
+     *
+     * @return connection objects of module.
+     */
     Set<Connection> getConnections();
 
-    Map<String, OutputValue> getConnectedObjects();
+    /**
+     * Gets map of {@link OutputRef}s connected to module's inputs.
+     *
+     * @return map inputs and corresponding ouput values.
+     */
+    Map<String, OutputRef> getConnectedOutputs();
 
-    void setConnectedObjects(Map<String, OutputValue> connectedObjects);
+    /**
+     * Sets connections between inputs and outputs of other modules. These connections are set by the rule engine when
+     * the module is evaluated for the first time.
+     *
+     * @param connectedOutputs {@link Map} of input and connected {@link OutputRef}s
+     */
+    void setConnectedOutputs(Map<String, OutputRef> connectedOutputs);
 
-    Map<Input, List<Input>> getInputMap();
-
-    void setInputMap(Map<Input, List<Input>> map);
 }

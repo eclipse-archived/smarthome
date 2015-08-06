@@ -20,36 +20,38 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
+ * This class is an implementation of {@link AutomationFactory} interface and it is used to create automation modules:
+ * {@link Trigger}, {@link Condition}s , {@link Action}s and to create {@link Rule} objects base on connected automation
+ * modules.
+ *
  * @see AutomationFactory
  * @author Yordan Mihaylov - Initial implementation
  */
 public class AutomationFactoryImpl implements AutomationFactory {
 
+    @Override
     public Trigger createTrigger(String id, String typeUID, Map<String, ?> configurations) {
         return new TriggerImpl(id, typeUID, configurations);
     }
 
+    @Override
     public Condition createCondition(String id, String typeUID, Map<String, ?> configuration,
             Set<Connection> connections) {
         return new ConditionImpl(id, typeUID, configuration, connections);
     }
 
+    @Override
     public Action createAction(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
         return new ActionImpl(id, typeUID, configuration, connections);
     }
 
+    @Override
     public Rule createRule(List<Trigger> triggers, List<Condition> conditions, List<Action> actions,
             Set<ConfigDescriptionParameter> configDescriptions, Map<String, ?> configurations) {
         return new RuleImpl(triggers, conditions, actions, configDescriptions, configurations);
     }
 
-    /**
-     * @return scopeId associated with the caller
-     */
-    private String getScopeId() {
-        return null;
-    }
-
+    @Override
     public Rule createRule(String ruleTemplateUID, Map<String, Object> configurations) {
         return new RuleImpl(ruleTemplateUID, configurations);
     }

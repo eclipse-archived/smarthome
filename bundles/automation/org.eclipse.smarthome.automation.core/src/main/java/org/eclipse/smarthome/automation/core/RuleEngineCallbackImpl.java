@@ -19,8 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Yordan Mihaylov - Initial Contribution
+ * This class is implementation of {@link RuleEngineCallback} used by the {@link Trigger}s to notify rule engine about
+ * appearing of new triggered data. There is one and only one {@link RuleEngineCallback} per Rule and it is used by all
+ * rule's {@link Trigger}s.
  *
+ * @author Yordan Mihaylov - Initial Contribution
  */
 public class RuleEngineCallbackImpl implements RuleEngineCallback {
 

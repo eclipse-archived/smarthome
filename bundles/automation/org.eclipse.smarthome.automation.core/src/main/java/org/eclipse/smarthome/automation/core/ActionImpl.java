@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,9 +33,8 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, ConnectedModule, SourceModule {
 
-    private Map<Input, List<Input>> inputMap = null;
     private Set<Connection> connections;
-    private Map<String, OutputValue> connectedObjects;
+    private Map<String, OutputRef> connectedObjects;
     private Map<String, ?> outputs;
 
     /**
@@ -69,7 +67,7 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
 
     /**
      * This method set deep copy of passed connections as connections of for this module.
-     * 
+     *
      * @see org.eclipse.smarthome.automation.Action#setConnections(java.util.Set)
      */
     @Override
@@ -78,12 +76,12 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
     }
 
     @Override
-    public Map<String, OutputValue> getConnectedObjects() {
+    public Map<String, OutputRef> getConnectedOutputs() {
         return connectedObjects;
     }
 
     @Override
-    public void setConnectedObjects(Map<String, OutputValue> connectedObjects) {
+    public void setConnectedOutputs(Map<String, OutputRef> connectedObjects) {
         this.connectedObjects = connectedObjects;
     }
 
@@ -95,17 +93,6 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
     @Override
     public Object getOutputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
-    }
-
-    @Override
-    public Map<Input, List<Input>> getInputMap() {
-        return inputMap;
-    }
-
-    @Override
-    public void setInputMap(Map<Input, List<Input>> map) {
-        this.inputMap = map;
-
     }
 
 }

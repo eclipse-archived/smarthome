@@ -77,7 +77,7 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
     }
 
     /**
-     * Utility constructor for module cloning.
+     * Utility constructor for easy creating clone of passed module.
      *
      * @param module a module which has to be cloned.
      */
@@ -178,7 +178,7 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
 
     /**
      * This method gets handler which is responsible for handling of this module.
-     * 
+     *
      * @return handler of the module or null.
      */
     protected T getModuleHandler() {
@@ -187,7 +187,7 @@ public abstract class ModuleImpl<T extends ModuleHandler> implements Module {
 
     /**
      * This method sets handler of the module.
-     * 
+     *
      * @param moduleHandler
      */
     protected void setModuleHandler(T moduleHandler) {
