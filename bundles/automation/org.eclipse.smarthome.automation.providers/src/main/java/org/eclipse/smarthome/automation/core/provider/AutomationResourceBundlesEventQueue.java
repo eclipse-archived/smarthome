@@ -12,10 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;

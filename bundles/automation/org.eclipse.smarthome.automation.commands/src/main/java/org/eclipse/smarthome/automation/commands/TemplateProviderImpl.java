@@ -26,9 +26,9 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -46,8 +46,8 @@ import org.osgi.framework.ServiceReference;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE>
-        implements TemplateProvider {
+public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE>implements
+        TemplateProvider {
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -162,13 +162,13 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
                 RuleTemplate ruleT = (RuleTemplate) status.getResult();
                 String uid = ruleT.getUID();
                 try {
-                    ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
-                            ruleT.getModules(Trigger.class), ruleT.getModules(Condition.class),
-                            ruleT.getModules(Action.class));
+                    ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry, ruleT
+                            .getModules(Trigger.class), ruleT.getModules(Condition.class), ruleT.getModules(
+                                    Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                            + e.getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! " + e
+                            .getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))

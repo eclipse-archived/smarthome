@@ -21,9 +21,9 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -42,8 +42,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProvider<E, PE>
-        implements ServiceTrackerCustomizer {
+public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProvider<E, PE>implements
+        ServiceTrackerCustomizer {
 
     /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.

@@ -23,8 +23,8 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -44,8 +44,8 @@ import org.osgi.framework.ServiceReference;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE>
-        implements ModuleTypeProvider {
+public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE>implements
+        ModuleTypeProvider {
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not

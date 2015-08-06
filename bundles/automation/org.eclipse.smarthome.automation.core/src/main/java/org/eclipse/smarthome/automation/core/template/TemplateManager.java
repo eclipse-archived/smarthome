@@ -13,11 +13,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
-
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
-import org.eclipse.smarthome.automation.template.Template;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution

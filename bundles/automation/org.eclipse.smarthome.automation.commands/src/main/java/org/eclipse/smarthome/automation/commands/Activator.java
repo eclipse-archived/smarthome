@@ -7,18 +7,17 @@
  */
 package org.eclipse.smarthome.automation.commands;
 
+import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 
 /**
  * This class is an activator of this bundle. Opens the all used service trackers and registers the services -
  * AutomationCommands, {@link ModuleTypeProvider} and {@link TemplateProvider}.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class Activator implements BundleActivator {
 
@@ -27,6 +26,7 @@ public class Activator implements BundleActivator {
     /**
      * This method initialize pluggable commands for importing, exporting, listing and removing automation objects.
      */
+    @Override
     public void start(BundleContext bc) throws Exception {
         autoCommands = new AutomationCommandsPluggable(bc);
     }
@@ -35,6 +35,7 @@ public class Activator implements BundleActivator {
      * This method close all used service trackers, unregisters the services - AutomationCommands,
      * {@link ModuleTypeProvider} and {@link TemplateProvider}.
      */
+    @Override
     public void stop(BundleContext bc) throws Exception {
         autoCommands.stop();
     }

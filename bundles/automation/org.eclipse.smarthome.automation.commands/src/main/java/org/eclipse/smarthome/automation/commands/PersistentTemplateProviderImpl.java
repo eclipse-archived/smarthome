@@ -15,7 +15,6 @@ import java.util.List;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.PersistableAction;
 import org.eclipse.smarthome.automation.provider.util.PersistableCondition;
 import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
@@ -23,6 +22,7 @@ import org.eclipse.smarthome.automation.provider.util.PersistableRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableTrigger;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.osgi.framework.BundleContext;
 
 /**

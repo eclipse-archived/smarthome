@@ -9,10 +9,10 @@ package org.eclipse.smarthome.automation.core.provider;
 
 import java.util.List;
 
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

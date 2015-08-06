@@ -13,17 +13,16 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
-
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
@@ -165,8 +164,8 @@ public class ModuleTypeManager {
 
         } else if (mType instanceof TriggerType) {
             TriggerType m = (TriggerType) mType;
-            result = new TriggerType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs());
+            result = new TriggerType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(), mType
+                    .getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs());
 
         } else if (mType instanceof CompositeConditionType) {
             CompositeConditionType m = (CompositeConditionType) mType;
@@ -175,19 +174,19 @@ public class ModuleTypeManager {
 
         } else if (mType instanceof ConditionType) {
             ConditionType m = (ConditionType) mType;
-            result = new ConditionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs());
+            result = new ConditionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(), mType
+                    .getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs());
 
         } else if (mType instanceof CompositeActionType) {
             CompositeActionType m = (CompositeActionType) mType;
             result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(),
-                    m.getModules());
+                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(), m
+                            .getModules());
 
         } else if (mType instanceof ActionType) {
             ActionType m = (ActionType) mType;
-            result = new ActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
+            result = new ActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(), mType
+                    .getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
 
         } else {
             throw new IllegalArgumentException("Invalid template type:" + mType);

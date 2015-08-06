@@ -17,9 +17,9 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

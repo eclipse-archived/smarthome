@@ -18,15 +18,15 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -233,9 +233,8 @@ public abstract class AutomationCommands {
         templateProvider = new PersistentTemplateProviderImpl(bc);
         ruleImporter = new PersistentRuleImporter(bc);
 
-        mtpReg = bc.registerService(
-                new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class.getName() },
-                moduleTypeProvider, null);
+        mtpReg = bc.registerService(new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class
+                .getName() }, moduleTypeProvider, null);
 
         tpReg = bc.registerService(new String[] { TemplateProvider.class.getName(), TemplateProvider.class.getName() },
                 templateProvider, null);
