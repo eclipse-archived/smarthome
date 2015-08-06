@@ -33,6 +33,7 @@ ESH-INF/i18n
 ```
 
 Example files:
+
 ```
 ESH-INF/i18n
     yahooweather_de.properties
@@ -51,6 +52,7 @@ For the binding definition and the thing types XML files Eclipse SmartHome defin
 The following snippet shows the binding XML file of the Yahoo Weather Binding and its language file that localizes the binding name and description for the German language.
 
 XML file (binding.xml):
+
 ```xml
 <binding:binding id="yahooweather">
     <name>YahooWeather Binding</name>
@@ -61,6 +63,7 @@ XML file (binding.xml):
 ```
 
 Language file (yahooweather_de.properties):
+
 ```ini
 binding.yahooweather.name = Yahoo Wetter Binding
 binding.yahooweather.description = Das Yahoo Wetter Binding stellt verschiedene Wetterdaten wie die Temperatur, die Luftfeuchtigkeit und den Luftdruck für konfigurierbare Orte vom yahoo Wetterdienst bereit.
@@ -73,6 +76,7 @@ So the key for referencing the name of a binding is `binding.<binding-id>.name` 
 The following snippet shows an excerpt of the thing type definition XML file of the Yahoo Weather Binding and its language file that localizes labels and descriptions for the German language.
 
 XML file (thing-types.xml):
+
 ```xml
 <thing:thing-descriptions bindingId="yahooweather">
     <thing-type id="weather">
@@ -107,6 +111,7 @@ XML file (thing-types.xml):
 ```
 
 Language file (yahooweather_de.properties):
+
 ```ini
 thing-type.yahooweather.weather.label = Wetterinformation
 thing-type.yahooweather.weather.description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit.
@@ -133,6 +138,7 @@ In addition to the default keys the developer can also specify custom keys insid
 The following snippet shows a binding XML that uses custom keys:
 
 XML file (binding.xml):
+
 ```xml
 <binding:binding id="yahooweather">
     <name>@text/bindingName</name>
@@ -142,6 +148,7 @@ XML file (binding.xml):
 ```
 
 Language file (yahooweather_en.properties):
+
 ```ini
 bindingName = Yahoo Weather Binding
 ```
