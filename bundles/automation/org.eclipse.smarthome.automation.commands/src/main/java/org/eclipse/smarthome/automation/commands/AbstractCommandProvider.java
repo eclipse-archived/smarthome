@@ -19,15 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
@@ -39,11 +40,24 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * and provides common functionality for exporting automation objects.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProvider<E, PE>implements
-        ServiceTrackerCustomizer {
+public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustomizer {
+
+    protected Logger logger;
+
+    /**
+     * A bundle's execution context within the Framework.
+     */
+    protected BundleContext bc;
+
+    /**
+     * This field is an {@link AutomationFactory}. It uses for creation of
+     * modules in deserializing the automation objects.
+     */
+    protected AutomationFactory factory;
 
     /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.
@@ -78,8 +92,8 @@ public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProv
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     @SuppressWarnings("unchecked")
-    public AbstractProviderImpl(BundleContext context) {
-        super(context);
+    public AbstractCommandProvider(BundleContext context) {
+        this.bc = context;
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
         parserTracker.open();
     }
@@ -88,11 +102,7 @@ public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProv
      * This method is inherited from {@link AbstractPersistentProvider}.
      * Extends parent's functionality with closing the {@link Parser} service tracker.
      * Sets <code>null</code> to {@link #parsers}, {@link #providedObjectsHolder}, {@link #providerPortfolio}
-     *
-     * @see org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider#close()
-     *
      */
-    @Override
     public void close() {
         if (parserTracker != null) {
             parserTracker.close();

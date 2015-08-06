@@ -22,6 +22,5 @@ Export-Package:
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
- org.eclipse.smarthome.automation.provider.util,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type

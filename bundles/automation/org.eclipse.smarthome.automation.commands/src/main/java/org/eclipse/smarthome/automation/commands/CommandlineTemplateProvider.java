@@ -34,7 +34,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
- * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractProviderImpl}.
+ * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractCommandProvider}
+ * .
  * <p>
  * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link RuleTemplate}s:
  * <ul>
@@ -44,10 +45,10 @@ import org.osgi.framework.ServiceReference;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<RuleTemplate, PE>implements
-        TemplateProvider {
+public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate>implements TemplateProvider {
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -57,7 +58,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    public TemplateProviderImpl(BundleContext context) {
+    public CommandlineTemplateProvider(BundleContext context) {
         super(context);
     }
 
@@ -65,7 +66,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link RuleTemplate} {@link Parser}.
      *
-     * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
+     * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
     public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
@@ -113,13 +114,14 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
     @Override
-    public Template getTemplate(String UID, Locale locale) {
+    public <T extends Template> T getTemplate(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providerPortfolio) {
             l = providedObjectsHolder.get(UID);
         }
         if (l != null) {
-            Template t = (Template) l.getPerLocale(locale);
+            @SuppressWarnings("unchecked")
+            T t = (T) l.getPerLocale(locale);
             return t;
         }
         return null;
@@ -146,7 +148,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
     }
 
     /**
-     * @see AbstractProviderImpl#importData(URL, Parser, InputStreamReader)
+     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
     protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
@@ -178,7 +180,6 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
                 synchronized (providedObjectsHolder) {
                     providedObjectsHolder.put(uid, lruleT);
                 }
-                add(ruleT);
             }
         }
         return providedObjects;

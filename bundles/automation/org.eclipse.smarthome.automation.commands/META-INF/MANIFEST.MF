@@ -4,13 +4,13 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-Name: Eclipse SmartHome Automation commands
 Import-Package: 
+ org.apache.commons.lang;version="2.6.0",
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.core.util,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
- org.eclipse.smarthome.automation.provider.util,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
- org.eclipse.smarthome.automation.core.util,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.io.console,
@@ -20,4 +20,3 @@ Import-Package:
  org.osgi.util.tracker;version="1.4.0",
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.automation.commands.Activator
-

@@ -29,7 +29,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
- * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractProviderImpl}.
+ * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of
+ * {@link AbstractCommandProvider}.
  * <p>
  * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link ModuleType}s:
  * <ul>
@@ -42,10 +43,10 @@ import org.osgi.framework.ServiceReference;
  * accordingly to the used command.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<ModuleType, PE>implements
-        ModuleTypeProvider {
+public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType>implements ModuleTypeProvider {
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
@@ -55,7 +56,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    public ModuleTypeProviderImpl(BundleContext context) {
+    public CommandlineModuleTypeProvider(BundleContext context) {
         super(context);
     }
 
@@ -63,7 +64,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link ModuleType} {@link Parser}.
      *
-     * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
+     * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
     public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
@@ -146,7 +147,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
     }
 
     /**
-     * @see AbstractProviderImpl#importData(URL, Parser, InputStreamReader)
+     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
     protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
@@ -169,7 +170,6 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
                 synchronized (providedObjectsHolder) {
                     providedObjectsHolder.put(uid, lProvidedObject);
                 }
-                add(providedObject);
             }
         }
         return providedObjects;

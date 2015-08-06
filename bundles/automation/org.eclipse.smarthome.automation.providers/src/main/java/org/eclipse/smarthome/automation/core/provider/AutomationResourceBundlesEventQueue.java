@@ -12,8 +12,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
-import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.Bundle;
@@ -27,6 +25,7 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
  * the responsible providers in separate thread.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer<Object> {
@@ -57,17 +56,17 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     /**
      * This field holds a reference to an implementation of {@link TemplateProvider}.
      */
-    private TemplateResourceBundleProvider<PersistableLocalizedRuleTemplate> tProvider;
+    private TemplateResourceBundleProvider tProvider;
 
     /**
      * This field holds a reference to an implementation of {@link ModuleTypeProvider}.
      */
-    private ModuleTypeResourceBundleProvider<PersistableModuleType> mProvider;
+    private ModuleTypeResourceBundleProvider mProvider;
 
     /**
      * This field holds a reference to an importer for {@link Rule}s.
      */
-    private RuleResourceBundleImporter<List<String>> rImporter;
+    private RuleResourceBundleImporter rImporter;
 
     /**
      * This constructor is responsible for initializing the tracker for bundles providing automation resources and their
@@ -78,10 +77,8 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * @param mProvider is a reference to an implementation of {@link ModuleTypeProvider}.
      * @param rImporter is a reference to an importer for {@link Rule}s.
      */
-    public AutomationResourceBundlesEventQueue(BundleContext bc,
-            TemplateResourceBundleProvider<PersistableLocalizedRuleTemplate> tProvider,
-            ModuleTypeResourceBundleProvider<PersistableModuleType> mProvider,
-            RuleResourceBundleImporter<List<String>> rImporter) {
+    public AutomationResourceBundlesEventQueue(BundleContext bc, TemplateResourceBundleProvider tProvider,
+            ModuleTypeResourceBundleProvider mProvider, RuleResourceBundleImporter rImporter) {
         this.tProvider = tProvider;
         this.mProvider = mProvider;
         this.rImporter = rImporter;
@@ -92,8 +89,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * This method serves to open the bundle tracker when all providers are ready for work.
      */
     public void open() {
-        if (tProvider.isReady() && mProvider.isReady() && rImporter.isReady())
-            bTracker.open();
+        bTracker.open();
     }
 
     /**

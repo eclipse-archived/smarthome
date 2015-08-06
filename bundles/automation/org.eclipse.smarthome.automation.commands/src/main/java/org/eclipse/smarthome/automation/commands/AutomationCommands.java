@@ -18,8 +18,6 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
-import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -37,6 +35,7 @@ import org.slf4j.LoggerFactory;
  * implementation.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 public abstract class AutomationCommands {
@@ -193,19 +192,19 @@ public abstract class AutomationCommands {
     protected BundleContext bc;
 
     /**
-     * This field holds a reference to the {@link ModuleTypeProviderImpl} instance.
+     * This field holds a reference to the {@link CommandlineModuleTypeProvider} instance.
      */
-    protected ModuleTypeProviderImpl<PersistableModuleType> moduleTypeProvider;
+    protected CommandlineModuleTypeProvider moduleTypeProvider;
 
     /**
-     * This field holds a reference to the {@link TemplateProviderImpl} instance.
+     * This field holds a reference to the {@link CommandlineTemplateProvider} instance.
      */
-    protected TemplateProviderImpl<PersistableLocalizedRuleTemplate> templateProvider;
+    protected CommandlineTemplateProvider templateProvider;
 
     /**
-     * This field holds a reference to the {@link RuleImporterImpl} instance.
+     * This field holds a reference to the {@link CommandlineRuleImporter} instance.
      */
-    protected RuleImporterImpl<List<String>> ruleImporter;
+    protected CommandlineRuleImporter ruleImporter;
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
@@ -220,8 +219,8 @@ public abstract class AutomationCommands {
     protected ServiceRegistration mtpReg;
 
     /**
-     * This constructor is responsible for initializing instances of {@link ModuleTypeProviderImpl},
-     * {@link TemplateProviderImpl} and {@link RuleImporterImpl} and for registering the services
+     * This constructor is responsible for initializing instances of {@link CommandlineModuleTypeProvider},
+     * {@link CommandlineTemplateProvider} and {@link CommandlineRuleImporter} and for registering the services
      * {@link ModuleTypeProvider} and {@link TemplateProvider}
      *
      * @param bc it is the {@link BundleContext}. It serves here to register the services {@link ModuleTypeProvider} and
@@ -229,9 +228,9 @@ public abstract class AutomationCommands {
      */
     public AutomationCommands(BundleContext bc) {
         this.bc = bc;
-        moduleTypeProvider = new PersistentModuleTypeProviderImpl(bc);
-        templateProvider = new PersistentTemplateProviderImpl(bc);
-        ruleImporter = new PersistentRuleImporter(bc);
+        moduleTypeProvider = new CommandlineModuleTypeProvider(bc);
+        templateProvider = new CommandlineTemplateProvider(bc);
+        ruleImporter = new CommandlineRuleImporter(bc);
 
         mtpReg = bc.registerService(new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class
                 .getName() }, moduleTypeProvider, null);
@@ -454,7 +453,6 @@ public abstract class AutomationCommands {
                     List<String> portfolio = moduleTypeProvider.providerPortfolio.remove(url);
                     if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
-                            moduleTypeProvider.remove(uid);
                             moduleTypeProvider.providedObjectsHolder.remove(uid);
                         }
                         return true;
@@ -466,7 +464,6 @@ public abstract class AutomationCommands {
                     List<String> portfolio = templateProvider.providerPortfolio.remove(url);
                     if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
-                            templateProvider.remove(uid);
                             templateProvider.providedObjectsHolder.remove(uid);
                         }
                         return true;

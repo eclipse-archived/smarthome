@@ -17,47 +17,27 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Persistence implementation
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
 
     private RuleManager ruleManager;
-    private ManagedRuleProvider rp;
 
     public RuleRegistryImpl(RuleManager ruleManager, ManagedRuleProvider rp) {
         this.ruleManager = ruleManager;
-        this.rp = rp;
-        rp.open(this);
+        this.managedProvider = rp;
     }
 
-    void providerInitCallback() {
-        addProvider(rp);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.core.common.registry.Registry#get(java.lang.Object)
-     */
     @Override
     public Rule get(String key) {
         return ruleManager.getRule(key);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#getByTag(java.lang.String)
-     */
     @Override
     public Collection<Rule> getByTag(String tag) {
         return ruleManager.getRulesByTag(tag);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.RuleRegistry#setEnabled(java.lang.String, boolean)
-     */
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
         ruleManager.setRuleEnabled(uid, isEnabled);
@@ -68,12 +48,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return ruleManager.getRuleStatus(ruleUID);
     }
 
-    /**
-     *
-     */
     public void dispose() {
         ruleManager.dispose();
-        rp.dispose();
     }
 
 }

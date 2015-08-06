@@ -21,7 +21,6 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.provider.util.AbstractPersistentProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -33,14 +32,14 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
  * for importing and persisting the {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s from bundles which
  * provides resource files.
  * <p>
- * It extends functionality of {@link AbstractPersistentProvider} with tracking {@link Parser} services by implementing
- * {@link ServiceTrackerCustomizer}.
+ * It tracks {@link Parser} services by implementing {@link ServiceTrackerCustomizer}.
  * <p>
  * The additional functionality, responsible for tracking bundles with resources, comes from
  * {@link AutomationResourceBundlesEventQueue} by implementing a {@link BundleTrackerCustomizer}
@@ -48,17 +47,24 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * but {@code AbstractResourceBundleProvider} provides common functionality for processing the tracked bundles.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPersistentProvider<E, PE>
-        implements ServiceTrackerCustomizer {
+public abstract class AbstractResourceBundleProvider<E> implements ServiceTrackerCustomizer {
 
     /**
      * This static field provides a root directory for automation object resources in the bundle resources.
      * It is common for all resources - {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s.
      */
     protected static String PATH = "ESH-INF/automation";
+
+    protected Logger log;
+
+    /**
+     * A bundle's execution context within the Framework.
+     */
+    protected BundleContext bc;
 
     /**
      * This field is initialized in constructors of any particular provider with specific path for the particular
@@ -114,7 +120,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      */
     @SuppressWarnings("unchecked")
     public AbstractResourceBundleProvider(BundleContext context) {
-        super(context);
+        this.bc = context;
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
     }
 
@@ -155,8 +161,8 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
             while (i.hasNext()) {
                 Long bundleId = i.next();
                 Bundle bundle = waitingProviders.get(bundleId);
-                String parserType = bundle.getHeaders()
-                        .get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
+                String parserType = bundle.getHeaders().get(
+                        AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
                 Parser parser = parsers.get(parserType);
                 if (parser != null && bundle.getState() != Bundle.UNINSTALLED) {
                     queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));
@@ -201,10 +207,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * sets {@code null} to {@link #parsers}, {@link #providedObjectsHolder}, {@link #providerPortfolio} and
      * {@link #waitingProviders}
      */
-    @Override
     public void close() {
-        isReady = false;
-        super.close();
         if (parserTracker != null) {
             parserTracker.close();
             parserTracker = null;
@@ -267,12 +270,12 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
         }
         synchronized (providerPortfolio) {
             for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
-                        && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
+                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId())) && !vendor.getVendorVersion()
+                        .equals(bundle.getVersion().toString())) {
                     List<String> portfolio = providerPortfolio.remove(vendor);
                     if (portfolio != null && !portfolio.isEmpty())
                         for (String uid : portfolio) {
-                            remove(uid);
+                            providedObjectsHolder.remove(uid);
                         }
                     break;
                 }
@@ -288,8 +291,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
             try {
                 importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
-                        e);
+                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
             }
         }
     }
@@ -324,17 +326,10 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
             synchronized (providedObjectsHolder) {
                 providedObjectsHolder.remove(uid);
             }
-            remove(uid); // this method removes persistence
         }
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(vendor);
         }
-    }
-
-    @Override
-    public void setReady() {
-        isReady = true;
-        queue.open();
     }
 
     /**

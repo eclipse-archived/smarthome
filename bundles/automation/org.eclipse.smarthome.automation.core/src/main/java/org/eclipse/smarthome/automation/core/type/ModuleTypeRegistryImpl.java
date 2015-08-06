@@ -12,12 +12,12 @@ import java.util.Locale;
 
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>implements ModuleTypeRegistry {
+public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
 
     private ModuleTypeManager moduleTypeManager;
 
@@ -25,41 +25,26 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>
         this.moduleTypeManager = moduleTypeManager;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.core.common.registry.Registry#get(java.lang.Object)
-     */
     @Override
-    public ModuleType get(String key) {
+    public <T extends ModuleType> T get(String key) {
         return moduleTypeManager.getType(key);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#get(java.lang.String, java.util.Locale)
-     */
     @Override
     public <T extends ModuleType> T get(String moduleTypeUID, Locale locale) {
         return moduleTypeManager.getType(moduleTypeUID, locale);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#getByTag(java.lang.String, java.util.Locale)
-     */
+    @Override
+    public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag) {
+        return moduleTypeManager.getTypesByTag(moduleTypeTag);
+    }
+
     @Override
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag, Locale locale) {
         return moduleTypeManager.getTypesByTag(moduleTypeTag, locale);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.smarthome.automation.type.ModuleTypeRegistry#get(java.lang.Class, java.util.Locale)
-     */
     @Override
     public <T extends ModuleType> Collection<T> get(Class<T> moduleType, Locale locale) {
         return moduleTypeManager.getTypes(moduleType, locale);
@@ -70,11 +55,6 @@ public class ModuleTypeRegistryImpl extends AbstractRegistry<ModuleType, String>
     */
     public void dispose() {
         moduleTypeManager.dispose();
-    }
-
-    @Override
-    public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag) {
-        return moduleTypeManager.getTypesByTag(moduleTypeTag);
     }
 
     @Override

@@ -7,10 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core.provider;
 
-import java.util.List;
-
-import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
-import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleActivator;
@@ -27,6 +23,7 @@ import org.osgi.framework.ServiceRegistration;
  * the importer.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider> implements BundleActivator {
@@ -38,9 +35,9 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
     @SuppressWarnings("rawtypes")
     private ServiceRegistration /* <T> */ mtpReg;
 
-    private TemplateResourceBundleProvider<PersistableLocalizedRuleTemplate> tProvider;
-    private ModuleTypeResourceBundleProvider<PersistableModuleType> mProvider;
-    private RuleResourceBundleImporter<List<String>> rImporter;
+    private TemplateResourceBundleProvider tProvider;
+    private ModuleTypeResourceBundleProvider mProvider;
+    private RuleResourceBundleImporter rImporter;
 
     /**
      * This method is called when this bundle is started so the Framework can perform the
@@ -72,9 +69,9 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
     @Override
     public void start(BundleContext context) throws Exception {
 
-        mProvider = new PersistentModuleTypeResourceBundleProvider(context);
-        tProvider = new PersistentTemplateResourceBundleProvider(context);
-        rImporter = new PersistentRuleResourceBundleImporter(context);
+        mProvider = new ModuleTypeResourceBundleProvider(context);
+        tProvider = new TemplateResourceBundleProvider(context);
+        rImporter = new RuleResourceBundleImporter(context);
 
         queue = new AutomationResourceBundlesEventQueue(context, tProvider, mProvider, rImporter);
 
@@ -86,7 +83,6 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
 
         tpReg = context.registerService(TemplateProvider.class.getName(), tProvider, null);
 
-        queue.open();
     }
 
     /**

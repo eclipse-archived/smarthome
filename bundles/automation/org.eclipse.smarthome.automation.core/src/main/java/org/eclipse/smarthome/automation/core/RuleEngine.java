@@ -45,15 +45,14 @@ import org.slf4j.LoggerFactory;
  * This class is used to initialized and execute {@link Rule}s added in rule engine.
  * Each Rule has associated RuleStatus object which can show current state of of the Rule.
  * The states are:
- *  <LI> not initialized - these are rules added to the rule engine, but not working because they have modules without associated module handler.
- *  <LI> Initialized - all the modules of the rule have linked module handlers. They are registered and can be executed.
- *  <LI> Enable/Disabled - the rule is temporary stopped by the user.
- *  <LI> Running - the executed triggered data at moment of status check.
+ * <LI>not initialized - these are rules added to the rule engine, but not working because they have modules without
+ * associated module handler.
+ * <LI>Initialized - all the modules of the rule have linked module handlers. They are registered and can be executed.
+ * <LI>Enable/Disabled - the rule is temporary stopped by the user.
+ * <LI>Running - the executed triggered data at moment of status check.
  *
  * @author Yordan Mihaylov - Initial Contribution
- */
-/**
- * @author danchom
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 @SuppressWarnings("rawtypes")
@@ -126,8 +125,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             rules = new HashMap<String, RuleImpl>(20);
         }
         moduleHandlerFactories = new HashMap<String, ModuleHandlerFactory>(20);
-        mhfTracker = new ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */(bc,
-                ModuleHandlerFactory.class.getName(), this);
+        mhfTracker = new ServiceTracker/* <ModuleHandlerFactory, ModuleHandlerFactory> */(bc, ModuleHandlerFactory.class
+                .getName(), this);
         mhfTracker.open();
 
     }

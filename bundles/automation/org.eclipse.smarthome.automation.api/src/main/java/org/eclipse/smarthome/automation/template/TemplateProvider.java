@@ -15,6 +15,7 @@ import java.util.Locale;
  * The {@link TemplateRegistry} uses it to get access to available {@link Template} s.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 public interface TemplateProvider {
 
@@ -27,7 +28,7 @@ public interface TemplateProvider {
      * @param locale defines localization of label and description of the {@link Template} or null.
      * @return localized Template.
      */
-    Template getTemplate(String UID, Locale locale);
+    <T extends Template> T getTemplate(String UID, Locale locale);
 
     /**
      * This method is used to get localized Templates defined by this provider.
@@ -37,6 +38,6 @@ public interface TemplateProvider {
      * @param locale defines localization of label and description of the {@link Template}s or null.
      * @return collection of localized {@link Template} provided by this provider
      */
-    Collection<Template> getTemplates(Locale locale);
+    <T extends Template> Collection<T> getTemplates(Locale locale);
 
 }

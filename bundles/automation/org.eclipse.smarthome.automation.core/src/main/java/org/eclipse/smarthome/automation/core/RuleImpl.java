@@ -19,13 +19,13 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 public class RuleImpl implements Rule {
@@ -56,8 +56,12 @@ public class RuleImpl implements Rule {
             List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
             Map<String, ?> configurations) {
 
+        // TODO: I am not sure if this is the right way. This validation requires the module types to exist, which is ok
+        // to ask for during execution, but not
+        // during construction.
+        //
         // the rule must not be created if connections are incorrect
-        ConnectionValidator.validateConnections(Activator.moduleTypeRegistry, triggers, conditions, actions);
+        // ConnectionValidator.validateConnections(Activator.moduleTypeRegistry, triggers, conditions, actions);
 
         this.triggers = triggers;
         this.conditions = conditions;
@@ -336,8 +340,8 @@ public class RuleImpl implements Rule {
             return;
         }
         if (configParameter.isRequired()) {
-            throw new IllegalArgumentException(
-                    "Required configuration property missing: \"" + configParameter.getName() + "\"!");
+            throw new IllegalArgumentException("Required configuration property missing: \"" + configParameter.getName()
+                    + "\"!");
         }
     }
 
@@ -376,9 +380,8 @@ public class RuleImpl implements Rule {
                     }
                 }
             }
-            throw new IllegalArgumentException(
-                    "Unexpected value for configuration property \"" + configParameter.getName()
-                            + "\". Expected is Array with type for elements : " + type.toString() + "!");
+            throw new IllegalArgumentException("Unexpected value for configuration property \"" + configParameter
+                    .getName() + "\". Expected is Array with type for elements : " + type.toString() + "!");
         } else {
             if (Type.TEXT.equals(type) && configValue instanceof String)
                 return;
@@ -390,8 +393,8 @@ public class RuleImpl implements Rule {
             else if (Type.DECIMAL.equals(type) && (configValue instanceof Float || configValue instanceof Double))
                 return;
             else {
-                throw new IllegalArgumentException("Unexpected value for configuration property \""
-                        + configParameter.getName() + "\". Expected is " + type.toString() + "!");
+                throw new IllegalArgumentException("Unexpected value for configuration property \"" + configParameter
+                        .getName() + "\". Expected is " + type.toString() + "!");
             }
         }
     }

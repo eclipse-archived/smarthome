@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
@@ -34,11 +35,12 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * and listing the automation objects.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 @SuppressWarnings("rawtypes")
-public class AutomationCommandsPluggable extends AutomationCommands
-        implements ServiceTrackerCustomizer, ConsoleCommandExtension {
+public class AutomationCommandsPluggable extends AutomationCommands implements ServiceTrackerCustomizer,
+        ConsoleCommandExtension {
 
     /**
      * This constant defines the command group name.
@@ -116,8 +118,7 @@ public class AutomationCommandsPluggable extends AutomationCommands
      *      java.lang.Object)
      */
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-    }
+    public void modifiedService(ServiceReference reference, Object service) {}
 
     /**
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
@@ -142,6 +143,11 @@ public class AutomationCommandsPluggable extends AutomationCommands
      */
     @Override
     public void execute(String[] args, Console console) {
+        if (args.length == 0) {
+            console.println(StringUtils.join(getUsages(), "\n"));
+            return;
+        }
+
         String command = args[0];// the first argument is the subcommand name
 
         String[] params = new String[args.length - 1];// extract the remaining arguments except the first one
@@ -162,20 +168,20 @@ public class AutomationCommandsPluggable extends AutomationCommands
      */
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] {
-                buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
-                        "lists all Module Types. If filter is present, lists only matching Module Types"),
-                buildCommandUsage(LIST_TEMPLATES + " [-st] <filter>",
-                        "lists all Templates. If filter is present, lists only matching Templates"),
-                buildCommandUsage(LIST_RULES + " [-st] <filter>",
-                        "lists all Rules. If filter is present, lists only matching Rules"),
-                buildCommandUsage(REMOVE_MODULE_TYPES + " [-st] <url>",
-                        "Removes the Module Types, loaded from the given url"),
-                buildCommandUsage(REMOVE_TEMPLATES + " [-st] <url>",
-                        "Removes the Templates, loaded from the given url"),
-                buildCommandUsage(REMOVE_RULE + " [-st] <uid>", "Removes the rule, specified by given UID"),
-                buildCommandUsage(REMOVE_RULES + " [-st] <filter>",
-                        "Removes the rules. If filter is present, removes only matching Rules"),
+        return Arrays.asList(new String[] { buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
+                "lists all Module Types. If filter is present, lists only matching Module Types"), buildCommandUsage(
+                        LIST_TEMPLATES + " [-st] <filter>",
+                        "lists all Templates. If filter is present, lists only matching Templates"), buildCommandUsage(
+                                LIST_RULES + " [-st] <filter>",
+                                "lists all Rules. If filter is present, lists only matching Rules"), buildCommandUsage(
+                                        REMOVE_MODULE_TYPES + " [-st] <url>",
+                                        "Removes the Module Types, loaded from the given url"), buildCommandUsage(
+                                                REMOVE_TEMPLATES + " [-st] <url>",
+                                                "Removes the Templates, loaded from the given url"), buildCommandUsage(
+                                                        REMOVE_RULE + " [-st] <uid>",
+                                                        "Removes the rule, specified by given UID"), buildCommandUsage(
+                                                                REMOVE_RULES + " [-st] <filter>",
+                                                                "Removes the rules. If filter is present, removes only matching Rules"),
                 buildCommandUsage(IMPORT_MODULE_TYPES + " [-p] <parserType> [-st] <url>",
                         "Imports Module Types from given url. If parser type missing, \"json\" parser will be set as default"),
                 buildCommandUsage(IMPORT_TEMPLATES + " [-p] <parserType> [-st] <url>",

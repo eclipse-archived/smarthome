@@ -15,6 +15,7 @@ import java.util.Locale;
  * The {@link ModuleTypeRegistry} uses it to get access to available {@link ModuleType}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 public interface ModuleTypeProvider {
 
@@ -27,7 +28,7 @@ public interface ModuleTypeProvider {
      * @param locale defines localization of label and description of the {@link ModuleType} or null.
      * @return localized module type.
      */
-    ModuleType getModuleType(String UID, Locale locale);
+    <T extends ModuleType> T getModuleType(String UID, Locale locale);
 
     /**
      * This method is used to get localized ModuleTypes defined by this provider.
@@ -38,6 +39,6 @@ public interface ModuleTypeProvider {
      * @return collection of localized {@link ModuleType} provided by this
      *         provider
      */
-    Collection<ModuleType> getModuleTypes(Locale locale);
+    <T extends ModuleType> Collection<T> getModuleTypes(Locale locale);
 
 }

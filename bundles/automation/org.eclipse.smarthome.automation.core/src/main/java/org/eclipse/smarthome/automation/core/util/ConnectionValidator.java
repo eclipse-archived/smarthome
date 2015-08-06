@@ -29,6 +29,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * participating in a rule.
  *
  * @author Ana Dimova
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
 public class ConnectionValidator {
@@ -165,8 +166,7 @@ public class ConnectionValidator {
         }
         ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID());
         if (type == null)
-            throw new IllegalArgumentException("Condition Type with UID \"" + condition.getTypeUID()
-                    + "\" not exists!");
+            throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
         Set<Input> inputs = type.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             for (Input input : inputs) {

@@ -12,10 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
@@ -25,7 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
- * This class is a {@link Rule}s importer. It extends functionality of {@link AbstractProviderImpl}.
+ * This class is a {@link Rule}s importer. It extends functionality of {@link AbstractCommandProvider}.
  * <p>
  * It is responsible for execution of Automation Commands, corresponding to the {@link Rule}s:
  * <ul>
@@ -36,9 +34,10 @@ import org.osgi.framework.ServiceReference;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE> {
+public class CommandlineRuleImporter extends AbstractCommandProvider<URL> {
 
     /**
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new
@@ -47,7 +46,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    public RuleImporterImpl(BundleContext context) {
+    public CommandlineRuleImporter(BundleContext context) {
         super(context);
     }
 
@@ -55,7 +54,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
      * This method differentiates what type of {@link Parser}s is tracked by the tracker.
      * For this concrete provider, this type is a {@link Rule} {@link Parser}.
      *
-     * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
+     * @see AbstractCommandProvider#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
     public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
@@ -100,29 +99,27 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
     }
 
     /**
-     * @see AbstractProviderImpl#importData(URL, Parser, InputStreamReader)
+     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
     protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
+
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
-            List<String> portfolio = new ArrayList<String>();
             while (i.hasNext()) {
                 Status s = i.next();
                 if (s.hasErrors())
                     continue;
                 Rule rule = (Rule) s.getResult();
                 if (rule != null) {
-                    AutomationCommandsPluggable.ruleReg.add(rule);
-                    String uid = rule.getUID();
-                    portfolio.add(uid);
+                    if (AutomationCommandsPluggable.ruleReg.get(rule.getUID()) != null) {
+                        AutomationCommandsPluggable.ruleReg.update(rule);
+                    } else {
+                        AutomationCommandsPluggable.ruleReg.add(rule);
+                    }
                 }
             } // while
-            synchronized (providerPortfolio) {
-                providerPortfolio.put(url, portfolio);
-            }
-            add(url);
         }
         return providedRulesStatus;
     }

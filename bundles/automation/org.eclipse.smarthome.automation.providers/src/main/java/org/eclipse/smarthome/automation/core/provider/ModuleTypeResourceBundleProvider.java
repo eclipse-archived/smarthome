@@ -38,10 +38,11 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResourceBundleProvider<ModuleType, PE>
-        implements ModuleTypeProvider {
+public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>implements
+        ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
     private ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry> moduleTypesTracker;
@@ -62,7 +63,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
                     @Override
                     public ModuleTypeRegistry addingService(ServiceReference<ModuleTypeRegistry> reference) {
                         moduleTypeRegistry = bc.getService(reference);
-                        if (moduleTypeRegistry != null && isReady && queue != null) {
+                        if (moduleTypeRegistry != null && queue != null) {
                             queue.open();
                         }
                         return moduleTypeRegistry;
@@ -70,8 +71,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
 
                     @Override
                     public void modifiedService(ServiceReference<ModuleTypeRegistry> reference,
-                            ModuleTypeRegistry service) {
-                    }
+                            ModuleTypeRegistry service) {}
 
                     @Override
                     public void removedService(ServiceReference<ModuleTypeRegistry> reference,
@@ -102,13 +102,14 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      * @see ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
      */
     @Override
-    public ModuleType getModuleType(String UID, Locale locale) {
+    public <T extends ModuleType> T getModuleType(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providedObjectsHolder) {
             l = providedObjectsHolder.get(UID);
         }
         if (l != null) {
-            ModuleType mt = (ModuleType) l.getPerLocale(locale);
+            @SuppressWarnings("unchecked")
+            T mt = (T) l.getPerLocale(locale);
             return mt;
         }
         return null;
@@ -171,7 +172,6 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
                     synchronized (providedObjectsHolder) {
                         providedObjectsHolder.put(uid, lProvidedObject);
                     }
-                    add(providedObject);
                 }
             }
         }
@@ -189,8 +189,8 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      */
     private boolean checkExistence(String uid, Status status) {
         if (moduleTypeRegistry.get(uid) != null) {
-            status.error(
-                    "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
+            status.error("Module Type with UID \"" + uid
+                    + "\" already exists! Failed to create a second with the same UID!",
                     new IllegalArgumentException());
             status.success(null);
             return true;

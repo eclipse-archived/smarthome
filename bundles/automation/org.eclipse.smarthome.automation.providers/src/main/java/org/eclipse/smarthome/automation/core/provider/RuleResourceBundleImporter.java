@@ -38,9 +38,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBundleProvider<Vendor, PE> {
+public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Vendor> {
 
     /**
      * This field holds the reference to the Rule Registry.
@@ -59,7 +60,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public RuleResourceBundleImporter(BundleContext context) {
         super(context);
         path = PATH + "/rules/";
@@ -68,14 +69,13 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
             @Override
             public Object addingService(ServiceReference reference) {
                 ruleRegistry = bc.getService(reference);
-                if (isReady && queue != null)
+                if (queue != null)
                     queue.open();
                 return ruleRegistry;
             }
 
             @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
+            public void modifiedService(ServiceReference reference, Object service) {}
 
             @Override
             public void removedService(ServiceReference reference, Object service) {
@@ -101,6 +101,15 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
         super.close();
     }
 
+    @Override
+    public void setQueue(AutomationResourceBundlesEventQueue queue) {
+        this.queue = queue;
+        parserTracker.open();
+        if (ruleRegistry != null) {
+            queue.open();
+        }
+    }
+
     /**
      * @see AbstractResourceBundleProvider#addingService(ServiceReference)
      */
@@ -120,11 +129,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
      * of them is not available - the bundle is added into {@link #waitingProviders} and the execution of the method
      * ends.
      * <p>
-     * If both are available, the execution of the method continues with checking if the version of the bundle is
-     * changed. If the version is changed - removes persistence of old variants of the rules, provided by this bundle.
-     * <p>
-     * Continues with loading the new version of these rules. If this bundle is added for the very first time, only
-     * loads the provided rules.
+     * Continues with loading the rules. If a rule already exists, it is updated, otherwise it is added.
      * <p>
      * The loading can fail because of {@link IOException}.
      *
@@ -141,15 +146,6 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
             }
             return;
         }
-        synchronized (providerPortfolio) {
-            for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
-                        && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
-                    remove(vendor.getVendorId());
-                    break;
-                }
-            }
-        }
         Enumeration<URL> urls = bundle.findEntries(path, null, false);
         if (urls == null) {
             return;
@@ -161,12 +157,9 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
             try {
                 importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
-                        e);
+                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
             }
         }
-        if (!portfolio.isEmpty())
-            add(vendor);
     }
 
     /**
@@ -189,13 +182,14 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         List<String> portfolio = null;
         synchronized (providerPortfolio) {
-            if (providerPortfolio.isEmpty())
+            if (providerPortfolio.isEmpty()) {
                 return;
+            }
             portfolio = providerPortfolio.get(vendor);
         }
-        remove(vendor.getVendorId());
-        if (portfolio == null || portfolio.isEmpty())
+        if (portfolio == null || portfolio.isEmpty()) {
             return;
+        }
         Iterator<String> ip = portfolio.iterator();
         while (ip.hasNext()) {
             String uid = ip.next();

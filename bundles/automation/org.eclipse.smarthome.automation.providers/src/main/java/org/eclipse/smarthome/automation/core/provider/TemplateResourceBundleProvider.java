@@ -47,10 +47,11 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourceBundleProvider<RuleTemplate, PE>
-        implements TemplateProvider {
+public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>implements
+        TemplateProvider {
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
@@ -80,15 +81,14 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
                         templateRegistry = (TemplateRegistry) service;
                     else
                         moduleTypeRegistry = (ModuleTypeRegistry) service;
-                    if (moduleTypeRegistry != null && templateRegistry != null && isReady && queue != null) {
+                    if (moduleTypeRegistry != null && templateRegistry != null && queue != null) {
                         queue.open();
                     }
                     return service;
                 }
 
                 @Override
-                public void modifiedService(ServiceReference reference, Object service) {
-                }
+                public void modifiedService(ServiceReference reference, Object service) {}
 
                 @Override
                 public void removedService(ServiceReference reference, Object service) {
@@ -125,13 +125,14 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
      * @see TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
     @Override
-    public Template getTemplate(String UID, Locale locale) {
+    public <T extends Template> T getTemplate(String UID, Locale locale) {
         Localizer l = null;
         synchronized (providerPortfolio) {
             l = providedObjectsHolder.get(UID);
         }
         if (l != null) {
-            Template t = (Template) l.getPerLocale(locale);
+            @SuppressWarnings("unchecked")
+            T t = (T) l.getPerLocale(locale);
             return t;
         }
         return null;
@@ -185,12 +186,12 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
                 RuleTemplate ruleT = (RuleTemplate) status.getResult();
                 String uid = ruleT.getUID();
                 try {
-                    ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
-                            ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
+                    ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class), ruleT
+                            .getModules(Condition.class), ruleT.getModules(Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                            + e.getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! " + e
+                            .getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))
@@ -200,7 +201,6 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
                 synchronized (providedObjectsHolder) {
                     providedObjectsHolder.put(uid, lruleT);
                 }
-                add(ruleT);
             }
         }
         return providedObjects;
@@ -218,9 +218,8 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
      */
     private boolean checkExistence(String uid, Status status) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            status.error(
-                    "Rule Template with UID \"" + uid
-                            + "\" already exists! Failed to create a second with the same UID!",
+            status.error("Rule Template with UID \"" + uid
+                    + "\" already exists! Failed to create a second with the same UID!",
                     new IllegalArgumentException());
             status.success(null);
             return true;

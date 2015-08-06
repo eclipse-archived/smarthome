@@ -26,14 +26,17 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
 public class ModuleTypeManager {
 
+    @SuppressWarnings("rawtypes")
     private ServiceTracker moduleTypeTracker;
 
     /**
      * @param bc
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public ModuleTypeManager(BundleContext bc) {
         moduleTypeTracker = new ServiceTracker(bc, ModuleTypeProvider.class.getName(), null);
         moduleTypeTracker.open();
@@ -43,6 +46,7 @@ public class ModuleTypeManager {
         return getType(typeUID, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ModuleType> T getType(String typeUID, Locale locale) {
         ModuleType mType = null;
         Object[] providers = moduleTypeTracker.getServices();
@@ -60,6 +64,7 @@ public class ModuleTypeManager {
         return getTypesByTag(tag, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ModuleType> Collection<T> getTypesByTag(String tag, Locale locale) {
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;
@@ -87,6 +92,7 @@ public class ModuleTypeManager {
         return getTypesByTags(tags, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags, Locale locale) {
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;
@@ -118,6 +124,7 @@ public class ModuleTypeManager {
         return getTypes(classModuleType, null);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends ModuleType> Collection<T> getTypes(Class<T> moduleType, Locale locale) {
         Collection<T> result = new ArrayList<T>(20);
         Collection<ModuleType> moduleTypes = null;

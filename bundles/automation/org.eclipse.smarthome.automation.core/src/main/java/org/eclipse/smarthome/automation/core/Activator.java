@@ -15,10 +15,20 @@ import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeRegistryImpl;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+/**
+ * This class is an activator of this bundle. Opens the all used service trackers and registers the services -
+ * {@link ModuleTypeRegistry}, {@link TemplateRegistry}, {@link RuleRegistry} and {@link AutomationFactory}.
+ *
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ */
 public class Activator implements BundleActivator {
 
     static ModuleTypeRegistryImpl moduleTypeRegistry;
@@ -36,11 +46,13 @@ public class Activator implements BundleActivator {
     private ServiceRegistration/* <?> */ templateRegistryReg;
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ moduleTypeRegistryReg;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker storageTracker;
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public void start(BundleContext bc) throws Exception {
+    public void start(final BundleContext bc) throws Exception {
         Activator.bc = bc;
-        // log = new Log(bc);
         if (automationFactoryReg == null) {
             automationFactory = new AutomationFactoryImpl();
             automationFactoryReg = bc.registerService(AutomationFactory.class.getName(), automationFactory, null);
@@ -50,10 +62,35 @@ public class Activator implements BundleActivator {
         moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc));
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
 
-        RuleManagerImpl rm = new RuleManagerImpl(bc);
-        ManagedRuleProvider rp = new ManagedRuleProvider(rm, bc);
-        ruleRegistry = new RuleRegistryImpl(rm, rp);
-        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+        final RuleManagerImpl rm = new RuleManagerImpl(bc);
+
+        storageTracker = new ServiceTracker(bc, StorageService.class.getName(), new ServiceTrackerCustomizer() {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                StorageService storage = (StorageService) bc.getService(reference);
+                if (storage != null) {
+                    final ManagedRuleProvider rp = new ManagedRuleProvider(rm, storage);
+                    ruleRegistry = new RuleRegistryImpl(rm, rp);
+                    ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+                }
+                return storage;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {}
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                if (ruleRegistryReg != null) {
+                    ruleRegistryReg.unregister();
+                    ruleRegistry.dispose();
+                    ruleRegistryReg = null;
+                }
+            }
+        });
+        storageTracker.open();
+
     }
 
     @Override
@@ -81,6 +118,9 @@ public class Activator implements BundleActivator {
             automationFactory = null;
             automationFactoryReg = null;
         }
+
+        storageTracker.close();
+        storageTracker = null;
 
     }
 

@@ -23,22 +23,21 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class TemplateManager {
 
+    @SuppressWarnings("rawtypes")
     private ServiceTracker templateProviderTracker;
 
-    /**
-     * @param bc
-     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public TemplateManager(BundleContext bc) {
         templateProviderTracker = new ServiceTracker(bc, TemplateProvider.class.getName(), null);
         templateProviderTracker.open();
     }
 
-    public Template getTemplate(String templateUID) {
+    public <T extends Template> T getTemplate(String templateUID) {
         return getTemplate(templateUID, null);
     }
 
-    public Template getTemplate(String templateUID, Locale locale) {
-        Template template = null;
+    public <T extends Template> T getTemplate(String templateUID, Locale locale) {
+        T template = null;
         Object[] providers = templateProviderTracker.getServices();
         for (int i = 0; providers != null && i < providers.length; i++) {
             template = ((TemplateProvider) providers[i]).getTemplate(templateUID, locale);
@@ -49,19 +48,19 @@ public class TemplateManager {
         return null;
     }
 
-    public Collection<Template> getTemplatesByTag(String tag) {
+    public <T extends Template> Collection<T> getTemplatesByTag(String tag) {
         return getTemplatesByTag(tag, null);
     }
 
-    public Collection<Template> getTemplatesByTag(String tag, Locale locale) {
-        Collection<Template> result = new ArrayList<Template>(20);
-        Collection<Template> templates = null;
+    public <T extends Template> Collection<T> getTemplatesByTag(String tag, Locale locale) {
+        Collection<T> result = new ArrayList<T>(20);
+        Collection<T> templates = null;
         Object[] providers = templateProviderTracker.getServices();
         for (int i = 0; providers != null && i < providers.length; i++) {
             templates = ((TemplateProvider) providers[i]).getTemplates(locale);
             if (templates != null) {
-                for (Iterator<Template> it = templates.iterator(); it.hasNext();) {
-                    Template t = it.next();
+                for (Iterator<T> it = templates.iterator(); it.hasNext();) {
+                    T t = it.next();
                     if (tag != null) {
                         Collection<String> tags = t.getTags();
                         if (tags != null && tags.contains(tag)) {
@@ -76,19 +75,19 @@ public class TemplateManager {
         return result;
     }
 
-    public Collection<Template> getTemplatesByTags(Set<String> tags) {
+    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags) {
         return getTemplatesByTags(tags, null);
     }
 
-    public Collection<Template> getTemplatesByTags(Set<String> tags, Locale locale) {
-        Collection<Template> result = new ArrayList<Template>(20);
-        Collection<Template> templates = null;
+    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags, Locale locale) {
+        Collection<T> result = new ArrayList<T>(20);
+        Collection<T> templates = null;
         Object[] providers = templateProviderTracker.getServices();
         for (int i = 0; providers != null && i < providers.length; i++) {
             templates = ((TemplateProvider) providers[i]).getTemplates(locale);
             if (templates != null) {
-                for (Iterator<Template> it = templates.iterator(); it.hasNext();) {
-                    Template t = it.next();
+                for (Iterator<T> it = templates.iterator(); it.hasNext();) {
+                    T t = it.next();
                     if (tags != null) {
                         Collection<String> rTags = t.getTags();
                         if (rTags != null) {
@@ -109,11 +108,11 @@ public class TemplateManager {
         return result;
     }
 
-    public Collection<Template> getTemplates() {
+    public <T extends Template> Collection<T> getTemplates() {
         return getTemplates(null);
     }
 
-    public Collection<Template> getTemplates(Locale locale) {
+    public <T extends Template> Collection<T> getTemplates(Locale locale) {
         return getTemplatesByTag(null, locale);
     }
 
