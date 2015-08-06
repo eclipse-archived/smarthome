@@ -23,13 +23,13 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 

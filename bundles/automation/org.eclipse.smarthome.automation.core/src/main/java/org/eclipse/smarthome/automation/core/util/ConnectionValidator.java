@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.util;
+package org.eclipse.smarthome.automation.core.util;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,8 +25,8 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
- * This class contains utility methods for comparation of data types between connected inputs and ouputs of modules
- * participating in the rule.
+ * This class contains utility methods for comparison of data types between connected inputs and outputs of modules
+ * participating in a rule.
  *
  * @author Ana Dimova
  *
@@ -90,8 +90,8 @@ public class ConnectionValidator {
                 String inputName = input.getName();
                 Connection connection = connectionsMap.get(inputName);
                 if (connection == null) {
-                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Action with ID \""
-                            + action.getId() + "\" not connected!");
+                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Action with ID \"" + action
+                            .getId() + "\" not connected!");
                 }
                 String moduleId = connection.getOuputModuleId();
                 String outputName = connection.getOutputName();
@@ -104,8 +104,8 @@ public class ConnectionValidator {
                     String triggerTypeUID = trigger.getTypeUID();
                     TriggerType triggerType = mtRegistry.get(triggerTypeUID);
                     if (triggerType == null) {
-                        throw new IllegalArgumentException(
-                                msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
+                        throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
+                                + "\" not exists!");
                     }
                     outputs = triggerType.getOutputs();
                 } else {
@@ -116,8 +116,8 @@ public class ConnectionValidator {
                     String processorTypeUID = processor.getTypeUID();
                     ActionType processorType = mtRegistry.get(processorTypeUID);
                     if (processorType == null) {
-                        throw new IllegalArgumentException(
-                                msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
+                        throw new IllegalArgumentException(msg + " Action Type with UID \"" + processorTypeUID
+                                + "\" not exists!");
                     }
                     outputs = processorType.getOutputs();
                 }
@@ -165,8 +165,8 @@ public class ConnectionValidator {
         }
         ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID());
         if (type == null)
-            throw new IllegalArgumentException(
-                    "Condition Type with UID \"" + condition.getTypeUID() + "\" not exists!");
+            throw new IllegalArgumentException("Condition Type with UID \"" + condition.getTypeUID()
+                    + "\" not exists!");
         Set<Input> inputs = type.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             for (Input input : inputs) {
@@ -187,8 +187,8 @@ public class ConnectionValidator {
                 String triggerTypeUID = trigger.getTypeUID();
                 TriggerType triggerType = mtRegistry.get(triggerTypeUID);
                 if (triggerType == null) {
-                    throw new IllegalArgumentException(
-                            msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
+                    throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
+                            + "\" not exists!");
                 }
                 Set<Output> outputs = triggerType.getOutputs();
                 boolean notFound = true;

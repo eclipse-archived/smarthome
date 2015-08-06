@@ -24,3 +24,4 @@ Import-Package:
  org.osgi.util.tracker,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.automation.core.Activator
+Export-Package: org.eclipse.smarthome.automation.core.util

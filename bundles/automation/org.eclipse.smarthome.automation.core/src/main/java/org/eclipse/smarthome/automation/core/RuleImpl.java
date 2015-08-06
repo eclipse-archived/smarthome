@@ -19,8 +19,8 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
-import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 

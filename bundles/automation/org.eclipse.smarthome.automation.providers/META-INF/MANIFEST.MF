@@ -11,7 +11,7 @@ Import-Package:
  org.eclipse.smarthome.automation.provider.util,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
- org.eclipse.smarthome.automation.util,
+ org.eclipse.smarthome.automation.core.util,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.osgi.framework,
