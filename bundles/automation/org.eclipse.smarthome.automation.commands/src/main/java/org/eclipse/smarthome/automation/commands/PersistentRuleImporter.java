@@ -29,7 +29,7 @@ public class PersistentRuleImporter extends RuleImporterImpl<List<String>> {
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     public PersistentRuleImporter(BundleContext context) {
-        super(context, PersistentRuleImporter.class);
+        super(context);
     }
 
     @Override

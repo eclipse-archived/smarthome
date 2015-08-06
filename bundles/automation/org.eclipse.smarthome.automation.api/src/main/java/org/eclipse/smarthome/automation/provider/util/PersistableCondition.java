@@ -13,14 +13,45 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
+/**
+ * This class provides functionality for persistence of the {@link Condition}s.
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
+ */
 public class PersistableCondition {
 
+    /**
+     * The id of the {@link Condition}. It is unique in scope of the {@link Rule}.
+     */
     public String id;
+
+    /**
+     * This field holds the unique id of the {@link ModuleType} of this {@link Condition}.
+     */
     public String typeUID;
+
+    /**
+     * This field holds a short, user friendly name of this {@link Condition}.
+     */
     public String label;
+
+    /**
+     * This field holds a short, user friendly description of this {@link Condition}.
+     */
     public String description;
+
+    /**
+     * This field holds the current configuration values of this {@link Condition}.
+     */
     public Map<String, ?> configurations;
+
+    /**
+     * A {@link Set} of input {@link Connection}s of the {@link Condition}.
+     */
     public Set<Connection> connections;
 
     /**
@@ -29,6 +60,9 @@ public class PersistableCondition {
     public PersistableCondition() {
     }
 
+    /**
+     * This constructor is used for serialization of the {@link Condition}s.
+     */
     public PersistableCondition(Condition condition) {
         id = condition.getId();
         typeUID = condition.getTypeUID();
@@ -38,6 +72,10 @@ public class PersistableCondition {
         connections = condition.getConnections();
     }
 
+    /**
+     * This method is used for deserialization of the {@link Condition}s to create the {@link Condition} with the
+     * assistance of the {@link AutomationFactory}.
+     */
     public Condition createCondition(AutomationFactory factory) {
         Condition cond = factory.createCondition(id, typeUID, configurations, connections);
         cond.setDescription(description);

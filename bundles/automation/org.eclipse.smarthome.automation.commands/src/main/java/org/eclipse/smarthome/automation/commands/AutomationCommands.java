@@ -20,6 +20,8 @@ import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.provider.TemplateProvider;
+import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
+import org.eclipse.smarthome.automation.provider.util.PersistableModuleType;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.ActionType;
@@ -193,27 +195,29 @@ public abstract class AutomationCommands {
     /**
      * This field holds a reference to the {@link ModuleTypeProviderImpl} instance.
      */
-    protected ModuleTypeProviderImpl<?> moduleTypeProvider;
+    protected ModuleTypeProviderImpl<PersistableModuleType> moduleTypeProvider;
 
     /**
      * This field holds a reference to the {@link TemplateProviderImpl} instance.
      */
-    protected TemplateProviderImpl<?> templateProvider;
+    protected TemplateProviderImpl<PersistableLocalizedRuleTemplate> templateProvider;
 
     /**
      * This field holds a reference to the {@link RuleImporterImpl} instance.
      */
-    protected RuleImporterImpl<?> ruleImporter;
+    protected RuleImporterImpl<List<String>> ruleImporter;
 
     /**
      * This field holds a reference to the {@link ModuleTypeProvider} service registration.
      */
-    protected ServiceRegistration<?> tpReg;
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration tpReg;
 
     /**
      * This field holds a reference to the {@link TemplateProvider} service registration.
      */
-    protected ServiceRegistration<?> mtpReg;
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration mtpReg;
 
     /**
      * This constructor is responsible for initializing instances of {@link ModuleTypeProviderImpl},

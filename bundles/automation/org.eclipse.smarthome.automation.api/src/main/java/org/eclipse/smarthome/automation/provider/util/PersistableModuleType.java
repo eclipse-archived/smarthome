@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.provider.util;
 
-import java.io.Externalizable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +20,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
  * This class is responsible for custom serialization and deserialization of the {@link ModuleType}s. It is necessary
- * for the persistence of the {@link ModuleType}s. Implements {@link Externalizable}.
+ * for the persistence of the {@link ModuleType}s.
  *
  * @author Ana Dimova - Initial Contribution
  * @param <T> is one of {@link TriggerType}, {@link CompositeTriggerType}, {@link ConditionType},

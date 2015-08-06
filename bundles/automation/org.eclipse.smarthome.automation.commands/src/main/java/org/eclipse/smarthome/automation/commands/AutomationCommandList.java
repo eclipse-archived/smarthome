@@ -28,12 +28,9 @@ import org.eclipse.smarthome.automation.type.TriggerType;
 /**
  * This class provides common functionality of commands:
  * <ul>
- * <p>
- * {@link AutomationCommands#LIST_MODULE_TYPES}
- * <p>
- * {@link AutomationCommands#LIST_TEMPLATES}
- * <p>
- * {@link AutomationCommands#LIST_RULES}
+ * <li>{@link AutomationCommands#LIST_MODULE_TYPES}
+ * <li>{@link AutomationCommands#LIST_TEMPLATES}
+ * <li>{@link AutomationCommands#LIST_RULES}
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
@@ -90,18 +87,20 @@ public class AutomationCommandList extends AutomationCommand {
 
     /**
      * This method is invoked from the constructor to parse all parameters and options of the command <b>LIST</b>.
-     * This command has:
-     * <p>
+     * If there are redundant parameters or options the result will be the failure of the command. This command has:
+     * <ul>
      * <b>Options:</b>
      * <ul>
-     * <b>PrintStackTrace</b> which is common for all commands
+     * <li><b>PrintStackTrace</b> is common for all commands and its presence triggers printing of stack trace in case
+     * of exception.
      * </ul>
-     * <p>
+     * </ul>
+     * <ul>
      * <b>Parameters:</b>
      * <ul>
-     * <b>id</b> which is optional
+     * <li><b>id</b> is optional and its presence triggers printing of details on specified automation object.
      * </ul>
-     * If there are redundant parameters or options the result will be the failure of the command.
+     * </ul>
      */
     @Override
     protected String parseOptionsAndParameters(String[] parameterValues) {

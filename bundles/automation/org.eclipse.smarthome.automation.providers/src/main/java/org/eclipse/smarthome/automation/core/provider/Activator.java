@@ -33,8 +33,10 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
 
     private AutomationResourceBundlesEventQueue queue;
 
-    private ServiceRegistration<S> tpReg;
-    private ServiceRegistration<T> mtpReg;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration /* <S> */ tpReg;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration /* <T> */ mtpReg;
 
     private TemplateResourceBundleProvider<PersistableLocalizedRuleTemplate> tProvider;
     private ModuleTypeResourceBundleProvider<PersistableModuleType> mProvider;
@@ -44,15 +46,15 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      * This method is called when this bundle is started so the Framework can perform the
      * bundle-specific activities as:
      * <ul>
-     * <p>
+     * <li>
      * Initializing {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider}, {@link PersistentRuleResourceBundleImporter} and
      * {@link AutomationResourceBundlesEventQueue} objects.
-     * <p>
+     * <li>
      * Registering {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} as services, respectively {@link ModuleTypeProvider},
      * {@link TemplateProvider}.
-     * <p>
+     * <li>
      * Setting to {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} and {@link PersistentRuleResourceBundleImporter} the
      * {@link AutomationResourceBundlesEventQueue} object and opens the queue.
@@ -66,11 +68,9 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      *             listeners, unregister all services registered by this bundle, and
      *             release all services used by this bundle.
      */
-    @Override
-    @SuppressWarnings("unchecked")
-    public void start(BundleContext context) throws Exception {
 
-        System.out.println(" ************* " + context.getDataFile("").getAbsolutePath());
+    @Override
+    public void start(BundleContext context) throws Exception {
 
         mProvider = new PersistentModuleTypeResourceBundleProvider(context);
         tProvider = new PersistentTemplateResourceBundleProvider(context);
@@ -82,9 +82,9 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
         tProvider.setQueue(queue);
         rImporter.setQueue(queue);
 
-        mtpReg = (ServiceRegistration<T>) context.registerService(ModuleTypeProvider.class.getName(), mProvider, null);
+        mtpReg = context.registerService(ModuleTypeProvider.class.getName(), mProvider, null);
 
-        tpReg = (ServiceRegistration<S>) context.registerService(TemplateProvider.class.getName(), tProvider, null);
+        tpReg = context.registerService(TemplateProvider.class.getName(), tProvider, null);
 
         queue.open();
     }
@@ -95,12 +95,9 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      * method should undo the work that the {@code BundleActivator.start} method
      * started:
      * <ul>
-     * <p>
-     * Unregisters {@link PersistentModuleTypeResourceBundleProvider},
+     * <li>Unregisters {@link PersistentModuleTypeResourceBundleProvider},
      * {@link PersistentTemplateResourceBundleProvider} as services.
-     * <p>
-     * Stops the queue and closes the providers and importer.
-     * <p>
+     * <li>Stops the queue and closes the providers and importer.
      * </ul>
      * This method must complete and return to its caller in a timely manner.
      *

@@ -13,19 +13,45 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Connection;
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
+ * This class provides functionality for persistence of the {@link Action}s.
  *
  * @author Ana Dimova - Initial Contribution
  *
  */
 public class PersistableAction {
 
+    /**
+     * The id of the {@link Action}. It is unique in scope of the {@link Rule}.
+     */
     public String id;
+
+    /**
+     * This field holds the unique id of the {@link ModuleType} of this {@link Action}.
+     */
     public String typeUID;
+
+    /**
+     * This field holds a short, user friendly name of this {@link Action}.
+     */
     public String label;
+
+    /**
+     * This field holds a short, user friendly description of this {@link Action}.
+     */
     public String description;
+
+    /**
+     * This field holds the current configuration values of this {@link Action}.
+     */
     public Map<String, ?> configurations;
+
+    /**
+     * A {@link Set} of input {@link Connection}s of the {@link Action}.
+     */
     public Set<Connection> connections;
 
     /**
@@ -34,6 +60,9 @@ public class PersistableAction {
     public PersistableAction() {
     }
 
+    /**
+     * This constructor is used for serialization of the {@link Action}s.
+     */
     public PersistableAction(Action action) {
         id = action.getId();
         typeUID = action.getTypeUID();
@@ -43,6 +72,10 @@ public class PersistableAction {
         connections = action.getConnections();
     }
 
+    /**
+     * This method is used for deserialization of the {@link Action}s to create the {@link Action} with the assistance
+     * of the {@link AutomationFactory}.
+     */
     public Action createAction(AutomationFactory factory) {
         Action action = factory.createAction(id, typeUID, configurations, connections);
         action.setLabel(label);

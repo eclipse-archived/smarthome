@@ -33,7 +33,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It serves for providing {@link RuleTemplates}s by loading
@@ -55,52 +54,50 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
-    private ServiceTracker<Object, Object> tracker;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker tracker;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link ModuleType}s and the managing service of the {@link RuleTemplates}s.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public TemplateResourceBundleProvider(BundleContext context,
-            Class<PersistentTemplateResourceBundleProvider> providerClass) {
-        super(context, providerClass);
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public TemplateResourceBundleProvider(BundleContext context) {
+        super(context);
         path = PATH + "/templates/";
         Filter filter;
         try {
             filter = bc.createFilter("(|(objectClass=" + TemplateRegistry.class.getName() + ")(objectClass="
                     + ModuleTypeRegistry.class.getName() + "))");
-            tracker = new ServiceTracker<Object, Object>(context, filter,
-                    new ServiceTrackerCustomizer<Object, Object>() {
+            tracker = new ServiceTracker(context, filter, new ServiceTrackerCustomizer() {
 
-                        @Override
-                        public Object addingService(ServiceReference<Object> reference) {
-                            Object service = bc.getService(reference);
-                            if (service instanceof TemplateRegistry)
-                                templateRegistry = (TemplateRegistry) service;
-                            else
-                                moduleTypeRegistry = (ModuleTypeRegistry) service;
-                            if (moduleTypeRegistry != null && templateRegistry != null && isReady && queue != null) {
-                                queue.open();
-                            }
-                            return service;
-                        }
+                @Override
+                public Object addingService(ServiceReference reference) {
+                    Object service = bc.getService(reference);
+                    if (service instanceof TemplateRegistry)
+                        templateRegistry = (TemplateRegistry) service;
+                    else
+                        moduleTypeRegistry = (ModuleTypeRegistry) service;
+                    if (moduleTypeRegistry != null && templateRegistry != null && isReady && queue != null) {
+                        queue.open();
+                    }
+                    return service;
+                }
 
-                        @Override
-                        public void modifiedService(ServiceReference<Object> reference, Object service) {
-                        }
+                @Override
+                public void modifiedService(ServiceReference reference, Object service) {
+                }
 
-                        @Override
-                        public void removedService(ServiceReference<Object> reference, Object service) {
-                            if (service instanceof TemplateRegistry)
-                                templateRegistry = null;
-                            else
-                                moduleTypeRegistry = null;
-                        }
-                    });
+                @Override
+                public void removedService(ServiceReference reference, Object service) {
+                    if (service instanceof TemplateRegistry)
+                        templateRegistry = null;
+                    else
+                        moduleTypeRegistry = null;
+                }
+            });
             tracker.open();
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
@@ -108,11 +105,8 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
     }
 
     /**
-     * This method is inherited from {@link AbstractResourceBundleProvider}.
-     * <p>
-     * Extends parent's functionality with closing the {@link #tracker} and
-     * <p>
-     * sets <code>null</code> to {@link #moduleTypeRegistry} and {@link #templateRegistry}.
+     * This method is inherited from {@link AbstractResourceBundleProvider}. Extends parent's functionality with closing
+     * the {@link #tracker} and sets <code>null</code> to {@link #moduleTypeRegistry} and {@link #templateRegistry}.
      *
      * @see org.eclipse.smarthome.automation.core.provider.AbstractResourceBundleProvider#close()
      */
@@ -167,7 +161,7 @@ public abstract class TemplateResourceBundleProvider<PE> extends AbstractResourc
      * @see AbstractResourceBundleProvider#addingService(ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_TEMPLATE)) {
             return super.addingService(reference);
         }

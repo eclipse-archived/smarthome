@@ -264,13 +264,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * Depending on the action committed against the bundle supplier of automation resources, this method performs the
      * appropriate actions - calls for the each provider:
      * <ul>
-     * <p>
-     * {@link AbstractResourceBundleProvider#processAutomationProviderUninstalled(Bundle)} method,
-     * <p>
-     * {@link AbstractResourceBundleProvider#processAutomationProvider(Bundle)} method
-     * <p>
-     * or both in this order.
-     * <p>
+     * <li>{@link AbstractResourceBundleProvider#processAutomationProviderUninstalled(Bundle)} method,
+     * <li>{@link AbstractResourceBundleProvider#processAutomationProvider(Bundle)} method
+     * <li>or both in this order.
      * </ul>
      *
      * @param event for a bundle tracked by the {@code BundleTracker}. It has been for adding, modifying or removing the

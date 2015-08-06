@@ -41,7 +41,7 @@ public class PersistentModuleTypeResourceBundleProvider
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     public PersistentModuleTypeResourceBundleProvider(BundleContext context) {
-        super(context, PersistentModuleTypeResourceBundleProvider.class);
+        super(context);
     }
 
     @Override
@@ -69,7 +69,6 @@ public class PersistentModuleTypeResourceBundleProvider
 
     @Override
     protected ModuleType toElement(String key, PersistableModuleType persistableElement) {
-        System.out.println(" *** toElement " + key);
         Vendor vendor = new Vendor(persistableElement.vendorId, persistableElement.vendorVersion);
         synchronized (providerPortfolio) {
             List<String> portfolio = providerPortfolio.get(vendor);
@@ -119,7 +118,6 @@ public class PersistentModuleTypeResourceBundleProvider
 
     @Override
     protected PersistableModuleType toPersistableElement(ModuleType element) {
-        System.out.println(" *** toPE " + element.getUID());
         int type = 0;
         if (element instanceof ActionType) {
             if (element instanceof CompositeActionType) {

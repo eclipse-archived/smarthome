@@ -35,10 +35,17 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class RuleTemplate implements Template {
 
+    /**
+     * This field holds an unique identifier of the {@link RuleTemplate} instance.
+     */
     private String UID;
     private List<Trigger> triggers;
     private List<Condition> conditions;
     private List<Action> actions;
+
+    /**
+     * This field holds a set of non-hierarchical keywords or terms for describing the {@link RuleTemplate}.
+     */
     private Set<String> tags;
     private String label;
     private String description;
@@ -111,8 +118,8 @@ public class RuleTemplate implements Template {
 
     /**
      * This method is used for getting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
+     * description is a long, user friendly description of the Rule defined by
+     * this Template.
      *
      * @return the description of the Template.
      */

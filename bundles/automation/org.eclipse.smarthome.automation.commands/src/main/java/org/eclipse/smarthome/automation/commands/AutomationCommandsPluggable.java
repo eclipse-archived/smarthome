@@ -30,6 +30,9 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
+ * This class provides functionality for defining and executing automation commands for importing, exporting, removing
+ * and listing the automation objects.
+ *
  * @author Ana Dimova - Initial Contribution
  *
  */
@@ -37,7 +40,14 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 public class AutomationCommandsPluggable extends AutomationCommands
         implements ServiceTrackerCustomizer, ConsoleCommandExtension {
 
+    /**
+     * This constant defines the command group name.
+     */
     public static final String NAME = "automation";
+
+    /**
+     * This constant describes the commands group.
+     */
     public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes resources.";
 
     private static final int MODULE_TYPE_REGISTRY = 3;
@@ -130,7 +140,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
      * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#execute(java.lang.String[],
      *      org.eclipse.smarthome.io.console.Console)
      */
-
     @Override
     public void execute(String[] args, Console console) {
         String command = args[0];// the first argument is the subcommand name
@@ -151,7 +160,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getUsages()
      */
-
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
@@ -185,7 +193,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getCommand()
      */
-
     @Override
     public String getCommand() {
         return NAME;
@@ -194,7 +201,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getDescription()
      */
-
     @Override
     public String getDescription() {
         return DESCRIPTION;
@@ -203,7 +209,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getRule(java.lang.String)
      */
-
     @Override
     public Rule getRule(String uid) {
         if (ruleReg != null) {
@@ -216,7 +221,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getTemplate(java.lang.String,
      *      java.util.Locale)
      */
-
     @Override
     public Template getTemplate(String templateUID, Locale locale) {
         if (templateRegistry != null) {
@@ -228,7 +232,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getTemplates(java.util.Locale)
      */
-
     @Override
     public Collection<Template> getTemplates(Locale locale) {
         if (templateRegistry != null) {
@@ -241,7 +244,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getModuleType(java.lang.String,
      *      java.util.Locale)
      */
-
     @Override
     public ModuleType getModuleType(String typeUID, Locale locale) {
         if (moduleTypeRegistry != null) {
@@ -254,7 +256,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getModuleTypes(java.lang.Class,
      *      java.lang.String)
      */
-
     @Override
     public <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale) {
         if (moduleTypeRegistry != null) {
@@ -266,7 +267,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#removeRule(java.lang.String)
      */
-
     @Override
     public boolean removeRule(String uid) {
         if (ruleReg != null) {
@@ -281,7 +281,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
     /**
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#removeRules(java.lang.String)
      */
-
     @Override
     public boolean removeRules(String ruleFilter) {
         boolean res = false;
@@ -295,7 +294,6 @@ public class AutomationCommandsPluggable extends AutomationCommands
      * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#parseCommand(java.lang.String,
      *      java.lang.String[])
      */
-
     @Override
     protected AutomationCommand parseCommand(String command, String[] params) {
         if (command.equalsIgnoreCase(IMPORT_MODULE_TYPES)) {

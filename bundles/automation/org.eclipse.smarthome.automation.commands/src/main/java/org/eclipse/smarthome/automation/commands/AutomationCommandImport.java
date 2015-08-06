@@ -19,12 +19,9 @@ import org.eclipse.smarthome.automation.parser.Status;
 /**
  * This class provides common functionality of commands:
  * <ul>
- * <p>
- * {@link AutomationCommands#IMPORT_MODULE_TYPES}
- * <p>
- * {@link AutomationCommands#IMPORT_TEMPLATES}
- * <p>
- * {@link AutomationCommands#IMPORT_RULES}
+ * <li>{@link AutomationCommands#IMPORT_MODULE_TYPES}
+ * <li>{@link AutomationCommands#IMPORT_TEMPLATES}
+ * <li>{@link AutomationCommands#IMPORT_RULES}
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
@@ -60,12 +57,9 @@ public class AutomationCommandImport extends AutomationCommand {
     /**
      * This method is responsible for execution of commands:
      * <ul>
-     * <p>
-     * {@link AutomationCommands#IMPORT_MODULE_TYPES}
-     * <p>
-     * {@link AutomationCommands#IMPORT_TEMPLATES}
-     * <p>
-     * {@link AutomationCommands#IMPORT_RULES}
+     * <li>{@link AutomationCommands#IMPORT_MODULE_TYPES}
+     * <li>{@link AutomationCommands#IMPORT_TEMPLATES}
+     * <li>{@link AutomationCommands#IMPORT_RULES}
      * </ul>
      */
     @Override
@@ -145,21 +139,22 @@ public class AutomationCommandImport extends AutomationCommand {
 
     /**
      * This method is invoked from the constructor to parse all parameters and options of the command <b>EXPORT</b>.
-     * This command has:
-     * <p>
+     * If there are redundant parameters or options or the required is missing the result will be the failure of the
+     * command. This command has:
+     * <ul>
      * <b>Options:</b>
      * <ul>
-     * <b>PrintStackTrace</b> which is common for all commands
+     * <li><b>PrintStackTrace</b> is common for all commands and its presence triggers printing of stack trace in case
+     * of exception.
      * </ul>
-     * <p>
+     * </ul>
+     * <ul>
      * <b>Parameters:</b>
      * <ul>
-     * <b>parserType</b> which is optional and by default its value is {@link Parser#FORMAT_JSON}.
-     * <p>
-     * <b>url</b> which is required
+     * <li><b>parserType</b> is optional and by default its value is {@link Parser#FORMAT_JSON}.
+     * <li><b>url</b> is required and it points the resource of automation objects that has to be imported.
      * </ul>
-     * If there are redundant parameters or options or the required is missing the result will be the failure of the
-     * command.
+     * </ul>
      */
     @Override
     protected String parseOptionsAndParameters(String[] parameterValues) {

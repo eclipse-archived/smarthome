@@ -25,7 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It serves for providing {@link ModuleType}s by loading
@@ -52,12 +51,9 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      * {@link ModuleType}s.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public ModuleTypeResourceBundleProvider(BundleContext context,
-            Class<PersistentModuleTypeResourceBundleProvider> providerClass) {
-        super(context, providerClass);
+    public ModuleTypeResourceBundleProvider(BundleContext context) {
+        super(context);
         path = PATH + "/moduletypes/";
         moduleTypesTracker = new ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry>(context,
                 ModuleTypeRegistry.class.getName(),
@@ -87,11 +83,8 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
     }
 
     /**
-     * This method is inherited from {@link AbstractResourceBundleProvider}.
-     * <p>
-     * Extends parent's functionality with closing the {@link #moduleTypesTracker} and
-     * <p>
-     * sets <code>null</code> to {@link #moduleTypeRegistry}.
+     * This method is inherited from {@link AbstractResourceBundleProvider}. Extends parent's functionality with closing
+     * the {@link #moduleTypesTracker} and sets <code>null</code> to {@link #moduleTypeRegistry}.
      *
      * @see AbstractResourceBundleProvider#close()
      */
@@ -145,7 +138,7 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      * @see AbstractResourceBundleProvider#addingService(ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_MODULE_TYPE)) {
             return super.addingService(reference);
         }
@@ -190,11 +183,9 @@ public abstract class ModuleTypeResourceBundleProvider<PE> extends AbstractResou
      * UIDs before these objects to be added in the system.
      *
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
-     * @param status {@link Status} of the import operation. Can be successful or can fail for these {@link ModuleType}
-     *            s,
+     * @param status {@link Status} of an import operation. Can be successful or can fail for these {@link ModuleType}s,
      *            for which a {@link ModuleType} with the same UID, exists.
-     * @return {@code true} if {@link ModuleType} with the same UID exists or {@code false} in the opposite
-     *         case.
+     * @return {@code true} if {@link ModuleType} with the same UID exists or {@code false} in the opposite case.
      */
     private boolean checkExistence(String uid, Status status) {
         if (moduleTypeRegistry.get(uid) != null) {

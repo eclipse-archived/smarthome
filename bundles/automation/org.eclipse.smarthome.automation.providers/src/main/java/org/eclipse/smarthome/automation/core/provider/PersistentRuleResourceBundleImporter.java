@@ -28,7 +28,7 @@ public class PersistentRuleResourceBundleImporter extends RuleResourceBundleImpo
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     public PersistentRuleResourceBundleImporter(BundleContext context) {
-        super(context, PersistentRuleResourceBundleImporter.class);
+        super(context);
         isReady = true;
     }
 
@@ -39,7 +39,7 @@ public class PersistentRuleResourceBundleImporter extends RuleResourceBundleImpo
 
     @Override
     protected String getStorageName() {
-        return "providers_rules";
+        return "importer_rules";
     }
 
     @Override

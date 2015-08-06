@@ -10,14 +10,41 @@ package org.eclipse.smarthome.automation.provider.util;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
+/**
+ * This class provides functionality for persistence of the {@link Trigger}s.
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
+ */
 public class PersistableTrigger {
 
+    /**
+     * The id of the {@link Trigger}. It is unique in scope of the {@link Rule}.
+     */
     public String id;
+
+    /**
+     * This field holds the unique id of the {@link ModuleType} of this {@link Trigger}.
+     */
     public String typeUID;
+
+    /**
+     * This field holds a short, user friendly name of this {@link Trigger}.
+     */
     public String label;
+
+    /**
+     * This field holds a short, user friendly description of this {@link Trigger}.
+     */
     public String description;
+
+    /**
+     * This field holds the current configuration values of this {@link Trigger}.
+     */
     public Map<String, ?> configurations;
 
     /**
@@ -26,6 +53,9 @@ public class PersistableTrigger {
     public PersistableTrigger() {
     }
 
+    /**
+     * This constructor is used for serialization of the {@link Trigger}s.
+     */
     public PersistableTrigger(Trigger trigger) {
         id = trigger.getId();
         typeUID = trigger.getTypeUID();
@@ -34,6 +64,10 @@ public class PersistableTrigger {
         configurations = trigger.getConfiguration();
     }
 
+    /**
+     * This method is used for deserialization of the {@link Trigger}s to create the {@link Trigger} with the assistance
+     * of the {@link AutomationFactory}.
+     */
     public Trigger createTrigger(AutomationFactory factory) {
         Trigger trigger = factory.createTrigger(id, typeUID, configurations);
         trigger.setDescription(description);

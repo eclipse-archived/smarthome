@@ -33,7 +33,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
@@ -51,6 +50,7 @@ import org.slf4j.Logger;
  * @author Ana Dimova - Initial Contribution
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPersistentProvider<E, PE>
         implements ServiceTrackerCustomizer {
 
@@ -62,13 +62,10 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
 
     /**
      * This field is initialized in constructors of any particular provider with specific path for the particular
-     * resources from specific type as {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s.
-     * <p>
-     * For {@link ModuleType}s it is a "ESH-INF/automation/moduletypes/"
-     * <p>
-     * For {@link RuleTemplate}s it is a "ESH-INF/automation/templates/"
-     * <p>
-     * For {@link Rule}s it is a "ESH-INF/automation/rules/"
+     * resources from specific type as {@link ModuleType}s, {@link RuleTemplate}s and {@link Rule}s:
+     * <li>for {@link ModuleType}s it is a "ESH-INF/automation/moduletypes/"
+     * <li>for {@link RuleTemplate}s it is a "ESH-INF/automation/templates/"
+     * <li>for {@link Rule}s it is a "ESH-INF/automation/rules/"
      */
     protected String path;
 
@@ -111,19 +108,13 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
     protected AutomationResourceBundlesEventQueue queue;
 
     /**
-     * This field will be set on {@code true} when the persisted objects are loaded into the memory.
-     */
-    protected boolean isReady = false;
-
-    /**
      * This constructor is responsible for creation of a tracker for {@link Parser} services.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this
-     *            specific provider.
      */
-    public AbstractResourceBundleProvider(BundleContext context, Class<?> providerClass) {
-        super(context, providerClass);
+    @SuppressWarnings("unchecked")
+    public AbstractResourceBundleProvider(BundleContext context) {
+        super(context);
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
     }
 
@@ -131,23 +122,12 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * This method is used to initialize field {@link #queue}, when the instance of
      * {@link AutomationResourceBundlesEventQueue} is created.
      *
-     * @param queue
+     * @param queue provides an access to the queue for processing bundles.
      */
     public void setQueue(AutomationResourceBundlesEventQueue queue) {
         this.queue = queue;
         queue.open();
         parserTracker.open();
-    }
-
-    /**
-     * This method is used in {@link AutomationResourceBundlesEventQueue#open()} to ensure that all persistent objects
-     * are loaded into the memory.
-     *
-     * @return {@code true} if all persistent objects are loaded into the memory and {@code false} in the
-     *         other case.
-     */
-    public boolean isReady() {
-        return isReady;
     }
 
     /**
@@ -163,6 +143,7 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
      * @param reference The reference to the service being added to the {@code ServiceTracker}.
      * @return the service object to be tracked for the specified {@code ServiceReference}.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Object addingService(ServiceReference reference) {
         Parser service = bc.getService(reference);
@@ -307,7 +288,8 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
             try {
                 importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
-                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
+                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
+                        e);
             }
         }
     }
@@ -347,6 +329,12 @@ public abstract class AbstractResourceBundleProvider<E, PE> extends AbstractPers
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(vendor);
         }
+    }
+
+    @Override
+    public void setReady() {
+        isReady = true;
+        queue.open();
     }
 
     /**

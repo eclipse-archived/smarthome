@@ -38,7 +38,7 @@ public class PersistentTemplateResourceBundleProvider
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     public PersistentTemplateResourceBundleProvider(BundleContext context) {
-        super(context, PersistentTemplateResourceBundleProvider.class);
+        super(context);
         isReady = true;
     }
 
@@ -72,7 +72,7 @@ public class PersistentTemplateResourceBundleProvider
         persistableElement.localizedTemplates.toArray(rts);
         String[] languages = new String[persistableElement.languages.size()];
         persistableElement.languages.toArray(languages);
-        Localizer l = new Localizer(rts[0]);
+        Localizer l = null;
         for (int i = 0; i < rts.length; i++) {
             PersistableRuleTemplate prt = rts[i];
             List<Action> actions = new ArrayList<Action>();
@@ -89,12 +89,18 @@ public class PersistentTemplateResourceBundleProvider
             }
             RuleTemplate rt = new RuleTemplate(key, prt.label, prt.description, prt.tags, triggers, conditions, actions,
                     prt.configDescriptions, prt.visibility);
+            if (l == null) {
+                l = new Localizer(rt);
+            }
             l.addLanguage(languages[i], rt);
         }
-        synchronized (providedObjectsHolder) {
-            providedObjectsHolder.put(key, l);
+        if (l != null) {
+            synchronized (providedObjectsHolder) {
+                providedObjectsHolder.put(key, l);
+            }
+            return (RuleTemplate) l.getPerLocale(null);
         }
-        return (RuleTemplate) l.getPerLocale(null);
+        return null;
     }
 
     @Override

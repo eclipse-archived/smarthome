@@ -28,7 +28,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
@@ -42,6 +41,7 @@ import org.slf4j.Logger;
  * @author Ana Dimova - Initial Contribution
  *
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProvider<E, PE>
         implements ServiceTrackerCustomizer {
 
@@ -76,11 +76,10 @@ public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProv
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public AbstractProviderImpl(BundleContext context, Class<?> providerClass) {
-        super(context, providerClass);
+    @SuppressWarnings("unchecked")
+    public AbstractProviderImpl(BundleContext context) {
+        super(context);
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
         parserTracker.open();
     }
@@ -116,6 +115,7 @@ public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProv
      */
     @Override
     public Object addingService(ServiceReference reference) {
+        @SuppressWarnings("unchecked")
         Parser service = bc.getService(reference);
         String key = (String) reference.getProperty(Parser.FORMAT);
         key = key == null ? Parser.FORMAT_JSON : key;
@@ -158,7 +158,7 @@ public abstract class AbstractProviderImpl<E, PE> extends AbstractPersistentProv
      */
     public Status exportData(String parserType, Set<?> set, File file) {
         OutputStreamWriter oWriter = null;
-        Status s = new Status(log, 0, null);
+        Status s = new Status(logger, 0, null);
         try {
             oWriter = new OutputStreamWriter(new FileOutputStream(file));
             Parser parser = parsers.get(parserType);

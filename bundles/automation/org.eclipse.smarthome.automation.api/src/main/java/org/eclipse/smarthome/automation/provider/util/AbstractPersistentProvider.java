@@ -21,8 +21,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is base for {@link ModuleTypeProvider}s, {@link TemplateProvider}s
@@ -35,14 +33,16 @@ import org.slf4j.LoggerFactory;
  * opportunity for high performance on startup of the system.
  *
  * @author Ana Dimova - Initial Contribution
+ *
  * @param <E>
- * @param <PE>
+ *            type of the element
  * @param <K>
+ *            type of the element key
+ * @param <PE>
+ *            type of the persistable element
  */
 public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedProvider<E, String, PE>
         implements Runnable {
-
-    protected Logger log;
 
     /**
      * A bundle's execution context within the Framework.
@@ -56,19 +56,29 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
     protected AutomationFactory factory;
 
     /**
-     * This field is an {@link StorageService}. It is needed to provide the functionality for
+     * This field marks the availability of the {@link StorageService} which is needed to provide the functionality for
      * persistence of the automation objects.
      */
-    protected StorageService storage;
+    protected boolean storageAvailable = false;
+
+    /**
+     * This field will be set on {@code true} when the persisted objects are loaded into the memory.
+     */
+    protected boolean isReady = false;
 
     /**
      * Tracks the {@link AutomationFactory} and {@link StorageService} services.
      */
     private ServiceTracker<Object, Object> tracker;
 
-    public AbstractPersistentProvider(BundleContext context, final Class<?> logClass) {
+    /**
+     * This constructor is responsible for tracking the {@link AutomationFactory} service and {@link StorageService}.
+     *
+     * @param context is the {@code BundleContext}, used for creating a tracker for the {@link AutomationFactory} and
+     *            {@link StorageService} services.
+     */
+    public AbstractPersistentProvider(BundleContext context) {
         bc = context;
-        this.log = LoggerFactory.getLogger(logClass);
         try {
             Filter filter = bc.createFilter("(|(objectClass=" + AutomationFactory.class.getName() + ")(objectClass="
                     + StorageService.class.getName() + "))");
@@ -81,11 +91,11 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
                         if (factory == null && service instanceof AutomationFactory) {
                             factory = (AutomationFactory) service;
                         }
-                        if (storage == null && service instanceof StorageService) {
-                            storage = (StorageService) service;
-                            setStorageService(storage);
+                        if (service instanceof StorageService) {
+                            setStorageService((StorageService) service);
+                            storageAvailable = true;
                         }
-                        if (factory != null && storage != null) {
+                        if (factory != null && storageAvailable) {
                             new Thread(AbstractPersistentProvider.this,
                                     "Automation Storage Loader: " + getStorageName()).start();
                         }
@@ -99,9 +109,9 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
 
                 @Override
                 public void removedService(ServiceReference<Object> reference, Object service) {
-                    if (service == storage) {
-                        unsetStorageService(storage);
-                        storage = null;
+                    if (service instanceof StorageService) {
+                        unsetStorageService((StorageService) service);
+                        storageAvailable = false;
                     } else if (service == factory) {
                         factory = null;
                     }
@@ -122,12 +132,35 @@ public abstract class AbstractPersistentProvider<E, PE> extends AbstractManagedP
     @Override
     public void run() {
         getAll();
+        setReady();
     }
 
+    /**
+     * This method is called when the bundle is stopping, to close the tracker for the {@link AutomationFactory} and
+     * {@link StorageService} services.
+     */
     public void close() {
         if (tracker != null) {
             tracker.close();
         }
+    }
+
+    /**
+     * This method is used in {@link AutomationResourceBundlesEventQueue#open()} to ensure that all persistent objects
+     * are loaded into the memory.
+     *
+     * @return {@code true} if all persistent objects are loaded into the memory and {@code false} in the
+     *         other case.
+     */
+    public boolean isReady() {
+        return isReady;
+    }
+
+    /**
+     * This method is called when loading the storage is done to mark the end of this action.
+     */
+    public void setReady() {
+        isReady = true;
     }
 
 }

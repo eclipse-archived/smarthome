@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.provider.util;
 
-import java.io.Externalizable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * This class is responsible for custom serialization and deserialization of the {@link RuleTemplate}s. It is necessary
- * for the persistence of the {@link RuleTemplate}s. Implements {@link Externalizable}.
+ * for the persistence of the {@link RuleTemplate}s.
  *
  * @author Ana Dimova - Initial Contribution
  *
@@ -31,6 +30,10 @@ public class PersistableRuleTemplate {
     public List<PersistableTrigger> triggers;
     public List<PersistableCondition> conditions;
     public List<PersistableAction> actions;
+
+    /**
+     * This field holds a set of non-hierarchical keywords or terms for describing the {@link RuleTemplate}.
+     */
     public Set<String> tags;
     public String label;
     public String description;
@@ -43,6 +46,9 @@ public class PersistableRuleTemplate {
     public PersistableRuleTemplate() {
     }
 
+    /**
+     * This constructor is used for serialization of the {@link RuleTemplate}s.
+     */
     public PersistableRuleTemplate(RuleTemplate rt) {
         label = rt.getLabel();
         description = rt.getDescription();

@@ -11,21 +11,19 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.smarthome.automation.Rule;
+
 /**
  * This class provides common functionality of commands:
  * <ul>
- * <p>
- * {@link AutomationCommands#REMOVE_MODULE_TYPES}
- * <p>
- * {@link AutomationCommands#REMOVE_TEMPLATES}
- * <p>
- * {@link AutomationCommands#REMOVE_RULES}
- * <p>
- * {@link AutomationCommands#REMOVE_RULE}
+ * <li>{@link AutomationCommands#REMOVE_MODULE_TYPES}
+ * <li>{@link AutomationCommands#REMOVE_TEMPLATES}
+ * <li>{@link AutomationCommands#REMOVE_RULES}
+ * <li>{@link AutomationCommands#REMOVE_RULE}
  * </ul>
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class AutomationCommandRemove extends AutomationCommand {
 
@@ -50,14 +48,10 @@ public class AutomationCommandRemove extends AutomationCommand {
     /**
      * This method is responsible for execution of commands:
      * <ul>
-     * <p>
-     * {@link AutomationCommands#REMOVE_MODULE_TYPES}
-     * <p>
-     * {@link AutomationCommands#REMOVE_TEMPLATES}
-     * <p>
-     * {@link AutomationCommands#REMOVE_RULES}
-     * <p>
-     * {@link AutomationCommands#REMOVE_RULE}
+     * <li>{@link AutomationCommands#REMOVE_MODULE_TYPES}
+     * <li>{@link AutomationCommands#REMOVE_TEMPLATES}
+     * <li>{@link AutomationCommands#REMOVE_RULES}
+     * <li>{@link AutomationCommands#REMOVE_RULE}
      * </ul>
      */
     @Override
@@ -97,7 +91,7 @@ public class AutomationCommandRemove extends AutomationCommand {
     /**
      * This method serves to create an {@link URL} object or {@link File} object from a string that is passed as
      * a parameter of the command. From the {@link File} object the URL is constructed.
-     * 
+     *
      * @param parameterValue is a string that is passed as parameter of the command and it supposed to be an URL
      *            representation.
      * @return an {@link URL} object created from the string that is passed as parameter of the command or <b>null</b>
@@ -120,22 +114,24 @@ public class AutomationCommandRemove extends AutomationCommand {
 
     /**
      * This method is invoked from the constructor to parse all parameters and options of the command <b>REMOVE</b>.
-     * This command has:
-     * <p>
+     * If there are redundant parameters or options or the required are missing the result will be the failure of the
+     * command. This command has:
+     * <ul>
      * <b>Options:</b>
      * <ul>
-     * <b>PrintStackTrace</b> which is common for all commands
+     * <li><b>PrintStackTrace</b> is common for all commands and its presence triggers printing of stack trace in case
+     * of exception.
      * </ul>
-     * <p>
+     * </ul>
+     * <ul>
      * <b>Parameters:</b>
      * <ul>
-     * <b>id</b> which is required for {@link AutomationCommands#REMOVE_RULE} command
-     * <p>
-     * <b>url</b> which is required for all <b>REMOVE</b> commands, except {@link AutomationCommands#REMOVE_RULE}. If it
-     * is present for {@link AutomationCommands#REMOVE_RULE} it will be treated as redundant.
+     * <li><b>id</b> is required for {@link AutomationCommands#REMOVE_RULE} command. If it is present for all
+     * <b>REMOVE</b> commands, except {@link AutomationCommands#REMOVE_RULE}, it will be treated as redundant.
+     * <li><b>url</b> is required for all <b>REMOVE</b> commands, except {@link AutomationCommands#REMOVE_RULE}.
+     * If it is present for {@link AutomationCommands#REMOVE_RULE}, it will be treated as redundant.
      * </ul>
-     * If there are redundant parameters or options or the required are missing the result will be the failure of the
-     * command.
+     * </ul>
      */
     @Override
     protected String parseOptionsAndParameters(String[] parameterValues) {

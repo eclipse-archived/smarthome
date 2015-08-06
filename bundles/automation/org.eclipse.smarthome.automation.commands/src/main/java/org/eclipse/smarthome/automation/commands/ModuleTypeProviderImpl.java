@@ -27,21 +27,16 @@ import org.eclipse.smarthome.automation.provider.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of {@link AbstractProviderImpl}.
  * <p>
  * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link ModuleType}s:
  * <ul>
- * <p>
- * - imports the {@link ModuleType}s from local files or from URL resources
- * <p>
- * - provides functionality for persistence of the {@link ModuleType}s
- * <p>
- * - removes the {@link ModuleType}s and their persistence
- * <p>
- * - lists the {@link ModuleType}s and their details
+ * <li>imports the {@link ModuleType}s from local files or from URL resources
+ * <li>provides functionality for persistence of the {@link ModuleType}s
+ * <li>removes the {@link ModuleType}s and their persistence
+ * <li>lists the {@link ModuleType}s and their details
  * </ul>
  * <p>
  * accordingly to the used command.
@@ -59,11 +54,9 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
      * constructor.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public ModuleTypeProviderImpl(BundleContext context, Class<?> providerClass) {
-        super(context, providerClass);
+    public ModuleTypeProviderImpl(BundleContext context) {
+        super(context);
     }
 
     /**
@@ -73,7 +66,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_MODULE_TYPE)) {
             return super.addingService(reference);
         }
@@ -100,7 +93,7 @@ public abstract class ModuleTypeProviderImpl<PE> extends AbstractProviderImpl<Mo
                 inputStreamReader = new InputStreamReader(bis);
                 return importData(url, parser, inputStreamReader);
             } catch (IOException e) {
-                Status s = new Status(log, 0, null);
+                Status s = new Status(logger, 0, null);
                 s.error("Can't read from URL " + url, e);
                 LinkedHashSet<Status> res = new LinkedHashSet<Status>();
                 res.add(s);

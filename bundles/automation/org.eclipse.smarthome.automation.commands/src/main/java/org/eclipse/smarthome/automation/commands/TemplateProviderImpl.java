@@ -32,7 +32,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.util.ConnectionValidator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractProviderImpl}.
@@ -57,11 +56,9 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      * constructor.
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public TemplateProviderImpl(BundleContext context, Class<?> providerClass) {
-        super(context, providerClass);
+    public TemplateProviderImpl(BundleContext context) {
+        super(context);
     }
 
     /**
@@ -71,7 +68,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_TEMPLATE)) {
             return super.addingService(reference);
         }
@@ -96,7 +93,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
                 inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
                 return importData(url, parser, inputStreamReader);
             } catch (IOException e) {
-                Status s = new Status(log, 0, null);
+                Status s = new Status(logger, 0, null);
                 s.error("Can't read from URL " + url, e);
                 LinkedHashSet<Status> res = new LinkedHashSet<Status>();
                 res.add(s);
@@ -133,7 +130,7 @@ public abstract class TemplateProviderImpl<PE> extends AbstractProviderImpl<Rule
      */
     @Override
     public Collection<Template> getTemplates(Locale locale) {
-        ArrayList<Template> templatesList = new ArrayList<Template>();
+        List<Template> templatesList = new ArrayList<Template>();
         synchronized (providedObjectsHolder) {
             Iterator<Localizer> i = providedObjectsHolder.values().iterator();
             while (i.hasNext()) {

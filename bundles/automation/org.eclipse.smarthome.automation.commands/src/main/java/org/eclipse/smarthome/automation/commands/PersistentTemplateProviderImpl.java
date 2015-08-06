@@ -15,12 +15,14 @@ import java.util.List;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.provider.TemplateProvider;
 import org.eclipse.smarthome.automation.provider.util.PersistableAction;
 import org.eclipse.smarthome.automation.provider.util.PersistableCondition;
 import org.eclipse.smarthome.automation.provider.util.PersistableLocalizedRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableRuleTemplate;
 import org.eclipse.smarthome.automation.provider.util.PersistableTrigger;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.Template;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -32,8 +34,13 @@ import org.osgi.framework.BundleContext;
  */
 public class PersistentTemplateProviderImpl extends TemplateProviderImpl<PersistableLocalizedRuleTemplate> {
 
+    /**
+     * This constructor creates {@link TemplateProvider} responsible for persistence of the {@link Template}s.
+     *
+     * @param context is a bundle's execution context within the Framework.
+     */
     public PersistentTemplateProviderImpl(BundleContext context) {
-        super(context, PersistentTemplateProviderImpl.class);
+        super(context);
     }
 
     @Override
@@ -67,7 +74,7 @@ public class PersistentTemplateProviderImpl extends TemplateProviderImpl<Persist
             persistableElement.localizedTemplates.toArray(rts);
             String[] languages = new String[persistableElement.languages.size()];
             persistableElement.languages.toArray(languages);
-            Localizer l = new Localizer(rts[0]);
+            Localizer l = null;
             for (int i = 0; i < rts.length; i++) {
                 PersistableRuleTemplate prt = rts[i];
                 List<Action> actions = new ArrayList<Action>();
@@ -84,12 +91,17 @@ public class PersistentTemplateProviderImpl extends TemplateProviderImpl<Persist
                 }
                 RuleTemplate rt = new RuleTemplate(key, prt.label, prt.description, prt.tags, triggers, conditions,
                         actions, prt.configDescriptions, prt.visibility);
+                if (l == null) {
+                    l = new Localizer(rt);
+                }
                 l.addLanguage(languages[i], rt);
             }
-            synchronized (providedObjectsHolder) {
-                providedObjectsHolder.put(key, l);
+            if (l != null) {
+                synchronized (providedObjectsHolder) {
+                    providedObjectsHolder.put(key, l);
+                }
+                return (RuleTemplate) l.getPerLocale(null);
             }
-            return (RuleTemplate) l.getPerLocale(null);
         } catch (MalformedURLException notPossible) {
         }
         return null;

@@ -25,7 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
 
 /**
  * This class is implementation of {@link RuleResourceBundleImporter}. It serves for providing {@link Rule}s by loading
@@ -43,50 +42,52 @@ import org.slf4j.Logger;
  */
 public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBundleProvider<Vendor, PE> {
 
+    /**
+     * This field holds the reference to the Rule Registry.
+     */
     protected RuleRegistry ruleRegistry;
-    private ServiceTracker<RuleRegistry, RuleRegistry> rulesTracker;
+
+    /**
+     * This field holds the reference to the tracker of Rule Registry.
+     */
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker rulesTracker;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link Rule}s.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public RuleResourceBundleImporter(BundleContext context,
-            Class<PersistentRuleResourceBundleImporter> providerClass) {
-        super(context, providerClass);
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public RuleResourceBundleImporter(BundleContext context) {
+        super(context);
         path = PATH + "/rules/";
-        rulesTracker = new ServiceTracker<RuleRegistry, RuleRegistry>(context, RuleRegistry.class.getName(),
-                new ServiceTrackerCustomizer<RuleRegistry, RuleRegistry>() {
+        rulesTracker = new ServiceTracker(context, RuleRegistry.class.getName(), new ServiceTrackerCustomizer() {
 
-                    @Override
-                    public RuleRegistry addingService(ServiceReference<RuleRegistry> reference) {
-                        ruleRegistry = bc.getService(reference);
-                        if (isReady && queue != null)
-                            queue.open();
-                        return ruleRegistry;
-                    }
+            @Override
+            public Object addingService(ServiceReference reference) {
+                ruleRegistry = bc.getService(reference);
+                if (isReady && queue != null)
+                    queue.open();
+                return ruleRegistry;
+            }
 
-                    @Override
-                    public void modifiedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
-                    }
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
 
-                    @Override
-                    public void removedService(ServiceReference<RuleRegistry> reference, RuleRegistry service) {
-                        ruleRegistry = null;
-                    }
-                });
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                ruleRegistry = null;
+            }
+        });
         rulesTracker.open();
     }
 
     /**
-     * This method is inherited from {@link AbstractResourceBundleProvider}.
-     * <p>
-     * Extends parent's functionality with closing the {@link #rulesTracker} and
-     * <p>
-     * sets {@code null} to {@link #ruleRegistry}.
+     * This method is inherited from {@link AbstractResourceBundleProvider}. Extends parent's functionality with closing
+     * the {@link #rulesTracker} and sets {@code null} to {@link #ruleRegistry}.
      *
      * @see AbstractResourceBundleProvider#close()
      */
@@ -103,6 +104,7 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
     /**
      * @see AbstractResourceBundleProvider#addingService(ServiceReference)
      */
+    @SuppressWarnings("rawtypes")
     @Override
     public Object addingService(ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_RULE)) {
@@ -159,7 +161,8 @@ public abstract class RuleResourceBundleImporter<PE> extends AbstractResourceBun
             try {
                 importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
             } catch (IOException e) {
-                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
+                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
+                        e);
             }
         }
         if (!portfolio.isEmpty())

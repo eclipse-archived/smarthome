@@ -23,7 +23,6 @@ import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
 
 /**
  * This class is a {@link Rule}s importer. It extends functionality of {@link AbstractProviderImpl}.
@@ -47,11 +46,9 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
      * constructor.
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
-     * @param providerClass the class object, used for creation of a {@link Logger}, which belongs to this specific
-     *            provider.
      */
-    public RuleImporterImpl(BundleContext context, Class<?> providerClass) {
-        super(context, providerClass);
+    public RuleImporterImpl(BundleContext context) {
+        super(context);
     }
 
     /**
@@ -61,7 +58,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
      * @see AbstractProviderImpl#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
-    public Object addingService(ServiceReference reference) {
+    public Object addingService(@SuppressWarnings("rawtypes") ServiceReference reference) {
         if (reference.getProperty(Parser.PARSER_TYPE).equals(Parser.PARSER_RULE)) {
             return super.addingService(reference);
         }
@@ -86,7 +83,7 @@ public abstract class RuleImporterImpl<PE> extends AbstractProviderImpl<URL, PE>
                 inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
                 return importData(url, parser, inputStreamReader);
             } catch (IOException e) {
-                Status s = new Status(log, 0, null);
+                Status s = new Status(logger, 0, null);
                 s.error("Can't read from URL " + url, e);
                 LinkedHashSet<Status> res = new LinkedHashSet<Status>();
                 res.add(s);

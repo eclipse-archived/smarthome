@@ -42,7 +42,7 @@ public class PersistentModuleTypeProviderImpl extends ModuleTypeProviderImpl<Per
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
     public PersistentModuleTypeProviderImpl(BundleContext context) {
-        super(context, PersistentModuleTypeProviderImpl.class);
+        super(context);
     }
 
     @Override
@@ -175,4 +175,5 @@ public class PersistentModuleTypeProviderImpl extends ModuleTypeProviderImpl<Per
         }
         return null;
     }
+
 }
