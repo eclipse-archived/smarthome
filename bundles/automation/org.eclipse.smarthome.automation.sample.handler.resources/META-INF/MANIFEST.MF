@@ -9,7 +9,6 @@ Import-Package:
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.provider,
- org.eclipse.smarthome.automation.script,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,
