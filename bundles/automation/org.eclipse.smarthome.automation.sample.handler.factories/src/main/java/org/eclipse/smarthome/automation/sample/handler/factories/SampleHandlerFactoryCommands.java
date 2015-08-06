@@ -31,13 +31,17 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
 
     private List<SampleTriggerHandler> currentTriggers;
     private SampleHandlerFactory sampleSpiFactory;
-    private BundleContext bc;
-    private ServiceRegistration commandsServiceReg;
+    private ServiceRegistration<?> commandsServiceReg;
 
+    /**
+     * Constructs the SampleHandlerFactoryCommands
+     *
+     * @param sampleSpiFactory HandlerFactory
+     * @param bc bundleContext
+     */
     public SampleHandlerFactoryCommands(SampleHandlerFactory sampleSpiFactory, BundleContext bc) {
         super(CMD, DESC);
         this.sampleSpiFactory = sampleSpiFactory;
-        this.bc = bc;
         commandsServiceReg = bc.registerService(ConsoleCommandExtension.class.getName(), this, null);
     }
 
@@ -61,6 +65,13 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage(COMMAND_LIST, "List all created TriggerSpi"),
                 buildCommandUsage(COMMAND_EXECUTE, "Executes specific TriggerSpi by its index.") });
+    }
+
+    /**
+     * Dispose resources.
+     */
+    public void stop() {
+        commandsServiceReg.unregister();
     }
 
     private void listTriggerSpi(String[] params, Console console) {
@@ -91,9 +102,4 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
             }
         }
     }
-
-    public void stop() {
-        commandsServiceReg.unregister();
-    }
-
 }

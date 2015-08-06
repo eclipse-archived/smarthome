@@ -55,9 +55,9 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
 
     public void trigger(String param) {
         if (ruleCallBack != null) {
-            Map resolvedConfiguration = getResolvedConfiguration(null);
-            Map systemOutputs = getSystemOutputsValues(triggerType.getOutputs(), param);
-            Map resolvedOutputs = getResolvedOutputs(resolvedConfiguration, null, systemOutputs);
+            Map<String, Object> resolvedConfiguration = getResolvedConfiguration(null);
+            Map<String, Object> systemOutputs = getSystemOutputsValues(triggerType.getOutputs(), param);
+            Map<String, Object> resolvedOutputs = getResolvedOutputs(resolvedConfiguration, null, systemOutputs);
             ruleCallBack.triggered(trigger, resolvedOutputs);
         } else {
             log.error("RuleCallback in TriggerHandler is null");
@@ -70,13 +70,12 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
         handlerFactory.disposeHandler(this);
     }
 
-    protected Map getSystemOutputsValues(Set<Output> outputs, String param) {
-        Map resultOutputs = null;
+    protected Map<String, Object> getSystemOutputsValues(Set<Output> outputs, String param) {
+        Map<String, Object> resultOutputs = null;
         for (Output output : outputs) {
             if (resultOutputs == null) {
                 resultOutputs = new HashMap<String, Object>(11);
             }
-            Object result = null;
             String propertyName = output.getName();
             Object propertyValue = null;
             if (output.getReference() != null) {
@@ -87,12 +86,6 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
                 }
             }
             if (propertyValue == null) {
-                // String defaultValue = (String) output.getDefaultValue();
-                // if (defaultValue.startsWith(PARSE_DOLLAR_SYMBOL)) {
-                // propertyValue = parse(defaultValue);
-                // } else {
-                // propertyValue = defaultValue;
-                // }
                 propertyValue = output.getDefaultValue();
             }
             resultOutputs.put(propertyName, propertyValue);

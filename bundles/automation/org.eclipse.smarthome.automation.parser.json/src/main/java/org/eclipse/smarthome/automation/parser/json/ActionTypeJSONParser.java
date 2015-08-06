@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONException;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
@@ -24,8 +22,11 @@ import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONException;
 
 /**
+ * Parser for ActionTypes.
+ * 
  * @author Ana Dimova - Initial Contribution
  *
  */
@@ -97,10 +98,12 @@ public class ActionTypeJSONParser {
     }
 
     /**
-     * @param actions
-     * @param conditions
-     * @param triggers
-     * @param writer
+     * Writes ActionTypes to the provided OutputStreamWriter.
+     *
+     * @param actions ActionTypes to be written
+     * @param conditions ConditionTypes
+     * @param triggers TriggerTypes
+     * @param writer where ActionTypes will be written
      * @throws IOException
      * @throws JSONException
      */

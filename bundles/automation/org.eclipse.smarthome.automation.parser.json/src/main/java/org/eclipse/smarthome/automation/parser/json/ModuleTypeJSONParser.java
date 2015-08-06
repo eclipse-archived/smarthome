@@ -19,14 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
@@ -44,6 +36,13 @@ import org.eclipse.smarthome.automation.type.ModuleType.Visibility;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class serves for loading JSON files and parse it to the Module Type objects.
@@ -57,6 +56,12 @@ public class ModuleTypeJSONParser implements Parser {
     private AutomationFactory automationFactory;
     private Logger log;
 
+    /**
+     * Constructs the ModuleTypeJSONParser
+     *
+     * @param bc bundleContext
+     * @param automationFactory AutomatoinFactory
+     */
     public ModuleTypeJSONParser(BundleContext bc, AutomationFactory automationFactory) {
         this.bc = bc;
         this.automationFactory = automationFactory;
@@ -66,6 +71,7 @@ public class ModuleTypeJSONParser implements Parser {
     /**
      * @see org.eclipse.smarthome.automation.parser.Parser#importData(InputStreamReader)
      */
+    @Override
     public Set<Status> importData(InputStreamReader reader) {
         LinkedHashSet<Status> moduleTypesStatus = new LinkedHashSet<Status>();
         JSONTokener tokener = new JSONTokener(reader);
@@ -107,6 +113,7 @@ public class ModuleTypeJSONParser implements Parser {
      * @throws IOException
      * @see org.eclipse.smarthome.automation.parser.Parser#exportData(Set, OutputStreamWriter)
      */
+    @Override
     public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException {
         try {
             writer.write("{\n");
@@ -314,17 +321,6 @@ public class ModuleTypeJSONParser implements Parser {
         }
     }
 
-    /**
-     * @param moduleTypeUID
-     * @param configDescriptions
-     * @param moduleType
-     * @param jsonModuleType
-     * @param moduleTypesStatus
-     * @param v
-     * @param tags
-     * @param description
-     * @param label
-     */
     private ModuleType createCompositeTypes(String moduleTypeUID,
             LinkedHashSet<ConfigDescriptionParameter> configDescriptions, JSONObject jsonModuleType,
             LinkedHashSet<Status> moduleTypesStatus, Status status, String label, String description, Set<String> tags,

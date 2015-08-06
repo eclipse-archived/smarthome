@@ -14,15 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONException;
-
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONException;
 
 /**
+ * Parser for TriggerTypes.
+ *
  * @author Ana Dimova - Initial Contribution
  *
  */

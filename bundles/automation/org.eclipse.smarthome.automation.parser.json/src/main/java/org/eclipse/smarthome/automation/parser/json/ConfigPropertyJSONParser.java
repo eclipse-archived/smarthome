@@ -193,10 +193,11 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
+     * Processing the Value in order to check its type.
      *
-     * @param configValue
-     * @param configProperty
-     * @param status
+     * @param configValue the Configuration property value.
+     * @param configProperty the Configuration property ConfigDescriptionParameter
+     * @param status Status from the operation performed
      * @return
      */
     static Object processValue(Object configValue, ConfigDescriptionParameter configProperty, Status status) {
@@ -215,11 +216,12 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
+     * Checks type of given ConfigurationProperty value
      *
-     * @param configValue
-     * @param configProperty
-     * @param status
-     * @return
+     * @param configValue the ConfigurationProperty value
+     * @param configProperty the ConfigurationDescriptionProperty
+     * @param status status object
+     * @return configurationProperty value in its correct type
      */
     static Object checkType(Object configValue, ConfigDescriptionParameter configProperty, Status status) {
         Object value = null;
@@ -394,10 +396,13 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
-     * @param jsonModuleType
-     * @param status
-     * @return
+     * Initializes ConfigDescriptions in given ModuleType.
+     *
+     * @param jsonModuleType ModuleType in json format
+     * @param status status object
+     * @return collection with ConfigurationDescriptionParameters
      */
+    @SuppressWarnings("unchecked")
     static LinkedHashSet<ConfigDescriptionParameter> initializeConfigDescriptions(JSONObject jsonModuleType,
             Status status) {
         LinkedHashSet<ConfigDescriptionParameter> configDescriptions = new LinkedHashSet<ConfigDescriptionParameter>();
@@ -423,15 +428,6 @@ public class ConfigPropertyJSONParser {
         return configDescriptions;
     }
 
-    /**
-     *
-     * @param configPropertyName
-     * @param typeStr
-     * @param configDescription
-     * @param status
-     * @return
-     * @throws IllegalArgumentException
-     */
     private static String getDefaultValue(String configPropertyName, String typeStr, JSONObject configDescription,
             Status status) throws IllegalArgumentException {
         String defValue = null;
@@ -458,10 +454,6 @@ public class ConfigPropertyJSONParser {
         return defValue;
     }
 
-    /**
-     * @param filter
-     * @return
-     */
     private static JSONObject filterCriteriaToJSON(FilterCriteria filter) {
         Map<String, String> filterMap = new HashMap<String, String>();
         filterMap.put("name", filter.getName());
@@ -469,10 +461,6 @@ public class ConfigPropertyJSONParser {
         return new JSONObject(filterMap);
     }
 
-    /**
-     * @param option
-     * @return
-     */
     private static JSONObject parameterOptionToJSON(ParameterOption option) {
         Map<String, String> optionMap = new HashMap<String, String>();
         optionMap.put("label", option.getLabel());
@@ -480,14 +468,10 @@ public class ConfigPropertyJSONParser {
         return new JSONObject(optionMap);
     }
 
-    /**
-     * @param jsonArr
-     * @return
-     */
-    private static List toList(JSONArray jsonArr) {
-        List list = null;
+    private static List<Object> toList(JSONArray jsonArr) {
+        List<Object> list = null;
         if (jsonArr != null) {
-            list = new ArrayList();
+            list = new ArrayList<Object>();
             for (int i = 0; i < jsonArr.length(); i++) {
                 try {
                     list.add(jsonArr.get(i));

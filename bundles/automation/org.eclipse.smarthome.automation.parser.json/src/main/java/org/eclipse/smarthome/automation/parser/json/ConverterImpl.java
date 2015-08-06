@@ -17,6 +17,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility class used for converting data.
+ *
+ * @author Vasil Ilchev - Initial Contribution
+ *
+ */
 public class ConverterImpl implements Converter {
 
     private Logger log;
@@ -26,11 +32,11 @@ public class ConverterImpl implements Converter {
     }
 
     @Override
-    public Dictionary getAsDictionary(String source) {
-        Dictionary dict = null;
+    public Dictionary<String, Object> getAsDictionary(String source) {
+        Dictionary<String, Object> dict = null;
         JSONObject json = null;
         if (source != null && source.length() > 0 && source.charAt(0) == '{') {
-            dict = new Hashtable();
+            dict = new Hashtable<String, Object>();
             try {
                 json = new JSONObject(source.trim());
                 dict = parseJSON(json, dict);
@@ -41,13 +47,14 @@ public class ConverterImpl implements Converter {
         return dict;
     }
 
-    private Dictionary parseJSON(JSONObject json, Dictionary dict) {
+    private Dictionary<String, Object> parseJSON(JSONObject json, Dictionary<String, Object> dict) {
         Iterator<?> keys = json.keys();
         while (keys.hasNext()) {
             String key = (String) keys.next();
             try {
                 if (json.get(key) instanceof JSONObject) {
-                    Dictionary inner = parseJSON((JSONObject) json.get(key), new Hashtable());
+                    Dictionary<String, Object> inner = parseJSON((JSONObject) json.get(key),
+                            new Hashtable<String, Object>());
                     dict.put(key, inner);
                 } else {
                     dict.put(key, json.get(key));

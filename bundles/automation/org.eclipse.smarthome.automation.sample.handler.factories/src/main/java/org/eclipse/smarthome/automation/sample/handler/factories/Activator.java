@@ -16,17 +16,18 @@ import org.osgi.framework.BundleContext;
  * @author Vasil Ilchev - Initial Contribution
  */
 public class Activator implements BundleActivator {
-
-    static BundleContext bc;
+    private BundleContext bc;
     private SampleHandlerFactory sampleHandlerFactory;
     private SampleHandlerFactoryCommands commands;
 
+    @Override
     public void start(BundleContext context) throws Exception {
         bc = context;
         sampleHandlerFactory = new SampleHandlerFactory(bc);
         commands = new SampleHandlerFactoryCommands(sampleHandlerFactory, bc);
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
         commands.stop();
         sampleHandlerFactory.dispose();

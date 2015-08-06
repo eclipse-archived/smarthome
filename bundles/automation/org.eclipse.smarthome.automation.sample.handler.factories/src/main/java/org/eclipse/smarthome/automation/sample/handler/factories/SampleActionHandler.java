@@ -12,7 +12,6 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -28,33 +27,29 @@ public class SampleActionHandler extends AbstractModuleHandler implements Action
     protected String functionalItemUID;
     protected Action action;
     protected ActionType actionType;
-    //
-    private RuleEngineCallback ruleCallBack;
-    private SampleHandlerFactory handlerFactory;
 
-    public SampleActionHandler(SampleHandlerFactory handlerFactory, Action action, ActionType actionType) {
+    /**
+     * Constructs SampleActionHandler
+     *
+     * @param action
+     * @param actionType
+     */
+    public SampleActionHandler(Action action, ActionType actionType) {
         super(action);
         this.action = action;
         this.actionType = actionType;
-        this.configuration = action.getConfiguration();
-        this.handlerFactory = handlerFactory;
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        handlerFactory.disposeHandler(this);
-    }
-
-    private Object getMessage(Map resolvedConfigration) {
-        return resolvedConfigration != null ? resolvedConfigration.get("message") : null;
     }
 
     @Override
     public Map<String, Object> execute(Map<String, ?> inputs) {
-        Map resolvedInputs = getResolvedInputs(inputs);
-        Map resolvedConfigration = getResolvedConfiguration(resolvedInputs);
-        Map resolvedOutputs = getResolvedOutputs(resolvedConfigration, resolvedInputs, null);
+        Map<String, Object> resolvedInputs = getResolvedInputs(inputs);
+        Map<String, Object> resolvedConfigration = getResolvedConfiguration(resolvedInputs);
+        Map<String, Object> resolvedOutputs = getResolvedOutputs(resolvedConfigration, resolvedInputs, null);
         Object message = getMessage(resolvedConfigration);
         if (message == null) {
             message = "";
@@ -71,5 +66,9 @@ public class SampleActionHandler extends AbstractModuleHandler implements Action
     @Override
     protected Converter getConverter() {
         return SampleHandlerFactory.getConverter();
+    }
+
+    private Object getMessage(Map<String, ?> resolvedConfigration) {
+        return resolvedConfigration != null ? resolvedConfigration.get("message") : null;
     }
 }

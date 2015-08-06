@@ -18,13 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
@@ -33,6 +26,12 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class serves for loading JSON files and parse it to the Rule objects.
@@ -45,15 +44,17 @@ public class RuleJSONParser implements Parser {
     private AutomationFactory automationFactory;
     private Logger log;
 
+    /**
+     * Constructs RuleJSONParser
+     *
+     * @param automationFactory the AutomationFactory
+     */
     public RuleJSONParser(AutomationFactory automationFactory) {
         this.automationFactory = automationFactory;
         this.log = LoggerFactory.getLogger(RuleJSONParser.class);
     }
 
-    /**
-     * @throws JSONException
-     * @see org.eclipse.smarthome.automation.parser.Parser#importData(InputStreamReader)
-     */
+    @Override
     public Set<Status> importData(InputStreamReader reader) {
         JSONTokener tokener = new JSONTokener(reader);
         Set<Status> rulesStatus = new LinkedHashSet<Status>();
@@ -76,9 +77,7 @@ public class RuleJSONParser implements Parser {
         return rulesStatus;
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.parser.Parser#exportData(Set, OutputStreamWriter)
-     */
+    @Override
     public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException {
         try {
             writeRules(dataObjects, writer);

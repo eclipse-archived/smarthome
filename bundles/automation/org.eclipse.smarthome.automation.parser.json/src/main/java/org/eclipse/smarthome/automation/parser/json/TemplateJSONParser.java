@@ -17,13 +17,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
@@ -33,6 +26,12 @@ import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class serves for loading JSON files and parse it to the Rule Template objects.
@@ -45,14 +44,17 @@ public class TemplateJSONParser implements Parser {
     private AutomationFactory automationFactory;
     private Logger log;
 
+    /**
+     * Constructs the TemplateJSONParser
+     *
+     * @param automationFactory the AutomationFactory
+     */
     public TemplateJSONParser(AutomationFactory automationFactory) {
         this.automationFactory = automationFactory;
         this.log = LoggerFactory.getLogger(TemplateJSONParser.class);
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.parser.Parser#importData(InputStreamReader)
-     */
+    @Override
     public Set<Status> importData(InputStreamReader reader) {
         LinkedHashSet<Status> ruleTemplatesStatus = new LinkedHashSet<Status>();
         JSONTokener tokener = new JSONTokener(reader);
@@ -82,9 +84,7 @@ public class TemplateJSONParser implements Parser {
         return ruleTemplatesStatus;
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.parser.Parser#exportData(Set, OutputStreamWriter)
-     */
+    @Override
     public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException {
         try {
             writeRuleTemplates(dataObjects, writer);

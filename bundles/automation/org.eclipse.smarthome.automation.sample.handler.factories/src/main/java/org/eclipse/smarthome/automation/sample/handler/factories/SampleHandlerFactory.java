@@ -21,7 +21,6 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.TriggerType;
@@ -36,10 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Module Handler Factory sample implementation
+ * Module Handler Factory Sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
  */
+@SuppressWarnings("rawtypes")
 public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTrackerCustomizer {
     private static final String FILTER = //
     "(|(" + Constants.OBJECTCLASS + '=' + ModuleTypeRegistry.class.getName() + ')' + //$NON-NLS-1$
@@ -62,13 +62,14 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
     private ServiceRegistration serviceReg;
 
     static {
-        List temp = new ArrayList();
+        List<String> temp = new ArrayList<String>();
         temp.add(SUPPORTED_TRIGGER);
         temp.add(SUPPORTED_CONDITION);
         temp.add(SUPPORTED_ACTION);
         types = Collections.unmodifiableCollection(temp);
     }
 
+    @SuppressWarnings("unchecked")
     public SampleHandlerFactory(BundleContext bc) throws InvalidSyntaxException {
         this.bc = bc;
         createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
@@ -78,11 +79,17 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
         tracker.open();
     }
 
+    /**
+     * Removes disposed handler from cache.
+     *
+     * @param handler the handler
+     */
     protected void disposeHandler(ModuleHandler handler) {
         createdTriggerHandler.remove(handler);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object addingService(ServiceReference reference) {
         Object result = null;
         if (reference != null) {
@@ -128,6 +135,7 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends ModuleHandler> T create(Module module) {
         ModuleHandler moduleHandler = null;
         if (moduleTypeRegistry != null) {
@@ -140,9 +148,9 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
                     moduleHandler = new SampleTriggerHandler(this, (Trigger) module, (TriggerType) moduleType, log);
                     createdTriggerHandler.add((SampleTriggerHandler) moduleHandler);
                 } else if (SUPPORTED_CONDITION.equals(handlerId)) {
-                    moduleHandler = new SampleConditionHandler(this, (Condition) module, (ConditionType) moduleType);
+                    moduleHandler = new SampleConditionHandler((Condition) module);
                 } else if (SUPPORTED_ACTION.equals(handlerId)) {
-                    moduleHandler = new SampleActionHandler(this, (Action) module, (ActionType) moduleType);
+                    moduleHandler = new SampleActionHandler((Action) module, (ActionType) moduleType);
                 } else {
                     log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
                 }
@@ -165,7 +173,39 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
         dispose0();
     }
 
-    public void dispose0() {
+    /**
+     * Retrieves created TriggerHandlers from this HandlerFactory.
+     *
+     * @return list of created TriggerHandlers
+     */
+    public List<SampleTriggerHandler> getCreatedTriggerHandler() {
+        return createdTriggerHandler;
+    }
+
+    /**
+     * Retrieves ModuleTypeRegistry
+     *
+     * @return ModuleTypeRegistry
+     */
+    static ModuleTypeRegistry getModuleTypeRegistry() {
+        return moduleTypeRegistry;
+    }
+
+    /**
+     * Retrieves Converter
+     *
+     * @return Converter
+     */
+    static Converter getConverter() {
+        return converter;
+    }
+
+    private String getHandlerUID(String moduleTypeUID) {
+        StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, UID_SEPARATOR);
+        return tokenizer.nextToken();
+    }
+
+    private void dispose0() {
         if (moduleTypeRegistryRef != null) {
             bc.ungetService(moduleTypeRegistryRef);
             moduleTypeRegistryRef = null;
@@ -176,22 +216,5 @@ public class SampleHandlerFactory implements ModuleHandlerFactory, ServiceTracke
             serviceReg = null;
         }
         createdTriggerHandler.clear();
-    }
-
-    public List<SampleTriggerHandler> getCreatedTriggerHandler() {
-        return createdTriggerHandler;
-    }
-
-    private String getHandlerUID(String moduleTypeUID) {
-        StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, UID_SEPARATOR);
-        return tokenizer.nextToken();
-    }
-
-    static ModuleTypeRegistry getModuleTypeRegistry() {
-        return moduleTypeRegistry;
-    }
-
-    static Converter getConverter() {
-        return converter;
     }
 }

@@ -25,9 +25,14 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.parser.Converter;
-import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
+/**
+ * Condition Handler Sample Implementation.
+ * 
+ * @author Vasil Ilchev - Initial Contribution
+ *
+ */
 public class SampleConditionHandler extends AbstractModuleHandler implements ConditionHandler {
     public static final String OPERATOR_LESS = "<";
     public static final String OPERATOR_GREATER = ">";
@@ -37,32 +42,25 @@ public class SampleConditionHandler extends AbstractModuleHandler implements Con
     public static final String PROPERTY_OPERATOR = "operator";
     public static final String PROPERTY_CONSTRAINT = "constraint";
     public static final String CONDITION_INPUT_NAME = "conditionInput";
-    //
-    private Map<String, ?> configuration;
-    private Condition condition;
-    private ConditionType conditionType;
-    //
-    private SampleHandlerFactory handlerFactory;
 
-    public SampleConditionHandler(SampleHandlerFactory handlerFactory, Condition condition,
-            ConditionType conditionType) {
+    /**
+     * Constructs SampleConditionHandler.
+     *
+     * @param condition
+     */
+    public SampleConditionHandler(Condition condition) {
         super(condition);
-        this.condition = condition;
-        this.conditionType = conditionType;
-        this.configuration = condition.getConfiguration();
-        this.handlerFactory = handlerFactory;
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        handlerFactory.disposeHandler(this);
     }
 
     @Override
     public boolean isSatisfied(Map<String, ?> inputs) {
-        Map resolvedInputs = getResolvedInputs(inputs);
-        Map resolvedConfiguration = getResolvedConfiguration(resolvedInputs);
+        Map<String, Object> resolvedInputs = getResolvedInputs(inputs);
+        Map<String, Object> resolvedConfiguration = getResolvedConfiguration(resolvedInputs);
         String conditionInput = (String) resolvedInputs.get(CONDITION_INPUT_NAME);
         if (conditionInput == null) {
             conditionInput = "";

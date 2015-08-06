@@ -37,13 +37,13 @@ import org.slf4j.LoggerFactory;
  * explicit or implicit information and using that information to build an object that comprehensively describes the
  * target one. The resulting object is in json format and it is used for serialization and deserialization of the
  * desired object.
- * 
- * @author Ana Dimova
- * 
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
  */
 public class Introspector {
 
-    static final WeakHashMap /* <Class, List<MEntry>> */ METHOD_CACHE = new WeakHashMap();
+    static final WeakHashMap<Class<?>, List<MEntry>> METHOD_CACHE = new WeakHashMap<Class<?>, List<MEntry>>();
     static final String NAN = "NaN"; //$NON-NLS-1$
     static final String N_INFINITY = "-Infinity"; //$NON-NLS-1$
     static final String P_INFINITY = "Infinity"; //$NON-NLS-1$
@@ -55,6 +55,9 @@ public class Introspector {
     private Map<Class<?>, Class<?>> primitiveMap;
     private Logger log;
 
+    /**
+     * Constructs Introspector.
+     */
     public Introspector() {
         if (primitiveMap == null) {
             Map<Class<?>, Class<?>> m = new HashMap<Class<?>, Class<?>>();
@@ -73,7 +76,7 @@ public class Introspector {
 
     /**
      * Tries to deeply introspect an object and convert it to JSON by starting the recursion.
-     * 
+     *
      * @param object the object it self - wrapper type, array, map, list or bean.
      * @throws JSONException if serialization to JSON failed
      */
@@ -92,7 +95,7 @@ public class Introspector {
      * Converts a {@link JSONArray} object to the class types specified in the
      * second parameter. If error happens during conversion, even for one element
      * only, the while conversion fails.
-     * 
+     *
      * @param array the array values which to convert to valid Java objects
      * @param types the target types
      * @return objects array with converted values.
@@ -106,7 +109,7 @@ public class Introspector {
      * @throws java.lang.reflect.InvocationTargetException if the underlying method throws an
      *             exception.
      */
-    Object[] deserialize(boolean passAdditionalFirstParam, JSONArray array, Class[] types) throws JSONException {
+    Object[] deserialize(boolean passAdditionalFirstParam, JSONArray array, Class<?>[] types) throws JSONException {
         int additionalParam = passAdditionalFirstParam ? 1 : 0;
         final Object[] ret = new Object[types.length];
         for (int i = additionalParam; i < types.length; i++) {
@@ -118,18 +121,19 @@ public class Introspector {
     /**
      * Converts a {@link JSONObject} object to the class type specified in the
      * second parameter. If error happens during conversion, the conversion fails.
-     * 
+     *
      * @param jsonData value which to convert to valid Java object
      * @param toType the target type
      * @return
      * @throws JSONException
      */
-    public Object deserialize(Object jsonData, Class toType) throws JSONException {
+    @SuppressWarnings("unchecked")
+    public Object deserialize(Object jsonData, Class<?> toType) throws JSONException {
         if (JSONObject.NULL.equals(jsonData)) {
             return null;
         }
 
-        final Class primClass = primitiveMap.get(toType);
+        final Class<?> primClass = primitiveMap.get(toType);
         if (primClass != null) {
             toType = primClass;
         }
@@ -178,13 +182,13 @@ public class Introspector {
                 return jsonData;
             }
         } else if (jsonData instanceof JSONArray) {
-            List res = null;
+            List<Object> res = null;
             final JSONArray array = (JSONArray) jsonData;
             if (Object.class == toType || List.class == toType || ArrayList.class == toType) { // NOPMD
-                res = new ArrayList();
+                res = new ArrayList<Object>();
             } else if (List.class.isAssignableFrom(toType)) {
                 try {
-                    res = (List) toType.newInstance();
+                    res = (List<Object>) toType.newInstance();
                 } catch (Throwable t) {
                     if (log != null) {
                         log.warn("Unable to instantiate " + toType, t);
@@ -192,7 +196,7 @@ public class Introspector {
                 }
             }
             if (res != null) {
-                Class defaultElementType = null;
+                Class<?> defaultElementType = null;
                 boolean isJsonObject = false;
                 for (int i = 0; i < array.length(); i++) {
                     Object o = array.get(i);
@@ -222,7 +226,7 @@ public class Introspector {
                 return res;
             }
             if (toType.isArray()) {
-                final Class component = toType.getComponentType();
+                final Class<?> component = toType.getComponentType();
                 final int length = array.length();
                 final Object ret = Array.newInstance(component, length);
                 for (int i = 0; i < length; i++) {
@@ -232,13 +236,13 @@ public class Introspector {
             }
         } else if (jsonData instanceof JSONObject) {
             final JSONObject jsonObject = (JSONObject) jsonData;
-            Class defaultElementType = null;
-            Map map = null;
+            Class<?> defaultElementType = null;
+            Map<String, Object> map = null;
             if (Object.class == toType || Map.class == toType || HashMap.class == toType) { // NOPMD
-                map = new HashMap();
+                map = new HashMap<String, Object>();
             } else if (Map.class.isAssignableFrom(toType)) {
                 try {
-                    map = (Map) toType.newInstance();
+                    map = (Map<String, Object>) toType.newInstance();
                 } catch (Throwable t) {
                     if (log != null) {
                         log.warn("Unable to instantiate  " + toType, t);
@@ -259,7 +263,7 @@ public class Introspector {
                         }
                     }
                 }
-                for (Iterator i = jsonObject.keys(); i.hasNext();) {
+                for (Iterator<?> i = jsonObject.keys(); i.hasNext();) {
                     final String key = (String) i.next();
                     Object o = jsonObject.get(key);
                     if ("json.elementType".equals(key)) {
@@ -273,12 +277,12 @@ public class Introspector {
                 }
                 return map;
             }
-            Dictionary dict = null;
+            Dictionary<String, Object> dict = null;
             if (Dictionary.class == toType || Hashtable.class == toType) { // NOPMD
-                dict = new Hashtable();
+                dict = new Hashtable<String, Object>();
             } else if (Dictionary.class.isAssignableFrom(toType)) {
                 try {
-                    dict = (Dictionary) toType.newInstance();
+                    dict = (Dictionary<String, Object>) toType.newInstance();
                 } catch (Throwable t) {
                     if (log != null) {
                         log.warn("Unable to instantiate  " + toType, t);
@@ -299,7 +303,7 @@ public class Introspector {
                         }
                     }
                 }
-                for (Iterator i = jsonObject.keys(); i.hasNext();) {
+                for (Iterator<?> i = jsonObject.keys(); i.hasNext();) {
                     final String key = (String) i.next();
                     Object o = jsonObject.get(key);
                     if ("json.elementType".equals(key)) {
@@ -345,7 +349,7 @@ public class Introspector {
 
     /**
      * Tries to introspect an object and convert it to JSON.
-     * 
+     *
      * @param o is the target object for serialization.
      * @param circularDependencies holds all references for all serialized components of the target object to avoid
      *            infinite loops.
@@ -410,7 +414,7 @@ public class Introspector {
             if (o instanceof Map) {
                 final Map<?, ?> d = (Map<?, ?>) o;
                 final JSONObject json = new JSONObject();
-                for (Map.Entry e : d.entrySet()) {
+                for (Map.Entry<?, ?> e : d.entrySet()) {
                     Object jKey = e.getKey();
                     Object jVal = e.getValue();
                     try {
@@ -428,9 +432,9 @@ public class Introspector {
             }
 
             if (o instanceof Dictionary) {
-                final Dictionary d = (Dictionary) o;
+                final Dictionary<?, ?> d = (Dictionary<?, ?>) o;
                 final JSONObject json = new JSONObject();
-                for (Enumeration e = d.keys(); e.hasMoreElements();) {
+                for (Enumeration<?> e = d.keys(); e.hasMoreElements();) {
                     Object jKey = e.nextElement();
                     Object jVal = d.get(jKey);
                     try {
@@ -448,9 +452,9 @@ public class Introspector {
             }
 
             if (o instanceof Collection) {
-                final Collection d = (Collection) o;
+                final Collection<?> d = (Collection<?>) o;
                 final JSONArray json = new JSONArray();
-                for (Iterator i = d.iterator(); i.hasNext();) {
+                for (Iterator<?> i = d.iterator(); i.hasNext();) {
                     Object val = serializeObjectToJSON(i.next(), circularDependencies, circularObjects);
                     if (val == null)
                         continue;
@@ -483,15 +487,17 @@ public class Introspector {
 
     private JSONObject beanToJSON2(final Object o, final Set<Object> circularDependencies,
             final Set<Object> circularObjects) throws JSONException {
-        final Class clazz = o.getClass();
-        final List/* <MEntry> */ methods = getSerializableMethods(clazz);
+        final Class<?> clazz = o.getClass();
+        final List<MEntry> methods = getSerializableMethods(clazz);
         final JSONObject json = new JSONObject();
         for (int i = 0; null != methods && i < methods.size(); i++) {
-            final MEntry m = (MEntry) methods.get(i);
-            Object res = AccessController.doPrivileged(new PrivilegedAction() {
+            final MEntry m = methods.get(i);
+            Object res = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
                 public Object run() {
                     try {
-                        return serializeObjectToJSON(m.method.invoke(o, null), circularDependencies, circularObjects);
+                        return serializeObjectToJSON(m.method.invoke(o, (Object[]) null), circularDependencies,
+                                circularObjects);
                     } catch (Throwable t) {
                         if (log != null) {
                             log.warn("Unable to invoke method " + m.method.getName(), t);
@@ -508,25 +514,25 @@ public class Introspector {
         return json;
     }
 
-    private List/* <MEntry> */ getSerializableMethods(Class clazz) {
-        List/* <MEntry> */ ret = (List/* <MEntry> */) METHOD_CACHE.get(clazz);
+    private List<MEntry> getSerializableMethods(Class<?> clazz) {
+        List<MEntry> ret = METHOD_CACHE.get(clazz);
         if (null != ret) {
             return ret;
         }
 
         Method[] methods = clazz.getMethods();
-        ret = new ArrayList/* <MEntry> */(methods.length);
+        ret = new ArrayList<MEntry>(methods.length);
 
         for (int i = 0; i < methods.length; i++) {
             Method m = methods[i];
             // if (!Modifier.isPublic(m.getModifiers())) continue;
-            Class declaringClass = m.getDeclaringClass();
+            Class<?> declaringClass = m.getDeclaringClass();
             boolean isPublic = Modifier.isPublic(declaringClass.getModifiers());
             if (declaringClass == Object.class) {
                 continue;
             }
             final String name = m.getName();
-            final Class[] types = m.getParameterTypes();
+            final Class<?>[] types = m.getParameterTypes();
             if (types == null || types.length == 0) {
                 if (name.startsWith("get")) { //$NON-NLS-1$
                     m = isPublic ? m : findPublicMethod(m, declaringClass, null);
@@ -546,11 +552,11 @@ public class Introspector {
         return ret;
     }
 
-    private Object mapToBean(JSONObject beanData, Class toType) {
+    private Object mapToBean(JSONObject beanData, Class<?> toType) {
         try {
             final Object bean = toType.newInstance();
             final Method[] methods = toType.getMethods();
-            for (Iterator i = beanData.keys(); i.hasNext();) {
+            for (Iterator<?> i = beanData.keys(); i.hasNext();) {
                 final String key = (String) i.next();
                 final Object val = beanData.get(key);
                 final Method propSetter = findSetter("set" + capitalize(key), methods); //$NON-NLS-1$
@@ -560,8 +566,9 @@ public class Introspector {
                     }
                     continue;
                 }
-                final Class[] paramTypes = propSetter.getParameterTypes();
-                AccessController.doPrivileged(new PrivilegedAction() {
+                final Class<?>[] paramTypes = propSetter.getParameterTypes();
+                AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                    @Override
                     public Object run() {
                         Object obj = null;
                         try {
@@ -589,9 +596,9 @@ public class Introspector {
             if (methods[i] != null && methods[i].getName().equals(name)) {
                 Method m = methods[i];
                 methods[i] = null;
-                final Class[] paramTypes = m.getParameterTypes();
+                final Class<?>[] paramTypes = m.getParameterTypes();
                 if (paramTypes != null && paramTypes.length == 1) {
-                    Class declaringClass = m.getDeclaringClass();
+                    Class<?> declaringClass = m.getDeclaringClass();
                     if (Modifier.isPublic(declaringClass.getModifiers())) {
                         return m;
                     }
@@ -605,9 +612,9 @@ public class Introspector {
         return null;
     }
 
-    private Method findPublicMethod(Method m, Class clazz, Class param) {
-        Class returnType = m.getReturnType();
-        Class[] interfaces = clazz.getInterfaces();
+    private Method findPublicMethod(Method m, Class<?> clazz, Class<?> param) {
+        Class<?> returnType = m.getReturnType();
+        Class<?>[] interfaces = clazz.getInterfaces();
         String name = m.getName();
         for (int i = 0; i < interfaces.length; i++) {
             if (Modifier.isPublic(interfaces[i].getModifiers())) {
@@ -617,14 +624,14 @@ public class Introspector {
                 }
             }
         }
-        Class superClass = clazz.getSuperclass();
+        Class<?> superClass = clazz.getSuperclass();
         return superClass == Object.class ? null : findPublicMethod(name, returnType, param, superClass);
     }
 
-    private Method findPublicMethod(String name, Class returnType, Class param, Class fromClass) {
+    private Method findPublicMethod(String name, Class<?> returnType, Class<?> param, Class<?> fromClass) {
         Method[] methods = fromClass.getMethods();
         for (int j = 0; j < methods.length; j++) {
-            final Class[] paramTypes = methods[j].getParameterTypes();
+            final Class<?>[] paramTypes = methods[j].getParameterTypes();
             if (methods[j].getName().equals(name) && methods[j].getReturnType().equals(returnType)
                     && (param == null && paramTypes.length == 0
                             || paramTypes.length == 1 && paramTypes[0].equals(param))) {
@@ -638,7 +645,7 @@ public class Introspector {
      * Capitalizes the first letter of the given string argument. For example,
      * "value" will become "Value", "valueString" will become "ValueString",
      * "Ready" will stay "Ready" and "READY" will stay "READY".
-     * 
+     *
      * @param lower the initial string. It must not be null and its length after
      *            trimming must not be 0
      * @return the transformed string argument or null if it does not have the
@@ -657,7 +664,7 @@ public class Introspector {
         return json.has(key) ? json.optString(key) : null;
     }
 
-    private String propName(String methodName, int off, Class clazz) {
+    private String propName(String methodName, int off, Class<?> clazz) {
         char[] chars = methodName.toCharArray();
         if (Character.isUpperCase(chars[off]) && // fist char is upper case
                 chars.length - off > 1 && !Character.isUpperCase(chars[off + 1])) { // second char is lower case
@@ -671,6 +678,11 @@ public class Introspector {
     }
 }
 
+/**
+ * Class containing methods
+ *
+ * @author Ana Dimova - Initial Contribution
+ */
 final class MEntry {
 
     final Method method;

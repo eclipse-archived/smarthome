@@ -24,15 +24,16 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Ana Dimova
  *
  */
+@SuppressWarnings("rawtypes")
 public class Activator implements BundleActivator, ServiceTrackerCustomizer {
 
     private BundleContext bc;
-    private ServiceReference afRef;
+    private ServiceReference<Object> afRef;
     private AutomationFactory automationFactory;
 
-    private ServiceRegistration /* <Parser> */ mpReg;
-    private ServiceRegistration /* <Parser> */ tpReg;
-    private ServiceRegistration /* <Parser> */ rpReg;
+    private ServiceRegistration mpReg;
+    private ServiceRegistration tpReg;
+    private ServiceRegistration rpReg;
     private ServiceRegistration converterReg;
 
     private ServiceTracker automationTracker;
@@ -41,6 +42,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
      * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void start(BundleContext context) throws Exception {
         bc = context;
         converterReg = bc.registerService(Converter.class.getName(), new ConverterImpl(), null);
@@ -67,6 +69,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer {
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Object addingService(ServiceReference reference) {
         Object service = bc.getService(reference);
         if (service instanceof AutomationFactory && afRef == null) {

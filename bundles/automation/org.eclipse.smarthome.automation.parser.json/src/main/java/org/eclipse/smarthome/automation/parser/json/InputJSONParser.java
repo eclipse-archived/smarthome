@@ -13,25 +13,27 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.type.Input;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 
-import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.type.Input;
-
 /**
+ * Parser for Inputs.
+ *
  * @author Ana Dimova - Initial Contribution
  *
  */
 public class InputJSONParser {
 
     /**
+     * Collects Inputs from JSON.
      *
-     * @param bc
-     * @param jsonInputs
-     * @param inputs
-     * @param status
+     * @param bc bundleContext
+     * @param jsonInputs Inputs in json format
+     * @param inputs the collected inputs
+     * @param status Status Object
      */
     static boolean collectInputs(BundleContext bc, JSONObject jsonInputs, Set<Input> inputs, Status status) {
         boolean res = true;

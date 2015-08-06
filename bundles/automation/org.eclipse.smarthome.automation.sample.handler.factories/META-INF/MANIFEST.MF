@@ -3,6 +3,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.handler.factories
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Name: Automation sample.handler.factories
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: 
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.handler,
@@ -18,4 +19,3 @@ Import-Package:
  org.osgi.service.event,
  org.osgi.util.tracker;version="1.4.0"
 Bundle-Activator: org.eclipse.smarthome.automation.sample.handler.factories.Activator
-

@@ -17,6 +17,8 @@ import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
 
 /**
+ * Utility class for performing operations over JSON structures.
+ *
  * @author Ana Dimova - Initial Contribution
  *
  */

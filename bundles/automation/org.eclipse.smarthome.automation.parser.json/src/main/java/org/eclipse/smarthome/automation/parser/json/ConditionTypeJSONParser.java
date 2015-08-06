@@ -14,16 +14,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONException;
-
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.json.JSONException;
 
 /**
+ * Parser for ConditionTypes.
+ * 
  * @author Ana Dimova - Initial Contribution
  *
  */
@@ -80,9 +81,11 @@ public class ConditionTypeJSONParser {
     }
 
     /**
-     * @param conditions
-     * @param triggers
-     * @param writer
+     * Writes ConditionTypes to the provided OutputStreamWriter.
+     *
+     * @param conditions conditionTypes that will be written
+     * @param triggers triggerTypes
+     * @param writer where ConditionTypes will be written
      * @throws IOException
      * @throws JSONException
      */
