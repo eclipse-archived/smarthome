@@ -12,12 +12,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
@@ -31,13 +30,14 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     private Future<?> feature;
 
-    private static final Logger log = LoggerFactory.getLogger(RuleEngineCallback.class);
+    private final Logger log = LoggerFactory.getLogger(RuleEngineCallback.class);
 
     protected RuleEngineCallbackImpl(RuleImpl r) {
         this.r = r;
         executor = Executors.newSingleThreadExecutor();
     }
 
+    @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
         if (trigger instanceof SourceModule) {
             feature = executor.submit(new TriggerData(trigger, outputs));
@@ -74,6 +74,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
             this.outputs = outputs;
         }
 
+        @Override
         public void run() {
             RuleEngine.runRule(r, this);
         }

@@ -7,17 +7,17 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.core.template.TemplateRegistryImpl;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeRegistryImpl;
-import org.eclipse.smarthome.automation.AutomationFactory;
-import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator {
 
@@ -27,12 +27,17 @@ public class Activator implements BundleActivator {
 
     protected static AutomationFactory automationFactory;
 
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration /* <?> */ automationFactoryReg;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
     private RuleRegistryImpl ruleRegistry;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ templateRegistryReg;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ moduleTypeRegistryReg;
 
+    @Override
     public void start(BundleContext bc) throws Exception {
         Activator.bc = bc;
         // log = new Log(bc);
@@ -46,11 +51,12 @@ public class Activator implements BundleActivator {
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
 
         RuleManagerImpl rm = new RuleManagerImpl(bc);
-        RuleProvider rp = new RuleProvider(rm, bc);
+        ManagedRuleProvider rp = new ManagedRuleProvider(rm, bc);
         ruleRegistry = new RuleRegistryImpl(rm, rp);
         ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
     }
 
+    @Override
     public void stop(BundleContext bc) throws Exception {
         if (ruleRegistryReg != null) {
             ruleRegistryReg.unregister();

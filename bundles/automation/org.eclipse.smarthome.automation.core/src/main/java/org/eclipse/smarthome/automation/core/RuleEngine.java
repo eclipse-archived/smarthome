@@ -17,14 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
@@ -33,6 +25,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleError;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -40,6 +33,12 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.Input;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
@@ -64,7 +63,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     public RuleEngine(BundleContext bc) {
         this.bc = bc;
-        this.log = LoggerFactory.getLogger(getClass());
+        RuleEngine.log = LoggerFactory.getLogger(getClass());
         if (rules == null) {
             rules = new HashMap<String, RuleImpl>(20);
         }
@@ -88,6 +87,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (isDisposed) {
             return;
         }
+        System.out.println("RuleEngine setRule " + r.getUID());
         String rUID = r.getUID();
         List<RuleError> errList = null;
         if (r.conditions != null) {
@@ -131,7 +131,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     /**
      * This method connects modules to corresponding module handlers.
-     * 
+     *
      * @param modules list of modules
      * @param all flag determinating result of the method. When it is true the registration
      *            will be successful only when all the modules are connected to their module handlers. When it is false
@@ -347,6 +347,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
      */
+    @Override
     public synchronized ModuleHandlerFactory addingService(ServiceReference/* <ModuleHandlerFactory> */ reference) {
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
@@ -384,6 +385,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
+    @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
             /* ModuleHandlerFactory */Object service) {
         // TODO Auto-generated method stub
@@ -394,6 +396,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
      */
+    @Override
     public synchronized void removedService(
             ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
@@ -561,7 +564,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     /**
      * This method gets rule's status object.
-     * 
+     *
      * @param rUID rule uid
      * @return status of the rule or null when such rule does not exists.
      */

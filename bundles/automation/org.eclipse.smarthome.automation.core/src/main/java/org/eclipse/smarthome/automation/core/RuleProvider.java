@@ -10,15 +10,15 @@ package org.eclipse.smarthome.automation.core;
 import java.util.Collection;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.core.common.registry.AbstractProvider;
-import org.eclipse.smarthome.core.common.registry.ManagedProvider;
+import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 import org.osgi.framework.BundleContext;
 
 /**
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Persistence implementation
  */
-public class RuleProvider extends AbstractProvider implements ManagedProvider {
+public class RuleProvider extends DefaultAbstractManagedProvider<Rule, String> {
 
     private RuleManagerImpl rm;
 
@@ -27,40 +27,54 @@ public class RuleProvider extends AbstractProvider implements ManagedProvider {
     }
 
     @Override
-    public Collection getAll() {
+    public Collection<Rule> getAll() {
         return rm.getRules();
     }
 
     @Override
-    public Object update(Object element) {
+    public Rule update(Rule element) {
         String id = ((Rule) element).getUID();
         rm.updateRule((Rule) element);
-        Object newElement = get(id);
+        Rule newElement = get(id);
         notifyListenersAboutUpdatedElement(element, newElement);
         return newElement;
     }
 
     @Override
-    public Object get(Object key) {
+    public Rule get(String key) {
         String ruleUID = (String) key;
         Rule r = rm.getRule(ruleUID);
         return r;
     }
 
     @Override
-    public void add(Object element) {
+    public void add(Rule element) {
         rm.addRule((Rule) element);
         notifyListenersAboutAddedElement(element);
     }
 
     @Override
-    public Object remove(Object key) {
+    public Rule remove(String key) {
         String ruleUID = (String) key;
         Rule r = rm.getRule(ruleUID);
         rm.removeRule(ruleUID);
         notifyListenersAboutRemovedElement(r);
-        ;
         return r;
+    }
+
+    @Override
+    protected String getKey(Rule element) {
+        return element.getUID();
+    }
+
+    @Override
+    protected String getStorageName() {
+        return "automation_rules";
+    }
+
+    @Override
+    protected String keyToString(String key) {
+        return key;
     }
 
 }
