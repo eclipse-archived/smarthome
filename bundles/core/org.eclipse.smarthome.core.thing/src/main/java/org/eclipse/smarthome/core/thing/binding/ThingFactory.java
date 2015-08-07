@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -172,23 +173,24 @@ public class ThingFactory {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = channelDefinition.getType();
 
-        ChannelBuilder channelBuilder = ChannelBuilder.create(
-                new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType()).withDefaultTags(
-                type.getTags());
+        ChannelBuilder channelBuilder = ChannelBuilder
+                .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
+                .withDefaultTags(type.getTags());
 
         // If we want to override the label, add it...
-        if(channelDefinition.getLabel() != null) {
+        if (channelDefinition.getLabel() != null) {
             channelBuilder = channelBuilder.withLabel(channelDefinition.getLabel());
         }
 
         // If we want to override the description, add it...
-        if(channelDefinition.getDescription() != null) {
+        if (channelDefinition.getDescription() != null) {
             channelBuilder = channelBuilder.withDescription(channelDefinition.getDescription());
         }
 
         // Initialize channel configuration with default-values
-        if (configDescriptionRegistry != null) {
-            ConfigDescription cd = configDescriptionRegistry.getConfigDescription(type.getConfigDescriptionURI());
+        URI channelConfigDescriptionURI = type.getConfigDescriptionURI();
+        if (configDescriptionRegistry != null && channelConfigDescriptionURI != null) {
+            ConfigDescription cd = configDescriptionRegistry.getConfigDescription(channelConfigDescriptionURI);
             if (cd != null) {
                 Configuration config = new Configuration();
                 for (ConfigDescriptionParameter param : cd.getParameters()) {
@@ -225,9 +227,8 @@ public class ThingFactory {
                     return null;
             }
         } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn(
-                    "Could not parse default value '" + defaultValue + "' as type '" + parameterType + "': "
-                            + ex.getMessage(), ex);
+            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '" + defaultValue
+                    + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
             return null;
         }
     }
