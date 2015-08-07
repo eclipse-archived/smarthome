@@ -24,24 +24,24 @@ import org.osgi.framework.ServiceRegistration;
 public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtension {
 
     private static final String CMD = "autotype";
-    private static final String DESC = "Automation Sample Spi Factory Management";
+    private static final String DESC = "Automation Sample Handler Factory Management";
 
     private static final String COMMAND_LIST = "listTrigger";
     private static final String COMMAND_EXECUTE = "executeTrigger";
 
     private List<SampleTriggerHandler> currentTriggers;
-    private SampleHandlerFactory sampleSpiFactory;
+    private SampleHandlerFactory sampleHandlerFactory;
     private ServiceRegistration<?> commandsServiceReg;
 
     /**
      * Constructs the SampleHandlerFactoryCommands
      *
-     * @param sampleSpiFactory HandlerFactory
+     * @param sampleHandlerFactory HandlerFactory
      * @param bc bundleContext
      */
-    public SampleHandlerFactoryCommands(SampleHandlerFactory sampleSpiFactory, BundleContext bc) {
+    public SampleHandlerFactoryCommands(SampleHandlerFactory sampleHandlerFactory, BundleContext bc) {
         super(CMD, DESC);
-        this.sampleSpiFactory = sampleSpiFactory;
+        this.sampleHandlerFactory = sampleHandlerFactory;
         commandsServiceReg = bc.registerService(ConsoleCommandExtension.class.getName(), this, null);
     }
 
@@ -55,16 +55,16 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
         }
 
         if (COMMAND_LIST.equalsIgnoreCase(command) || "ls".equalsIgnoreCase(command)) {
-            listTriggerSpi(params, console);
+            listTriggerHandlers(params, console);
         } else if (COMMAND_EXECUTE.equalsIgnoreCase(command) || "ex".equalsIgnoreCase(command)) {
-            executeTriggerSpi(params, console);
+            executeTriggerHandler(params, console);
         }
     }
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage(COMMAND_LIST, "List all created TriggerSpi"),
-                buildCommandUsage(COMMAND_EXECUTE, "Executes specific TriggerSpi by its index.") });
+        return Arrays.asList(new String[] { buildCommandUsage(COMMAND_LIST, "List all created TriggerHandler"),
+                buildCommandUsage(COMMAND_EXECUTE, "Executes specific TriggerHandler by its index.") });
     }
 
     /**
@@ -74,9 +74,9 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
         commandsServiceReg.unregister();
     }
 
-    private void listTriggerSpi(String[] params, Console console) {
+    private void listTriggerHandlers(String[] params, Console console) {
         console.println("ID                             Name");
-        currentTriggers = sampleSpiFactory.getCreatedTriggerHandler();
+        currentTriggers = sampleHandlerFactory.getCreatedTriggerHandler();
         if (currentTriggers.size() > 0) {
             for (int i = 0; i < currentTriggers.size(); i++) {
                 console.print(Integer.toString(i + 1));
@@ -89,16 +89,16 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
 
     }
 
-    private void executeTriggerSpi(String[] params, Console console) {
+    private void executeTriggerHandler(String[] params, Console console) {
         if (params.length >= 1) {
             int index = Integer.parseInt(params[0]);
             String param = null;
             if (currentTriggers.size() >= index) {
-                SampleTriggerHandler triggerSpi = currentTriggers.get(index - 1);
+                SampleTriggerHandler triggerHandler = currentTriggers.get(index - 1);
                 if (params.length >= 2) {
                     param = params[1];
                 }
-                triggerSpi.trigger(param);
+                triggerHandler.trigger(param);
             }
         }
     }
