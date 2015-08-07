@@ -102,7 +102,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                 } else {
                     button = StringUtils.replace(button, "%type%", "Action"); // button with blue color
                 }
-                buttons.insert(0, button);
+                buttons.append(button);
             }
             snippet = StringUtils.replace(snippet, "%buttons%", buttons.toString());
         }
