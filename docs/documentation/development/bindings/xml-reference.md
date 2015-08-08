@@ -24,6 +24,12 @@ Any `ConfigDescriptionProvider`s must be registered as service at the *OSGi* ser
 
 Configuration descriptions must be placed as XML file(s) (with the ending `.xml`) in the bundle's folder `/ESH-INF/config/`.
 
+### Formatting Labels
+The label and descriptions for things, channels and config descriptions should follow the following format. The label should be short so that for most UIs it does not spread across multiple lines. The description can contain longer text to describe the thing in more detail. Limited use of HTML tags is permitted to enhance the description - if a long description is provided, the first line should be kept short, and a line break (```<br>```) placed at the end of the line to allow UIs to display a short description in limited space.
+
+Configuration options should be kept short so that they are displayable in a single line in most UIs. If you want to provide a longer description of the options provided by a particular parameter, then this should be placed into the ```<description>``` of the parameter to keep the option label short. The description can include limited HTML to enhance the display of this information.
+
+The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <i>, <p>, <small>, <strong>, <sub>, <sup>, <ul>, <ol>, <li>```. These must be inside the XML escape sequence - eg - ```<description><![CDATA[ HTML marked up text here ]]></description>```.
 
 ### XML Structure for Configuration Descriptions
 ```xml
