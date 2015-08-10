@@ -146,15 +146,16 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         return null;
     }
 
-    /**
-     * @see AbstractResourceBundleProvider#importData(Vendor, Parser, java.io.InputStreamReader, java.util.ArrayList)
-     */
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            List<String> portfolio) {
+    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader) {
+        List<String> portfolio = null;
         if (vendor != null) {
             synchronized (providerPortfolio) {
-                providerPortfolio.put(vendor, portfolio);
+                portfolio = providerPortfolio.get(vendor);
+                if (portfolio == null) {
+                    portfolio = new ArrayList<String>();
+                    providerPortfolio.put(vendor, portfolio);
+                }
             }
         }
         Set<Status> providedObjects = parser.importData(inputStreamReader);
@@ -167,7 +168,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                     String uid = providedObject.getUID();
                     if (checkExistence(uid, status))
                         continue;
-                    portfolio.add(uid);
+                    if (portfolio != null) {
+                        portfolio.add(uid);
+                    }
                     Localizer lProvidedObject = new Localizer(providedObject);
                     synchronized (providedObjectsHolder) {
                         providedObjectsHolder.put(uid, lProvidedObject);
@@ -191,7 +194,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         if (moduleTypeRegistry.get(uid) != null) {
             status.error(
                     "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
-                    new IllegalArgumentException("Module Type with UID \"" + uid + "\" already exists!"));
+                    new IllegalArgumentException());
             status.success(null);
             return true;
         }

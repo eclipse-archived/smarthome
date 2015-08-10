@@ -10,7 +10,6 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,6 +32,7 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
@@ -59,7 +59,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      */
     protected static String PATH = "ESH-INF/automation";
 
-    protected Logger log;
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * A bundle's execution context within the Framework.
@@ -161,8 +161,8 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             while (i.hasNext()) {
                 Long bundleId = i.next();
                 Bundle bundle = waitingProviders.get(bundleId);
-                String parserType = bundle.getHeaders().get(
-                        AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
+                String parserType = bundle.getHeaders()
+                        .get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
                 Parser parser = parsers.get(parserType);
                 if (parser != null && bundle.getState() != Bundle.UNINSTALLED) {
                     queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));
@@ -270,8 +270,8 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         }
         synchronized (providerPortfolio) {
             for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId())) && !vendor.getVendorVersion()
-                        .equals(bundle.getVersion().toString())) {
+                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
+                        && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
                     List<String> portfolio = providerPortfolio.remove(vendor);
                     if (portfolio != null && !portfolio.isEmpty())
                         for (String uid : portfolio) {
@@ -284,14 +284,14 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         Enumeration<URL> urls = bundle.findEntries(path, null, false);
         if (urls == null)
             return;
-        List<String> portfolio = new ArrayList<String>();
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             try {
-                importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
+                importData(vendor, parser, new InputStreamReader(url.openStream()));
             } catch (IOException e) {
-                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
+                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
+                        e);
             }
         }
     }
@@ -341,7 +341,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
      * @return a set of {@link Status}es, each of them shows the result of loading per object.
      */
-    protected abstract Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            List<String> portfolio);
+    protected abstract Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader);
 
 }

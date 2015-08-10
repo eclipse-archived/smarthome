@@ -79,6 +79,9 @@ public class RuleImpl implements Rule {
      */
     public RuleImpl(String ruleTemplateUID, Map<String, Object> configurations) {
         RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
+        if (template == null) {
+            throw new IllegalArgumentException("Rule template '" + ruleTemplateUID + "' does not exist.");
+        }
         this.triggers = template.getModules(Trigger.class);
         this.conditions = template.getModules(Condition.class);
         this.actions = template.getModules(Action.class);
@@ -340,8 +343,8 @@ public class RuleImpl implements Rule {
             return;
         }
         if (configParameter.isRequired()) {
-            throw new IllegalArgumentException("Required configuration property missing: \"" + configParameter.getName()
-                    + "\"!");
+            throw new IllegalArgumentException(
+                    "Required configuration property missing: \"" + configParameter.getName() + "\"!");
         }
     }
 
@@ -380,8 +383,9 @@ public class RuleImpl implements Rule {
                     }
                 }
             }
-            throw new IllegalArgumentException("Unexpected value for configuration property \"" + configParameter
-                    .getName() + "\". Expected is Array with type for elements : " + type.toString() + "!");
+            throw new IllegalArgumentException(
+                    "Unexpected value for configuration property \"" + configParameter.getName()
+                            + "\". Expected is Array with type for elements : " + type.toString() + "!");
         } else {
             if (Type.TEXT.equals(type) && configValue instanceof String)
                 return;
@@ -393,8 +397,8 @@ public class RuleImpl implements Rule {
             else if (Type.DECIMAL.equals(type) && (configValue instanceof Float || configValue instanceof Double))
                 return;
             else {
-                throw new IllegalArgumentException("Unexpected value for configuration property \"" + configParameter
-                        .getName() + "\". Expected is " + type.toString() + "!");
+                throw new IllegalArgumentException("Unexpected value for configuration property \""
+                        + configParameter.getName() + "\". Expected is " + type.toString() + "!");
             }
         }
     }

@@ -1,5 +1,6 @@
 [  
   {  
+    "uid": "sample.rule1",
     "name": "SampleRule",
     "tags": [  
       "sample",
@@ -40,6 +41,7 @@
     ]
   },
   {  
+    "uid": "sample.rule2",
     "name": "SampleRule2",
     "tags": [  
       "sample",

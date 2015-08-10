@@ -10,10 +10,9 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
@@ -151,74 +150,35 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
             return;
         }
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
-        List<String> portfolio = new ArrayList<String>();
         while (urls.hasMoreElements()) {
             URL url = urls.nextElement();
             try {
-                importData(vendor, parser, new InputStreamReader(url.openStream()), portfolio);
+                importData(vendor, parser, new InputStreamReader(url.openStream()));
             } catch (IOException e) {
-                log.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url, e);
+                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
+                        e);
             }
         }
     }
 
-    /**
-     * This method provides functionality for processing the uninstalled bundles with rule resources.
-     * <p>
-     * When some of the bundles that provides rule resources is uninstalled, this method will remove it from
-     * {@link #waitingProviders}, if it is still there or from {@link #providerPortfolio} in the other case.
-     * <p>
-     * Will remove these rules from {@link #providedObjectsHolder} and will remove their persistence,
-     * injected in the system from this bundle.
-     *
-     * @param bundle the uninstalled {@link Bundle}, provider of automation rules.
-     */
     @Override
-    protected void processAutomationProviderUninstalled(Bundle bundle) {
-        synchronized (waitingProviders) {
-            if (waitingProviders.remove(new Long(bundle.getBundleId())) != null)
-                return;
-        }
-        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
-        List<String> portfolio = null;
-        synchronized (providerPortfolio) {
-            if (providerPortfolio.isEmpty()) {
-                return;
-            }
-            portfolio = providerPortfolio.get(vendor);
-        }
-        if (portfolio == null || portfolio.isEmpty()) {
-            return;
-        }
-        Iterator<String> ip = portfolio.iterator();
-        while (ip.hasNext()) {
-            String uid = ip.next();
-            ruleRegistry.remove(uid);
-        }
-        synchronized (providerPortfolio) {
-            portfolio = providerPortfolio.remove(vendor);
-        }
-    }
-
-    /**
-     * @see AbstractResourceBundleProvider#importData(Vendor, Parser, java.io.InputStreamReader, java.util.ArrayList)
-     */
-    @Override
-    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            List<String> portfolio) {
+    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader) {
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
             while (i.hasNext()) {
                 Rule rule = (Rule) i.next().getResult();
                 if (rule != null) {
-                    ruleRegistry.add(rule);
-                    portfolio.add(rule.getUID());
+                    try {
+                        ruleRegistry.add(rule);
+                    } catch (IllegalArgumentException e) {
+                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
+                    }
                 }
             } // while
             synchronized (providerPortfolio) {
-                if (providerPortfolio.get(vendor) == null && !portfolio.isEmpty()) {
-                    providerPortfolio.put(vendor, portfolio);
+                if (providerPortfolio.get(vendor) == null) {
+                    providerPortfolio.put(vendor, Collections.<String> emptyList());
                 }
             }
         }

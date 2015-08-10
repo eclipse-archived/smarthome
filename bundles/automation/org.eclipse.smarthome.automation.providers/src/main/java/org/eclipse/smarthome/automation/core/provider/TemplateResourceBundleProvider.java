@@ -50,8 +50,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>implements
-        TemplateProvider {
+public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<RuleTemplate>
+        implements TemplateProvider {
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
@@ -169,14 +169,17 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         return null;
     }
 
-    /**
-     * @see AbstractResourceBundleProvider#importData(Vendor, Parser, java.io.InputStreamReader, java.util.ArrayList)
-     */
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader,
-            List<String> portfolio) {
-        synchronized (providerPortfolio) {
-            providerPortfolio.put(vendor, portfolio);
+    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader) {
+        List<String> portfolio = null;
+        if (vendor != null) {
+            synchronized (providerPortfolio) {
+                portfolio = providerPortfolio.get(vendor);
+                if (portfolio == null) {
+                    portfolio = new ArrayList<String>();
+                    providerPortfolio.put(vendor, portfolio);
+                }
+            }
         }
         Set<Status> providedObjects = parser.importData(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
@@ -186,17 +189,19 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 RuleTemplate ruleT = (RuleTemplate) status.getResult();
                 String uid = ruleT.getUID();
                 try {
-                    ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class), ruleT
-                            .getModules(Condition.class), ruleT.getModules(Action.class));
+                    ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
+                            ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! " + e
-                            .getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
+                            + e.getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))
                     continue;
-                portfolio.add(uid);
+                if (portfolio != null) {
+                    portfolio.add(uid);
+                }
                 Localizer lruleT = new Localizer(ruleT);
                 synchronized (providedObjectsHolder) {
                     providedObjectsHolder.put(uid, lruleT);
@@ -218,8 +223,9 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     private boolean checkExistence(String uid, Status status) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            status.error("Rule Template with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!",
+            status.error(
+                    "Rule Template with UID \"" + uid
+                            + "\" already exists! Failed to create a second with the same UID!",
                     new IllegalArgumentException());
             status.success(null);
             return true;

@@ -1,5 +1,6 @@
 [
   {  
+    "uid": "sample.rulebytemplate",
     "name": "RuleByTemplate",
     "template.uid": "SampleRuleTemplate",
     "tags": [  

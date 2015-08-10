@@ -113,7 +113,7 @@ public class RuleJSONParser implements Parser {
             try {
                 rule = automationFactory.createRule(ruleTemplateUID, configurations);
             } catch (Exception e) {
-                status.error("Failed to validate configuration of Rule! " + e.getMessage(), e);
+                status.error("Failed to instantiate rule: " + e.getMessage(), e);
                 return status;
             }
         } else {
