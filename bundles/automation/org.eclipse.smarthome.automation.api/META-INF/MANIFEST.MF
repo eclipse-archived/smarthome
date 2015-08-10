@@ -20,7 +20,10 @@ Import-Package:
  org.slf4j
 Export-Package: 
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.dto,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
- org.eclipse.smarthome.automation.type
+ org.eclipse.smarthome.automation.template.dto,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.automation.type.dto

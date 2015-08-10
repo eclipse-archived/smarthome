@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: 
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.dto,
  org.eclipse.smarthome.automation.handler,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,

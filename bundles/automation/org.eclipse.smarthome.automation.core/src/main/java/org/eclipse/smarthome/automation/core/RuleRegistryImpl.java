@@ -25,7 +25,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     public RuleRegistryImpl(RuleManager ruleManager, ManagedRuleProvider rp) {
         this.ruleManager = ruleManager;
-        this.managedProvider = rp;
+        addProvider(rp);
     }
 
     @Override

@@ -41,8 +41,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>implements
-        ModuleTypeProvider {
+public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
+        implements ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
     private ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry> moduleTypesTracker;
@@ -189,9 +189,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      */
     private boolean checkExistence(String uid, Status status) {
         if (moduleTypeRegistry.get(uid) != null) {
-            status.error("Module Type with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!",
-                    new IllegalArgumentException());
+            status.error(
+                    "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
+                    new IllegalArgumentException("Module Type with UID \"" + uid + "\" already exists!"));
             status.success(null);
             return true;
         }
