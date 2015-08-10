@@ -171,7 +171,8 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
                     });
                 }
             } catch (TimeoutException timeoutException) {
-                logger.warn("Dispatching event to subscriber '{}' timed out.", eventSubscriber.toString());
+                logger.warn("Dispatching event to subscriber '{}' takes more than {}ms.", eventSubscriber.toString(),
+                        SafeMethodCaller.DEFAULT_TIMEOUT);
             } catch (Throwable t) {
                 logger.error("Dispatching/filtering event for subscriber '" + EventSubscriber.class.getName()
                         + "' failed: " + t.getMessage(), t);
