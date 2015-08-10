@@ -278,8 +278,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 }
                             });
                         } catch (TimeoutException ex) {
-                            logger.warn("Handler for thing {} took more than {}ms for processing event",
-                                    handler.getThing().getUID().toString(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                            logger.warn("Handler for thing '{}' takes more than {}ms for processing event",
+                                    handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                         } catch (Exception ex) {
                             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                         }
@@ -321,8 +321,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 }
                             });
                         } catch (TimeoutException ex) {
-                            logger.warn("Handler for thing {} took more than {}ms for processing event",
-                                    handler.getThing().getUID().toString(), SafeMethodCaller.DEFAULT_TIMEOUT);
+                            logger.warn("Handler for thing {} takes more than {}ms for processing event",
+                                    handler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                         } catch (Exception ex) {
                             logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                         }
@@ -331,7 +331,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 + "because no handler is assigned. Maybe the binding is not installed or not "
                                 + "propertly initialized.", newState, itemName, channelUID);
                     }
-
                 } else {
                     logger.warn(
                             "Cannot delegate update '{}' for item '{}' to handler for channel '{}', "
@@ -493,7 +492,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
-            logger.error("Registering thing handler timed out: " + ex.getMessage(), ex);
+            logger.warn("Registering handler for thing '{}' takes more than {}ms.", thing.getUID(),
+                    SafeMethodCaller.DEFAULT_TIMEOUT);
         } catch (Exception ex) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
