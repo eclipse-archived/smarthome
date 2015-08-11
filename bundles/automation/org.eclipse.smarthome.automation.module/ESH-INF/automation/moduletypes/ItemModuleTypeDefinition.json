@@ -1,0 +1,74 @@
+{  
+  "triggers": {
+    "ItemStateChangeTrigger": {
+      "label": "Trigger on ItemState chang",
+      "description": "This trigger executes rules if an items state has chaged.",
+      "config": {
+        "itemName": {
+          "type": "TEXT",
+          "label": "ItemName",
+          "description": "This is the name of the item which should be observed for state changes",
+          "required": true,
+          "defaultValue": "item1"
+        }
+      },
+      "output": {
+        "itemName": {
+          "type": "java.lang.String",
+          "label": "the changed item name",
+          "description": "The name of the item.",
+          "reference": "itemName",
+          "defaultValue": "item1"
+        },
+		"newState": {
+            "type": "java.lang.String",
+            "label": "the new state",
+            "description": "the new state of the item.",
+            "reference": "newState",
+            "defaultValue": "ON"
+		}
+      }
+	}
+  },
+  "conditions":{
+	  "ItemStateCondition":{
+		  "label": "Item state condition",
+		  "description": "compares the items current state with the given",
+		  "config":{
+			  "operator": {
+				  "type":"TEXT",
+				  "description":"the compare operator (one of =,<,>,!=)",
+				  "required":true
+			  },
+			  "itemName":{
+				  "type":"TEXT",
+				  "description":"the name of the Item",
+				  "required":true
+			  },
+			  "state":{
+				  "type":"TEXT",
+				  "description":"the state to be compared with",
+				  "required":true
+			  }
+		  }
+	  }
+  },
+  "actions":{
+	  "ItemPostCommandAction":{
+		  "label":"ItemPostCommandAction",
+		  "description":"posts commands on items",
+		  "config":{
+			  "itemName":{
+				  "type":"TEXT",
+				  "description":"the name of the item to post the command for",
+				  "required":true
+			  },
+			  "command":{
+				  "type":"TEXT",
+				  "description":"the command to be posted",
+				  "required":true
+			  }
+		  }
+	  }
+  }
+}

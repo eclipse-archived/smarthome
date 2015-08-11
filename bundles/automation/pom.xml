@@ -24,6 +24,8 @@
     <module>org.eclipse.smarthome.automation.core</module>
     <module>org.eclipse.smarthome.automation.sample.handler.factories</module>
 	<module>org.eclipse.smarthome.automation.sample.handler.resources</module>
+	<module>org.eclipse.smarthome.automation.module</module>
+  	<module>org.eclipse.smarthome.automation.module.test</module>
   </modules>
 
   <build>

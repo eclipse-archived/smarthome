@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Automation Modules
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module
+Bundle-Version: 0.8.0.qualifier
+Bundle-Activator: org.eclipse.smarthome.automation.module.Activator
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.types,
+ org.osgi.util.tracker,
+ org.osgi.framework,
+ org.osgi.service.event,
+ org.slf4j;version="1.7.2"
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/*.xml
+Automation-ResourceType: json
+Export-Package: org.eclipse.smarthome.automation.module.factory,
+ org.eclipse.smarthome.automation.module.handler

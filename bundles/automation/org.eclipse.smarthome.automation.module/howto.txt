@@ -1,0 +1,11 @@
+Implementing Modules for Automation
+
+1.) Create Eclipse Plugin project
+2.) Define metadata for module types in ESH-INF/automation/moduletypes in JSON format
+3.)	Add "Automation-ResourceType: json" to META-INF/MANIFEST.MF
+4.) Implement Handler for Triggers, Actions and/or Conditions (implementing interfaces: TriggerHandler, ActionHandler, ConditionHandler)
+5.) Implement ModuleHandlerFactory which creates the Handlers for corresponding ModuleTypes
+6.) Register ModuleHandlerFactory as Service
+	- add Service-Component: OSGI-INF/*.xml to META-INF/MANIFEST.MF
+	- add OSGI-INF/xxxModuleHandlerFactory.xml and specify DS
+	
