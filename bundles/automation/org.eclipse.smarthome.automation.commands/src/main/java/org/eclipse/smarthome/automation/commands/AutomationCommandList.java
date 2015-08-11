@@ -391,14 +391,7 @@ public class AutomationCommandList extends AutomationCommand {
     public String getRuleStatus(RuleStatus status) {
         if (status != null) {
             StringBuffer writer = new StringBuffer();
-            writer.append(" [").append(status.isEnabled() ? "enabled, " : "not enabled, ");
-            writer.append(status.isRunning() ? "running, " : "idle, ");
-            if (status.isInitialize()) {
-                writer.append("initialized]");
-            } else {
-                writer.append("not initialized]");
-            }
-
+            writer.append(" [ ").append(status).append(" ] ");
             return writer.toString();
         }
         return null;

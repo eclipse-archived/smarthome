@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.core.type;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -46,13 +47,20 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
+    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags) {
+        return getTypesByTags(tags, null);
+    }
+
+    @Override
+    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags, Locale locale) {
+        return moduleTypeManager.getTypesByTags(tags, locale);
+    }
+
+    @Override
     public <T extends ModuleType> Collection<T> get(Class<T> moduleType, Locale locale) {
         return moduleTypeManager.getTypes(moduleType, locale);
     }
 
-    /**
-    *
-    */
     public void dispose() {
         moduleTypeManager.dispose();
     }

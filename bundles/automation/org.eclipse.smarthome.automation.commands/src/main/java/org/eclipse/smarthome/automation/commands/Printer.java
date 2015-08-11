@@ -19,7 +19,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleError;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
@@ -81,22 +80,10 @@ public class Printer {
         printChars(writer, '-', 100, true);
         writer.append(rule.getUID());
         if (status != null) {
-            writer.append(" [").append(status.isEnabled() ? "enabled, " : "not enabled, ");
-            writer.append(status.isRunning() ? "running, " : "idle, ");
-            if (status.isInitialize()) {
-                writer.append("initialized] \n");
-            } else {
-                writer.append("not initialized] \n");
-                List<RuleError> errs = status.getErrors();
-                if (errs != null && errs.size() > 0) {
-                    writer.append("Errors:\n");
-                    for (RuleError ruleError : errs) {
-                        writer.append("\t(" + ruleError.getCode() + ") " + ruleError.getMessage() + "\n");
-                    }
-                }
-            }
-
+            writer.append(" [ ").append(status).append("]");
         }
+        writer.append("\n");
+
         printChars(writer, '-', 100, true);
 
         writer.append("UID");

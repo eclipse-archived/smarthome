@@ -16,19 +16,37 @@ import org.eclipse.smarthome.automation.RuleError;
 public class RuleErrorImpl implements RuleError {
 
     private String message;
-    private int code;
+    private RuleError.Code code;
 
-    public RuleErrorImpl(int code, String message) {
+    public RuleErrorImpl(RuleError.Code code, String message) {
         this.code = code;
         this.message = message;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }
 
-    public int getCode() {
+    @Override
+    public RuleError.Code getCode() {
         return code;
     }
 
+    @Override
+    public String toString() {
+        return code != null ? "(" + getErrorName(code) + ") - " + message : "UNKNOWN";
+    }
+
+    private String getErrorName(Code code) {
+        switch (code) {
+            case ERROR_CODE_MISSING_HANDLER:
+                return "MISSING HANDLER";
+            case ERROR_CODE_MISSING_MODULE_TYPE:
+                return "MISSING MODULE TYPE";
+
+            default:
+                return "UNKNOWN ERROR CODE ";
+        }
+    }
 }

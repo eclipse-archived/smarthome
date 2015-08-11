@@ -35,7 +35,7 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
     protected TriggerType triggerType;
     //
     private RuleEngineCallback ruleCallBack;
-    private Logger log;
+    private Logger log1;
     private SampleHandlerFactory handlerFactory;
 
     public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger trigger, TriggerType triggerType,
@@ -44,7 +44,7 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
         this.trigger = trigger;
         this.triggerType = triggerType;
         this.configuration = trigger.getConfiguration();
-        this.log = log;
+        this.log1 = log;
         this.handlerFactory = handlerFactory;
     }
 
@@ -60,7 +60,7 @@ public class SampleTriggerHandler extends AbstractModuleHandler implements Trigg
             Map<String, Object> resolvedOutputs = getResolvedOutputs(resolvedConfiguration, null, systemOutputs);
             ruleCallBack.triggered(trigger, resolvedOutputs);
         } else {
-            log.error("RuleCallback in TriggerHandler is null");
+            log1.error("RuleCallback in TriggerHandler is null");
         }
     }
 

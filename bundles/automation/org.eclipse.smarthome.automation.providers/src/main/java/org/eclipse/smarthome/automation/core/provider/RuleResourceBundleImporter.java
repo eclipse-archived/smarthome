@@ -67,14 +67,15 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
 
             @Override
             public Object addingService(ServiceReference reference) {
-                ruleRegistry = bc.getService(reference);
+                ruleRegistry = (RuleRegistry) bc.getService(reference);
                 if (queue != null)
                     queue.open();
                 return ruleRegistry;
             }
 
             @Override
-            public void modifiedService(ServiceReference reference, Object service) {}
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
 
             @Override
             public void removedService(ServiceReference reference, Object service) {

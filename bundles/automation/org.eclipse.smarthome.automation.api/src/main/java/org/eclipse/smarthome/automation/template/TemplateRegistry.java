@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.template;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * This interface provides functionality to get available {@link Template}s. The {@link Template} can be returned
@@ -55,6 +56,24 @@ public interface TemplateRegistry {
      * @return the templates, which correspond to the specified filter.
      */
     public <T extends Template> Collection<T> getByTag(String tag, Locale locale);
+
+    /**
+     * This method is used for getting the templates filtered by tags.
+     *
+     * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
+     *            returns all templates.
+     * @return collection of templates, which correspond to the filter.
+     */
+    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags);
+
+    /**
+     * This method is used for getting the templates filtered by tags.
+     *
+     * @param tags set of tags which specifies the filter for getting the templates, if it is <code>null</code> then
+     *            returns all templates.
+     * @return the templates, which correspond to the the filter.
+     */
+    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags, Locale locale);
 
     /**
      * This method is used for getting all templates, localized by specified locale,

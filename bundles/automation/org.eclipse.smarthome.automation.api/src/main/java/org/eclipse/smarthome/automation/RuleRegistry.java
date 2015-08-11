@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.automation;
 
 import java.util.Collection;
+import java.util.Set;
+
 import org.eclipse.smarthome.core.common.registry.Registry;
 
 /**
@@ -28,6 +30,14 @@ public interface RuleRegistry extends Registry<Rule, String> {
     public Collection<Rule> getByTag(String tag);
 
     /**
+     * This method is used to get collection of Rules which has specified tags.
+     *
+     * @param tags set of rule's tags
+     * @return collection of {@link Rule}s having specified tags.
+     */
+    public Collection<Rule> getRulesByTags(Set<String> tags);
+
+    /**
      * This method is used for changing enable state of the Rule.
      *
      * @param uid unique identifier of the rule
@@ -37,7 +47,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
 
     /**
      * This method gets status of specified rule.
-     * 
+     *
      * @param ruleUID uid of rule
      * @return {@link RuleStatus} object containing status of looking rule.
      */

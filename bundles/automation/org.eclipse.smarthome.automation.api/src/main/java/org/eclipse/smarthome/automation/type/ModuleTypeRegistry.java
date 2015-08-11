@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.type;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * This interface provides functionality to get available {@link ModuleType}s.
@@ -55,6 +56,24 @@ public interface ModuleTypeRegistry {
      * @return the ModuleTypes, which correspond to the specified filter.
      */
     public <T extends ModuleType> Collection<T> getByTag(String moduleTypeTag, Locale locale);
+
+    /**
+     * This method is used for getting the ModuleTypes filtered by tags.
+     *
+     * @param tags specifies the filter for getting the ModuleTypes, if
+     *            it is <code>null</code> then returns all ModuleTypes.
+     * @return the ModuleTypes, which correspond to the filter.
+     */
+    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags);
+
+    /**
+     * This method is used for getting the ModuleTypes filtered by tags.
+     *
+     * @param moduleTypeTag specifies the filter for getting the ModuleTypes, if
+     *            it is <code>null</code> then returns all ModuleTypes.
+     * @return the ModuleTypes, which correspond to the filter.
+     */
+    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags, Locale locale);
 
     /**
      * This method is used for getting the ModuleTypes, specified by type module,

@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.automation.core;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
@@ -38,6 +39,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     @Override
     public Collection<Rule> getByTag(String tag) {
         return ruleManager.getRulesByTag(tag);
+    }
+
+    @Override
+    public Collection<Rule> getRulesByTags(Set<String> tags) {
+        return ruleManager.getRulesByTags(tags);
     }
 
     @Override

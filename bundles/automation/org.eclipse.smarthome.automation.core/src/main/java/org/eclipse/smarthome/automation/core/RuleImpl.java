@@ -46,11 +46,6 @@ public class RuleImpl implements Rule {
     private String scopeId;
     private Map<String, Module> moduleMap;
 
-    protected boolean initialEnabled = true;
-
-    // private boolean isInitialized = false;
-    // private List<RuleError> errors;
-
     public RuleImpl(List<Trigger> triggers, //
             List<Condition> conditions, //
             List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
@@ -257,9 +252,9 @@ public class RuleImpl implements Rule {
         this.scopeId = scopeId;
     }
 
-    protected boolean isInitialEnabled() {
-        return initialEnabled;
-    }
+    // protected boolean isInitialEnabled() {
+    // return initialEnabled;
+    // }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)

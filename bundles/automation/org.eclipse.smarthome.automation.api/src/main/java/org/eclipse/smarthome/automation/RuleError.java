@@ -15,30 +15,38 @@ package org.eclipse.smarthome.automation;
  */
 public interface RuleError {
 
-    /**
-     * Error code constant of missing module type handler. RuleError has this code when a module of the rule can't
-     * find its module type handler.
-     */
-    public static final int ERROR_CODE_MISSING_HANDLER = 1;
+    public enum Code {
+        ERROR_CODE_MISSING_HANDLER(1),
+        ERROR_CODE_MISSING_MODULE_TYPE(2);
 
-    /**
-     * Error code constant of missing module type. Rule error has this code when the rule contains module of undefined
-     * type.
-     */
-    public static final int ERROR_CODE_MISSING_MODULE_TYPE = 2;
+        private final int value;
+
+        private Code(final int newValue) {
+            value = newValue;
+        }
+
+        /**
+         * Gets the value of a rule status.
+         *
+         * @return the value
+         */
+        public int getValue() {
+            return value;
+        }
+    }
 
     /**
      * Gets description of the problem
-     * 
+     *
      * @return error message
      */
     public String getMessage();
 
     /**
      * Gets code of the error
-     * 
+     *
      * @return error code.
      */
-    public int getCode();
+    public Code getCode();
 
 }

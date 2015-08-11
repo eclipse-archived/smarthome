@@ -7,8 +7,6 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.List;
-
 /**
  * This interface is used to present status of rule. The status has following properties:
  * The rule can be enable/disable - this property can be set by the user when the rule
@@ -20,33 +18,35 @@ import java.util.List;
  */
 public interface RuleStatus {
 
-    /**
-     * Gets enable status of the rule. When it is disabled the rule must not be executed.
-     * This property can be set by the user through the {@link RuleRegistry#setEnabled(String, boolean)} method.
-     * 
-     * @return true when the rule is enabled, false otherwise.
-     */
-    boolean isEnabled();
+    public enum Status {
+        NOT_ENABLED(0),
+        NOT_INITIALIZED(1),
+        IDLE(2),
+        RUNNING(3);
+
+        private final int value;
+
+        private Status(final int newValue) {
+            value = newValue;
+        }
+
+        /**
+         * Gets the value of a rule status.
+         *
+         * @return the value
+         */
+        public int getValue() {
+            return value;
+        }
+    }
+
+    public Status getStatus();
 
     /**
-     * Gets running status of the rule. The is running when it executes triggered data.
-     * 
-     * @return true when it is running, false when the rule is idle.
+     * Gets rule error related with this status.
+     *
+     * @return {@link RuleError}s or null when there is no error related with status.
      */
-    boolean isRunning();
+    public RuleError getError();
 
-    /**
-     * Gets initialization status of the rule. It is initialized when the rule engine accept the rule without
-     * {@link RuleError}s
-     * 
-     * @return true when it is initialized, false when rule error is appeared.
-     */
-    boolean isInitialize();
-
-    /**
-     * Gets rule error of not initialized rule.
-     * 
-     * @return list of {@link RuleError}s or null when the rule is initialized.
-     */
-    public List<RuleError> getErrors();
 }
