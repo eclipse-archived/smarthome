@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.core.thing.internal;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -186,7 +188,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     @Override
                     public void run() {
                         try {
-                            thingRegistry.forceRemove(thing.getUID());
+                            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                                @Override
+                                public Void run() {
+                                    thingRegistry.forceRemove(thing.getUID());
+                                    return null;
+                                }
+                            });
                         } catch (IllegalStateException ex) {
                             logger.debug("Could not remove thing {}. Most likely because it is not managed.",
                                     thing.getUID(), ex);
@@ -202,9 +210,17 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
 
         @Override
-        public void thingUpdated(Thing thing) {
+        public void thingUpdated(final Thing thing) {
             thingUpdatedLock.add(thing.getUID());
-            managedThingProvider.update(thing);
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+
+                @Override
+                public Void run() {
+                    managedThingProvider.update(thing);
+                    return null;
+                }
+
+            });
             thingUpdatedLock.remove(thing.getUID());
         }
 
@@ -499,7 +515,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                    + ex.getMessage(), ex);
+                            + ex.getMessage(), ex);
         }
     }
 
@@ -515,7 +531,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             });
         } catch (Exception ex) {
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                    + ex.getMessage(), ex);
+                            + ex.getMessage(), ex);
         }
     }
 
@@ -621,12 +637,10 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
         thing.setStatusInfo(thingStatusInfo);
-        if (eventPublisher != null) {
-            try {
-                eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
-            } catch (Exception ex) {
-                logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
-            }
+        try {
+            eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
+        } catch (Exception ex) {
+            logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
         }
     }
 
