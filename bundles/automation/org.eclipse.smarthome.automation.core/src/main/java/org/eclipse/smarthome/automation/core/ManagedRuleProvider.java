@@ -7,6 +7,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
@@ -21,7 +22,7 @@ import org.eclipse.smarthome.core.storage.StorageService;
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class ManagedRuleProvider extends AbstractManagedProvider<Rule, String, RuleDTO> {
+public class ManagedRuleProvider extends AbstractManagedProvider<Rule, String, RuleDTO>implements RuleProvider {
 
     private RuleManager ruleManager;
 
@@ -86,8 +87,8 @@ public class ManagedRuleProvider extends AbstractManagedProvider<Rule, String, R
             conditions.add(pcondition.createCondition(factory));
         }
 
-        RuleImpl ruleImpl = (RuleImpl) factory.createRule(triggers, conditions, actions,
-                ruleDTO.configDescriptions, ruleDTO.configurations);
+        RuleImpl ruleImpl = (RuleImpl) factory.createRule(triggers, conditions, actions, ruleDTO.configDescriptions,
+                ruleDTO.configurations);
         ruleImpl.setUID(ruleDTO.uid);
         ruleImpl.setName(ruleDTO.name);
         ruleImpl.setDescription(ruleDTO.description);
