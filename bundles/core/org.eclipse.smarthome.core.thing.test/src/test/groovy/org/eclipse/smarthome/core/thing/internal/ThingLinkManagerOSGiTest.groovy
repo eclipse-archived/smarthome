@@ -54,40 +54,40 @@ import org.osgi.service.component.ComponentContext
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
  */
 class ThingLinkManagerOSGiTest extends OSGiTest{
-    
-    def ThingRegistry thingRegistry 
+
+    def ThingRegistry thingRegistry
     def ThingSetupManager thingSetupManager
-    
+
     public static Map context = new HashMap<>()
-    
+
     @Before
     void setup() {
         context.clear();
-        
+
         registerVolatileStorageService()
-        
+
         thingRegistry = getService(ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
-        
+
         def ComponentContext componentContext = [
-            getBundleContext: { -> bundleContext} 
+            getBundleContext: { -> bundleContext}
         ] as ComponentContext
-    
+
         def thingHandlerFactory = new TestThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
-        
+
         def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [ new StateOption("SOUND", "My great sound.") ])
-        
+
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
-        
+
         def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
         assertThat thingSetupManager, is(notNullValue())
     }
-    
+
     @After
     void teardown() {
         ManagedThingProvider managedThingProvider = getService(ManagedThingProvider)
@@ -95,50 +95,50 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
             managedThingProvider.remove(it.getUID())
         }
     }
-    
+
     @Test
     void 'assert that items are linked to thing and channel'() {
         ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
         thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
-        
+
         Thing thing = thingRegistry.get(thingUID)
         assertThat thing, is(notNullValue())
-        
+
         GroupItem linkedGroupItem = thing.getLinkedItem()
         assertThat linkedGroupItem, is(notNullValue())
         assertThat linkedGroupItem.getName(), is("hue_lamp_lamp1")
-        
+
         def channels = thing.getChannels()
         assertThat channels.size(), is(1)
         Channel channel = channels.first()
-        
+
         def linkedItems = channel.getLinkedItems()
         assertThat linkedItems.size(), is(1)
         Item item = linkedItems.first()
         assertThat item.getName(), is("hue_lamp_lamp1_1")
     }
-    
+
     @Test
     void 'assert that items are unlinked'() {
         ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
         thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
-        
+
         Thing thing = thingRegistry.get(thingUID)
         assertThat thing, is(notNullValue())
-        
-        thingSetupManager.removeThing(thingUID)
-        
+
+        thingSetupManager.removeThing(thingUID, true)
+
         GroupItem linkedGroupItem = thing.getLinkedItem()
         assertThat linkedGroupItem, is(null)
-        
+
         def channels = thing.getChannels()
         assertThat channels.size(), is(1)
         Channel channel = channels.first()
-        
+
         def linkedItems = channel.getLinkedItems()
         assertThat linkedItems.size(), is(0)
     }
-    
+
     @Test
     void 'assert that existing things are linked'() {
         def componentContext = [getBundleContext: {getBundleContext()}] as ComponentContext
@@ -146,49 +146,49 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         try {
             ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
             thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
-            
+
             Thing thing = thingRegistry.get(thingUID)
             assertThat thing, is(notNullValue())
-            
+
             // create thing manager manually to simulate start up of declarative service
             thingManger.setItemRegistry(getService(ItemRegistry))
             thingManger.setThingRegistry(getService(ThingRegistry))
             thingManger.setItemChannelLinkRegistry(getService(ItemChannelLinkRegistry))
             thingManger.setItemThingLinkRegistry(getService(ItemThingLinkRegistry))
             thingManger.activate(componentContext)
-            
+
             def channels = thing.getChannels()
             assertThat channels.size(), is(1)
             Channel channel = channels.first()
-            
+
             def linkedItems = channel.getLinkedItems()
             assertThat linkedItems.size(), is(1)
         } finally {
             thingManger.deactivate(componentContext)
         }
     }
-    
+
     @Test
     @Ignore("For some strange reason it fails. But it seems to a problem in the test, not in the runtime.")
     void 'assert that channelLinked and channelUnlinked at ThingHandler is called'() {
         ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
         thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
-        
+
         def channelUID = new ChannelUID(thingUID, "1")
-        
+
         assertThat context.get("linkedChannel"), is(equalTo(channelUID))
         assertThat context.get("unlinkedChannel"), is(null)
-        
+
         thingSetupManager.disableChannel(channelUID)
-        
+
         assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
     }
-    
-    
+
+
     /*
      * Helper
      */
-    
+
     class TestThingHandlerFactory extends BaseThingHandlerFactory {
         @Override
         public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -199,19 +199,19 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
                 public void handleCommand(ChannelUID channelUID, Command command) { }
-                void channelLinked(ChannelUID channelUID) { 
+                void channelLinked(ChannelUID channelUID) {
                     context.put("linkedChannel", channelUID)
                 };
-                void channelUnlinked(ChannelUID channelUID) { 
+                void channelUnlinked(ChannelUID channelUID) {
                     context.put("unlinkedChannel", channelUID)
                 };
             }
         }
     }
-    
+
     class TestThingTypeProvider implements ThingTypeProvider {
         def Collection<ThingType> thingTypes
-        
+
         TestThingTypeProvider(Collection<ThingType> thingTypes){
             this.thingTypes = thingTypes
         }

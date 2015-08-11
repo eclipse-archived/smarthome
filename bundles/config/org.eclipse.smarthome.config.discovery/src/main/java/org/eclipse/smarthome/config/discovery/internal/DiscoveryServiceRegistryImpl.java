@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.config.discovery.internal;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,7 +47,7 @@ import com.google.common.collect.HashMultimap;
  * @see DiscoveryListener
  */
 public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegistry, DiscoveryListener {
-    
+
     private HashMultimap<DiscoveryService, DiscoveryResult> cachedResults = HashMultimap.create();
 
     private final class AggregatingScanListener implements ScanListener {
@@ -210,13 +212,19 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public synchronized void thingDiscovered(DiscoveryService source, DiscoveryResult result) {
+    public synchronized void thingDiscovered(final DiscoveryService source, final DiscoveryResult result) {
         synchronized (cachedResults) {
             cachedResults.put(source, result);
         }
-        for (DiscoveryListener listener : this.listeners) {
+        for (final DiscoveryListener listener : this.listeners) {
             try {
-                listener.thingDiscovered(source, result);
+                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                    @Override
+                    public Void run() {
+                        listener.thingDiscovered(source, result);
+                        return null;
+                    }
+                });
             } catch (Exception ex) {
                 logger.error("Cannot notify the DiscoveryListener " + listener.getClass().getName()
                         + " on Thing discovered event!", ex);
@@ -225,13 +233,19 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public synchronized void thingRemoved(DiscoveryService source, ThingUID thingUID) {
+    public synchronized void thingRemoved(final DiscoveryService source, final ThingUID thingUID) {
         synchronized (cachedResults) {
             cachedResults.remove(source, thingUID);
         }
-        for (DiscoveryListener listener : this.listeners) {
+        for (final DiscoveryListener listener : this.listeners) {
             try {
-                listener.thingRemoved(source, thingUID);
+                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                    @Override
+                    public Void run() {
+                        listener.thingRemoved(source, thingUID);
+                        return null;
+                    }
+                });
             } catch (Exception ex) {
                 logger.error("Cannot notify the DiscoveryListener '" + listener.getClass().getName()
                         + "' on Thing removed event!", ex);
@@ -240,12 +254,18 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     }
 
     @Override
-    public Collection<ThingUID> removeOlderResults(DiscoveryService source, long timestamp,
-            Collection<ThingTypeUID> thingTypeUIDs) {
+    public Collection<ThingUID> removeOlderResults(final DiscoveryService source, final long timestamp,
+            final Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedResults = new HashSet<>();
-        for (DiscoveryListener listener : this.listeners) {
+        for (final DiscoveryListener listener : this.listeners) {
             try {
-                Collection<ThingUID> olderResults = listener.removeOlderResults(source, timestamp, thingTypeUIDs);
+                Collection<ThingUID> olderResults = AccessController
+                        .doPrivileged(new PrivilegedAction<Collection<ThingUID>>() {
+                            @Override
+                            public Collection<ThingUID> run() {
+                                return listener.removeOlderResults(source, timestamp, thingTypeUIDs);
+                            }
+                        });
                 if (olderResults != null) {
                     removedResults.addAll(olderResults);
                 }
@@ -254,8 +274,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                         + "' on all things removed event!", ex);
             }
         }
-        
-        return removedResults; 
+
+        return removedResults;
     }
 
     private boolean abortScans(Set<DiscoveryService> discoveryServices) {
