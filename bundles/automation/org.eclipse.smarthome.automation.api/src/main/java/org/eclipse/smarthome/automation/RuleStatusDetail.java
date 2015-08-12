@@ -8,22 +8,22 @@
 package org.eclipse.smarthome.automation;
 
 /**
- * This enum is used to present the main status of a rule.
+ * This enum is used to present status detail of rule, which can be considered as a sub-status.
  *
  * @author Yordan Mihaylov - Initial contribution
- * @author Kai Kreuzer - Refactored to match ThingStatus implementation
+ * @author Kai Kreuzer - Refactored to match ThingStatusDetail implementation
  */
-public enum RuleStatus {
-    DISABLED(0), NOT_INITIALIZED(1), IDLE(2), RUNNING(3);
+public enum RuleStatusDetail {
+    NONE(0), HANDLER_MISSING_ERROR(1), HANDLER_INITIALIZING_ERROR(2), CONFIGURATION_ERROR(3);
 
     private final int value;
 
-    private RuleStatus(final int newValue) {
+    private RuleStatusDetail(final int newValue) {
         value = newValue;
     }
 
     /**
-     * Gets the value of a rule status.
+     * Gets the value of a thing status detail.
      *
      * @return the value
      */
