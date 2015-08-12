@@ -566,7 +566,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
-        Map<String, List<String>> mapMissingHanlers = null;
+        Map<String, List<String>> mapMissingHandlers = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
             moduleHandlerFactories.remove(moduleTypeName);
@@ -577,14 +577,14 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     switch (ruleStatus.getStatus()) {
                         case RUNNING:
                         case IDLE:
-                            mapMissingHanlers = mapMissingHanlers != null ? mapMissingHanlers
+                            mapMissingHandlers = mapMissingHandlers != null ? mapMissingHandlers
                                     : new HashMap<String, List<String>>(20);
-                            List<String> list = mapMissingHanlers.get(rUID);
+                            List<String> list = mapMissingHandlers.get(rUID);
                             if (list == null) {
                                 list = new ArrayList<String>(5);
                             }
                             list.add(moduleTypeName);
-                            mapMissingHanlers.put(rUID, list);
+                            mapMissingHandlers.put(rUID, list);
 
                             break;
                         default:
@@ -593,8 +593,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 }
             }
         }
-        if (mapMissingHanlers != null) {
-            for (Entry<String, List<String>> e : mapMissingHanlers.entrySet()) {
+        if (mapMissingHandlers != null) {
+            for (Entry<String, List<String>> e : mapMissingHandlers.entrySet()) {
                 String rUID = e.getKey();
                 List<String> missingTypes = e.getValue();
                 // List<RuleError> errList = new ArrayList<RuleError>();

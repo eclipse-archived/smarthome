@@ -47,12 +47,12 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags) {
-        return getTypesByTags(tags, null);
+    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags) {
+        return getByTags(tags, null);
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags, Locale locale) {
+    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags, Locale locale) {
         return moduleTypeManager.getTypesByTags(tags, locale);
     }
 

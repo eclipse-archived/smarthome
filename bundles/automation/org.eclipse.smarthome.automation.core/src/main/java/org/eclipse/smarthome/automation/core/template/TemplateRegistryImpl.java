@@ -46,12 +46,12 @@ public class TemplateRegistryImpl implements TemplateRegistry {
     }
 
     @Override
-    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags) {
-        return getTemplatesByTags(tags, null);
+    public <T extends Template> Collection<T> getByTags(Set<String> tags) {
+        return getByTags(tags, null);
     }
 
     @Override
-    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags, Locale locale) {
+    public <T extends Template> Collection<T> getByTags(Set<String> tags, Locale locale) {
         return templateManager.getTemplatesByTags(tags, locale);
     }
 

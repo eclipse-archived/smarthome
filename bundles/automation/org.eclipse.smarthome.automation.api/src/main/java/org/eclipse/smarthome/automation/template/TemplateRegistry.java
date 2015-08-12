@@ -64,7 +64,7 @@ public interface TemplateRegistry {
      *            returns all templates.
      * @return collection of templates, which correspond to the filter.
      */
-    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags);
+    public <T extends Template> Collection<T> getByTags(Set<String> tags);
 
     /**
      * This method is used for getting the templates filtered by tags.
@@ -73,7 +73,7 @@ public interface TemplateRegistry {
      *            returns all templates.
      * @return the templates, which correspond to the the filter.
      */
-    public <T extends Template> Collection<T> getTemplatesByTags(Set<String> tags, Locale locale);
+    public <T extends Template> Collection<T> getByTags(Set<String> tags, Locale locale);
 
     /**
      * This method is used for getting all templates, localized by specified locale,

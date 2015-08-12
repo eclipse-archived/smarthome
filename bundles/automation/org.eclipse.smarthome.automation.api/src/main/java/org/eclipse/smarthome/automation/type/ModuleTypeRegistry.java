@@ -64,7 +64,7 @@ public interface ModuleTypeRegistry {
      *            it is <code>null</code> then returns all ModuleTypes.
      * @return the ModuleTypes, which correspond to the filter.
      */
-    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags);
+    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags);
 
     /**
      * This method is used for getting the ModuleTypes filtered by tags.
@@ -73,7 +73,7 @@ public interface ModuleTypeRegistry {
      *            it is <code>null</code> then returns all ModuleTypes.
      * @return the ModuleTypes, which correspond to the filter.
      */
-    public <T extends ModuleType> Collection<T> getTypesByTags(Set<String> tags, Locale locale);
+    public <T extends ModuleType> Collection<T> getByTags(Set<String> tags, Locale locale);
 
     /**
      * This method is used for getting the ModuleTypes, specified by type module,

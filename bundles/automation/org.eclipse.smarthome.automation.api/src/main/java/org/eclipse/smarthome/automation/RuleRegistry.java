@@ -35,7 +35,7 @@ public interface RuleRegistry extends Registry<Rule, String> {
      * @param tags set of rule's tags
      * @return collection of {@link Rule}s having specified tags.
      */
-    public Collection<Rule> getRulesByTags(Set<String> tags);
+    public Collection<Rule> getByTags(Set<String> tags);
 
     /**
      * This method is used for changing enable state of the Rule.

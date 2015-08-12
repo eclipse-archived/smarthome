@@ -71,7 +71,7 @@ public class RuleStatusImpl implements RuleStatus {
                 return "RUNNING";
 
             default:
-                return "INKNOWN_STATUS_VALUE";
+                return "UNKNOWN STATUS VALUE";
         }
     }
 }

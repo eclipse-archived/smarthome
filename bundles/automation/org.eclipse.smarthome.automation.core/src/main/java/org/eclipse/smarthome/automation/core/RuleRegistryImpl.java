@@ -42,7 +42,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public Collection<Rule> getRulesByTags(Set<String> tags) {
+    public Collection<Rule> getByTags(Set<String> tags) {
         return ruleManager.getRulesByTags(tags);
     }
 
