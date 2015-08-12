@@ -19,7 +19,7 @@ package org.eclipse.smarthome.automation;
 public interface RuleStatus {
 
     public enum Status {
-        NOT_ENABLED(0),
+        DISABLED(0),
         NOT_INITIALIZED(1),
         IDLE(2),
         RUNNING(3);
@@ -40,13 +40,31 @@ public interface RuleStatus {
         }
     }
 
+    public enum StatusDetail {
+        NONE(0),
+        HANDLER_MISSING_ERROR(1),
+        HANDLER_INITIALIZING_ERROR(2),
+        CONFIGURATION_ERROR(3);
+
+        private final int value;
+
+        private StatusDetail(final int newValue) {
+            value = newValue;
+        }
+
+        /**
+         * Gets the value of a rule status.
+         *
+         * @return the value
+         */
+        public int getValue() {
+            return value;
+        }
+    }
+
     public Status getStatus();
 
-    /**
-     * Gets rule error related with this status.
-     *
-     * @return {@link RuleError}s or null when there is no error related with status.
-     */
-    public RuleError getError();
+    public StatusDetail getStatusDetail();
 
+    public String getDescription();
 }

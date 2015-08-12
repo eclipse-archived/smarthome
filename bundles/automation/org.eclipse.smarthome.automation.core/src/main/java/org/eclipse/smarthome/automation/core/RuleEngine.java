@@ -22,7 +22,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleError;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
@@ -147,14 +146,14 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         RuleStatus ruleStatus = statusMap.get(r.getUID());
-        if (ruleStatus != null && RuleStatus.Status.NOT_ENABLED == ruleStatus.getStatus()) {
+        if (ruleStatus != null && RuleStatus.Status.DISABLED == ruleStatus.getStatus()) {
             return;
         }
 
         System.out.println("RuleEngine setRule " + r.getUID());
         String rUID = r.getUID();
 
-        setRuleStatus(rUID, RuleStatus.Status.NOT_INITIALIZED, null);
+        setRuleStatus(rUID, RuleStatus.Status.NOT_INITIALIZED, null, null);
 
         // List<RuleError> errList = null;
         String errMsgs = null;
@@ -181,7 +180,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (errMessage == null) {
             register(r);
         } else {
-            unregister(r, new RuleErrorImpl(RuleError.Code.ERROR_CODE_MISSING_HANDLER, errMsgs));
+            unregister(r, RuleStatus.StatusDetail.HANDLER_MISSING_ERROR, errMsgs);
         }
     }
 
@@ -191,16 +190,18 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rUID rule's id
      * @param status new rule status
      */
-    private void setRuleStatus(String rUID, RuleStatus.Status status, RuleError err) {
+    private void setRuleStatus(String rUID, RuleStatus.Status status, RuleStatus.StatusDetail statusDetail,
+            String description) {
         RuleStatusImpl ruleStatus = (RuleStatusImpl) statusMap.get(rUID);
         if (ruleStatus != null) {
             ruleStatus.setStatus(status);
-            ruleStatus.setError(null);
+            ruleStatus.setStatusDetail(statusDetail);
+            ruleStatus.setDescription(description);
         } else {
-            ruleStatus = new RuleStatusImpl(status, err);
+            ruleStatus = new RuleStatusImpl(status, statusDetail, description);
         }
 
-        System.out.println("[Status] " + rUID + " -> " + status + (err != null ? " : " + err : ""));
+        System.out.println("[Status] " + rUID + " -> " + ruleStatus);
         statusMap.put(rUID, ruleStatus);
         // TODO fire status change event
     }
@@ -291,7 +292,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         // change state NOT INITIALIZED -> IDLE
-        setRuleStatus(r.getUID(), RuleStatus.Status.IDLE, null);
+        setRuleStatus(r.getUID(), RuleStatus.Status.IDLE, null, null);
 
         logger.debug(LOG_HEADER, "Rule started: " + r.getUID());
     }
@@ -304,7 +305,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param r the unregistered rule
      * @param errList list errors when they are available
      */
-    private void unregister(RuleImpl r, RuleError err) {
+    private void unregister(RuleImpl r, RuleStatus.StatusDetail statusDetail, String description) {
         RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
         if (reCallback != null) {
             reCallback.dispose();
@@ -314,7 +315,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         removeHandlers(r.conditions);
 
         // change state IDLE -> NOTINITIALIZED
-        setRuleStatus(r.getUID(), RuleStatus.Status.NOT_INITIALIZED, err);
+        setRuleStatus(r.getUID(), RuleStatus.Status.NOT_INITIALIZED, statusDetail, description);
 
         logger.debug(LOG_HEADER, "Rule stopped: " + r.getUID());
 
@@ -373,7 +374,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return removed rule
      */
     private RuleImpl removeRuleEntry(RuleImpl r) {
-        unregister(r, null);
+        unregister(r, null, null);
         statusMap.remove(r.getUID());
 
         for (Iterator<Map.Entry<String, Set<String>>> it = mapHandlerTypeToRule.entrySet().iterator(); it.hasNext();) {
@@ -404,16 +405,16 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         RuleStatus status = getRuleStatus(rUID);
         if (status != null) {
             if (isEnabled) {
-                if (status.getStatus() == RuleStatus.Status.NOT_ENABLED) {
+                if (status.getStatus() == RuleStatus.Status.DISABLED) {
                     setRule(getRule(rUID));
                 } else {
                     logger.info("The rule rId = " + rUID + " is already enabled");
                 }
             } else {
                 // change state IDLE -> NOT INITIALIZED
-                unregister(getRule(rUID), null);
+                unregister(getRule(rUID), null, null);
                 // change state NOT INITIALIZED -> NOT ENABLED
-                setRuleStatus(rUID, RuleStatus.Status.NOT_ENABLED, null);
+                setRuleStatus(rUID, RuleStatus.Status.DISABLED, null, null);
             }
         } else {
             throw new IllegalStateException("The rule rId = " + rUID + " is not available");
@@ -602,7 +603,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 for (String typeUID : missingTypes) {
                     sb.append("Missing handler: ").append(typeUID).append("\n");
                 }
-                unregister(getRule(rUID), new RuleErrorImpl(RuleError.Code.ERROR_CODE_MISSING_HANDLER, sb.toString()));
+                unregister(getRule(rUID), RuleStatus.StatusDetail.HANDLER_MISSING_ERROR, sb.toString());
             }
         }
     }
@@ -620,7 +621,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             try {
 
                 // change state IDLE -> RUNNING
-                setRuleStatus(rule.getUID(), RuleStatus.Status.RUNNING, null);
+                setRuleStatus(rule.getUID(), RuleStatus.Status.RUNNING, null, null);
                 setTriggerOutputs(td);
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
@@ -632,7 +633,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             }
 
             // change state RUNNING -> IDLE
-            setRuleStatus(rule.getUID(), RuleStatus.Status.IDLE, null);
+            setRuleStatus(rule.getUID(), RuleStatus.Status.IDLE, null, null);
 
         } else {
             logger.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = "

@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import org.eclipse.smarthome.automation.RuleError;
 import org.eclipse.smarthome.automation.RuleStatus;
 
 /**
@@ -21,19 +20,22 @@ import org.eclipse.smarthome.automation.RuleStatus;
  */
 public class RuleStatusImpl implements RuleStatus {
 
-    private RuleError error;
+    private StatusDetail statusDetail;
     private Status status;
+    private String description;
 
-    /**
-     * // * Utility constructor creating RuleStatusImpl object for initialized rule.
-     * // *
-     * // * @param enabled true then the rule is enabled
-     * // * @param running true then the rule is executing
-     * //
-     */
-    public RuleStatusImpl(Status status, RuleError error) {
+    public RuleStatusImpl(Status status) {
+        this(status, null, null);
+    }
+
+    public RuleStatusImpl(Status status, StatusDetail statusDetail, String description) {
+        if (status == null) {
+            throw new IllegalArgumentException("The status must be specified!");
+        }
+
         this.status = status;
-        this.error = error;
+        this.statusDetail = statusDetail;
+        this.description = description;
     }
 
     @Override
@@ -46,22 +48,39 @@ public class RuleStatusImpl implements RuleStatus {
     }
 
     @Override
-    public RuleError getError() {
-        return error;
+    public StatusDetail getStatusDetail() {
+        return statusDetail == null ? StatusDetail.NONE : statusDetail;
     }
 
-    public void setError(RuleError error) {
-        this.error = error;
+    public void setStatusDetail(StatusDetail error) {
+        this.statusDetail = error;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
     public String toString() {
-        return status != null ? getStatusName(status) + " : " + error : "UNKNOWN";
+        StringBuffer sb = new StringBuffer();
+        sb.append(getStatusName(status));
+        if (statusDetail != null) {
+            sb.append(" (").append(getStatusDetailName(statusDetail)).append(")");
+        }
+        if (description != null) {
+            sb.append(" : ").append(getDescription());
+        }
+        return sb.toString();
     }
 
     private String getStatusName(Status status) {
         switch (status) {
-            case NOT_ENABLED:
+            case DISABLED:
                 return "NOT ENABLED";
             case NOT_INITIALIZED:
                 return "NOT INITIALIZED";
@@ -74,4 +93,21 @@ public class RuleStatusImpl implements RuleStatus {
                 return "UNKNOWN STATUS VALUE";
         }
     }
+
+    private String getStatusDetailName(StatusDetail statusDetail) {
+        switch (statusDetail) {
+            case NONE:
+                return "none";
+            case HANDLER_MISSING_ERROR:
+                return "Missing handler";
+            case HANDLER_INITIALIZING_ERROR:
+                return "Handler initialization error";
+            case CONFIGURATION_ERROR:
+                return "Configuration error";
+
+            default:
+                return "Uknown status detail";
+        }
+    }
+
 }
