@@ -11,12 +11,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.RuleStatus;
 
 /**
  *
@@ -66,7 +65,7 @@ public abstract class RuleManager {
     }
 
     public synchronized RuleStatus getRuleStatus(String rUID) {
-        return RuleEngine.getRuleStatus(rUID);
+        return re.getRuleStatus(rUID);
     }
 
     public synchronized void addRule(Rule rule) {

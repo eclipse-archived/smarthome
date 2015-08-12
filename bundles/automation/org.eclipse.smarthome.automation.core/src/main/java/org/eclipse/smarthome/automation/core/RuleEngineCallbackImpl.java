@@ -35,7 +35,10 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     private final Logger log = LoggerFactory.getLogger(RuleEngineCallback.class);
 
-    protected RuleEngineCallbackImpl(RuleImpl r) {
+    private RuleEngine re;
+
+    protected RuleEngineCallbackImpl(RuleEngine re, RuleImpl r) {
+        this.re = re;
         this.r = r;
         executor = Executors.newSingleThreadExecutor();
     }
@@ -79,7 +82,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
         @Override
         public void run() {
-            RuleEngine.runRule(r, this);
+            re.runRule(r, this);
         }
     }
 
