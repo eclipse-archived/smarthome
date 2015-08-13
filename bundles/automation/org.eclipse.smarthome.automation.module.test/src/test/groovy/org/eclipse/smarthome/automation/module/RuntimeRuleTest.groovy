@@ -14,8 +14,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import java.lang.ProcessEnvironment.Variable
-
 import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
