@@ -19,6 +19,9 @@
     <module>org.eclipse.smarthome.transform.exec</module>
     <module>org.eclipse.smarthome.transform.javascript</module>
     <module>org.eclipse.smarthome.transform.map</module>
+    <module>org.eclipse.smarthome.transform.map.test</module>
+    <module>org.eclipse.smarthome.transform.scale</module>
+    <module>org.eclipse.smarthome.transform.scale.test</module>
     <module>org.eclipse.smarthome.transform.regex</module>
 	<module>org.eclipse.smarthome.transform.regex.test</module>
     <module>org.eclipse.smarthome.transform.xpath</module>

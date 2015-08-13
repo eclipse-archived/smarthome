@@ -1,13 +1,14 @@
 Manifest-Version: 1.0
-Bundle-Name: Eclipse SmartHome Map Transformation Service
+Bundle-Name: Eclipse SmartHome Scale Transformation Service
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.eclipse.smarthome.core.transform,
+Import-Package: com.google.common.collect,
+ org.eclipse.smarthome.core.transform,
  org.slf4j
-Bundle-SymbolicName: org.eclipse.smarthome.transform.map
+Bundle-SymbolicName: org.eclipse.smarthome.transform.scale
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Service-Component: OSGI-INF/mapservice.xml
+Service-Component: OSGI-INF/scaleservice.xml
 Bundle-ClassPath: .
 
