@@ -4,8 +4,12 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.eclipse.smarthome.core.transform,
- org.slf4j
+Import-Package: javax.xml.parsers,
+ javax.xml.xpath,
+ org.eclipse.smarthome.core.transform,
+ org.slf4j,
+ org.w3c.dom,
+ org.xml.sax
 Bundle-SymbolicName: org.eclipse.smarthome.transform.xpath
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/xpathservice.xml
