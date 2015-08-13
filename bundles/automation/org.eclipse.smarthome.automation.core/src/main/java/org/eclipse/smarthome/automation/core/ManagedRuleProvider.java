@@ -24,35 +24,8 @@ import org.eclipse.smarthome.core.storage.StorageService;
  */
 public class ManagedRuleProvider extends AbstractManagedProvider<Rule, String, RuleDTO>implements RuleProvider {
 
-    private RuleManager ruleManager;
-
-    public ManagedRuleProvider(RuleManager ruleManager, StorageService storage) {
-        this.ruleManager = ruleManager;
+    public ManagedRuleProvider(StorageService storage) {
         setStorageService(storage);
-    }
-
-    @Override
-    public void add(Rule element) {
-        RuleImpl ruleWithId = ruleManager.addRule0(element, ruleManager.getScopeIdentifier());
-        super.add(ruleWithId);
-    }
-
-    @Override
-    public Rule remove(String key) {
-        Rule rule = super.remove(key);
-        if (rule != null) {
-            ruleManager.removeRule(key);
-        }
-        return rule;
-    }
-
-    @Override
-    public Rule update(Rule element) {
-        if (element != null) {
-            ruleManager.updateRule(element);// update memory map
-            element = super.update(element);// update storage with new rule and return old rule
-        }
-        return element;
     }
 
     @Override

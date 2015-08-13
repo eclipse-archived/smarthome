@@ -22,42 +22,68 @@ import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
 
-    private RuleManager ruleManager;
+    private RuleEngine ruleEngine;
 
-    public RuleRegistryImpl(RuleManager ruleManager, ManagedRuleProvider rp) {
-        this.ruleManager = ruleManager;
+    public RuleRegistryImpl(RuleEngine ruleManager, ManagedRuleProvider rp) {
+        this.ruleEngine = ruleManager;
         if (rp != null) {
             addProvider(rp);
         }
     }
 
     @Override
+    public void add(Rule element) {
+        RuleImpl ruleWithId;
+        if (element.getUID() == null) {
+            ruleWithId = ruleEngine.addRule0(element, ruleEngine.getScopeIdentifier());
+        } else {
+            ruleWithId = (RuleImpl) element;
+        }
+        super.add(ruleWithId);
+    }
+
+    @Override
+    public Rule remove(String key) {
+        ruleEngine.removeRule(key);
+        return super.remove(key);
+    }
+
+    @Override
+    public Rule update(Rule element) {
+        if (element != null) {
+            ruleEngine.updateRule(element);// update memory map
+            element = super.update(element);// update storage with new rule and return old rule
+        }
+        return element;
+    }
+
+    @Override
     public Rule get(String key) {
-        return ruleManager.getRule(key);
+        return ruleEngine.getRule(key);
     }
 
     @Override
     public Collection<Rule> getByTag(String tag) {
-        return ruleManager.getRulesByTag(tag);
+        return ruleEngine.getRulesByTag(tag);
     }
 
     @Override
     public Collection<Rule> getByTags(Set<String> tags) {
-        return ruleManager.getRulesByTags(tags);
+        return ruleEngine.getRulesByTags(tags);
     }
 
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-        ruleManager.setRuleEnabled(uid, isEnabled);
+        ruleEngine.setRuleEnabled(uid, isEnabled);
     }
 
     @Override
     public RuleStatus getStatus(String ruleUID) {
-        return ruleManager.getRuleStatus(ruleUID);
+        return ruleEngine.getRuleStatus(ruleUID);
     }
 
     public void dispose() {
-        ruleManager.dispose();
+        ruleEngine.dispose();
     }
 
 }

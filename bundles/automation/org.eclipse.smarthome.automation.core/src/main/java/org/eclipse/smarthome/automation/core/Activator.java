@@ -62,7 +62,7 @@ public class Activator implements BundleActivator {
         moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc));
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
 
-        final RuleManagerImpl rm = new RuleManagerImpl(bc);
+        final RuleEngine rm = new RuleEngine(bc);
 
         storageTracker = new ServiceTracker(bc, StorageService.class.getName(), new ServiceTrackerCustomizer() {
 
@@ -70,7 +70,7 @@ public class Activator implements BundleActivator {
             public Object addingService(ServiceReference reference) {
                 StorageService storage = (StorageService) bc.getService(reference);
                 if (storage != null) {
-                    final ManagedRuleProvider rp = new ManagedRuleProvider(rm, storage);
+                    final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
                     ruleRegistry = new RuleRegistryImpl(rm, rp);
                     ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
                 }
@@ -78,7 +78,8 @@ public class Activator implements BundleActivator {
             }
 
             @Override
-            public void modifiedService(ServiceReference reference, Object service) {}
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
 
             @Override
             public void removedService(ServiceReference reference, Object service) {
