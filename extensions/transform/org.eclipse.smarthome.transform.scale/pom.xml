@@ -10,7 +10,7 @@
   </parent>
 
   <groupId>org.eclipse.smarthome.transform</groupId>
-  <artifactId>org.eclipse.smarthome.transform.sale</artifactId>
+  <artifactId>org.eclipse.smarthome.transform.scale</artifactId>
 
   <name>Eclipse SmartHome Scale Transform Service</name>
   <packaging>eclipse-plugin</packaging>
