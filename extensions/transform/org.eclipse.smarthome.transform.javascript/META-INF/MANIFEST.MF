@@ -4,7 +4,8 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.apache.commons.io,
+Import-Package: javax.script,
+ org.apache.commons.io,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.transform,
  org.slf4j
