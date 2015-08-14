@@ -621,6 +621,18 @@ public class Printer {
         return res;
     }
 
+    static String printRuleStatus(String ruleUID, RuleStatus status) {
+        StringBuilder writer = new StringBuilder();
+        printChars(writer, '-', 100, true);
+        writer.append(ruleUID);
+        if (status != null) {
+            writer.append(" [ ").append(status.toString()).append("]");
+        }
+        writer.append("\n");
+        printChars(writer, '-', 100, true);
+        return writer.toString();
+    }
+
     /**
      * This method is responsible for the printing a symbol - <tt>ch</tt> as many times as specified by the parameter of
      * the method

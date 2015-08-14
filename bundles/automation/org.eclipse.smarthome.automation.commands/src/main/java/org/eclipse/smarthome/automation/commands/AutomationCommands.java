@@ -186,6 +186,16 @@ public abstract class AutomationCommands {
     protected static final String LIST_RULES_SHORT = "lsr";
 
     /**
+     * This static field is an identifier of the command {@link AutomationCommandEnableRule}.
+     */
+    protected static final String ENABLE_RULE = "enableRule";
+
+    /**
+     * This static field is a short identifier of the command {@link AutomationCommandEnableRule}.
+     */
+    protected static final String ENABLE_RULE_SHORT = "enr";
+
+    /**
      * This field serves for the {@link ModuleTypeProvider} service and the {@link TemplateProvider} service
      * registration.
      */
@@ -256,6 +266,8 @@ public abstract class AutomationCommands {
     public abstract Collection<Rule> getRules();
 
     public abstract RuleStatus getRuleStatus(String uid);
+
+    public abstract void setEnabled(String uid, boolean isEnabled);
 
     /**
      * This method is used for getting the {@link RuleTemplate} corresponding to the specified UID from the manager of

@@ -827,7 +827,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return status of the rule or null when such rule does not exists.
      */
     public synchronized RuleStatus getRuleStatus(String rUID) {
-        RuleStatus status = statusMap.get(rUID).getStatus();
+        RuleStatusInfo info = statusMap.get(rUID);
+        RuleStatus status = null;
+        if (info != null)
+            status = info.getStatus();
         return status;
     }
 

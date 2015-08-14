@@ -213,7 +213,12 @@ public class AutomationCommandsPluggable extends AutomationCommands
                 buildCommandUsage(EXPORT_TEMPLATES + " [-p] <parserType> [-st] <file>",
                         "Exports Templates in a file. If parser type missing, \"json\" parser will be set as default"),
                 buildCommandUsage(EXPORT_RULES + " [-p] <parserType> [-st] <file>",
-                        "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default") });
+                        "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default"),
+                buildCommandUsage(ENABLE_RULE + " [-st] <uid> <enable>",
+                        "Enables the Rule, specified by given UID. If enable parameter is missing, "
+                                + "the result of the command will be visualization of enabled/disabled state of the rule, "
+                                + "if its value is \"true\" or \"false\", "
+                                + "the result of the command will be to set enable/disable on the Rule.") });
     }
 
     @Override
@@ -327,6 +332,9 @@ public class AutomationCommandsPluggable extends AutomationCommands
         if (command.equalsIgnoreCase(REMOVE_RULES)) {
             return new AutomationCommandRemove(REMOVE_RULES, params, RULE_REGISTRY, this);
         }
+        if (command.equalsIgnoreCase(ENABLE_RULE)) {
+            return new AutomationCommandEnableRule(ENABLE_RULE, params, RULE_REGISTRY, this);
+        }
         return null;
     }
 
@@ -376,6 +384,14 @@ public class AutomationCommandsPluggable extends AutomationCommands
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void setEnabled(String uid, boolean isEnabled) {
+        if (ruleReg != null) {
+            ruleReg.setEnabled(uid, isEnabled);
+        }
+
     }
 
 }
