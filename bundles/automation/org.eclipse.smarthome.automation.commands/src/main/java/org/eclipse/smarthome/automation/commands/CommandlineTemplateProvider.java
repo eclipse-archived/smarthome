@@ -24,18 +24,21 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.template.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractCommandProvider}
- * .
  * <p>
  * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link RuleTemplate}s:
  * <ul>
@@ -52,8 +55,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
-     * any new
-     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
+     * any new functionality to the constructors of the providers. Only provides consistency by invoking the parent's
      * constructor.
      *
      * @param context is the {@link BundleContext}, used for creating a tracker for {@link Parser} services.
@@ -79,7 +81,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     /**
      * @see AutomationCommandsPluggable#exportTemplates(String, Set, File)
      */
-    public Status exportTemplates(String parserType, Set<Template> set, File file) {
+    public Status exportTemplates(String parserType, Set<RuleTemplate> set, File file) {
         return super.exportData(parserType, set, file);
     }
 
@@ -88,7 +90,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      */
     public Set<Status> importTemplates(String parserType, URL url) {
         InputStreamReader inputStreamReader = null;
-        Parser parser = parsers.get(parserType);
+        Parser<RuleTemplate> parser = parsers.get(parserType);
         if (parser != null)
             try {
                 inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
@@ -151,7 +153,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
-    protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
+    protected Set<Status> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
             List<String> portfolio = new ArrayList<String>();
@@ -161,16 +163,30 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             for (Status status : providedObjects) {
                 if (status.hasErrors())
                     continue;
-                RuleTemplate ruleT = (RuleTemplate) status.getResult();
-                String uid = ruleT.getUID();
+                RuleTemplateDTO ruleDTO = (RuleTemplateDTO) status.getResult();
+                String uid = ruleDTO.uid;
+                List<Trigger> triggers = new ArrayList<Trigger>(ruleDTO.triggers.size());
+                for (TriggerDTO trigger : ruleDTO.triggers) {
+                    triggers.add(trigger.createTrigger(factory));
+                }
+                List<Condition> conditions = new ArrayList<Condition>(ruleDTO.conditions.size());
+                for (ConditionDTO condition : ruleDTO.conditions) {
+                    conditions.add(condition.createCondition(factory));
+                }
+                List<Action> actions = new ArrayList<Action>(ruleDTO.actions.size());
+                for (ActionDTO action : ruleDTO.actions) {
+                    actions.add(action.createAction(factory));
+                }
+                RuleTemplate ruleT = new RuleTemplate(uid, ruleDTO.label, ruleDTO.description, ruleDTO.tags, triggers,
+                        conditions, actions, ruleDTO.configDescriptions, ruleDTO.visibility);
                 try {
-                    ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry, ruleT
-                            .getModules(Trigger.class), ruleT.getModules(Condition.class), ruleT.getModules(
-                                    Action.class));
+                    ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
+                            ruleT.getModules(Trigger.class), ruleT.getModules(Condition.class),
+                            ruleT.getModules(Action.class));
                 } catch (Exception e) {
                     status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! " + e
-                            .getMessage(), e);
+                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
+                            + e.getMessage(), e);
                     continue;
                 }
                 if (checkExistence(uid, status))

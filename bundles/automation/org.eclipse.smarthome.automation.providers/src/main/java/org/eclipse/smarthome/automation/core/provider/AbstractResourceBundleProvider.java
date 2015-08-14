@@ -10,6 +10,7 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -59,12 +61,21 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      */
     protected static String PATH = "ESH-INF/automation";
 
+    /**
+     * This field keeps instance of {@link Logger} that is used for logging.
+     */
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * A bundle's execution context within the Framework.
      */
     protected BundleContext bc;
+
+    /**
+     * This field is an {@link AutomationFactory}. It uses for creation of
+     * modules in deserializing the automation objects.
+     */
+    protected AutomationFactory factory;
 
     /**
      * This field is initialized in constructors of any particular provider with specific path for the particular
@@ -84,7 +95,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
      * performance at runtime of the system.
      */
-    protected Map<String, Parser> parsers = new HashMap<String, Parser>();
+    protected Map<String, Parser<E>> parsers = new HashMap<String, Parser<E>>();
 
     /**
      * This Map provides structure for fast access to the provided automation objects. This provides opportunity for
@@ -106,7 +117,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * This Map holds bundles whose {@link Parser} for resources is missing in the moment of processing the bundle.
      * Later, if the {@link Parser} appears, they will be added again in the {@link #queue} for processing.
      */
-    protected Map<Long, Bundle> waitingProviders = new HashMap<Long, Bundle>();
+    protected Map<Bundle, List<URL>> waitingProviders = new HashMap<Bundle, List<URL>>();
 
     /**
      * This field provides an access to the queue for processing bundles.
@@ -121,7 +132,9 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     @SuppressWarnings("unchecked")
     public AbstractResourceBundleProvider(BundleContext context) {
         this.bc = context;
+        logger = LoggerFactory.getLogger(AbstractResourceBundleProvider.this.getClass());
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
+        parserTracker.open();
     }
 
     /**
@@ -133,7 +146,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     public void setQueue(AutomationResourceBundlesEventQueue queue) {
         this.queue = queue;
         queue.open();
-        parserTracker.open();
     }
 
     /**
@@ -157,16 +169,11 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         key = key == null ? Parser.FORMAT_JSON : key;
         parsers.put(key, service);
         synchronized (waitingProviders) {
-            Iterator<Long> i = waitingProviders.keySet().iterator();
+            Iterator<Bundle> i = waitingProviders.keySet().iterator();
             while (i.hasNext()) {
-                Long bundleId = i.next();
-                Bundle bundle = waitingProviders.get(bundleId);
-                String parserType = bundle.getHeaders()
-                        .get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
-                Parser parser = parsers.get(parserType);
-                if (parser != null && bundle.getState() != Bundle.UNINSTALLED) {
+                Bundle bundle = i.next();
+                if (bundle.getState() != Bundle.UNINSTALLED) {
                     queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));
-                    i.remove();
                 }
             }
         }
@@ -228,17 +235,34 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * This method is called from {@link AutomationResourceBundlesEventQueue} to ensure that the tracked bundle is
      * already processed and its version is the same.
      *
-     * @param vendor is a {@link Vendor} object, corresponding to the tracked bundle and serves as key in
-     *            {@link #providerPortfolio}
-     * @return {@code true} if the bundle ID and the version on the tracked bundle are matching to these on the
-     *         {@link Vendor} and {@code false} in the other case.
+     * @param bundle is a {@link Bundle} object, corresponding to the tracked bundle and serves as key in
+     *            {@link #waitingProviders}
+     * @return {@code true} if the bundle is missing in {@link #waitingProviders} and ID and the Version on the tracked
+     *         bundle are matching to these on the {@link Vendor} objects, contained as keys in
+     *         {@link #providerPortfolio} and {@code false} in the opposite case.
      */
-    public boolean isProviderProcessed(Vendor vendor) {
+    public boolean isProviderProcessed(Bundle bundle) {
         boolean res = false;
-        synchronized (providerPortfolio) {
-            res = providerPortfolio.get(vendor) != null;
+        synchronized (waitingProviders) {
+            res = waitingProviders.get(bundle) == null;
+        }
+        if (res) {
+            Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+            synchronized (providerPortfolio) {
+                res = providerPortfolio.get(vendor) != null;
+            }
         }
         return res;
+    }
+
+    /**
+     * This method is used in {@link AutomationResourceBundlesEventQueue#open()} to confirms that the provider is ready
+     * to work.
+     *
+     * @return {@code true} if the provider is ready and {@code false} in the opposite case.
+     */
+    public boolean isReady() {
+        return false;
     }
 
     /**
@@ -260,14 +284,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      *            objects.
      */
     protected void processAutomationProvider(Bundle bundle) {
-        String parserType = bundle.getHeaders().get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
-        Parser parser = parsers.get(parserType);
-        if (parser == null) {
-            synchronized (waitingProviders) {
-                waitingProviders.put(new Long(bundle.getBundleId()), bundle);
-            }
-            return;
-        }
         synchronized (providerPortfolio) {
             for (Vendor vendor : providerPortfolio.keySet()) {
                 if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
@@ -275,25 +291,52 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
                     List<String> portfolio = providerPortfolio.remove(vendor);
                     if (portfolio != null && !portfolio.isEmpty())
                         for (String uid : portfolio) {
-                            providedObjectsHolder.remove(uid);
+                            synchronized (providedObjectsHolder) {
+                                providedObjectsHolder.remove(uid);
+                            }
                         }
                     break;
                 }
             }
         }
-        Enumeration<URL> urls = bundle.findEntries(path, null, false);
-        if (urls == null)
+        Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
+        if (urlEnum == null)
             return;
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
-        while (urls.hasMoreElements()) {
-            URL url = urls.nextElement();
-            try {
-                importData(vendor, parser, new InputStreamReader(url.openStream()));
-            } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
-                        e);
+        while (urlEnum.hasMoreElements()) {
+            URL url = urlEnum.nextElement();
+            String parserType = getParserType(url);
+            Parser<E> parser = parsers.get(parserType);
+            synchronized (waitingProviders) {
+                List<URL> urlList = waitingProviders.get(bundle);
+                if (parser != null) {
+                    if (urlList != null && urlList.remove(url) && urlList.isEmpty())
+                        waitingProviders.remove(bundle);
+                    try {
+                        importData(vendor, parser, new InputStreamReader(url.openStream()));
+                    } catch (IOException e) {
+                        logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is "
+                                + url, e);
+                    }
+                } else if (parser == null) {
+                    if (urlList == null)
+                        urlList = new ArrayList<URL>();
+                    urlList.add(url);
+                    waitingProviders.put(bundle, urlList);
+                }
             }
         }
+    }
+
+    protected String getParserType(URL url) {
+        String fileName = url.getPath();
+        int fileExtesionStartIndex = fileName.lastIndexOf(".") + 1;
+        if (fileExtesionStartIndex == -1)
+            return Parser.FORMAT_JSON;
+        String fileExtesion = fileName.substring(fileExtesionStartIndex);
+        if (fileExtesion.equals("txt"))
+            return Parser.FORMAT_JSON;
+        return fileExtesion;
     }
 
     /**
@@ -310,25 +353,21 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      */
     protected void processAutomationProviderUninstalled(Bundle bundle) {
         synchronized (waitingProviders) {
-            if (waitingProviders.remove(new Long(bundle.getBundleId())) != null)
-                return;
+            waitingProviders.remove(bundle);
         }
         List<String> portfolio = null;
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         synchronized (providerPortfolio) {
-            portfolio = providerPortfolio.get(vendor);
-        }
-        if (portfolio == null || portfolio.isEmpty())
-            return;
-        Iterator<String> i = portfolio.iterator();
-        while (i.hasNext()) {
-            String uid = i.next();
-            synchronized (providedObjectsHolder) {
-                providedObjectsHolder.remove(uid);
-            }
-        }
-        synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(vendor);
+        }
+        if (portfolio != null && portfolio.isEmpty()) {
+            Iterator<String> i = portfolio.iterator();
+            while (i.hasNext()) {
+                String uid = i.next();
+                synchronized (providedObjectsHolder) {
+                    providedObjectsHolder.remove(uid);
+                }
+            }
         }
     }
 
@@ -341,6 +380,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
      * @return a set of {@link Status}es, each of them shows the result of loading per object.
      */
-    protected abstract Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader);
+    protected abstract Set<Status> importData(Vendor vendor, Parser<E> parser, InputStreamReader inputStreamReader);
 
 }

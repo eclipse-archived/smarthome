@@ -38,7 +38,8 @@ import org.slf4j.LoggerFactory;
  * Abstract class used for resolving references in {@link ConfigDescriptionParameter} , {@link Input} and {@link Output}
  * in {@link Module}
  *
- * @author Vasil Ilchev
+ * @author Vasil Ilchev - Initial Contribution
+ * @author Ana Dimova - Suppress Warnings for rawtypes.
  */
 public abstract class AbstractModuleHandler implements ModuleHandler {
     /**
@@ -223,6 +224,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with the resolved Inputs values - {@link Module} will be ready to work with<br/>
      *         key: Name of the Input, value: Input value
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedInputs(Map<String, ?> inputValues) {
 
         Map resolvedInputs = new HashMap();
@@ -260,6 +262,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with resolved configuration - {@link ModuleHandler} will be ready to work with<br/>
      *         key: name of the Configuration property, value: value of the Configuration property
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedConfiguration(Map<String, ?> resolvedInputs) {
         Map resolvedConfiguration = new HashMap();
         Map<String, Object> configuration = module.getConfiguration();
@@ -291,6 +294,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with resolved Output values - {@link Module} will be ready to work with<br/>
      *         key: Name of Output, value: Output Value
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedOutputs(Map<String, ?> resolvedConfiguration,
             Map<String, ?> resolvedInputs, Map<String, ?> outputValues) {
 
@@ -343,6 +347,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param resolvedInputValues the resolved Inputs
      * @return value for passed ConfigurationProperty
      */
+    @SuppressWarnings("rawtypes")
     private Object getConfigValue(ConfigDescriptionParameter configParameter, Map<String, ?> configuration,
             Map<String, ?> resolvedInputValues) {
         Object configValue;
@@ -445,9 +450,9 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     private Map<String, Set<String>> getConfigParameterConnections(
             Map<String, ConfigDescriptionParameter> configParametersMap) {
 
-        Map<String, Set<String>> resultConfigConnections = new HashMap();
+        Map<String, Set<String>> resultConfigConnections = new HashMap<String, Set<String>>();
         if (configParametersMap != null) {
-            Set<String> visitedConfigs = new HashSet();
+            Set<String> visitedConfigs = new HashSet<String>();
             for (Map.Entry<String, ConfigDescriptionParameter> entry : configParametersMap.entrySet()) {
                 String configName = entry.getKey();
                 if (!visitedConfigs.contains(configName)) {// check if Config is already visited
@@ -471,9 +476,9 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map key: name of Input, value: set of Input names
      */
     private Map<String, Set<String>> getInputConnections(Map<String, Input> inputDescriptionsMap) {
-        Map<String, Set<String>> resultInputConnections = new HashMap();
+        Map<String, Set<String>> resultInputConnections = new HashMap<String, Set<String>>();
         if (inputDescriptionsMap != null) {
-            Set<String> visitedInputs = new HashSet();
+            Set<String> visitedInputs = new HashSet<String>();
             for (Map.Entry<String, Input> entry : inputDescriptionsMap.entrySet()) {
                 String inputName = entry.getKey();
                 if (!visitedInputs.contains(inputName)) {// check if Input is already visited
@@ -497,9 +502,9 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map key: name of Output, value: set of Output names
      */
     private Map<String, Set<String>> getOutputConnections(Map<String, Output> outputDescriptionsMap) {
-        Map<String, LinkedList<String>> resultOutputConnections = new HashMap();
+        Map<String, LinkedList<String>> resultOutputConnections = new HashMap<String, LinkedList<String>>();
         if (outputDescriptionsMap != null) {
-            Set<String> visitedOutputs = new HashSet();
+            Set<String> visitedOutputs = new HashSet<String>();
             for (Map.Entry<String, Output> entry : outputDescriptionsMap.entrySet()) {
                 String outputName = entry.getKey();
                 if (!visitedOutputs.contains(outputName)) {// check if Output is already visited
@@ -534,19 +539,19 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     private Map<String, Set<String>> processOutputConnections(
             Map<String, LinkedList<String>> currentOutputConnections) {
 
-        Map<String, Set<String>> resultOutputConnections = new HashMap();
+        Map<String, Set<String>> resultOutputConnections = new HashMap<String, Set<String>>();
         for (Map.Entry<String, LinkedList<String>> entry : currentOutputConnections.entrySet()) {
             String beginPoint = entry.getKey();
             LinkedList<String> referredOutputNames = entry.getValue();
             String endPoint = referredOutputNames.removeLast();// the source(system) output
             referredOutputNames.addFirst(beginPoint);
-            resultOutputConnections.put(endPoint, new HashSet(referredOutputNames));// order not matter
+            resultOutputConnections.put(endPoint, new HashSet<String>(referredOutputNames));// order not matter
         }
         return resultOutputConnections;
     }
 
     private LinkedList<String> getReferredOutputNames(Output outputDescription,
-            Map<String, Output> outputDescriptionsMap2, Set<String> visitedOutputs,
+            Map<String, Output> outputDescriptionsMap, Set<String> visitedOutputs,
             Map<String, LinkedList<String>> currentOutputConnections) {
 
         Output currentOutputDescription = outputDescription;
@@ -554,7 +559,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         String sourceOutputName = currentOutputDescription.getName();
         String currentOutputName = sourceOutputName;
         String currentReference = currentOutputDescription.getReference();
-        LinkedList<String> referredOutputNames = new LinkedList(); // order needed: last element- source element
+        LinkedList<String> referredOutputNames = new LinkedList<String>(); // order needed: last element- source element
         while (!visitedOutputs.contains(currentOutputName) && currentReference != null) {
             visitedOutputs.add(currentOutputName); // mark Output as visited
             if (isParsable(currentReference)) {
@@ -565,7 +570,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                     validateOutputType(outputDescription, currentOutputDescription);
                     if (currentOutputConnections.containsKey(parsedNameRef)) { // referred output has
                                                                                // outputConnections
-                        LinkedList ll = currentOutputConnections.remove(parsedNameRef);
+                        LinkedList<String> ll = currentOutputConnections.remove(parsedNameRef);
                         ll.addFirst(parsedNameRef);
                         referredOutputNames.addAll(ll); // add all its referred and save the order
                     } else {
@@ -587,6 +592,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         return !referredOutputNames.isEmpty() ? referredOutputNames : null;
     }
 
+    @SuppressWarnings("rawtypes")
     private Set<String> getReferredConfigNames(ConfigDescriptionParameter configParamater,
             Map<String, ConfigDescriptionParameter> configDescriptionsMap, Set<String> visitedConfigs,
             Map<String, Set<String>> currentConfigurationConnections) {
@@ -595,7 +601,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         String currentConfigName = sourceConfigName;
         ConfigDescriptionParameter currentConfigParameter = configParamater;
         Dictionary currentContext = getContextDictionary(currentConfigParameter);
-        Set<String> referredConfigNames = new HashSet();
+        Set<String> referredConfigNames = new HashSet<String>();
         while (!visitedConfigs.contains(currentConfigName) && currentContext != null) {
             visitedConfigs.add(currentConfigName); // mark config as visited
             String nameRef = getPropertyContextString(currentContext, PROPERTY_CONTEXT_NAMEREF);
@@ -607,7 +613,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                     validateConfigType(configParamater, currentConfigParameter);
                     if (currentConfigurationConnections.containsKey(referredConfigName)) { // referred config has
                         // configConnections
-                        Set s = currentConfigurationConnections.remove(referredConfigName);
+                        Set<String> s = currentConfigurationConnections.remove(referredConfigName);
                         s.add(referredConfigName);
                         referredConfigNames.addAll(s); // add all its referred
                     } else {
@@ -632,7 +638,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         String sourceInputName = currentInputDescription.getName();
         String currentInputName = sourceInputName;
         String currentReference = currentInputDescription.getReference();
-        Set<String> referredInputNames = new HashSet();
+        Set<String> referredInputNames = new HashSet<String>();
         while (!visitedInputs.contains(currentInputName) && currentReference != null) {
             visitedInputs.add(currentInputName); // mark Input as visited
             if (isParsable(currentReference)) {
@@ -643,7 +649,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                     validateInputType(inputDescription, currentInputDescription);
                     if (currentInputConnections.containsKey(parsedNameRef)) { // referred input has
                                                                               // inputConnections
-                        Set s = currentInputConnections.remove(parsedNameRef);
+                        Set<String> s = currentInputConnections.remove(parsedNameRef);
                         s.add(parsedNameRef);
                         referredInputNames.addAll(s); // add all its referred
                     } else {
@@ -709,6 +715,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param configParameter the source ConfigDescriptionParameter
      * @param referredConfigParameter the referred ConfigDescriptionParameter name
      */
+    @SuppressWarnings("null")
     private void validateConfigType(ConfigDescriptionParameter configParameter,
             ConfigDescriptionParameter referredConfigParameter) {
 
@@ -760,8 +767,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         Map<String, ConfigDescriptionParameter> resultMap = null;
         Set<ConfigDescriptionParameter> configDescriptions = null;
         if (moduleTypes != null) {
-            configDescriptions = new HashSet();
-            Set currentConfigurationDescriptions = null;
+            configDescriptions = new HashSet<ConfigDescriptionParameter>();
+            Set<ConfigDescriptionParameter> currentConfigurationDescriptions = null;
             for (ModuleType moduleType : moduleTypes) {
                 currentConfigurationDescriptions = moduleType.getConfigurationDescription();
                 if (currentConfigurationDescriptions != null) {
@@ -785,8 +792,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         Map<String, Input> resultMap = null;
         Set<Input> inputDescriptions = null;
         if (moduleTypes != null) {
-            inputDescriptions = new HashSet();
-            Set currentInputs = null;
+            inputDescriptions = new HashSet<Input>();
+            Set<Input> currentInputs = null;
             for (ModuleType moduleType : moduleTypes) {
                 if (moduleType instanceof ConditionType) {
                     currentInputs = ((ConditionType) moduleType).getInputs();
@@ -820,8 +827,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         Map<String, Output> resultMap = null;
         Set<Output> outputDescriptions = null;
         if (moduleTypes != null) {
-            outputDescriptions = new HashSet();
-            Set currentOutputs = null;
+            outputDescriptions = new HashSet<Output>();
+            Set<Output> currentOutputs = null;
             for (ModuleType moduleType : moduleTypes) {
                 if (moduleType instanceof TriggerType) {
                     currentOutputs = ((TriggerType) moduleType).getOutputs();
@@ -852,7 +859,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return list of all module types in the hierarchy
      */
     private List<ModuleType> getAllModuleTypes(String moduleTypeUID) {
-        List<ModuleType> allModuleTypes = new ArrayList();
+        List<ModuleType> allModuleTypes = new ArrayList<ModuleType>();
         String currentModuleTypeUID = moduleTypeUID;
         ModuleType currentModuleType;
         do {
@@ -896,7 +903,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     private Map<String, ConfigDescriptionParameter> toConfigDescriptionParameterMap(
             Set<ConfigDescriptionParameter> configurationDescriptions) {
 
-        Map<String, ConfigDescriptionParameter> configMap = new HashMap();
+        Map<String, ConfigDescriptionParameter> configMap = new HashMap<String, ConfigDescriptionParameter>();
         for (ConfigDescriptionParameter config : configurationDescriptions) {
             configMap.put(config.getName(), config);
         }
@@ -911,7 +918,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with Inputs
      */
     private Map<String, Input> toInputDescriptionMap(Set<Input> inputs) {
-        Map<String, Input> inputsMap = new HashMap();
+        Map<String, Input> inputsMap = new HashMap<String, Input>();
         for (Input input : inputs) {
             inputsMap.put(input.getName(), input);
         }
@@ -926,7 +933,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with Inputs
      */
     private Map<String, Output> toOutputDescriptionMap(Set<Output> outputs) {
-        Map<String, Output> outputsMap = new HashMap();
+        Map<String, Output> outputsMap = new HashMap<String, Output>();
         for (Output output : outputs) {
             outputsMap.put(output.getName(), output);
         }
@@ -964,6 +971,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param configParameter the configParameter
      * @return context as JSON or <code>null</code>
      */
+    @SuppressWarnings("rawtypes")
     private Dictionary getContextDictionary(ConfigDescriptionParameter configParameter) {
         Dictionary context = null;
         String contextStr = configParameter.getContext();
@@ -978,6 +986,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         return context;
     }
 
+    @SuppressWarnings("rawtypes")
     private String getPropertyContextString(Dictionary dict, String property) {
         String propertyValue = null;
         Object obj = dict.get(property);

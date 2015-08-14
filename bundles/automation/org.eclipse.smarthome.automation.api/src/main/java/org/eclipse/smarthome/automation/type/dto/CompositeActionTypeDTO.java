@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.type.dto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,9 @@ import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.dto.ActionDTO;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.automation.type.Input;
+import org.eclipse.smarthome.automation.type.Output;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 public class CompositeActionTypeDTO extends ActionType {
 
@@ -31,6 +35,13 @@ public class CompositeActionTypeDTO extends ActionType {
         for (Action action : actions) {
             modules.add(new ActionDTO(action));
         }
+    }
+
+    public CompositeActionTypeDTO(String moduleTypeUID, LinkedHashSet<ConfigDescriptionParameter> configDescriptions,
+            String label, String description, Set<String> tags, Visibility v, Set<Input> inputs, Set<Output> outputs,
+            List<ActionDTO> actionModules) {
+        super(moduleTypeUID, configDescriptions, label, description, tags, v, inputs, outputs);
+        modules = actionModules;
     }
 
     public static Set<CompositeActionType> createFrom(Set<CompositeActionTypeDTO> persSet, AutomationFactory factory) {

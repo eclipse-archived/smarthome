@@ -29,15 +29,14 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is base for {@link ModuleTypeProvider}, {@link TemplateProvider} and RuleImporter which are responsible
  * for execution of automation commands.
  * <p>
- * It extends functionality of {@link AbstractPersistentProvider} with tracking {@link Parser} services by implementing
- * {@link ServiceTrackerCustomizer}
- * <p>
- * and provides common functionality for exporting automation objects.
+ * It provides functionality for tracking {@link Parser} services by implementing {@link ServiceTrackerCustomizer} and
+ * provides common functionality for exporting automation objects.
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
@@ -75,7 +74,7 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * This Map provides structure for fast access to the {@link Parser}s. This provides opportunity for high
      * performance at runtime of the system.
      */
-    protected Map<String, Parser> parsers = new HashMap<String, Parser>();
+    protected Map<String, Parser<E>> parsers = new HashMap<String, Parser<E>>();
 
     /**
      * This Map provides structure for fast access to the provided automation objects. This provides opportunity for
@@ -86,6 +85,8 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      */
     protected Map<String, Localizer> providedObjectsHolder = new HashMap<String, Localizer>();
 
+    private ServiceTracker factoryTraker;
+
     /**
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.
      *
@@ -94,8 +95,26 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
     @SuppressWarnings("unchecked")
     public AbstractCommandProvider(BundleContext context) {
         this.bc = context;
+        logger = LoggerFactory.getLogger(AbstractCommandProvider.this.getClass());
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
         parserTracker.open();
+        factoryTraker = new ServiceTracker(bc, AutomationFactory.class.getName(), new ServiceTrackerCustomizer() {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                factory = bc.getService(reference);
+                return factory;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {}
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                factory= null;
+            }
+        });
+        factoryTraker.open();
     }
 
     /**
@@ -126,7 +145,7 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
     @Override
     public Object addingService(ServiceReference reference) {
         @SuppressWarnings("unchecked")
-        Parser service = (Parser) bc.getService(reference);
+        Parser<E> service = bc.getService(reference);
         String key = (String) reference.getProperty(Parser.FORMAT);
         key = key == null ? Parser.FORMAT_JSON : key;
         parsers.put(key, service);
@@ -166,12 +185,12 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * @return {@link Status} of the {@link AutomationCommandExport} operation. Can be successful or can fail because of
      *         missing parser or {@link IOException} or {@link FileNotFoundException}.
      */
-    public Status exportData(String parserType, Set<?> set, File file) {
+    public Status exportData(String parserType, Set<E> set, File file) {
         OutputStreamWriter oWriter = null;
         Status s = new Status(logger, 0, null);
         try {
             oWriter = new OutputStreamWriter(new FileOutputStream(file));
-            Parser parser = parsers.get(parserType);
+            Parser<E> parser = parsers.get(parserType);
             if (parser != null) {
                 try {
                     parser.exportData(set, oWriter);
@@ -204,6 +223,6 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * @return {@link Status} of the {@link AutomationCommandImport} operation. Can be successful or can fail because of
      *         {@link IOException}.
      */
-    protected abstract Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader);
+    protected abstract Set<Status> importData(URL url, Parser<E> parser, InputStreamReader inputStreamReader);
 
 }

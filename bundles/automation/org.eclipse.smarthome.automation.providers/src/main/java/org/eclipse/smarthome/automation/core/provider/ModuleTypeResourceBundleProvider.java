@@ -15,13 +15,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.automation.type.CompositeConditionType;
+import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -45,7 +60,8 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         implements ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
-    private ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry> moduleTypesTracker;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker moduleTypesTracker;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
@@ -53,32 +69,43 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public ModuleTypeResourceBundleProvider(BundleContext context) {
         super(context);
         path = PATH + "/moduletypes/";
-        moduleTypesTracker = new ServiceTracker<ModuleTypeRegistry, ModuleTypeRegistry>(context,
-                ModuleTypeRegistry.class.getName(),
-                new ServiceTrackerCustomizer<ModuleTypeRegistry, ModuleTypeRegistry>() {
+        try {
+            Filter filter = bc.createFilter("(|(objectClass=" + ModuleTypeRegistry.class.getName() + ")(objectClass="
+                    + AutomationFactory.class.getName() + "))");
+            moduleTypesTracker = new ServiceTracker(context, filter, new ServiceTrackerCustomizer() {
 
-                    @Override
-                    public ModuleTypeRegistry addingService(ServiceReference<ModuleTypeRegistry> reference) {
-                        moduleTypeRegistry = bc.getService(reference);
-                        if (moduleTypeRegistry != null && queue != null) {
-                            queue.open();
-                        }
-                        return moduleTypeRegistry;
+                @Override
+                public Object addingService(ServiceReference reference) {
+                    Object service = bc.getService(reference);
+                    if (service instanceof ModuleTypeRegistry) {
+                        moduleTypeRegistry = (ModuleTypeRegistry) service;
+                    } else {
+                        factory = (AutomationFactory) service;
                     }
+                    queue.open();
+                    return service;
+                }
 
-                    @Override
-                    public void modifiedService(ServiceReference<ModuleTypeRegistry> reference,
-                            ModuleTypeRegistry service) {}
+                @Override
+                public void modifiedService(ServiceReference reference, Object service) {
+                }
 
-                    @Override
-                    public void removedService(ServiceReference<ModuleTypeRegistry> reference,
-                            ModuleTypeRegistry service) {
-                        moduleTypeRegistry = null;
-                    }
-                });
+                @Override
+                public void removedService(ServiceReference reference, Object service) {
+                    moduleTypeRegistry = null;
+                }
+            });
+        } catch (InvalidSyntaxException notPossible) {
+        }
+    }
+
+    @Override
+    public void setQueue(AutomationResourceBundlesEventQueue queue) {
+        super.setQueue(queue);
         moduleTypesTracker.open();
     }
 
@@ -147,7 +174,12 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
     }
 
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader) {
+    public boolean isReady() {
+        return moduleTypeRegistry != null && queue != null;
+    }
+
+    @Override
+    protected Set<Status> importData(Vendor vendor, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
         if (vendor != null) {
             synchronized (providerPortfolio) {
@@ -163,7 +195,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             Iterator<Status> i = providedObjects.iterator();
             while (i.hasNext()) {
                 Status status = i.next();
-                ModuleType providedObject = (ModuleType) status.getResult();
+                ModuleType providedObject = convertToModuleType(status);
                 if (providedObject != null) {
                     String uid = providedObject.getUID();
                     if (checkExistence(uid, status))
@@ -179,6 +211,38 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             }
         }
         return providedObjects;
+    }
+
+    private ModuleType convertToModuleType(Status status) {
+        Object moduleType = status.getResult();
+        if (moduleType == null)
+            return null;
+        if (moduleType instanceof CompositeActionTypeDTO) {
+            CompositeActionTypeDTO at = (CompositeActionTypeDTO) moduleType;
+            List<Action> modules = new ArrayList<Action>(at.modules.size());
+            for (ActionDTO action : at.modules) {
+                modules.add(action.createAction(factory));
+            }
+            return new CompositeActionType(at.getUID(), at.getConfigurationDescription(), at.getInputs(),
+                    at.getOutputs(), modules);
+        }
+        if (moduleType instanceof CompositeConditionTypeDTO) {
+            CompositeConditionTypeDTO ct = (CompositeConditionTypeDTO) moduleType;
+            List<Condition> modules = new ArrayList<Condition>(ct.modules.size());
+            for (ConditionDTO condition : ct.modules) {
+                modules.add(condition.createCondition(factory));
+            }
+            return new CompositeConditionType(ct.getUID(), ct.getConfigurationDescription(), ct.getInputs(), modules);
+        }
+        if (moduleType instanceof CompositeTriggerTypeDTO) {
+            CompositeTriggerTypeDTO tt = (CompositeTriggerTypeDTO) moduleType;
+            List<Trigger> modules = new ArrayList<Trigger>(tt.modules.size());
+            for (TriggerDTO trigger : tt.modules) {
+                modules.add(trigger.createTrigger(factory));
+            }
+            return new CompositeTriggerType(tt.getUID(), tt.getConfigurationDescription(), tt.getOutputs(), modules);
+        }
+        return (ModuleType) moduleType;
     }
 
     /**

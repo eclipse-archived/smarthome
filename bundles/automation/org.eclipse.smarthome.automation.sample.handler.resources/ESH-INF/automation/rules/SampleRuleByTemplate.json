@@ -7,7 +7,6 @@
       "rule",
       "template"
     ],
-    "active": true,
     "config": {  
       "condition_operator": "!=",
       "condition_constraint": "template"

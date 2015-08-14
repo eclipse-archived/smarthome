@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.BundleContext;
@@ -37,7 +38,7 @@ import org.osgi.framework.ServiceReference;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class CommandlineRuleImporter extends AbstractCommandProvider<URL> {
+public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
 
     /**
      * This constructor creates instances of this particular implementation of Rule Importer. It does not add any new
@@ -76,7 +77,7 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<URL> {
      */
     public Set<Status> importRules(String parserType, URL url) {
         InputStreamReader inputStreamReader = null;
-        Parser parser = parsers.get(parserType);
+        Parser<Rule> parser = parsers.get(parserType);
         if (parser != null)
             try {
                 inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
@@ -102,7 +103,7 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<URL> {
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
-    protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
+    protected Set<Status> importData(URL url, Parser<Rule> parser, InputStreamReader inputStreamReader) {
 
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
@@ -111,12 +112,12 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<URL> {
                 Status s = i.next();
                 if (s.hasErrors())
                     continue;
-                Rule rule = (Rule) s.getResult();
+                RuleDTO rule = (RuleDTO) s.getResult();
                 if (rule != null) {
-                    if (AutomationCommandsPluggable.ruleReg.get(rule.getUID()) != null) {
-                        AutomationCommandsPluggable.ruleReg.update(rule);
+                    if (AutomationCommandsPluggable.ruleRegistry.get(rule.uid) != null) {
+                        AutomationCommandsPluggable.ruleRegistry.update(factory.createRule(rule));
                     } else {
-                        AutomationCommandsPluggable.ruleReg.add(rule);
+                        AutomationCommandsPluggable.ruleRegistry.add(factory.createRule(rule));
                     }
                 }
             } // while

@@ -90,6 +90,8 @@ public class JSONUtility {
     public static int checkRuleProperties(String propertyName) {
         if (propertyName.equals(JSONStructureConstants.TEMPLATE_UID))
             return TEMPLATE_UID;
+        if (propertyName.equals(JSONStructureConstants.UID))
+            return UID;
         if (propertyName.equals(JSONStructureConstants.NAME))
             return NAME;
         if (propertyName.equals(JSONStructureConstants.ON))
@@ -106,8 +108,6 @@ public class JSONUtility {
             return CONFIG;
         if (propertyName.equals(JSONStructureConstants.DESCRIPTION))
             return DESCRIPTION;
-        if (propertyName.equals(JSONStructureConstants.ACTIVE))
-            return ACTIVE;
         return -1;
     }
 

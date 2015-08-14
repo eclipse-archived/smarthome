@@ -39,8 +39,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  *
  */
 @SuppressWarnings("rawtypes")
-public class AutomationCommandsPluggable extends AutomationCommands implements ServiceTrackerCustomizer,
-        ConsoleCommandExtension {
+public class AutomationCommandsPluggable extends AutomationCommands
+        implements ServiceTrackerCustomizer, ConsoleCommandExtension {
 
     /**
      * This constant defines the command group name.
@@ -52,20 +52,56 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
      */
     public static final String DESCRIPTION = "Commands for managing Automation Rules, Templates and ModuleTypes resources.";
 
+    /**
+     * This field holds the reference to the {@code RuleRegistry} providing the {@code Rule} automation objects.
+     */
+    static RuleRegistry ruleRegistry;
+
+    /**
+     * This field holds the reference to the {@code TemplateRegistry} providing the {@code Template} automation objects.
+     */
+    static TemplateRegistry templateRegistry;
+
+    /**
+     * This field holds the reference to the {@code ModuleTypeRegistry} providing the {@code ModuleType} automation
+     * objects.
+     */
+    static ModuleTypeRegistry moduleTypeRegistry;
+
+    /**
+     * This constant is defined for compatibility and is used to switch to a particular provider of {@code ModuleType}
+     * automation objects.
+     */
     private static final int MODULE_TYPE_REGISTRY = 3;
+
+    /**
+     * This constant is defined for compatibility and is used to switch to a particular provider of {@code Template}
+     * automation objects.
+     */
     private static final int TEMPLATE_REGISTRY = 2;
+
+    /**
+     * This constant is defined for compatibility and is used to switch to a particular provider of {@code Rule}
+     * automation objects.
+     */
     private static final int RULE_REGISTRY = 1;
 
+    /**
+     * This field holds a reference to the tracker for {@code RuleRegistry}, {@code TemplateRegistry} and
+     * {@code ModuleTypeRegistry}.
+     */
     private ServiceTracker tracker;
 
-    static RuleRegistry ruleReg;
-    static TemplateRegistry templateRegistry;
-    static ModuleTypeRegistry moduleTypeRegistry;
+    /**
+     * This field holds a reference to the {@code ServiceRegistration} of the Automation Console Commands service.
+     */
     private ServiceRegistration commandsServiceReg;
 
     /**
+     * This constructor is responsible for creating a tracker for {@code RuleRegistry}, {@code TemplateRegistry} and
+     * {@code ModuleTypeRegistry}. Also it registers the Automation Console Commands service.
      *
-     * @param bc
+     * @param bc is the bundle's execution context within the Framework.
      */
     @SuppressWarnings("unchecked")
     public AutomationCommandsPluggable(BundleContext bc) {
@@ -82,7 +118,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
     }
 
     /**
-     *
+     * This method extends the parent functionality with unregistering the Automation Console Commands service and
+     * stopping the tracker for {@code RuleRegistry}, {@code TemplateRegistry} and {@code ModuleTypeRegistry}.
      */
     @Override
     public void stop() {
@@ -94,9 +131,6 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         super.stop();
     }
 
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
-     */
     @SuppressWarnings("unchecked")
     @Override
     public Object addingService(ServiceReference reference) {
@@ -105,7 +139,7 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
             AutomationCommandsPluggable.templateRegistry = (TemplateRegistry) service;
         }
         if (service instanceof RuleRegistry) {
-            AutomationCommandsPluggable.ruleReg = (RuleRegistry) service;
+            AutomationCommandsPluggable.ruleRegistry = (RuleRegistry) service;
         }
         if (service instanceof ModuleTypeRegistry) {
             AutomationCommandsPluggable.moduleTypeRegistry = (ModuleTypeRegistry) service;
@@ -113,34 +147,23 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return service;
     }
 
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {}
+    public void modifiedService(ServiceReference reference, Object service) {
+    }
 
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
     @Override
     public void removedService(ServiceReference reference, Object service) {
         if (service == templateRegistry) {
             templateRegistry = null;
         }
-        if (service == ruleReg) {
-            ruleReg = null;
+        if (service == ruleRegistry) {
+            ruleRegistry = null;
         }
         if (service == moduleTypeRegistry) {
             moduleTypeRegistry = null;
         }
     }
 
-    /**
-     * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#execute(java.lang.String[],
-     *      org.eclipse.smarthome.io.console.Console)
-     */
     @Override
     public void execute(String[] args, Console console) {
         if (args.length == 0) {
@@ -163,25 +186,22 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         }
     }
 
-    /**
-     * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getUsages()
-     */
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
-                "lists all Module Types. If filter is present, lists only matching Module Types"), buildCommandUsage(
-                        LIST_TEMPLATES + " [-st] <filter>",
-                        "lists all Templates. If filter is present, lists only matching Templates"), buildCommandUsage(
-                                LIST_RULES + " [-st] <filter>",
-                                "lists all Rules. If filter is present, lists only matching Rules"), buildCommandUsage(
-                                        REMOVE_MODULE_TYPES + " [-st] <url>",
-                                        "Removes the Module Types, loaded from the given url"), buildCommandUsage(
-                                                REMOVE_TEMPLATES + " [-st] <url>",
-                                                "Removes the Templates, loaded from the given url"), buildCommandUsage(
-                                                        REMOVE_RULE + " [-st] <uid>",
-                                                        "Removes the rule, specified by given UID"), buildCommandUsage(
-                                                                REMOVE_RULES + " [-st] <filter>",
-                                                                "Removes the rules. If filter is present, removes only matching Rules"),
+        return Arrays.asList(new String[] {
+                buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
+                        "lists all Module Types. If filter is present, lists only matching Module Types"),
+                buildCommandUsage(LIST_TEMPLATES + " [-st] <filter>",
+                        "lists all Templates. If filter is present, lists only matching Templates"),
+                buildCommandUsage(LIST_RULES + " [-st] <filter>",
+                        "lists all Rules. If filter is present, lists only matching Rules"),
+                buildCommandUsage(REMOVE_MODULE_TYPES + " [-st] <url>",
+                        "Removes the Module Types, loaded from the given url"),
+                buildCommandUsage(REMOVE_TEMPLATES + " [-st] <url>",
+                        "Removes the Templates, loaded from the given url"),
+                buildCommandUsage(REMOVE_RULE + " [-st] <uid>", "Removes the rule, specified by given UID"),
+                buildCommandUsage(REMOVE_RULES + " [-st] <filter>",
+                        "Removes the rules. If filter is present, removes only matching Rules"),
                 buildCommandUsage(IMPORT_MODULE_TYPES + " [-p] <parserType> [-st] <url>",
                         "Imports Module Types from given url. If parser type missing, \"json\" parser will be set as default"),
                 buildCommandUsage(IMPORT_TEMPLATES + " [-p] <parserType> [-st] <url>",
@@ -196,37 +216,24 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
                         "Exports Rules in a file. If parser type missing, \"json\" parser will be set as default") });
     }
 
-    /**
-     * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getCommand()
-     */
     @Override
     public String getCommand() {
         return NAME;
     }
 
-    /**
-     * @see org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension#getDescription()
-     */
     @Override
     public String getDescription() {
         return DESCRIPTION;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getRule(java.lang.String)
-     */
     @Override
     public Rule getRule(String uid) {
-        if (ruleReg != null) {
-            return ruleReg.get(uid);
+        if (ruleRegistry != null) {
+            return ruleRegistry.get(uid);
         }
         return null;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getTemplate(java.lang.String,
-     *      java.util.Locale)
-     */
     @Override
     public Template getTemplate(String templateUID, Locale locale) {
         if (templateRegistry != null) {
@@ -235,9 +242,6 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return null;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getTemplates(java.util.Locale)
-     */
     @Override
     public Collection<Template> getTemplates(Locale locale) {
         if (templateRegistry != null) {
@@ -246,10 +250,6 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return null;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getModuleType(java.lang.String,
-     *      java.util.Locale)
-     */
     @Override
     public ModuleType getModuleType(String typeUID, Locale locale) {
         if (moduleTypeRegistry != null) {
@@ -258,10 +258,6 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return null;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#getModuleTypes(java.lang.Class,
-     *      java.lang.String)
-     */
     @Override
     public <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale) {
         if (moduleTypeRegistry != null) {
@@ -270,13 +266,10 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return null;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#removeRule(java.lang.String)
-     */
     @Override
     public boolean removeRule(String uid) {
-        if (ruleReg != null) {
-            if (ruleReg.remove(uid) != null) {
+        if (ruleRegistry != null) {
+            if (ruleRegistry.remove(uid) != null) {
                 return true;
             }
             return false;
@@ -284,22 +277,15 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
         return false;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#removeRules(java.lang.String)
-     */
     @Override
     public boolean removeRules(String ruleFilter) {
         boolean res = false;
-        if (ruleReg != null) {
-            ruleReg.remove(ruleFilter);
+        if (ruleRegistry != null) {
+            ruleRegistry.remove(ruleFilter);
         }
         return res;
     }
 
-    /**
-     * @see com.prosyst.mbs.impl.services.automation.commands.AutomationCommands#parseCommand(java.lang.String,
-     *      java.lang.String[])
-     */
     @Override
     protected AutomationCommand parseCommand(String command, String[] params) {
         if (command.equalsIgnoreCase(IMPORT_MODULE_TYPES)) {
@@ -376,8 +362,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public Collection<Rule> getRules() {
-        if (ruleReg != null) {
-            return ruleReg.getAll();
+        if (ruleRegistry != null) {
+            return ruleRegistry.getAll();
         } else {
             return null;
         }
@@ -385,8 +371,8 @@ public class AutomationCommandsPluggable extends AutomationCommands implements S
 
     @Override
     public RuleStatus getRuleStatus(String ruleUID) {
-        if (ruleReg != null) {
-            return ruleReg.getStatus(ruleUID);
+        if (ruleRegistry != null) {
+            return ruleRegistry.getStatus(ruleUID);
         } else {
             return null;
         }

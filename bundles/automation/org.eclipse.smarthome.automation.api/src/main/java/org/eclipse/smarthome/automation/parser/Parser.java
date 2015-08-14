@@ -17,7 +17,7 @@ import java.util.Set;
  *
  * @author Ana Dimova - Initial Contribution
  */
-public interface Parser {
+public interface Parser<T> {
 
     /**
      * This constant can be used to specify the type of the parser.
@@ -64,6 +64,6 @@ public interface Parser {
      * @param writer is {@link OutputStreamWriter} used to write the automation objects in a file.
      * @throws IOException is thrown when I/O operation has failed or has been interrupted.
      */
-    public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException;
+    public void exportData(Set<T> dataObjects, OutputStreamWriter writer) throws IOException;
 
 }

@@ -70,17 +70,20 @@ public class RuleDTO {
     /**
      * This field holds the current configuration values of this {@link Rule}.
      */
-    public Map<String, ?> configurations;
+    public Map<String, Object> configurations;
 
     /**
      * This field holds the scope id of this {@link Rule}.
      */
     public String scopeId;
 
+    public String ruleTemplateUID;
+
     /**
      * This constructor is used for deserialization of the {@link Rule}s.
      */
-    public RuleDTO() {}
+    public RuleDTO() {
+    }
 
     /**
      * This constructor is used for serialization of the {@link Rule}s.

@@ -19,10 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.type.ActionType;
@@ -35,6 +34,9 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleType.Visibility;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,27 +52,21 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Initial Contribution
  *
  */
-public class ModuleTypeJSONParser implements Parser {
+public class ModuleTypeJSONParser implements Parser<ModuleType> {
 
     private BundleContext bc;
-    private AutomationFactory automationFactory;
     private Logger log;
 
     /**
      * Constructs the ModuleTypeJSONParser
      *
      * @param bc bundleContext
-     * @param automationFactory AutomatoinFactory
      */
-    public ModuleTypeJSONParser(BundleContext bc, AutomationFactory automationFactory) {
+    public ModuleTypeJSONParser(BundleContext bc) {
         this.bc = bc;
-        this.automationFactory = automationFactory;
         this.log = LoggerFactory.getLogger(ModuleTypeJSONParser.class);
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.parser.Parser#importData(InputStreamReader)
-     */
     @Override
     public Set<Status> importData(InputStreamReader reader) {
         LinkedHashSet<Status> moduleTypesStatus = new LinkedHashSet<Status>();
@@ -109,12 +105,8 @@ public class ModuleTypeJSONParser implements Parser {
         return moduleTypesStatus;
     }
 
-    /**
-     * @throws IOException
-     * @see org.eclipse.smarthome.automation.parser.Parser#exportData(Set, OutputStreamWriter)
-     */
     @Override
-    public void exportData(Set<?> dataObjects, OutputStreamWriter writer) throws IOException {
+    public void exportData(Set<ModuleType> dataObjects, OutputStreamWriter writer) throws IOException {
         try {
             writer.write("{\n");
 
@@ -138,10 +130,14 @@ public class ModuleTypeJSONParser implements Parser {
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.parser.ModuleTypeParser#writeModuleTypes(org.eclipse.smarthome.automation.type.ModuleType,
-     *      java.io.OutputStreamWriter)
+     *
+     * @param moduleTypes
+     * @param triggers
+     * @param conditions
+     * @param actions
+     * @param composites
      */
-    private void sortModuleTypesByTypes(Set<?> moduleTypes, Map<String, TriggerType> triggers,
+    private void sortModuleTypesByTypes(Set<ModuleType> moduleTypes, Map<String, TriggerType> triggers,
             Map<String, ConditionType> conditions, Map<String, ActionType> actions,
             Map<String, ModuleType> composites) {
         Iterator<?> i = moduleTypes.iterator();
@@ -174,6 +170,7 @@ public class ModuleTypeJSONParser implements Parser {
     }
 
     /**
+     *
      * @param composites
      * @param actions
      * @param conditions
@@ -227,166 +224,400 @@ public class ModuleTypeJSONParser implements Parser {
         while (jsonModulesIds.hasNext()) {
             String moduleTypeUID = (String) jsonModulesIds.next();
             Status status = new Status(this.log, Status.MODULE_TYPE, moduleTypeUID);
-            ModuleType moduleType = null;
+            Object moduleType = null;
             JSONObject jsonModuleType = JSONUtility.getJSONObject(moduleTypeUID, false, jsonModuleTypes, status);
             if (jsonModuleType == null) {
                 moduleTypesStatus.add(status);
                 continue;
             }
-            LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
-                    .initializeConfigDescriptions(jsonModuleType, status);
-            if (configDescriptions == null) {
-                moduleTypesStatus.add(status);
-                continue;
-            }
-            String visibility = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonModuleType, status);
-            Visibility v;
-            if (visibility == null) {
-                v = Visibility.PUBLIC;
-            } else {
-                try {
-                    v = Visibility.valueOf(visibility.toUpperCase());
-                } catch (IllegalArgumentException ie) {
-                    status.error("Incorrect value for property \"" + JSONStructureConstants.VISIBILITY + "\" : \""
-                            + visibility + "\".", ie);
-                    continue;
-                }
-            }
-
-            JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonModuleType, status);
-            Set<String> tags = null;
-            if (jsonTags != null) {
-                tags = new HashSet<String>();
-                for (int j = 0; j < jsonTags.length(); j++) {
-                    String tag = JSONUtility.getString(JSONStructureConstants.TAGS, j, jsonTags, status);
-                    if (tag != null)
-                        tags.add(tag);
-                }
-            }
-            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
-            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType,
-                    status);
-            LinkedHashSet<Input> inputs = new LinkedHashSet<Input>();
-            LinkedHashSet<Output> outputs = new LinkedHashSet<Output>();
             switch (type) {
                 case JSONUtility.TRIGGERS:
-                    JSONObject jsonTriggerOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true,
-                            jsonModuleType, status);
-                    if (jsonTriggerOutputs != null) {
-                        if (OutputJSONParser.collectOutputs(bc, jsonTriggerOutputs, outputs, status))
-                            moduleType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
-                                    outputs);
-                    } else
-                        moduleType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
-                                null);
+                    moduleType = createTriggerType(status, moduleTypeUID, jsonModuleType);
                     break;
                 case JSONUtility.CONDITIONS:
-                    JSONObject jsonConditionInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true,
-                            jsonModuleType, status);
-                    if (jsonConditionInputs != null) {
-                        if (InputJSONParser.collectInputs(bc, jsonConditionInputs, inputs, status))
-                            moduleType = new ConditionType(moduleTypeUID, configDescriptions, label, description, tags,
-                                    v, inputs);
-                    } else
-                        moduleType = new ConditionType(moduleTypeUID, configDescriptions, label, description, tags, v,
-                                null);
+                    moduleType = createConditionType(status, moduleTypeUID, jsonModuleType);
                     break;
                 case JSONUtility.ACTIONS:
-                    JSONObject jsonActionInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true,
-                            jsonModuleType, status);
-                    if (jsonActionInputs != null) {
-                        if (InputJSONParser.collectInputs(bc, jsonActionInputs, inputs, status)) {
-                            JSONObject jsonActionOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT,
-                                    true, jsonModuleType, status);
-                            if (jsonActionOutputs != null) {
-                                if (OutputJSONParser.collectOutputs(bc, jsonActionOutputs, outputs, status))
-                                    moduleType = new ActionType(moduleTypeUID, configDescriptions, label, description,
-                                            tags, v, inputs, outputs);
-                            } else
-                                moduleType = new ActionType(moduleTypeUID, configDescriptions, label, description, tags,
-                                        v, inputs, null);
-                        }
-                    } else
-                        moduleType = new ActionType(moduleTypeUID, configDescriptions, null);
+                    moduleType = createActionType(status, moduleTypeUID, jsonModuleType);
                     break;
                 case JSONUtility.COMPOSITE:
-                    moduleType = createCompositeTypes(moduleTypeUID, configDescriptions, jsonModuleType,
-                            moduleTypesStatus, status, label, description, tags, v);
+                    moduleType = createCompositeType(status, moduleTypeUID, jsonModuleType);
                     break;
             }
-            if (moduleType != null) {
-                status.success(moduleType);
-            }
+            status.success(moduleType);
             moduleTypesStatus.add(status);
         }
     }
 
-    private ModuleType createCompositeTypes(String moduleTypeUID,
-            LinkedHashSet<ConfigDescriptionParameter> configDescriptions, JSONObject jsonModuleType,
-            LinkedHashSet<Status> moduleTypesStatus, Status status, String label, String description, Set<String> tags,
-            Visibility v) {
-        Set<Input> inputs = null;
-        Set<Output> outputs = null;
-        JSONArray jsonTriggers = JSONUtility.getJSONArray(JSONStructureConstants.TRIGGERS, true, jsonModuleType,
-                status);
-        if (jsonTriggers != null) {
-            JSONObject jsonTriggerOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true,
-                    jsonModuleType, status);
-            if (jsonTriggerOutputs != null) {
-                outputs = new LinkedHashSet<Output>();
-                if (!OutputJSONParser.collectOutputs(bc, jsonTriggerOutputs, outputs, status))
-                    return null;
-            }
-            List<Trigger> triggerModules = new ArrayList<Trigger>();
-            if (ModuleJSONParser.createTrigerModules(status, automationFactory, moduleTypesStatus, triggerModules,
-                    jsonTriggers))
-                return new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v, outputs,
-                        triggerModules);
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createActionType(Status status, String moduleTypeUID, JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
             return null;
-        }
-        JSONArray jsonConditions = JSONUtility.getJSONArray(JSONStructureConstants.CONDITIONS, true, jsonModuleType,
-                status);
-        if (jsonConditions != null) {
-            JSONObject jsonConditionInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true,
-                    jsonModuleType, status);
-            if (jsonConditionInputs != null) {
-                inputs = new LinkedHashSet<Input>();
-                if (!InputJSONParser.collectInputs(bc, jsonConditionInputs, inputs, status))
-                    return null;
-            }
-            List<Condition> conditionModules = new ArrayList<Condition>();
-            if (ModuleJSONParser.createConditionModules(status, automationFactory, moduleTypesStatus, conditionModules,
-                    jsonConditions))
-                return new CompositeConditionType(moduleTypeUID, configDescriptions, label, description, tags, v,
-                        inputs, conditionModules);
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
             return null;
-        }
-        JSONArray jsonActions = JSONUtility.getJSONArray(JSONStructureConstants.ACTIONS, true, jsonModuleType, status);
-        if (jsonActions == null) {
-            status.error("At least one property of \"triggers\", \"conditions\" or \"actions\" must be present!",
-                    new IllegalArgumentException());
-            return null;
-        }
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
         JSONObject jsonActionInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true, jsonModuleType,
                 status);
         if (jsonActionInputs != null) {
-            inputs = new LinkedHashSet<Input>();
-            if (!InputJSONParser.collectInputs(bc, jsonActionInputs, inputs, status))
-                return null;
-        }
-        JSONObject jsonActionOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true, jsonModuleType,
-                status);
-        if (jsonActionOutputs != null) {
-            outputs = new LinkedHashSet<Output>();
-            if (!OutputJSONParser.collectOutputs(bc, jsonActionOutputs, outputs, status))
-                return null;
-        }
-        List<Action> actionModules = new ArrayList<Action>();
-        if (ModuleJSONParser.createActionModules(status, automationFactory, moduleTypesStatus, actionModules,
-                jsonActions))
-            return new CompositeActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
-                    outputs, actionModules);
+            LinkedHashSet<Input> inputs = new LinkedHashSet<Input>();
+            LinkedHashSet<Output> outputs = new LinkedHashSet<Output>();
+            if (InputJSONParser.collectInputs(bc, jsonActionInputs, inputs, status)) {
+                JSONObject jsonActionOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true,
+                        jsonModuleType, status);
+                if (jsonActionOutputs != null) {
+                    if (OutputJSONParser.collectOutputs(bc, jsonActionOutputs, outputs, status))
+                        return new ActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
+                                outputs);
+                } else
+                    return new ActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs, null);
+            }
+        } else
+            return new ActionType(moduleTypeUID, configDescriptions, null);
         return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createConditionType(Status status, String moduleTypeUID, JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
+            return null;
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
+            return null;
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
+        JSONObject jsonConditionInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true, jsonModuleType,
+                status);
+        if (jsonConditionInputs != null) {
+            LinkedHashSet<Input> inputs = new LinkedHashSet<Input>();
+            if (InputJSONParser.collectInputs(bc, jsonConditionInputs, inputs, status))
+                return new ConditionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs);
+            else
+                return null;
+        } else
+            return new ConditionType(moduleTypeUID, configDescriptions, label, description, tags, v, null);
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createTriggerType(Status status, String moduleTypeUID, JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
+            return null;
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
+            return null;
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
+        Set<Output> outputs = getOutputs(status, jsonModuleType);
+        if (jsonModuleType.has(JSONStructureConstants.OUTPUT) && outputs != null)
+            return new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v, outputs);
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createCompositeType(Status status, String moduleTypeUID, JSONObject jsonModuleType) {
+
+        JSONArray jsonTriggers = JSONUtility.getJSONArray(JSONStructureConstants.TRIGGERS, true, jsonModuleType,
+                status);
+        JSONArray jsonConditions = JSONUtility.getJSONArray(JSONStructureConstants.CONDITIONS, true, jsonModuleType,
+                status);
+        JSONArray jsonActions = JSONUtility.getJSONArray(JSONStructureConstants.ACTIONS, true, jsonModuleType, status);
+
+        if (jsonTriggers == null && jsonConditions == null && jsonActions == null) {
+            status.error("At least one property of \"triggers\", \"conditions\" or \"actions\" must be present!",
+                    new IllegalArgumentException());
+            return null;
+        } else if (jsonTriggers != null && jsonConditions == null && jsonActions == null) {
+            return createCompositeTriggerTypeDTO(status, moduleTypeUID, jsonTriggers, jsonModuleType);
+        } else if (jsonConditions != null && jsonTriggers == null && jsonActions == null) {
+            return createCompositeConditionTypeDTO(status, moduleTypeUID, jsonConditions, jsonModuleType);
+        } else if (jsonActions != null && jsonConditions == null && jsonTriggers == null) {
+            return createCompositeActionTypeDTO(status, moduleTypeUID, jsonActions, jsonModuleType);
+        } else {
+            status.error("Only one of properties \"triggers\", \"conditions\" and \"actions\" must be present!",
+                    new IllegalArgumentException());
+            return null;
+        }
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonActions
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createCompositeActionTypeDTO(Status status, String moduleTypeUID, JSONArray jsonActions,
+            JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
+            return null;
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
+            return null;
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
+        List<ActionDTO> actionModules = createActionModulesDTO(status, jsonActions, jsonModuleType);
+        if (actionModules != null) {
+            Set<Output> outputs = getOutputs(status, jsonModuleType);
+            Set<Input> inputs = getInputs(status, jsonModuleType);
+            if (jsonModuleType.has(JSONStructureConstants.OUTPUT) && outputs == null
+                    || jsonModuleType.has(JSONStructureConstants.INPUT) && inputs == null)
+                return null;
+            return new CompositeActionTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
+                    outputs, actionModules);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonConditions
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createCompositeConditionTypeDTO(Status status, String moduleTypeUID, JSONArray jsonConditions,
+            JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
+            return null;
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
+            return null;
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
+        List<ConditionDTO> conditionModules = createConditionModulesDTO(status, jsonConditions, jsonModuleType);
+        if (conditionModules != null) {
+            Set<Input> inputs = getInputs(status, jsonModuleType);
+            if (jsonModuleType.has(JSONStructureConstants.INPUT) && inputs != null
+                    || !jsonModuleType.has(JSONStructureConstants.INPUT))
+                return new CompositeConditionTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v,
+                        inputs, conditionModules);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param moduleTypeUID
+     * @param jsonTriggers
+     * @param jsonModuleType
+     * @return
+     */
+    private Object createCompositeTriggerTypeDTO(Status status, String moduleTypeUID, JSONArray jsonTriggers,
+            JSONObject jsonModuleType) {
+
+        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonModuleType, status);
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonModuleType, status);
+
+        LinkedHashSet<ConfigDescriptionParameter> configDescriptions = ConfigPropertyJSONParser
+                .initializeConfigDescriptions(jsonModuleType, status);
+        if (configDescriptions == null)
+            return null;
+
+        Visibility v = getVisibility(status, jsonModuleType);
+        if (v == null)
+            return null;
+
+        Set<String> tags = getTags(status, jsonModuleType);
+
+        List<TriggerDTO> triggerModules = createTriggerModulesDTO(status, jsonTriggers, jsonModuleType);
+        if (triggerModules != null) {
+            Set<Output> outputs = getOutputs(status, jsonModuleType);
+            if (jsonModuleType.has(JSONStructureConstants.OUTPUT) && outputs != null
+                    || !jsonModuleType.has(JSONStructureConstants.OUTPUT))
+                return new CompositeTriggerTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v,
+                        outputs, triggerModules);
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonActions
+     * @param jsonModuleType
+     * @return
+     */
+    private List<ActionDTO> createActionModulesDTO(Status status, JSONArray jsonActions, JSONObject jsonModuleType) {
+        List<ActionDTO> actionModules = new ArrayList<ActionDTO>();
+        if (ModuleJSONParser.createActionModules(status, actionModules, jsonActions))
+            return actionModules;
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonConditions
+     * @param jsonModuleType
+     * @return
+     */
+    private List<ConditionDTO> createConditionModulesDTO(Status status, JSONArray jsonConditions,
+            JSONObject jsonModuleType) {
+        List<ConditionDTO> conditionModules = new ArrayList<ConditionDTO>();
+        if (ModuleJSONParser.createConditionModules(status, conditionModules, jsonConditions))
+            return conditionModules;
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonTriggers
+     * @param jsonModuleType
+     * @return
+     */
+    private List<TriggerDTO> createTriggerModulesDTO(Status status, JSONArray jsonTriggers, JSONObject jsonModuleType) {
+        List<TriggerDTO> triggerModules = new ArrayList<TriggerDTO>();
+        if (ModuleJSONParser.createTrigerModules(status, triggerModules, jsonTriggers))
+            return triggerModules;
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonModuleType
+     * @return
+     */
+    private Set<Output> getOutputs(Status status, JSONObject jsonModuleType) {
+        JSONObject jsonOutputs = JSONUtility.getJSONObject(JSONStructureConstants.OUTPUT, true, jsonModuleType, status);
+        if (jsonOutputs != null) {
+            Set<Output> outputs = new LinkedHashSet<Output>();
+            if (!OutputJSONParser.collectOutputs(bc, jsonOutputs, outputs, status))
+                return null;
+            else
+                return outputs;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonModuleType
+     * @return
+     */
+    private Set<Input> getInputs(Status status, JSONObject jsonModuleType) {
+        JSONObject jsonInputs = JSONUtility.getJSONObject(JSONStructureConstants.INPUT, true, jsonModuleType, status);
+        if (jsonInputs != null) {
+            Set<Input> inputs = new LinkedHashSet<Input>();
+            if (!InputJSONParser.collectInputs(bc, jsonInputs, inputs, status))
+                return null;
+            else
+                return inputs;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonModuleType
+     * @return
+     */
+    private Set<String> getTags(Status status, JSONObject jsonModuleType) {
+        JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonModuleType, status);
+        Set<String> tags = null;
+        if (jsonTags != null) {
+            tags = new HashSet<String>();
+            for (int j = 0; j < jsonTags.length(); j++) {
+                String tag = JSONUtility.getString(JSONStructureConstants.TAGS, j, jsonTags, status);
+                if (tag != null)
+                    tags.add(tag);
+            }
+        }
+        return tags;
+    }
+
+    /**
+     *
+     * @param status
+     * @param jsonModuleType
+     * @return
+     */
+    private Visibility getVisibility(Status status, JSONObject jsonModuleType) {
+        String visibility = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonModuleType, status);
+        Visibility v = null;
+        if (visibility == null) {
+            v = Visibility.PUBLIC;
+        } else {
+            try {
+                v = Visibility.valueOf(visibility.toUpperCase());
+            } catch (IllegalArgumentException ie) {
+                status.error("Incorrect value for property \"" + JSONStructureConstants.VISIBILITY + "\" : \""
+                        + jsonModuleType + "\".", ie);
+                return null;
+            }
+        }
+        return v;
     }
 
     /**

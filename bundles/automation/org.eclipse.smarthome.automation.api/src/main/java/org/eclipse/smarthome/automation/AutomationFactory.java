@@ -11,13 +11,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * This interface is used to create module instances. It is registered as
  * service in OSGi registry.
- * 
+ *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
@@ -26,7 +30,7 @@ public interface AutomationFactory {
 
     /**
      * This method creates and configures {@link Trigger} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule.
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this {@link Trigger}.
@@ -36,16 +40,18 @@ public interface AutomationFactory {
      *            <li><code>key</code> - the name of the {@link ConfigDescriptionParameter} ,
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
-     * 
+     *
      * @return {@link Trigger}
      * @throws IllegalArgumentException when the module id is already used or
      *             module type UID is not registered.
      */
     public Trigger createTrigger(String id, String typeUID, Map<String, ?> configurations);
 
+    public Trigger createTrigger(TriggerDTO triggerDTO);
+
     /**
      * This method creates and configures {@link Condition} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule.
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this {@link Condition}
@@ -56,16 +62,18 @@ public interface AutomationFactory {
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
      * @param connections a {@link Set} of input {@link Connection}s.
-     * 
+     *
      * @return {@link Condition}
      * @throws IllegalArgumentException when the module id is already used or UID
      *             of module type is not registered.
      */
     public Condition createCondition(String id, String typeUID, Map<String, ?> config, Set<Connection> connections);
 
+    public Condition createCondition(ConditionDTO conditionDTO);
+
     /**
      * This method creates and configures {@link Action} instance
-     * 
+     *
      * @param id unique id of {@link Module} in scope of Rule. for
      * @param typeUID unique id of existing ModuleType containing meta info for
      *            this Action
@@ -76,22 +84,24 @@ public interface AutomationFactory {
      *            <li><code>value</code> - value of the {@link ConfigDescriptionParameter}
      *            </ul>
      * @param connections is a a {@link Set} of input {@link Connection}s.
-     * 
+     *
      * @return {@link Action}
      * @throws IllegalArgumentException when the module id is already used or UID
      *             of module type is not registered.
      */
     public Action createAction(String id, String typeUID, Map<String, ?> configurations, Set<Connection> connections);
 
+    public Action createAction(ActionDTO actionDTO);
+
     /**
      * This method is used to create a {@link Rule} instance.
-     * 
+     *
      * @param triggers list of {@link Trigger}s of the {@link Rule}
      * @param conditions is a list of {@link Condition}s of the {@link Rule}
      * @param actions list of {@link Action} of the {@link Rule}
      * @param configDescriptions meta info of properties of the {@link Rule}.
      * @param configurations are configuration values of the {@link Rule}
-     * 
+     *
      * @return {@link Rule} instance.
      * @throws IllegalArgumentException is thrown if the connections between modules are incorrect.
      */
@@ -100,8 +110,24 @@ public interface AutomationFactory {
             Map<String, ?> configurations);
 
     /**
+     * This method is used to create a {@link Rule} instance.
+     *
+     * @param ruleTemplateUID is an unique identifier of the {@link RuleTemplate} instance.
+     * @param triggers list of {@link Trigger}s of the {@link Rule}
+     * @param conditions is a list of {@link Condition}s of the {@link Rule}
+     * @param actions list of {@link Action} of the {@link Rule}
+     * @param configDescriptions meta info of properties of the {@link Rule}.
+     * @param configurations are configuration values of the {@link Rule}
+     *
+     * @return {@link Rule} instance.
+     * @throws IllegalArgumentException is thrown if the connections between modules are incorrect.
+     */
+    public Rule createRule(String uid, List<Trigger> triggers, List<Condition> conditions, List<Action> actions,
+            Set<ConfigDescriptionParameter> configDescriptions, Map<String, Object> configurations);
+
+    /**
      * This method is used to create a {@link Rule} instance from {@link RuleTemplate}.
-     * 
+     *
      * @param ruleTemplateUID is an unique identifier of the {@link RuleTemplate} instance.
      * @param configurations are configuration values of the {@link Rule} instance.
      * @return {@link Rule} instance.
@@ -109,5 +135,19 @@ public interface AutomationFactory {
      *             their type is wrong.
      */
     public Rule createRule(String ruleTemplateUID, Map<String, Object> configurations);
+
+    /**
+     * This method is used to create a {@link Rule} instance from {@link RuleTemplate}.
+     *
+     * @param uid is an unique identifier of the {@link Rule} instance.
+     * @param ruleTemplateUID is an unique identifier of the {@link RuleTemplate} instance.
+     * @param configurations are configuration values of the {@link Rule} instance.
+     * @return {@link Rule} instance.
+     * @throws Exception is thrown when the configuration values for required configuration properties are missing or
+     *             their type is wrong.
+     */
+    public Rule createRule(String uid, String ruleTemplateUID, Map<String, Object> configurations);
+
+    public Rule createRule(RuleDTO ruleDTO);
 
 }

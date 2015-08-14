@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.provider;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,10 +43,18 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     private List<BundleEvent> queue = new ArrayList<BundleEvent>();
 
     /**
-     * These fields are for synchronization purposes
+     * This field is for synchronization purposes
      */
     private boolean running = false;
+
+    /**
+     * This field is for synchronization purposes
+     */
     private boolean closed = false;
+
+    /**
+     * This field is for synchronization purposes
+     */
     private boolean shared = false;
 
     /**
@@ -89,7 +98,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * This method serves to open the bundle tracker when all providers are ready for work.
      */
     public void open() {
-        bTracker.open();
+        if (tProvider.isReady() && mProvider.isReady() && rImporter.isReady()) {
+            bTracker.open();
+        }
     }
 
     /**
@@ -192,7 +203,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     @Override
     public void modifiedBundle(Bundle bundle, BundleEvent event, Object object) {
-        if (isAnAutomationProvider(bundle) && event.getType() == BundleEvent.UPDATED) {
+        if (event.getType() == BundleEvent.UPDATED && isAnAutomationProvider(bundle)) {
             addEvent(event);
         }
     }
@@ -227,7 +238,8 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      *         resources, <tt>false</tt> otherwise.
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
-        return bundle.getHeaders().get(AUTOMATION_RESOURCES_HEADER) != null;
+        URL url = bundle.getEntry(AbstractResourceBundleProvider.PATH);
+        return url != null;
     }
 
     /**
@@ -270,41 +282,40 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     private void processBundleChanged(BundleEvent event) {
         Bundle bundle = event.getBundle();
-        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
         switch (event.getType()) {
             case BundleEvent.UPDATED:
-                if (!mProvider.isProviderProcessed(vendor)) {
+                if (!mProvider.isProviderProcessed(bundle)) {
                     mProvider.processAutomationProviderUninstalled(bundle);
                     mProvider.processAutomationProvider(bundle);
                 }
-                if (!tProvider.isProviderProcessed(vendor)) {
+                if (!tProvider.isProviderProcessed(bundle)) {
                     tProvider.processAutomationProviderUninstalled(bundle);
                     tProvider.processAutomationProvider(bundle);
                 }
-                if (!rImporter.isProviderProcessed(vendor)) {
+                if (!rImporter.isProviderProcessed(bundle)) {
                     rImporter.processAutomationProviderUninstalled(bundle);
                     rImporter.processAutomationProvider(bundle);
                 }
                 break;
             case BundleEvent.UNINSTALLED:
-                if (!mProvider.isProviderProcessed(vendor)) {
+                if (!mProvider.isProviderProcessed(bundle)) {
                     mProvider.processAutomationProviderUninstalled(bundle);
                 }
-                if (!tProvider.isProviderProcessed(vendor)) {
+                if (!tProvider.isProviderProcessed(bundle)) {
                     tProvider.processAutomationProviderUninstalled(bundle);
                 }
-                if (!rImporter.isProviderProcessed(vendor)) {
+                if (!rImporter.isProviderProcessed(bundle)) {
                     rImporter.processAutomationProviderUninstalled(bundle);
                 }
                 break;
             default:
-                if (!mProvider.isProviderProcessed(vendor)) {
+                if (!mProvider.isProviderProcessed(bundle)) {
                     mProvider.processAutomationProvider(bundle);
                 }
-                if (!tProvider.isProviderProcessed(vendor)) {
+                if (!tProvider.isProviderProcessed(bundle)) {
                     tProvider.processAutomationProvider(bundle);
                 }
-                if (!rImporter.isProviderProcessed(vendor)) {
+                if (!rImporter.isProviderProcessed(bundle)) {
                     rImporter.processAutomationProvider(bundle);
                 }
         }

@@ -10,124 +10,71 @@ package org.eclipse.smarthome.automation.parser.json;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
+ * This class is a {@link BundleActivator} of the json parser bundle. It is responsible for registration of several
+ * services:
+ * <li>{@link ModuleType} JSON Parser
+ * <li>{@link RuleTemplate} JSON Parser
+ * <li>{@link Rule} JSON Parser
+ * <li>{@link Converter}
+ *
  * @author Ana Dimova
  *
  */
 @SuppressWarnings("rawtypes")
-public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+public class Activator implements BundleActivator {
 
     private BundleContext bc;
-    private ServiceReference<Object> afRef;
-    private AutomationFactory automationFactory;
 
     private ServiceRegistration mpReg;
     private ServiceRegistration tpReg;
     private ServiceRegistration rpReg;
     private ServiceRegistration converterReg;
 
-    private ServiceTracker automationTracker;
-
-    /**
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
     @Override
-    @SuppressWarnings("unchecked")
     public void start(BundleContext context) throws Exception {
         bc = context;
         converterReg = bc.registerService(Converter.class.getName(), new ConverterImpl(), null);
-        automationTracker = new ServiceTracker(context, AutomationFactory.class.getName(), this);
-        automationTracker.open();
+
+        Dictionary<String, String> mpReg_props = new Hashtable<String, String>(1);
+        mpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_MODULE_TYPE);
+        mpReg = bc.registerService(Parser.class.getName(), new ModuleTypeJSONParser(bc), mpReg_props);
+
+        Dictionary<String, String> tpReg_props = new Hashtable<String, String>(1);
+        tpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_TEMPLATE);
+        tpReg = bc.registerService(Parser.class.getName(), new TemplateJSONParser(), tpReg_props);
+
+        Dictionary<String, String> rpReg_props = new Hashtable<String, String>(1);
+        rpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_RULE);
+        rpReg = bc.registerService(Parser.class.getName(), new RuleJSONParser(), rpReg_props);
     }
 
-    /**
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
     @Override
     public void stop(BundleContext context) throws Exception {
         if (converterReg != null) {
             converterReg.unregister();
             converterReg = null;
         }
-        if (automationTracker != null) {
-            automationTracker.close();
-            automationTracker = null;
+        if (mpReg != null) {
+            mpReg.unregister();
+            mpReg = null;
         }
-    }
-
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#addingService(org.osgi.framework.ServiceReference)
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object addingService(ServiceReference reference) {
-        Object service = bc.getService(reference);
-        if (service instanceof AutomationFactory && afRef == null) {
-            afRef = reference;
-            automationFactory = (AutomationFactory) service;
+        if (tpReg != null) {
+            tpReg.unregister();
+            tpReg = null;
         }
-        if (automationFactory != null) {
-            if (mpReg == null) {
-                Dictionary<String, String> props = new Hashtable<String, String>(1);
-                props.put(Parser.PARSER_TYPE, Parser.PARSER_MODULE_TYPE);
-                mpReg = bc.registerService(Parser.class.getName(), new ModuleTypeJSONParser(bc, automationFactory),
-                        props);
-            }
-            if (tpReg == null) {
-                Dictionary<String, String> props = new Hashtable<String, String>(1);
-                props.put(Parser.PARSER_TYPE, Parser.PARSER_TEMPLATE);
-                tpReg = bc.registerService(Parser.class.getName(), new TemplateJSONParser(automationFactory), props);
-            }
-            if (rpReg == null) {
-                Dictionary<String, String> props = new Hashtable<String, String>(1);
-                props.put(Parser.PARSER_TYPE, Parser.PARSER_RULE);
-                rpReg = bc.registerService(Parser.class.getName(), new RuleJSONParser(automationFactory), props);
-            }
-        }
-        return service;
-    }
-
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
-    @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-        // do nothing
-    }
-
-    /**
-     * @see org.osgi.util.tracker.ServiceTrackerCustomizer#removedService(org.osgi.framework.ServiceReference,
-     *      java.lang.Object)
-     */
-    @Override
-    public void removedService(ServiceReference reference, Object service) {
-        bc.ungetService(reference);
-        if (service instanceof AutomationFactory) {
-            afRef = null;
-            automationFactory = null;
-            if (mpReg != null) {
-                mpReg.unregister();
-                mpReg = null;
-            }
-            if (tpReg != null) {
-                tpReg.unregister();
-                tpReg = null;
-            }
-            if (rpReg != null) {
-                rpReg.unregister();
-                rpReg = null;
-            }
+        if (rpReg != null) {
+            rpReg.unregister();
+            rpReg = null;
         }
     }
 

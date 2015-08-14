@@ -21,10 +21,22 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.type.CompositeActionType;
+import org.eclipse.smarthome.automation.type.CompositeConditionType;
+import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
+import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -50,9 +62,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
-     * add any new
-     * functionality to the constructors of the providers. Only provides consistency by invoking the parent's
-     * constructor.
+     * add any new functionality to the constructors of the providers. Only provides consistency by invoking the
+     * parent's constructor.
      *
      * @param context is the {@code BundleContext}, used for creating a tracker for {@link Parser} services.
      */
@@ -86,7 +97,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      */
     public Set<Status> importModuleTypes(String parserType, URL url) {
         InputStreamReader inputStreamReader = null;
-        Parser parser = parsers.get(parserType);
+        Parser<ModuleType> parser = parsers.get(parserType);
         if (parser != null)
             try {
                 InputStream is = url.openStream();
@@ -113,6 +124,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
     /**
      * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
         Localizer l = null;
@@ -150,7 +162,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
     @Override
-    protected Set<Status> importData(URL url, Parser parser, InputStreamReader inputStreamReader) {
+    protected Set<Status> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
             String uid = null;
@@ -161,7 +173,7 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             for (Status s : providedObjects) {
                 if (s.hasErrors())
                     continue;
-                ModuleType providedObject = (ModuleType) s.getResult();
+                ModuleType providedObject = convertToModuleType(s);
                 uid = providedObject.getUID();
                 if (checkExistence(uid, s))
                     continue;
@@ -200,6 +212,36 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             return true;
         }
         return false;
+    }
+
+    private ModuleType convertToModuleType(Status status) {
+        Object moduleType = status.getResult();
+        if (moduleType instanceof CompositeActionTypeDTO) {
+            CompositeActionTypeDTO at = (CompositeActionTypeDTO) moduleType;
+            List<Action> modules = new ArrayList<Action>(at.modules.size());
+            for (ActionDTO action : at.modules) {
+                modules.add(action.createAction(factory));
+            }
+            return new CompositeActionType(at.getUID(), at.getConfigurationDescription(), at.getInputs(),
+                    at.getOutputs(), modules);
+        }
+        if (moduleType instanceof CompositeConditionTypeDTO) {
+            CompositeConditionTypeDTO ct = (CompositeConditionTypeDTO) moduleType;
+            List<Condition> modules = new ArrayList<Condition>(ct.modules.size());
+            for (ConditionDTO condition : ct.modules) {
+                modules.add(condition.createCondition(factory));
+            }
+            return new CompositeConditionType(ct.getUID(), ct.getConfigurationDescription(), ct.getInputs(), modules);
+        }
+        if (moduleType instanceof CompositeTriggerTypeDTO) {
+            CompositeTriggerTypeDTO tt = (CompositeTriggerTypeDTO) moduleType;
+            List<Trigger> modules = new ArrayList<Trigger>(tt.modules.size());
+            for (TriggerDTO trigger : tt.modules) {
+                modules.add(trigger.createTrigger(factory));
+            }
+            return new CompositeTriggerType(tt.getUID(), tt.getConfigurationDescription(), tt.getOutputs(), modules);
+        }
+        return (ModuleType) moduleType;
     }
 
 }

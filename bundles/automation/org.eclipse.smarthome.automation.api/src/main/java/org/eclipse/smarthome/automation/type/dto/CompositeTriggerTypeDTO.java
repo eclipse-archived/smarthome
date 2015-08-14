@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.type.dto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,9 @@ import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
+import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 public class CompositeTriggerTypeDTO extends TriggerType {
 
@@ -31,6 +34,13 @@ public class CompositeTriggerTypeDTO extends TriggerType {
         for (Trigger trigger : triggers) {
             modules.add(new TriggerDTO(trigger));
         }
+    }
+
+    public CompositeTriggerTypeDTO(String moduleTypeUID, LinkedHashSet<ConfigDescriptionParameter> configDescriptions,
+            String label, String description, Set<String> tags, Visibility v, Set<Output> outputs,
+            List<TriggerDTO> modules) {
+        super(moduleTypeUID, configDescriptions, label, description, tags, v, outputs);
+        this.modules = modules;
     }
 
     public static Set<CompositeTriggerType> createFrom(Set<CompositeTriggerTypeDTO> persSet,

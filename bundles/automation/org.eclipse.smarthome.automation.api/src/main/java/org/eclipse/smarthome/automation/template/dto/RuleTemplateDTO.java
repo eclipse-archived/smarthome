@@ -42,6 +42,7 @@ public class RuleTemplateDTO {
     public String description;
     public Visibility visibility;
     public Set<ConfigDescriptionParameter> configDescriptions;
+    public String uid;
 
     /**
      * This constructor is used for deserialization of the {@link RuleTemplate}s.
@@ -52,6 +53,7 @@ public class RuleTemplateDTO {
      * This constructor is used for serialization of the {@link RuleTemplate}s.
      */
     public RuleTemplateDTO(RuleTemplate rt) {
+        uid = rt.getUID();
         label = rt.getLabel();
         description = rt.getDescription();
         visibility = rt.getVisibility();

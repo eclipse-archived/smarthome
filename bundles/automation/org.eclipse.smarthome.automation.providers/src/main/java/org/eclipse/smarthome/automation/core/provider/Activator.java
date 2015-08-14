@@ -44,17 +44,15 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      * bundle-specific activities as:
      * <ul>
      * <li>
-     * Initializing {@link PersistentModuleTypeResourceBundleProvider},
-     * {@link PersistentTemplateResourceBundleProvider}, {@link PersistentRuleResourceBundleImporter} and
-     * {@link AutomationResourceBundlesEventQueue} objects.
+     * Initializing {@code ModuleTypeResourceBundleProvider}, {@code TemplateResourceBundleProvider},
+     * {@code RuleResourceBundleImporter} and {@code  AutomationResourceBundlesEventQueue} objects.
      * <li>
-     * Registering {@link PersistentModuleTypeResourceBundleProvider},
-     * {@link PersistentTemplateResourceBundleProvider} as services, respectively {@link ModuleTypeProvider},
-     * {@link TemplateProvider}.
+     * Registering {@code ModuleTypeResourceBundleProvider}, {@code TemplateResourceBundleProvider} as services,
+     * respectively {@link ModuleTypeProvider}, {@link TemplateProvider}.
      * <li>
-     * Setting to {@link PersistentModuleTypeResourceBundleProvider},
-     * {@link PersistentTemplateResourceBundleProvider} and {@link PersistentRuleResourceBundleImporter} the
-     * {@link AutomationResourceBundlesEventQueue} object and opens the queue.
+     * Setting to {@code ModuleTypeResourceBundleProvider}, {@code TemplateResourceBundleProvider} and
+     * {@code RuleResourceBundleImporter} the {@code AutomationResourceBundlesEventQueue} object and opens
+     * the queue.
      * <p>
      * </ul>
      * This method must complete and return to its caller in a timely manner.
@@ -65,7 +63,6 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      *             listeners, unregister all services registered by this bundle, and
      *             release all services used by this bundle.
      */
-
     @Override
     public void start(BundleContext context) throws Exception {
 

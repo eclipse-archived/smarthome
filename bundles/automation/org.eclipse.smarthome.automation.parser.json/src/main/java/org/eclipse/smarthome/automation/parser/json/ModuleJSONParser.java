@@ -15,16 +15,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Status;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * This class serves for creating the Module objects from JSON Objects.
@@ -38,15 +39,12 @@ public class ModuleJSONParser {
      * This method is used for creation of {@link Trigger}s from JSONArray.
      *
      * @param status
-     * @param automationFactory {@link AutomationFactory}.
-     * @param moduleTypesStatus
-     * @param triggers is a List which has to be filled with {@link Trigger} objects created from json.
+     * @param triggerModules is a List which has to be filled with {@link Trigger} objects created from json.
      * @param onSection is a {@link JSONArray} object containing {@link JSONObject}s representing {@link Trigger}s in
      *            json format.
      * @return
      */
-    static boolean createTrigerModules(Status status, AutomationFactory automationFactory,
-            LinkedHashSet<Status> moduleTypesStatus, List<Trigger> triggers, JSONArray onSection) {
+    static boolean createTrigerModules(Status status, List<TriggerDTO> triggerModules, JSONArray onSection) {
         boolean res = true;
         if (onSection == null) {
             return false;
@@ -69,8 +67,11 @@ public class ModuleJSONParser {
             }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonTrigger, status);
             Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
-            Trigger trigger = automationFactory.createTrigger(triggerId, uid, configurations);
-            triggers.add(trigger);
+            TriggerDTO trigger = new TriggerDTO();
+            trigger.id = triggerId;
+            trigger.typeUID = uid;
+            trigger.configurations = configurations;
+            triggerModules.add(trigger);
         }
         return res;
     }
@@ -79,14 +80,12 @@ public class ModuleJSONParser {
      * This method is used for creation of {@link Condition}s from JSONArray.
      *
      * @param status
-     * @param automationFactory {@link AutomationFactory}.
      * @param conditions is a List which has to be filled with {@link Condition} objects created from json.
      * @param ifSection is a {@link JSONArray} object containing {@link JSONObject}s representing {@link Condition}s in
      *            json format.
      * @return
      */
-    static boolean createConditionModules(Status status, AutomationFactory automationFactory,
-            LinkedHashSet<Status> moduleTypesStatus, List<Condition> conditions, JSONArray ifSection) {
+    static boolean createConditionModules(Status status, List<ConditionDTO> conditions, JSONArray ifSection) {
         boolean res = true;
         for (int index = 0; index < ifSection.length(); index++) {
             JSONObject jsonCondition = JSONUtility.getJSONObject(JSONStructureConstants.IF, index, ifSection, status);
@@ -112,7 +111,11 @@ public class ModuleJSONParser {
                 res = false;
                 continue;
             }
-            Condition condition = automationFactory.createCondition(conditionId, uid, configurations, connections);
+            ConditionDTO condition = new ConditionDTO();
+            condition.id = conditionId;
+            condition.typeUID = uid;
+            condition.configurations = configurations;
+            condition.connections = connections;
             conditions.add(condition);
         }
         return res;
@@ -122,14 +125,12 @@ public class ModuleJSONParser {
      * This method is used for creation of {@link Action}s from JSONArray.
      *
      * @param status
-     * @param automationFactory {@link AutomationFactory}.
      * @param actions is a List which has to be filled with {@link Action} objects created from json.
      * @param thenSection is a {@link JSONArray} object containing {@link JSONObject}s representing {@link Action}s in
      *            json format.
      * @return
      */
-    static boolean createActionModules(Status status, AutomationFactory automationFactory,
-            LinkedHashSet<Status> moduleTypesStatus, List<Action> actions, JSONArray thenSection) {
+    static boolean createActionModules(Status status, List<ActionDTO> actions, JSONArray thenSection) {
         boolean res = true;
         if (thenSection == null) {
             return false;
@@ -157,7 +158,11 @@ public class ModuleJSONParser {
                 res = false;
                 continue;
             }
-            Action action = automationFactory.createAction(actionId, uid, configurations, connections);
+            ActionDTO action = new ActionDTO();
+            action.id = actionId;
+            action.typeUID = uid;
+            action.configurations = configurations;
+            action.connections = connections;
             actions.add(action);
         }
         return res;
@@ -165,7 +170,7 @@ public class ModuleJSONParser {
 
     /**
      * This method is used for reversion of {@link Action} to JSON format.
-     * 
+     *
      * @param action is an {@link Action} object to revert.
      * @param writer
      * @throws IOException

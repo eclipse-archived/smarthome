@@ -7,7 +7,6 @@
       "rule"
     ],
     "description": "Sample Rule definition.",
-    "active": true,
     "on": [  
       {  
         "id": "SampleTriggerID",
@@ -48,7 +47,6 @@
       "rule"
     ],
     "description": "Sample Rule definition2.",
-    "active": true,
     "on": [  
       {  
         "id": "CustomSampleTriggerID",

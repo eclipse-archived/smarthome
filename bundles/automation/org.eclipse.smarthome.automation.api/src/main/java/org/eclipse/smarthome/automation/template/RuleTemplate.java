@@ -39,17 +39,48 @@ public class RuleTemplate implements Template {
      * This field holds an unique identifier of the {@link RuleTemplate} instance.
      */
     private String UID;
+
+    /**
+     * This field holds a list with the unique {@link Trigger}s participating in the {@link Rule} and starting its
+     * execution.
+     */
     private List<Trigger> triggers;
+
+    /**
+     * This field holds a list with the unique {@link Condition}s participating in the {@link Rule} and determine the
+     * completion of the execution.
+     */
     private List<Condition> conditions;
+
+    /**
+     * This field holds a list with the unique {@link Action}s participating in the {@link Rule} and are the real work
+     * that will be done by the rule.
+     */
     private List<Action> actions;
 
     /**
      * This field holds a set of non-hierarchical keywords or terms for describing the {@link RuleTemplate}.
      */
     private Set<String> tags;
+
+    /**
+     * This field holds the short, user friendly name of the Template.
+     */
     private String label;
+
+    /**
+     * This field describes the usage of the {@link Rule} and its benefits.
+     */
     private String description;
+
+    /**
+     * This field determines if the template will be public or private.
+     */
     private Visibility visibility;
+
+    /**
+     * This field defines a set of configuration properties of the {@link Rule}.
+     */
     private Set<ConfigDescriptionParameter> configDescriptions;
 
     /**
@@ -60,7 +91,7 @@ public class RuleTemplate implements Template {
      * @param conditions - list of unique {@link Condition}s participating in the {@link Rule}
      * @param actions - list of unique {@link Action}s participating in the {@link Rule}
      * @param configDescriptions - set of configuration properties of the {@link Rule}
-     * @param visibility visibility of template. It can be public or private
+     * @param visibility defines if the template can be public or private.
      */
     public RuleTemplate(String UID, String label, String description, Set<String> tags, List<Trigger> triggers,
             List<Condition> conditions, List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,
@@ -81,8 +112,7 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * This method is used for getting the type of Template. It is unique in scope
-     * of RuleEngine.
+     * This method is used for getting the type of Template. It is unique in scope of RuleEngine.
      *
      * @return the unique id of Template.
      */
@@ -92,11 +122,10 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * Templates can have
-     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for getting the assign tags to this Template.
+     * This method is used for getting the assigned <code>tags</code> to this Template. The <code>tags</code> are
+     * non-hierarchical keywords or terms that are used for describing the template and to filter the templates.
      *
-     * @return tags of the template
+     * @return tags that is a set of non-hierarchical keywords or terms, describing the template.
      */
     @Override
     public Set<String> getTags() {
@@ -106,10 +135,9 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * This method is used for getting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
+     * This method is used for getting the label of the Template.
      *
-     * @return the label of the Template.
+     * @return the short, user friendly name of the Template.
      */
     @Override
     public String getLabel() {
@@ -143,8 +171,7 @@ public class RuleTemplate implements Template {
 
     /**
      * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
-     * configuration
-     * properties of the Rule.<br/>
+     * configuration properties of the Rule.
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
@@ -202,6 +229,13 @@ public class RuleTemplate implements Template {
         return result;
     }
 
+    /**
+     * Auxiliary method used in {@link #getModules(Class)} to prevent {@code null} for the returned list.
+     *
+     * @param t is the result from {@link #getModules(Class)} method.
+     * @return the resulted list from {@link #getModules(Class)} method or empty list if the result from
+     *         {@link #getModules(Class)} method is {@code null}.
+     */
     private <T extends Module> List<T> getList(List<T> t) {
         if (t != null) {
             return t;

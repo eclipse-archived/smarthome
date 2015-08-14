@@ -10,17 +10,23 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -40,7 +46,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Vendor> {
+public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Rule> {
 
     /**
      * This field holds the reference to the Rule Registry.
@@ -53,6 +59,8 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
     @SuppressWarnings("rawtypes")
     private ServiceTracker rulesTracker;
 
+    private static int rulesCount = 0;
+
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link Rule}s.
@@ -63,26 +71,37 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
     public RuleResourceBundleImporter(BundleContext context) {
         super(context);
         path = PATH + "/rules/";
-        rulesTracker = new ServiceTracker(context, RuleRegistry.class.getName(), new ServiceTrackerCustomizer() {
+        try {
+            Filter filter = bc.createFilter("(|(objectClass=" + RuleRegistry.class.getName() + ")(objectClass="
+                    + AutomationFactory.class.getName() + "))");
+            rulesTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
-            @Override
-            public Object addingService(ServiceReference reference) {
-                ruleRegistry = (RuleRegistry) bc.getService(reference);
-                if (queue != null)
+                @Override
+                public Object addingService(ServiceReference reference) {
+                    Object service = bc.getService(reference);
+                    if (service instanceof RuleRegistry) {
+                        ruleRegistry = (RuleRegistry) service;
+                    } else {
+                        factory = (AutomationFactory) service;
+                    }
                     queue.open();
-                return ruleRegistry;
-            }
+                    return service;
+                }
 
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
+                @Override
+                public void modifiedService(ServiceReference reference, Object service) {
+                }
 
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                ruleRegistry = null;
-            }
-        });
-        rulesTracker.open();
+                @Override
+                public void removedService(ServiceReference reference, Object service) {
+                    if (service == ruleRegistry)
+                        ruleRegistry = null;
+                    if (service == factory)
+                        factory = null;
+                }
+            });
+        } catch (InvalidSyntaxException notPossible) {
+        }
     }
 
     /**
@@ -97,17 +116,15 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
             rulesTracker.close();
             rulesTracker = null;
             ruleRegistry = null;
+            factory = null;
         }
         super.close();
     }
 
     @Override
     public void setQueue(AutomationResourceBundlesEventQueue queue) {
-        this.queue = queue;
-        parserTracker.open();
-        if (ruleRegistry != null) {
-            queue.open();
-        }
+        super.setQueue(queue);
+        rulesTracker.open();
     }
 
     /**
@@ -120,6 +137,11 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
             return super.addingService(reference);
         }
         return null;
+    }
+
+    @Override
+    public boolean isReady() {
+        return ruleRegistry != null && factory != null && queue != null;
     }
 
     /**
@@ -138,42 +160,49 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
      */
     @Override
     protected void processAutomationProvider(Bundle bundle) {
-        String parserType = bundle.getHeaders().get(AutomationResourceBundlesEventQueue.AUTOMATION_RESOURCES_HEADER);
-        Parser parser = parsers.get(parserType);
-        if (parser == null || ruleRegistry == null) {
-            synchronized (waitingProviders) {
-                waitingProviders.put(new Long(bundle.getBundleId()), bundle);
-            }
+        Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
+        if (urlEnum == null)
             return;
-        }
-        Enumeration<URL> urls = bundle.findEntries(path, null, false);
-        if (urls == null) {
-            return;
-        }
         Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
-        while (urls.hasMoreElements()) {
-            URL url = urls.nextElement();
-            try {
-                importData(vendor, parser, new InputStreamReader(url.openStream()));
-            } catch (IOException e) {
-                logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is " + url,
-                        e);
+        while (urlEnum.hasMoreElements()) {
+            URL url = urlEnum.nextElement();
+            String parserType = getParserType(url);
+            Parser<Rule> parser = parsers.get(parserType);
+            synchronized (waitingProviders) {
+                List<URL> urlList = waitingProviders.get(bundle);
+                if (parser != null) {
+                    if (urlList != null && urlList.remove(url) && urlList.isEmpty())
+                        waitingProviders.remove(bundle);
+                    try {
+                        importData(vendor, parser, new InputStreamReader(url.openStream()));
+                    } catch (IOException e) {
+                        logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is "
+                                + url, e);
+                    }
+                } else if (parser == null) {
+                    if (urlList == null)
+                        urlList = new ArrayList<URL>();
+                    urlList.add(url);
+                    waitingProviders.put(bundle, urlList);
+                }
             }
         }
     }
 
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser parser, InputStreamReader inputStreamReader) {
+    protected Set<Status> importData(Vendor vendor, Parser<Rule> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
             while (i.hasNext()) {
-                Rule rule = (Rule) i.next().getResult();
+                RuleDTO rule = (RuleDTO) i.next().getResult();
                 if (rule != null) {
                     try {
-                        ruleRegistry.add(rule);
+                        if (rule.uid == null)
+                            setUID(vendor, rule);
+                        ruleRegistry.add(factory.createRule(rule));
                     } catch (IllegalArgumentException e) {
-                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
+                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.uid);
                     }
                 }
             } // while
@@ -184,6 +213,13 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<V
             }
         }
         return providedRulesStatus;
+    }
+
+    private void setUID(Vendor vendor, RuleDTO rule) {
+        if (rule.name == null)
+            rule.uid = vendor.getVendorId() + "." + vendor.getVendorVersion() + "." + rulesCount++;
+        else
+            rule.uid = vendor.getVendorId() + "." + vendor.getVendorVersion() + "." + rule.name;
     }
 
 }

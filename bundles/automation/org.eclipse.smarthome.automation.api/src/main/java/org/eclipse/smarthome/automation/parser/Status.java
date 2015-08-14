@@ -72,12 +72,12 @@ public class Status {
         } else {
             sb.append("FAIL");
             sb.append(" {\n");
-            Iterator i = errorsMap.keySet().iterator();
+            Iterator<String> i = errorsMap.keySet().iterator();
             while (i.hasNext()) {
                 if (i.hasNext())
-                    sb.append("    ").append((String) i.next()).append(",\n");
+                    sb.append("    ").append(i.next()).append(",\n");
                 else
-                    sb.append("    ").append((String) i.next()).append("\n");
+                    sb.append("    ").append(i.next()).append("\n");
             }
             sb.append("}\n");
         }

@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.type.dto;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.dto.ConditionDTO;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
+import org.eclipse.smarthome.automation.type.Input;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 public class CompositeConditionTypeDTO extends ConditionType {
 
@@ -31,6 +34,13 @@ public class CompositeConditionTypeDTO extends ConditionType {
         for (Condition condition : conditions) {
             modules.add(new ConditionDTO(condition));
         }
+    }
+
+    public CompositeConditionTypeDTO(String moduleTypeUID, LinkedHashSet<ConfigDescriptionParameter> configDescriptions,
+            String label, String description, Set<String> tags, Visibility v, Set<Input> inputs,
+            List<ConditionDTO> conditionModules) {
+        super(moduleTypeUID, configDescriptions, label, description, tags, v, inputs);
+        modules = conditionModules;
     }
 
     public static Set<CompositeConditionType> createFrom(Set<CompositeConditionTypeDTO> persSet,
