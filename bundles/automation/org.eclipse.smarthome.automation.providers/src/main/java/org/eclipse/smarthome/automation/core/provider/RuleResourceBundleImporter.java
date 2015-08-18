@@ -59,8 +59,6 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     @SuppressWarnings("rawtypes")
     private ServiceTracker rulesTracker;
 
-    private static int rulesCount = 0;
-
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
      * {@link Rule}s.
@@ -163,7 +161,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
         if (urlEnum == null)
             return;
-        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
         while (urlEnum.hasMoreElements()) {
             URL url = urlEnum.nextElement();
             String parserType = getParserType(url);
@@ -215,11 +213,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         return providedRulesStatus;
     }
 
+    /**
+     * This method gives UIDs on the rules that don't have one.
+     *
+     * @param vendor is the bundle providing the rules.
+     * @param rule is the provided rule.
+     */
     private void setUID(Vendor vendor, RuleDTO rule) {
-        if (rule.name == null)
-            rule.uid = vendor.getVendorId() + "." + vendor.getVendorVersion() + "." + rulesCount++;
-        else
-            rule.uid = vendor.getVendorId() + "." + vendor.getVendorVersion() + "." + rule.name;
+        rule.uid = vendor.getVendorID() + vendor.count();
     }
 
 }

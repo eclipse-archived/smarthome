@@ -7,20 +7,28 @@
  */
 package org.eclipse.smarthome.automation.core.provider;
 
+import java.util.StringTokenizer;
+
 /**
  * This class is designed to serves as a holder of most significant information for a bundle that provides resources
  * for automation objects - bundle ID and bundle version. These two features of the bundle, define it uniquely and
  * determine if the bundle was updated, which needs to be checked after the system has been restarted.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public class Vendor {
 
     /**
-     * This field provides a bundle ID of a bundle that provides resources for automation objects.
+     * This field provides a bundle symbolic name of a bundle that provides resources for automation objects.
      */
-    private String vendorId;
+    private String vendorSymbolicName;
+
+    /**
+     * This field provides a bundle symbolic name of a bundle that provides resources for automation objects, but "." is
+     * replaced with "_".
+     */
+    private String vendorID;
 
     /**
      * This field provides a bundle version of a bundle that provides resources for automation objects.
@@ -28,29 +36,44 @@ public class Vendor {
     private String vendorVersion;
 
     /**
+     * This field keeps the count of the rules provided from this vendor.
+     */
+    private int rulesCount = 0;
+
+    /**
      * This constructor initialize the {@link vendorId} and the {@link vendorVersion} of the vendor with corresponding
      * bundle ID and bundle version of a bundle that provides resources for the automation objects.
-     * 
-     * @param id a bundle ID of a bundle that providing resources for automation objects.
+     *
+     * @param name a bundle symbolic name of a bundle that providing resources for automation objects.
      * @param version a bundle version of a bundle that provides resources for the automation objects.
      */
-    public Vendor(String id, String version) {
-        vendorId = id;
+    public Vendor(String name, String version) {
+        vendorSymbolicName = name;
         vendorVersion = version;
+        vendorID = parseSymbolicName();
+    }
+
+    /**
+     * Getter of {@link vendorSymbolicName}.
+     *
+     * @return a bundle symbolic name of a bundle that provides resources for the automation objects.
+     */
+    public String getVendorSymbolicName() {
+        return vendorSymbolicName;
     }
 
     /**
      * Getter of {@link vendorId}.
-     * 
-     * @return a bundle ID of a bundle that provides resources for the automation objects.
+     *
+     * @return a bundle symbolic name of a bundle that provides resources for the automation objects.
      */
-    public String getVendorId() {
-        return vendorId;
+    public String getVendorID() {
+        return vendorID;
     }
 
     /**
      * Getter of {@link vendorVersion}.
-     * 
+     *
      * @return a bundle version of a bundle that provides resources for the automation objects.
      */
     public String getVendorVersion() {
@@ -59,11 +82,20 @@ public class Vendor {
 
     /**
      * Setter of {@link vendorVersion}.
-     * 
+     *
      * @param version a bundle version of a bundle that provides resources for the automation objects.
      */
     public void setVendorVersion(String version) {
         vendorVersion = version;
+    }
+
+    /**
+     * This method increases the rules count and returns the current count.
+     *
+     * @return the current count of the rules provided by this vendor.
+     */
+    public int count() {
+        return rulesCount++;
     }
 
     /**
@@ -73,7 +105,7 @@ public class Vendor {
     public boolean equals(Object obj) {
         if (obj instanceof Vendor) {
             Vendor other = (Vendor) obj;
-            return vendorId.endsWith(other.vendorId) && vendorVersion.equals(other.vendorVersion);
+            return vendorSymbolicName.equals(other.vendorSymbolicName) && vendorVersion.equals(other.vendorVersion);
         }
         return false;
     }
@@ -83,7 +115,16 @@ public class Vendor {
      */
     @Override
     public int hashCode() {
-        return vendorId.hashCode() + vendorVersion.hashCode();
+        return vendorSymbolicName.hashCode() + vendorVersion.hashCode();
+    }
+
+    private String parseSymbolicName() {
+        String res = "";
+        StringTokenizer tokenizer = new StringTokenizer(vendorSymbolicName, ".");
+        while (tokenizer.hasMoreTokens()) {
+            res = res + tokenizer.nextToken() + "_";
+        }
+        return res;
     }
 
 }

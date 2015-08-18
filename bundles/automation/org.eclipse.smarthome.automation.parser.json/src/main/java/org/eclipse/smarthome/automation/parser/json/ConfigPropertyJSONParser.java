@@ -260,8 +260,8 @@ public class ConfigPropertyJSONParser {
      * @param writer is the {@link OutputStreamWriter} used to encode into bytes the {@link ConfigDescriptionParameter}.
      *
      * @return JSONObject representing the {@link ConfigDescriptionParameter}.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     static void configPropertyToJSON(ConfigDescriptionParameter configParameter, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -329,8 +329,8 @@ public class ConfigPropertyJSONParser {
      * @param configParameter
      * @param value
      * @param writer
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     static void ruleConfigPropertyToJSON(ConfigDescriptionParameter configParameter, Object value,
             OutputStreamWriter writer) throws IOException, JSONException {
@@ -428,6 +428,15 @@ public class ConfigPropertyJSONParser {
         return configDescriptions;
     }
 
+    /**
+     *
+     * @param configPropertyName
+     * @param typeStr
+     * @param configDescription
+     * @param status
+     * @return
+     * @throws IllegalArgumentException
+     */
     private static String getDefaultValue(String configPropertyName, String typeStr, JSONObject configDescription,
             Status status) throws IllegalArgumentException {
         String defValue = null;
@@ -454,6 +463,11 @@ public class ConfigPropertyJSONParser {
         return defValue;
     }
 
+    /**
+     *
+     * @param filter
+     * @return
+     */
     private static JSONObject filterCriteriaToJSON(FilterCriteria filter) {
         Map<String, String> filterMap = new HashMap<String, String>();
         filterMap.put("name", filter.getName());
@@ -461,6 +475,11 @@ public class ConfigPropertyJSONParser {
         return new JSONObject(filterMap);
     }
 
+    /**
+     *
+     * @param option
+     * @return
+     */
     private static JSONObject parameterOptionToJSON(ParameterOption option) {
         Map<String, String> optionMap = new HashMap<String, String>();
         optionMap.put("label", option.getLabel());
@@ -468,6 +487,11 @@ public class ConfigPropertyJSONParser {
         return new JSONObject(optionMap);
     }
 
+    /**
+     * 
+     * @param jsonArr
+     * @return
+     */
     private static List<Object> toList(JSONArray jsonArr) {
         List<Object> list = null;
         if (jsonArr != null) {

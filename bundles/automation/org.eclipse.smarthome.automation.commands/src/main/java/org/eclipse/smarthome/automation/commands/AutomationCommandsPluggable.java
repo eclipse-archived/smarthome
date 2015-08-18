@@ -388,8 +388,8 @@ public class AutomationCommandsPluggable extends AutomationCommands
 
     @Override
     public void setEnabled(String uid, boolean isEnabled) {
-        if (ruleReg != null) {
-            ruleReg.setEnabled(uid, isEnabled);
+        if (ruleRegistry != null) {
+            ruleRegistry.setEnabled(uid, isEnabled);
         }
 
     }

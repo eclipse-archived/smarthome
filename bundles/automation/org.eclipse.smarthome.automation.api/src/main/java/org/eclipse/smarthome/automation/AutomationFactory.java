@@ -47,6 +47,13 @@ public interface AutomationFactory {
      */
     public Trigger createTrigger(String id, String typeUID, Map<String, ?> configurations);
 
+    /**
+     * This method creates and configures {@link Trigger} instance, using the information provided by {@link TriggerDTO}
+     * object.
+     *
+     * @param triggerDTO provides the information for creation of {@link Trigger} instance.
+     * @return a created {@link Trigger} instance.
+     */
     public Trigger createTrigger(TriggerDTO triggerDTO);
 
     /**
@@ -69,6 +76,14 @@ public interface AutomationFactory {
      */
     public Condition createCondition(String id, String typeUID, Map<String, ?> config, Set<Connection> connections);
 
+    /**
+     * This method creates and configures {@link Condition} instance, using the information provided by
+     * {@link ConditionDTO} object.
+     *
+     * @param conditionDTO provides the information for creation of {@link Condition} instance.
+     * @return a created {@link Condition} instance.
+     * @return
+     */
     public Condition createCondition(ConditionDTO conditionDTO);
 
     /**
@@ -91,6 +106,13 @@ public interface AutomationFactory {
      */
     public Action createAction(String id, String typeUID, Map<String, ?> configurations, Set<Connection> connections);
 
+    /**
+     * This method creates and configures {@link Action} instance, using the information provided by {@link ActionDTO}
+     * object.
+     *
+     * @param actionDTO provides the information for creation of {@link Action} instance.
+     * @return a created {@link Action} instance.
+     */
     public Action createAction(ActionDTO actionDTO);
 
     /**
@@ -148,6 +170,12 @@ public interface AutomationFactory {
      */
     public Rule createRule(String uid, String ruleTemplateUID, Map<String, Object> configurations);
 
+    /**
+     * This method is used to create a {@link Rule} instance from {@link RuleDTO}.
+     *
+     * @param ruleDTO provides the information for creation of {@link Rule} instance.
+     * @return a created {@link Rule} instance.
+     */
     public Rule createRule(RuleDTO ruleDTO);
 
 }

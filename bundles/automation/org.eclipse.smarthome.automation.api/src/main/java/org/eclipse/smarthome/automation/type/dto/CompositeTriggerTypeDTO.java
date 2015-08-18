@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.automation.type.dto;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +20,21 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
+/**
+ * This class is responsible to store the information for creation of the {@link CompositeTriggerTypes}s in
+ * {@link CompositeTriggerTypeDTO}s. This class provides functionality for (de)serialization of {@link Trigger}s.
+ *
+ * @author Ana Dimova - Initial Contribution
+ *
+ */
 public class CompositeTriggerTypeDTO extends TriggerType {
 
     public List<TriggerDTO> modules;
 
+    /**
+     * This constructor is used for serialization of the {@link Trigger}s participating in the
+     * {@link CompositeTriggerType}.
+     */
     public CompositeTriggerTypeDTO(CompositeTriggerType compositeTrigger) {
         super(compositeTrigger.getUID(), compositeTrigger.getConfigurationDescription(), compositeTrigger.getLabel(),
                 compositeTrigger.getDescription(), compositeTrigger.getTags(), compositeTrigger.getVisibility(),
@@ -36,6 +46,9 @@ public class CompositeTriggerTypeDTO extends TriggerType {
         }
     }
 
+    /**
+     * This constructor is used for serialization of the {@link CompositeTriggerType}s.
+     */
     public CompositeTriggerTypeDTO(String moduleTypeUID, LinkedHashSet<ConfigDescriptionParameter> configDescriptions,
             String label, String description, Set<String> tags, Visibility v, Set<Output> outputs,
             List<TriggerDTO> modules) {
@@ -43,15 +56,10 @@ public class CompositeTriggerTypeDTO extends TriggerType {
         this.modules = modules;
     }
 
-    public static Set<CompositeTriggerType> createFrom(Set<CompositeTriggerTypeDTO> persSet,
-            AutomationFactory factory) {
-        Set<CompositeTriggerType> cttSet = new HashSet<CompositeTriggerType>();
-        for (CompositeTriggerTypeDTO pctt : persSet) {
-            cttSet.add(pctt.createCompositeTriggerType(factory));
-        }
-        return cttSet;
-    }
-
+    /**
+     * This method is used for deserialization of the {@link Trigger}s to create the {@link Trigger}s with the
+     * assistance of the {@link AutomationFactory} and participating in the {@link CompositeTriggerType}.
+     */
     public CompositeTriggerType createCompositeTriggerType(AutomationFactory factory) {
         List<Trigger> modules = new ArrayList<Trigger>();
         for (TriggerDTO pTrigger : this.modules) {

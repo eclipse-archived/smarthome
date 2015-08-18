@@ -43,6 +43,9 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleJSONParser implements Parser<Rule> {
 
+    /**
+     * This field is used for logging
+     */
     private Logger log;
 
     /**
@@ -181,8 +184,10 @@ public class RuleJSONParser implements Parser<Rule> {
     }
 
     /**
-     * @throws IOException
-     * @throws JSONException
+     * This method is used to export the set of {@link Rule}s reverting them to JSON format..
+     *
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      * @see org.eclipse.smarthome.automation.parser.RuleParser#writeRules(org.eclipse.smarthome.automation.Rule,
      *      java.io.OutputStreamWriter)
      */
@@ -205,8 +210,8 @@ public class RuleJSONParser implements Parser<Rule> {
      * @param rule is a {@link Rule} object to revert.
      * @param writer
      * @return JSONObject is an object representing the {@link Rule} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     private void ruleToJSON(Rule rule, OutputStreamWriter writer) throws IOException, JSONException {
         writer.write("  {\n");
@@ -253,12 +258,13 @@ public class RuleJSONParser implements Parser<Rule> {
     }
 
     /**
+     * This method is used for reverting the {@link Rule}'s configuration description to JSON format.
      *
-     * @param configDescriptions
-     * @param configValues
-     * @param writer
-     * @throws IOException
-     * @throws JSONException
+     * @param configDescriptions is the {@link Rule}'s configuration description to convert.
+     * @param configValues is the {@link Rule}'s configuration values.
+     * @param writer is the {@link OutputStreamWriter} used for exporting the rule.
+     * @throws IOException is thrown when the I/O operations are failed or interrupted.
+     * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     private void ruleConfigurationToJSON(Set<ConfigDescriptionParameter> configDescriptions,
             Map<String, Object> configValues, OutputStreamWriter writer) throws IOException, JSONException {

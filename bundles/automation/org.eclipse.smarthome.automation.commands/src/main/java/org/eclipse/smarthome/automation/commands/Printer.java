@@ -45,11 +45,11 @@ import org.eclipse.smarthome.config.core.ParameterOption;
 public class Printer {
 
     /**
-     * This method is responsible for printing the list with indexes and UIDs of the {@link Rule}s, {@link Template}s or
+     * This method is responsible for printing the list with indexes and UIDs of the {@link Template}s or
      * {@link ModuleType}s.
      *
-     * @param list with indexes and UIDs of the {@link Rule}s, {@link Template}s or {@link ModuleType}s.
-     * @return a formated string, representing the list with indexes and UIDs of the {@link Rule}s, {@link Template}s or
+     * @param list with indexes and UIDs of the {@link Template}s or {@link ModuleType}s.
+     * @return a formated string, representing the list with indexes and UIDs of the {@link Template}s or
      *         {@link ModuleType}s.
      */
     static String print(Hashtable<String, String> list) {
@@ -621,6 +621,13 @@ public class Printer {
         return res;
     }
 
+    /**
+     * This method is responsible for printing the {@link RuleStatus}.
+     *
+     * @param ruleUID specifies the rule, which status is requested.
+     * @param status corresponds to the status of specified rule.
+     * @return a string representing the response of the command {@link AutomationCommands#ENABLE_RULE}.
+     */
     static String printRuleStatus(String ruleUID, RuleStatus status) {
         StringBuilder writer = new StringBuilder();
         printChars(writer, '-', 100, true);
@@ -643,7 +650,7 @@ public class Printer {
      * @param count specifies how many times to append the specified symbol.
      * @param nl specifies to skip a line or not.
      */
-    private static void printChars(StringBuilder sb, char ch, int count, boolean nl) {
+    static void printChars(StringBuilder sb, char ch, int count, boolean nl) {
         if (count < 1) {
             return;
         }
@@ -653,6 +660,31 @@ public class Printer {
         if (nl) {
             sb.append("\n");
         }
+    }
+
+    /**
+     * This method is responsible for printing the list with indexes, UIDs and statuses of the {@link Rule}s.
+     *
+     * @param list with indexes, UIDs and statuses of the {@link Rule}s.
+     * @return a formated string, representing the list with indexes, UIDs and statuses of the {@link Rule}s.
+     */
+    static String printRules(Hashtable<String, String> listRules) {
+        StringBuilder writer = new StringBuilder();
+        writer.append("\nID");
+        int size = Integer.toString(listRules.size()).length() + 4;
+        printChars(writer, ' ', size - 2, false);
+        writer.append("UID");
+        printChars(writer, ' ', 80, false);
+        writer.append("Status\n");
+        printChars(writer, '-', 100, true);
+        for (int i = 1; i <= listRules.size(); i++) {
+            String key = Integer.toString(i);
+            writer.append(key);
+            printChars(writer, ' ', size - key.length(), false);
+            writer.append(listRules.get(key) + "\n");
+        }
+        printChars(writer, '-', 100, true);
+        return writer.toString();
     }
 
 }

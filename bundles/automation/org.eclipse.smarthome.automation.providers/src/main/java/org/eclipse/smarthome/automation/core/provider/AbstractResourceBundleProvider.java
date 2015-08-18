@@ -247,7 +247,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             res = waitingProviders.get(bundle) == null;
         }
         if (res) {
-            Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+            Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
             synchronized (providerPortfolio) {
                 res = providerPortfolio.get(vendor) != null;
             }
@@ -286,7 +286,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     protected void processAutomationProvider(Bundle bundle) {
         synchronized (providerPortfolio) {
             for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorId().equals(Long.toString(bundle.getBundleId()))
+                if (vendor.getVendorSymbolicName().equals(bundle.getSymbolicName())
                         && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
                     List<String> portfolio = providerPortfolio.remove(vendor);
                     if (portfolio != null && !portfolio.isEmpty())
@@ -302,7 +302,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
         if (urlEnum == null)
             return;
-        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
         while (urlEnum.hasMoreElements()) {
             URL url = urlEnum.nextElement();
             String parserType = getParserType(url);
@@ -356,7 +356,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             waitingProviders.remove(bundle);
         }
         List<String> portfolio = null;
-        Vendor vendor = new Vendor(Long.toString(bundle.getBundleId()), bundle.getVersion().toString());
+        Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(vendor);
         }
