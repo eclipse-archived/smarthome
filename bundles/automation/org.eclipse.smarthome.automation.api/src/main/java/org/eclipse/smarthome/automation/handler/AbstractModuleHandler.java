@@ -420,7 +420,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
             String outputReference = outputDescription.getReference();
             if (isParsable(outputReference)) {
                 String parsedNameRef = parse(outputReference);
-                if (!outputDescriptionsMap.containsKey(parsedNameRef)) { // skip if reference is Output
+                if (outputDescriptionsMap!=null&&!outputDescriptionsMap.containsKey(parsedNameRef)) { // skip if reference is Output
                     if (configurationValues != null && configurationValues.containsKey(parsedNameRef)) { // reference is
                                                                                                          // ConfigurationProperty
                         outputValue = configurationValues.get(parsedNameRef);
@@ -564,7 +564,9 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
             visitedOutputs.add(currentOutputName); // mark Output as visited
             if (isParsable(currentReference)) {
                 String parsedNameRef = parse(currentReference);
-                currentOutputDescription = outputDescriptionsMap.get(parsedNameRef);
+                if(outputDescriptionsMap!=null){
+                	currentOutputDescription = outputDescriptionsMap.get(parsedNameRef);
+                }
                 if (currentOutputDescription != null) { // check if Output with parsed name exists
                     checkLoop(referredOutputNames, sourceOutputName, parsedNameRef);
                     validateOutputType(outputDescription, currentOutputDescription);
@@ -581,7 +583,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                 } else {
                     // check Output's reference is ConfigurationProperty or Input
                     if (configParametersMap.get(parsedNameRef) == null
-                            && inputDescriptionsMap.get(parsedNameRef) == null) {
+                            && inputDescriptionsMap!=null && inputDescriptionsMap.get(parsedNameRef) == null) {
                         log.error("Can't find referred Element: " + parsedNameRef + ", referred by Output: "
                                 + sourceOutputName);
                     }

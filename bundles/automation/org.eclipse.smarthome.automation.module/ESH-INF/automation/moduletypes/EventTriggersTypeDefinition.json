@@ -1,0 +1,101 @@
+{
+    "triggers": {
+		"GenericEventTrigger":{
+			"label": "Basic Event Trigger",
+			"description": "Triggers Rules on Events",
+			"config":{
+				"eventTopic":{
+		            "type": "TEXT",
+		            "label": "Topic",
+		            "description": "This is the topic, the trigger will listen to: >>smarthome/*<<",
+		            "required": true,
+		            "defaultValue": "smarthome/*"
+				},
+				"eventSource":{
+		            "type": "TEXT",
+		            "label": "Source",
+		            "description": "This is the source of the event (eg. item name)",
+		            "required": true,
+		            "defaultValue": ""
+				},
+				"eventTypes":{
+		            "type": "TEXT",
+		            "label": "Event Type",
+		            "description": "the event type, the trigger should listen to. (COMMAND, UPDATE). Multiple types can be specified comma-separated",
+		            "required": true,
+		            "defaultValue": "command, update"
+				}
+			},
+			"output":{
+	            "source": {
+	              "type": "java.lang.String",
+	              "label": "Source",
+	              "description": "The name of the events source.",
+	              "reference": "source",
+	            },
+	            "payload": {
+	              "type": "java.lang.String",
+	              "label": "Payload",
+	              "description": "The payload of the event",
+	              "reference": "payload",
+	            },
+	            "type": {
+	              "type": "java.lang.String",
+	              "label": "EventType",
+	              "description": "The type of the Event.",
+	              "reference": "type",
+	            },
+	            "topic": {
+	              "type": "java.lang.String",
+	              "label": "topic",
+	              "description": "The Topic of the event",
+	              "reference": "topic",
+	            }
+			}
+		}
+	},
+	"composite":{
+		"ItemStateChangeTrigger": {
+        	"label": "Trigger on ItemState chang",
+        	"description": "This trigger executes rules if an items state has chaged.",
+        	"config": {
+        		"itemName": {
+            		"type": "text",
+            		"label": "ItemName",
+            		"description": "This is the name of the item which should be observed for state changes",
+            		"required": true,
+            		"defaultValue": "item1"
+          	  	}
+			},
+			"triggers":[
+				{
+					"id":"itemStateChangeTrigger",
+					"type":"GenericEventTrigger",
+					"config":{
+						"eventSource":"$itemName",
+						"eventTopic":"smarthome/*",
+						"eventTypes":"update"
+					}
+				}
+			],		  
+        	"output": {
+          	  	"itemName": {
+            	  "type": "java.lang.String",
+            	  "label": "the changed item name",
+            	  "description": "The name of the item.",
+            	  "reference": "$source"
+          		},
+  		 	   "newState": {
+				   "type": "java.lang.String",
+				   "label": "the new state",
+				   "description": "the new state of the item.",
+				   "reference": "$payload"
+  			   }
+        	}
+		}
+	}
+}
+
+
+
+  
