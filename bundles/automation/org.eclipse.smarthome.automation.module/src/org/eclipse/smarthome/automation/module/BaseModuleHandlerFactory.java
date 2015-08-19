@@ -32,7 +32,6 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 		return moduleTypeRegistry;
 	}
 
-
 	protected String getHandlerUID(String moduleTypeUID) {
 		StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, ":");
 		return tokenizer.nextToken();
@@ -55,5 +54,11 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 	public void unsetModuleTypeRegistry(ModuleTypeRegistry moduleTypeReg) {
 		moduleTypeRegistry = null;
 	}
+
+	/**
+	 * this must be implemented to unregister all services registered during
+	 * runtime.
+	 */
+	public abstract void dispose();
 
 }

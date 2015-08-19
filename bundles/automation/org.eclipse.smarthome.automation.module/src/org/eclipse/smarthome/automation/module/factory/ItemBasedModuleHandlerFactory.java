@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.BaseModuleHandlerFactory;
+import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemPostCommandActionHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemStateChangeTriggerHandler;
 import org.eclipse.smarthome.automation.module.handler.ItemStateConditionHandler;
@@ -39,13 +40,13 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 	private final Logger logger = LoggerFactory.getLogger(ItemBasedModuleHandlerFactory.class);
 
 	private static final Collection<String> types = Arrays.asList(new String[] {
-			ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER, ItemStateConditionHandler.ITEM_STATE_CONDITION,
-			ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION });
+			ItemStateConditionHandler.ITEM_STATE_CONDITION, ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER,
+			ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID });
 
 	private ItemRegistry itemRegistry;
 	private EventPublisher eventPublisher;
 
-	private Map<String, ItemStateChangeTriggerHandler> itemStateChangeTriggerHandlers = new HashMap<String, ItemStateChangeTriggerHandler>();
+	private Map<String, GenericEventTriggerHandler> genericEventTriggerHandlers = new HashMap<String, GenericEventTriggerHandler>();
 	private Map<String, ItemStateConditionHandler> itemStateConditionHandlers = new HashMap<String, ItemStateConditionHandler>();
 	private Map<String, ItemPostCommandActionHandler> itemPostCommandActionHandlers = new HashMap<String, ItemPostCommandActionHandler>();
 
@@ -63,12 +64,11 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 			String handlerUID = getHandlerUID(moduleTypeUID);
 			ModuleType moduleType = moduleTypeRegistry.get(handlerUID, null);
 			if (moduleType != null) {
-				if (ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER.equals(handlerUID)
-						&& module instanceof Trigger) {
-					ItemStateChangeTriggerHandler triggerHandler = itemStateChangeTriggerHandlers.get(module.getId());
+				if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(handlerUID) && module instanceof Trigger) {
+					GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
 					if (triggerHandler == null) {
-						triggerHandler = new ItemStateChangeTriggerHandler((Trigger) module);
-						itemStateChangeTriggerHandlers.put(module.getId(), triggerHandler);
+						triggerHandler = new GenericEventTriggerHandler(module);
+						genericEventTriggerHandlers.put(module.getId(), triggerHandler);
 					}
 					return (T) triggerHandler;
 				} else if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(handlerUID)
@@ -157,5 +157,21 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 		for (ItemPostCommandActionHandler handler : itemPostCommandActionHandlers.values()) {
 			handler.unsetEventPublisher(eventPublisher);
 		}
+	}
+
+	@Override
+	public void dispose() {
+		for (GenericEventTriggerHandler handler : this.genericEventTriggerHandlers.values()) {
+			handler.dispose();
+		}
+		for (ItemPostCommandActionHandler handler : this.itemPostCommandActionHandlers.values()) {
+			handler.dispose();
+		}
+		for (ItemStateConditionHandler handler : this.itemStateConditionHandlers.values()) {
+			handler.dispose();
+		}
+		this.genericEventTriggerHandlers.clear();
+		this.itemPostCommandActionHandlers.clear();
+		this.itemStateConditionHandlers.clear();
 	}
 }

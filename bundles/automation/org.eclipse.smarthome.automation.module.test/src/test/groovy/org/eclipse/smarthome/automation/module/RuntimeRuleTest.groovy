@@ -117,12 +117,12 @@ class RuntimeRuleTest extends OSGiTest{
 		//Creation of RULE
 		def AutomationFactory automationFactory = getService(AutomationFactory)
 		assertThat automationFactory, is(notNullValue())
-		def triggerConfig = [itemName:"myMotionItem2"]
+		def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
 		def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
 		def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
 		def actionConfig = [itemName:"myLampItem2", command:"ON"]
 		def triggers = [
-			automationFactory.createTrigger("ItemStateChangeTrigger2", "ItemStateChangeTrigger", triggerConfig)
+			automationFactory.createTrigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
 		]
 		def conditions = [
 			automationFactory.createCondition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),

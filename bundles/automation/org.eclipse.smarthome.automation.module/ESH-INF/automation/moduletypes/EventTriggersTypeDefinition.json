@@ -21,9 +21,9 @@
 				"eventTypes":{
 		            "type": "TEXT",
 		            "label": "Event Type",
-		            "description": "the event type, the trigger should listen to. (COMMAND, UPDATE). Multiple types can be specified comma-separated",
+		            "description": "the event type, the trigger should listen to. Multiple types can be specified comma-separated",
 		            "required": true,
-		            "defaultValue": "command, update"
+		            "defaultValue": ""
 				}
 			},
 			"output":{
