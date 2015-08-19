@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.commands;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
 
 /**
@@ -69,11 +68,13 @@ public class AutomationCommandEnableRule extends AutomationCommand {
                         parameterValues[i]);
             }
             if (uid == null) {
-                Rule rule = autoCommands.getRule(parameterValues[i]);
-                if (rule != null) {
-                    uid = rule.getUID();
-                    continue;
-                }
+                uid = parameterValues[i];
+                continue;
+                // Rule rule = autoCommands.getRule(parameterValues[i]);
+                // if (rule != null) {
+                // uid = rule.getUID();
+                // continue;
+                // }
             }
             getEnable(parameterValues[i]);
             if (hasEnable)

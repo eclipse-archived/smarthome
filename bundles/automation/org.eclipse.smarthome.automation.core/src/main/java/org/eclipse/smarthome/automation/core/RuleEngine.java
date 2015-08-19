@@ -165,7 +165,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         RuleImpl r1 = new RuleImpl(r);
         r1.setScopeIdentifier(identity);
         r1.setUID(rUID);
-        setRule(r1);
+        // setRule(r1);
         return r1;
     }
 
@@ -189,15 +189,18 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             return;
         }
 
+        logger.debug("RuleEngine setRule " + r.getUID());
+        String rUID = r.getUID();
+        rules.put(rUID, r);
+
         RuleStatusInfo ruleStatus = statusMap.get(r.getUID());
         if (ruleStatus != null && RuleStatus.DISABLED == ruleStatus.getStatus()) {
             return;
         }
 
-        System.out.println("RuleEngine setRule " + r.getUID());
-        String rUID = r.getUID();
-
-        setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+        if (ruleStatus != null && RuleStatus.NOT_INITIALIZED != ruleStatus.getStatus()) {
+            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+        }
 
         // List<RuleError> errList = null;
         String errMsgs = null;
@@ -218,8 +221,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (errMessage != null) {
             errMsgs = errMsgs + errMessage;
         }
-
-        rules.put(rUID, r);
 
         if (errMessage == null) {
             register(r);
@@ -347,13 +348,15 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param r the unregistered rule
      */
     private void unregister(RuleImpl r) {
-        RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
-        if (reCallback != null) {
-            reCallback.dispose();
+        if (r != null) {
+            RuleEngineCallbackImpl reCallback = reCallbacks.remove(r.getUID());
+            if (reCallback != null) {
+                reCallback.dispose();
+            }
+            removeHandlers(r.triggers);
+            removeHandlers(r.actions);
+            removeHandlers(r.conditions);
         }
-        removeHandlers(r.triggers);
-        removeHandlers(r.actions);
-        removeHandlers(r.conditions);
     }
 
     /**
@@ -450,22 +453,22 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     public synchronized void setRuleEnabled(String rUID, boolean isEnabled) {
         RuleStatus status = getRuleStatus(rUID);
-        if (status != null) {
-            if (isEnabled) {
-                if (status == RuleStatus.DISABLED) {
-                    setRule(getRule(rUID));
-                } else {
-                    logger.info("The rule rId = " + rUID + " is already enabled");
-                }
+        if (isEnabled) {
+            if (status == RuleStatus.DISABLED) {
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
+                setRule(getRule(rUID));
             } else {
-                unregister(getRule(rUID));
-                // change state to DISABLED
-                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
+                logger.info("The rule rId = " + rUID + " is already enabled");
             }
         } else {
-            throw new IllegalStateException("The rule rId = " + rUID + " is not available");
+            unregister(getRule(rUID));
+            // change state to DISABLED
+            setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.DISABLED));
         }
+    }
 
+    protected boolean hasRule(String rUID) {
+        return rules.get(rUID) != null;
     }
 
     /**

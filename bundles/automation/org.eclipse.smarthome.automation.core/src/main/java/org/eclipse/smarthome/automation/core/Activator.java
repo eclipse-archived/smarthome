@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeRegistryImpl;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -71,7 +72,11 @@ public class Activator implements BundleActivator {
                 StorageService storage = (StorageService) bc.getService(reference);
                 if (storage != null) {
                     final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
-                    ruleRegistry = new RuleRegistryImpl(rm, rp);
+
+                    Storage storageDisabledRules = storage.getStorage("automation_rules_disabled",
+                            this.getClass().getClassLoader());
+
+                    ruleRegistry = new RuleRegistryImpl(rm, rp, storageDisabledRules);
                     ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
                 }
                 return storage;
