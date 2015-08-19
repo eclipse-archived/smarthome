@@ -17,16 +17,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -69,37 +68,24 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     public RuleResourceBundleImporter(BundleContext context) {
         super(context);
         path = PATH + "/rules/";
-        try {
-            Filter filter = bc.createFilter("(|(objectClass=" + RuleRegistry.class.getName() + ")(objectClass="
-                    + AutomationFactory.class.getName() + "))");
-            rulesTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
+        rulesTracker = new ServiceTracker(bc, RuleRegistry.class.getName(), new ServiceTrackerCustomizer() {
 
-                @Override
-                public Object addingService(ServiceReference reference) {
-                    Object service = bc.getService(reference);
-                    if (service instanceof RuleRegistry) {
-                        ruleRegistry = (RuleRegistry) service;
-                    } else {
-                        factory = (AutomationFactory) service;
-                    }
-                    queue.open();
-                    return service;
-                }
+            @Override
+            public Object addingService(ServiceReference reference) {
+                ruleRegistry = (RuleRegistry) bc.getService(reference);
+                queue.open();
+                return ruleRegistry;
+            }
 
-                @Override
-                public void modifiedService(ServiceReference reference, Object service) {
-                }
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
 
-                @Override
-                public void removedService(ServiceReference reference, Object service) {
-                    if (service == ruleRegistry)
-                        ruleRegistry = null;
-                    if (service == factory)
-                        factory = null;
-                }
-            });
-        } catch (InvalidSyntaxException notPossible) {
-        }
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                ruleRegistry = null;
+            }
+        });
     }
 
     /**
@@ -114,7 +100,6 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
             rulesTracker.close();
             rulesTracker = null;
             ruleRegistry = null;
-            factory = null;
         }
         super.close();
     }
@@ -139,7 +124,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
 
     @Override
     public boolean isReady() {
-        return ruleRegistry != null && factory != null && queue != null;
+        return ruleRegistry != null && queue != null;
     }
 
     /**
@@ -193,14 +178,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
             Iterator<Status> i = providedRulesStatus.iterator();
             while (i.hasNext()) {
-                RuleDTO rule = (RuleDTO) i.next().getResult();
+                Rule rule = (Rule) i.next().getResult();
                 if (rule != null) {
                     try {
-                        if (rule.uid == null)
-                            setUID(vendor, rule);
-                        ruleRegistry.add(factory.createRule(rule));
+                        if (rule.getUID() == null)
+                            rule = setUID(vendor, rule);
+                        ruleRegistry.add(rule);
                     } catch (IllegalArgumentException e) {
-                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.uid);
+                        logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
                     }
                 }
             } // while
@@ -219,8 +204,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * @param vendor is the bundle providing the rules.
      * @param rule is the provided rule.
      */
-    private void setUID(Vendor vendor, RuleDTO rule) {
-        rule.uid = vendor.getVendorID() + vendor.count();
+    private Rule setUID(Vendor vendor, Rule rule) {
+        String uid = vendor.getVendorID() + vendor.count();
+        Rule r = new Rule(uid, rule.getModules(Trigger.class), rule.getModules(Condition.class),
+                rule.getModules(Action.class), rule.getConfigurationDescriptions(), rule.getConfiguration());
+        r.setName(rule.getName());
+        r.setDescription(rule.getDescription());
+        r.setTags(rule.getTags());
+        return r;
     }
 
 }

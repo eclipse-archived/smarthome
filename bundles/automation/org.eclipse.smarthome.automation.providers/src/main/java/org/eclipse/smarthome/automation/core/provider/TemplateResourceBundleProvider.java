@@ -16,20 +16,15 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
-import org.eclipse.smarthome.automation.template.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
@@ -75,7 +70,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         path = PATH + "/templates/";
         try {
             Filter filter = bc.createFilter("(|(objectClass=" + TemplateRegistry.class.getName() + ")(objectClass="
-                    + ModuleTypeRegistry.class.getName() + ")(objectClass=" + AutomationFactory.class.getName() + "))");
+                    + ModuleTypeRegistry.class.getName() + "))");
             tracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
                 @Override
@@ -83,10 +78,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     Object service = bc.getService(reference);
                     if (service instanceof TemplateRegistry) {
                         templateRegistry = (TemplateRegistry) service;
-                    } else if (service instanceof ModuleTypeRegistry) {
-                        moduleTypeRegistry = (ModuleTypeRegistry) service;
                     } else {
-                        factory = (AutomationFactory) service;
+                        moduleTypeRegistry = (ModuleTypeRegistry) service;
                     }
                     queue.open();
                     return service;
@@ -100,8 +93,6 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 public void removedService(ServiceReference reference, Object service) {
                     if (service == templateRegistry)
                         templateRegistry = null;
-                    else if (service == factory)
-                        factory = null;
                     else
                         moduleTypeRegistry = null;
                 }
@@ -183,7 +174,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
     @Override
     public boolean isReady() {
-        return moduleTypeRegistry != null && templateRegistry != null && factory != null && queue != null;
+        return moduleTypeRegistry != null && templateRegistry != null && queue != null;
     }
 
     @Override
@@ -203,22 +194,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             for (Status status : providedObjects) {
                 if (status.hasErrors())
                     continue;
-                RuleTemplateDTO ruleDTO = (RuleTemplateDTO) status.getResult();
-                String uid = ruleDTO.uid;
-                List<Trigger> triggers = new ArrayList<Trigger>(ruleDTO.triggers.size());
-                for (TriggerDTO trigger : ruleDTO.triggers) {
-                    triggers.add(trigger.createTrigger(factory));
-                }
-                List<Condition> conditions = new ArrayList<Condition>(ruleDTO.conditions.size());
-                for (ConditionDTO condition : ruleDTO.conditions) {
-                    conditions.add(condition.createCondition(factory));
-                }
-                List<Action> actions = new ArrayList<Action>(ruleDTO.actions.size());
-                for (ActionDTO action : ruleDTO.actions) {
-                    actions.add(action.createAction(factory));
-                }
-                RuleTemplate ruleT = new RuleTemplate(uid, ruleDTO.label, ruleDTO.description, ruleDTO.tags, triggers,
-                        conditions, actions, ruleDTO.configDescriptions, ruleDTO.visibility);
+                RuleTemplate ruleT = (RuleTemplate) status.getResult();
+                String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
                             ruleT.getModules(Condition.class), ruleT.getModules(Action.class));

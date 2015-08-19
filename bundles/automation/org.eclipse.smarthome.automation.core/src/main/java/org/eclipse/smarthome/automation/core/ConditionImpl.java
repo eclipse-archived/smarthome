@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.automation.core;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,8 +23,9 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condition, ConnectedModule {
+public class ConditionImpl extends Condition implements ConnectedModule {
 
+    private ConditionHandler conditionHandler;
     private Set<Connection> connections;
     private Map<String, OutputRef> connectedObjects;
 
@@ -34,20 +37,22 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condit
      * @param configuration configuration values of the {@link Condition} module.
      * @param connections set of {@link Connection}s used by this module.
      */
-    public ConditionImpl(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
-        super(id, typeUID, configuration);
-        this.connections = connections;
+    public ConditionImpl(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
+            ConditionHandler conditionHandler) {
+        super(id, typeUID, configuration, connections);
+        this.conditionHandler = conditionHandler;
     }
 
     /**
      * Cloning constructor of {@link Condition} module. It is used to create a new {@link Condition} module base on
      * passed {@link Condition} module.
      *
-     * @param c
+     * @param condition
      */
-    public ConditionImpl(ConditionImpl c) {
-        super(c);
-        setConnections(c.getConnections());
+    public ConditionImpl(ConditionImpl condition) {
+        super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getConnections());
+        setLabel(condition.getLabel());
+        setDescription(condition.getDescription());
     }
 
     @Override
@@ -74,6 +79,42 @@ public class ConditionImpl extends ModuleImpl<ConditionHandler>implements Condit
     @Override
     public void setConnectedOutputs(Map<String, OutputRef> connectedObjects) {
         this.connectedObjects = connectedObjects;
+    }
+
+    /**
+     * Utility method creating deep copy of passed connection set.
+     *
+     * @param connections connections used by this module.
+     * @return copy of passed connections.
+     */
+    Set<Connection> copyConnections(Set<Connection> connections) {
+        if (connections == null) {
+            return null;
+        }
+        Set<Connection> result = new HashSet<Connection>(connections.size());
+        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
+            Connection c = it.next();
+            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
+        }
+        return result;
+    }
+
+    /**
+     * This method gets handler which is responsible for handling of this module.
+     *
+     * @return handler of the module or null.
+     */
+    ConditionHandler getModuleHandler() {
+        return conditionHandler;
+    }
+
+    /**
+     * This method sets handler of the module.
+     *
+     * @param conditionHandler
+     */
+    void setModuleHandler(ConditionHandler conditionHandler) {
+        this.conditionHandler = conditionHandler;
     }
 
 }

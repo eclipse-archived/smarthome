@@ -21,10 +21,6 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.RuleDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -108,7 +104,7 @@ public class RuleJSONParser implements Parser<Rule> {
             }
         }
         Map<String, Object> configurations = null;
-        RuleDTO rule = new RuleDTO();
+        Rule rule = null;
         String uid = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonRule, status);
         String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.TEMPLATE_UID, true, jsonRule, status);
         if (ruleTemplateUID != null) {
@@ -116,17 +112,17 @@ public class RuleJSONParser implements Parser<Rule> {
             configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
             try {
                 if (uid != null)
-                    rule.uid = uid;
-                rule.ruleTemplateUID = ruleTemplateUID;
-                rule.configurations = configurations;
+                    rule = new Rule(uid, ruleTemplateUID, configurations);
+                else
+                    rule = new Rule(ruleTemplateUID, configurations);
             } catch (Exception e) {
                 status.error("Failed to instantiate rule: " + e.getMessage(), e);
                 return status;
             }
         } else {
-            List<TriggerDTO> triggers = new ArrayList<TriggerDTO>();
-            List<ConditionDTO> conditions = new ArrayList<ConditionDTO>();
-            List<ActionDTO> actions = new ArrayList<ActionDTO>();
+            List<Trigger> triggers = new ArrayList<Trigger>();
+            List<Condition> conditions = new ArrayList<Condition>();
+            List<Action> actions = new ArrayList<Action>();
             Set<ConfigDescriptionParameter> configDescriptions = null;
             JSONArray sectionTrigers = JSONUtility.getJSONArray(JSONStructureConstants.ON, false, jsonRule, status);
             if (sectionTrigers == null)
@@ -153,11 +149,9 @@ public class RuleJSONParser implements Parser<Rule> {
             }
             try {
                 if (uid != null)
-                    rule.uid = uid;
-                rule.configurations = configurations;
-                rule.actions = actions;
-                rule.conditions = conditions;
-                rule.triggers = triggers;
+                    rule = new Rule(uid, triggers, conditions, actions, configDescriptions, configurations);
+                else
+                    rule = new Rule(triggers, conditions, actions, configDescriptions, configurations);
             } catch (Exception e) {
                 status.error("Failed to validate connections of Rule! " + e.getMessage(), e);
                 return status;
@@ -165,7 +159,7 @@ public class RuleJSONParser implements Parser<Rule> {
         }
         String ruleName = JSONUtility.getString(JSONStructureConstants.NAME, true, jsonRule, status);
         if (ruleName != null)
-            rule.name = ruleName;
+            rule.setName(ruleName);
         else
             return status;
         JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonRule, status);
@@ -176,10 +170,10 @@ public class RuleJSONParser implements Parser<Rule> {
                 if (tag != null)
                     tags.add(tag);
             }
-            rule.tags = tags;
+            rule.setTags(tags);
         }
         status.success(rule);
-        status.init(Status.RULE, rule.uid);
+        status.init(Status.RULE, rule.getUID());
         return status;
     }
 
@@ -235,7 +229,7 @@ public class RuleJSONParser implements Parser<Rule> {
         }
 
         Set<ConfigDescriptionParameter> configDescriptions = rule.getConfigurationDescriptions();
-        Map<String, Object> configValues = rule.getConfiguration();
+        Map<String, ?> configValues = rule.getConfiguration();
         ruleConfigurationToJSON(configDescriptions, configValues, writer);
 
         List<Trigger> triggers = rule.getModules(Trigger.class);
@@ -267,7 +261,7 @@ public class RuleJSONParser implements Parser<Rule> {
      * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      */
     private void ruleConfigurationToJSON(Set<ConfigDescriptionParameter> configDescriptions,
-            Map<String, Object> configValues, OutputStreamWriter writer) throws IOException, JSONException {
+            Map<String, ?> configValues, OutputStreamWriter writer) throws IOException, JSONException {
         if (configDescriptions != null && !configDescriptions.isEmpty()) {
             writer.write("    \"" + JSONStructureConstants.CONFIG + "\":{\n");
             Iterator<ConfigDescriptionParameter> i = configDescriptions.iterator();

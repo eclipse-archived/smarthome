@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -53,12 +52,6 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
     protected BundleContext bc;
 
     /**
-     * This field is an {@link AutomationFactory}. It uses for creation of
-     * modules in deserializing the automation objects.
-     */
-    protected AutomationFactory factory;
-
-    /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.
      * <p>
      * The Map has for keys - {@link URL} resource provider and for values - Lists with UIDs of the objects.
@@ -85,8 +78,6 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      */
     protected Map<String, Localizer> providedObjectsHolder = new HashMap<String, Localizer>();
 
-    private ServiceTracker factoryTraker;
-
     /**
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.
      *
@@ -98,23 +89,6 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
         logger = LoggerFactory.getLogger(AbstractCommandProvider.this.getClass());
         parserTracker = new ServiceTracker(context, Parser.class.getName(), this);
         parserTracker.open();
-        factoryTraker = new ServiceTracker(bc, AutomationFactory.class.getName(), new ServiceTrackerCustomizer() {
-
-            @Override
-            public Object addingService(ServiceReference reference) {
-                factory = bc.getService(reference);
-                return factory;
-            }
-
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {}
-
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                factory= null;
-            }
-        });
-        factoryTraker.open();
     }
 
     /**

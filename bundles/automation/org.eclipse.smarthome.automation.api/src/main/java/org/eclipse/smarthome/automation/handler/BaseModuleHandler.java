@@ -253,7 +253,7 @@ public abstract class BaseModuleHandler<T extends Module> implements ModuleHandl
      */
     protected final Map<String, Object> getResolvedConfiguration(Map<String, ?> resolvedInputs) {
         Map<String, Object> resolvedConfiguration = new HashMap<String, Object>();
-        Map<String, Object> configuration = module.getConfiguration();
+        Map<String, ?> configuration = module.getConfiguration();
         if (configParametersMap != null) {
             for (Map.Entry<String, ConfigDescriptionParameter> entry : configParametersMap.entrySet()) {
                 String configName = entry.getKey();

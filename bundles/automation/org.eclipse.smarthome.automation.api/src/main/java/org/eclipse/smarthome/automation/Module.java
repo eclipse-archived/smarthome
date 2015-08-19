@@ -27,7 +27,50 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Yordan Mihaylov - Initial Contribution
  *
  */
-public interface Module {
+public abstract class Module {
+
+    /**
+     * Id of the Module. It is mandatory and unique identifier in scope of the {@link Rule}. The id of the
+     * {@link Module} is used to identify the module
+     * in the {@link Rule}.
+     */
+    protected String id;
+
+    /**
+     * The label is a short, user friendly name of the {@link Module} defined by
+     * this descriptor.
+     */
+    protected String label;
+
+    /**
+     * The description is a long, user friendly description of the {@link Module} defined by this descriptor.
+     */
+    protected String description;
+
+    /**
+     * Configuration values of the Module.
+     *
+     * @see {@link ConfigDescriptionParameter}.
+     */
+    protected Map<String, ?> configuration;
+
+    /**
+     * Unique type id of this module.
+     */
+    protected String typeUID;
+
+    /**
+     * Constructor of the module.
+     *
+     * @param id the module id.
+     * @param typeUID unique id of the module type.
+     * @param configuration configuration values of the module.
+     */
+    public Module(String id, String typeUID, Map<String, ?> configuration) {
+        this.id = id;
+        this.typeUID = typeUID;
+        setConfiguration(configuration);
+    }
 
     /**
      * This method is used for getting the id of the {@link Module}. It is unique
@@ -35,7 +78,9 @@ public interface Module {
      *
      * @return module id
      */
-    public String getId();
+    public String getId() {
+        return id;
+    }
 
     /**
      * This method is used for getting the reference to {@link ModuleType} of this
@@ -44,7 +89,9 @@ public interface Module {
      *
      * @return unique id of the {@link ModuleType} of this {@link Module}.
      */
-    public String getTypeUID();
+    public String getTypeUID() {
+        return typeUID;
+    }
 
     /**
      * This method is used for getting the label of the Module. The label is a
@@ -52,14 +99,18 @@ public interface Module {
      *
      * @return the label of the module or null.
      */
-    public String getLabel();
+    public String getLabel() {
+        return label;
+    }
 
     /**
      * This method is used for setting the label of the Module.
      *
      * @param label of the module.
      */
-    public void setLabel(String label);
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
     /**
      * This method is used for getting the description of the Module. The
@@ -67,14 +118,18 @@ public interface Module {
      *
      * @return the description of the module or null.
      */
-    public String getDescription();
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * This method is used for setting the description of the Module.
      *
      * @param description of the module.
      */
-    public void setDescription(String description);
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     /**
      * This method is used for getting configuration values of the {@link Module}.
@@ -83,15 +138,19 @@ public interface Module {
      *
      * @return current configuration values or null.
      */
-    public Map<String, Object> getConfiguration();
+    public Map<String, ?> getConfiguration() {
+        return configuration;
+    }
 
     /**
      * This method is used for setting the Map with configuration values of the {@link Module}. Key - id of the
      * {@link ConfigDescriptionParameter} Value -
      * the value of the corresponding property
      *
-     * @param configurations new configuration values.
+     * @param configuration new configuration values.
      */
-    public void setConfiguration(Map<String, ?> configurations);
+    public void setConfiguration(Map<String, ?> configuration) {
+        this.configuration = configuration;
+    }
 
 }

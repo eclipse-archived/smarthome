@@ -20,9 +20,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,7 +41,7 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createTrigerModules(Status status, List<TriggerDTO> triggerModules, JSONArray onSection) {
+    static boolean createTrigerModules(Status status, List<Trigger> triggerModules, JSONArray onSection) {
         boolean res = true;
         if (onSection == null) {
             return false;
@@ -67,10 +64,7 @@ public class ModuleJSONParser {
             }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonTrigger, status);
             Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
-            TriggerDTO trigger = new TriggerDTO();
-            trigger.id = triggerId;
-            trigger.typeUID = uid;
-            trigger.configurations = configurations;
+            Trigger trigger = new Trigger(triggerId, uid, configurations);
             triggerModules.add(trigger);
         }
         return res;
@@ -85,7 +79,7 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createConditionModules(Status status, List<ConditionDTO> conditions, JSONArray ifSection) {
+    static boolean createConditionModules(Status status, List<Condition> conditions, JSONArray ifSection) {
         boolean res = true;
         for (int index = 0; index < ifSection.length(); index++) {
             JSONObject jsonCondition = JSONUtility.getJSONObject(JSONStructureConstants.IF, index, ifSection, status);
@@ -111,11 +105,7 @@ public class ModuleJSONParser {
                 res = false;
                 continue;
             }
-            ConditionDTO condition = new ConditionDTO();
-            condition.id = conditionId;
-            condition.typeUID = uid;
-            condition.configurations = configurations;
-            condition.connections = connections;
+            Condition condition = new Condition(conditionId, uid, configurations, connections);
             conditions.add(condition);
         }
         return res;
@@ -130,7 +120,7 @@ public class ModuleJSONParser {
      *            json format.
      * @return
      */
-    static boolean createActionModules(Status status, List<ActionDTO> actions, JSONArray thenSection) {
+    static boolean createActionModules(Status status, List<Action> actions, JSONArray thenSection) {
         boolean res = true;
         if (thenSection == null) {
             return false;
@@ -158,11 +148,7 @@ public class ModuleJSONParser {
                 res = false;
                 continue;
             }
-            ActionDTO action = new ActionDTO();
-            action.id = actionId;
-            action.typeUID = uid;
-            action.configurations = configurations;
-            action.connections = connections;
+            Action action = new Action(actionId, uid, configurations, connections);
             actions.add(action);
         }
         return res;
@@ -179,7 +165,7 @@ public class ModuleJSONParser {
         moduleToJSON(action, writer);
         Set<Connection> connections = action.getConnections();
         if (connections != null && !connections.isEmpty()) {
-            Map<String, Object> configValues = action.getConfiguration();
+            Map<String, ?> configValues = action.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
@@ -209,7 +195,7 @@ public class ModuleJSONParser {
         moduleToJSON(condition, writer);
         Set<Connection> connections = condition.getConnections();
         if (connections != null && !connections.isEmpty()) {
-            Map<String, Object> configValues = condition.getConfiguration();
+            Map<String, ?> configValues = condition.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
@@ -255,7 +241,7 @@ public class ModuleJSONParser {
         if (description != null) {
             writer.write(",\n        \"" + JSONStructureConstants.DESCRIPTION + "\":\"" + description);
         }
-        Map<String, Object> configValues = module.getConfiguration();
+        Map<String, ?> configValues = module.getConfiguration();
         if (configValues != null && !configValues.isEmpty()) {
             writer.write(",\n        \"" + JSONStructureConstants.CONFIG + "\":{\n");
             Iterator<String> i = configValues.keySet().iterator();

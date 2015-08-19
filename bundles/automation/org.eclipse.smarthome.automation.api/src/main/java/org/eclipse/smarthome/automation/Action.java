@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ActionType;
@@ -26,7 +27,22 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public interface Action extends Module {
+public class Action extends Module {
+
+    protected Set<Connection> connections;
+
+    /**
+     * Constructor of Action object.
+     *
+     * @param UID action unique id.
+     * @param typeUID module type unique id.
+     * @param configuration map of configuration values.
+     * @param connections set of connections to other modules (triggers and other actions).
+     */
+    public Action(String UID, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+        super(UID, typeUID, configuration);
+        setConnections(connections);
+    }
 
     /**
      * This method is used to get input connections of the Action. The connections
@@ -35,13 +51,17 @@ public interface Action extends Module {
      *
      * @return a {@link Set} of input {@link Connection}s.
      */
-    public Set<Connection> getConnections();
+    public Set<Connection> getConnections() {
+        return connections;
+    }
 
     /**
      * This method is used to connect {@link Input}s of the action to {@link Output}s of other {@link Module}s.
      *
      * @param connections a {@link Set} of input {@link Connection}s.
      */
-    public void setConnections(Set<Connection> connections);
+    public void setConnections(Set<Connection> connections) {
+        this.connections = connections;
+    }
 
 }

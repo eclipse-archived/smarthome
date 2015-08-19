@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -22,7 +23,22 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public interface Condition extends Module {
+public class Condition extends Module {
+
+    private Set<Connection> connections;
+
+    /**
+     * Constructor of {@link Condition} module object.
+     *
+     * @param id id of the module.
+     * @param typeUID unique module type id.
+     * @param configuration configuration values of the {@link Condition} module.
+     * @param connections set of {@link Connection}s used by this module.
+     */
+    public Condition(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+        super(id, typeUID, configuration);
+        this.connections = connections;
+    }
 
     /**
      * This method is used to get input connections of the Condition. The
@@ -31,13 +47,17 @@ public interface Condition extends Module {
      *
      * @return a {@link Set} of input {@link Connection}s.
      */
-    public Set<Connection> getConnections();
+    public Set<Connection> getConnections() {
+        return connections;
+    }
 
     /**
      * This method is used to connect {@link Input}s of the Condition to {@link Output}s of other {@link Module}s.
      *
      * @param connections a {@link Set} of input {@link Connection}s.
      */
-    public void setConnections(Set<Connection> connections);
+    public void setConnections(Set<Connection> connections) {
+        this.connections = connections;
+    }
 
 }

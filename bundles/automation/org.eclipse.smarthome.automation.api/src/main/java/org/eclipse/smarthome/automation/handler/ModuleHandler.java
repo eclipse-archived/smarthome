@@ -20,4 +20,5 @@ public interface ModuleHandler {
      * The method is called by RuleEngine to free resources when {@link ModuleHandler} is released.
      */
     public void dispose();
+
 }

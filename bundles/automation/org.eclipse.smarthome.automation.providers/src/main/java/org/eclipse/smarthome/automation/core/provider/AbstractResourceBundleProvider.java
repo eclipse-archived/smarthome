@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -70,12 +69,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * A bundle's execution context within the Framework.
      */
     protected BundleContext bc;
-
-    /**
-     * This field is an {@link AutomationFactory}. It uses for creation of
-     * modules in deserializing the automation objects.
-     */
-    protected AutomationFactory factory;
 
     /**
      * This field is initialized in constructors of any particular provider with specific path for the particular

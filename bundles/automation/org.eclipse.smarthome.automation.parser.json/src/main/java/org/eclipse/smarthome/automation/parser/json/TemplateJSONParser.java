@@ -19,14 +19,10 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template.Visibility;
-import org.eclipse.smarthome.automation.template.dto.RuleTemplateDTO;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -213,18 +209,15 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
                 status.error("Unsupported property \"" + propertyName + "\" in rule template : " + jsonRuleTemplate,
                         new IllegalArgumentException());
         }
-        // create rule template
-        RuleTemplateDTO template = new RuleTemplateDTO();
         // get rule template UID
         String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.UID, false, jsonRuleTemplate, status);
         if (ruleTemplateUID == null)
             return status;
-        template.uid = ruleTemplateUID;
         status.init(Status.TEMPLATE, ruleTemplateUID);
         // create modules of rule template
-        List<TriggerDTO> triggers = new ArrayList<TriggerDTO>();
-        List<ConditionDTO> conditions = new ArrayList<ConditionDTO>();
-        List<ActionDTO> actions = new ArrayList<ActionDTO>();
+        List<Trigger> triggers = new ArrayList<Trigger>();
+        List<Condition> conditions = new ArrayList<Condition>();
+        List<Action> actions = new ArrayList<Action>();
         JSONArray sectionTrigers = JSONUtility.getJSONArray(JSONStructureConstants.ON, false, jsonRuleTemplate, status);
         if (sectionTrigers == null)
             return status;
@@ -236,12 +229,9 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
             return status;
         if (!ModuleJSONParser.createTrigerModules(status, triggers, sectionTrigers))
             return status;
-        template.triggers = triggers;
         if (ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
-            template.conditions = conditions;
-        if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
-            return status;
-        template.actions = actions;
+            if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
+                return status;
         // get configuration description of rule template
         LinkedHashSet<ConfigDescriptionParameter> configDescriptions = null;
         JSONObject config = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, false, jsonRuleTemplate, status);
@@ -265,7 +255,6 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
             }
             if (fail)
                 return status;
-            template.configDescriptions = configDescriptions;
         }
         // get visibility of rule template
         String visibilityString = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonRuleTemplate,
@@ -282,7 +271,6 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
                 return status;
             }
         }
-        template.visibility = visibility;
         // get tags of rule template
         JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonRuleTemplate, status);
         Set<String> tags = null;
@@ -293,14 +281,14 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
                 if (tag != null)
                     tags.add(tag);
             }
-            template.tags = tags;
         }
         // get description of rule template
         String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonRuleTemplate, status);
-        template.description = description;
         // get label of rule template
         String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonRuleTemplate, status);
-        template.label = label;
+        // create rule template
+        RuleTemplate template = new RuleTemplate(ruleTemplateUID, label, description, tags, triggers, conditions,
+                actions, configDescriptions, visibility);
         status.success(template);
         return status;
     }

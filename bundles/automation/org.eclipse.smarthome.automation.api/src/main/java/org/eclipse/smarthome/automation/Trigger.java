@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.automation;
 
+import java.util.Map;
+
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
@@ -20,6 +22,10 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public interface Trigger extends Module {
+public class Trigger extends Module {
+
+    public Trigger(String id, String typeUID, Map<String, ?> configuration) {
+        super(id, typeUID, configuration);
+    }
 
 }

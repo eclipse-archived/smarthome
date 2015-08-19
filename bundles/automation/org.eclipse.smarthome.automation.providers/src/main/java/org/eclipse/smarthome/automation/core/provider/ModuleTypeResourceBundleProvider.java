@@ -15,28 +15,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.AutomationFactory;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.Template;
-import org.eclipse.smarthome.automation.type.CompositeActionType;
-import org.eclipse.smarthome.automation.type.CompositeConditionType;
-import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -73,34 +58,25 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
     public ModuleTypeResourceBundleProvider(BundleContext context) {
         super(context);
         path = PATH + "/moduletypes/";
-        try {
-            Filter filter = bc.createFilter("(|(objectClass=" + ModuleTypeRegistry.class.getName() + ")(objectClass="
-                    + AutomationFactory.class.getName() + "))");
-            moduleTypesTracker = new ServiceTracker(context, filter, new ServiceTrackerCustomizer() {
+        moduleTypesTracker = new ServiceTracker(context, ModuleTypeRegistry.class.getName(),
+                new ServiceTrackerCustomizer() {
 
-                @Override
-                public Object addingService(ServiceReference reference) {
-                    Object service = bc.getService(reference);
-                    if (service instanceof ModuleTypeRegistry) {
-                        moduleTypeRegistry = (ModuleTypeRegistry) service;
-                    } else {
-                        factory = (AutomationFactory) service;
+                    @Override
+                    public Object addingService(ServiceReference reference) {
+                        moduleTypeRegistry = (ModuleTypeRegistry) bc.getService(reference);
+                        queue.open();
+                        return moduleTypeRegistry;
                     }
-                    queue.open();
-                    return service;
-                }
 
-                @Override
-                public void modifiedService(ServiceReference reference, Object service) {
-                }
+                    @Override
+                    public void modifiedService(ServiceReference reference, Object service) {
+                    }
 
-                @Override
-                public void removedService(ServiceReference reference, Object service) {
-                    moduleTypeRegistry = null;
-                }
-            });
-        } catch (InvalidSyntaxException notPossible) {
-        }
+                    @Override
+                    public void removedService(ServiceReference reference, Object service) {
+                        moduleTypeRegistry = null;
+                    }
+                });
     }
 
     @Override
@@ -195,7 +171,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             Iterator<Status> i = providedObjects.iterator();
             while (i.hasNext()) {
                 Status status = i.next();
-                ModuleType providedObject = convertToModuleType(status);
+                ModuleType providedObject = (ModuleType) status.getResult();
                 if (providedObject != null) {
                     String uid = providedObject.getUID();
                     if (checkExistence(uid, status))
@@ -211,38 +187,6 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             }
         }
         return providedObjects;
-    }
-
-    private ModuleType convertToModuleType(Status status) {
-        Object moduleType = status.getResult();
-        if (moduleType == null)
-            return null;
-        if (moduleType instanceof CompositeActionTypeDTO) {
-            CompositeActionTypeDTO at = (CompositeActionTypeDTO) moduleType;
-            List<Action> modules = new ArrayList<Action>(at.modules.size());
-            for (ActionDTO action : at.modules) {
-                modules.add(action.createAction(factory));
-            }
-            return new CompositeActionType(at.getUID(), at.getConfigurationDescription(), at.getInputs(),
-                    at.getOutputs(), modules);
-        }
-        if (moduleType instanceof CompositeConditionTypeDTO) {
-            CompositeConditionTypeDTO ct = (CompositeConditionTypeDTO) moduleType;
-            List<Condition> modules = new ArrayList<Condition>(ct.modules.size());
-            for (ConditionDTO condition : ct.modules) {
-                modules.add(condition.createCondition(factory));
-            }
-            return new CompositeConditionType(ct.getUID(), ct.getConfigurationDescription(), ct.getInputs(), modules);
-        }
-        if (moduleType instanceof CompositeTriggerTypeDTO) {
-            CompositeTriggerTypeDTO tt = (CompositeTriggerTypeDTO) moduleType;
-            List<Trigger> modules = new ArrayList<Trigger>(tt.modules.size());
-            for (TriggerDTO trigger : tt.modules) {
-                modules.add(trigger.createTrigger(factory));
-            }
-            return new CompositeTriggerType(tt.getUID(), tt.getConfigurationDescription(), tt.getOutputs(), modules);
-        }
-        return (ModuleType) moduleType;
     }
 
     /**

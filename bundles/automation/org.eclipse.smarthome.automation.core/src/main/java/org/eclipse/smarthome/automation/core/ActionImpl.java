@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.automation.core;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,23 +34,28 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, ConnectedModule, SourceModule {
+public class ActionImpl extends Action implements ConnectedModule, SourceModule {
 
-    private Set<Connection> connections;
+    /**
+     * The handler of this module.
+     */
+    private ActionHandler actionHandler;
     private Map<String, OutputRef> connectedObjects;
     private Map<String, ?> outputs;
 
     /**
      * Constructor of Action object.
      *
-     * @param UID action unique id.
+     * @param ID action unique id.
      * @param typeUID module type unique id.
      * @param configuration map of configuration values.
      * @param connections set of connections to other modules (triggers and other actions).
+     * @param actionHandler
      */
-    public ActionImpl(String UID, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
-        super(UID, typeUID, configuration);
-        setConnections(connections);
+    public ActionImpl(String ID, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
+            ActionHandler actionHandler) {
+        super(ID, typeUID, configuration, connections);
+        this.actionHandler = actionHandler;
     }
 
     /**
@@ -56,13 +64,14 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
      * @param action another action which is uses as base of created
      */
     protected ActionImpl(ActionImpl action) {
-        super(action);
-        setConnections(action.getConnections());
+        super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
+        setLabel(action.getLabel());
+        setDescription(action.getDescription());
     }
 
     @Override
-    public Set<Connection> getConnections() {
-        return connections;
+    public void setConfiguration(Map<String, ?> configuration) {
+        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     /**
@@ -93,6 +102,42 @@ public class ActionImpl extends ModuleImpl<ActionHandler>implements Action, Conn
     @Override
     public Object getOutputValue(String outName) {
         return outputs != null ? outputs.get(outName) : null;
+    }
+
+    /**
+     * Utility method creating deep copy of passed connection set.
+     *
+     * @param connections connections used by this module.
+     * @return copy of passed connections.
+     */
+    Set<Connection> copyConnections(Set<Connection> connections) {
+        if (connections == null) {
+            return null;
+        }
+        Set<Connection> result = new HashSet<Connection>(connections.size());
+        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
+            Connection c = it.next();
+            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
+        }
+        return result;
+    }
+
+    /**
+     * This method gets handler which is responsible for handling of this module.
+     *
+     * @return handler of the module or null.
+     */
+    ActionHandler getModuleHandler() {
+        return actionHandler;
+    }
+
+    /**
+     * This method sets handler of the module.
+     *
+     * @param actionHandler
+     */
+    void setModuleHandler(ActionHandler actionHandler) {
+        this.actionHandler = actionHandler;
     }
 
 }

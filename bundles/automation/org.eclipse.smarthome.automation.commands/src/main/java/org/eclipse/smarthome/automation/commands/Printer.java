@@ -106,7 +106,7 @@ public class Printer {
             printChars(writer, ' ', 26, false);
             writer.append(makeString(tags) + "\n");
         }
-        Map<String, Object> config = rule.getConfiguration();
+        Map<String, ?> config = rule.getConfiguration();
         if (config != null && !config.isEmpty()) {
             writer.append("CONFIGURATION");
             printChars(writer, ' ', 17, false);
@@ -404,7 +404,8 @@ public class Printer {
             printChars(writer, ' ', 16, false);
             writer.append(description + "\n");
         }
-        Map<String, Object> config = module.getConfiguration();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> config = (Map<String, Object>) module.getConfiguration();
         if (config != null && !config.isEmpty()) {
             printChars(writer, ' ', 30, false);
             writer.append("CONFIGURATION");
@@ -607,7 +608,7 @@ public class Printer {
      * @param config is the configuration map for printing.
      * @return a formated string, representing the configuration map.
      */
-    private static String makeString(String str, Map<String, Object> config) {
+    private static String makeString(String str, Map<String, ?> config) {
         int index = config.size();
         String res = "";
         for (String key : config.keySet()) {

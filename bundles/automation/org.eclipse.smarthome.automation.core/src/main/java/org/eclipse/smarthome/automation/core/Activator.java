@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import org.eclipse.smarthome.automation.AutomationFactory;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.core.template.TemplateRegistryImpl;
@@ -36,10 +35,6 @@ public class Activator implements BundleActivator {
     static TemplateRegistryImpl templateRegistry;
     static BundleContext bc;
 
-    protected static AutomationFactory automationFactory;
-
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration /* <?> */ automationFactoryReg;
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
     private RuleRegistryImpl ruleRegistry;
@@ -54,10 +49,6 @@ public class Activator implements BundleActivator {
     @Override
     public void start(final BundleContext bc) throws Exception {
         Activator.bc = bc;
-        if (automationFactoryReg == null) {
-            automationFactory = new AutomationFactoryImpl();
-            automationFactoryReg = bc.registerService(AutomationFactory.class.getName(), automationFactory, null);
-        }
         templateRegistry = new TemplateRegistryImpl(new TemplateManager(bc));
         templateRegistryReg = bc.registerService(TemplateRegistry.class.getName(), templateRegistry, null);
         moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc));
@@ -117,12 +108,6 @@ public class Activator implements BundleActivator {
             moduleTypeRegistryReg.unregister();
             moduleTypeRegistry.dispose();
             moduleTypeRegistryReg = null;
-        }
-
-        if (automationFactoryReg != null) {
-            automationFactoryReg.unregister();
-            automationFactory = null;
-            automationFactoryReg = null;
         }
 
         storageTracker.close();

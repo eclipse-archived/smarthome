@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.dto.ActionDTO;
-import org.eclipse.smarthome.automation.dto.ConditionDTO;
-import org.eclipse.smarthome.automation.dto.TriggerDTO;
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.type.ActionType;
@@ -34,9 +34,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleType.Visibility;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
-import org.eclipse.smarthome.automation.type.dto.CompositeActionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeConditionTypeDTO;
-import org.eclipse.smarthome.automation.type.dto.CompositeTriggerTypeDTO;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -413,14 +410,14 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
 
         Set<String> tags = getTags(status, jsonModuleType);
 
-        List<ActionDTO> actionModules = createActionModulesDTO(status, jsonActions, jsonModuleType);
+        List<Action> actionModules = createActionModules(status, jsonActions, jsonModuleType);
         if (actionModules != null) {
             Set<Output> outputs = getOutputs(status, jsonModuleType);
             Set<Input> inputs = getInputs(status, jsonModuleType);
             if (jsonModuleType.has(JSONStructureConstants.OUTPUT) && outputs == null
                     || jsonModuleType.has(JSONStructureConstants.INPUT) && inputs == null)
                 return null;
-            return new CompositeActionTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
+            return new CompositeActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
                     outputs, actionModules);
         }
         return null;
@@ -451,12 +448,12 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
 
         Set<String> tags = getTags(status, jsonModuleType);
 
-        List<ConditionDTO> conditionModules = createConditionModulesDTO(status, jsonConditions, jsonModuleType);
+        List<Condition> conditionModules = createConditionModules(status, jsonConditions, jsonModuleType);
         if (conditionModules != null) {
             Set<Input> inputs = getInputs(status, jsonModuleType);
             if (jsonModuleType.has(JSONStructureConstants.INPUT) && inputs != null
                     || !jsonModuleType.has(JSONStructureConstants.INPUT))
-                return new CompositeConditionTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v,
+                return new CompositeConditionType(moduleTypeUID, configDescriptions, label, description, tags, v,
                         inputs, conditionModules);
         }
         return null;
@@ -487,13 +484,13 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
 
         Set<String> tags = getTags(status, jsonModuleType);
 
-        List<TriggerDTO> triggerModules = createTriggerModulesDTO(status, jsonTriggers, jsonModuleType);
+        List<Trigger> triggerModules = createTriggerModules(status, jsonTriggers, jsonModuleType);
         if (triggerModules != null) {
             Set<Output> outputs = getOutputs(status, jsonModuleType);
             if (jsonModuleType.has(JSONStructureConstants.OUTPUT) && outputs != null
                     || !jsonModuleType.has(JSONStructureConstants.OUTPUT))
-                return new CompositeTriggerTypeDTO(moduleTypeUID, configDescriptions, label, description, tags, v,
-                        outputs, triggerModules);
+                return new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v, outputs,
+                        triggerModules);
         }
         return null;
     }
@@ -505,8 +502,8 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
      * @param jsonModuleType
      * @return
      */
-    private List<ActionDTO> createActionModulesDTO(Status status, JSONArray jsonActions, JSONObject jsonModuleType) {
-        List<ActionDTO> actionModules = new ArrayList<ActionDTO>();
+    private List<Action> createActionModules(Status status, JSONArray jsonActions, JSONObject jsonModuleType) {
+        List<Action> actionModules = new ArrayList<Action>();
         if (ModuleJSONParser.createActionModules(status, actionModules, jsonActions))
             return actionModules;
         return null;
@@ -519,9 +516,8 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
      * @param jsonModuleType
      * @return
      */
-    private List<ConditionDTO> createConditionModulesDTO(Status status, JSONArray jsonConditions,
-            JSONObject jsonModuleType) {
-        List<ConditionDTO> conditionModules = new ArrayList<ConditionDTO>();
+    private List<Condition> createConditionModules(Status status, JSONArray jsonConditions, JSONObject jsonModuleType) {
+        List<Condition> conditionModules = new ArrayList<Condition>();
         if (ModuleJSONParser.createConditionModules(status, conditionModules, jsonConditions))
             return conditionModules;
         return null;
@@ -534,8 +530,8 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
      * @param jsonModuleType
      * @return
      */
-    private List<TriggerDTO> createTriggerModulesDTO(Status status, JSONArray jsonTriggers, JSONObject jsonModuleType) {
-        List<TriggerDTO> triggerModules = new ArrayList<TriggerDTO>();
+    private List<Trigger> createTriggerModules(Status status, JSONArray jsonTriggers, JSONObject jsonModuleType) {
+        List<Trigger> triggerModules = new ArrayList<Trigger>();
         if (ModuleJSONParser.createTrigerModules(status, triggerModules, jsonTriggers))
             return triggerModules;
         return null;

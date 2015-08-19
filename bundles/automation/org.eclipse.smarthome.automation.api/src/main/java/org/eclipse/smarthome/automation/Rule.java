@@ -30,7 +30,53 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public interface Rule {
+public class Rule {
+
+    protected List<Trigger> triggers;
+    protected List<Condition> conditions;
+    protected List<Action> actions;
+    protected String scopeId;
+    protected Map<String, ?> configurations;
+    protected Set<ConfigDescriptionParameter> configDescriptions;
+    protected String ruleTemplateUID;
+    protected String uid;
+    private String name;
+    private Set<String> tags;
+    private String description;
+
+    public Rule(String ruleTemplateUID, Map<String, Object> configurations) {
+        this.ruleTemplateUID = ruleTemplateUID;
+        this.configurations = configurations;
+    }
+
+    public Rule(String uid, String ruleTemplateUID, Map<String, Object> configurations) {
+        this.uid = uid;
+        this.ruleTemplateUID = ruleTemplateUID;
+        this.configurations = configurations;
+    }
+
+    public Rule(List<Trigger> triggers, //
+            List<Condition> conditions, //
+            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
+            Map<String, ?> configurations) {
+        this.triggers = triggers;
+        this.conditions = conditions;
+        this.actions = actions;
+        this.configDescriptions = configDescriptions;
+        setConfiguration(configurations);
+    }
+
+    public Rule(String uid, List<Trigger> triggers, //
+            List<Condition> conditions, //
+            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
+            Map<String, ?> configurations) {
+        this.uid = uid;
+        this.triggers = triggers;
+        this.conditions = conditions;
+        this.actions = actions;
+        this.configDescriptions = configDescriptions;
+        setConfiguration(configurations);
+    }
 
     /**
      * This method is used for getting the unique identifier of the Rule. This
@@ -38,7 +84,9 @@ public interface Rule {
      *
      * @return unique id of this {@link Rule}
      */
-    public String getUID();
+    public String getUID() {
+        return uid;
+    }
 
     /**
      * This method is used for getting the user friendly name of the {@link Rule}.
@@ -46,7 +94,9 @@ public interface Rule {
      *
      * @return the name of rule or null.
      */
-    public String getName();
+    public String getName() {
+        return name;
+    }
 
     /**
      * This method is used for setting a friendly name of the Rule. This property
@@ -55,7 +105,9 @@ public interface Rule {
      * @param ruleName a new name.
      * @throws IllegalStateException when the rule is in active state
      */
-    public void setName(String ruleName) throws IllegalStateException;
+    public void setName(String ruleName) throws IllegalStateException {
+        name = ruleName;
+    }
 
     /**
      * Rules can have
@@ -64,7 +116,9 @@ public interface Rule {
      *
      * @return a list of tags
      */
-    public Set<String> getTags();
+    public Set<String> getTags() {
+        return tags;
+    }
 
     /**
      * Rules can have
@@ -76,7 +130,9 @@ public interface Rule {
      * @throws IllegalStateException IllegalStateException when the rule is in
      *             active state.
      */
-    public void setTags(Set<String> ruleTags) throws IllegalStateException;
+    public void setTags(Set<String> ruleTags) throws IllegalStateException {
+        tags = ruleTags;
+    }
 
     /**
      * This method is used for getting the description of the Rule. The
@@ -85,7 +141,9 @@ public interface Rule {
      *
      * @return the description of the Rule.
      */
-    public String getDescription();
+    public String getDescription() {
+        return description;
+    }
 
     /**
      * This method is used for setting the description of the Rule. The
@@ -94,7 +152,9 @@ public interface Rule {
      *
      * @param ruleDescription of the Rule.
      */
-    public void setDescription(String ruleDescription);
+    public void setDescription(String ruleDescription) {
+        description = ruleDescription;
+    }
 
     /**
      * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
@@ -103,7 +163,9 @@ public interface Rule {
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
-    public Set<ConfigDescriptionParameter> getConfigurationDescriptions();
+    public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
+        return configDescriptions;
+    }
 
     /**
      * This method is used for getting Map with configuration values of the {@link Rule} Key -id of the
@@ -112,7 +174,9 @@ public interface Rule {
      *
      * @return current configuration values
      */
-    public Map<String, Object> getConfiguration();
+    public Map<String, ?> getConfiguration() {
+        return configurations;
+    }
 
     /**
      * This method is used for setting the Map with configuration values of the {@link Rule}. Key - id of the
@@ -121,7 +185,9 @@ public interface Rule {
      *
      * @param ruleConfiguration new configuration values.
      */
-    public void setConfiguration(Map<String, ?> ruleConfiguration);
+    public void setConfiguration(Map<String, ?> ruleConfiguration) {
+        configurations = ruleConfiguration;
+    }
 
     /**
      * This method is used to get a module participating in Rule
@@ -129,7 +195,9 @@ public interface Rule {
      * @param moduleId unique id of the module in this rule.
      * @return module with specified id or null when it does not exist.
      */
-    public <T extends Module> T getModule(String moduleId);
+    public <T extends Module> T getModule(String moduleId) {
+        return null;
+    }
 
     /**
      * This method is used to return a group of module of this rule
@@ -139,7 +207,9 @@ public interface Rule {
      * @return list of modules of defined type or all modules when the type is not
      *         specified.
      */
-    public <T extends Module> List<T> getModules(Class<T> moduleClazz);
+    public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
+        return null;
+    }
 
     /**
      * This method is used to get the identity scope of this Rule. The identity
@@ -149,6 +219,8 @@ public interface Rule {
      *
      * @return Rule's identity.
      */
-    public String getScopeIdentifier();
+    public String getScopeIdentifier() {
+        return scopeId;
+    }
 
 }

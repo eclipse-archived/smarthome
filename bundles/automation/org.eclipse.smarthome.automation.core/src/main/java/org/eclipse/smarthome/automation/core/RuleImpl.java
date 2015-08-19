@@ -28,22 +28,13 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class RuleImpl implements Rule {
+public class RuleImpl extends Rule {
     /**
      * Module configuration properties can have reference to Rule configuration properties.
      * This symbol is put as prefix to the name of the Rule configuration property.
      */
     private static final char REFERENCE_SYMBOL = '$';
-    private String uid;
-    private String name;
-    private Set<String> tags;
-    private String description;
-    protected List<Trigger> triggers;
-    protected List<Condition> conditions;
-    protected List<Action> actions;
-    protected Set<ConfigDescriptionParameter> configDescriptions;
-    private Map<String, ?> configurations;
-    private String scopeId;
+
     private Map<String, Module> moduleMap;
 
     public RuleImpl(List<Trigger> triggers, //
@@ -58,11 +49,7 @@ public class RuleImpl implements Rule {
         // the rule must not be created if connections are incorrect
         // ConnectionValidator.validateConnections(Activator.moduleTypeRegistry, triggers, conditions, actions);
 
-        this.triggers = triggers;
-        this.conditions = conditions;
-        this.actions = actions;
-        this.configDescriptions = configDescriptions;
-        this.configurations = configurations;
+        super(triggers, conditions, actions, configDescriptions, configurations);
 
         handleModuleConfigReferences(triggers, conditions, actions, configurations);
     }
@@ -73,6 +60,7 @@ public class RuleImpl implements Rule {
      * @throws Exception
      */
     public RuleImpl(String ruleTemplateUID, Map<String, Object> configurations) {
+        super(ruleTemplateUID, configurations);
         RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
         if (template == null) {
             throw new IllegalArgumentException("Rule template '" + ruleTemplateUID + "' does not exist.");
@@ -83,7 +71,7 @@ public class RuleImpl implements Rule {
         configDescriptions = template.getConfigurationDescription();
 
         // the rule must not be created if configuration is incorrect
-        validateConfiguration(configDescriptions, new HashMap(configurations));
+        validateConfiguration(configDescriptions, new HashMap<String, Object>(configurations));
         this.configurations = configurations;
         handleModuleConfigReferences(triggers, conditions, actions, configurations);
     }
@@ -95,64 +83,13 @@ public class RuleImpl implements Rule {
      *            has to be created.
      */
     protected RuleImpl(RuleImpl rule) {
-        if (rule != null) {
-            this.triggers = rule.getModules(Trigger.class);
-            this.conditions = rule.getModules(Condition.class);
-            this.actions = rule.getModules(Action.class);
-            this.configDescriptions = rule.getConfigurationDescriptions();
-            this.configurations = rule.getConfiguration();
-            uid = rule.getUID();
-            setName(rule.getName());
-            setTags(rule.getTags());
-            setDescription(rule.getDescription());
-            // setEnabled(rule.isEnabled());
-        }
-    }
-
-    @Override
-    public String getUID() {
-        return uid;
-    }
-
-    protected void setUID(String uid) {
-        this.uid = uid;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String ruleName) throws IllegalStateException {
-        this.name = ruleName;
-
-    }
-
-    @Override
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    @Override
-    public void setTags(Set<String> ruleTags) throws IllegalStateException {
-        this.tags = ruleTags;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public void setDescription(String ruleDescription) {
-        this.description = ruleDescription;
-
-    }
-
-    @Override
-    public Set<ConfigDescriptionParameter> getConfigurationDescriptions() {
-        return configDescriptions;
+        super(rule.getModules(Trigger.class), rule.getModules(Condition.class), rule.getModules(Action.class),
+                rule.getConfigurationDescriptions(), rule.getConfiguration());
+        uid = rule.getUID();
+        setName(rule.getName());
+        setTags(rule.getTags());
+        setDescription(rule.getDescription());
+        // setEnabled(rule.isEnabled());
     }
 
     @Override
@@ -165,6 +102,7 @@ public class RuleImpl implements Rule {
         this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Module> T getModule(String moduleId) {
         Module m = getModule0(moduleId);
@@ -206,6 +144,7 @@ public class RuleImpl implements Rule {
         return moduleMap;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         List<T> result = null;
@@ -241,11 +180,6 @@ public class RuleImpl implements Rule {
             return t;
         }
         return new ArrayList<T>();
-    }
-
-    @Override
-    public String getScopeIdentifier() {
-        return scopeId;
     }
 
     protected void setScopeIdentifier(String scopeId) {
@@ -348,6 +282,7 @@ public class RuleImpl implements Rule {
      * @param configParameter
      * @throws Exception
      */
+    @SuppressWarnings("rawtypes")
     private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
         Type type = configParameter.getType();
         if (configParameter.isMultiple()) {
@@ -410,9 +345,10 @@ public class RuleImpl implements Rule {
     private void handleModuleConfigReferences0(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             for (Module module : modules) {
-                Map<String, Object> moduleConfiguration = module.getConfiguration();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> moduleConfiguration = (Map<String, Object>) module.getConfiguration();
                 if (moduleConfiguration != null) {
-                    for (Map.Entry<String, Object> entry : moduleConfiguration.entrySet()) {
+                    for (Map.Entry<String, ?> entry : moduleConfiguration.entrySet()) {
                         String configName = entry.getKey();
                         Object configValue = entry.getValue();
                         if (configValue instanceof String) {
@@ -427,6 +363,23 @@ public class RuleImpl implements Rule {
                 }
             }
         }
+    }
+
+    public void setUID(String rUID) {
+        // TODO Auto-generated method stub
+
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
+    public List<Trigger> getTriggers() {
+        return triggers;
     }
 
 }

@@ -17,7 +17,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.dto.RuleDTO;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.BundleContext;
@@ -112,12 +111,12 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
                 Status s = i.next();
                 if (s.hasErrors())
                     continue;
-                RuleDTO rule = (RuleDTO) s.getResult();
+                Rule rule = (Rule) s.getResult();
                 if (rule != null) {
-                    if (AutomationCommandsPluggable.ruleRegistry.get(rule.uid) != null) {
-                        AutomationCommandsPluggable.ruleRegistry.update(factory.createRule(rule));
+                    if (AutomationCommandsPluggable.ruleRegistry.get(rule.getUID()) != null) {
+                        AutomationCommandsPluggable.ruleRegistry.update(rule);
                     } else {
-                        AutomationCommandsPluggable.ruleRegistry.add(factory.createRule(rule));
+                        AutomationCommandsPluggable.ruleRegistry.add(rule);
                     }
                 }
             } // while

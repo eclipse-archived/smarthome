@@ -205,19 +205,20 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         // List<RuleError> errList = null;
         String errMsgs = null;
         String errMessage;
-        if (r.conditions != null) {
-            errMessage = setModuleHandler(rUID, r.conditions);
+        List<Condition> conditions = r.getConditions();
+        if (conditions != null) {
+            errMessage = setModuleHandler(rUID, conditions);
             if (errMessage != null) {
                 errMsgs = errMessage;
             }
         }
 
-        errMessage = setModuleHandler(rUID, r.actions);
+        errMessage = setModuleHandler(rUID, r.getActions());
         if (errMessage != null) {
             errMsgs = errMsgs + errMessage;
         }
 
-        errMessage = setModuleHandler(rUID, r.triggers);
+        errMessage = setModuleHandler(rUID, r.getTriggers());
         if (errMessage != null) {
             errMsgs = errMsgs + errMessage;
         }
@@ -260,7 +261,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
-    @SuppressWarnings("unchecked")
     private <T extends Module> String setModuleHandler(String rId, List<T> modules) {
         StringBuffer sb = null;
         if (modules != null) {
@@ -274,7 +274,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 mapHandlerTypeToRule.put(t.getTypeUID(), rules);
                 ModuleHandler moduleHandler = getModuleHandler(t);
                 if (moduleHandler != null) {
-                    ((ModuleImpl) t).setModuleHandler(moduleHandler);
+                    if (t instanceof ActionImpl) {
+                        ((ActionImpl) t).setModuleHandler((ActionHandler) moduleHandler);
+                    } else if (t instanceof ConditionImpl) {
+                        ((ConditionImpl) t).setModuleHandler((ConditionHandler) moduleHandler);
+                    } else if (t instanceof TriggerImpl) {
+                        ((TriggerImpl) t).setModuleHandler((TriggerHandler) moduleHandler);
+                    }
                 } else {
                     if (sb == null) {
                         sb = new StringBuffer();
@@ -305,19 +311,32 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     /**
      * Unlink module handlers from their modules. The method is called when the rule containing these modules is
-     * deinitialized (i.e. when some of module handler factories is disappeared or the rule is removed).
+     * set to "uninitialized" (i.e. when some of module handler factories is disappeared or the rule is removed).
      *
      * @param modules list of module which are disconnected.
      */
-    @SuppressWarnings("unchecked")
     private <T extends Module> void removeHandlers(List<T> modules) {
         if (modules != null) {
             for (Iterator<T> it = modules.iterator(); it.hasNext();) {
-                ModuleImpl m = (ModuleImpl) it.next();
-                ModuleHandler moduleHandler = m.getModuleHandler();
-                if (moduleHandler != null) {
-                    moduleHandler.dispose();
-                    m.setModuleHandler(null);
+                T m = it.next();
+                if (m instanceof ActionImpl) {
+                    ActionHandler moduleHandler = ((ActionImpl) m).getModuleHandler();
+                    if (moduleHandler != null) {
+                        moduleHandler.dispose();
+                        ((ActionImpl) m).setModuleHandler(null);
+                    }
+                } else if (m instanceof ConditionImpl) {
+                    ConditionHandler moduleHandler = ((ConditionImpl) m).getModuleHandler();
+                    if (moduleHandler != null) {
+                        moduleHandler.dispose();
+                        ((ConditionImpl) m).setModuleHandler(null);
+                    }
+                } else if (m instanceof TriggerImpl) {
+                    TriggerHandler moduleHandler = ((TriggerImpl) m).getModuleHandler();
+                    if (moduleHandler != null) {
+                        moduleHandler.dispose();
+                        ((TriggerImpl) m).setModuleHandler(null);
+                    }
                 }
             }
         }
@@ -333,7 +352,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     private void register(RuleImpl r) {
         RuleEngineCallback reCallback = getRuleEngineCallback(r);
-        for (Iterator<Trigger> it = r.triggers.iterator(); it.hasNext();) {
+        for (Iterator<Trigger> it = r.getTriggers().iterator(); it.hasNext();) {
             TriggerImpl t = (TriggerImpl) it.next();
             TriggerHandler triggerHandler = t.getModuleHandler();
             triggerHandler.setRuleEngineCallback(reCallback);
@@ -353,9 +372,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             if (reCallback != null) {
                 reCallback.dispose();
             }
-            removeHandlers(r.triggers);
-            removeHandlers(r.actions);
-            removeHandlers(r.conditions);
+            removeHandlers(r.getTriggers());
+            removeHandlers(r.getActions());
+            removeHandlers(r.getConditions());
         }
     }
 
@@ -697,7 +716,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return true when all conditions of the rule are satisfied, false otherwise.
      */
     private boolean calculateConditions(Rule rule) {
-        List<Condition> conditions = ((RuleImpl) rule).conditions;
+        List<Condition> conditions = ((RuleImpl) rule).getConditions();
         if (conditions == null || conditions.size() == 0) {
             return true;
         }
@@ -766,7 +785,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param rule executed rule.
      */
     private void executeActions(Rule rule) {
-        List<Action> actions = ((RuleImpl) rule).actions;
+        List<Action> actions = ((RuleImpl) rule).getActions();
         if (actions == null || actions.size() == 0) {
             return;
         }
