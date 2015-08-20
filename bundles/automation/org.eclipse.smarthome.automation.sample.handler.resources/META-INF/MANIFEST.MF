@@ -3,7 +3,6 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.handler.resources
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Name: Automation sample.handler.resources
-Bundle-RequiredExecutionEnvironment: OSGi/Minimum-1.2
 Automation-ResourceType: json
 Import-Package: 
  org.eclipse.smarthome.automation,

@@ -173,6 +173,7 @@ public class AutomationCommandList extends AutomationCommand {
      * Concatenates the rule status plus separator to the rule UID.
      */
     private void collectRuleStatuses(Hashtable<String, String> listRules) {
+        Hashtable<String, String> newList = new Hashtable<String, String>();
         for (String uid : listRules.values()) {
             StringBuilder res = new StringBuilder();
             res.append(uid);
@@ -181,7 +182,14 @@ public class AutomationCommandList extends AutomationCommand {
             if (status != null) {
                 Printer.printChars(res, ' ', count, false);
                 res.append(status.toString());
-                listRules.put(uid, res.toString());
+                newList.put(uid, res.toString());
+            }
+        }
+        for (String id : listRules.keySet()) {
+            String uid = listRules.get(id);
+            String ruleDisp = newList.get(uid);
+            if (ruleDisp != null) {
+                listRules.put(id, ruleDisp);
             }
         }
     }

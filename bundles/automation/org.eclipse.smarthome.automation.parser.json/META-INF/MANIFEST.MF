@@ -4,7 +4,6 @@ Bundle-Name: Eclipse SmartHome Automation JSON Parser
 Bundle-SymbolicName: org.eclipse.smarthome.automation.parser.json
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-RequiredExecutionEnvironment: OSGi/Minimum-1.2
 Import-Package: 
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.dto,

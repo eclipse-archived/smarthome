@@ -23,4 +23,3 @@ Import-Package:
  org.osgi.util.tracker;version="1.4.0",
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.automation.commands.Activator
-Bundle-RequiredExecutionEnvironment: OSGi/Minimum-1.2
