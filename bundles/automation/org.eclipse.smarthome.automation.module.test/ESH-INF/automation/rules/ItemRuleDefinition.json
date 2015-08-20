@@ -8,7 +8,6 @@
     ],
     "config": {},
     "description": "Sample Rule for items definition.",
-    "active": true,
     "on": [  
       {  
         "id": "ItemStateChangeTriggerID",
@@ -59,7 +58,6 @@
     ],
     "config": {},
     "description": "This rule switches on a lamp if a motion was detected.",
-    "active": true,
     "on": [  
       {  
         "id": "CameraMotionDetectionTrigger",
