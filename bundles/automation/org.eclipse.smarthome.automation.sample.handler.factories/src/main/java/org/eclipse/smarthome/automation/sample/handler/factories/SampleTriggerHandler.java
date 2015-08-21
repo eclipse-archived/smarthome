@@ -8,114 +8,48 @@
 package org.eclipse.smarthome.automation.sample.handler.factories;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.BaseTriggerHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.parser.Converter;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.automation.type.Output;
-import org.eclipse.smarthome.automation.type.TriggerType;
-import org.slf4j.Logger;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
  * Trigger Handler sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
  */
-public class SampleTriggerHandler extends AbstractModuleHandler implements TriggerHandler {
-    public static final String PARSE_OUTPUT_REFERENCE = "consoleInput";
-    public static final String PARSE_DOLLAR_SYMBOL = "$";
-    protected Map<String, ?> configuration;
-    protected String functionalItemUID;
-    protected Trigger trigger;
-    protected TriggerType triggerType;
-    //
-    private RuleEngineCallback ruleCallBack;
-    private Logger log;
+public class SampleTriggerHandler extends BaseTriggerHandler implements TriggerHandler {
+    private static final String OUTPUT_REFERENCE = "consoleInput";
     private SampleHandlerFactory handlerFactory;
+    private String triggerParam;
 
-    public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger trigger, TriggerType triggerType,
-            Logger log) {
-        super(trigger);
-        this.trigger = trigger;
-        this.triggerType = triggerType;
-        this.configuration = trigger.getConfiguration();
-        this.log = log;
+    public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger module, List<ModuleType> moduleTypes) {
+        super(module, moduleTypes);
         this.handlerFactory = handlerFactory;
     }
 
-    @Override
-    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-        this.ruleCallBack = ruleCallback;
-    }
-
-    public void trigger(String param) {
-        if (ruleCallBack != null) {
-            Map<String, Object> resolvedConfiguration = getResolvedConfiguration(null);
-            Map<String, Object> systemOutputs = getSystemOutputsValues(triggerType.getOutputs(), param);
-            Map<String, Object> resolvedOutputs = getResolvedOutputs(resolvedConfiguration, null, systemOutputs);
-            ruleCallBack.triggered(trigger, resolvedOutputs);
-        } else {
-            log.error("RuleCallback in TriggerHandler is null");
-        }
+    public void trigger(String triggerParam) {
+        this.triggerParam = triggerParam;
+        trigger();
     }
 
     @Override
     public void dispose() {
-        super.dispose();
         handlerFactory.disposeHandler(this);
     }
 
-    protected Map<String, Object> getSystemOutputsValues(Set<Output> outputs, String param) {
-        Map<String, Object> resultOutputs = null;
-        for (Output output : outputs) {
-            if (resultOutputs == null) {
-                resultOutputs = new HashMap<String, Object>(11);
-            }
-            String propertyName = output.getName();
-            Object propertyValue = null;
-            if (output.getReference() != null) {
-                if (output.getReference().equals(PARSE_OUTPUT_REFERENCE)) {
-                    propertyValue = param;
-                } else {
-                    propertyValue = parse(output.getReference());
-                }
-            }
-            if (propertyValue == null) {
-                propertyValue = output.getDefaultValue();
-            }
-            resultOutputs.put(propertyName, propertyValue);
-        }
-        return resultOutputs;
-    }
-
-    protected Object parse(String reference) {
-        String parsedReference = parseReference(reference);
-        return configuration.get(parsedReference);
+    @Override
+    protected Map<String, Object> getTriggerValues() {
+        Map<String, Object> triggerValues = new HashMap<String, Object>();
+        triggerValues.put(OUTPUT_REFERENCE, triggerParam);
+        return triggerValues;
     }
 
     String getTriggerID() {
-        return trigger.getId();
+        return module.getId();
     }
 
-    @Override
-    protected ModuleTypeRegistry getModuleTypeRegistry() {
-        return SampleHandlerFactory.getModuleTypeRegistry();
-    }
-
-    @Override
-    protected Converter getConverter() {
-        return SampleHandlerFactory.getConverter();
-    }
-
-    private String parseReference(String reference) {
-        if (reference.startsWith("$")) {
-            reference = reference.substring(1);
-        }
-        return reference;
-    }
 }

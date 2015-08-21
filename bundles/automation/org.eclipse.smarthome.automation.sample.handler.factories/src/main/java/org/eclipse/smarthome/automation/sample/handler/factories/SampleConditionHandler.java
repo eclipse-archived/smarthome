@@ -19,21 +19,21 @@ s * Copyright (c) 1997, 2015 by ProSyst Software GmbH
 
 package org.eclipse.smarthome.automation.sample.handler.factories;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
+import org.eclipse.smarthome.automation.handler.BaseConditionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.parser.Converter;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
  * Condition Handler Sample Implementation.
- * 
+ *
  * @author Vasil Ilchev - Initial Contribution
  *
  */
-public class SampleConditionHandler extends AbstractModuleHandler implements ConditionHandler {
+public class SampleConditionHandler extends BaseConditionHandler implements ConditionHandler {
     public static final String OPERATOR_LESS = "<";
     public static final String OPERATOR_GREATER = ">";
     public static final String OPERATOR_EQUAL = "=";
@@ -48,49 +48,37 @@ public class SampleConditionHandler extends AbstractModuleHandler implements Con
      *
      * @param condition
      */
-    public SampleConditionHandler(Condition condition) {
-        super(condition);
+    public SampleConditionHandler(Condition condition, List<ModuleType> moduleTypes) {
+        super(condition, moduleTypes);
     }
 
     @Override
     public void dispose() {
-        super.dispose();
     }
 
     @Override
-    public boolean isSatisfied(Map<String, ?> inputs) {
-        Map<String, Object> resolvedInputs = getResolvedInputs(inputs);
-        Map<String, Object> resolvedConfiguration = getResolvedConfiguration(resolvedInputs);
+    protected boolean evaluateCondition(Map<String, Object> resolvedInputs, Map<String, Object> resolvedConfiguration) {
         String conditionInput = (String) resolvedInputs.get(CONDITION_INPUT_NAME);
         if (conditionInput == null) {
             conditionInput = "";
         }
         String operator = (String) resolvedConfiguration.get(PROPERTY_OPERATOR);
         String constraint = (String) resolvedConfiguration.get(PROPERTY_CONSTRAINT);
-        boolean satisfied = false;
+        boolean evaluation = false;
         if (OPERATOR_EQUAL.equals(operator)) {
-            satisfied = conditionInput.equals(constraint);
+            evaluation = conditionInput.equals(constraint);
         } else if (OPERATOR_NOT_EQUAL.equals(operator)) {
-            satisfied = !(conditionInput.equals(constraint));
+            evaluation = !(conditionInput.equals(constraint));
         } else if (OPERATOR_LESS.equals(operator)) {
             int compersion = conditionInput.compareTo(constraint);
-            satisfied = compersion < 0 ? true : false;
+            evaluation = compersion < 0 ? true : false;
         } else if (OPERATOR_GREATER.equals(operator)) {
             int comperison = conditionInput.compareTo(constraint);
-            satisfied = comperison > 0 ? true : false;
+            evaluation = comperison > 0 ? true : false;
         } else {
             throw new IllegalArgumentException("[SampleConditionHandler]Invalid comparison operator: " + operator);
         }
-        return satisfied;
+        return evaluation;
     }
 
-    @Override
-    protected ModuleTypeRegistry getModuleTypeRegistry() {
-        return SampleHandlerFactory.getModuleTypeRegistry();
-    }
-
-    @Override
-    protected Converter getConverter() {
-        return SampleHandlerFactory.getConverter();
-    }
 }

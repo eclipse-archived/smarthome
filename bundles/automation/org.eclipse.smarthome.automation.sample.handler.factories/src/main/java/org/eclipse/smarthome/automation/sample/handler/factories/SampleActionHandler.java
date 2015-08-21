@@ -7,65 +7,44 @@
  */
 package org.eclipse.smarthome.automation.sample.handler.factories;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.parser.Converter;
-import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.handler.BaseActionHandler;
+import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
  * Action Handler sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
  */
-public class SampleActionHandler extends AbstractModuleHandler implements ActionHandler {
-    public static final String ACTION_INPUT_NAME = "actionInput";
-    protected Map<String, ?> configuration;
-    protected String functionalItemUID;
-    protected Action action;
-    protected ActionType actionType;
+public class SampleActionHandler extends BaseActionHandler implements ActionHandler {
 
     /**
      * Constructs SampleActionHandler
      *
-     * @param action
+     * @param module
      * @param actionType
      */
-    public SampleActionHandler(Action action, ActionType actionType) {
-        super(action);
-        this.action = action;
-        this.actionType = actionType;
+    public SampleActionHandler(Action module, List<ModuleType> moduleTypes) {
+        super(module, moduleTypes);
     }
 
     @Override
     public void dispose() {
-        super.dispose();
     }
 
     @Override
-    public Map<String, Object> execute(Map<String, ?> inputs) {
-        Map<String, Object> resolvedInputs = getResolvedInputs(inputs);
-        Map<String, Object> resolvedConfigration = getResolvedConfiguration(resolvedInputs);
-        Map<String, Object> resolvedOutputs = getResolvedOutputs(resolvedConfigration, resolvedInputs, null);
-        Object message = getMessage(resolvedConfigration);
+    protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
+            Map<String, Object> resolvedConfiguration) {
+        Object message = getMessage(resolvedConfiguration);
         if (message == null) {
             message = "";
         }
-        System.out.println("[Automation demo] " + actionType.getUID() + "/" + action.getId() + ": " + message);
-        return resolvedOutputs;
-    }
-
-    @Override
-    protected ModuleTypeRegistry getModuleTypeRegistry() {
-        return SampleHandlerFactory.getModuleTypeRegistry();
-    }
-
-    @Override
-    protected Converter getConverter() {
-        return SampleHandlerFactory.getConverter();
+        System.out.println("[Automation demo] " + module.getTypeUID() + "/" + module.getId() + ": " + message);
+        return null;
     }
 
     private Object getMessage(Map<String, ?> resolvedConfigration) {

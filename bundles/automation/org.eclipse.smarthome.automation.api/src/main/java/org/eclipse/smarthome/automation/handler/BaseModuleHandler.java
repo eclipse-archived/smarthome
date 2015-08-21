@@ -9,24 +9,22 @@ package org.eclipse.smarthome.automation.handler;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
@@ -35,24 +33,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Abstract class used for resolving references in {@link ConfigDescriptionParameter} , {@link Input} and {@link Output}
- * in {@link Module}
+ * Base {@link ModuleHandler} class used for resolving references in {@link ConfigDescriptionParameter} , {@link Input}
+ * and {@link Output} in {@link Module}
  *
  * @author Vasil Ilchev - Initial Contribution
- * @author Ana Dimova - Suppress Warnings for rawtypes.
  */
-public abstract class AbstractModuleHandler implements ModuleHandler {
+public abstract class BaseModuleHandler<T extends Module> implements ModuleHandler {
     /**
      * Symbol that can be put in {@link ConfigDescriptionParameter} property <code>context</code>.<br/>
      * ConfigDescriptionParameter context property syntax:
      *
      * <pre>
-     * context: "{
-     *  ...,
-     *  \"{@link #PROPERTY_CONTEXT_NAMEREF}\": \"$someNameReference\",    //optional
-     *  \"{@link #PROPERTY_CONTEXT_VALUEREF}\": \"$someNameReference\",    //optional
-     *  ...
-     * }"
+     * context: "({@link #CONTEXT_PROPERTY_NAMEREF}="$someNameReference", ({@link #CONTEXT_PROPERTY_VALUEREF}=$someNameReference)"
      * </pre>
      *
      * Symbol can be put also in {@link Input} / {@link Output} <code>reference</code><br/>
@@ -98,7 +90,21 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * System ModuleTypeUID is the 'SystemModuleType'
      *
      */
-    public static final char MODULE_TYPE_SEPARATOR = ':';
+    public static final char MODULE_TYPE_UID_SEPARATOR = ':';
+
+    /**
+     * Context property in {@link ConfigDescriptionParameter} can be represented by special simple language
+     * <code>(key=value)</code> which will be later converted to Map.
+     * Language beings with this symbol as opening character.
+     */
+    public static final char CONTEXT_OPEN_SYMBOL = '(';
+
+    /**
+     * Context property in {@link ConfigDescriptionParameter} can be represented by special simple language
+     * <code>(key=value)</code> which will be later converted to Map.
+     * Language ends with this symbol as closing character.
+     */
+    public static final char CONTEXT_CLOSE_SYMBOL = ')';
 
     /**
      * Used in {@link ConfigDescriptionParameter} context property.
@@ -107,18 +113,14 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * For example:
      *
      * <pre>
-     *   context: {
-     *      ..
-     *      "nameRef": "$someParentConfigName",
-     *      ..
-     *   }
+     *   context: "(nameRef=$someParentConfigName)"
      * </pre>
      *
      * It means that Configuration Property with this context have to set its value to the referred Configuration
      * property
      * (configuration property with the given name in its parent ModuleType)
      */
-    public static final String PROPERTY_CONTEXT_NAMEREF = "nameRef";
+    public static final String CONTEXT_PROPERTY_NAMEREF = "nameRef";
 
     /**
      * Used in {@link ConfigDescriptionParameter} context property.
@@ -126,23 +128,20 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * For example:
      *
      * <pre>
-     *   context: {
-     *      ..
-     *      "valueRef": "$someInputName",
-     *      ..
-     *   }
+     *   context: "(valueRef=$someInputName)"
+     *
      * </pre>
      *
      * It means that Configuration Property with this context must take its value from {@link Input} with the given name
      * in same Module.
      */
-    public static final String PROPERTY_CONTEXT_VALUEREF = "valueRef";
+    public static final String CONTEXT_PROPERTY_VALUEREF = "valueRef";
 
-    private ModuleTypeRegistry moduleTypeRegistry;
-    private Module module;
+    protected T module;
+    protected ModuleType systemModuleType;
+    private List<ModuleType> moduleTypes;
     private Logger log;
     // descriptions
-    private List<ModuleType> moduleTypes;
     private Map<String, ConfigDescriptionParameter> configParametersMap;
     private Map<String, Input> inputDescriptionsMap;
     private Map<String, Output> outputDescriptionsMap;
@@ -151,36 +150,32 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     private Map<String, Set<String>> configParameterConnectionsMap;
     private Map<String, Set<String>> inputConnectionsMap;
     private Map<String, Set<String>> outputConnectionsMap;
-
     // --connections
 
     /**
-     * Creates Abstract {@link ModuleHandler} object.
+     * Creates Base {@link ModuleHandler} object.
      *
      * @param module the Module for which ModuleHandler is created
      */
-    public AbstractModuleHandler(Module module) {
+    public BaseModuleHandler(T module, List<ModuleType> moduleTypes) {
         if (module == null) {
             throw new IllegalArgumentException("Module must not be null.");
         }
+        if (moduleTypes == null || moduleTypes.isEmpty()) {
+            throw new IllegalArgumentException("List of ModuleTypes must not be null or empty.");
+        }
         this.module = module;
-        this.log = LoggerFactory.getLogger(AbstractModuleHandler.class);
+        this.moduleTypes = moduleTypes;
+        this.systemModuleType = getSystemModuleType(moduleTypes);
+        this.log = LoggerFactory.getLogger(BaseModuleHandler.class);
         init();
-    }
-
-    @Override
-    public void dispose() {
-        moduleTypeRegistry = null;
     }
 
     /**
      * Initialize all needed utilities.
      */
     private void init() {
-        // initialize moduleTypeRegistry
-        initModuleTypeRegistry();
         // initialize descriptions
-        moduleTypes = getAllModuleTypes(module.getTypeUID());
         configParametersMap = getAllConfigParametersMap(moduleTypes);
         if (module instanceof Condition || module instanceof Action) {
             inputDescriptionsMap = getAllInputDescriptionsMap(moduleTypes);
@@ -192,16 +187,6 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         configParameterConnectionsMap = getConfigParameterConnections(configParametersMap);
         inputConnectionsMap = getInputConnections(inputDescriptionsMap);
         outputConnectionsMap = getOutputConnections(outputDescriptionsMap);
-    }
-
-    /**
-     * Getting ModuleTypeRegistry.
-     */
-    private void initModuleTypeRegistry() {
-        moduleTypeRegistry = getModuleTypeRegistry();
-        if (moduleTypeRegistry == null) {
-            throw new IllegalArgumentException("ModuleTypeRegistry must not be null.");
-        }
     }
 
     /**
@@ -224,10 +209,9 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return Map with the resolved Inputs values - {@link Module} will be ready to work with<br/>
      *         key: Name of the Input, value: Input value
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedInputs(Map<String, ?> inputValues) {
 
-        Map resolvedInputs = new HashMap();
+        Map<String, Object> resolvedInputs = new HashMap<String, Object>();
         if (inputDescriptionsMap != null) {
             for (Map.Entry<String, Input> entry : inputDescriptionsMap.entrySet()) {
                 String inputName = entry.getKey();
@@ -240,7 +224,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                 }
             }
         } else if (inputValues != null) {
-            resolvedInputs = inputValues;
+            resolvedInputs.putAll(inputValues);
         }
 
         return !resolvedInputs.isEmpty() ? resolvedInputs : null;
@@ -249,22 +233,21 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     /**
      * Resolves references in {@link Module} Configuration.
      * Configuration property can set its value to other Configuration properties with its <code>context</code>
-     * {@link #PROPERTY_CONTEXT_NAMEREF}.</br>
+     * {@link #CONTEXT_PROPERTY_NAMEREF}.</br>
      * (Custom ConfigurationProperty to its parent ConfigurationProperty)
      * Configuration property can get its value from {@link Input} with its <code>context</code>
-     * {@link #PROPERTY_CONTEXT_VALUEREF}.<br/>
+     * {@link #CONTEXT_PROPERTY_VALUEREF}.<br/>
      * (ConfigurationProperty from current ModuleType Inputs)
      *
-     * @see #PROPERTY_CONTEXT_NAMEREF
-     * @see #PROPERTY_CONTEXT_VALUEREF
+     * @see #CONTEXT_PROPERTY_NAMEREF
+     * @see #CONTEXT_PROPERTY_VALUEREF
      * @see #getResolvedInputs(Map)
      * @param resolvedInputs resolved Input values - retrieved from {@link #getResolvedInputs(Map)}
      * @return Map with resolved configuration - {@link ModuleHandler} will be ready to work with<br/>
      *         key: name of the Configuration property, value: value of the Configuration property
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedConfiguration(Map<String, ?> resolvedInputs) {
-        Map resolvedConfiguration = new HashMap();
+        Map<String, Object> resolvedConfiguration = new HashMap<String, Object>();
         Map<String, Object> configuration = module.getConfiguration();
         if (configParametersMap != null) {
             for (Map.Entry<String, ConfigDescriptionParameter> entry : configParametersMap.entrySet()) {
@@ -290,56 +273,37 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      *
      * @param resolvedConfiguration resolved Configuration - retrieved from {@link #getResolvedConfiguration(Map)}
      * @param resolvedInputs resolved Input values - retrieved from {@link #getResolvedInputs(Map)}
-     * @param outputValues current outputValues (i.e. System Outputs)
+     * @param additionalValues results from additional performed operations in {@link ModuleHandler} - values that only
+     *            SystemModuleHandler knows how to handle and map them
      * @return Map with resolved Output values - {@link Module} will be ready to work with<br/>
      *         key: Name of Output, value: Output Value
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected final Map<String, Object> getResolvedOutputs(Map<String, ?> resolvedConfiguration,
-            Map<String, ?> resolvedInputs, Map<String, ?> outputValues) {
+            Map<String, ?> resolvedInputs, Map<String, ?> additionalValues) {
 
-        Map resolvedOutputs = new HashMap();
+        Map<String, Object> resolvedOutputs = new HashMap<String, Object>();
         if (outputDescriptionsMap != null) {
             for (Map.Entry<String, Output> entry : outputDescriptionsMap.entrySet()) {
                 String outputName = entry.getKey();
                 Output outputDescription = entry.getValue();
                 if (!resolvedOutputs.containsKey(outputName)) {
                     Object outputValue = getOutputValue(outputDescription, resolvedConfiguration, resolvedInputs,
-                            outputValues);
+                            additionalValues);
                     resolvedOutputs.put(outputName, outputValue);
                     // fill up all referred Outputs in the chain
                     fillReferred(outputName, outputValue, resolvedOutputs, outputConnectionsMap);
                 }
             }
-        } else if (outputValues != null) {
-            resolvedOutputs = outputValues;
         }
 
         return !resolvedOutputs.isEmpty() ? resolvedOutputs : null;
     }
 
     /**
-     * Inheritors must provide implementation of {@link Converter}.
-     *
-     * @return converter
-     */
-    protected Converter getConverter() {
-        return null;
-    }
-
-    /**
-     * Inheritors must provide the {@link ModuleTypeRegistry} service.
-     * It is used for retrieving meta-information about Module.
-     *
-     * @return ModuleTypeRegistry service
-     */
-    protected abstract ModuleTypeRegistry getModuleTypeRegistry();
-
-    /**
      * Utility method for getting ConfigurationProperty's value.
      * Priority search is as follows:
      * 1) value defined by user configuration
-     * 2) value from <code>context</code> {@link #PROPERTY_CONTEXT_VALUEREF} 3) value from ConfigurationProperty default
+     * 2) value from <code>context</code> {@link #CONTEXT_PROPERTY_VALUEREF} 3) value from ConfigurationProperty default
      * value.
      *
      * @param configParameter The ConfigDescriptionParameter searching value for
@@ -347,30 +311,27 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param resolvedInputValues the resolved Inputs
      * @return value for passed ConfigurationProperty
      */
-    @SuppressWarnings("rawtypes")
     private Object getConfigValue(ConfigDescriptionParameter configParameter, Map<String, ?> configuration,
             Map<String, ?> resolvedInputValues) {
-        Object configValue;
+        Object configValue = null;
         String configName = configParameter.getName();
         if (configuration != null && configuration.containsKey(configName)) {// get user configuration value
             configValue = configuration.get(configName);
         } else {// priority: 1context, 2defaultValue
-            Dictionary context = getContextDictionary(configParameter);
+            Map<String, Object> context = getContextMap(configParameter);
             if (context != null) {
-                String valueRef = getPropertyContextString(context, PROPERTY_CONTEXT_VALUEREF);
-                if (valueRef != null && isParsable(valueRef)) {// get context value
-                    String inputName = parse(valueRef);
-                    if (resolvedInputValues != null && resolvedInputValues.containsKey(inputName)) {
+                String valueRef = getPropertyContextString(context, CONTEXT_PROPERTY_VALUEREF);
+                if (valueRef != null && isReferenceParsable(valueRef)) {// get context value
+                    String inputName = parseReference(valueRef);
+                    if (resolvedInputValues != null) {
                         configValue = resolvedInputValues.get(inputName);
-                    } else {// get default value
-                        configValue = getConfigDefaultValue(configParameter);
                     }
-                } else {// get default value
-                    configValue = getConfigDefaultValue(configParameter);
                 }
-            } else {// get default value
-                configValue = getConfigDefaultValue(configParameter);
             }
+        }
+
+        if (configValue == null) {
+            configValue = getConfigDefaultValue(configParameter);
         }
         return configValue;
     }
@@ -386,11 +347,12 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @return value for passed Input
      */
     private Object getInputValue(Input inputDescription, Map<String, ?> inputValues) {
-        Object inputValue;
+        Object inputValue = null;
         String inputName = inputDescription.getName();
-        if (inputValues != null && inputValues.containsKey(inputName)) { // get resolved input value
+        if (inputValues != null) { // get resolved input value
             inputValue = inputValues.get(inputName);
-        } else { // get default value
+        }
+        if (inputValue == null) { // get default value
             inputValue = inputDescription.getDefaultValue();
         }
         return inputValue;
@@ -407,34 +369,32 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param outputDescription the Output searching value for
      * @param configurationValues
      * @param inputValues
-     * @param outputValues
+     * @param additionalValues
      * @return value for passed Output
      */
     private Object getOutputValue(Output outputDescription, Map<String, ?> configurationValues,
-            Map<String, ?> inputValues, Map<String, ?> outputValues) {
-        String outputName = outputDescription.getName();
+            Map<String, ?> inputValues, Map<String, ?> additionalValues) {
         Object outputValue = null;
-        if (outputValues != null && outputValues.containsKey(outputName)) { // get resolved output value
-            outputValue = outputValues.get(outputName);
-        } else { // get reference - Output, Input, ConfigurationProperty
-            String outputReference = outputDescription.getReference();
-            if (isParsable(outputReference)) {
-                String parsedNameRef = parse(outputReference);
-                if (outputDescriptionsMap!=null&&!outputDescriptionsMap.containsKey(parsedNameRef)) { // skip if reference is Output
-                    if (configurationValues != null && configurationValues.containsKey(parsedNameRef)) { // reference is
-                                                                                                         // ConfigurationProperty
-                        outputValue = configurationValues.get(parsedNameRef);
-                    } else if (inputValues != null && inputValues.containsKey(parsedNameRef)) { // reference is Input
-                        outputValue = inputValues.get(parsedNameRef);
-                    } else { // get default
-                        outputValue = outputDescription.getDefaultValue();
-                    }
-                } else { // get default
-                    outputValue = outputDescription.getDefaultValue();
+        // get reference - Output, Input, ConfigurationProperty
+        String outputReference = outputDescription.getReference();
+        if (isReferenceParsable(outputReference)) {
+            String parsedNameRef = parseReference(outputReference);
+            if (!outputDescriptionsMap.containsKey(parsedNameRef)) { // skip if reference is Output
+                if (configurationValues != null && configurationValues.containsKey(parsedNameRef)) { // reference is
+                                                                                                     // ConfigurationProperty
+                    outputValue = configurationValues.get(parsedNameRef);
+                } else if (inputValues != null && inputValues.containsKey(parsedNameRef)) { // reference is Input
+                    outputValue = inputValues.get(parsedNameRef);
                 }
-            } else { // get default
-                outputValue = outputDescription.getDefaultValue();
             }
+        } else {
+            if (additionalValues != null) { // get from additional values
+                outputValue = additionalValues.get(outputReference);
+            }
+        }
+
+        if (outputValue == null) {// if no value set output default value
+            outputValue = outputDescription.getDefaultValue();
         }
 
         return outputValue;
@@ -443,7 +403,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     /**
      * Utility method for ConfigurationProperty connections.
      *
-     * @see #PROPERTY_CONTEXT_NAMEREF
+     * @see #CONTEXT_PROPERTY_NAMEREF
      * @param configParametersMap all ConfigurationDescriptionParameters from all ModuleTypes in the chain
      * @return Map key: name of ConfigurationProperty, value: set of ConfigurationProperties names
      */
@@ -562,8 +522,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         LinkedList<String> referredOutputNames = new LinkedList<String>(); // order needed: last element- source element
         while (!visitedOutputs.contains(currentOutputName) && currentReference != null) {
             visitedOutputs.add(currentOutputName); // mark Output as visited
-            if (isParsable(currentReference)) {
-                String parsedNameRef = parse(currentReference);
+            if (isReferenceParsable(currentReference)) {
+                String parsedNameRef = parseReference(currentReference);
                 if(outputDescriptionsMap!=null){
                 	currentOutputDescription = outputDescriptionsMap.get(parsedNameRef);
                 }
@@ -594,7 +554,6 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         return !referredOutputNames.isEmpty() ? referredOutputNames : null;
     }
 
-    @SuppressWarnings("rawtypes")
     private Set<String> getReferredConfigNames(ConfigDescriptionParameter configParamater,
             Map<String, ConfigDescriptionParameter> configDescriptionsMap, Set<String> visitedConfigs,
             Map<String, Set<String>> currentConfigurationConnections) {
@@ -602,13 +561,13 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         String sourceConfigName = configParamater.getName();
         String currentConfigName = sourceConfigName;
         ConfigDescriptionParameter currentConfigParameter = configParamater;
-        Dictionary currentContext = getContextDictionary(currentConfigParameter);
+        Map<String, Object> currentContext = getContextMap(currentConfigParameter);
         Set<String> referredConfigNames = new HashSet<String>();
         while (!visitedConfigs.contains(currentConfigName) && currentContext != null) {
             visitedConfigs.add(currentConfigName); // mark config as visited
-            String nameRef = getPropertyContextString(currentContext, PROPERTY_CONTEXT_NAMEREF);
-            if (nameRef != null && isParsable(nameRef)) {
-                String referredConfigName = parse(nameRef);
+            String nameRef = getPropertyContextString(currentContext, CONTEXT_PROPERTY_NAMEREF);
+            if (nameRef != null && isReferenceParsable(nameRef)) {
+                String referredConfigName = parseReference(nameRef);
                 currentConfigParameter = configDescriptionsMap.get(referredConfigName);
                 if (currentConfigParameter != null) { // check if ConfigDescriptionParamaeter with parsed name exists
                     checkLoop(referredConfigNames, sourceConfigName, referredConfigName);
@@ -622,7 +581,7 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
                         referredConfigNames.add(referredConfigName);
                     }
                     currentConfigName = currentConfigParameter.getName();
-                    currentContext = getContextDictionary(currentConfigParameter);
+                    currentContext = getContextMap(currentConfigParameter);
                 } else {
                     log.error("Can't find referred ConfigurationProperty: " + referredConfigName
                             + ", referred by ConfigurationProperty: " + sourceConfigName);
@@ -643,8 +602,8 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
         Set<String> referredInputNames = new HashSet<String>();
         while (!visitedInputs.contains(currentInputName) && currentReference != null) {
             visitedInputs.add(currentInputName); // mark Input as visited
-            if (isParsable(currentReference)) {
-                String parsedNameRef = parse(currentReference);
+            if (isReferenceParsable(currentReference)) {
+                String parsedNameRef = parseReference(currentReference);
                 currentInputDescription = inputDescriptionsMap.get(parsedNameRef);
                 if (currentInputDescription != null) { // check if Input with parsed name exists
                     checkLoop(referredInputNames, sourceInputName, parsedNameRef);
@@ -855,47 +814,6 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     }
 
     /**
-     * Retrieves all ModuleTypes for given ModuleTypeUID
-     *
-     * @param moduleTypeUID the source module type
-     * @return list of all module types in the hierarchy
-     */
-    private List<ModuleType> getAllModuleTypes(String moduleTypeUID) {
-        List<ModuleType> allModuleTypes = new ArrayList<ModuleType>();
-        String currentModuleTypeUID = moduleTypeUID;
-        ModuleType currentModuleType;
-        do {
-            currentModuleType = moduleTypeRegistry.get(currentModuleTypeUID);
-            if (currentModuleType != null) {
-                allModuleTypes.add(currentModuleType);
-                currentModuleTypeUID = getParentModuleTypeUID(currentModuleTypeUID);
-            } else {// error case
-                allModuleTypes = null;
-                log.error("From ModuleType uid=" + moduleTypeUID + " -> ModuleType uid=" + currentModuleTypeUID
-                        + " is not available.");
-                break;
-            }
-        } while (currentModuleTypeUID != null);// while there is parent ModuleType
-
-        return allModuleTypes;
-    }
-
-    /**
-     * Gets parent moduleTypeUID if passed moduleTypeUID has parent
-     *
-     * @param childModuleTypeUID the UID of the moduleType
-     * @return parent module type UID if passed moduleType has parent, null otherwise
-     */
-    private String getParentModuleTypeUID(String childModuleTypeUID) {
-        String parentModuleTypeUID = null;
-        if (childModuleTypeUID.indexOf(MODULE_TYPE_SEPARATOR) != -1) {
-            parentModuleTypeUID = childModuleTypeUID.substring(0,
-                    childModuleTypeUID.lastIndexOf(MODULE_TYPE_SEPARATOR));
-        }
-        return parentModuleTypeUID;
-    }
-
-    /**
      * Converts Set of ConfigDescriptionParameter to Map <br/>
      * <code>key</code>: name of ConfigDescriptionParamater, <code>value</code>: ConfigDescriptionParamater
      *
@@ -943,16 +861,33 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
     }
 
     /**
-     * Checks if object is parsable or not(starts with {@link #REFERENCE_SYMBOL})
+     * Checks if reference is parsable or not(starts with {@link #REFERENCE_SYMBOL})
      *
-     * @param obj the object to be checked
-     * @return true if object is parsable, false otherwise
+     * @param referenceStr reference to be checked
+     * @return true if reference is parsable, false otherwise
      */
-    private boolean isParsable(Object obj) {
+    private boolean isReferenceParsable(String referenceStr) {
         boolean parsable = false;
-        if (obj instanceof String) {
-            String objString = (String) obj;
-            parsable = ((objString.charAt(0) == REFERENCE_SYMBOL) && (objString.length() > 1));
+        if (referenceStr != null) {
+            parsable = ((referenceStr.charAt(0) == REFERENCE_SYMBOL) && (referenceStr.length() > 1));
+        }
+        return parsable;
+    }
+
+    /**
+     * Checks if context is parsable or not(starts with {@link #CONTEXT_OPEN_SYMBOL} && ends with
+     * {@link #CONTEXT_CLOSE_SYMBOL})
+     *
+     * @param contextStr context to be checked
+     * @return true if context is parsable, false otherwise
+     */
+    private boolean isContextParsable(String contextStr) {
+        boolean parsable = false;
+        if (contextStr != null) {
+            String trimmed = contextStr.trim();
+            int length = trimmed.length();
+            parsable = length > 0 && trimmed.charAt(0) == CONTEXT_OPEN_SYMBOL
+                    && trimmed.charAt(length - 1) == CONTEXT_CLOSE_SYMBOL;
         }
         return parsable;
     }
@@ -963,35 +898,98 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
      * @param parsable the parsable context/reference
      * @return parsed context/reference.
      */
-    private String parse(String parsable) {
+    private String parseReference(String parsable) {
         return parsable.substring(1);
     }
 
     /**
-     * Context property in ConfigDescriptionParameter can contain json
+     * Context property in ConfigDescriptionParameter can contain special context syntax.
      *
      * @param configParameter the configParameter
-     * @return context as JSON or <code>null</code>
+     * @return context as Map or <code>null</code>
      */
-    @SuppressWarnings("rawtypes")
-    private Dictionary getContextDictionary(ConfigDescriptionParameter configParameter) {
-        Dictionary context = null;
+    private Map<String, Object> getContextMap(ConfigDescriptionParameter configParameter) {
+        Map<String, Object> context;
         String contextStr = configParameter.getContext();
-        if (contextStr != null && contextStr.length() > 0 && contextStr.charAt(0) == '{') {
-            Converter converter = getConverter();
-            if (converter != null) {
-                context = converter.getAsDictionary(contextStr);
-            } else {
-                log.error("Converter is not available.");
-            }
-        }
+        context = contextToMap(contextStr, new HashMap<String, Object>());
         return context;
     }
 
-    @SuppressWarnings("rawtypes")
-    private String getPropertyContextString(Dictionary dict, String property) {
+    /**
+     * Context property in {@link ConfigDescriptionParameter} may be represented by special language.
+     * Simple <code>key=value</code> language begins with {@link #CONTEXT_OPEN_SYMBOL} and ends with
+     * {@link #CONTEXT_CLOSE_SYMBOL} and separating its key=value pairs with commas(,)/
+     * It is allowed values to be again <code>key=value</code> pairs
+     * i.e
+     * (key1=value1, key2=(key3=value3, key4=valu4), key5=value5)
+     *
+     * @param contextStr context property which will be tried to convert to Map
+     * @param map in which key=value pairs will be put
+     * @return Map representing the context or null if contextStr is not represented by the special language.
+     */
+    private Map<String, Object> contextToMap(String contextStr, Map<String, Object> map) {
+        if (isContextParsable(contextStr)) {
+            contextStr = contextStr.substring(1, contextStr.length() - 1);
+            List<String> pairs = collectPairs(contextStr);
+            if (pairs != null) {
+                for (String pair : pairs) {
+                    int equalsIndx = pair.indexOf('=');
+                    if (equalsIndx != -1) {
+                        String key = pair.substring(0, equalsIndx).trim();
+                        String value = pair.substring(equalsIndx + 1).trim();
+                        if (isContextParsable(value)) {
+                            Map<String, Object> innerMap = contextToMap(value, new HashMap<String, Object>());
+                            map.put(key, innerMap);
+                        } else {
+                            map.put(key, value);
+                        }
+                    } else {
+                        log.error("Wrong context language syntax: " + contextStr);
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Collects most outer String pairs separated by commas(,).
+     * i.e key1=value1, key2=value2, key3=(key4=value4, key5=value5), key6=value6
+     * pair1 : key1=value1
+     * pair2 : key2=value2
+     * pair3 : key3=(key4=value4, key5=valu5)
+     * pair4 : key6=value6
+     *
+     * @param str the String that represent pairs key=value separated by comma
+     * @return list of pairs key=value
+     */
+    private List<String> collectPairs(String str) {
+        List<String> pairs = new ArrayList<String>();
+        String currentStr = str;
+        while (currentStr.indexOf(',') != -1) {
+            int commaIndx = currentStr.indexOf(',');
+            int bracketOpenIndx = currentStr.indexOf('(');
+            if (bracketOpenIndx != -1 && bracketOpenIndx < commaIndx) {
+                int bracketCloseIndx = currentStr.indexOf(')');
+                if (bracketCloseIndx != -1) {
+                    if (bracketCloseIndx > commaIndx) {
+                        commaIndx = currentStr.indexOf(',', bracketCloseIndx);
+                    }
+                } else {
+                    System.out.println("wrong syntax");
+                }
+            }
+
+            pairs.add(currentStr.substring(0, commaIndx));
+            currentStr = currentStr.substring(commaIndx + 1);
+        }
+        pairs.add(currentStr);
+        return pairs;
+    }
+
+    private String getPropertyContextString(Map<String, Object> context, String property) {
         String propertyValue = null;
-        Object obj = dict.get(property);
+        Object obj = context.get(property);
         if (property instanceof String) {
             propertyValue = (String) obj;
         } else {
@@ -1052,6 +1050,23 @@ public abstract class AbstractModuleHandler implements ModuleHandler {
             default:
                 result = null;
                 break;
+        }
+        return result;
+    }
+
+    protected String getSystemModuleTypeUID(String moduleTypeUID) {
+        StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, String.valueOf(MODULE_TYPE_UID_SEPARATOR));
+        return tokenizer.nextToken();
+    }
+
+    private ModuleType getSystemModuleType(List<ModuleType> moduleTypes) {
+        ModuleType result = null;
+        String systemModuleTypeUID = getSystemModuleTypeUID(module.getTypeUID());
+        for (ModuleType m : moduleTypes) {
+            if (m.getUID().equalsIgnoreCase(systemModuleTypeUID)) {
+                result = m;
+                break;
+            }
         }
         return result;
     }

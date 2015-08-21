@@ -39,6 +39,6 @@ public interface ModuleHandlerFactory {
      *
      * @return ModuleHandler instance.
      */
-    public <T extends ModuleHandler> T create(Module module);
+    public ModuleHandler create(Module module);
 
 }

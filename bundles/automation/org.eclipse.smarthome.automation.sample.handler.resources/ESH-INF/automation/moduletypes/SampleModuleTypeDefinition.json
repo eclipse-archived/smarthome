@@ -12,7 +12,7 @@
           "defaultValue": "dtag"
         }
       }
-	  }, 
+	}, 
     "SampleTrigger:CustomTrigger": {
       "label": "CustomTrigger label",
       "description": "Custom Trigger description.",
@@ -45,7 +45,7 @@
       "input": {
         "conditionInput": {
           "type": "java.lang.String",
-          "label": "ConditionInput",
+          "label": "ConditionInput label",
           "description": "Left operand which will be evaluated.",
           "required": true
         }
@@ -69,7 +69,7 @@
         "actionInput": {
           "type": "java.lang.String",
           "label": "ActionInput label",
-          "description": "Text that will be printed.",
+          "description": "Defines the actionInput.",
           "required": true
         }
       }
@@ -82,7 +82,7 @@
           "type": "TEXT",
           "label": "custom message label",
           "description": "Defines the custom message description.",
-          "context": "{\"nameRef\": \"$message\", \"valueRef\": \"$customActionInput\"}",
+          "context": "(nameRef=$message, valueRef=$customActionInput)",
           "defaultValue": ">>> Default Custom Message",
           "required": false
         }

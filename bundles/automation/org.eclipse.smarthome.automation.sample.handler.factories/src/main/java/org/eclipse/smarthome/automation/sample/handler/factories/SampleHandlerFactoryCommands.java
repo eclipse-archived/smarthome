@@ -91,6 +91,9 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
 
     private void executeTriggerHandler(String[] params, Console console) {
         if (params.length >= 1) {
+            if (currentTriggers == null || currentTriggers.isEmpty()) {
+                currentTriggers = sampleHandlerFactory.getCreatedTriggerHandler();
+            }
             int index = Integer.parseInt(params[0]);
             String param = null;
             if (currentTriggers.size() >= index) {
