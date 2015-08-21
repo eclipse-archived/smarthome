@@ -11,9 +11,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,20 +35,20 @@ public class MapTransformationService extends AbstractFileTransformationService<
      * a file which is stored under the 'configurations/transform' folder. This file should be in property syntax, i.e.
      * simple lines with "key=value" pairs. To organize the various transformations one might use subfolders.
      * </p>
-     * 
+     *
      * @param properties
-     *            the list of properties which contains the key value pairs for the mapping. 
+     *            the list of properties which contains the key value pairs for the mapping.
      * @param source
      *            the input to transform
-     * 
+     *
      * @{inheritDoc
-     * 
-     */  
+     *
+     */
     @Override
-    protected String internalTransform(Properties properties, String source)  throws TransformationException {
+    protected String internalTransform(Properties properties, String source) throws TransformationException {
         String target = properties.getProperty(source);
         if (target != null) {
-            logger.debug("transformation resulted in '{}'", target);            
+            logger.debug("transformation resulted in '{}'", target);
         }
         return target;
     }
