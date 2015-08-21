@@ -105,20 +105,17 @@ public class RuleJSONParser implements Parser<Rule> {
         }
         Map<String, Object> configurations = null;
         Rule rule = null;
-        String uid = JSONUtility.getString(JSONStructureConstants.VISIBILITY, true, jsonRule, status);
+        String uid = JSONUtility.getString(JSONStructureConstants.UID, true, jsonRule, status);
         String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.TEMPLATE_UID, true, jsonRule, status);
         if (ruleTemplateUID != null) {
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
-            configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
-            try {
-                if (uid != null)
-                    rule = new Rule(uid, ruleTemplateUID, configurations);
-                else
-                    rule = new Rule(ruleTemplateUID, configurations);
-            } catch (Exception e) {
-                status.error("Failed to instantiate rule: " + e.getMessage(), e);
+            configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
+            if (configurations == null)
                 return status;
-            }
+            if (uid != null)
+                rule = new Rule(uid, ruleTemplateUID, configurations);
+            else
+                rule = new Rule(ruleTemplateUID, configurations);
         } else {
             List<Trigger> triggers = new ArrayList<Trigger>();
             List<Condition> conditions = new ArrayList<Condition>();
@@ -130,10 +127,9 @@ public class RuleJSONParser implements Parser<Rule> {
             if (!ModuleJSONParser.createTrigerModules(status, triggers, sectionTrigers))
                 return status;
             JSONArray sectionConditions = JSONUtility.getJSONArray(JSONStructureConstants.IF, true, jsonRule, status);
-            if (sectionConditions != null) {
-                if (!ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
-                    return status;
-            }
+            if (sectionConditions != null
+                    && !ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
+                return status;
             JSONArray sectionActions = JSONUtility.getJSONArray(JSONStructureConstants.THEN, false, jsonRule, status);
             if (sectionActions == null)
                 return status;
@@ -147,23 +143,22 @@ public class RuleJSONParser implements Parser<Rule> {
                     return status;
                 }
             }
-            try {
-                if (uid != null)
-                    rule = new Rule(uid, triggers, conditions, actions, configDescriptions, configurations);
-                else
-                    rule = new Rule(triggers, conditions, actions, configDescriptions, configurations);
-            } catch (Exception e) {
-                status.error("Failed to validate connections of Rule! " + e.getMessage(), e);
-                return status;
-            }
+            if (uid != null)
+                rule = new Rule(uid, triggers, conditions, actions, configDescriptions, configurations);
+            else
+                rule = new Rule(triggers, conditions, actions, configDescriptions, configurations);
         }
+
         String ruleName = JSONUtility.getString(JSONStructureConstants.NAME, true, jsonRule, status);
         if (ruleName != null)
             rule.setName(ruleName);
-        else
-            return status;
+        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonRule, status);
+        if (description != null)
+            rule.setDescription(description);
         JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonRule, status);
-        if (jsonTags != null) {
+        if (jsonTags != null)
+
+        {
             Set<String> tags = new LinkedHashSet<String>();
             for (int j = 0; j < jsonTags.length(); j++) {
                 String tag = JSONUtility.getString(JSONStructureConstants.TAGS, j, jsonTags, status);
@@ -172,9 +167,12 @@ public class RuleJSONParser implements Parser<Rule> {
             }
             rule.setTags(tags);
         }
+        if (status.hasErrors())
+            return status;
         status.success(rule);
         status.init(Status.RULE, rule.getUID());
         return status;
+
     }
 
     /**
@@ -232,9 +230,9 @@ public class RuleJSONParser implements Parser<Rule> {
         Map<String, ?> configValues = rule.getConfiguration();
         ruleConfigurationToJSON(configDescriptions, configValues, writer);
 
-        List<Trigger> triggers = rule.getModules(Trigger.class);
-        List<Condition> conditions = rule.getModules(Condition.class);
-        List<Action> actions = rule.getModules(Action.class);
+        List<Trigger> triggers = rule.getTriggers();
+        List<Condition> conditions = rule.getConditions();
+        List<Action> actions = rule.getActions();
 
         writer.write("    \"" + JSONStructureConstants.ON + "\":[\n");
         ModuleJSONParser.writeModules(triggers, writer);

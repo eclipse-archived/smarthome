@@ -29,18 +29,18 @@ import org.slf4j.LoggerFactory;
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
 
     private RuleEngine ruleEngine;
-    private Set<String> disabledRuledSet;
+    private Set<String> disabledRuledSet = new HashSet(0);
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
 
-    public RuleRegistryImpl(RuleEngine ruleManager, ManagedRuleProvider rp, Storage<Boolean> disabledRules) {
+    public RuleRegistryImpl(RuleEngine ruleManager) {
         logger = LoggerFactory.getLogger(getClass());
-        this.disabledRulesStorage = disabledRules;
-        disabledRuledSet = loadDisabledRuleMap();
+        // this.disabledRulesStorage = disabledRules;
+        // disabledRuledSet = loadDisabledRuleMap();
         this.ruleEngine = ruleManager;
-        if (rp != null) {
-            addProvider(rp);
-        }
+        // if (rp != null) {
+        // addProvider(rp);
+        // }
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
             try {
                 addIntoRuleEngine(rule);
             } catch (Exception e) {
-                logger.error("Can't add rule: " + rule.getUID() + " into rule enfine.", e);
+                logger.error("Can't add rule: " + rule.getUID() + " into rule engine.", e);
             }
 
         }
@@ -60,23 +60,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     public synchronized void add(Rule element) {
-        RuleImpl ruleWithId = addIntoRuleEngine(element);
-        super.add(ruleWithId);
+        addIntoRuleEngine(element);
+        super.add(element);
     }
 
-    private RuleImpl addIntoRuleEngine(Rule element) {
-        RuleImpl ruleWithId;
-        String rUID = element.getUID();
-        if (rUID == null) {
-            ruleWithId = ruleEngine.addRule0(element, ruleEngine.getScopeIdentifier());
-        } else {
-            ruleWithId = (RuleImpl) element;
-        }
-        if (disabledRuledSet.contains(ruleWithId.getUID())) {
+    private String addIntoRuleEngine(Rule element) {
+        String rUID = ruleEngine.addRule(element);
+        if (disabledRuledSet.contains(rUID)) {
             ruleEngine.setRuleEnabled(rUID, false);
         }
-        ruleEngine.setRule(ruleWithId);
-        return ruleWithId;
+
+        ruleEngine.setRule(rUID);
+        return rUID;
     }
 
     @Override
@@ -163,4 +158,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return result;
     }
 
+    protected void setDisabledRuleStorage(Storage disabledRulesStorage) {
+        this.disabledRulesStorage = disabledRulesStorage;
+        disabledRuledSet = loadDisabledRuleMap();
+        // TODO disabled active rules
+    }
 }

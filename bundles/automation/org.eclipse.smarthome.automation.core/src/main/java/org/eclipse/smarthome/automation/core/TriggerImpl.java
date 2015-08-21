@@ -24,7 +24,13 @@ public class TriggerImpl extends Trigger implements SourceModule {
         super(id, typeUID, configuration);
     }
 
-    protected TriggerImpl(TriggerImpl trigger) {
+    // protected TriggerImpl(TriggerImpl trigger) {
+    // super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
+    // setLabel(trigger.getLabel());
+    // setDescription(trigger.getDescription());
+    // }
+
+    public TriggerImpl(Trigger trigger) {
         super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());

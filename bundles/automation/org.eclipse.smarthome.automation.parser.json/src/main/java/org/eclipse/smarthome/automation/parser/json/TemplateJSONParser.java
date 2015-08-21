@@ -229,9 +229,11 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
             return status;
         if (!ModuleJSONParser.createTrigerModules(status, triggers, sectionTrigers))
             return status;
-        if (ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
-            if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
-                return status;
+        if (sectionConditions != null
+                && !ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
+            return status;
+        if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
+            return status;
         // get configuration description of rule template
         LinkedHashSet<ConfigDescriptionParameter> configDescriptions = null;
         JSONObject config = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, false, jsonRuleTemplate, status);

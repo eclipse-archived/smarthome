@@ -7,6 +7,10 @@
  */
 package org.eclipse.smarthome.automation.core;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.core.template.TemplateRegistryImpl;
@@ -38,6 +42,7 @@ public class Activator implements BundleActivator {
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
     private RuleRegistryImpl ruleRegistry;
+    private ServiceRegistration/* <?> */ ruleProviderReg;
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ templateRegistryReg;
     @SuppressWarnings("rawtypes")
@@ -56,19 +61,23 @@ public class Activator implements BundleActivator {
 
         final RuleEngine rm = new RuleEngine(bc);
 
+        ruleRegistry = new RuleRegistryImpl(rm);
+        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+
         storageTracker = new ServiceTracker(bc, StorageService.class.getName(), new ServiceTrackerCustomizer() {
 
             @Override
             public Object addingService(ServiceReference reference) {
                 StorageService storage = (StorageService) bc.getService(reference);
                 if (storage != null) {
-                    final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
-
                     Storage storageDisabledRules = storage.getStorage("automation_rules_disabled",
                             this.getClass().getClassLoader());
-
-                    ruleRegistry = new RuleRegistryImpl(rm, rp, storageDisabledRules);
-                    ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+                    ruleRegistry.setDisabledRuleStorage(storageDisabledRules);
+                    final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
+                    ruleRegistry.addProvider(rp);
+                    Dictionary props = new Hashtable(3);
+                    props.put("REG_PROP_MANAGED_PROVIDE", Boolean.TRUE);
+                    ruleProviderReg = bc.registerService(RuleProvider.class.getName(), rp, props);
                 }
                 return storage;
             }
@@ -79,6 +88,11 @@ public class Activator implements BundleActivator {
 
             @Override
             public void removedService(ServiceReference reference, Object service) {
+                if (ruleProviderReg != null) {
+                    ruleProviderReg.unregister();
+                    ruleProviderReg = null;
+                }
+
                 if (ruleRegistryReg != null) {
                     ruleRegistryReg.unregister();
                     ruleRegistry.dispose();

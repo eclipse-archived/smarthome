@@ -177,7 +177,7 @@ public class AutomationCommandList extends AutomationCommand {
         for (String uid : listRules.values()) {
             StringBuilder res = new StringBuilder();
             res.append(uid);
-            int count = 80 - uid.length();
+            int count = 83 - uid.length();
             RuleStatus status = autoCommands.getRuleStatus(uid);
             if (status != null) {
                 Printer.printChars(res, ' ', count, false);

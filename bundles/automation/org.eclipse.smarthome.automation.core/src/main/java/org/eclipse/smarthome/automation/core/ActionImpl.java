@@ -63,7 +63,13 @@ public class ActionImpl extends Action implements ConnectedModule, SourceModule 
      *
      * @param action another action which is uses as base of created
      */
-    protected ActionImpl(ActionImpl action) {
+    // protected ActionImpl(ActionImpl action) {
+    // super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
+    // setLabel(action.getLabel());
+    // setDescription(action.getDescription());
+    // }
+
+    public ActionImpl(Action action) {
         super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
         setLabel(action.getLabel());
         setDescription(action.getDescription());

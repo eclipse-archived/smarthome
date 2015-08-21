@@ -42,32 +42,31 @@ public class ModuleJSONParser {
      * @return
      */
     static boolean createTrigerModules(Status status, List<Trigger> triggerModules, JSONArray onSection) {
-        boolean res = true;
         if (onSection == null) {
             return false;
         }
         for (int index = 0; index < onSection.length(); index++) {
             JSONObject jsonTrigger = JSONUtility.getJSONObject(JSONStructureConstants.ON, index, onSection, status);
             if (jsonTrigger == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonTrigger, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String triggerId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonTrigger, status);
-            if (triggerId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonTrigger, status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
             Trigger trigger = new Trigger(triggerId, uid, configurations);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonTrigger, status);
+            if (label != null)
+                trigger.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonTrigger, status);
+            if (description != null)
+                trigger.setDescription(description);
             triggerModules.add(trigger);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -80,35 +79,30 @@ public class ModuleJSONParser {
      * @return
      */
     static boolean createConditionModules(Status status, List<Condition> conditions, JSONArray ifSection) {
-        boolean res = true;
         for (int index = 0; index < ifSection.length(); index++) {
             JSONObject jsonCondition = JSONUtility.getJSONObject(JSONStructureConstants.IF, index, ifSection, status);
             if (jsonCondition == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonCondition, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String conditionId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonCondition, status);
-            if (conditionId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonCondition,
                     status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
             Set<Connection> connections = ModuleJSONParser.collectConnections(jsonCondition, status);
-            if (connections == null) {
-                res = false;
-                continue;
-            }
             Condition condition = new Condition(conditionId, uid, configurations, connections);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonCondition, status);
+            if (label != null)
+                condition.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonCondition, status);
+            if (description != null)
+                condition.setDescription(description);
             conditions.add(condition);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -121,37 +115,32 @@ public class ModuleJSONParser {
      * @return
      */
     static boolean createActionModules(Status status, List<Action> actions, JSONArray thenSection) {
-        boolean res = true;
         if (thenSection == null) {
             return false;
         }
         for (int index = 0; index < thenSection.length(); index++) {
             JSONObject jsonAction = JSONUtility.getJSONObject(JSONStructureConstants.THEN, index, thenSection, status);
             if (jsonAction == null) {
-                res = false;
                 continue;
             }
             String uid = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonAction, status);
-            if (uid == null) {
-                res = false;
-                continue;
-            }
             String actionId = JSONUtility.getString(JSONStructureConstants.ID, false, jsonAction, status);
-            if (actionId == null) {
-                res = false;
-                continue;
-            }
             JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonAction, status);
-            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig);
+            Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
             Set<Connection> connections = ModuleJSONParser.collectConnections(jsonAction, status);
-            if (connections == null) {
-                res = false;
-                continue;
-            }
             Action action = new Action(actionId, uid, configurations, connections);
+            String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonAction, status);
+            if (label != null)
+                action.setLabel(label);
+            String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonAction, status);
+            if (description != null)
+                action.setDescription(description);
             actions.add(action);
         }
-        return res;
+        if (status.hasErrors()) {
+            return false;
+        }
+        return true;
     }
 
     /**

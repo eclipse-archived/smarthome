@@ -131,7 +131,7 @@ public class ConfigPropertyJSONParser {
      * @param jsonConfig is a JSON representation of the Configuration.
      * @return a map with pairs of configuration parameter names and configuration parameter values.
      */
-    static Map<String, Object> getConfigurationValues(JSONObject jsonConfig) {
+    static Map<String, Object> getConfigurationValues(JSONObject jsonConfig, Status status) {
         Map<String, Object> configurations = new HashMap<String, Object>();
         if (jsonConfig == null) {
             return configurations;
@@ -142,7 +142,8 @@ public class ConfigPropertyJSONParser {
             try {
                 configurations.put(configPropertyName, jsonConfig.get(configPropertyName));
             } catch (JSONException e) {
-                e.printStackTrace();
+                status.error("Failed to get the value for ConfigDescriptionParameter - " + configPropertyName, e);
+                return null;
             }
         }
         return configurations;
@@ -488,7 +489,7 @@ public class ConfigPropertyJSONParser {
     }
 
     /**
-     * 
+     *
      * @param jsonArr
      * @return
      */

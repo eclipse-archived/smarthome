@@ -34,16 +34,6 @@ public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, St
     }
 
     @Override
-    protected Rule toElement(String key, Rule rule) {
-        return rule;
-    }
-
-    @Override
-    protected Rule toPersistableElement(Rule element) {
-        return element;
-    }
-
-    @Override
     public void addProviderChangeListener(ProviderChangeListener<Rule> listener) {
         // TODO Auto-generated method stub
 

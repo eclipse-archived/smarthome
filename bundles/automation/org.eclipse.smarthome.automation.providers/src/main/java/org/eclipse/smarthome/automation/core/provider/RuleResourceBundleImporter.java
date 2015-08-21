@@ -17,11 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
@@ -206,8 +203,8 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      */
     private Rule setUID(Vendor vendor, Rule rule) {
         String uid = vendor.getVendorID() + vendor.count();
-        Rule r = new Rule(uid, rule.getModules(Trigger.class), rule.getModules(Condition.class),
-                rule.getModules(Action.class), rule.getConfigurationDescriptions(), rule.getConfiguration());
+        Rule r = new Rule(uid, rule.getTriggers(), rule.getConditions(), rule.getActions(),
+                rule.getConfigurationDescriptions(), rule.getConfiguration());
         r.setName(rule.getName());
         r.setDescription(rule.getDescription());
         r.setTags(rule.getTags());

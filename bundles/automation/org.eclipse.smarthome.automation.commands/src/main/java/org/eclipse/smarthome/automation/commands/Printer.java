@@ -119,7 +119,7 @@ public class Printer {
             printChars(writer, ' ', 4, false);
             writer.append(printConfigurationDescription(cd) + "\n");
         }
-        List<Trigger> triggers = rule.getModules(Trigger.class);
+        List<Trigger> triggers = rule.getTriggers();
         if (triggers != null && !triggers.isEmpty()) {
             writer.append("TRIGGERS");
             printChars(writer, ' ', 22, false);
@@ -131,7 +131,7 @@ public class Printer {
                     printChars(writer, ' ', 30, false);
             }
         }
-        List<Condition> conditions = rule.getModules(Condition.class);
+        List<Condition> conditions = rule.getConditions();
         if (conditions != null && !conditions.isEmpty()) {
             writer.append("CONDITIONS");
             printChars(writer, ' ', 20, false);
@@ -143,7 +143,7 @@ public class Printer {
                     printChars(writer, ' ', 30, false);
             }
         }
-        List<Action> actions = rule.getModules(Action.class);
+        List<Action> actions = rule.getActions();
         if (actions != null && !actions.isEmpty()) {
             writer.append("ACTIONS");
             printChars(writer, ' ', 23, false);
