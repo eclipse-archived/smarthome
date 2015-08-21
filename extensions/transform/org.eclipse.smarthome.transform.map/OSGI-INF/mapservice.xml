@@ -8,7 +8,7 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.transform.processor.map">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.transform.processor.map">
    <implementation class="org.eclipse.smarthome.transform.map.internal.MapTransformationService" />
    
    <service>
