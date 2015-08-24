@@ -151,7 +151,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     protected String addRule0(Rule rule, String identity) {
         RuleImpl r1;
-        String rUID;
+        String rUID = rule.getUID();
         boolean isDisabled = false;
         String ruleTemplateUID = rule.getTemplateUID();
         if (ruleTemplateUID != null) {
@@ -168,7 +168,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             r1 = new RuleImpl(rule);
         }
 
-        rUID = getRuleUID(r1);
+        rUID = getRuleUID(rUID);
         r1.setScopeIdentifier(identity);
         r1.setUID(rUID);
         if (isDisabled) {
@@ -182,8 +182,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         return rUID;
     }
 
-    private String getRuleUID(Rule r) {
-        String rUID = r.getUID();
+    private String getRuleUID(String rUID) {
         if (rUID != null) {
             if (hasRule(rUID)) {
                 throw new IllegalArgumentException("The rule: " + rUID + " is already added.");

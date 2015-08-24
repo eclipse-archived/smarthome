@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
@@ -34,6 +35,11 @@ public class TriggerImpl extends Trigger implements SourceModule {
         super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());
+    }
+    
+    @Override
+    public void setConfiguration(Map<String, ?> configuration) {
+        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     @Override

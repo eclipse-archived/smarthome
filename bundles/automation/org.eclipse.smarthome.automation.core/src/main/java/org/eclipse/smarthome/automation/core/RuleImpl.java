@@ -153,6 +153,7 @@ public class RuleImpl extends Rule {
         return moduleMap;
     }
 
+    @SuppressWarnings("unused")
     private <T extends Module> List<T> getList(List<T> t) {
         if (t != null) {
             return t;
