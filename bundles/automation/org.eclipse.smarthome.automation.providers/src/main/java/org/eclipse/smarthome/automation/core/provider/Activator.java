@@ -11,7 +11,6 @@ import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is an activator of this bundle. It is responsible for initializing {@link ModuleTypeProvider} and
@@ -29,11 +28,6 @@ import org.osgi.framework.ServiceRegistration;
 public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider> implements BundleActivator {
 
     private AutomationResourceBundlesEventQueue queue;
-
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration /* <S> */ tpReg;
-    @SuppressWarnings("rawtypes")
-    private ServiceRegistration /* <T> */ mtpReg;
 
     private TemplateResourceBundleProvider tProvider;
     private ModuleTypeResourceBundleProvider mProvider;
@@ -76,10 +70,6 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
         tProvider.setQueue(queue);
         rImporter.setQueue(queue);
 
-        mtpReg = context.registerService(ModuleTypeProvider.class.getName(), mProvider, null);
-
-        tpReg = context.registerService(TemplateProvider.class.getName(), tProvider, null);
-
     }
 
     /**
@@ -102,8 +92,6 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
      */
     @Override
     public void stop(BundleContext context) throws Exception {
-        tpReg.unregister();
-        mtpReg.unregister();
         queue.stop();
         tProvider.close();
         mProvider.close();
@@ -111,8 +99,6 @@ public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider>
         tProvider = null;
         mProvider = null;
         rImporter = null;
-        tpReg = null;
-        mtpReg = null;
     }
 
 }

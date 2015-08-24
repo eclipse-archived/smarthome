@@ -10,6 +10,8 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -23,6 +25,7 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -45,8 +48,12 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         implements ModuleTypeProvider {
 
     protected ModuleTypeRegistry moduleTypeRegistry;
+
     @SuppressWarnings("rawtypes")
     private ServiceTracker moduleTypesTracker;
+
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration /* <T> */ mtpReg;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
@@ -97,6 +104,10 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             moduleTypesTracker.close();
             moduleTypesTracker = null;
             moduleTypeRegistry = null;
+        }
+        if (mtpReg != null) {
+            mtpReg.unregister();
+            mtpReg = null;
         }
         super.close();
     }
@@ -154,6 +165,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         return moduleTypeRegistry != null && queue != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(Vendor vendor, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
@@ -185,6 +197,13 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                     }
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
+        if (mtpReg == null)
+            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+        else {
+            mtpReg.setProperties(properties);
         }
         return providedObjects;
     }

@@ -16,8 +16,15 @@ import java.util.Locale;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - add registration property - rule.templates
  */
 public interface TemplateProvider {
+
+    /**
+     * This constant is used as registration property for Rule Templates Provider when the provider expects to modify
+     * the provided objects dynamically. Its value is a set of current provided rule template UIDs.
+     */
+    public static final String REG_PROPERTY_RULE_TEMPLATES = "rule.templates";
 
     /**
      * This method is used to get localized Template. When the localization is not

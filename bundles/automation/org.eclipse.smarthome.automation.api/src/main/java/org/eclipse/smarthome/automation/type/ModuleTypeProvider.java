@@ -16,8 +16,15 @@ import java.util.Locale;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - add registration property - module.types
  */
 public interface ModuleTypeProvider {
+
+    /**
+     * This constant is used as registration property for Module Types Provider when the provider expects to modify
+     * the provided objects dynamically. Its value is a set of current provided module types UIDs.
+     */
+    public static final String REG_PROPERTY_MODULE_TYPES = "module.types";
 
     /**
      * This method is used to get localized ModuleType. When the localization is

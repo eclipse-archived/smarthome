@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,10 +25,12 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of
@@ -47,6 +51,12 @@ import org.osgi.framework.ServiceReference;
  *
  */
 public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType>implements ModuleTypeProvider {
+
+    /**
+     * This field holds a reference to the {@link TemplateProvider} service registration.
+     */
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration mtpReg;
 
     /**
      * This constructor creates instances of this particular implementation of {@link ModuleTypeProvider}. It does not
@@ -146,9 +156,19 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         return moduleTypesList;
     }
 
+    @Override
+    public void close() {
+        if (mtpReg != null) {
+            mtpReg.unregister();
+            mtpReg = null;
+        }
+        super.close();
+    }
+
     /**
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
@@ -171,6 +191,13 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
                     providedObjectsHolder.put(uid, lProvidedObject);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
+        if (mtpReg == null)
+            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+        else {
+            mtpReg.setProperties(properties);
         }
         return providedObjects;
     }

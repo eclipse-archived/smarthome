@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,8 +32,10 @@ import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractCommandProvider}
@@ -48,6 +52,12 @@ import org.osgi.framework.ServiceReference;
  *
  */
 public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate>implements TemplateProvider {
+
+    /**
+     * This field holds a reference to the {@link ModuleTypeProvider} service registration.
+     */
+    @SuppressWarnings("rawtypes")
+    protected ServiceRegistration tpReg;
 
     /**
      * This constructor creates instances of this particular implementation of {@link TemplateProvider}. It does not add
@@ -145,9 +155,19 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         return templatesList;
     }
 
+    @Override
+    public void close() {
+        if (tpReg != null) {
+            tpReg.unregister();
+            tpReg = null;
+        }
+        super.close();
+    }
+
     /**
      * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
         Set<Status> providedObjects = parser.importData(inputStreamReader);
@@ -179,6 +199,13 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                     providedObjectsHolder.put(uid, lruleT);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+        if (tpReg == null)
+            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        else {
+            tpReg.setProperties(properties);
         }
         return providedObjects;
     }

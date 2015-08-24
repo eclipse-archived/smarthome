@@ -27,7 +27,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -217,18 +216,6 @@ public abstract class AutomationCommands {
     protected CommandlineRuleImporter ruleImporter;
 
     /**
-     * This field holds a reference to the {@link ModuleTypeProvider} service registration.
-     */
-    @SuppressWarnings("rawtypes")
-    protected ServiceRegistration tpReg;
-
-    /**
-     * This field holds a reference to the {@link TemplateProvider} service registration.
-     */
-    @SuppressWarnings("rawtypes")
-    protected ServiceRegistration mtpReg;
-
-    /**
      * This constructor is responsible for initializing instances of {@link CommandlineModuleTypeProvider},
      * {@link CommandlineTemplateProvider} and {@link CommandlineRuleImporter} and for registering the services
      * {@link ModuleTypeProvider} and {@link TemplateProvider}
@@ -241,13 +228,6 @@ public abstract class AutomationCommands {
         moduleTypeProvider = new CommandlineModuleTypeProvider(bc);
         templateProvider = new CommandlineTemplateProvider(bc);
         ruleImporter = new CommandlineRuleImporter(bc);
-
-        mtpReg = bc.registerService(
-                new String[] { ModuleTypeProvider.class.getName(), ModuleTypeProvider.class.getName() },
-                moduleTypeProvider, null);
-
-        tpReg = bc.registerService(new String[] { TemplateProvider.class.getName(), TemplateProvider.class.getName() },
-                templateProvider, null);
     }
 
     /**
@@ -512,8 +492,6 @@ public abstract class AutomationCommands {
         moduleTypeProvider.close();
         templateProvider.close();
         ruleImporter.close();
-        mtpReg.unregister();
-        tpReg.unregister();
         moduleTypeProvider = null;
         templateProvider = null;
         ruleImporter = null;

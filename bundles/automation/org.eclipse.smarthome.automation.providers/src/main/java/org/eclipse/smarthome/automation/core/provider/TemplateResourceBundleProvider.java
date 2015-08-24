@@ -10,6 +10,8 @@ package org.eclipse.smarthome.automation.core.provider;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +33,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
@@ -55,8 +58,12 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
     protected TemplateRegistry templateRegistry;
     protected ModuleTypeRegistry moduleTypeRegistry;
+
     @SuppressWarnings("rawtypes")
     private ServiceTracker tracker;
+
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration /* <S> */ tpReg;
 
     /**
      * This constructor is responsible for initializing the path to resources and tracking the managing service of the
@@ -121,6 +128,10 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             moduleTypeRegistry = null;
             templateRegistry = null;
         }
+        if (tpReg != null) {
+            tpReg.unregister();
+            tpReg = null;
+        }
         super.close();
     }
 
@@ -177,6 +188,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         return moduleTypeRegistry != null && templateRegistry != null && queue != null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Set<Status> importData(Vendor vendor, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
@@ -215,6 +227,13 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     providedObjectsHolder.put(uid, lruleT);
                 }
             }
+        }
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+        if (tpReg == null)
+            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        else {
+            tpReg.setProperties(properties);
         }
         return providedObjects;
     }
