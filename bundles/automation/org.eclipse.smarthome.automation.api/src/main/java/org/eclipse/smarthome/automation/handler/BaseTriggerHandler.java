@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class BaseTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
-    private RuleEngineCallback ruleCallBack;
+    protected RuleEngineCallback ruleCallBack;
     private Logger log;
 
     public BaseTriggerHandler(Trigger module, List<ModuleType> moduleTypes) {

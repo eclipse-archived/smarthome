@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.module;
 
+import org.eclipse.smarthome.automation.module.factory.ItemBasedModuleHandlerFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -21,9 +22,10 @@ import org.slf4j.LoggerFactory;
 public class Activator implements BundleActivator {
 
 	private final Logger logger = LoggerFactory.getLogger(Activator.class);
-	private static BundleContext context;
+	private BundleContext context;
+	private ItemBasedModuleHandlerFactory moduleHandlerFactory;
 
-	public static BundleContext getContext() {
+	public BundleContext getContext() {
 		return context;
 	}
 
@@ -34,7 +36,8 @@ public class Activator implements BundleActivator {
 	 * BundleContext)
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
-		Activator.context = bundleContext;
+		this.context = bundleContext;
+		this.moduleHandlerFactory = new ItemBasedModuleHandlerFactory(context);
 		logger.debug("started bundle automation.module");
 	}
 
@@ -45,7 +48,8 @@ public class Activator implements BundleActivator {
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
-		Activator.context = null;
+		this.context = null;
+		this.moduleHandlerFactory.dispose();
 	}
 
 }

@@ -10,18 +10,16 @@ package org.eclipse.smarthome.automation.module.handler;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
-import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.module.Activator;
-import org.eclipse.smarthome.automation.module.factory.ItemBasedModuleHandlerFactory;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.handler.BaseTriggerHandler;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.types.State;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,27 +31,29 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues
  *
  */
-public class ItemStateChangeTriggerHandler extends AbstractModuleHandler implements TriggerHandler {
+public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
 
 	public static final String ITEM_STATE_CHANGE_TRIGGER = "ItemStateChangeTrigger";
 	public static final String ITEM_NAME = "itemName";
 	public static final String NEW_STATE = "newState";
 
 	private final Logger logger = LoggerFactory.getLogger(ItemStateChangeTriggerHandler.class);
+	
+	private BundleContext context;
+	
 	private Trigger trigger;
 	private EventSubscriber itemStateUpdateReceiver;
 	
-	RuleEngineCallback ruleCallback;
-
 	private ServiceRegistration<EventSubscriber> itemStateUpdateReceiverServiceRegistration;
 
-	public ItemStateChangeTriggerHandler(Trigger trigger) {
-		super(trigger);
+	public ItemStateChangeTriggerHandler(Trigger trigger, List<ModuleType> moduleTypes, BundleContext context) {
+		super(trigger,moduleTypes);
 		this.trigger = trigger;
+		this.context=context;
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("event.topics", "smarthome/*");
 		this.itemStateUpdateReceiver = new ItemStateUpdateReceiver(this);
-		itemStateUpdateReceiverServiceRegistration = Activator.getContext().registerService(EventSubscriber.class,
+		itemStateUpdateReceiverServiceRegistration = this.context.registerService(EventSubscriber.class,
 				itemStateUpdateReceiver, properties);
 	}
 
@@ -71,17 +71,10 @@ public class ItemStateChangeTriggerHandler extends AbstractModuleHandler impleme
 		return getResolvedOutputs(getResolvedConfiguration(null), null, ret);
 	}
 
-	@Override
 	public void dispose() {
-		super.dispose();
-		itemStateUpdateReceiverServiceRegistration.unregister();
 		itemStateUpdateReceiver = null;
 	}
 
-	@Override
-	public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-		this.ruleCallback = ruleCallback;
-	}
 
 	/**
 	 * this is the callback method for the ItemStateUpdateReceiver
@@ -93,20 +86,21 @@ public class ItemStateChangeTriggerHandler extends AbstractModuleHandler impleme
 		Map<String, Object> configuration = getResolvedConfiguration(null);
 		String itemName = (String) configuration.get(ITEM_NAME);
 
-		if (ruleCallback == null) {
+		if (ruleCallBack == null) {
 			logger.error("the rule Callback is not initialized for ItemUpdate Event on item: " + itemName);
 		}
 		if (itemName.equals(event.getItemName())) {
 			logger.debug("triggering rule callback on ItemStateEvent: " + event.getItemName() + " --> "
 					+ event.getItemState());
-			ruleCallback.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
+			ruleCallBack.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
 		}
 
 	}
 
 	@Override
-	protected ModuleTypeRegistry getModuleTypeRegistry() {
-		return ItemBasedModuleHandlerFactory.getModuleTypeRegistry();
+	protected Map<String, Object> getTriggerValues() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

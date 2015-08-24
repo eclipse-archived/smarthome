@@ -8,12 +8,15 @@
 package org.eclipse.smarthome.automation.module.handler;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
+import org.eclipse.smarthome.automation.handler.BaseActionHandler;
 import org.eclipse.smarthome.automation.module.factory.ItemBasedModuleHandlerFactory;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
@@ -33,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues
  *
  */
-public class ItemPostCommandActionHandler extends AbstractModuleHandler implements ActionHandler {
+public class ItemPostCommandActionHandler extends BaseActionHandler implements ActionHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(ItemPostCommandActionHandler.class);
 
@@ -44,8 +47,14 @@ public class ItemPostCommandActionHandler extends AbstractModuleHandler implemen
 	private ItemRegistry itemRegistry;
 	private EventPublisher eventPublisher;
 
-	public ItemPostCommandActionHandler(Module module) {
-		super(module);
+	/**
+	 * constructs a new ItemPostCommandActionHandler
+	 * 
+	 * @param module
+	 * @param moduleTypes
+	 */
+	public ItemPostCommandActionHandler(Action module, List<ModuleType> moduleTypes) {
+		super(module, moduleTypes);
 	}
 
 	/**
@@ -86,14 +95,16 @@ public class ItemPostCommandActionHandler extends AbstractModuleHandler implemen
 
 	@Override
 	public void dispose() {
+		this.eventPublisher = null;
+		this.itemRegistry = null;
 	}
 
 	@Override
-	public Map<String, Object> execute(Map<String, ?> inputs) {
-		Map<String, Object> configuration = getResolvedConfiguration(inputs);
-		String itemName = (String) configuration.get(ITEM_NAME);
-		String command = (String) configuration.get(COMMAND);
-		if (itemName != null && command != null && eventPublisher != null) {
+	protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
+			Map<String, Object> resolvedConfiguration) {
+		String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
+		String command = (String) resolvedConfiguration.get(COMMAND);
+		if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {
 			try {
 				Item item = itemRegistry.getItem(itemName);
 				Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
@@ -102,16 +113,14 @@ public class ItemPostCommandActionHandler extends AbstractModuleHandler implemen
 						itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
 				eventPublisher.post(itemCommandEvent);
 			} catch (ItemNotFoundException e) {
-				logger.error("Item with name " + itemName + " not found in ItemRegistry.");
+				logger.error("Item with name {} not found in ItemRegistry.", itemName);
 			}
+		} else {
+			logger.error(
+					"Command was not posted because either the configuration was not correct or a Service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
+					itemName, command, eventPublisher, itemRegistry);
 		}
-		return new HashMap<String, Object>();
-
-	}
-
-	@Override
-	protected ModuleTypeRegistry getModuleTypeRegistry() {
-		return ItemBasedModuleHandlerFactory.getModuleTypeRegistry();
+		return null;
 	}
 
 }

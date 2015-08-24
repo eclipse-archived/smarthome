@@ -7,13 +7,12 @@
  */
 package org.eclipse.smarthome.automation.module.handler;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.handler.AbstractModuleHandler;
-import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.module.factory.ItemBasedModuleHandlerFactory;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.handler.BaseConditionHandler;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Benedikt Niehues
  *
  */
-public class ItemStateConditionHandler extends AbstractModuleHandler implements ConditionHandler {
+public class ItemStateConditionHandler extends BaseConditionHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
 
@@ -45,8 +44,8 @@ public class ItemStateConditionHandler extends AbstractModuleHandler implements 
 	private static final String OPERATOR = "operator";
 	private static final String STATE = "state";
 
-	public ItemStateConditionHandler(Condition condition) {
-		super(condition);
+	public ItemStateConditionHandler(Condition condition, List<ModuleType> moduleTypes) {
+		super(condition, moduleTypes);
 	}
 
 	/**
@@ -73,14 +72,17 @@ public class ItemStateConditionHandler extends AbstractModuleHandler implements 
 	}
 
 	@Override
-	public boolean isSatisfied(Map<String, ?> inputs) {
-		Map<String, Object> config = getResolvedConfiguration(inputs);
-		String itemName = (String) config.get(ITEM_NAME);
-		String state = (String) config.get(STATE);
-		String operator = (String) config.get(OPERATOR);
+	protected boolean evaluateCondition(Map<String, Object> resolvedInputs, Map<String, Object> resolvedConfiguration) {
+		String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
+		String state = (String) resolvedConfiguration.get(STATE);
+		String operator = (String) resolvedConfiguration.get(OPERATOR);
 		if (operator == null || state == null || itemName == null) {
 			logger.error("Module is not well configured: itemName={}  operator={}  state = {}", itemName, operator,
 					state);
+			return false;
+		}
+		if (itemRegistry == null){
+			logger.error("The ItemRegistry is not available to evaluate the condition.");
 			return false;
 		}
 		try {
@@ -112,11 +114,6 @@ public class ItemStateConditionHandler extends AbstractModuleHandler implements 
 			return false;
 		}
 		return false;
-	}
-
-	@Override
-	protected ModuleTypeRegistry getModuleTypeRegistry() {
-		return ItemBasedModuleHandlerFactory.getModuleTypeRegistry();
 	}
 
 }

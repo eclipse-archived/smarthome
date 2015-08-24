@@ -13,13 +13,13 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 
 /**
- * {@link BaseModuleHandlerFactory} provides a base implementation for the
+ * {@link XBaseModuleHandlerFactory} provides a base implementation for the
  * {@link ModuleHandlerFactory} interface.
  * 
  * @author Benedikt Niehues
  *
  */
-public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory {
+public abstract class XBaseModuleHandlerFactory implements ModuleHandlerFactory {
 
 	protected static ModuleTypeRegistry moduleTypeRegistry;
 

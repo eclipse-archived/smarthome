@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("rawtypes")
 public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, ServiceTrackerCustomizer {
     public static final String MODULE_TYPE_UID_SEPARATOR = ":";
-    private BundleContext bundleContext;
+    protected BundleContext bundleContext;
     private ServiceTracker serviceTracker;
     private ServiceReference moduleTypeRegistryRef;
     private ServiceRegistration serviceReg;
