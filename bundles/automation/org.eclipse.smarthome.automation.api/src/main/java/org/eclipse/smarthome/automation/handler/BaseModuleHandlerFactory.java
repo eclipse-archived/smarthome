@@ -120,6 +120,17 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, 
         bundleContext.ungetService(reference);
     }
 
+    /**
+     * Creates ModuleHandler for given Module.
+     *
+     * @param module the Module for which ModuleHandler will be created
+     * @param systemModuleTypeUID the System ModuleType (ModuleHandler UID)
+     * @param moduleTypes All ModuleTypes needed for this Module
+     *            For example: If Module has {@link Module#getTypeUID()} ->
+     *            SystemModuleType:CustomModuleType:CustomModuleType2
+     *            List of these 3 ModuleTypes will be passed.
+     * @return ModuleHandler for the given Module or <code>null</code> if creation have failed.
+     */
     protected abstract ModuleHandler createModuleHandlerInternal(Module module, String systemModuleTypeUID,
             List<ModuleType> moduleTypes);
 

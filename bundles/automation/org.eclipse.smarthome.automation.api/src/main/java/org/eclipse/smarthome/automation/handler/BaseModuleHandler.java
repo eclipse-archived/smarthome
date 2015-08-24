@@ -156,6 +156,11 @@ public abstract class BaseModuleHandler<T extends Module> implements ModuleHandl
      * Creates Base {@link ModuleHandler} object.
      *
      * @param module the Module for which ModuleHandler is created
+     * @param moduleTypes list of {@link ModuleType} needed to build all references between Custom ModuleTypes and
+     *            System ModuleType
+     *            For example: If Module has {@link Module#getTypeUID()} ->
+     *            SystemModuleType:CustomModuleType:CustomModuleType2
+     *            List of these 3 ModuleTypes must be passed.
      */
     public BaseModuleHandler(T module, List<ModuleType> moduleTypes) {
         if (module == null) {
