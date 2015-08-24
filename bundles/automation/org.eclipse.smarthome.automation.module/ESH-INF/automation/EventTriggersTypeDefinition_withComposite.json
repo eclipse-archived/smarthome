@@ -53,6 +53,46 @@
 	            }
 			}
 		}
+	},
+	"composite":{
+		"ItemStateChangeTrigger": {
+        	"label": "Trigger on ItemState chang",
+        	"description": "This trigger executes rules if an items state has chaged.",
+        	"config": {
+        		"itemName": {
+            		"type": "text",
+            		"label": "ItemName",
+            		"description": "This is the name of the item which should be observed for state changes",
+            		"required": true,
+            		"defaultValue": "item1"
+          	  	}
+			},
+			"triggers":[
+				{
+					"id":"itemStateChangeTrigger",
+					"type":"GenericEventTrigger",
+					"config":{
+						"eventSource":"$itemName",
+						"eventTopic":"smarthome/*",
+						"eventTypes":"update"
+					}
+				}
+			],		  
+        	"output": {
+          	  	"itemName": {
+            	  "type": "java.lang.String",
+            	  "label": "the changed item name",
+            	  "description": "The name of the item.",
+            	  "reference": "$source"
+          		},
+  		 	   "newState": {
+				   "type": "java.lang.String",
+				   "label": "the new state",
+				   "description": "the new state of the item.",
+				   "reference": "$payload"
+  			   }
+        	}
+		}
 	}
 }
 

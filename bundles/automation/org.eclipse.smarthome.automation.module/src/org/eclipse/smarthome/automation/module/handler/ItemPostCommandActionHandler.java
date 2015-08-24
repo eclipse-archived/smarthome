@@ -7,17 +7,13 @@
  */
 package org.eclipse.smarthome.automation.module.handler;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseActionHandler;
-import org.eclipse.smarthome.automation.module.factory.ItemBasedModuleHandlerFactory;
 import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;

@@ -28,7 +28,6 @@ import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
@@ -176,13 +175,13 @@ public class ItemBasedModuleHandlerFactory extends BaseModuleHandlerFactory {
 		logger.debug("create " + module.getId() + "->" + module.getTypeUID());
 		String moduleTypeUID = module.getTypeUID();
 		if (systemModuleTypeUID != null) {
-			if (ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER.equals(systemModuleTypeUID)
+			if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(systemModuleTypeUID)
 					&& module instanceof Trigger) {
-				ItemStateChangeTriggerHandler triggerHandler = itemStateChangeTriggerHandlers.get(module.getId());
+				GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
 				if (triggerHandler == null) {
-					triggerHandler = new ItemStateChangeTriggerHandler((Trigger) module, moduleTypes,
+					triggerHandler = new GenericEventTriggerHandler((Trigger) module, moduleTypes,
 							this.bundleContext);
-					itemStateChangeTriggerHandlers.put(module.getId(), triggerHandler);
+					genericEventTriggerHandlers.put(module.getId(), triggerHandler);
 				}
 				return triggerHandler;
 			} else if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(systemModuleTypeUID)
