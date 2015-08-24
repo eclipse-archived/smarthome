@@ -18,7 +18,7 @@ Please describe how do define rules with JSON in a bundle. Also showing the JSON
 
 ### Sample Rules
 
-Show samoe sampe rules
+Show some sample rules
 
 ## Working with Rules
 
