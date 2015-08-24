@@ -1,13 +1,8 @@
+env:
+  global:
+    - JAVA_OPTS="-XX:MaxPermSize=512m -Xmx2g"
+    - MAVEN_OPTS="-XX:MaxPermSize=512m -Xmx2g"
+    - JAVA_ARGS="-XX:MaxPermSize=512m -Xmx2g"
 language: java
 jdk:
   - oraclejdk7
-env:
- - JAVA_OPTS="-XX:MaxPermSize=512m -Xmx2g"
- - MAVEN_OPTS="-XX:MaxPermSize=512m -Xmx2g"
- - JAVA_ARGS="-XX:MaxPermSize=512m -Xmx2g"
-
-before_install: 
-  - sudo rm /etc/mavenrc
-  - export M2_HOME=/usr/local/maven
-  - export MAVEN_OPTS="Dmaven.repo.local=$HOME/.m2/repository -XX:MaxPermSize=512m -Xmx2g"
-  
