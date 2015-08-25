@@ -447,6 +447,15 @@ Another way to extend the supported module types is by defining custom module ty
   }
 ```
 This example demonstrates extending the system action "SampleAction", which has configuration property "message" with another action "SampleAction:CustomAction", which defines input object "customActionInput". This input object references the configuration property "message" via the "context" attribute of the auxiliary property "customMessage". 
+
+```
+"context": "(nameRef=$message, valueRef=$customActionInput)",
+```
+
+- `nameRef` specifies which property to be updated (in this case it is the property "message")
+- `valueRef` specifies that the value of the property will be provided by the input "customActionInput"
+
+
 Then the rule or rule template will use the CustomAction input object instead of the configuration property:
 
 ```
