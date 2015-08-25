@@ -32,10 +32,7 @@
         "type": "SampleAction",
         "config": {  
           "message": ">>> Hello World!!!"
-        },
-	     "input": {  
-	       "actionInput": "SampleTriggerID.triggerOutput"
-	     }
+        }
       }
     ]
   },

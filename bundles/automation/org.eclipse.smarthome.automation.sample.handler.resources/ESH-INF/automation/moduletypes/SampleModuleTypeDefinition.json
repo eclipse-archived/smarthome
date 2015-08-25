@@ -64,15 +64,7 @@
           "defaultValue": "Default message",
           "required": false
         }
-  	  },
-      "input": {  
-        "actionInput": {
-          "type": "java.lang.String",
-          "label": "ActionInput label",
-          "description": "Defines the actionInput.",
-          "required": true
-        }
-      }
+  	  }
     },
     "SampleAction:CustomAction": {
       "label": "CustomAction label",
@@ -92,7 +84,6 @@
           "type": "java.lang.String",
           "label": "ActionInput label",
           "description": "Text that will be printed.",
-          "reference": "$actionInput",
           "required": true
         }
       }
