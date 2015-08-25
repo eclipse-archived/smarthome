@@ -147,10 +147,7 @@ The types in the **Configuration** object are restricted to the following:
         "type": "SampleAction",
         "config": {  
           "message": ">>> Hello World!!!"
-        },
-	     "input": {  
-	       "actionInput": "SampleTriggerID.triggerOutput"
-	     }
+        }
       }
     ]
   }
@@ -229,14 +226,6 @@ The types in the **Configuration** object are restricted to the following:
           "description": "Defines the message description.",
           "defaultValue": "Default message",
           "required": false
-        }
-  	  },
-      "input": {  
-        "actionInput": {
-          "type": "java.lang.String",
-          "label": "ActionInput label",
-          "description": "Defines the actionInput.",
-          "required": true
         }
       }
     },
@@ -331,6 +320,7 @@ Bundles that provide rules in json format should have the following folder struc
 
 *Please describe rule template approach*
 
+Rule templates can simplify the definition of rules with similar behavior, by providing additional configuration properties. Then rule instance definition only refers the rule template and provides the values of the configuration properties.
 
  * **Sample rule instance referencing rule template:**
 ```
@@ -353,7 +343,7 @@ Bundles that provide rules in json format should have the following folder struc
 ```
   {  
     "uid":"SampleRuleTemplate",
-    "description":"Sample Rule TEmplate.",
+    "description":"Sample Rule Template.",
     "tags":[  
       "sample",
       "rule",
@@ -402,6 +392,9 @@ Bundles that provide rules in json format should have the following folder struc
   } 
 ```
 
+The above example uses two rule configuration properties: "condition_operator" and "condition_constraint" that update the configuration of the "SampleCondition"
+
+
 ## System Module Types
 
 *Please describe the list of system module types*
@@ -425,4 +418,45 @@ and implement the needed methods to create instances of the supported module han
 
 
 ## Custom module types
-All module types which have in its type the symbol ':' are extensions of the system module types and they can predefine the configuration properties and the input objects of the parent type
+Another way to extend the supported module types is by defining custom module types as extension of the system module types. All module types which have in its type the symbol ':' are extensions of the system module types and they can redefine the configuration properties and the input objects of the parent type
+
+```
+    "SampleAction:CustomAction": {
+      "label": "CustomAction label",
+      "description": "Custom Action description.",
+      "config": {  
+        "customMessage": {
+          "type": "TEXT",
+          "label": "custom message label",
+          "description": "Defines the custom message description.",
+          "context": "(nameRef=$message, valueRef=$customActionInput)",
+          "defaultValue": ">>> Default Custom Message",
+          "required": false
+        }
+      },
+      "input": {  
+        "customActionInput": {
+          "type": "java.lang.String",
+          "label": "ActionInput label",
+          "description": "Text that will be printed.",
+          "reference": "$actionInput",
+          "required": true
+        }
+      }
+    }
+  }
+```
+This example demonstrates extending the system action "SampleAction", which has configuration property "message" with another action "SampleAction:CustomAction", which defines input object "customActionInput". This input object references the configuration property "message" via the "context" attribute of the auxiliary property "customMessage". 
+Then the rule or rule template will use the CustomAction input object instead of the configuration property:
+
+```
+    "then": [
+      {  
+        "id": "CustomActionTemplateID",
+        "type": "SampleAction:CustomAction",
+        "input": {  
+          "customActionInput": "CustomSampleTriggerTemplateID.customTriggerOutput"
+        }
+      }
+    ]
+```
