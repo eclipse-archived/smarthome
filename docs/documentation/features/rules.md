@@ -102,9 +102,9 @@ The types in the **Configuration** object are restricted to the following:
 
 **JSON schemas for:**
 
- * [module types](bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/ModuleTypeDefinitions_JSONschema.json)
- * [rule templates](bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/TemplateDefinitions_JSONschema.json)
- * [rule instances](bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/RuleDefinitions_JSONschema.json)
+ * [module types](../../../bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/ModuleTypeDefinitions_JSONschema.json)
+ * [rule templates](../../../bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/TemplateDefinitions_JSONschema.json)
+ * [rule instances](../../../bundles/automation/org.eclipse.smarthome.automation.json/src/main/resources/RuleDefinitions_JSONschema.json)
 
 
 ### Sample Rules
