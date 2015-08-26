@@ -7,9 +7,9 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.ui.classic.internal.WebAppActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.apache.commons.io,
+Import-Package: javax.servlet,
+ org.apache.commons.io,
  org.apache.commons.lang,
- org.apache.commons.net.util,
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.emf.ecore.resource,
@@ -18,9 +18,7 @@ Import-Package: org.apache.commons.io,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
- org.eclipse.smarthome.core.transform,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.ui.items,
  org.osgi.framework,
@@ -38,4 +36,3 @@ Service-Component: OSGI-INF/webappservlet.xml, OSGI-INF/pagerenderer.xml,
  OSGI-INF/webviewrenderer.xml, OSGI-INF/setpointrenderer.xml,
  OSGI-INF/colorpickerrenderer.xml, OSGI-INF/mapviewrenderer.xml
 Export-Package: org.eclipse.smarthome.ui.classic.render
-Require-Bundle: javax.servlet
