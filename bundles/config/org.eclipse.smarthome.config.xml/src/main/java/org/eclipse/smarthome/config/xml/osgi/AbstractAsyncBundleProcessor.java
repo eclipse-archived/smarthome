@@ -7,6 +7,13 @@
  */
 package org.eclipse.smarthome.config.xml.osgi;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,6 +41,8 @@ import org.slf4j.LoggerFactory;
  * the {@link #isBundleRelevant(Bundle)} method can be overridden for this purpose.
  * 
  * @author Simon Kaufmann - Initial contribution and API
+ * @author Benedikt Niehues - added helper method for filtering patched resources.
+ * 
  */
 
 public abstract class AbstractAsyncBundleProcessor {
@@ -45,6 +54,41 @@ public abstract class AbstractAsyncBundleProcessor {
     private final Queue<Bundle> queue = new ConcurrentLinkedQueue<>();
 
     private static final Set<AbstractAsyncBundleProcessor> ALL_PROCESSORS = new CopyOnWriteArraySet<>();
+
+    /**
+     * This method creates a list where all resources are contained
+     * except the ones from the host bundle which are also contained in
+     * a fragment. So the fragment bundle resources can override the
+     * host bundles resources.
+     * 
+     * @param xmlDocumentPaths
+     * @param bundle
+     * @return
+     */
+    protected Collection<URL> filterPatches(Enumeration<URL> xmlDocumentPaths, Bundle bundle) {
+        List<URL> hostResources = new ArrayList<URL>();
+        List<URL> fragmentResources = new ArrayList<URL>();
+
+        while (xmlDocumentPaths.hasMoreElements()) {
+            URL path = xmlDocumentPaths.nextElement();
+            if (bundle.getEntry(path.getPath()) != null && bundle.getEntry(path.getPath()).equals(path)) {
+                hostResources.add(path);
+            } else {
+                fragmentResources.add(path);
+            }
+        }
+        if (!fragmentResources.isEmpty()) {
+            Map<String, URL> helper = new HashMap<String, URL>();
+            for (URL url : hostResources) {
+                helper.put(url.getPath(), url);
+            }
+            for (URL url : fragmentResources) {
+                helper.put(url.getPath(), url);
+            }
+            return helper.values();
+        }
+        return hostResources;
+    }
 
     /**
      * Determines whether a bundle is relevant to be further processed or not.
