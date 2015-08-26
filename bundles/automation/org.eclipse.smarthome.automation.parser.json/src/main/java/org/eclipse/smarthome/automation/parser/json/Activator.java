@@ -11,7 +11,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.parser.Converter;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -25,7 +24,6 @@ import org.osgi.framework.ServiceRegistration;
  * <li>{@link ModuleType} JSON Parser
  * <li>{@link RuleTemplate} JSON Parser
  * <li>{@link Rule} JSON Parser
- * <li>{@link Converter}
  *
  * @author Ana Dimova
  *
@@ -38,12 +36,10 @@ public class Activator implements BundleActivator {
     private ServiceRegistration mpReg;
     private ServiceRegistration tpReg;
     private ServiceRegistration rpReg;
-    private ServiceRegistration converterReg;
 
     @Override
     public void start(BundleContext context) throws Exception {
         bc = context;
-        converterReg = bc.registerService(Converter.class.getName(), new ConverterImpl(), null);
 
         Dictionary<String, String> mpReg_props = new Hashtable<String, String>(1);
         mpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_MODULE_TYPE);
@@ -60,10 +56,6 @@ public class Activator implements BundleActivator {
 
     @Override
     public void stop(BundleContext context) throws Exception {
-        if (converterReg != null) {
-            converterReg.unregister();
-            converterReg = null;
-        }
         if (mpReg != null) {
             mpReg.unregister();
             mpReg = null;
