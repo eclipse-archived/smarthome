@@ -15,6 +15,8 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatusInfo;
+import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.storage.Storage;
@@ -26,16 +28,18 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
     private Set<String> disabledRuledSet = new HashSet(0);
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
 
-    public RuleRegistryImpl(RuleEngine ruleManager) {
+    public RuleRegistryImpl(RuleEngine ruleEngine) {
         logger = LoggerFactory.getLogger(getClass());
-        this.ruleEngine = ruleManager;
+        this.ruleEngine = ruleEngine;
+        ruleEngine.setStatusInfoCallback(this);
+
     }
 
     @Override
@@ -139,6 +143,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
                 }
             }
         }
+
         ruleEngine.dispose();
     }
 
@@ -157,5 +162,11 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         this.disabledRulesStorage = disabledRulesStorage;
         disabledRuledSet = loadDisabledRuleMap();
         // TODO disabled active rules
+    }
+
+    @Override
+    public void statusInfoChanged(RuleStatusInfo statusInfo) {
+        // TODO Auto-generated method stub
+
     }
 }
