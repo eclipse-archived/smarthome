@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.type.Input;
@@ -52,7 +53,7 @@ public abstract class Module {
      *
      * @see {@link ConfigDescriptionParameter}.
      */
-    protected Map<String, ?> configuration;
+    protected Map<String, Object> configuration;
 
     /**
      * Unique type id of this module.
@@ -70,6 +71,9 @@ public abstract class Module {
         this.id = id;
         this.typeUID = typeUID;
         setConfiguration(configuration);
+    }
+
+    public Module() {
     }
 
     /**
@@ -138,7 +142,7 @@ public abstract class Module {
      *
      * @return current configuration values or null.
      */
-    public Map<String, ?> getConfiguration() {
+    public Map<String, Object> getConfiguration() {
         return configuration;
     }
 
@@ -150,7 +154,10 @@ public abstract class Module {
      * @param configuration new configuration values.
      */
     public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration;
+        if (configuration != null) {
+            this.configuration = new HashMap<String, Object>(configuration);
+        }
+
     }
 
 }

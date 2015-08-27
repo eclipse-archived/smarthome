@@ -14,7 +14,11 @@ package org.eclipse.smarthome.automation;
  * @author Kai Kreuzer - Refactored to match ThingStatusDetail implementation
  */
 public enum RuleStatusDetail {
-    NONE(0), HANDLER_MISSING_ERROR(1), HANDLER_INITIALIZING_ERROR(2), CONFIGURATION_ERROR(3);
+    NONE(0),
+    HANDLER_MISSING_ERROR(1),
+    HANDLER_INITIALIZING_ERROR(2),
+    CONFIGURATION_ERROR(3),
+    TEMPLATE_MISSING_ERROR(4);
 
     private final int value;
 

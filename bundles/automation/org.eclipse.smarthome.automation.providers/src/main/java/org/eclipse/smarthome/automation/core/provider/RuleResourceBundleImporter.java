@@ -18,11 +18,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -48,6 +51,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      * This field holds the reference to the Rule Registry.
      */
     protected RuleRegistry ruleRegistry;
+    private RuleProvider ruleProvider;
 
     /**
      * This field holds the reference to the tracker of Rule Registry.
@@ -65,24 +69,45 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     public RuleResourceBundleImporter(BundleContext context) {
         super(context);
         path = PATH + "/rules/";
-        rulesTracker = new ServiceTracker(bc, RuleRegistry.class.getName(), new ServiceTrackerCustomizer() {
 
-            @Override
-            public Object addingService(ServiceReference reference) {
-                ruleRegistry = (RuleRegistry) bc.getService(reference);
-                queue.open();
-                return ruleRegistry;
-            }
+        try {
+            Filter filter = bc.createFilter("(|(objectClass=" + RuleRegistry.class.getName() + ")(objectClass="
+                    + RuleProvider.class.getName() + "))");
 
-            @Override
-            public void modifiedService(ServiceReference reference, Object service) {
-            }
+            rulesTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
-            @Override
-            public void removedService(ServiceReference reference, Object service) {
-                ruleRegistry = null;
-            }
-        });
+                @Override
+                public Object addingService(ServiceReference reference) {
+                    Object service = bc.getService(reference);
+                    if (service instanceof RuleRegistry) {
+                        ruleRegistry = (RuleRegistry) service;
+                        queue.open();
+                    } else if (service instanceof RuleProvider) {
+                        ruleProvider = (RuleProvider) service;
+                        queue.open();
+                    }
+                    return service;
+                }
+
+                @Override
+                public void modifiedService(ServiceReference reference, Object service) {
+                }
+
+                @Override
+                public void removedService(ServiceReference reference, Object service) {
+                    if (service instanceof RuleRegistry) {
+                        ruleRegistry = null;
+                    } else if (service instanceof RuleProvider) {
+                        ruleProvider = null;
+                    }
+
+                }
+            });
+        } catch (InvalidSyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -97,6 +122,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
             rulesTracker.close();
             rulesTracker = null;
             ruleRegistry = null;
+            ruleProvider = null;
         }
         super.close();
     }
@@ -121,7 +147,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
 
     @Override
     public boolean isReady() {
-        return ruleRegistry != null && queue != null;
+        return ruleRegistry != null && ruleProvider != null && queue != null;
     }
 
     /**

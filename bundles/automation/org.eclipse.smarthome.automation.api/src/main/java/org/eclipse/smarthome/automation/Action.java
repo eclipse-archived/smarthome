@@ -31,6 +31,9 @@ public class Action extends Module {
 
     protected Set<Connection> connections;
 
+    public Action() {
+    }
+
     /**
      * Constructor of Action object.
      *

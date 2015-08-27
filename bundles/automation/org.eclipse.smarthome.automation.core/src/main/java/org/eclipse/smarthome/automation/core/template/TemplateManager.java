@@ -9,26 +9,35 @@ package org.eclipse.smarthome.automation.core.template;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.core.RuleEngine;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class TemplateManager {
+@SuppressWarnings("rawtypes")
+public class TemplateManager implements ServiceTrackerCustomizer {
 
-    @SuppressWarnings("rawtypes")
     private ServiceTracker templateProviderTracker;
+    private RuleEngine ruleEngine;
+    private BundleContext bc;
+    private Collection<TemplateProvider> providers = new HashSet<TemplateProvider>();;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public TemplateManager(BundleContext bc) {
-        templateProviderTracker = new ServiceTracker(bc, TemplateProvider.class.getName(), null);
+    @SuppressWarnings("unchecked")
+    public TemplateManager(BundleContext bc, RuleEngine re) {
+        this.bc = bc;
+        this.ruleEngine = re;
+        templateProviderTracker = new ServiceTracker(bc, TemplateProvider.class.getName(), this);
         templateProviderTracker.open();
     }
 
@@ -38,9 +47,8 @@ public class TemplateManager {
 
     public <T extends Template> T getTemplate(String templateUID, Locale locale) {
         T template = null;
-        Object[] providers = templateProviderTracker.getServices();
-        for (int i = 0; providers != null && i < providers.length; i++) {
-            template = ((TemplateProvider) providers[i]).getTemplate(templateUID, locale);
+        for (TemplateProvider templateProvider : providers) {
+            template = templateProvider.getTemplate(templateUID, locale);
             if (template != null) {
                 return template;
             }
@@ -119,6 +127,30 @@ public class TemplateManager {
     public void dispose() {
         templateProviderTracker.close();
         templateProviderTracker = null;
+    }
+
+    @Override
+    public Object addingService(ServiceReference reference) {
+        @SuppressWarnings("unchecked")
+        TemplateProvider provider = (TemplateProvider) bc.getService(reference);
+        if (provider != null) {
+            providers.add(provider);
+            ruleEngine.templateUpdated(provider.getTemplates(null));
+        }
+        return provider;
+    }
+
+    @Override
+    public void modifiedService(ServiceReference reference, Object service) {
+        TemplateProvider provider = (TemplateProvider) service;
+        if (provider != null) {
+            ruleEngine.templateUpdated(provider.getTemplates(null));
+        }
+    }
+
+    @Override
+    public void removedService(ServiceReference reference, Object service) {
+        providers.remove(service);
     }
 
 }

@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class Rule {
      */
     public Rule(String ruleTemplateUID, Map<String, ?> configurations) {
         this.ruleTemplateUID = ruleTemplateUID;
-        this.configurations = configurations;
+        setConfiguration(configurations);
     }
 
     /**
@@ -73,7 +74,7 @@ public class Rule {
     public Rule(String uid, String ruleTemplateUID, Map<String, ?> configurations) {
         this.uid = uid;
         this.ruleTemplateUID = ruleTemplateUID;
-        this.configurations = configurations;
+        setConfiguration(configurations);
     }
 
     /**
@@ -90,10 +91,12 @@ public class Rule {
             List<Action> actions, //
             Set<ConfigDescriptionParameter> configDescriptions, //
             Map<String, ?> configurations) {
-        this.triggers = triggers;
-        this.conditions = conditions;
-        this.actions = actions;
-        this.configDescriptions = configDescriptions;
+        this.triggers = triggers != null ? triggers : new ArrayList<Trigger>(3);
+        this.actions = actions != null ? actions : new ArrayList<Action>(3);
+
+        this.conditions = conditions != null ? conditions : new ArrayList<Condition>(3);
+        this.configDescriptions = configDescriptions != null ? configDescriptions
+                : new HashSet<ConfigDescriptionParameter>(3);
         setConfiguration(configurations);
     }
 
@@ -113,12 +116,8 @@ public class Rule {
             List<Condition> conditions, //
             List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
             Map<String, ?> configurations) {
+        this(triggers, conditions, actions, configDescriptions, configurations);
         this.uid = uid;
-        this.triggers = triggers;
-        this.conditions = conditions;
-        this.actions = actions;
-        this.configDescriptions = configDescriptions;
-        setConfiguration(configurations);
     }
 
     /**
@@ -242,14 +241,23 @@ public class Rule {
     }
 
     public List<Condition> getConditions() {
+        if (conditions == null) {
+            conditions = new ArrayList<Condition>(11);
+        }
         return conditions;
     }
 
     public List<Action> getActions() {
+        if (actions == null) {
+            actions = new ArrayList<Action>(11);
+        }
         return actions;
     }
 
     public List<Trigger> getTriggers() {
+        if (triggers == null) {
+            triggers = new ArrayList<Trigger>(11);
+        }
         return triggers;
     }
 
@@ -260,24 +268,30 @@ public class Rule {
      * @return module with specified id or null when it does not exist.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Module> T getModule(String moduleId) {
+    public Module getModule(String moduleId) {
+        Module module = getModule(moduleId, triggers);
+        if (module != null) {
+            return module;
+        }
 
-        if (triggers != null) {
-            for (T module : (List<? extends T>) triggers) {
-                if (module.getId().equals(moduleId))
-                    return module;
-            }
+        module = getModule(moduleId, conditions);
+        if (module != null) {
+            return module;
         }
-        if (conditions != null) {
-            for (T module : (List<? extends T>) conditions) {
-                if (module.getId().equals(moduleId))
-                    return module;
-            }
+
+        module = getModule(moduleId, actions);
+        if (module != null) {
+            return module;
         }
-        if (actions != null) {
-            for (T module : (List<? extends T>) actions) {
-                if (module.getId().equals(moduleId))
+        return null;
+    }
+
+    private <T extends Module> T getModule(String moduleUID, List<T> modules) {
+        if (modules != null) {
+            for (T module : modules) {
+                if (module.getId().equals(moduleUID)) {
                     return module;
+                }
             }
         }
         return null;
@@ -296,15 +310,9 @@ public class Rule {
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         if (moduleClazz == null) {
             List<T> result = new ArrayList<T>();
-            if (triggers != null) {
-                result.addAll((Collection<? extends T>) triggers);
-            }
-            if (conditions != null) {
-                result.addAll((Collection<? extends T>) conditions);
-            }
-            if (actions != null) {
-                result.addAll((Collection<? extends T>) actions);
-            }
+            result.addAll((Collection<? extends T>) triggers);
+            result.addAll((Collection<? extends T>) conditions);
+            result.addAll((Collection<? extends T>) actions);
             return result;
         }
         if (Trigger.class == moduleClazz) {

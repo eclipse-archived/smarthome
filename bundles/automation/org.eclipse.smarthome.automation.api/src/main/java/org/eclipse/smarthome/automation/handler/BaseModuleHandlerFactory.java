@@ -46,10 +46,16 @@ public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, 
         }
         this.bundleContext = bundleContext;
         log = LoggerFactory.getLogger(BaseModuleHandlerFactory.class);
+        init();
         createdHandlers = new ArrayList();
-        serviceReg = bundleContext.registerService(ModuleHandlerFactory.class.getName(), this, null);
         serviceTracker = new ServiceTracker(bundleContext, ModuleTypeRegistry.class.getName(), this);
         serviceTracker.open();
+        serviceReg = bundleContext.registerService(ModuleHandlerFactory.class.getName(), this, null);
+
+    }
+
+    protected void init() {
+        // DO SUBCLASS FACHTORY INITIALIZATION
     }
 
     @Override

@@ -36,7 +36,7 @@ public class TriggerImpl extends Trigger implements SourceModule {
         setLabel(trigger.getLabel());
         setDescription(trigger.getDescription());
     }
-    
+
     @Override
     public void setConfiguration(Map<String, ?> configuration) {
         this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;

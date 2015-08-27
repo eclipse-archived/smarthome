@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class ActionImpl extends Action implements ConnectedModule, SourceModule 
      * @param connections set of connections to other modules (triggers and other actions).
      * @param actionHandler
      */
-    public ActionImpl(String ID, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
+    public ActionImpl(String ID, String typeUID, Map<String, Object> configuration, Set<Connection> connections,
             ActionHandler actionHandler) {
         super(ID, typeUID, configuration, connections);
         this.actionHandler = actionHandler;
@@ -63,21 +62,10 @@ public class ActionImpl extends Action implements ConnectedModule, SourceModule 
      *
      * @param action another action which is uses as base of created
      */
-    // protected ActionImpl(ActionImpl action) {
-    // super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
-    // setLabel(action.getLabel());
-    // setDescription(action.getDescription());
-    // }
-
     public ActionImpl(Action action) {
         super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
         setLabel(action.getLabel());
         setDescription(action.getDescription());
-    }
-
-    @Override
-    public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     /**

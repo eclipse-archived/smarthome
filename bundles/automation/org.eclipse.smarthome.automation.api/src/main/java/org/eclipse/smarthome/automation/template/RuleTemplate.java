@@ -229,6 +229,18 @@ public class RuleTemplate implements Template {
         return result;
     }
 
+    public List<Trigger> getTriggers() {
+        return triggers;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
     /**
      * Auxiliary method used in {@link #getModules(Class)} to prevent {@code null} for the returned list.
      *

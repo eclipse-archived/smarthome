@@ -24,6 +24,9 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class Trigger extends Module {
 
+    public Trigger() {
+    }
+
     public Trigger(String id, String typeUID, Map<String, ?> configuration) {
         super(id, typeUID, configuration);
     }

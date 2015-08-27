@@ -27,6 +27,10 @@ public class Condition extends Module {
 
     private Set<Connection> connections;
 
+    public Condition() {
+        super();
+    }
+
     /**
      * Constructor of {@link Condition} module object.
      *
@@ -37,7 +41,7 @@ public class Condition extends Module {
      */
     public Condition(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
         super(id, typeUID, configuration);
-        this.connections = connections;
+        setConnections(connections);
     }
 
     /**

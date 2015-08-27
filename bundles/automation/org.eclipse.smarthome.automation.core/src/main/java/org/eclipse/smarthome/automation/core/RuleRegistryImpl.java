@@ -35,12 +35,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     public RuleRegistryImpl(RuleEngine ruleManager) {
         logger = LoggerFactory.getLogger(getClass());
-        // this.disabledRulesStorage = disabledRules;
-        // disabledRuledSet = loadDisabledRuleMap();
         this.ruleEngine = ruleManager;
-        // if (rp != null) {
-        // addProvider(rp);
-        // }
     }
 
     @Override
@@ -60,8 +55,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     public synchronized void add(Rule element) {
-        addIntoRuleEngine(element);
         super.add(element);
+        addIntoRuleEngine(element);
     }
 
     private String addIntoRuleEngine(Rule element) {

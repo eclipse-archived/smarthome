@@ -3,7 +3,6 @@ package org.eclipse.smarthome.automation.core;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.storage.StorageService;
 
 /**
@@ -33,16 +32,16 @@ public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, St
         return key;
     }
 
-    @Override
-    public void addProviderChangeListener(ProviderChangeListener<Rule> listener) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void removeProviderChangeListener(ProviderChangeListener<Rule> listener) {
-        // TODO Auto-generated method stub
-
-    }
+    // @Override
+    // public void addProviderChangeListener(ProviderChangeListener<Rule> listener) {
+    // // TODO Auto-generated method stub
+    //
+    // }
+    //
+    // @Override
+    // public void removeProviderChangeListener(ProviderChangeListener<Rule> listener) {
+    // // TODO Auto-generated method stub
+    //
+    // }
 
 }

@@ -47,12 +47,8 @@ public class RuleImpl extends Rule {
     }
 
     public RuleImpl(RuleTemplate template, Map<String, ?> configuration) {
-        this.triggers = createTrieggers(template.getModules(Trigger.class));
-        this.conditions = createConditions(template.getModules(Condition.class));
-        this.actions = createActions(template.getModules(Action.class));
-        this.configDescriptions = template.getConfigurationDescription();
-        setConfiguration(configuration);
-        // handleModuleConfigReferences(triggers, conditions, actions, configurations);
+        super(createTrieggers(template.getTriggers()), createConditions(template.getConditions()),
+                createActions(template.getActions()), template.getConfigurationDescription(), configuration);
     }
 
     /**
@@ -62,103 +58,47 @@ public class RuleImpl extends Rule {
      *            has to be created.
      */
     protected RuleImpl(Rule rule) {
-        this.uid = rule.getUID();
-        this.triggers = createTrieggers(rule.getTriggers());
-        this.conditions = createConditions(rule.getConditions());
-        this.actions = createActions(rule.getActions());
-        this.configDescriptions = rule.getConfigurationDescriptions();
-
+        super(rule.getUID(), createTrieggers(rule.getTriggers()), createConditions(rule.getConditions()),
+                createActions(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration());
         setName(rule.getName());
         setTags(rule.getTags());
         setDescription(rule.getDescription());
-    }
-
-    private List<Action> createActions(List<Action> actions) {
-        List<Action> res = null;
-        if (actions != null) {
-            res = new ArrayList<Action>();
-            for (Action action : actions) {
-                res.add(new ActionImpl(action));
-            }
-        }
-        return res;
-    }
-
-    private List<Condition> createConditions(List<Condition> conditions) {
-        List<Condition> res = null;
-        if (conditions != null) {
-            res = new ArrayList<Condition>();
-            for (Condition condition : conditions) {
-                res.add(new ConditionImpl(condition));
-            }
-        }
-        return res;
-    }
-
-    private List<Trigger> createTrieggers(List<Trigger> triggers) {
-        List<Trigger> res = null;
-        if (triggers != null) {
-            res = new ArrayList<Trigger>();
-            for (Trigger trigger : triggers) {
-                res.add(new TriggerImpl(trigger));
-            }
-        }
-        return res;
+        this.ruleTemplateUID = rule.getTemplateUID();
     }
 
     @Override
-    public Map<String, Object> getConfiguration() {
-        return configurations != null ? new HashMap<String, Object>(configurations) : null;
+    public Map<String, ?> getConfiguration() {
+        return configurations;
     }
 
     @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
-        this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration) : null;
+        this.configurations = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration)
+                : new HashMap<String, Object>(11);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Module> T getModule(String moduleId) {
+    public Module getModule(String moduleId) {
         if (moduleMap == null) {
             moduleMap = initModuleMap();
         }
-        return (T) moduleMap.get(moduleId);
+        return moduleMap.get(moduleId);
     }
 
-    /**
-     *
-     */
     private Map<String, Module> initModuleMap() {
         moduleMap = new HashMap<String, Module>(20);
-        if (triggers != null) {
-            for (Iterator<Trigger> it = triggers.iterator(); it.hasNext();) {
-                Trigger m = it.next();
-                moduleMap.put(m.getId(), m);
-
-            }
+        for (Module m : triggers) {
+            moduleMap.put(m.getId(), m);
         }
-        if (conditions != null) {
-            for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
-                Condition m = it.next();
-                moduleMap.put(m.getId(), m);
+        for (Module m : conditions) {
+            moduleMap.put(m.getId(), m);
 
-            }
         }
-        if (actions != null) {
-            for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
-                Action m = it.next();
-                moduleMap.put(m.getId(), m);
-            }
+        for (Module m : actions) {
+            moduleMap.put(m.getId(), m);
         }
         return moduleMap;
-    }
-
-    @SuppressWarnings("unused")
-    private <T extends Module> List<T> getList(List<T> t) {
-        if (t != null) {
-            return t;
-        }
-        return new ArrayList<T>();
     }
 
     protected void setScopeIdentifier(String scopeId) {
@@ -320,7 +260,7 @@ public class RuleImpl extends Rule {
         if (modules != null) {
             for (Module module : modules) {
                 @SuppressWarnings("unchecked")
-                Map<String, Object> moduleConfiguration = (Map<String, Object>) module.getConfiguration();
+                Map<String, Object> moduleConfiguration = module.getConfiguration();
                 if (moduleConfiguration != null) {
                     for (Map.Entry<String, ?> entry : moduleConfiguration.entrySet()) {
                         String configName = entry.getKey();
@@ -339,8 +279,38 @@ public class RuleImpl extends Rule {
         }
     }
 
-    public void setUID(String rUID) {
+    protected void setUID(String rUID) {
         uid = rUID;
+    }
+
+    private static List<Action> createActions(List<Action> actions) {
+        List<Action> res = new ArrayList<Action>();
+        if (actions != null) {
+            for (Action action : actions) {
+                res.add(new ActionImpl(action));
+            }
+        }
+        return res;
+    }
+
+    private static List<Condition> createConditions(List<Condition> conditions) {
+        List<Condition> res = new ArrayList<Condition>(11);
+        if (conditions != null) {
+            for (Condition condition : conditions) {
+                res.add(new ConditionImpl(condition));
+            }
+        }
+        return res;
+    }
+
+    private static List<Trigger> createTrieggers(List<Trigger> triggers) {
+        List<Trigger> res = new ArrayList<Trigger>(11);
+        if (triggers != null) {
+            for (Trigger trigger : triggers) {
+                res.add(new TriggerImpl(trigger));
+            }
+        }
+        return res;
     }
 
 }

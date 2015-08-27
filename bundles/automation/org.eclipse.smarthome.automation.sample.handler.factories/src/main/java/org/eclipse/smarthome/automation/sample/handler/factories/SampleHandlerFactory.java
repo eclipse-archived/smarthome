@@ -49,6 +49,10 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory implements Mo
 
     public SampleHandlerFactory(BundleContext bc) throws InvalidSyntaxException {
         super(bc);
+    }
+
+    @Override
+    protected void init() {
         createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
         log = LoggerFactory.getLogger(SampleHandlerFactory.class);
     }
