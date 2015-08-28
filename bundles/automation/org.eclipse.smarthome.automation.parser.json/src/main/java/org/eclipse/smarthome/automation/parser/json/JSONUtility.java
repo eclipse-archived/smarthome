@@ -123,7 +123,13 @@ public class JSONUtility {
             throws IllegalArgumentException, ClassNotFoundException {
         if (value == null)
             return;
-        Class<?> clazz = bc.getBundle().loadClass(type);
+        Class<?> clazz;
+        if (bc != null) {
+            clazz = bc.getBundle().loadClass(type);
+        } else {
+            // used in JUnitTests without OSGi runtime
+            clazz = JSONUtility.class.getClassLoader().loadClass(type);
+        }
         if (clazz.isAssignableFrom(value.getClass())) {
             return;
         }

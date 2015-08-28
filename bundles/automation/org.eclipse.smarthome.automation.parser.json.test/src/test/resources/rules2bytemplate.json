@@ -1,0 +1,15 @@
+[
+  {  
+    "uid": "sample.rulebytemplate",
+    "name": "RuleByTemplate",
+    "template.uid": "SampleRuleTemplate",
+    "tags": [  
+      "rule",
+      "template"
+    ],
+    "config": {  
+      "condition_operator": "!=",
+      "condition_constraint": "template"
+    }
+  }
+]
