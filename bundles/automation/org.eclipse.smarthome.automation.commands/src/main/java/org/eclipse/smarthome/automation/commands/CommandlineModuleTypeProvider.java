@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -125,15 +124,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
     @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
-        Localizer l = null;
         synchronized (providedObjectsHolder) {
-            l = providedObjectsHolder.get(UID);
+            return providedObjectsHolder.get(UID);
         }
-        if (l != null) {
-            ModuleType mt = (ModuleType) l.getPerLocale(locale);
-            return mt;
-        }
-        return null;
     }
 
     /**
@@ -141,19 +134,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      */
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
-        List<ModuleType> moduleTypesList = new ArrayList<ModuleType>();
         synchronized (providedObjectsHolder) {
-            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
-            while (i.hasNext()) {
-                Localizer l = i.next();
-                if (l != null) {
-                    ModuleType mt = (ModuleType) l.getPerLocale(locale);
-                    if (mt != null)
-                        moduleTypesList.add(mt);
-                }
-            }
+            return providedObjectsHolder.values();
         }
-        return moduleTypesList;
     }
 
     @Override
@@ -186,9 +169,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
                 if (checkExistence(uid, s))
                     continue;
                 portfolio.add(uid);
-                Localizer lProvidedObject = new Localizer(providedObject);
                 synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, lProvidedObject);
+                    providedObjectsHolder.put(uid, providedObject);
                 }
             }
         }

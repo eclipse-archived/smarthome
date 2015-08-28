@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -121,38 +120,23 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public <T extends Template> T getTemplate(String UID, Locale locale) {
-        Localizer l = null;
+    public RuleTemplate getTemplate(String UID, Locale locale) {
         synchronized (providerPortfolio) {
-            l = providedObjectsHolder.get(UID);
+            return providedObjectsHolder.get(UID);
         }
-        if (l != null) {
-            @SuppressWarnings("unchecked")
-            T t = (T) l.getPerLocale(locale);
-            return t;
-        }
-        return null;
     }
 
     /**
      * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplates(java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public Collection<Template> getTemplates(Locale locale) {
-        List<Template> templatesList = new ArrayList<Template>();
+    public Collection<RuleTemplate> getTemplates(Locale locale) {
         synchronized (providedObjectsHolder) {
-            Iterator<Localizer> i = providedObjectsHolder.values().iterator();
-            while (i.hasNext()) {
-                Localizer l = i.next();
-                if (l != null) {
-                    Template t = (Template) l.getPerLocale(locale);
-                    if (t != null)
-                        templatesList.add(t);
-                }
-            }
+            return providedObjectsHolder.values();
         }
-        return templatesList;
     }
 
     @Override
@@ -194,9 +178,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                 if (checkExistence(uid, status))
                     continue;
                 portfolio.add(uid);
-                Localizer lruleT = new Localizer(ruleT);
                 synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, lruleT);
+                    providedObjectsHolder.put(uid, ruleT);
                 }
             }
         }

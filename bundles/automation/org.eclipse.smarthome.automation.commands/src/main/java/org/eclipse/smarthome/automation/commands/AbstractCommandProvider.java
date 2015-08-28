@@ -76,7 +76,7 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      * <p>
      * The Map has for keys UIDs of the objects and for values {@link Localizer}s of the objects.
      */
-    protected Map<String, Localizer> providedObjectsHolder = new HashMap<String, Localizer>();
+    protected Map<String, E> providedObjectsHolder = new HashMap<String, E>();
 
     /**
      * This constructor is responsible for creation and opening a tracker for {@link Parser} services.

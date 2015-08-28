@@ -179,7 +179,7 @@ public class Printer {
         if (label != null) {
             writer.append("LABEL");
             printChars(writer, ' ', 25, false);
-            writer.append(label + "n");
+            writer.append(label + "\n");
         }
         String description = template.getDescription();
         if (description != null) {
@@ -400,12 +400,11 @@ public class Printer {
         String description = module.getDescription();
         if (description != null) {
             printChars(writer, ' ', 30, false);
-            writer.append("DESCRIPTION" + "\n");
-            printChars(writer, ' ', 16, false);
+            writer.append("DESCRIPTION");
+            printChars(writer, ' ', 19, false);
             writer.append(description + "\n");
         }
-        @SuppressWarnings("unchecked")
-        Map<String, Object> config = (Map<String, Object>) module.getConfiguration();
+        Map<String, Object> config = module.getConfiguration();
         if (config != null && !config.isEmpty()) {
             printChars(writer, ' ', 30, false);
             writer.append("CONFIGURATION");

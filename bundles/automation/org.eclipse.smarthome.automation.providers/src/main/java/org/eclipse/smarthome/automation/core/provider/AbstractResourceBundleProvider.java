@@ -16,15 +16,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
+import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -49,7 +52,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
- *
+ * @author Ana Dimova - provides localization
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractResourceBundleProvider<E> implements ServiceTrackerCustomizer {
@@ -97,7 +100,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * <p>
      * The Map has for keys UIDs of the objects and for values {@link Localizer}s of the objects.
      */
-    protected Map<String, Localizer> providedObjectsHolder = new HashMap<String, Localizer>();
+    protected Map<String, E> providedObjectsHolder = new HashMap<String, E>();
 
     /**
      * This Map provides reference between provider of resources and the loaded objects from these resources.
@@ -116,6 +119,11 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * This field provides an access to the queue for processing bundles.
      */
     protected AutomationResourceBundlesEventQueue queue;
+
+    /**
+     * This field holds a reference to the service instance for internationalization support within the platform.
+     */
+    protected I18nProvider i18nProvider;
 
     /**
      * This constructor is responsible for creation of a tracker for {@link Parser} services.
@@ -362,6 +370,30 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
                 }
             }
         }
+    }
+
+    /**
+     * This method is used to get the bundle providing localization resources for {@link ModuleType}s or
+     * {@link Template}s.
+     *
+     * @param uid is the unique identifier of {@link ModuleType} or {@link Template} that must be localized.
+     * @return the bundle providing localization resources.
+     */
+    protected Bundle getBundle(String uid) {
+        String symbolicName = null;
+        for (Entry<Vendor, List<String>> entry : providerPortfolio.entrySet()) {
+            if (entry.getValue().contains(uid)) {
+                symbolicName = entry.getKey().getVendorSymbolicName();
+                break;
+            }
+        }
+        Bundle[] bundles = bc.getBundles();
+        for (int i = 0; i < bundles.length; i++) {
+            if (bundles[i].getSymbolicName().equals(symbolicName)) {
+                return bundles[i];
+            }
+        }
+        return null;
     }
 
     /**

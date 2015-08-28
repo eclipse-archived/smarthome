@@ -189,10 +189,12 @@ public class AutomationCommandsPluggable extends AutomationCommands
     @Override
     public List<String> getUsages() {
         return Arrays.asList(new String[] {
-                buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter>",
-                        "lists all Module Types. If filter is present, lists only matching Module Types"),
-                buildCommandUsage(LIST_TEMPLATES + " [-st] <filter>",
-                        "lists all Templates. If filter is present, lists only matching Templates"),
+                buildCommandUsage(LIST_MODULE_TYPES + " [-st] <filter> <locale>",
+                        "lists all Module Types. If filter is present, lists only matching Module Types."
+                                + " If locale is missing, the default locale will be used."),
+                buildCommandUsage(LIST_TEMPLATES + " [-st] <filter> <locale>",
+                        "lists all Templates. If filter is present, lists only matching Templates."
+                                + " If locale is missing, the default locale will be used."),
                 buildCommandUsage(LIST_RULES + " [-st] <filter>",
                         "lists all Rules. If filter is present, lists only matching Rules"),
                 buildCommandUsage(REMOVE_MODULE_TYPES + " [-st] <url>",

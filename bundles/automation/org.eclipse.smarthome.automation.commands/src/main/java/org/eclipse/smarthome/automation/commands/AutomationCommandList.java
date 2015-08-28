@@ -45,12 +45,11 @@ public class AutomationCommandList extends AutomationCommand {
     private String id;
 
     /**
-     * This field is used to search for rules, templates or types of modules, which have been translated to the language
-     * from the locale.
+     * This field is used to search for templates or types of modules, which have been translated to the language from
+     * the locale. If the parameter <b>locale</b> is not passed to the command line then the default locale will be
+     * used.
      */
-    private Locale locale = Locale.getDefault(); // For now is initialized with the default locale, but when the
-                                                 // localization is implemented, it will be initialized with a parameter
-                                                 // of the command.
+    private Locale locale;
 
     /**
      * Distance of status column form previous column.
@@ -63,6 +62,8 @@ public class AutomationCommandList extends AutomationCommand {
     public AutomationCommandList(String command, String[] params, int adminType,
             AutomationCommandsPluggable autoCommands) {
         super(command, params, adminType, autoCommands);
+        if (locale == null)
+            locale = Locale.getDefault();
     }
 
     /**
@@ -104,12 +105,15 @@ public class AutomationCommandList extends AutomationCommand {
      * <b>Parameters:</b>
      * <ul>
      * <li><b>id</b> is optional and its presence triggers printing of details on specified automation object.
+     * <li><b>locale</b> is optional and it triggers printing of localized details on specified automation object. Its
+     * value is interpreted as <b>language</b> or <b>language tag</b>. If missing - the default locale will be used.
      * </ul>
      * </ul>
      */
     @Override
     protected String parseOptionsAndParameters(String[] parameterValues) {
         boolean getId = true;
+        boolean getLocale = true;
         for (int i = 0; i < parameterValues.length; i++) {
             if (null == parameterValues[i]) {
                 continue;
@@ -125,8 +129,17 @@ public class AutomationCommandList extends AutomationCommand {
             if (getId) {
                 id = parameterValues[i];
                 getId = false;
+                continue;
             }
-            if (getId)
+            if (getLocale) {
+                String l = parameterValues[i];
+                if (l.contains("-"))
+                    locale = Locale.forLanguageTag(l);
+                else
+                    locale = new Locale(l);
+                getLocale = false;
+            }
+            if (getId && getLocale)
                 return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
                         parameterValues[i]);
         }
