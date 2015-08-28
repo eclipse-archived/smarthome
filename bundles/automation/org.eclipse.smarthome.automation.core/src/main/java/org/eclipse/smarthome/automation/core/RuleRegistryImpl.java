@@ -36,7 +36,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private Set<String> disabledRuledSet = new HashSet(0);
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
-    
+
     public RuleRegistryImpl(RuleEngine ruleEngine) {
 
         logger = LoggerFactory.getLogger(getClass());

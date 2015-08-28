@@ -27,7 +27,6 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 public class ConditionImpl extends Condition implements ConnectedModule {
 
     private ConditionHandler conditionHandler;
-    private Set<Connection> connections;
     private Map<String, OutputRef> connectedObjects;
 
     /**
@@ -67,11 +66,6 @@ public class ConditionImpl extends Condition implements ConnectedModule {
         this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
-    @Override
-    public Set<Connection> getConnections() {
-        return connections;
-    }
-
     /**
      * Creates deep copy of passed connection. The copy is used to unlink connection used by this module with the
      * connection object passed as source. In this way the connection can't be changed runtime except by this method.
@@ -80,7 +74,7 @@ public class ConditionImpl extends Condition implements ConnectedModule {
      */
     @Override
     public void setConnections(Set<Connection> connections) {
-        this.connections = copyConnections(connections);
+        super.setConnections(copyConnections(connections));
     }
 
     @Override

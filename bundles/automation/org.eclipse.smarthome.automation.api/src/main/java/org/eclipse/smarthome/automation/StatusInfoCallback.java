@@ -2,5 +2,5 @@ package org.eclipse.smarthome.automation;
 
 public interface StatusInfoCallback {
 
-    void statusInfoChanged(RuleStatusInfo statusInfo);
+    void statusInfoChanged(String ruleUID, RuleStatusInfo statusInfo);
 }

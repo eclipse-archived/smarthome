@@ -307,7 +307,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         logger.debug(LOG_HEADER + "[Rule Status] " + rUID + " -> " + status);
         statusMap.put(rUID, status);
         if (statusInfoCallback != null) {
-            statusInfoCallback.statusInfoChanged(status);
+            statusInfoCallback.statusInfoChanged(rUID, status);
         }
         
     }

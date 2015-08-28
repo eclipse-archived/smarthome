@@ -102,7 +102,6 @@ public class Activator implements BundleActivator {
                 } else if (service instanceof EventPublisher){
                     EventPublisher ep = (EventPublisher)service;
                     ruleRegistry.setEventPublisher(ep);
-                    re.setEventPublisher(ep);
                     return ep;
                 }
                 return null;
@@ -121,7 +120,6 @@ public class Activator implements BundleActivator {
                     }
                 } else if (service instanceof EventPublisher){
                     ruleRegistry.unsetEventPublisher((EventPublisher)service);
-                    re.unsetEventPublisher((EventPublisher)service);
                 }
             }
         });
