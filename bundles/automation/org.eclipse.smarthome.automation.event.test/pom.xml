@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>org.eclipse.smarthome.automation.module.test</artifactId>
+	<artifactId>org.eclipse.smarthome.automation.event.test</artifactId>
 	<packaging>eclipse-test-plugin</packaging>
-	<name>Eclipse SmartHome Automation Module Tests</name>
+	<name>Eclipse SmartHome Automation Event Tests</name>
 
 	<parent>
 		<groupId>org.eclipse.smarthome.bundles</groupId>
@@ -13,8 +13,8 @@
 	</parent>
 
 	<properties>
-		<bundle.symbolicName>org.eclipse.smarthome.automation.module.test</bundle.symbolicName>
-		<bundle.namespace>org.eclipse.smarthome.automation.module.test</bundle.namespace>
+		<bundle.symbolicName>org.eclipse.smarthome.automation.event.test</bundle.symbolicName>
+		<bundle.namespace>org.eclipse.smarthome.automation.event.test</bundle.namespace>
 	</properties>
 
 	<build>

@@ -28,6 +28,7 @@ import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.RuleEngineCallbackImpl.TriggerData;
+import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -39,6 +40,7 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -58,6 +60,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Benedikt Niehues - added events for rules
  *
  */
 @SuppressWarnings("rawtypes")
@@ -306,6 +309,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (statusInfoCallback != null) {
             statusInfoCallback.statusInfoChanged(status);
         }
+        
     }
 
     /**
@@ -1023,6 +1027,12 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
         this.statusInfoCallback = statusInfoCallback;
+        
+    }
+
+    public void unsetEventPublisher(EventPublisher service) {
+       this.eventPublisher= null;
+        
     }
 
 }

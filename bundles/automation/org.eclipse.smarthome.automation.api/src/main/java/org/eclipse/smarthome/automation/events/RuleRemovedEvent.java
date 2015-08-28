@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.automation.events;
 
-import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.Rule;
 
 /**
  * An {@link RuleRemovedEvent} notifies subscribers that an item has been added.
@@ -28,7 +28,7 @@ public class RuleRemovedEvent extends AbstractRuleRegistryEvent {
 	 * @param source
 	 * @param ruleDTO
 	 */
-	public RuleRemovedEvent(String topic, String payload, String source, RuleDTO ruleDTO) {
+	public RuleRemovedEvent(String topic, String payload, String source, Rule ruleDTO) {
 		super(topic, payload, source, ruleDTO);
 	}
 

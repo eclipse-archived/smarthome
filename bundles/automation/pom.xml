@@ -27,6 +27,7 @@
 	<module>org.eclipse.smarthome.automation.sample.handler.resources</module>
 	<module>org.eclipse.smarthome.automation.module</module>
   	<module>org.eclipse.smarthome.automation.module.test</module>
+	<module>org.eclipse.smarthome.automation.event.test</module>
   </modules>
 
   <build>

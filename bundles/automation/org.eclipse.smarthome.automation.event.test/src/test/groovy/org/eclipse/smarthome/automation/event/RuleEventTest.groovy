@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.module;
+package org.eclipse.smarthome.automation.event;
 
 
 import static org.junit.Assert.*
@@ -18,14 +18,18 @@ import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger
+import org.eclipse.smarthome.automation.events.RuleAddedEvent
+import org.eclipse.smarthome.automation.events.RuleRemovedEvent
+import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
+import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
-import org.eclipse.smarthome.core.items.events.ItemCommandEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
@@ -36,7 +40,6 @@ import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -44,13 +47,14 @@ import org.slf4j.LoggerFactory
 import com.google.common.collect.Sets
 
 /**
- * this tests the RuleEngine
+ * This tests events of rules
+ * 
  * @author Benedikt Niehues - initial contribution
  *
  */
-class RuntimeRuleTest extends OSGiTest{
+class RuleEventTest extends OSGiTest{
 
-    final Logger logger = LoggerFactory.getLogger(RuntimeRuleTest.class)
+    final Logger logger = LoggerFactory.getLogger(RuleEventTest.class)
     VolatileStorageService volatileStorageService = new VolatileStorageService()
 
     @Before
@@ -79,51 +83,33 @@ class RuntimeRuleTest extends OSGiTest{
         registerService(autoupdateConfig)
     }
 
-
     @Test
-    @Ignore
-    public void testPredefinedRule() {
-
-        def EventPublisher eventPublisher = getService(EventPublisher)
-        def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem")
-        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON))
-        Event event = null
-        def eventHandler = [
-            receive: { Event e ->
-                logger.info("Event: " + e.topic)
-                event=e
+    public void testRuleEvents() {
+        
+        //Registering eventSubscriber
+        def ruleEvents = [] as List<Event>
+        
+        def ruleEventHandler = [
+            receive: {  Event e ->
+                logger.info("RuleEvent: " + e.topic)
+                    ruleEvents.add(e)
             },
 
             getSubscribedEventTypes: {
-                Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE)
+                Sets.newHashSet(RuleAddedEvent.TYPE, RuleRemovedEvent.TYPE, RuleStatusInfoEvent.TYPE, RuleUpdatedEvent.TYPE)
             },
 
             getEventFilter:{ null }
-
-        ] as EventSubscriber
-
-        registerService(eventHandler)
-        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem", OnOffType.ON))
-        waitForAssert ({
-            assertThat event, is(notNullValue())
-            assertThat event.topic, is(equalTo("smarthome/items/myLampItem/command"))
-        }
-        , 5000, 100)
-        assertThat event.topic, is(equalTo("smarthome/items/myLampItem/command"))
-        assertThat (((ItemCommandEvent)event).itemCommand, is(OnOffType.ON))
-    }
-
-
-    @Test
-    public void testRuleApi() {
+            ] as EventSubscriber
+        registerService(ruleEventHandler)
+        
         //Creation of RULE
-		def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
+        def triggerConfig = [itemName:"myMotionItem2"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
         def actionConfig = [itemName:"myLampItem2", command:"ON"]
         def triggers = [
-			automationFactory.createTrigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
+            new Trigger("ItemStateChangeTrigger2", "ItemStateChangeTrigger", triggerConfig)
         ]
         def conditions = [
             new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),
@@ -134,8 +120,7 @@ class RuntimeRuleTest extends OSGiTest{
         ]
 
         def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
-        // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
-        rule.name="RuleByJAVA_API"
+        rule.name="RuleEventTestingRule"
 
         logger.info("Rule created: "+rule.getUID())
 
@@ -150,7 +135,6 @@ class RuntimeRuleTest extends OSGiTest{
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
         Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
-        //		eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem2", OnOffType.ON))
 
         Event itemEvent = null
 
@@ -173,7 +157,6 @@ class RuntimeRuleTest extends OSGiTest{
         registerService(itemEventHandler)
         commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem2").getAcceptedCommandTypes(),"ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem2", commandObj))
-        //		eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem2", OnOffType.ON))
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem2/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
@@ -181,5 +164,16 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat myLampItem2, is(notNullValue())
         logger.info("myLampItem2 State: " + myLampItem2.state)
         assertThat myLampItem2.state, is(OnOffType.ON)
+        assertThat ruleEvents.size(), is(not(0))
+        assertThat ruleEvents.find{it.topic =="smarthome/rules/myRule21/added"}, is(notNullValue())
+        assertThat ruleEvents.find{it.topic =="smarthome/rules/myRule21/state"}, is(notNullValue())
+        def stateEvents = ruleEvents.findAll{it.topic=="smarthome/rules/myRule21/state"} as List<RuleStatusInfoEvent>
+        assertThat stateEvents, is(notNullValue())
+        def runningEvent = stateEvents.find{it.statusInfo.status==RuleStatus.RUNNING}
+        assertThat runningEvent, is(notNullValue())
+        ruleRegistry.remove("myRule21")
+        assertThat ruleEvents.find{it.topic=="smarthome/rules/myRule21/removed"}, is(notNullValue())
+        
+//        assertThat stateEvents.findAll{it.statusInfo.status=="IDLE"}, is(notNullValue())
     }
 }

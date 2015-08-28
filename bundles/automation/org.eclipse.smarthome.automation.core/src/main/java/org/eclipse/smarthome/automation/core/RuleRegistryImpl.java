@@ -19,6 +19,7 @@ import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Persistence implementation
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Benedikt Niehues - added events for rules
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
 
@@ -34,8 +36,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private Set<String> disabledRuledSet = new HashSet(0);
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
-
+    
     public RuleRegistryImpl(RuleEngine ruleEngine) {
+
         logger = LoggerFactory.getLogger(getClass());
         this.ruleEngine = ruleEngine;
         ruleEngine.setStatusInfoCallback(this);
@@ -61,6 +64,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     public synchronized void add(Rule element) {
         super.add(element);
         addIntoRuleEngine(element);
+        postEvent(RuleEventFactory.createRuleAddedEvent(element, SOURCE));
     }
 
     private String addIntoRuleEngine(Rule element) {
@@ -75,13 +79,16 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     public synchronized Rule remove(String key) {
+        Rule rule = get(key);
         ruleEngine.removeRule(key);
-        setEnabled(key, true);
+        setEnabled(key, false);
+        postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
         return super.remove(key);
     }
 
     @Override
     public synchronized Rule update(Rule element) {
+        Rule old = get(element.getUID());
         if (element != null) {
             String rUID = element.getUID();
             if (disabledRuledSet.contains(rUID)) {
@@ -89,6 +96,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
             }
             ruleEngine.updateRule(element);// update memory map
             element = super.update(element);// update storage with new rule and return old rule
+            postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
         }
         return element;
     }
@@ -169,4 +177,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         // TODO Auto-generated method stub
 
     }
+    
+    public void setEventPublisher(EventPublisher eventPublisher) {
+        super.setEventPublisher(eventPublisher);
+    }
+
+    public void unsetEventPublisher(EventPublisher eventPublisher) {
+        super.unsetEventPublisher(eventPublisher);
+    }
+
 }

@@ -13,8 +13,11 @@ import org.eclipse.smarthome.automation.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.core.template.TemplateRegistryImpl;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.type.ModuleTypeRegistryImpl;
+import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.core.events.EventFactory;
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
 import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleActivator;
@@ -31,21 +34,26 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * {@link ModuleTypeRegistry}, {@link TemplateRegistry}, {@link RuleRegistry} and {@link AutomationFactory}.
  *
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Benedikt Niehues - added events for rules
  */
 public class Activator implements BundleActivator {
 
     static ModuleTypeRegistryImpl moduleTypeRegistry;
     static TemplateRegistryImpl templateRegistry;
+    static RuleEventFactory ruleEventFactory;
     static BundleContext bc;
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
     private RuleRegistryImpl ruleRegistry;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ managedRuleProviderReg;
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ templateRegistryReg;
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ moduleTypeRegistryReg;
+    @SuppressWarnings("rawtypes")
+    private ServiceRegistration ruleEventFactoryReg;
     @SuppressWarnings("rawtypes")
     private ServiceTracker serviceTracker;
 
@@ -59,12 +67,15 @@ public class Activator implements BundleActivator {
         templateRegistryReg = bc.registerService(TemplateRegistry.class.getName(), templateRegistry, null);
         moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc, re));
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
+        ruleEventFactory = new RuleEventFactory();
+        ruleEventFactoryReg = bc.registerService(EventFactory.class, ruleEventFactory, null);
 
         ruleRegistry = new RuleRegistryImpl(re);
         ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
 
         Filter filter = bc.createFilter("(|(" + Constants.OBJECTCLASS + "=" + StorageService.class.getName() + ")("
-                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + "))");
+                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")("
+                + Constants.OBJECTCLASS + "=" + EventPublisher.class.getName() + "))");
 
         serviceTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
@@ -88,6 +99,11 @@ public class Activator implements BundleActivator {
                     RuleProvider rp = (RuleProvider) service;
                     ruleRegistry.addProvider(rp);
                     return rp;
+                } else if (service instanceof EventPublisher){
+                    EventPublisher ep = (EventPublisher)service;
+                    ruleRegistry.setEventPublisher(ep);
+                    re.setEventPublisher(ep);
+                    return ep;
                 }
                 return null;
             }
@@ -103,6 +119,9 @@ public class Activator implements BundleActivator {
                         managedRuleProviderReg.unregister();
                         managedRuleProviderReg = null;
                     }
+                } else if (service instanceof EventPublisher){
+                    ruleRegistry.unsetEventPublisher((EventPublisher)service);
+                    re.unsetEventPublisher((EventPublisher)service);
                 }
             }
         });
@@ -128,6 +147,12 @@ public class Activator implements BundleActivator {
             moduleTypeRegistryReg.unregister();
             moduleTypeRegistry.dispose();
             moduleTypeRegistryReg = null;
+        }
+        
+        if (ruleEventFactoryReg!=null){
+            ruleEventFactoryReg.unregister();
+            ruleEventFactory=null;
+            ruleEventFactoryReg=null;
         }
 
         serviceTracker.close();
