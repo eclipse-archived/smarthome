@@ -54,8 +54,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW,
             THING_TYPE_ZLL_LIGHT, THING_TYPE_LLC020);
 
-    private static final int DIM_STEPSIZE = 30;
-
     private String lightId;
 
     private Integer lastSentColorTemp;
@@ -129,106 +127,34 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (command instanceof PercentType) {
                     lightState = LightStateConverter.toColorTemperatureLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toColorLightState((OnOffType) command);
+                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
                 } else if (command instanceof IncreaseDecreaseType) {
-                    Integer colorTemp = lastSentColorTemp;
-                    if (colorTemp == null) {
-                        State currentState = light.getState();
-                        if (currentState != null) {
-                            colorTemp = currentState.getColorTemperature();
-                        }
-                    }
-                    if (colorTemp != null) {
-                        if (command == IncreaseDecreaseType.DECREASE) {
-                            colorTemp -= DIM_STEPSIZE;
-                            if (colorTemp < 0)
-                                colorTemp = 0;
-                        } else {
-                            colorTemp += DIM_STEPSIZE;
-                            if (colorTemp > 255)
-                                colorTemp = 255;
-                        }
-                        lastSentColorTemp = colorTemp;
-                        lightState = new StateUpdate().setColorTemperature(colorTemp);
-                    }
+                    lightState = convertColorTempChangeToStateUpdate((IncreaseDecreaseType) command, light);
                 }
                 break;
             case CHANNEL_BRIGHTNESS:
                 if (command instanceof PercentType) {
-                    lightState = LightStateConverter.toColorLightState((PercentType) command);
+                    lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toColorLightState((OnOffType) command);
+                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
                 } else if (command instanceof IncreaseDecreaseType) {
-                    Integer brightness = lastSentBrightness;
-                    if (brightness == null) {
-                        State currentState = light.getState();
-                        if (currentState != null) {
-                            if (!currentState.isOn()) {
-                                brightness = 0;
-                            } else {
-                                brightness = currentState.getBrightness();
-                            }
-                        }
-                    }
-                    if (brightness != null) {
-                        lightState = new StateUpdate();
-                        if (command == IncreaseDecreaseType.DECREASE) {
-                            brightness -= DIM_STEPSIZE;
-                            if (brightness < 1) {
-                                brightness = 1;
-                                lightState = lightState.setOn(false);
-                            }
-                        } else {
-                            brightness += DIM_STEPSIZE;
-                            if (brightness > 254) {
-                                brightness = 254;
-                            }
-                        }
-                        lastSentBrightness = brightness;
-                        lightState.setBrightness(brightness);
-                    }
+                    lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
                 }
                 break;
             case CHANNEL_COLOR:
                 if (command instanceof HSBType) {
                     HSBType hsbCommand = (HSBType) command;
                     if (hsbCommand.getBrightness().intValue() == 0) {
-                        lightState = LightStateConverter.toColorLightState(OnOffType.OFF);
+                        lightState = LightStateConverter.toOnOffLightState(OnOffType.OFF);
                     } else {
                         lightState = LightStateConverter.toColorLightState(hsbCommand);
                     }
                 } else if (command instanceof PercentType) {
-                    lightState = LightStateConverter.toColorLightState((PercentType) command);
+                    lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
-                    lightState = LightStateConverter.toColorLightState((OnOffType) command);
+                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
                 } else if (command instanceof IncreaseDecreaseType) {
-                    Integer brightness = lastSentBrightness;
-                    if (brightness == null) {
-                        State currentState = light.getState();
-                        if (currentState != null) {
-                            if (!currentState.isOn()) {
-                                brightness = 0;
-                            } else {
-                                brightness = currentState.getBrightness();
-                            }
-                        }
-                    }
-                    if (brightness != null) {
-                        if (command == IncreaseDecreaseType.DECREASE) {
-                            brightness -= DIM_STEPSIZE;
-                            if (brightness < 0)
-                                brightness = 0;
-                        } else {
-                            brightness += DIM_STEPSIZE;
-                            if (brightness > 255)
-                                brightness = 255;
-                        }
-                        lastSentBrightness = brightness;
-                        lightState = new StateUpdate().setBrightness(brightness);
-                        if (brightness == 0) {
-                            lightState = lightState.setOn(false);
-                        }
-                    }
+                    lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
                 }
                 break;
         }
@@ -237,6 +163,61 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         } else {
             logger.warn("Command send to an unknown channel id: " + channelUID);
         }
+    }
+
+    private StateUpdate convertColorTempChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
+        StateUpdate stateUpdate = null;
+        Integer currentColorTemp = getCurrentColorTemp(light.getState());
+        if (currentColorTemp != null) {
+            int newColorTemp = LightStateConverter.toAdjustedColorTemp(command, currentColorTemp);
+            stateUpdate = new StateUpdate().setColorTemperature(newColorTemp);
+            lastSentColorTemp = newColorTemp;
+        }
+        return stateUpdate;
+    }
+
+    private Integer getCurrentColorTemp(State lightState) {
+        Integer colorTemp = lastSentColorTemp;
+        if (colorTemp == null && lightState != null) {
+            colorTemp = lightState.getColorTemperature();
+        }
+        return colorTemp;
+    }
+
+    private StateUpdate convertBrightnessChangeToStateUpdate(IncreaseDecreaseType command, FullLight light) {
+        StateUpdate stateUpdate = null;
+        Integer currentBrightness = getCurrentBrightness(light.getState());
+        if (currentBrightness != null) {
+            int newBrightness = LightStateConverter.toAdjustedBrightness(command, currentBrightness);
+            stateUpdate = createBrightnessStateUpdate(currentBrightness, newBrightness);
+            lastSentBrightness = newBrightness;
+        }
+        return stateUpdate;
+    }
+
+    private Integer getCurrentBrightness(State lightState) {
+        Integer brightness = lastSentBrightness;
+        if (brightness == null && lightState != null) {
+            if (!lightState.isOn()) {
+                brightness = 0;
+            } else {
+                brightness = lightState.getBrightness();
+            }
+        }
+        return brightness;
+    }
+
+    private StateUpdate createBrightnessStateUpdate(int currentBrightness, int newBrightness) {
+        StateUpdate lightUpdate = new StateUpdate();
+        if (newBrightness == 0) {
+            lightUpdate.turnOff();
+        } else {
+            lightUpdate.setBrightness(newBrightness);
+            if (currentBrightness == 0){
+                lightUpdate.turnOn();
+            }
+        }
+        return lightUpdate;
     }
 
     private synchronized HueBridgeHandler getHueBridgeHandler() {

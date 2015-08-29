@@ -204,7 +204,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             try {
                 bridge.setLightState(light, stateUpdate);
             } catch (DeviceOffException e) {
-                updateLightState(light, LightStateConverter.toColorLightState(OnOffType.ON));
+                updateLightState(light, LightStateConverter.toOnOffLightState(OnOffType.ON));
                 updateLightState(light, stateUpdate);
             } catch (IOException | ApiException e) {
                 throw new RuntimeException(e);
