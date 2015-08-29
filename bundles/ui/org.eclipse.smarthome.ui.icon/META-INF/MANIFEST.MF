@@ -7,13 +7,13 @@ Bundle-Activator: org.eclipse.smarthome.ui.icon.internal.Activator
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.servlet,
- javax.servlet.http;version="2.6.0",
- org.apache.commons.io;version="2.0.1",
- org.apache.commons.lang;version="2.6.0",
+ javax.servlet.http,
+ org.apache.commons.io,
+ org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.ui.icon,
- org.osgi.framework;version="1.3.0",
- org.osgi.service.http;version="1.2.1",
- org.slf4j;version="1.7.2"
+ org.osgi.framework,
+ org.osgi.service.http,
+ org.slf4j
 Service-Component: OSGI-INF/iconservlet.xml,
  OSGI-INF/iconprovider.xml
