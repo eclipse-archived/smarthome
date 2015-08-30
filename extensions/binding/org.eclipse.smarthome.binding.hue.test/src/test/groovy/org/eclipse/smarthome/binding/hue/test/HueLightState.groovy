@@ -49,8 +49,7 @@ class HueLightState {
 
 
     public String toString(){
-        return
-        """
+        def state = """
         {"lights":
           {
             "1": {
@@ -87,5 +86,7 @@ class HueLightState {
           }
         }
         """
+
+        return state
     }
 }
