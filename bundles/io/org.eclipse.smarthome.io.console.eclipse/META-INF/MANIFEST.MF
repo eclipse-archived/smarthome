@@ -8,7 +8,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: org.apache.commons.lang,
  org.eclipse.osgi.framework.console,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.smarthome.io.console
