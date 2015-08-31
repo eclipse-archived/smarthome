@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.config.xml.osgi;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,15 +22,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The {@link XmlDocumentBundleTracker} tracks files in the specified XML folder of modules and
- * tries to parse them as XML file with the specified {@link XmlDocumentReader}. Any converted
- * XML files are assigned to its according bundle and added to an {@link XmlDocumentProvider} for further processing.
- * For each module an own {@link XmlDocumentProvider} is created by
+ * The {@link XmlDocumentBundleTracker} tracks files in the specified XML folder
+ * of modules and tries to parse them as XML file with the specified
+ * {@link XmlDocumentReader}. Any converted XML files are assigned to its
+ * according bundle and added to an {@link XmlDocumentProvider} for further
+ * processing. For each module an own {@link XmlDocumentProvider} is created by
  * using the specified {@link XmlDocumentProviderFactory}.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Benedikt Niehues - Changed resource handling so that resources can be
+ *         patched by fragments.
  *
- * @param <T> the result type of the conversion
+ * @param <T>
+ *            the result type of the conversion
  */
 public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
@@ -41,22 +46,29 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     private final XmlDocumentProviderFactory<T> xmlDocumentProviderFactory;
 
     private final Map<Bundle, XmlDocumentProvider<T>> bundleDocumentProviderMap;
-    
+
     private final AbstractAsyncBundleProcessor asyncLoader;
 
     /**
      * Creates a new instance of this class with the specified parameters.
      *
-     * @param bundleContext the bundle context to be used for tracking bundles (must not be null)
-     * @param xmlDirectory the directory to search for XML files (must neither be null, nor empty)
-     * @param xmlDocumentTypeReader the XML converter to be used (must not be null)
-     * @param xmlDocumentProviderFactory the result object processor to be used (must not be null)
+     * @param bundleContext
+     *            the bundle context to be used for tracking bundles (must not
+     *            be null)
+     * @param xmlDirectory
+     *            the directory to search for XML files (must neither be null,
+     *            nor empty)
+     * @param xmlDocumentTypeReader
+     *            the XML converter to be used (must not be null)
+     * @param xmlDocumentProviderFactory
+     *            the result object processor to be used (must not be null)
      *
-     * @throws IllegalArgumentException if any of the arguments is null
+     * @throws IllegalArgumentException
+     *             if any of the arguments is null
      */
     public XmlDocumentBundleTracker(BundleContext bundleContext, String xmlDirectory,
             XmlDocumentReader<T> xmlDocumentTypeReader, XmlDocumentProviderFactory<T> xmlDocumentProviderFactory)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
 
         super(bundleContext, Bundle.ACTIVE, null);
 
@@ -82,7 +94,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
         this.xmlDocumentProviderFactory = xmlDocumentProviderFactory;
 
         this.bundleDocumentProviderMap = new HashMap<>();
-        
+
         this.asyncLoader = new AbstractAsyncBundleProcessor() {
 
             @Override
@@ -92,15 +104,14 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
             @Override
             protected void processBundle(Bundle bundle) {
-                Enumeration<String> xmlDocumentPaths = bundle.getEntryPaths(XmlDocumentBundleTracker.this.xmlDirectory);
-
+                Enumeration<URL> xmlDocumentPaths = bundle.findEntries(XmlDocumentBundleTracker.this.xmlDirectory,
+                        "*.xml", true);
                 if (xmlDocumentPaths != null) {
+                    Collection<URL> filteredPaths = filterPatches(xmlDocumentPaths, bundle);
                     int numberOfParsedXmlDocuments = 0;
+                    for (URL xmlDocumentURL : filteredPaths) {
 
-                    while (xmlDocumentPaths.hasMoreElements()) {
                         String moduleName = bundle.getSymbolicName();
-                        String xmlDocumentPath = xmlDocumentPaths.nextElement();
-                        URL xmlDocumentURL = bundle.getEntry(xmlDocumentPath);
                         String xmlDocumentFile = xmlDocumentURL.getFile();
 
                         try {
@@ -166,9 +177,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
                     xmlDocumentProvider.release();
                 } catch (Exception ex) {
-                    this.logger.error(
-                            "Could not release the XmlDocumentProvider for the module '" + bundle.getSymbolicName()
-                                    + "'!", ex);
+                    this.logger.error("Could not release the XmlDocumentProvider for the module '"
+                            + bundle.getSymbolicName() + "'!", ex);
                 }
 
                 this.bundleDocumentProviderMap.remove(bundle);
@@ -191,8 +201,8 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
             try {
                 xmlDocumentProvider.addingFinished();
             } catch (Exception ex) {
-                this.logger.error("Could not send adding finished event for the module '" + bundle.getSymbolicName()
-                        + "'!", ex);
+                this.logger.error(
+                        "Could not send adding finished event for the module '" + bundle.getSymbolicName() + "'!", ex);
             }
         }
     }
