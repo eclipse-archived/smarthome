@@ -31,7 +31,6 @@ Checkout the source code from GitHub, e.g. by running
 
 git clone https://github.com/eclipse/smarthome.git
 
-
 3. Building with Maven
 ======================
 
