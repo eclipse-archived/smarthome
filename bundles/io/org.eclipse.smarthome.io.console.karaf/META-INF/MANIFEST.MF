@@ -6,9 +6,10 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
-Import-Package: org.apache.karaf.shell.api.console;version="4.0.0.M1",
+Import-Package: org.apache.karaf.shell.api.console;version="4.0.0",
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
-Require-Bundle: org.eclipse.smarthome.io.console
