@@ -267,7 +267,6 @@ public class Rule {
      * @param moduleId unique id of the module in this rule.
      * @return module with specified id or null when it does not exist.
      */
-    @SuppressWarnings("unchecked")
     public Module getModule(String moduleId) {
         Module module = getModule(moduleId, triggers);
         if (module != null) {

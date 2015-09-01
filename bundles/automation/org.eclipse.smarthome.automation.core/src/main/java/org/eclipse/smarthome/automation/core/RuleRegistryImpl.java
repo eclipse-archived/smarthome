@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
+import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
-    private Set<String> disabledRuledSet = new HashSet(0);
+    private Set<String> disabledRuledSet = new HashSet<String>(0);
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
 
@@ -166,10 +167,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return result;
     }
 
-    protected void setDisabledRuleStorage(Storage disabledRulesStorage) {
+    protected void setDisabledRuleStorage(Storage<Boolean> disabledRulesStorage) {
         this.disabledRulesStorage = disabledRulesStorage;
         disabledRuledSet = loadDisabledRuleMap();
-        // TODO disabled active rules
     }
 
     @Override
@@ -182,6 +182,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         super.setEventPublisher(eventPublisher);
     }
 
+    @Override
     public void unsetEventPublisher(EventPublisher eventPublisher) {
         super.unsetEventPublisher(eventPublisher);
     }

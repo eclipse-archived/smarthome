@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
-    private RuleImpl r;
+    private RuntimeRule r;
 
     private ExecutorService executor;
 
@@ -37,7 +37,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     private RuleEngine re;
 
-    protected RuleEngineCallbackImpl(RuleEngine re, RuleImpl r) {
+    protected RuleEngineCallbackImpl(RuleEngine re, RuntimeRule r) {
         this.re = re;
         this.r = r;
         executor = Executors.newSingleThreadExecutor();

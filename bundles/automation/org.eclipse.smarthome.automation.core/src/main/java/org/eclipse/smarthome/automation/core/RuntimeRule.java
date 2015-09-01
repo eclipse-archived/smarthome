@@ -28,7 +28,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class RuleImpl extends Rule {
+public class RuntimeRule extends Rule {
     /**
      * Module configuration properties can have reference to Rule configuration properties.
      * This symbol is put as prefix to the name of the Rule configuration property.
@@ -42,11 +42,11 @@ public class RuleImpl extends Rule {
      * @param configurations
      * @throws Exception
      */
-    public RuleImpl(String ruleTemplateUID, Map<String, ?> configurations) {
+    public RuntimeRule(String ruleTemplateUID, Map<String, ?> configurations) {
         super(ruleTemplateUID, configurations);
     }
 
-    public RuleImpl(RuleTemplate template, Map<String, ?> configuration) {
+    public RuntimeRule(RuleTemplate template, Map<String, ?> configuration) {
         super(createTrieggers(template.getTriggers()), createConditions(template.getConditions()),
                 createActions(template.getActions()), template.getConfigurationDescription(), configuration);
     }
@@ -57,7 +57,7 @@ public class RuleImpl extends Rule {
      * @param rule a rule which has to be copied or null when an empty instance of rule
      *            has to be created.
      */
-    protected RuleImpl(Rule rule) {
+    protected RuntimeRule(Rule rule) {
         super(rule.getUID(), createTrieggers(rule.getTriggers()), createConditions(rule.getConditions()),
                 createActions(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration());
         setName(rule.getName());
@@ -77,7 +77,6 @@ public class RuleImpl extends Rule {
                 : new HashMap<String, Object>(11);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Module getModule(String moduleId) {
         if (moduleMap == null) {
@@ -110,8 +109,8 @@ public class RuleImpl extends Rule {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof RuleImpl && getUID() != null) {
-            RuleImpl r = (RuleImpl) obj;
+        if (obj instanceof RuntimeRule && getUID() != null) {
+            RuntimeRule r = (RuntimeRule) obj;
             return getUID().equals(r.getUID());
         }
         return super.equals(obj);
@@ -259,7 +258,6 @@ public class RuleImpl extends Rule {
     private void handleModuleConfigReferences0(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             for (Module module : modules) {
-                @SuppressWarnings("unchecked")
                 Map<String, Object> moduleConfiguration = module.getConfiguration();
                 if (moduleConfiguration != null) {
                     for (Map.Entry<String, ?> entry : moduleConfiguration.entrySet()) {
@@ -287,7 +285,7 @@ public class RuleImpl extends Rule {
         List<Action> res = new ArrayList<Action>();
         if (actions != null) {
             for (Action action : actions) {
-                res.add(new ActionImpl(action));
+                res.add(new RuntimeAction(action));
             }
         }
         return res;
@@ -297,7 +295,7 @@ public class RuleImpl extends Rule {
         List<Condition> res = new ArrayList<Condition>(11);
         if (conditions != null) {
             for (Condition condition : conditions) {
-                res.add(new ConditionImpl(condition));
+                res.add(new RuntimeCondition(condition));
             }
         }
         return res;
@@ -307,7 +305,7 @@ public class RuleImpl extends Rule {
         List<Trigger> res = new ArrayList<Trigger>(11);
         if (triggers != null) {
             for (Trigger trigger : triggers) {
-                res.add(new TriggerImpl(trigger));
+                res.add(new RuntimeTrigger(trigger));
             }
         }
         return res;

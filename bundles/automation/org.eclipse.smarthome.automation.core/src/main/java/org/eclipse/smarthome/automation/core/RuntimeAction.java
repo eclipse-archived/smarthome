@@ -33,7 +33,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class ActionImpl extends Action implements ConnectedModule, SourceModule {
+public class RuntimeAction extends Action implements ConnectedModule, SourceModule {
 
     /**
      * The handler of this module.
@@ -51,7 +51,7 @@ public class ActionImpl extends Action implements ConnectedModule, SourceModule 
      * @param connections set of connections to other modules (triggers and other actions).
      * @param actionHandler
      */
-    public ActionImpl(String ID, String typeUID, Map<String, Object> configuration, Set<Connection> connections,
+    public RuntimeAction(String ID, String typeUID, Map<String, Object> configuration, Set<Connection> connections,
             ActionHandler actionHandler) {
         super(ID, typeUID, configuration, connections);
         this.actionHandler = actionHandler;
@@ -62,7 +62,7 @@ public class ActionImpl extends Action implements ConnectedModule, SourceModule 
      *
      * @param action another action which is uses as base of created
      */
-    public ActionImpl(Action action) {
+    public RuntimeAction(Action action) {
         super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
         setLabel(action.getLabel());
         setDescription(action.getDescription());

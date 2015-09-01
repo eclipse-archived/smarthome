@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class ConditionImpl extends Condition implements ConnectedModule {
+public class RuntimeCondition extends Condition implements ConnectedModule {
 
     private ConditionHandler conditionHandler;
     private Map<String, OutputRef> connectedObjects;
@@ -37,13 +37,13 @@ public class ConditionImpl extends Condition implements ConnectedModule {
      * @param configuration configuration values of the {@link Condition} module.
      * @param connections set of {@link Connection}s used by this module.
      */
-    public ConditionImpl(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
+    public RuntimeCondition(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
             ConditionHandler conditionHandler) {
         super(id, typeUID, configuration, connections);
         this.conditionHandler = conditionHandler;
     }
 
-    public ConditionImpl(Condition condition) {
+    public RuntimeCondition(Condition condition) {
         super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getConnections());
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());

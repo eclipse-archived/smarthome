@@ -13,7 +13,7 @@ import org.eclipse.smarthome.automation.type.Output;
 /**
  * This class is used to get value of specific output. The {@link Output} is defined by the {@link Module} containing
  * the {@link Output} and its name. The module has to implement {@link SourceModule} interface. This internal interface
- * is implemented by module implementations which have outputs ( {@link TriggerImpl} and {@link ActionImpl}).
+ * is implemented by module implementations which have outputs ( {@link RuntimeTrigger} and {@link RuntimeAction}).
  *
  * @author Yordan Mihaylov - Initial Contribution
  */

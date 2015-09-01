@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.core.RuleEngine;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 
@@ -21,7 +20,6 @@ import org.eclipse.smarthome.automation.template.TemplateRegistry;
 public class TemplateRegistryImpl implements TemplateRegistry {
 
     private TemplateManager templateManager;
-    private RuleEngine ruleEngine;
 
     public TemplateRegistryImpl(TemplateManager templateManager) {
         this.templateManager = templateManager;
