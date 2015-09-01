@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.eclipse.smarthome.model.notification/src-gen"
+    editDirectory="/org.eclipse.smarthome.model.notification.edit/src" editorDirectory="/org.eclipse.smarthome.model.notification.editor/src"
+    modelPluginID="org.eclipse.smarthome.model.notification" forceOverwrite="true"
+    modelName="Notification" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    complianceLevel="5.0" copyrightFields="false" editPluginID="org.eclipse.smarthome.model.notification.edit"
+    editorPluginID="org.eclipse.smarthome.model.notification.editor" runtimeVersion="2.10">
+  <genPackages prefix="Notification" basePackage="org.eclipse.smarthome.model.notification"
+      disposableProviderFactory="true" fileExtensions="notify" ecorePackage="Notification.ecore#/">
+    <genClasses ecoreClass="Notification.ecore#//NotificationModel">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//NotificationModel/targets"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//NotificationModel/filters"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//NotificationModel/configs"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//Target">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//Target/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//Target/targetOptions"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//TargetOption">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//TargetOption/targetOption"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//Filter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//Filter/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//Filter/filterType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//Filter/options"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//FilterOption">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//FilterOption/filterOption"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//EventConfiguration">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/namespacedetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/entitydetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/targetdetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/actiondetail"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/targets"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference Notification.ecore#//EventConfiguration/filters"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//EventDetail">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventDetail/namespacedetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventDetail/entitydetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventDetail/targetdetail"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Notification.ecore#//EventDetail/actiondetail"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//NamespaceDetail"/>
+    <genClasses ecoreClass="Notification.ecore#//AllNamespaces"/>
+    <genClasses ecoreClass="Notification.ecore#//NamespaceID">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//NamespaceID/namespace"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//EntityTypeDetail"/>
+    <genClasses ecoreClass="Notification.ecore#//AllEntities"/>
+    <genClasses ecoreClass="Notification.ecore#//EntityTypeID">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//EntityTypeID/entity"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//TargetDetail"/>
+    <genClasses ecoreClass="Notification.ecore#//AllTargets"/>
+    <genClasses ecoreClass="Notification.ecore#//TargetID">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//TargetID/target"/>
+    </genClasses>
+    <genClasses ecoreClass="Notification.ecore#//ActionDetail"/>
+    <genClasses ecoreClass="Notification.ecore#//AllActions"/>
+    <genClasses ecoreClass="Notification.ecore#//ActionID">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Notification.ecore#//ActionID/action"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
