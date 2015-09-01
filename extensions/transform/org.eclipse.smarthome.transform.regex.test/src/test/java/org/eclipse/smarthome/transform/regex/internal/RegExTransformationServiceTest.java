@@ -7,10 +7,8 @@
  */
 package org.eclipse.smarthome.transform.regex.internal;
 
-import junit.framework.Assert;
-
 import org.eclipse.smarthome.core.transform.TransformationException;
-import org.eclipse.smarthome.transform.regex.internal.RegExTransformationService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,8 +48,8 @@ public class RegExTransformationServiceTest extends AbstractTransformationServic
     public void testTransformByRegex_moreThanOneGroup() throws TransformationException {
 
         // method under test
-        String transformedResponse = processor
-                .transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\"(.*)", source);
+        String transformedResponse = processor.transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\"(.*)",
+                source);
 
         // Asserts
         Assert.assertEquals("8", transformedResponse);

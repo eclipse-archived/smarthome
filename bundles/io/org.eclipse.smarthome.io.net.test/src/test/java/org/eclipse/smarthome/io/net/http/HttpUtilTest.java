@@ -7,13 +7,12 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
-import junit.framework.Assert;
-
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

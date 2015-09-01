@@ -7,9 +7,8 @@
  */
 package org.eclipse.smarthome.transform.xslt.internal;
 
-import junit.framework.Assert;
-
 import org.eclipse.smarthome.core.transform.TransformationException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

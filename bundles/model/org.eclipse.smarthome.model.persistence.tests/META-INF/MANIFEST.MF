@@ -12,9 +12,9 @@ Import-Package: org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.model.persistence.extensions,
  org.eclipse.smarthome.model.persistence.tests,
  org.joda.time,
- org.joda.time.base
-Require-Bundle: org.junit;bundle-version="4.0.0"
-Export-Package: org.eclipse.smarthome.model.persistence.extensions,org
- .eclipse.smarthome.model.persistence.tests
+ org.joda.time.base,
+ org.junit
+Export-Package: org.eclipse.smarthome.model.persistence.extensions,
+ org.eclipse.smarthome.model.persistence.tests
 Bundle-ClassPath: .
 Fragment-Host: org.eclipse.smarthome.model.persistence
