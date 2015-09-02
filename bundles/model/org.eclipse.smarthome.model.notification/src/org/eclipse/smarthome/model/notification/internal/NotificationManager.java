@@ -53,9 +53,6 @@ public class NotificationManager implements ModelRepositoryChangeListener, Event
 
     private static NotificationManager instance;
 
-    // the scheduler used for timer events
-    // private Scheduler scheduler;
-
     /* default */ModelRepository modelRepository;
 
     private final Map<String, EventFilterFactory> typedEventFilterFactories = new ConcurrentHashMap<String, EventFilterFactory>();
@@ -68,17 +65,8 @@ public class NotificationManager implements ModelRepositoryChangeListener, Event
     /** keeps a list of event filters for each notification service */
     protected Map<String, Map<String, EventFilter>> eventFilters = new ConcurrentHashMap<String, Map<String, EventFilter>>();
 
-    /** keeps a list of default strategies for each persistence service */
-    // protected Map<String, List<Strategy>> defaultStrategies = Collections
-    // .synchronizedMap(new HashMap<String, List<Strategy>>());
-
     public NotificationManager() {
         NotificationManager.instance = this;
-        // try {
-        // scheduler = StdSchedulerFactory.getDefaultScheduler();
-        // } catch (SchedulerException e) {
-        // logger.error("initializing scheduler throws exception", e);
-        // }
     }
 
     static/* default */NotificationManager getInstance() {
@@ -108,17 +96,6 @@ public class NotificationManager implements ModelRepositoryChangeListener, Event
         }
         this.modelRepository = null;
     }
-
-    // public void setItemRegistry(ItemRegistry itemRegistry) {
-    // this.itemRegistry = itemRegistry;
-    // itemRegistry.addRegistryChangeListener(this);
-    // allItemsChanged(null);
-    // }
-    //
-    // public void unsetItemRegistry(ItemRegistry itemRegistry) {
-    // itemRegistry.removeRegistryChangeListener(this);
-    // this.itemRegistry = null;
-    // }
 
     public void addNotificationService(NotificationService notificationService) {
         logger.debug("Initializing {} notification service.", notificationService.getName());

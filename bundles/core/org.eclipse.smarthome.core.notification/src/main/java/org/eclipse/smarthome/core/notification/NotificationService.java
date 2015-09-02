@@ -12,12 +12,9 @@ import java.util.List;
 import org.eclipse.smarthome.core.events.Event;
 
 /**
- * A persistence service which can be used to store data from openHAB.
- * This must not necessarily be a local database, a persistence service
- * can also be cloud-based or a simply data-export facility (e.g.
- * for sending data to an IoT (Internet of Things) service.
+ * A notification service which can be used to route events from ESH
  *
- * @author Kai Kreuzer - Initial contribution and API
+ * @author Karel Goderis - Initial contribution and API
  */
 public interface NotificationService {
 
@@ -29,18 +26,6 @@ public interface NotificationService {
      */
     String getName();
 
-    /**
-     * Stores the current value of the given item.
-     * <p>
-     * Implementors should keep in mind that all registered {@link PersistenceService}s are called synchronously. Hence
-     * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
-     * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
-     * </p>
-     *
-     * @param payload
-     *
-     * @param item the item which state should be persisted.
-     */
     void notify(String target, List<String> options, Event event);
 
 }
