@@ -43,7 +43,7 @@
   <description>This is the Eclipse SmartHome project</description>
 
   <properties>
-    <tycho-version>0.20.0</tycho-version>
+    <tycho-version>0.23.1</tycho-version>
     <tycho-groupid>org.eclipse.tycho</tycho-groupid>
     <xtext-version>2.6.2</xtext-version>
     <build.helper.maven.plugin.version>1.8</build.helper.maven.plugin.version>
@@ -76,59 +76,6 @@
       <plugin>
         <groupId>${tycho-groupid}</groupId>
         <artifactId>target-platform-configuration</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <resolver>p2</resolver>
-          <ignoreTychoRepositories>true</ignoreTychoRepositories>
-          <pomDependencies>consider</pomDependencies>
-          <target>
-            <artifact>
-              <groupId>org.eclipse.smarthome</groupId>
-              <artifactId>targetplatform</artifactId>
-              <version>${project.version}</version>
-              <classifier>smarthome</classifier>
-            </artifact>
-          </target>
-          <environments>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>linux</os>
-              <ws>gtk</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86</arch>
-            </environment>
-            <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
-            </environment>
-            <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
-              <arch>x86_64</arch>
-            </environment>
-          </environments>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>${tycho-groupid}</groupId>
-        <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
-        <configuration>
-          <failIfNoTests>false</failIfNoTests>
-          <includes>
-            <include>**/*.java</include>
-            <include>**/*.groovy</include>
-          </includes>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -161,53 +108,15 @@
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
         <configuration>
-        	<javaSourceVersion>1.7</javaSourceVersion>
+          <javaSourceVersion>1.7</javaSourceVersion>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build.helper.maven.plugin.version}</version>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/main/groovy</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.version}</version>
-        <configuration>
-          <compilerId>groovy-eclipse-compiler</compilerId>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-eclipse-compiler</artifactId>
-            <version>${groovy.eclipse.compiler.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-eclipse-batch</artifactId>
-            <version>${groovy.eclipse.batch.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
 
@@ -223,6 +132,120 @@
             <target>1.7</target>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <resolver>p2</resolver>
+            <ignoreTychoRepositories>true</ignoreTychoRepositories>
+            <pomDependencies>consider</pomDependencies>
+            <target>
+              <artifact>
+                <groupId>org.eclipse.smarthome</groupId>
+                <artifactId>targetplatform</artifactId>
+                <version>${project.version}</version>
+                <classifier>smarthome</classifier>
+              </artifact>
+            </target>
+            <environments>
+              <environment>
+                <os>linux</os>
+                <ws>gtk</ws>
+                <arch>x86</arch>
+              </environment>
+              <environment>
+                <os>linux</os>
+                <ws>gtk</ws>
+                <arch>x86_64</arch>
+              </environment>
+              <environment>
+                <os>win32</os>
+                <ws>win32</ws>
+                <arch>x86</arch>
+              </environment>
+              <environment>
+                <os>win32</os>
+                <ws>win32</ws>
+                <arch>x86_64</arch>
+              </environment>
+              <environment>
+                <os>macosx</os>
+                <ws>cocoa</ws>
+                <arch>x86_64</arch>
+              </environment>
+            </environments>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>${tycho-groupid}</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <configuration>
+            <failIfNoTests>false</failIfNoTests>
+            <!--<includes>
+              <include>**/*</include>
+            </includes>-->
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build.helper.maven.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>add-source</id>
+              <phase>generate-sources</phase>
+              <goals>
+                <goal>add-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>src/main/groovy</source>
+                </sources>
+              </configuration>
+            </execution>
+            <execution>
+              <id>add-test-source</id>
+              <phase>generate-test-sources</phase>
+              <goals>
+                <goal>add-test-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>src/test/groovy</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.version}</version>
+          <configuration>
+            <compilerId>groovy-eclipse-compiler</compilerId>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.codehaus.groovy</groupId>
+              <artifactId>groovy-eclipse-compiler</artifactId>
+              <version>${groovy.eclipse.compiler.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.codehaus.groovy</groupId>
+              <artifactId>groovy-eclipse-batch</artifactId>
+              <version>${groovy.eclipse.batch.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
