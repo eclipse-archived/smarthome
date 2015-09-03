@@ -29,8 +29,8 @@ public class PointType implements ComplexType, Command, State {
     public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
     public static final double WGS84_a = 6378137; // The equatorial radius of WGS84 ellipsoid (6378137 m).
 
-    private BigDecimal latitude; // in decimal degrees
-    private BigDecimal longitude; // in decimal degrees
+    private BigDecimal latitude = BigDecimal.ZERO; // in decimal degrees
+    private BigDecimal longitude = BigDecimal.ZERO; // in decimal degrees
     private BigDecimal altitude = BigDecimal.ZERO; // in decimal meters
 
     // constants for the constituents
@@ -41,7 +41,15 @@ public class PointType implements ComplexType, Command, State {
     private static final BigDecimal circle = new BigDecimal(360);
     private static final BigDecimal flat = new BigDecimal(180);
     private static final BigDecimal right = new BigDecimal(90);
-
+    
+    /**
+     * Default constructor creates a point at sea level where the equator
+     * (0° latitude) and the prime meridian (0° longitude) intersect. 
+     * A nullary constructor is needed by
+     * {@link org.eclipse.smarthome.core.internal.items.ItemUpdater#receiveUpdate})
+     */
+    public PointType() {}
+    
     public PointType(DecimalType latitude, DecimalType longitude) {
         canonicalize(latitude, longitude);
     }
