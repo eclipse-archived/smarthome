@@ -7,11 +7,11 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import junit.framework.Assert;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
@@ -48,7 +48,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.Or(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.OPEN, state);
+        assertEquals(OpenClosedType.OPEN, state);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.Or(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.Or(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -95,8 +95,8 @@ public class ArithmeticGroupFunctionTest {
         State state = function.calculate(items);
         State decimalState = function.getStateAs(items, DecimalType.class);
 
-        Assert.assertEquals(OnOffType.ON, state);
-        Assert.assertEquals(new DecimalType("2"), decimalState);
+        assertEquals(OnOffType.ON, state);
+        assertEquals(new DecimalType("2"), decimalState);
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.NOr(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.NOr(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.OPEN, state);
+        assertEquals(OpenClosedType.OPEN, state);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.And(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.OPEN, state);
+        assertEquals(OpenClosedType.OPEN, state);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.And(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.And(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.NAnd(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.CLOSED, state);
+        assertEquals(OpenClosedType.CLOSED, state);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.NAnd(OpenClosedType.OPEN, OpenClosedType.CLOSED);
         State state = function.calculate(items);
 
-        Assert.assertEquals(OpenClosedType.OPEN, state);
+        assertEquals(OpenClosedType.OPEN, state);
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ArithmeticGroupFunctionTest {
         function = new ArithmeticGroupFunction.Sum();
         State state = function.calculate(items);
 
-        Assert.assertEquals(new DecimalType("234.95"), state);
+        assertEquals(new DecimalType("234.95"), state);
     }
 
     class TestItem extends GenericItem {
