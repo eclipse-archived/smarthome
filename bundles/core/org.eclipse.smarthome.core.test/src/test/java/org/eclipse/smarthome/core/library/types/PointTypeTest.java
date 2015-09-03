@@ -20,6 +20,12 @@ public class PointTypeTest {
 
     @Test
     public void testDistance() {
+        // Ensure presence of default constructor
+        PointType midleOfTheOcean = new PointType();
+        assertEquals(0, midleOfTheOcean.getLongitude().doubleValue(), 0.0000001);
+        assertEquals(0, midleOfTheOcean.getLatitude().doubleValue(), 0.0000001);
+        assertEquals(0, midleOfTheOcean.getAltitude().doubleValue(), 0.0000001);
+        
         PointType pointParis = new PointType("48.8566140,2.3522219");
 
         assertEquals(2.3522219, pointParis.getLongitude().doubleValue(), 0.0000001);
