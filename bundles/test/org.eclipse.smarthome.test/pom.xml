@@ -20,4 +20,17 @@
   <name>Eclipse SmartHome Test</name>
   <packaging>eclipse-plugin</packaging>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>target-platform-configuration</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

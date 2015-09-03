@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.io.net.http;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -32,16 +32,16 @@ public class HttpUtilTest {
         UsernamePasswordCredentials credentials = (UsernamePasswordCredentials) HttpUtil.extractCredentials(testUrl);
 
         // assert
-        Assert.assertEquals(expectedUsername, credentials.getUserName());
-        Assert.assertEquals(expectedPassword, credentials.getPassword());
+        assertEquals(expectedUsername, credentials.getUserName());
+        assertEquals(expectedPassword, credentials.getPassword());
     }
 
     @Test
     public void testCreateHttpMethod() {
-        Assert.assertEquals(GetMethod.class, HttpUtil.createHttpMethod("GET", "").getClass());
-        Assert.assertEquals(PutMethod.class, HttpUtil.createHttpMethod("PUT", "").getClass());
-        Assert.assertEquals(PostMethod.class, HttpUtil.createHttpMethod("POST", "").getClass());
-        Assert.assertEquals(DeleteMethod.class, HttpUtil.createHttpMethod("DELETE", "").getClass());
+        assertEquals(GetMethod.class, HttpUtil.createHttpMethod("GET", "").getClass());
+        assertEquals(PutMethod.class, HttpUtil.createHttpMethod("PUT", "").getClass());
+        assertEquals(PostMethod.class, HttpUtil.createHttpMethod("POST", "").getClass());
+        assertEquals(DeleteMethod.class, HttpUtil.createHttpMethod("DELETE", "").getClass());
     }
 
 }
