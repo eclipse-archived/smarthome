@@ -36,11 +36,6 @@
               </requirement>
               <requirement>
                 <type>eclipse-plugin</type>
-                <id>org.eclipse.smarthome.core</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
                 <id>org.eclipse.smarthome.model.script.runtime</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
