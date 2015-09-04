@@ -31,11 +31,6 @@
           <environments combine.self="override"></environments>
           <dependency-resolution>
             <extraRequirements>
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.smarthome.feature.test</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
               <dependency>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.equinox.event</id>
