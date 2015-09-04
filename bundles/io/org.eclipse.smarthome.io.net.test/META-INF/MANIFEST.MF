@@ -8,4 +8,4 @@ Fragment-Host: org.eclipse.smarthome.io.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.commons.httpclient,
  org.apache.commons.httpclient.methods,
- org.junit;version="4.5.0"
+ org.junit;version="4.0.0"
