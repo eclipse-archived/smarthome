@@ -27,15 +27,6 @@
         <artifactId>target-platform-configuration</artifactId>
         <configuration>
           <environments combine.self="override"></environments>
-          <dependency-resolution>
-            <extraRequirements>
-              <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.smarthome.feature.test</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-            </extraRequirements>
-          </dependency-resolution>
         </configuration>
       </plugin>
       <plugin>

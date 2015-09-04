@@ -30,11 +30,6 @@
           <dependency-resolution>
             <extraRequirements>
               <requirement>
-                <type>eclipse-feature</type>
-                <id>org.eclipse.smarthome.feature.test</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
                 <type>eclipse-plugin</type>
                 <id>org.eclipse.equinox.ds</id>
                 <versionRange>0.0.0</versionRange>
