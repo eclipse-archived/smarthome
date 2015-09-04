@@ -55,6 +55,7 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Before
     void before() {
+        
         def itemProvider = [
             getAll: {
                 [
@@ -72,11 +73,7 @@ class RuntimeRuleTest extends OSGiTest{
         registerService(itemProvider)
         registerService(volatileStorageService)
 
-        def autoupdateConfig = [
-            autoUpdate: { String itemName -> return true }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
+        enableItemAutoUpdate()
     }
 
 
@@ -116,14 +113,14 @@ class RuntimeRuleTest extends OSGiTest{
 
 
     @Test
-    public void testRuleApi() {
+    public void 'assert that item state is updated by simple rule'() {
         //Creation of RULE
-		def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
+        def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
         def actionConfig = [itemName:"myLampItem2", command:"ON"]
         def triggers = [
-			automationFactory.createTrigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
+            new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
         ]
         def conditions = [
             new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),

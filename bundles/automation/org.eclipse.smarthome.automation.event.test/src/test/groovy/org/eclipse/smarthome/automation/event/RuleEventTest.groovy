@@ -74,25 +74,20 @@ class RuleEventTest extends OSGiTest{
             removeProviderChangeListener: {},
             allItemsChanged: {}] as ItemProvider
         registerService(itemProvider)
-        registerService(volatileStorageService)
-
-        def autoupdateConfig = [
-            autoUpdate: { String itemName -> return true }
-
-        ] as AutoUpdateBindingConfigProvider
-        registerService(autoupdateConfig)
+        registerVolatileStorageService()
+        enableItemAutoUpdate()
     }
 
     @Test
     public void testRuleEvents() {
-        
+
         //Registering eventSubscriber
         def ruleEvents = [] as List<Event>
-        
+
         def ruleEventHandler = [
             receive: {  Event e ->
                 logger.info("RuleEvent: " + e.topic)
-                    ruleEvents.add(e)
+                ruleEvents.add(e)
             },
 
             getSubscribedEventTypes: {
@@ -100,16 +95,16 @@ class RuleEventTest extends OSGiTest{
             },
 
             getEventFilter:{ null }
-            ] as EventSubscriber
+        ] as EventSubscriber
         registerService(ruleEventHandler)
-        
+
         //Creation of RULE
-        def triggerConfig = [itemName:"myMotionItem2"]
+        def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
         def actionConfig = [itemName:"myLampItem2", command:"ON"]
         def triggers = [
-            new Trigger("ItemStateChangeTrigger2", "ItemStateChangeTrigger", triggerConfig)
+            new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
         ]
         def conditions = [
             new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),
@@ -173,7 +168,5 @@ class RuleEventTest extends OSGiTest{
         assertThat runningEvent, is(notNullValue())
         ruleRegistry.remove("myRule21")
         assertThat ruleEvents.find{it.topic=="smarthome/rules/myRule21/removed"}, is(notNullValue())
-        
-//        assertThat stateEvents.findAll{it.statusInfo.status=="IDLE"}, is(notNullValue())
     }
 }

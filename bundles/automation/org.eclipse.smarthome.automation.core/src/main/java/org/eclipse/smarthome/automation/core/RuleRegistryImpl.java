@@ -89,17 +89,17 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     public synchronized Rule update(Rule element) {
-        Rule old = get(element.getUID());
+        Rule old = null;
         if (element != null) {
             String rUID = element.getUID();
             if (disabledRuledSet.contains(rUID)) {
                 ruleEngine.setRuleEnabled(rUID, false);
             }
             ruleEngine.updateRule(element);// update memory map
-            element = super.update(element);// update storage with new rule and return old rule
+            old = super.update(element);// update storage with new rule and return old rule
             postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
         }
-        return element;
+        return old;
     }
 
     @Override

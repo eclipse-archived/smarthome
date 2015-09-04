@@ -42,7 +42,7 @@ import com.google.common.collect.Maps;
  */
 public class GenericEventTriggerHandler extends BaseTriggerHandler implements EventSubscriber {
 
-	private static Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
+	private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
 	private RuleEngineCallback callback;
 	private Map<String, Object> config;

@@ -20,6 +20,59 @@
 				  "required":true
 			  }
 		  }
+	  },
+	  "EventCondition":{
+		  "label":"StateCondition",
+		  "description":"checks if the State matches",
+		  "config":{
+			  "topic":{
+				  "type":"TEXT",
+				  "description":"topic should match",
+				  "required":false
+			  },
+			  "eventType":{
+				  "type":"TEXT",
+				  "description":"eventType should match",
+				  "required":false
+			  },
+			  "source":{
+				  "type":"TEXT",
+				  "description":"source should match",
+				  "required":false
+			  },"payload":{
+				  "type":"TEXT",
+				  "description":"payload should match",
+				  "required":false
+			  }
+		  },
+	      "input": {
+            "source": {
+              "type": "java.lang.String",
+              "label": "Source",
+              "description": "The name of the events source.",
+			  "required":false
+            },
+            "payload": {
+              "type": "java.lang.String",
+              "label": "Payload",
+              "description": "The payload of the event",
+			  "required":false
+            },
+            "type": {
+              "type": "java.lang.String",
+              "label": "EventType",
+              "description": "The type of the Event.",
+			  "required":false
+            },
+            "topic": {
+              "type": "java.lang.String",
+              "label": "topic",
+              "description": "The Topic of the event",
+			  "required":false
+            }
+	      }
+		  
+	  	
 	  }
   },
   "actions":{

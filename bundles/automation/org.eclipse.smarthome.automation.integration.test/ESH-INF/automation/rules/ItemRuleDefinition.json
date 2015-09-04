@@ -1,0 +1,54 @@
+[  
+  {  
+    "name": "ItemSampleRule",
+    "tags": [  
+      "sample",
+	  "item",
+	  "jsonTest",
+      "rule"
+    ],
+    "config": {},
+    "description": "Sample Rule for items definition.",
+    "on": [  
+      {  
+        "id": "ItemStateChangeTriggerID",
+        "type": "GenericEventTrigger",
+		"config":{
+			"eventSource":"myMotionItem",
+			"eventTopic":"smarthome/items/*",
+			"eventTypes":"ItemStateEvent"
+		}
+      }
+    ],
+    "if": [
+      {
+        "id": "ItemStateConditionID",
+        "type": "ItemStateCondition",
+        "config": {
+          "operator": "=",
+          "itemName": "myPresenceItem",
+		  "state":"ON"
+        }
+      },
+	  {
+		  "id": "ItemStateConditionID2",
+		  "type": "ItemStateCondition",
+		  "config":{
+			  "operator":"=",
+			  "itemName":"myMotionItem",
+			  "state":"ON"
+		  }
+	  }
+    ],
+    "then": [
+      {  
+        "id": "ItemPostCommandActionID",
+        "type": "ItemPostCommandAction",
+        "config": {  
+          "itemName": "myLampItem",
+		  "command": "ON"
+        }
+      }
+    ]
+  }
+]
