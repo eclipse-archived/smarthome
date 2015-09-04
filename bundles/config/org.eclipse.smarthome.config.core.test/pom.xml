@@ -36,16 +36,6 @@
                 <id>org.eclipse.equinox.ds</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>com.eclipsesource.jaxrs.jersey-all</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>com.eclipsesource.jaxrs.jersey-min</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
