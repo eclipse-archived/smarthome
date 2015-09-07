@@ -23,8 +23,8 @@ import javax.ws.rs.core.UriInfo;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.LocaleUtil;
 
 /**
  * This class acts as a REST resource for bindings and is registered with the

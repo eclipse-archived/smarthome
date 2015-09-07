@@ -27,15 +27,15 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 
     /**
      * Retrieves the label for a widget.
-     * 
+     *
      * This first checks, if there is a label defined in the sitemap. If not, it
      * checks all item UI providers for a label. If no label can be found, it is
      * set to an empty string.
-     * 
+     *
      * If the label contains a "[%format]" section, i.e.
      * "[%s]" for a string or "[%.3f]" for a decimal, this is replaced by the
      * current value of the item and padded by a "<span>" element.
-     * 
+     *
      * @param w
      *            the widget to retrieve the label for
      * @return the label to use for the widget
@@ -43,26 +43,21 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     public String getLabel(Widget w);
 
     /**
-     * Retrieves the icon name for a widget.
-     * 
-     * This first checks, if there is an icon defined in the sitemap. If not, if
-     * checks all item UI providers for an icon. If no icon can be found, the
-     * default icon name is the widget type name, e.g. "switch".
-     * 
-     * If the icon name does not contain a "-" and has a state other than
-     * "undefined", its current state is appended to the icon name, e.g.
-     * "switch-on". If no such icon exists, the base icon ("switch") will be
-     * returned nonetheless.
-     * 
+     * Retrieves the category for a widget.
+     *
+     * This first checks, if there is a category defined in the sitemap. If not, it
+     * checks all item UI providers for a category. If no category can be found, the
+     * default category is the widget type name, e.g. "switch".
+     *
      * @param w
-     *            the widget to retrieve the icon name for
-     * @return the icon name to use for the widget
+     *            the widget to retrieve the category for
+     * @return the category to use for the widget
      */
-    public String getIcon(Widget w);
+    public String getCategory(Widget w);
 
     /**
      * Retrieves the current state of the item of a widget or <code>UnDefType.UNDEF</code>.
-     * 
+     *
      * @param w
      *            the widget to retrieve the item state for
      * @return the item state of the widget
@@ -71,7 +66,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 
     /**
      * Retrieves the widget for a given id on a given sitemap.
-     * 
+     *
      * @param sitemap
      *            the sitemap to look for the widget
      * @param id
@@ -82,13 +77,13 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 
     /**
      * Provides an id for a widget.
-     * 
+     *
      * This constructs a string out of the position of the sitemap, so if this
      * widget is the third child of a page linked from the fifth widget on the
      * home screen, its id would be "0503". If the widget is dynamically created
      * and not available in the sitemap, the name of its associated item is used
      * instead.
-     * 
+     *
      * @param w
      *            the widget to get the id for
      * @return an id for this widget
@@ -99,7 +94,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
      * this should be used instead of LinkableWidget.getChildren() as there
      * might be no children defined on the widget, but they should be
      * dynamically determined by looking at the members of the underlying item.
-     * 
+     *
      * @param w
      *            the widget to retrieve the children for
      * @return the (dynamically or statically defined) children of the widget
@@ -107,18 +102,9 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     public EList<Widget> getChildren(LinkableWidget w);
 
     /**
-     * Checks whether an icon with a given name exists
-     * 
-     * @param icon
-     *            the icon name to check
-     * @return true, if the icon exists
-     */
-    public boolean iconExists(String icon);
-
-    /**
      * Gets the label color for the widget. Checks conditional statements to
      * find the color based on the item value
-     * 
+     *
      * @param w
      *            Widget
      * @return String with the color
@@ -128,7 +114,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
     /**
      * Gets the value color for the widget. Checks conditional statements to
      * find the color based on the item value
-     * 
+     *
      * @param w
      *            Widget
      * @return String with the color
@@ -137,7 +123,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 
     /**
      * Gets the widget visibility based on the item state
-     * 
+     *
      * @param w
      *            Widget
      * @return true if the item is visible
@@ -146,7 +132,7 @@ public interface ItemUIRegistry extends ItemRegistry, ItemUIProvider {
 
     /**
      * Gets the item state
-     * 
+     *
      * @param itemName
      *            item name
      * @return State of the item
