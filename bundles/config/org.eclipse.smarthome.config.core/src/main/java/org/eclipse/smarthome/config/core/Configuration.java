@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * This class is a wrapper for configuration settings of {@link Thing}s.
  *
- * @author Dennis Nobel - Initial API and contribution
+ * @author Dennis Nobel - Initial API and contribution, Changed Logging
  * @author Kai Kreuzer - added constructors
  * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
  */
@@ -37,7 +37,7 @@ public class Configuration {
 
     final private Map<String, Object> properties;
 
-    private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
         this(new HashMap<String, Object>());
@@ -51,6 +51,7 @@ public class Configuration {
         synchronized (this) {
 
             T configuration = null;
+
             try {
                 configuration = configurationClass.newInstance();
             } catch (InstantiationException | IllegalAccessException ex) {

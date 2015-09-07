@@ -115,13 +115,15 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
             new ChannelGroupDefinition("group2", channelGroupType),
         ] as List
 
+        def thingTypes = [
+            new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null, null),
+            new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null, null),
+            new BridgeType(bridgeTypeUID, null, "label", null, null, null, null, null)
+        ]
         registerService([
-            getThingTypes: {
-                return [
-                    new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null, null),
-                    new ThingType(thingTypeUID2, null, "label", null, null, channelGroupDefinitions, null, null),
-                    new BridgeType(bridgeTypeUID, null, "label", null, null, null, null, null)
-                ]
+            getThingTypes: { thingTypes },
+            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
+                thingTypes.find { it.UID == thingTypeUID }
             }
         ] as ThingTypeProvider)
     }

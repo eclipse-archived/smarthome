@@ -54,32 +54,32 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
     @Before
     void setup() {
         registerVolatileStorageService()
-        
+
         itemRegistry = getService(ItemRegistry)
         assertThat itemRegistry, is(notNullValue())
-        
+
         def ComponentContext componentContext = [
-            getBundleContext: { -> bundleContext} 
+            getBundleContext: { -> bundleContext}
         ] as ComponentContext
-    
+
         def thingHandlerFactory = new TestThingHandlerFactory()
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
-        
-        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [ new StateOption("SOUND", "My great sound.") ])
-        
+
+        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [new StateOption("SOUND", "My great sound.")])
+
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
-        
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
+
+        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType)], null, null, null)])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
         assertThat thingSetupManager, is(notNullValue())
-        
+
         stateDescriptionProvider = getService(StateDescriptionProvider)
         assertThat stateDescriptionProvider, is(notNullValue())
     }
-    
+
     @After
     void teardown() {
         ManagedThingProvider managedThingProvider = getService(ManagedThingProvider)
@@ -87,19 +87,19 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
             managedThingProvider.remove(it.getUID())
         }
     }
-    
+
     @Test
     void 'assert that item\'s state description is present'() {
         thingSetupManager.addThing(new ThingUID("hue:lamp:lamp1"), new Configuration(), /* bridge */ null)
         def items = itemRegistry.getItems()
-        assertThat items.isEmpty(), is(false) 
-        
+        assertThat items.isEmpty(), is(false)
+
         def GenericItem numberItem = items.find { "Number" == it.getType() }
         assertThat numberItem, is(notNullValue())
-        
+
         def StateDescription state = numberItem.getStateDescription()
         assertThat state, is(notNullValue())
-        
+
         state.with {
             assertThat minimum, is(0 as BigDecimal)
             assertThat maximum, is(100 as BigDecimal)
@@ -109,13 +109,13 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
             assertThat options.size(), is(1)
             assertThat options.first().getValue(), is("SOUND")
             assertThat options.first().getLabel(), is("My great sound.")
-        } 
+        }
     }
-    
+
     /*
      * Helper
      */
-    
+
     class TestThingHandlerFactory extends BaseThingHandlerFactory {
         @Override
         public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -125,14 +125,14 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         @Override
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
-                public void handleCommand(ChannelUID channelUID, Command command) { }
-            }
+                        public void handleCommand(ChannelUID channelUID, Command command) { }
+                    }
         }
     }
-    
+
     class TestThingTypeProvider implements ThingTypeProvider {
         def Collection<ThingType> thingTypes
-        
+
         TestThingTypeProvider(Collection<ThingType> thingTypes){
             this.thingTypes = thingTypes
         }
@@ -144,7 +144,7 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
 
         @Override
         public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-            return null
+            return thingTypes.find { it.UID == thingTypeUID }
         }
     }
 }
