@@ -63,6 +63,7 @@
     <module>tools</module>
     <module>targetplatform</module>
     <module>distribution</module>
+    <module>protocols</module>
   </modules>
 
   <build>
@@ -315,40 +316,6 @@
         </plugins>
       </build>
     </profile>
-    <profile>
-      <id>QA</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.4.201502262128</version>
-            <configuration>
-              <dataFile>${session.executionRootDirectory}/target/coverage.jacoco</dataFile>
-              <destFile>${session.executionRootDirectory}/target/coverage.jacoco</destFile>
-              <append>true</append>
-              <excludes>
-                <exclude>**/*Test.*</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>default-prepare-agent</id>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>default-prepare-agent-integration</id>
-                <goals>
-                  <goal>prepare-agent-integration</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
   </profiles>
 
   <pluginRepositories>
@@ -359,6 +326,10 @@
     <pluginRepository>
       <id>cbi-releases</id>
       <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+    </pluginRepository>
+    <pluginRepository>
+      <id>esh-dep</id>
+      <url>https://dl.bintray.com/kaikreuzer/esh-deps</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -372,6 +343,20 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>esh-dep</id>
+      <name>esh dependancies</name>
+      <layout>default</layout>
+      <url>https://dl.bintray.com/kaikreuzer/esh-deps</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+	 <repository>
+	  <id>ow2.releases</id>
+	  <name>OW2 Repository</name>
+	  <url>http://maven.ow2.org/maven2/</url>
+	 </repository>
   </repositories>
 
 </project>

@@ -21,6 +21,7 @@
     <module>org.eclipse.smarthome.binding.yahooweather</module>
     <module>org.eclipse.smarthome.binding.wemo</module>
     <module>org.eclipse.smarthome.binding.lifx</module>
+    <module>org.eclipse.smarthome.binding.enocean</module>
   </modules>
 
   <build>

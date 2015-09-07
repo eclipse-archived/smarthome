@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="yahooweather"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+        xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- smoke detector binding Binding -->
+    <thing-type id="smokeDetector">
+        <label>Weather Information</label>
+        <description>Provides various weather data from the Yahoo service</description>
+
+		<channels>
+			<channel id="alarm" typeId="alarm" />
+
+		</channels>
+
+    </thing-type>
+    <thing-type id="plugOnOff">
+        <label>Weather Information</label>
+        <description>Provides various weather data from the Yahoo service</description>
+
+        <channels>
+            <channel id="onOff" typeId="onOff" />
+
+        </channels>
+
+    </thing-type>
+
+    <channel-type id="alarm">
+        <item-type>Switch</item-type>
+        <label>Alarm</label>
+        <description>alarm turned as on or off</description>
+        <category>Alarm</category>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+        <channel-type id="onOff">
+        <item-type>Switch</item-type>
+        <label>Alarm</label>
+        <description>alarm turned as on or off</description>
+        <category>Alarm</category>
+        <state readOnly="true">
+        </state>
+    </channel-type>
+
+</thing:thing-descriptions>
