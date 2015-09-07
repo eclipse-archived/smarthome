@@ -131,12 +131,15 @@ class RemovalTest extends OSGiTest {
         def thingTypeUID1 = new ThingTypeUID("removal-binding:thing-type")
         def bridgeTypeUID = new ThingTypeUID("removal-binding:bridge-type")
 
+        def thingTypes = [
+            new ThingType(thingTypeUID1, null, "label", null, null, null, null, null),
+            new BridgeType(bridgeTypeUID, null, "label", null, null, null, null, null)
+        ]
+
         registerService([
-            getThingTypes: {
-                return [
-                    new ThingType(thingTypeUID1, null, "label", null, null, null, null, null),
-                    new BridgeType(bridgeTypeUID, null, "label", null, null, null, null, null)
-                ]
+            getThingTypes: { return thingTypes },
+            getThingType: { ThingTypeUID thingTypeUID, Locale locale ->
+                thingTypes.find { it.UID == thingTypeUID }
             }
         ] as ThingTypeProvider)
     }

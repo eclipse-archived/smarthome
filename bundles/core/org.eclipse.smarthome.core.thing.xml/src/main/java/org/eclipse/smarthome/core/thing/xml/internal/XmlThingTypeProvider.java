@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,10 +43,61 @@ import org.osgi.util.tracker.ServiceTracker;
  * disappears, any registered {@link ThingType} objects associated with that module are released.
  *
  * @author Michael Grammling - Initial Contribution
- * @author Dennis Nobel - Added locale support
+ * @author Dennis Nobel - Added locale support, Added cache for localized thing types
  * @author Ivan Iliev - Added support for system wide channel types
  */
 public class XmlThingTypeProvider implements ThingTypeProvider {
+
+    private class LocalizedThingTypeKey {
+        public ThingTypeUID uid;
+        public String locale;
+
+        public LocalizedThingTypeKey(ThingTypeUID uid, String locale) {
+            this.uid = uid;
+            this.locale = locale;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + ((locale == null) ? 0 : locale.hashCode());
+            result = prime * result + ((uid == null) ? 0 : uid.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            LocalizedThingTypeKey other = (LocalizedThingTypeKey) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+                return false;
+            if (locale == null) {
+                if (other.locale != null)
+                    return false;
+            } else if (!locale.equals(other.locale))
+                return false;
+            if (uid == null) {
+                if (other.uid != null)
+                    return false;
+            } else if (!uid.equals(other.uid))
+                return false;
+            return true;
+        }
+
+        private XmlThingTypeProvider getOuterType() {
+            return XmlThingTypeProvider.this;
+        }
+
+    }
+
+    private Map<LocalizedThingTypeKey, ThingType> localizedThingTypeCache = new HashMap<>();
 
     private Map<Bundle, List<ThingType>> bundleThingTypesMap;
 
@@ -95,6 +147,8 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
             if (thingTypes != null) {
                 thingTypes.add(thingType);
+                // just make sure no old entry remains in the cache
+                removeCachedEntries(thingType);
             }
         }
     }
@@ -176,6 +230,14 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
     }
 
     private ThingType createLocalizedThingType(Bundle bundle, ThingType thingType, Locale locale) {
+
+        LocalizedThingTypeKey localizedThingTypeKey = getLocalizedThingTypeKey(thingType, locale);
+
+        ThingType cacheEntry = localizedThingTypeCache.get(localizedThingTypeKey);
+        if (cacheEntry != null) {
+            return cacheEntry;
+        }
+
         if (this.thingTypeI18nUtil != null) {
             String label = this.thingTypeI18nUtil.getLabel(bundle, thingType.getUID(), thingType.getLabel(), locale);
             String description = this.thingTypeI18nUtil.getDescription(bundle, thingType.getUID(),
@@ -200,16 +262,45 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
-                return new BridgeType(bridgeType.getUID(), bridgeType.getSupportedBridgeTypeUIDs(), label, description,
-                        localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
+                BridgeType localizedBridgeType = new BridgeType(bridgeType.getUID(),
+                        bridgeType.getSupportedBridgeTypeUIDs(), label, description, localizedChannelDefinitions,
+                        localizedChannelGroupDefinitions, thingType.getProperties(),
                         bridgeType.getConfigDescriptionURI());
+                localizedThingTypeCache.put(localizedThingTypeKey, localizedBridgeType);
+                return localizedBridgeType;
+            } else {
+                ThingType localizedThingType = new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
+                        label, description, localizedChannelDefinitions, localizedChannelGroupDefinitions,
+                        thingType.getProperties(), thingType.getConfigDescriptionURI());
+                localizedThingTypeCache.put(localizedThingTypeKey, localizedThingType);
+                return localizedThingType;
             }
-            return new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(), label, description,
-                    localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
-                    thingType.getConfigDescriptionURI());
 
         }
         return thingType;
+    }
+
+    private LocalizedThingTypeKey getLocalizedThingTypeKey(ThingType thingType, Locale locale) {
+        String localeString = locale != null ? locale.toLanguageTag() : null;
+        LocalizedThingTypeKey localizedThingTypeKey = new LocalizedThingTypeKey(thingType.getUID(),
+                locale != null ? localeString : null);
+        return localizedThingTypeKey;
+    }
+
+    private void removeCachedEntries(List<ThingType> thingTypes) {
+        for (ThingType thingType : thingTypes) {
+            removeCachedEntries(thingType);
+        }
+    }
+
+    private void removeCachedEntries(ThingType thingType) {
+        for (Iterator<Entry<LocalizedThingTypeKey, ThingType>> iterator = this.localizedThingTypeCache.entrySet()
+                .iterator(); iterator.hasNext();) {
+            Entry<LocalizedThingTypeKey, ThingType> entry = iterator.next();
+            if (entry.getKey().uid.equals(thingType.getUID())) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
@@ -262,6 +353,7 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
 
             if (thingTypes != null) {
                 this.bundleThingTypesMap.remove(bundle);
+                removeCachedEntries(thingTypes);
             }
         }
     }
