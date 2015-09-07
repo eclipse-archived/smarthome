@@ -45,10 +45,10 @@ import org.junit.Test
 import org.osgi.service.component.ComponentContext
 
 /**
- * 
- * These tests will check (un-)linking of items and things, or items and channels managed 
+ *
+ * These tests will check (un-)linking of items and things, or items and channels managed
  * by {@link ThingLinkManager}.
- * 
+ *
  * @author Alex Tugarev - Initial contribution
  * @author Dennis Nobel - Added test for bug 459628 (lifecycle problem)
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
@@ -77,11 +77,11 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
 
-        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [ new StateOption("SOUND", "My great sound.") ])
+        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [new StateOption("SOUND", "My great sound.")])
 
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
 
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
+        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType)], null, null, null)])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
@@ -198,14 +198,14 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         @Override
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
-                public void handleCommand(ChannelUID channelUID, Command command) { }
-                void channelLinked(ChannelUID channelUID) {
-                    context.put("linkedChannel", channelUID)
-                };
-                void channelUnlinked(ChannelUID channelUID) {
-                    context.put("unlinkedChannel", channelUID)
-                };
-            }
+                        public void handleCommand(ChannelUID channelUID, Command command) { }
+                        void channelLinked(ChannelUID channelUID) {
+                            context.put("linkedChannel", channelUID)
+                        };
+                        void channelUnlinked(ChannelUID channelUID) {
+                            context.put("unlinkedChannel", channelUID)
+                        };
+                    }
         }
     }
 
@@ -223,8 +223,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
         @Override
         public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-            return null
+            return thingTypes.find { it.UID == thingTypeUID }
         }
     }
-    
 }
