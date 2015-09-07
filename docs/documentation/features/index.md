@@ -18,11 +18,12 @@ There are the following categories of bundles:
  - `designer`: Eclipse RCP support for DSLs and other configuration files
  - `ui`: user interface related bundles that provide services that can be used by different UIs, such as charting or icons
 
-## Core Services
+## Runtime Services
 
 ### Optional Bundles
 
  - `org.eclipse.smarthome.core.id`: [Unique instance IDs](core/id.html)
+ - `org.eclipse.smarthome.ui.icon`: [Icon support](ui/icons.html)
 
 Besides the very core framework that is mandatory for all solutions, there are many optional features like the support for textual configurations (DSLs), the REST API or the sitemap support.
 
@@ -40,3 +41,13 @@ A binding is an extension to the Eclipse SmartHome runtime that integrates an ex
 
 Bindings can optionally include [discovery services](../concepts/discovery.html), which allow the system to automatically find accessible devices and services.
 
+### User Interfaces
+
+User interfaces normally use the REST API for communication, but if they are not client-side, but served from the runtime, they also have the option to use all local Java services.
+
+Currently, the only available user interface in Eclipse SmartHome is the Classic UI, but further UIs will be available soon.
+
+All user interfaces can share icon sets, so that these do not have to be included in every single user interface.
+Eclipse SmartHome comes with the following iconsets:
+
+ - `org.eclipse.smarthome.ui.iconset.classic`: [Classic Icon Set](ui/iconset/classic/readme.html)

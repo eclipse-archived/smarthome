@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome UI Icons Tests
+Bundle-SymbolicName: org.eclipse.smarthome.ui.icon.test
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Fragment-Host: org.eclipse.smarthome.ui.icon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: groovy.lang,
+ javax.servlet,
+ javax.servlet.http,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.test,
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0"
