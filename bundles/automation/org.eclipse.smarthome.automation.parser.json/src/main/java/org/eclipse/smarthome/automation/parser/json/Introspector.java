@@ -572,7 +572,8 @@ public class Introspector {
                     public Object run() {
                         Object obj = null;
                         try {
-                            obj = new Object[] { deserialize(val, paramTypes[0]) };
+                            // obj = new Object[] { deserialize(val, paramTypes[0]) };
+                            obj = deserialize(val, paramTypes[0]);
                             return propSetter.invoke(bean, obj);
                         } catch (Throwable t) {
                             if (log != null) {
@@ -583,6 +584,7 @@ public class Introspector {
                     }
                 });
             }
+            return bean;
         } catch (Throwable t) {
             if (log != null) {
                 log.warn("Unable to instantiate " + toType, t);

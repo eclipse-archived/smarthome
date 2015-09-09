@@ -8,6 +8,10 @@
 package org.eclipse.smarthome.automation.parser.json;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Properties;
 
 import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
@@ -66,7 +70,7 @@ public class JSONUtilityTest {
 
     Object convertValue(String type, Object value)
             throws ClassNotFoundException, JSONException, IllegalAccessException, InvocationTargetException {
-        if (value instanceof JSONObject) {
+        if (value instanceof JSONObject || value instanceof JSONArray) {
             Class<?> clazz = this.getClass().getClassLoader().loadClass(type);
             Introspector i = new Introspector();
             return i.deserialize(value, clazz);
@@ -82,6 +86,18 @@ public class JSONUtilityTest {
         Assert.assertNotNull(convertValue(Float.class.getName(), new JSONTokener("2.5").nextValue()));
         Assert.assertNotNull(convertValue(Integer.class.getName(), new JSONTokener("5").nextValue()));
         Assert.assertNotNull(convertValue(String.class.getName(), new JSONTokener("'abc'").nextValue()));
+        Assert.assertNotNull(convertValue(Object.class.getName(), new JSONTokener("{'aa':'bb','c':'d'}").nextValue()));
+        Assert.assertNotNull(convertValue(Dictionary.class.getName(), new JSONTokener("{'a':'b','x':5}").nextValue()));
+        Assert.assertNotNull(convertValue(Dictionary.class.getName(),
+                new JSONTokener("{'a':'b','x':5,'json.elementType':'java.lang.String'}").nextValue()));
+        Assert.assertNotNull(convertValue(Properties.class.getName(),
+                new JSONTokener("{'a':'b','x':5,'json.elementType':'java.lang.String'}").nextValue()));
+        Assert.assertNotNull(convertValue(HashMap.class.getName(),
+                new JSONTokener("{'a':'b','x':5,'json.elementType':'java.lang.String'}").nextValue()));
+        Assert.assertNotNull(convertValue(ArrayList.class.getName(), new JSONTokener("[false,true]").nextValue()));
+
+        Assert.assertNotNull(convertValue(org.eclipse.smarthome.automation.Rule.class.getName(),
+                new JSONTokener("{'name':'name1','description':'description1'}").nextValue()));
     }
 
     @Test
