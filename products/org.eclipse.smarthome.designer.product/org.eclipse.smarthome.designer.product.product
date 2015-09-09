@@ -127,7 +127,6 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.config.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.core" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.core.library" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.core.thing" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="0" />
