@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.transform.xpath.internal;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class XPathTransformationServiceTest extends AbstractTransformationServic
         String transformedResponse = processor.transform("//current_conditions/temp_c/@data", source);
 
         // Asserts
-        Assert.assertEquals("8", transformedResponse);
+        assertEquals("8", transformedResponse);
     }
 
 }
