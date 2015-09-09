@@ -16,12 +16,12 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.test,
  org.hamcrest;core=split,
  org.hamcrest.core,
- org.junit;version="4.5.0",
- org.junit.runner;version="4.5.0",
- org.junit.runner.manipulation;version="4.5.0",
- org.junit.runner.notification;version="4.5.0",
- org.junit.runners;version="4.5.0",
- org.junit.runners.model;version="4.5.0",
+ org.junit;version="4.0.0",
+ org.junit.runner;version="4.0.0",
+ org.junit.runner.manipulation;version="4.0.0",
+ org.junit.runner.notification;version="4.0.0",
+ org.junit.runners;version="4.0.0",
+ org.junit.runners.model;version="4.0.0",
  org.osgi.service.component;version="1.2.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Fragment-Host: org.eclipse.smarthome.model.thing
