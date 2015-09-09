@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
@@ -367,7 +368,6 @@ class AutomationIntegrationTest extends OSGiTest{
 
         logger.info("Rule created: "+rule.getUID())
 
-        def ruleRegistry = getService(RuleRegistry)
         ruleRegistry.add(rule)
         ruleRegistry.setEnabled(rule.UID, true)
 
@@ -410,6 +410,24 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("myLampItem2 State: " + myLampItem2.state)
         assertThat myLampItem2.state, is(OnOffType.ON)
     }
+    
+    @Test
+    public void 'assert that a rule can be added by a ruleProvider' () {
+        def rule = createSimpleRule()
+        def ruleProvider = [
+            getAll:{
+                [
+                    rule
+                ]
+            },
+            addProviderChangeListener:{},
+            removeProviderChangeListener:{}
+            ] as RuleProvider
+      
+        registerService(ruleProvider)
+        assertThat ruleRegistry.getAll().find{it.UID==rule.UID}, is(notNullValue())
+    }
+    
 
     /**
      * creates a simple rule
@@ -437,4 +455,6 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("Rule created: "+rule.getUID())
         return rule
     }
+    
+    
 }
