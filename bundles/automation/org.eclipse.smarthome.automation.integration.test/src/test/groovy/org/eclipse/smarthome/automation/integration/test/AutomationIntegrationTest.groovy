@@ -25,7 +25,9 @@ import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
-import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler;
+import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler
+import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -76,7 +78,9 @@ class AutomationIntegrationTest extends OSGiTest{
                     new SwitchItem("myMotionItem2"),
                     new SwitchItem("myPresenceItem2"),
                     new SwitchItem("myLampItem2"),
-                    new SwitchItem("myMotionItem3")
+                    new SwitchItem("myMotionItem3"),
+                    new SwitchItem("templ_MotionItem"),
+                    new SwitchItem("templ_LampItem")
                 ]
             },
             addProviderChangeListener: {},
@@ -139,9 +143,9 @@ class AutomationIntegrationTest extends OSGiTest{
     public void 'assert that rule added by json is executed correctly' () {
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
         assertThat rule, is(notNullValue())
-        
+
         waitForAssert ({
-            assertThat ruleRegistry.getStatus(rule.UID), is(RuleStatus.IDLE)    
+            assertThat ruleRegistry.getStatus(rule.UID), is(RuleStatus.IDLE)
         })
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem")
         eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON))
@@ -363,7 +367,6 @@ class AutomationIntegrationTest extends OSGiTest{
         ]
 
         def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
-        // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
         rule.name="RuleByJAVA_API"
 
         logger.info("Rule created: "+rule.getUID())
@@ -378,7 +381,6 @@ class AutomationIntegrationTest extends OSGiTest{
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
         Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
-        //		eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem2", OnOffType.ON))
 
         Event itemEvent = null
 
@@ -401,7 +403,6 @@ class AutomationIntegrationTest extends OSGiTest{
         registerService(itemEventHandler)
         commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem2").getAcceptedCommandTypes(),"ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem2", commandObj))
-        //		eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem2", OnOffType.ON))
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem2/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
@@ -410,24 +411,48 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("myLampItem2 State: " + myLampItem2.state)
         assertThat myLampItem2.state, is(OnOffType.ON)
     }
-    
+
     @Test
     public void 'assert that a rule can be added by a ruleProvider' () {
         def rule = createSimpleRule()
         def ruleProvider = [
-            getAll:{
-                [
-                    rule
-                ]
-            },
+            getAll:{ [ rule ] },
             addProviderChangeListener:{},
-            removeProviderChangeListener:{}
-            ] as RuleProvider
-      
+            removeProviderChangeListener:{
+            }
+        ] as RuleProvider
+
         registerService(ruleProvider)
         assertThat ruleRegistry.getAll().find{it.UID==rule.UID}, is(notNullValue())
+        unregisterService(ruleProvider)
+        assertThat ruleRegistry.getAll().find{it.UID==rule.UID}, is(nullValue())
     }
-    
+
+    @Test
+    public void 'assert that a rule created from a template is executed as expected' () {
+        def templateRegistry = getService(TemplateRegistry)
+        assertThat templateRegistry, is(notNullValue())
+        def template = null
+        waitForAssert({
+            template = templateRegistry.get("SimpleTestTemplate") as Template
+            assertThat template, is(notNullValue())
+        })
+        def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
+        def templateRule = new Rule("templateRuleUID", "SimpleTestTemplate", configs)
+        ruleRegistry.add(templateRule)
+        assertThat ruleRegistry.getAll().find{it.UID=templateRule.UID}, is(notNullValue())
+
+        //bring the rule to execution:
+        def commandObj = TypeParser.parseCommand(itemRegistry.getItem("templ_MotionItem").getAcceptedCommandTypes(),"ON")
+        eventPublisher.post(ItemEventFactory.createCommandEvent("templ_MotionItem", commandObj))
+
+        waitForAssert({
+            def lamp = itemRegistry.getItem("templ_LampItem") as SwitchItem
+            assertThat lamp.state, is(OnOffType.ON)
+        })
+
+    }
+
 
     /**
      * creates a simple rule
@@ -455,6 +480,6 @@ class AutomationIntegrationTest extends OSGiTest{
         logger.info("Rule created: "+rule.getUID())
         return rule
     }
-    
-    
+
+
 }

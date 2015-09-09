@@ -1,0 +1,66 @@
+[  
+  {  
+    "uid":"SimpleTestTemplate",
+    "description":"Sample Rule Template.",
+    "tags":[  
+      "sample",
+      "rule",
+      "template",
+	  "simple"
+    ],
+    "config":{  
+        "onItem": {
+          "type": "TEXT",
+          "description": "ItemName which state change triggers the rule",
+          "required": true
+        },
+        "ifState": {
+          "type": "TEXT",
+          "description": "Right operand which is compared with the input.",
+          "required": true
+        },
+		"updateItem": {
+			"type": "TEXT",
+			"description": "Item which should be updated",
+			"required":true
+		},
+		"updateCommand":{
+			"type": "TEXT",
+			"description": "Command which should be sent to updateItem",
+			"required":true
+		}
+    },
+    "on": [  
+      {  
+        "id": "ItemUpdateTrigger_1",
+        "type": "GenericEventTrigger",
+		"config":{
+			"eventSource":"$onItem",
+			"eventTopic":"smarthome/items/*",
+			"eventTypes":"ItemStateEvent"
+		}
+      }
+    ],
+    "if": [
+	      {
+	        "id": "ItemStateConditionID_1",
+	        "type": "ItemStateCondition",
+	        "config": {
+	          "operator": "=",
+	          "itemName": "$onItem",
+			  "state":"$ifState"
+	        }
+	      }
+    ],
+    "then": [
+        {  
+          "id": "ItemPostCommandActionID_1",
+          "type": "ItemPostCommandAction",
+          "config": {  
+            "itemName": "$updateItem",
+  		  "command": "$updateCommand"
+          }
+        }
+    ]
+  }
+]
