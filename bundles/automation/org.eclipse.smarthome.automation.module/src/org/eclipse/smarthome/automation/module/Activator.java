@@ -28,6 +28,7 @@ public class Activator implements BundleActivator {
     private BasicModuleHandlerFactory moduleHandlerFactory;
     private ServiceRegistration factoryRegistration;
 
+
     public BundleContext getContext() {
         return context;
     }
@@ -55,11 +56,11 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext bundleContext) throws Exception {
         this.context = null;
         this.moduleHandlerFactory.dispose();
-        this.factoryRegistration.unregister();
         if (this.factoryRegistration != null) {
-            this.factoryRegistration = null;
+            this.factoryRegistration.unregister();
         }
         this.moduleHandlerFactory = null;
+
     }
 
 }

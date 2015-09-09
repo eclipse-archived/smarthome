@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * Implementors must take care of registering the factory as service themselves.
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Benedikt Niehues - Removed service registration of this
  *
  */
 @SuppressWarnings("rawtypes")
