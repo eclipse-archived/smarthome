@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="87">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="88">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -127,6 +127,10 @@
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.paho.client.mqttv3" version="1.0.2"/>
 <repository location="http://download.eclipse.org/paho/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="javax.jmdns.feature.feature.group" version="3.4.2"/>
+<repository location="http://www.openhab.org/jmdns/update-site/3.4.2/"/>
 </location>
 </locations>
 </target>

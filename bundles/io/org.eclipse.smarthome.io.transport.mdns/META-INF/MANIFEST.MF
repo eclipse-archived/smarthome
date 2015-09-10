@@ -7,13 +7,12 @@ Bundle-Activator: org.eclipse.smarthome.io.transport.mdns.internal.MDNSActivator
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: org.eclipse.smarthome.config.discovery,
+Import-Package: javax.jmdns,
+ org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.core.thing,
  org.osgi.framework,
  org.slf4j
-Export-Package: javax.jmdns,
- org.eclipse.smarthome.io.transport.mdns,
+Export-Package: org.eclipse.smarthome.io.transport.mdns,
  org.eclipse.smarthome.io.transport.mdns.discovery
-Bundle-ClassPath: lib/jmdns-3.4.1.jar,
- .
+Bundle-ClassPath: .
 Bundle-Vendor: Eclipse.org/SmartHome
