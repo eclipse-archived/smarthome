@@ -24,6 +24,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Junit Test for JSONUtility class
+ *
+ * @author Marin Mitev - initial version
+ */
 public class JSONUtilityTest {
 
     Logger log = LoggerFactory.getLogger(this.getClass());

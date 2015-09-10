@@ -25,6 +25,11 @@ import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+/**
+ * Mockup class for OSGi BundleContext used in junit tests
+ *
+ * @author Marin Mitev - initial version
+ */
 public class BundleContextMockup implements BundleContext {
 
     @Override

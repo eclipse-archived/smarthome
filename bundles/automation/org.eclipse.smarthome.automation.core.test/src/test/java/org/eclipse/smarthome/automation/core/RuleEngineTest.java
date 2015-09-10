@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test adding, retrieving and updating rules from the RuleEngine
+ * 
+ * @author Marin Mitev - initial version
  */
 public class RuleEngineTest {
 

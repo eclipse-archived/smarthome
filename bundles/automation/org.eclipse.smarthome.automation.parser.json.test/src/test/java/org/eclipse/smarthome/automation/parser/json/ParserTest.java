@@ -29,6 +29,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Junit Test for automation parsers which import and export rules, module types and rule templates in JSON format
+ *
+ * @author Marin Mitev - initial version
+ */
 public class ParserTest {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
