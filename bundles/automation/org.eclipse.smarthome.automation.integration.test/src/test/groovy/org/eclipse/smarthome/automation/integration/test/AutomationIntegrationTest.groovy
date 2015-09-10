@@ -26,9 +26,19 @@ import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
 import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler
-import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.template.RuleTemplate
+import org.eclipse.smarthome.automation.template.Template
+import org.eclipse.smarthome.automation.template.Template.Visibility;
+import org.eclipse.smarthome.automation.template.TemplateProvider
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.automation.type.ActionType
+import org.eclipse.smarthome.automation.type.ModuleType
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.TriggerType
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -285,7 +295,9 @@ class AutomationIntegrationTest extends OSGiTest{
                 it.statusInfo.status == RuleStatus.RUNNING
             }, is(notNullValue())
         }, 3000, 200)
-
+        waitForAssert({
+            assertThat ruleRegistry.getStatus(rule.UID), is(not(RuleStatus.RUNNING))
+        })
     }
     @Test
     public void 'assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED' () {
@@ -416,7 +428,7 @@ class AutomationIntegrationTest extends OSGiTest{
     public void 'assert that a rule can be added by a ruleProvider' () {
         def rule = createSimpleRule()
         def ruleProvider = [
-            getAll:{ [ rule ] },
+            getAll:{ [rule]},
             addProviderChangeListener:{},
             removeProviderChangeListener:{
             }
@@ -453,6 +465,68 @@ class AutomationIntegrationTest extends OSGiTest{
 
     }
 
+    @Test
+    public void 'test ModuleTypeProvider and TemplateProvider'(){
+        def templateRegistry = getService(TemplateRegistry)
+        def moduleTypeRegistry = getService(ModuleTypeRegistry)
+        def templateUID = 'testTemplate1'
+        def tags = ["test", "testTag"] as Set
+        def templateTriggers = []
+        def templateConditions = []
+        def templateActions = []
+        def templateConfigDescriptionParameters = [
+            new ConfigDescriptionParameter("param", Type.TEXT)
+        ] as Set
+
+        def template = new RuleTemplate(templateUID, "Test template Label", "Test template description", tags, templateTriggers, templateConditions, templateActions, templateConfigDescriptionParameters, Visibility.PUBLIC)
+
+        def triggerTypeUID = "testTrigger1"
+        def triggerType = new TriggerType(triggerTypeUID, templateConfigDescriptionParameters, null)
+        def actionTypeUID = "testAction1"
+        def actionType = new ActionType(actionTypeUID, templateConfigDescriptionParameters, null)
+
+        def templateProvider=[
+            getTemplate:{ String UID, Locale locale ->
+                if (UID == templateUID){
+                    return template
+                }else{
+                    return null;
+                }
+            },
+
+            getTemplates:{Locale locale->
+                return [template]
+            }
+        ] as TemplateProvider
+
+        def moduleTypeProvider=[
+            getModuleType:{String UID, Locale locale->
+                if (UID==triggerTypeUID){
+                    return triggerType
+                } else if (UID == actionTypeUID){
+                    return actionType
+                } else {
+                    return null
+                }
+            },
+            getModuleTypes:{Locale locale ->
+                return [triggerType, actionType]
+            }
+        ] as ModuleTypeProvider
+        
+        registerService(templateProvider)
+        assertThat templateRegistry.get(templateUID), is(notNullValue())
+        registerService(moduleTypeProvider)
+        assertThat moduleTypeRegistry.get(actionTypeUID), is(notNullValue())
+        assertThat moduleTypeRegistry.get(triggerTypeUID), is(notNullValue())
+        
+        unregisterService(templateProvider)
+        assertThat templateRegistry.get(templateUID), is(nullValue())
+        unregisterService(moduleTypeProvider)
+        assertThat moduleTypeRegistry.get(actionTypeUID), is(nullValue())
+        assertThat moduleTypeRegistry.get(triggerTypeUID), is(nullValue())
+        
+    }
 
     /**
      * creates a simple rule
