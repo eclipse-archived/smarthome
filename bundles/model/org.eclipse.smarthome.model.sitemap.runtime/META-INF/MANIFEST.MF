@@ -5,7 +5,6 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.sitemap.runtime;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.sitemap
