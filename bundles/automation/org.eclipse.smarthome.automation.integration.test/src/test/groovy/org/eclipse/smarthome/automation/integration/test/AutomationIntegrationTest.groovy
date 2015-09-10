@@ -440,7 +440,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
         def templateRule = new Rule("templateRuleUID", "SimpleTestTemplate", configs)
         ruleRegistry.add(templateRule)
-        assertThat ruleRegistry.getAll().find{it.UID=templateRule.UID}, is(notNullValue())
+        assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
 
         //bring the rule to execution:
         def commandObj = TypeParser.parseCommand(itemRegistry.getItem("templ_MotionItem").getAcceptedCommandTypes(),"ON")

@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
  */
 public class RuleEventFactory extends AbstractEventFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(RuleEventFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(RuleEventFactory.class);
 
     private static final String RULE_STATE_EVENT_TOPIC = "smarthome/rules/{ruleID}/state";
 
