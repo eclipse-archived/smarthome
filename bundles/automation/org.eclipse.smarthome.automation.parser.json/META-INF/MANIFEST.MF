@@ -18,5 +18,4 @@ Import-Package:
  org.osgi.service.component,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-Activator: org.eclipse.smarthome.automation.parser.json.Activator
- 
+Bundle-Activator: org.eclipse.smarthome.automation.parser.internal.json.Activator

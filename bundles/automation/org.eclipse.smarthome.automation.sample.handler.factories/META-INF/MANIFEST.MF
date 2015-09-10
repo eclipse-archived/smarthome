@@ -17,4 +17,4 @@ Import-Package:
  org.osgi.framework,
  org.osgi.service.event,
  org.osgi.util.tracker;version="1.4.0"
-Bundle-Activator: org.eclipse.smarthome.automation.sample.handler.factories.Activator
+Bundle-Activator: org.eclipse.smarthome.automation.internal.sample.handler.factories.Activator

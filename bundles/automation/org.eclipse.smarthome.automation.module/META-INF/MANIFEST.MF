@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Automation Modules
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module
 Bundle-Version: 0.8.0.qualifier
-Bundle-Activator: org.eclipse.smarthome.automation.module.Activator
+Bundle-Activator: org.eclipse.smarthome.automation.internal.module.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.collect,
  org.eclipse.smarthome.automation,

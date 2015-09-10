@@ -7,7 +7,18 @@
  */
 package org.eclipse.smarthome.automation;
 
+/**
+ * This interface is used by {@link RuleRegistry} implementation to be notified of changes related to statuses of rules.
+ *
+ * @author Yordan Mihaylov - initial contribution
+ */
 public interface StatusInfoCallback {
 
+    /**
+     * The method is called when the rule has update of its status.
+     * 
+     * @param ruleUID UID of the {@link Rule}
+     * @param statusInfo new status info releated to the {@link Rule}
+     */
     void statusInfoChanged(String ruleUID, RuleStatusInfo statusInfo);
 }
