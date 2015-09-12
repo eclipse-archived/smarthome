@@ -39,16 +39,4 @@ public class ManagedRuleProvider extends DefaultAbstractManagedProvider<Rule, St
         return key;
     }
 
-    // @Override
-    // public void addProviderChangeListener(ProviderChangeListener<Rule> listener) {
-    // // TODO Auto-generated method stub
-    //
-    // }
-    //
-    // @Override
-    // public void removeProviderChangeListener(ProviderChangeListener<Rule> listener) {
-    // // TODO Auto-generated method stub
-    //
-    // }
-
 }

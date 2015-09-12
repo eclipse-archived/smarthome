@@ -47,7 +47,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    protected void addProvider(Provider<Rule> provider) {
+    protected synchronized void addProvider(Provider<Rule> provider) {
         Collection<Rule> rules = provider.getAll();
         for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
             Rule rule = it.next();
@@ -59,6 +59,16 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
         }
         super.addProvider(provider);
+    }
+
+    @Override
+    protected synchronized void removeProvider(Provider<Rule> provider) {
+        Collection<Rule> rules = provider.getAll();
+        for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
+            Rule rule = it.next();
+            removeFromRuleEngine(rule);
+        }
+        super.removeProvider(provider);
     }
 
     @Override
@@ -81,10 +91,15 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     @Override
     public synchronized Rule remove(String key) {
         Rule rule = get(key);
-        ruleEngine.removeRule(key);
-        setEnabled(key, false);
-        postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
+        removeFromRuleEngine(rule);
         return super.remove(key);
+    }
+
+    private void removeFromRuleEngine(Rule rule) {
+        String ruleUID = rule.getUID();
+        ruleEngine.removeRule(ruleUID);
+        // setEnabled(ruleUID, false);
+        postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
     }
 
     @Override
