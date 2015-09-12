@@ -7,8 +7,10 @@
  */
 package org.eclipse.smarthome.automation.internal.core;
 
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.internal.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.internal.core.template.TemplateRegistryImpl;
@@ -74,8 +76,8 @@ public class Activator implements BundleActivator {
         ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
 
         Filter filter = bc.createFilter("(|(" + Constants.OBJECTCLASS + "=" + StorageService.class.getName() + ")("
-                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")("
-                + Constants.OBJECTCLASS + "=" + EventPublisher.class.getName() + "))");
+                + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")(" + Constants.OBJECTCLASS + "="
+                + EventPublisher.class.getName() + "))");
 
         serviceTracker = new ServiceTracker(bc, filter, new ServiceTrackerCustomizer() {
 
@@ -99,8 +101,8 @@ public class Activator implements BundleActivator {
                     RuleProvider rp = (RuleProvider) service;
                     ruleRegistry.addProvider(rp);
                     return rp;
-                } else if (service instanceof EventPublisher){
-                    EventPublisher ep = (EventPublisher)service;
+                } else if (service instanceof EventPublisher) {
+                    EventPublisher ep = (EventPublisher) service;
                     ruleRegistry.setEventPublisher(ep);
                     return ep;
                 }
@@ -118,8 +120,8 @@ public class Activator implements BundleActivator {
                         managedRuleProviderReg.unregister();
                         managedRuleProviderReg = null;
                     }
-                } else if (service instanceof EventPublisher){
-                    ruleRegistry.unsetEventPublisher((EventPublisher)service);
+                } else if (service instanceof EventPublisher) {
+                    ruleRegistry.unsetEventPublisher((EventPublisher) service);
                 }
             }
         });
@@ -146,16 +148,29 @@ public class Activator implements BundleActivator {
             moduleTypeRegistry.dispose();
             moduleTypeRegistryReg = null;
         }
-        
-        if (ruleEventFactoryReg!=null){
+
+        if (ruleEventFactoryReg != null) {
             ruleEventFactoryReg.unregister();
-            ruleEventFactory=null;
-            ruleEventFactoryReg=null;
+            ruleEventFactory = null;
+            ruleEventFactoryReg = null;
         }
 
         serviceTracker.close();
         serviceTracker = null;
 
+    }
+
+    protected static void validateConnections(Rule r) {
+        if (r == null) {
+            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
+        }
+
+        if (moduleTypeRegistry == null) {
+            throw new IllegalStateException(
+                    "Validation of rule: " + r.getUID() + " is failed! ModuleTypeRegistry is missing!");
+        }
+
+        ConnectionValidator.validateConnections(moduleTypeRegistry, r.getTriggers(), r.getConditions(), r.getActions());
     }
 
 }

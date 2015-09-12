@@ -20,7 +20,6 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ConfigDescriptionParameterI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.RuleTemplateI18nUtil;
@@ -240,15 +239,15 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     continue;
                 RuleTemplate ruleT = (RuleTemplate) status.getResult();
                 String uid = ruleT.getUID();
-                try {
-                    ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
-                            ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
-                } catch (Exception e) {
-                    status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                            + e.getMessage(), e);
-                    continue;
-                }
+                // try {
+                // ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
+                // ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
+                // } catch (Exception e) {
+                // status.success(null);
+                // status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
+                // + e.getMessage(), e);
+                // continue;
+                // }
                 if (checkExistence(uid, status))
                     continue;
                 if (portfolio != null) {

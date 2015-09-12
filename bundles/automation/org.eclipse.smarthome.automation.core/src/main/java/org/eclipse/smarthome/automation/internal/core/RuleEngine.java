@@ -219,7 +219,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     /**
-     * This method is used to update existing rule. It creates an internal {@link RuntimeRule} object which is deep copy of
+     * This method is used to update existing rule. It creates an internal {@link RuntimeRule} object which is deep copy
+     * of
      * passed {@link Rule} object. If the rule exist in the rule engine it will be replaced by the new one.
      *
      * @param rule a rule which has to be updated.
@@ -298,15 +299,21 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
         errMessage = setModuleHandler(rUID, r.getActions());
         if (errMessage != null) {
-            errMsgs = errMsgs + errMessage;
+            errMsgs = errMsgs + "\n" + errMessage;
         }
 
         errMessage = setModuleHandler(rUID, r.getTriggers());
         if (errMessage != null) {
-            errMsgs = errMsgs + errMessage;
+            errMsgs = errMsgs + "\n" + errMessage;
         }
 
-        if (errMessage == null) {
+        try {
+            Activator.validateConnections(r);
+        } catch (Exception e) {
+            errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
+        }
+
+        if (errMsgs == null) {
             register(r);
 
             // change state to IDLE
