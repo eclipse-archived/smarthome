@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class EventConditionHandler extends BaseConditionHandler {
     public final Logger logger = LoggerFactory.getLogger(EventConditionHandler.class);
-    
+
     public static final String MODULETYPE_ID = "EventCondition";
 
     private static final String TOPIC = "topic";

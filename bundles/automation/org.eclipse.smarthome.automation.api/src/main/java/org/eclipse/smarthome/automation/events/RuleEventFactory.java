@@ -21,6 +21,7 @@ import com.google.common.collect.Sets;
 
 /**
  * this is a factory to create Rule Events
+ * 
  * @author Benedikt Niehues - initial contribution
  *
  */

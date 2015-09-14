@@ -21,18 +21,18 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemStateUpdateReceiver extends AbstractItemEventSubscriber {
 
-	private static Logger logger = LoggerFactory.getLogger(ItemStateUpdateReceiver.class);
-	private ItemStateChangeTriggerHandler trigger;
+    private static Logger logger = LoggerFactory.getLogger(ItemStateUpdateReceiver.class);
+    private ItemStateChangeTriggerHandler trigger;
 
-	public ItemStateUpdateReceiver(ItemStateChangeTriggerHandler trigger) {
-		super();
-		this.trigger = trigger;
-	}
+    public ItemStateUpdateReceiver(ItemStateChangeTriggerHandler trigger) {
+        super();
+        this.trigger = trigger;
+    }
 
-	@Override
-	protected void receiveUpdate(ItemStateEvent event) {
-		logger.debug("update received for " + event.getItemName());
-		trigger.updateReceived(event);
-	}
+    @Override
+    protected void receiveUpdate(ItemStateEvent event) {
+        logger.debug("update received for " + event.getItemName());
+        trigger.updateReceived(event);
+    }
 
 }

@@ -42,97 +42,97 @@ import com.google.common.collect.Maps;
  */
 public class GenericEventTriggerHandler extends BaseTriggerHandler implements EventSubscriber {
 
-	private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
-	private RuleEngineCallback callback;
-	private Map<String, Object> config;
-	private String source;
-	private String topic;
-	private Set<String> types;
-	private Trigger trigger;
-	private BundleContext bundleContext;
+    private RuleEngineCallback callback;
+    private Map<String, Object> config;
+    private String source;
+    private String topic;
+    private Set<String> types;
+    private Trigger trigger;
+    private BundleContext bundleContext;
 
-	public static final String MODULE_TYPE_ID = "GenericEventTrigger";
+    public static final String MODULE_TYPE_ID = "GenericEventTrigger";
 
-	private static final String CFG_EVENT_TOPIC = "eventTopic";
-	private static final String CFG_EVENT_SOURCE = "eventSource";
-	private static final String CFG_EVENT_TYPES = "eventTypes";
+    private static final String CFG_EVENT_TOPIC = "eventTopic";
+    private static final String CFG_EVENT_SOURCE = "eventSource";
+    private static final String CFG_EVENT_TYPES = "eventTypes";
 
-	private ServiceRegistration<EventSubscriber> eventSubscriberRegistration;
+    private ServiceRegistration<EventSubscriber> eventSubscriberRegistration;
 
-	public GenericEventTriggerHandler(Trigger module, List<ModuleType> moduleTypes, BundleContext bundleContext) {
-		super(module, moduleTypes);
-		this.trigger = (Trigger) module;
-		this.config = getResolvedConfiguration(null);
-		this.source = (String) config.get(CFG_EVENT_SOURCE);
-		this.topic = (String) config.get(CFG_EVENT_TOPIC);
-		this.types = ImmutableSet.copyOf(((String) config.get(CFG_EVENT_TYPES)).split(","));
-		this.bundleContext=bundleContext;
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("event.topics", topic);
-		eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class, this, properties);
-		logger.debug("Registered EventSubscriber: Topic: {} Type: {} Source:{}", topic, types, source);
-	}
+    public GenericEventTriggerHandler(Trigger module, List<ModuleType> moduleTypes, BundleContext bundleContext) {
+        super(module, moduleTypes);
+        this.trigger = (Trigger) module;
+        this.config = getResolvedConfiguration(null);
+        this.source = (String) config.get(CFG_EVENT_SOURCE);
+        this.topic = (String) config.get(CFG_EVENT_TOPIC);
+        this.types = ImmutableSet.copyOf(((String) config.get(CFG_EVENT_TYPES)).split(","));
+        this.bundleContext = bundleContext;
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put("event.topics", topic);
+        eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class, this, properties);
+        logger.debug("Registered EventSubscriber: Topic: {} Type: {} Source:{}", topic, types, source);
+    }
 
-	@Override
-	public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
-		this.callback = ruleCallback;
-	}
+    @Override
+    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
+        this.callback = ruleCallback;
+    }
 
-	@Override
-	public Set<String> getSubscribedEventTypes() {
-		return types;
-	}
+    @Override
+    public Set<String> getSubscribedEventTypes() {
+        return types;
+    }
 
-	@Override
-	public EventFilter getEventFilter() {
-		return null;
-	}
+    @Override
+    public EventFilter getEventFilter() {
+        return null;
+    }
 
-	@Override
-	public void receive(Event event) {
-		logger.debug("Received Event: Source:" + event.getSource() + " Topic:" + event.getTopic() + " Type:"
-				+ event.getType() + " Payload:" + event.getPayload());
-		if (!event.getTopic().contains(source)) {
-			return;
-		}
-		Map<String, Object> values = Maps.newHashMap();
-		values.put("source", source);
-		values.put("payload", event.getPayload());
-		values.put("type", event.getType());
-		values.put("topic", event.getTopic());
-		callback.triggered(this.trigger, getResolvedOutputs(config, null, values));
-	}
+    @Override
+    public void receive(Event event) {
+        logger.debug("Received Event: Source:" + event.getSource() + " Topic:" + event.getTopic() + " Type:"
+                + event.getType() + " Payload:" + event.getPayload());
+        if (!event.getTopic().contains(source)) {
+            return;
+        }
+        Map<String, Object> values = Maps.newHashMap();
+        values.put("source", source);
+        values.put("payload", event.getPayload());
+        values.put("type", event.getType());
+        values.put("topic", event.getTopic());
+        callback.triggered(this.trigger, getResolvedOutputs(config, null, values));
+    }
 
-	/**
-	 * @return the topic
-	 */
-	public String getTopic() {
-		return topic;
-	}
+    /**
+     * @return the topic
+     */
+    public String getTopic() {
+        return topic;
+    }
 
-	/**
-	 * @param topic
-	 *            the topic to set
-	 */
-	public void setTopic(String topic) {
-		this.topic = topic;
-	}
+    /**
+     * @param topic
+     *            the topic to set
+     */
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
 
-	/**
-	 * do the cleanup: unregistering eventSubscriber...
-	 */
-	public void dispose() {
-		if (eventSubscriberRegistration != null) {
-			eventSubscriberRegistration.unregister();
-			eventSubscriberRegistration = null;
-		}
-	}
+    /**
+     * do the cleanup: unregistering eventSubscriber...
+     */
+    public void dispose() {
+        if (eventSubscriberRegistration != null) {
+            eventSubscriberRegistration.unregister();
+            eventSubscriberRegistration = null;
+        }
+    }
 
-	@Override
-	protected Map<String, Object> getTriggerValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    protected Map<String, Object> getTriggerValues() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

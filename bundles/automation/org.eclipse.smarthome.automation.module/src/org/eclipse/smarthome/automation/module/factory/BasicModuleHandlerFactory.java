@@ -65,19 +65,21 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         super(bundleContext);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory#init()
      */
     @Override
     protected void init() {
-        this.genericEventTriggerHandlers=new HashMap<String, GenericEventTriggerHandler>();
+        this.genericEventTriggerHandlers = new HashMap<String, GenericEventTriggerHandler>();
         this.itemStateConditionHandlers = new HashMap<String, ItemStateConditionHandler>();
         this.itemPostCommandActionHandlers = new HashMap<String, ItemPostCommandActionHandler>();
         this.eventConditionHandlers = new HashMap<String, EventConditionHandler>();
         initializeServiceTrackers();
-        
+
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initializeServiceTrackers() {
         this.itemRegistryTracker = new ServiceTracker(this.bundleContext, ItemRegistry.class,
@@ -245,5 +247,5 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         itemRegistryTracker.close();
         eventPublisherTracker.close();
     }
-   
+
 }

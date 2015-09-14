@@ -28,7 +28,6 @@ public class Activator implements BundleActivator {
     private BasicModuleHandlerFactory moduleHandlerFactory;
     private ServiceRegistration factoryRegistration;
 
-
     public BundleContext getContext() {
         return context;
     }

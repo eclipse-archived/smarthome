@@ -18,33 +18,33 @@ import org.eclipse.smarthome.automation.Rule;
  */
 public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
 
-	public static final String TYPE = RuleUpdatedEvent.class.getSimpleName();
+    public static final String TYPE = RuleUpdatedEvent.class.getSimpleName();
 
-	private Rule oldRule;
+    private Rule oldRule;
 
-	/**
-	 * constructs a new rule updated event
-	 * 
-	 * @param topic
-	 * @param payload
-	 * @param source
-	 * @param ruleDTO
-	 */
-	public RuleUpdatedEvent(String topic, String payload, String source, Rule rule, Rule oldRule) {
-		super(topic, payload, source, rule);
-		this.oldRule = oldRule;
-	}
+    /**
+     * constructs a new rule updated event
+     * 
+     * @param topic
+     * @param payload
+     * @param source
+     * @param ruleDTO
+     */
+    public RuleUpdatedEvent(String topic, String payload, String source, Rule rule, Rule oldRule) {
+        super(topic, payload, source, rule);
+        this.oldRule = oldRule;
+    }
 
-	@Override
-	public String getType() {
-		return TYPE;
-	}
+    @Override
+    public String getType() {
+        return TYPE;
+    }
 
-	/**
-	 * @return the oldRuleDTO
-	 */
-	public Rule getOldRule() {
-		return oldRule;
-	}
+    /**
+     * @return the oldRuleDTO
+     */
+    public Rule getOldRule() {
+        return oldRule;
+    }
 
 }

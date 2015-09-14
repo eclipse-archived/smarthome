@@ -34,89 +34,89 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemPostCommandActionHandler extends BaseActionHandler implements ActionHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(ItemPostCommandActionHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(ItemPostCommandActionHandler.class);
 
-	public static final String ITEM_POST_COMMAND_ACTION = "ItemPostCommandAction";
-	private static final String ITEM_NAME = "itemName";
-	private static final String COMMAND = "command";
+    public static final String ITEM_POST_COMMAND_ACTION = "ItemPostCommandAction";
+    private static final String ITEM_NAME = "itemName";
+    private static final String COMMAND = "command";
 
-	private ItemRegistry itemRegistry;
-	private EventPublisher eventPublisher;
+    private ItemRegistry itemRegistry;
+    private EventPublisher eventPublisher;
 
-	/**
-	 * constructs a new ItemPostCommandActionHandler
-	 * 
-	 * @param module
-	 * @param moduleTypes
-	 */
-	public ItemPostCommandActionHandler(Action module, List<ModuleType> moduleTypes) {
-		super(module, moduleTypes);
-	}
+    /**
+     * constructs a new ItemPostCommandActionHandler
+     * 
+     * @param module
+     * @param moduleTypes
+     */
+    public ItemPostCommandActionHandler(Action module, List<ModuleType> moduleTypes) {
+        super(module, moduleTypes);
+    }
 
-	/**
-	 * setter for itemRegistry, used by DS
-	 * 
-	 * @param itemRegistry
-	 */
-	public void setItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = itemRegistry;
-	}
+    /**
+     * setter for itemRegistry, used by DS
+     * 
+     * @param itemRegistry
+     */
+    public void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
 
-	/**
-	 * unsetter for itemRegistry, used by DS
-	 * 
-	 * @param itemRegistry
-	 */
-	public void unsetItemRegistry(ItemRegistry itemRegistry) {
-		this.itemRegistry = null;
-	}
+    /**
+     * unsetter for itemRegistry, used by DS
+     * 
+     * @param itemRegistry
+     */
+    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
 
-	/**
-	 * setter for eventPublisher used by DS
-	 * 
-	 * @param eventPublisher
-	 */
-	public void setEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = eventPublisher;
-	}
+    /**
+     * setter for eventPublisher used by DS
+     * 
+     * @param eventPublisher
+     */
+    public void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
 
-	/**
-	 * unsetter for eventPublisher used by DS
-	 * 
-	 * @param eventPublisher
-	 */
-	public void unsetEventPublisher(EventPublisher eventPublisher) {
-		this.eventPublisher = null;
-	}
+    /**
+     * unsetter for eventPublisher used by DS
+     * 
+     * @param eventPublisher
+     */
+    public void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
+    }
 
-	@Override
-	public void dispose() {
-		this.eventPublisher = null;
-		this.itemRegistry = null;
-	}
+    @Override
+    public void dispose() {
+        this.eventPublisher = null;
+        this.itemRegistry = null;
+    }
 
-	@Override
-	protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
-			Map<String, Object> resolvedConfiguration) {
-		String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
-		String command = (String) resolvedConfiguration.get(COMMAND);
-		if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {
-			try {
-				Item item = itemRegistry.getItem(itemName);
-				Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
-				ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
-				logger.debug("Executing ItemPostCommandAction on Item {} with Command {}",
-						itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
-				eventPublisher.post(itemCommandEvent);
-			} catch (ItemNotFoundException e) {
-				logger.error("Item with name {} not found in ItemRegistry.", itemName);
-			}
-		} else {
-			logger.error(
-					"Command was not posted because either the configuration was not correct or a Service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
-					itemName, command, eventPublisher, itemRegistry);
-		}
-		return null;
-	}
+    @Override
+    protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
+            Map<String, Object> resolvedConfiguration) {
+        String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
+        String command = (String) resolvedConfiguration.get(COMMAND);
+        if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {
+            try {
+                Item item = itemRegistry.getItem(itemName);
+                Command commandObj = TypeParser.parseCommand(item.getAcceptedCommandTypes(), command);
+                ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent(itemName, commandObj);
+                logger.debug("Executing ItemPostCommandAction on Item {} with Command {}",
+                        itemCommandEvent.getItemName(), itemCommandEvent.getItemCommand());
+                eventPublisher.post(itemCommandEvent);
+            } catch (ItemNotFoundException e) {
+                logger.error("Item with name {} not found in ItemRegistry.", itemName);
+            }
+        } else {
+            logger.error(
+                    "Command was not posted because either the configuration was not correct or a Service was missing: ItemName: {}, Command: {}, eventPublisher: {}, ItemRegistry: {}",
+                    itemName, command, eventPublisher, itemRegistry);
+        }
+        return null;
+    }
 
 }

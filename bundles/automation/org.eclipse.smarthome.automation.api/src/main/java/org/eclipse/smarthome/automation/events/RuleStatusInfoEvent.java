@@ -19,42 +19,42 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
  */
 public class RuleStatusInfoEvent extends AbstractEvent {
 
-	public static final String TYPE = RuleStatusInfoEvent.class.getSimpleName();
+    public static final String TYPE = RuleStatusInfoEvent.class.getSimpleName();
 
-	private RuleStatusInfo statusInfo;
-	private String ruleId;
+    private RuleStatusInfo statusInfo;
+    private String ruleId;
 
-	/**
-	 * constructs a new rule status event
-	 * 
-	 * @param topic
-	 * @param payload
-	 * @param source
-	 * @param ruleDTO
-	 */
-	public RuleStatusInfoEvent(String topic, String payload, String source, RuleStatusInfo statusInfo, String ruleId) {
-		super(topic, payload, source);
-		this.statusInfo = statusInfo;
-		this.ruleId = ruleId;
-	}
+    /**
+     * constructs a new rule status event
+     * 
+     * @param topic
+     * @param payload
+     * @param source
+     * @param ruleDTO
+     */
+    public RuleStatusInfoEvent(String topic, String payload, String source, RuleStatusInfo statusInfo, String ruleId) {
+        super(topic, payload, source);
+        this.statusInfo = statusInfo;
+        this.ruleId = ruleId;
+    }
 
-	@Override
-	public String getType() {
-		return TYPE;
-	}
+    @Override
+    public String getType() {
+        return TYPE;
+    }
 
-	/**
-	 * @return the statusInfo
-	 */
-	public RuleStatusInfo getStatusInfo() {
-		return statusInfo;
-	}
+    /**
+     * @return the statusInfo
+     */
+    public RuleStatusInfo getStatusInfo() {
+        return statusInfo;
+    }
 
-	/**
-	 * @return the ruleId
-	 */
-	public String getRuleId() {
-		return ruleId;
-	}
+    /**
+     * @return the ruleId
+     */
+    public String getRuleId() {
+        return ruleId;
+    }
 
 }

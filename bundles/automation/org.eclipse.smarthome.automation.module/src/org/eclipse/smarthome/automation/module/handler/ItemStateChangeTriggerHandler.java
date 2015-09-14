@@ -33,74 +33,73 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
 
-	public static final String ITEM_STATE_CHANGE_TRIGGER = "ItemStateChangeTrigger";
-	public static final String ITEM_NAME = "itemName";
-	public static final String NEW_STATE = "newState";
+    public static final String ITEM_STATE_CHANGE_TRIGGER = "ItemStateChangeTrigger";
+    public static final String ITEM_NAME = "itemName";
+    public static final String NEW_STATE = "newState";
 
-	private final Logger logger = LoggerFactory.getLogger(ItemStateChangeTriggerHandler.class);
-	
-	private BundleContext context;
-	
-	private Trigger trigger;
-	private EventSubscriber itemStateUpdateReceiver;
-	
-	private ServiceRegistration<EventSubscriber> itemStateUpdateReceiverServiceRegistration;
+    private final Logger logger = LoggerFactory.getLogger(ItemStateChangeTriggerHandler.class);
 
-	public ItemStateChangeTriggerHandler(Trigger trigger, List<ModuleType> moduleTypes, BundleContext context) {
-		super(trigger,moduleTypes);
-		this.trigger = trigger;
-		this.context=context;
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("event.topics", "smarthome/*");
-		this.itemStateUpdateReceiver = new ItemStateUpdateReceiver(this);
-		itemStateUpdateReceiverServiceRegistration = this.context.registerService(EventSubscriber.class,
-				itemStateUpdateReceiver, properties);
-	}
+    private BundleContext context;
 
-	/**
-	 * sets the output values
-	 * 
-	 * @param itemName
-	 * @param newState
-	 * @return
-	 */
-	private Map<String, ?> calculateOutputs(String itemName, State newState) {
-		Map<String, Object> ret = new HashMap<String, Object>();
-		ret.put(ITEM_NAME, itemName);
-		ret.put(NEW_STATE, newState.toString());
-		return getResolvedOutputs(getResolvedConfiguration(null), null, ret);
-	}
+    private Trigger trigger;
+    private EventSubscriber itemStateUpdateReceiver;
 
-	public void dispose() {
-		itemStateUpdateReceiver = null;
-	}
+    private ServiceRegistration<EventSubscriber> itemStateUpdateReceiverServiceRegistration;
 
+    public ItemStateChangeTriggerHandler(Trigger trigger, List<ModuleType> moduleTypes, BundleContext context) {
+        super(trigger, moduleTypes);
+        this.trigger = trigger;
+        this.context = context;
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        properties.put("event.topics", "smarthome/*");
+        this.itemStateUpdateReceiver = new ItemStateUpdateReceiver(this);
+        itemStateUpdateReceiverServiceRegistration = this.context.registerService(EventSubscriber.class,
+                itemStateUpdateReceiver, properties);
+    }
 
-	/**
-	 * this is the callback method for the ItemStateUpdateReceiver
-	 * 
-	 * @param event
-	 */
-	public void updateReceived(ItemStateEvent event) {
-		logger.debug("update received for " + event.getItemName());
-		Map<String, Object> configuration = getResolvedConfiguration(null);
-		String itemName = (String) configuration.get(ITEM_NAME);
+    /**
+     * sets the output values
+     * 
+     * @param itemName
+     * @param newState
+     * @return
+     */
+    private Map<String, ?> calculateOutputs(String itemName, State newState) {
+        Map<String, Object> ret = new HashMap<String, Object>();
+        ret.put(ITEM_NAME, itemName);
+        ret.put(NEW_STATE, newState.toString());
+        return getResolvedOutputs(getResolvedConfiguration(null), null, ret);
+    }
 
-		if (ruleCallBack == null) {
-			logger.error("the rule Callback is not initialized for ItemUpdate Event on item: " + itemName);
-		}
-		if (itemName.equals(event.getItemName())) {
-			logger.debug("triggering rule callback on ItemStateEvent: " + event.getItemName() + " --> "
-					+ event.getItemState());
-			ruleCallBack.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
-		}
+    public void dispose() {
+        itemStateUpdateReceiver = null;
+    }
 
-	}
+    /**
+     * this is the callback method for the ItemStateUpdateReceiver
+     * 
+     * @param event
+     */
+    public void updateReceived(ItemStateEvent event) {
+        logger.debug("update received for " + event.getItemName());
+        Map<String, Object> configuration = getResolvedConfiguration(null);
+        String itemName = (String) configuration.get(ITEM_NAME);
 
-	@Override
-	protected Map<String, Object> getTriggerValues() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        if (ruleCallBack == null) {
+            logger.error("the rule Callback is not initialized for ItemUpdate Event on item: " + itemName);
+        }
+        if (itemName.equals(event.getItemName())) {
+            logger.debug("triggering rule callback on ItemStateEvent: " + event.getItemName() + " --> "
+                    + event.getItemState());
+            ruleCallBack.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
+        }
+
+    }
+
+    @Override
+    protected Map<String, Object> getTriggerValues() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

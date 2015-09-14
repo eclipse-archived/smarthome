@@ -12,39 +12,43 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
 
 /**
  * abstract class for rule events
+ * 
  * @author Benedikt Niehues - initial contribution
  *
  */
 public abstract class AbstractRuleRegistryEvent extends AbstractEvent {
 
-	private final Rule rule;
+    private final Rule rule;
 
-	/**
-	 * Must be called in subclass constructor to create a new rule registry event.
-	 * @param topic
-	 * @param payload
-	 * @param source
-	 * @param ruleDTO
-	 */
-	public AbstractRuleRegistryEvent(String topic, String payload, String source, Rule rule) {
-		super(topic, payload, source);
-		this.rule = rule;
-	}
+    /**
+     * Must be called in subclass constructor to create a new rule registry event.
+     * 
+     * @param topic
+     * @param payload
+     * @param source
+     * @param ruleDTO
+     */
+    public AbstractRuleRegistryEvent(String topic, String payload, String source, Rule rule) {
+        super(topic, payload, source);
+        this.rule = rule;
+    }
 
-	/**
-	 * returns the RuleDTO which caused the Event
-	 * 
-	 * @return
-	 */
-	public Rule getRule() {
-		return this.rule;
-	}
+    /**
+     * returns the RuleDTO which caused the Event
+     * 
+     * @return
+     */
+    public Rule getRule() {
+        return this.rule;
+    }
 
-	  /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return getType()+": {topic: "+getTopic()+" ruleUID: "+getRule().getUID();
+        return getType() + ": {topic: " + getTopic() + " ruleUID: " + getRule().getUID();
     }
 }
