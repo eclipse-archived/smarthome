@@ -91,8 +91,8 @@ public class ConnectionValidator {
                 String inputName = input.getName();
                 Connection connection = connectionsMap.get(inputName);
                 if (connection == null) {
-                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Action with ID \"" + action
-                            .getId() + "\" not connected!");
+                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Action with ID \""
+                            + action.getId() + "\" not connected!");
                 }
                 String moduleId = connection.getOuputModuleId();
                 String outputName = connection.getOutputName();
@@ -105,8 +105,8 @@ public class ConnectionValidator {
                     String triggerTypeUID = trigger.getTypeUID();
                     TriggerType triggerType = mtRegistry.get(triggerTypeUID);
                     if (triggerType == null) {
-                        throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
-                                + "\" not exists!");
+                        throw new IllegalArgumentException(
+                                msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
                     }
                     outputs = triggerType.getOutputs();
                 } else {
@@ -117,8 +117,8 @@ public class ConnectionValidator {
                     String processorTypeUID = processor.getTypeUID();
                     ActionType processorType = mtRegistry.get(processorTypeUID);
                     if (processorType == null) {
-                        throw new IllegalArgumentException(msg + " Action Type with UID \"" + processorTypeUID
-                                + "\" not exists!");
+                        throw new IllegalArgumentException(
+                                msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
                     }
                     outputs = processorType.getOutputs();
                 }
@@ -187,8 +187,8 @@ public class ConnectionValidator {
                 String triggerTypeUID = trigger.getTypeUID();
                 TriggerType triggerType = mtRegistry.get(triggerTypeUID);
                 if (triggerType == null) {
-                    throw new IllegalArgumentException(msg + " Trigger Type with UID \"" + triggerTypeUID
-                            + "\" not exists!");
+                    throw new IllegalArgumentException(
+                            msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
                 }
                 Set<Output> outputs = triggerType.getOutputs();
                 boolean notFound = true;

@@ -14,7 +14,10 @@ package org.eclipse.smarthome.automation;
  * @author Kai Kreuzer - Refactored to match ThingStatus implementation
  */
 public enum RuleStatus {
-    DISABLED(0), NOT_INITIALIZED(1), IDLE(2), RUNNING(3);
+    DISABLED(0),
+    NOT_INITIALIZED(1),
+    IDLE(2),
+    RUNNING(3);
 
     private final int value;
 

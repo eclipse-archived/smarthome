@@ -16,7 +16,7 @@ import org.osgi.framework.ServiceRegistration;
  * OSGi Bundle Activator
  *
  * @author Vasil Ilchev - Initial Contribution
- * @author Benedikt Niehues - moved ModuleFactory registration 
+ * @author Benedikt Niehues - moved ModuleFactory registration
  */
 public class Activator implements BundleActivator {
     private BundleContext bc;
@@ -24,13 +24,11 @@ public class Activator implements BundleActivator {
     private SampleHandlerFactoryCommands commands;
     private ServiceRegistration factoryRegistration;
 
-
     @Override
     public void start(BundleContext context) throws Exception {
         bc = context;
         sampleHandlerFactory = new SampleHandlerFactory(bc);
-        this.factoryRegistration = bc.registerService(ModuleHandlerFactory.class.getName(),
-                sampleHandlerFactory, null);
+        this.factoryRegistration = bc.registerService(ModuleHandlerFactory.class.getName(), sampleHandlerFactory, null);
         commands = new SampleHandlerFactoryCommands(sampleHandlerFactory, bc);
     }
 
@@ -38,7 +36,7 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) throws Exception {
         commands.stop();
         sampleHandlerFactory.dispose();
-        if (this.factoryRegistration!=null){
+        if (this.factoryRegistration != null) {
             this.factoryRegistration.unregister();
         }
         commands = null;
