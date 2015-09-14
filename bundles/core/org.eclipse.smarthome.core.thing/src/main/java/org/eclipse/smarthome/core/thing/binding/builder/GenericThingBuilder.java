@@ -25,20 +25,20 @@ public class GenericThingBuilder<T extends GenericThingBuilder<T>> {
     protected GenericThingBuilder(ThingImpl thing) {
         this.thing = thing;
     }
-    
+
     public T withChannel(Channel channel) {
         List<Channel> channels = this.thing.getChannelsMutable();
         channels.add(channel);
         return self();
     }
-    
+
     public T withChannels(Channel... channels) {
         this.thing.setChannels(Lists.newArrayList(channels));
         return self();
     }
 
     public T withChannels(List<Channel> channels) {
-        this.thing.setChannels(channels);
+        this.thing.setChannels(Lists.newArrayList(channels));
         return self();
     }
 
