@@ -122,7 +122,11 @@ public class Activator implements BundleActivator {
                     }
                 } else if (service instanceof EventPublisher) {
                     ruleRegistry.unsetEventPublisher((EventPublisher) service);
+                } else if (service instanceof RuleProvider) {
+                    RuleProvider rp = (RuleProvider) service;
+                    ruleRegistry.removeProvider(rp);
                 }
+
             }
         });
         serviceTracker.open();
