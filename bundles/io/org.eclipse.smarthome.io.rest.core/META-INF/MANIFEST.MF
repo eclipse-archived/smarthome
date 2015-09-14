@@ -37,8 +37,11 @@ Import-Package: com.google.gson;version="2.2.4",
  org.eclipse.smarthome.io.rest,
  org.osgi.framework,
  org.slf4j;version="1.7.2"
-Export-Package: org.eclipse.smarthome.io.rest.core.item,
+Export-Package: io.swagger.annotations,
+ org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator
+Bundle-ClassPath: lib/swagger-annotations-1.5.0.jar,
+ .

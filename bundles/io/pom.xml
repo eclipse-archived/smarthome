@@ -36,4 +36,108 @@
     <module>org.eclipse.smarthome.io.transport.upnp</module>
   </modules>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- Cleanup template files -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <executions>
+            <!-- This execution is not bound to a life cycle phase and have to be activated explicitly by child modules. -->
+            <execution>
+              <id>cleanup templates</id>
+              <goals>
+                <goal>clean</goal>
+              </goals>
+              <configuration>
+                <filesets>
+                  <fileset>
+                    <directory>${project.basedir}/templates/</directory>
+                  </fileset>
+                </filesets>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Needed by Swagger. Swagger depends on templates ZIP file provided by org.eclipse.smarthome.io.rest.core bundle -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <executions>
+            <!-- This execution is not bound to a life cycle phase and have to be activated explicitly by child modules. -->
+            <!-- Unpack template files ZIP in ${project.basedir}/templates folder. -->
+            <execution>
+              <id>unpack-dependencies</id>
+              <goals>
+                <goal>unpack-dependencies</goal>
+              </goals>
+              <configuration>
+                <outputDirectory>${project.basedir}/templates</outputDirectory>
+                <includeArtifactIds>org.eclipse.smarthome.io.rest.core</includeArtifactIds>
+                <includeTypes>zip</includeTypes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Swagger Maven plugin (https://github.com/kongchen/swagger-maven-plugin) -->
+        <plugin>
+          <groupId>com.github.kongchen</groupId>
+          <artifactId>swagger-maven-plugin</artifactId>
+          <version>3.1.0</version>
+          <configuration>
+            <apiSources>
+              <apiSource>
+                <springmvc>false</springmvc>
+                <!-- Location section have to be configured by child modules. -->
+                <!-- Add classes containing Swagger's annotation @Api, or packages containing those classes. -->
+                <!-- Use ; as the delimiter. -->
+                <!-- <locations>...</locations> -->
+                <schemes>http,https</schemes>
+                <basePath>REST Core API</basePath>
+                <info>
+                  <title>Eclipse SmartHome</title>
+                  <version>v1</version>
+                  <termsOfService>
+                    http://www.eclipse.org/smarthome/
+                  </termsOfService>
+                  <license>
+                    <url>http://www.eclipse.org/legal/epl-v10.html</url>
+                    <name>Eclipse Public License - v 1.0</name>
+                  </license>
+                </info>
+                <templatePath>${project.basedir}/templates/markdown.hbs</templatePath>
+                <!-- Property document.name must be provided by every child module using this plugin configuration. -->
+                <outputPath>${project.basedir}/target/generated/swagger/${swagger.document.name}.md</outputPath>
+                <swaggerDirectory>${project.basedir}/target/generated/swagger/swagger-ui</swaggerDirectory>
+              </apiSource>
+            </apiSources>
+          </configuration>
+          <executions>
+            <execution>
+              <!-- This plugin requires compile phase -->
+              <!-- https://github.com/kongchen/swagger-maven-plugin/blob/master/src/main/java/com/github/kongchen/swagger/docgen/mavenplugin/ApiDocumentMojo.java -->
+              <phase>compile</phase>
+              <goals>
+                <goal>generate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.eclipse.smarthome.io</groupId>
+        <artifactId>org.eclipse.smarthome.io.rest.core</artifactId>
+        <version>0.8.0-SNAPSHOT</version>
+        <type>zip</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

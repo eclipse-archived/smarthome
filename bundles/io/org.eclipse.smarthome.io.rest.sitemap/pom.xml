@@ -10,6 +10,7 @@
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.sitemap</bundle.symbolicName>
     <bundle.namespace>org.eclipse.smarthome.io.rest.sitemap</bundle.namespace>
+    <swagger.document.name>rest-sitemap</swagger.document.name>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
@@ -19,4 +20,54 @@
   <name>Eclipse SmartHome Sitemap REST Interface</name>
 
   <packaging>eclipse-plugin</packaging>
+
+  <build>
+    <plugins>
+
+      <!-- Activate template files cleanup execution. -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>cleanup templates</id>
+            <phase>clean</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Activate unpack-dependencies executions. -->
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Activate swagger plugin -->
+      <plugin>
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <configuration>
+          <apiSources>
+            <apiSource>
+              <!-- Packages containing classes containing Swagger's annotation @Api -->
+              <locations>org.eclipse.smarthome.io.rest.sitemap.internal</locations>
+            </apiSource>
+          </apiSources>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.smarthome.io</groupId>
+      <artifactId>org.eclipse.smarthome.io.rest.core</artifactId>
+      <type>zip</type>
+    </dependency>
+  </dependencies>
 </project>
