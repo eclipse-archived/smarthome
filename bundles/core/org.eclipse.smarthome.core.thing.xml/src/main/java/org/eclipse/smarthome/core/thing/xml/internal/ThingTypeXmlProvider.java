@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +44,10 @@ import com.thoughtworks.xstream.converters.ConversionException;
  * used to merge with the {@link ThingTypeXmlResult} objects to create valid {@link ThingType} objects. After the merge
  * process has been finished, the cache is cleared again. The merge process is started when {@link #addingFinished()} is
  * invoked from the according {@link XmlDocumentBundleTracker}.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Ivan Iliev - Added support for system wide channel types
- * 
+ *
  * @see ThingTypeXmlProviderFactory
  */
 public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
@@ -62,12 +61,13 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
     // temporary cache
     private List<ThingTypeXmlResult> thingTypeRefs;
     private List<ChannelGroupTypeXmlResult> channelGroupTypeRefs;
-    private Map<String, ChannelGroupType> channelGroupTypes;
-    private Map<String, ChannelType> channelTypes;
-    private List<ChannelType> contributedSystemChannelTypes;
+    private List<ChannelTypeXmlResult> channelTypeRefs;
+
+    private XmlChannelTypeProvider channelTypeProvider;
 
     public ThingTypeXmlProvider(Bundle bundle, XmlConfigDescriptionProvider configDescriptionProvider,
-            XmlThingTypeProvider thingTypeProvider) throws IllegalArgumentException {
+            XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider)
+                    throws IllegalArgumentException {
 
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
@@ -84,12 +84,12 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         this.bundle = bundle;
         this.configDescriptionProvider = configDescriptionProvider;
         this.thingTypeProvider = thingTypeProvider;
+        this.channelTypeProvider = channelTypeProvider;
 
         this.thingTypeRefs = new ArrayList<>(10);
         this.channelGroupTypeRefs = new ArrayList<>(10);
-        this.channelGroupTypes = new HashMap<>(10);
-        this.channelTypes = new HashMap<>(10);
-        this.contributedSystemChannelTypes = new ArrayList<>(10);
+        this.channelGroupTypeRefs = new ArrayList<>(10);
+        this.channelTypeRefs = new ArrayList<>(10);
     }
 
     @Override
@@ -105,16 +105,8 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
                     this.channelGroupTypeRefs.add(typeResult);
                 } else if (type instanceof ChannelTypeXmlResult) {
                     ChannelTypeXmlResult typeResult = (ChannelTypeXmlResult) type;
-                    ChannelType channelType = typeResult.getChannelType();
-
-                    if (typeResult.isSystem()) {
-                        this.thingTypeProvider.addXmlSystemChannelType(channelType);
-
-                        contributedSystemChannelTypes.add(channelType);
-                    }
-
+                    this.channelTypeRefs.add(typeResult);
                     addConfigDescription(typeResult.getConfigDescription());
-                    this.channelTypes.put(channelType.getUID().getAsString(), channelType);
                 } else {
                     throw new ConversionException("Unknown data type for '" + type + "'!");
                 }
@@ -132,45 +124,39 @@ public class ThingTypeXmlProvider implements XmlDocumentProvider<List<?>> {
         }
     }
 
-    private void addSystemChannelTypes() {
-        Collection<ChannelType> systemChannelTypes = this.thingTypeProvider.getAllSystemChannelTypes();
-
-        for (ChannelType type : systemChannelTypes) {
-            this.channelTypes.put(type.getUID().getAsString(), type);
-        }
-    }
-
     @Override
     public synchronized void addingFinished() {
 
-        addSystemChannelTypes();
+        Map<String, ChannelType> channelTypes = new HashMap<>(10);
+        // create channel types
+        for (ChannelTypeXmlResult type : this.channelTypeRefs) {
+            ChannelType channelType = type.toChannelType();
+            channelTypes.put(channelType.getUID().getAsString(), channelType);
+            this.channelTypeProvider.addChannelType(this.bundle, channelType);
+        }
 
         // create channel group types
         for (ChannelGroupTypeXmlResult type : this.channelGroupTypeRefs) {
-            this.channelGroupTypes.put(type.getUID().toString(), type.toChannelGroupType(this.channelTypes));
+            this.channelTypeProvider.addChannelGroupType(this.bundle, type.toChannelGroupType(channelTypes));
         }
 
         // create thing and bridge types
         for (ThingTypeXmlResult type : this.thingTypeRefs) {
-            this.thingTypeProvider.addThingType(this.bundle,
-                    type.toThingType(this.channelGroupTypes, this.channelTypes));
+            this.thingTypeProvider.addThingType(this.bundle, type.toThingType());
         }
 
         // release temporary cache
         this.thingTypeRefs.clear();
         this.channelGroupTypeRefs.clear();
-        this.channelGroupTypes.clear();
-        this.channelTypes.clear();
+        this.channelTypeRefs.clear();
     }
 
     @Override
     public synchronized void release() {
         this.thingTypeProvider.removeAllThingTypes(this.bundle);
+        this.channelTypeProvider.removeAllChannelGroupTypes(this.bundle);
+        this.channelTypeProvider.removeAllChannelTypes(this.bundle);
         this.configDescriptionProvider.removeAllConfigDescriptions(this.bundle);
-
-        for (ChannelType type : contributedSystemChannelTypes) {
-            this.thingTypeProvider.removeXmlSystemChannelType(type);
-        }
     }
 
 }

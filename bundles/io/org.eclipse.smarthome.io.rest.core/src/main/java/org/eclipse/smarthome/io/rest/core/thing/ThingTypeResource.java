@@ -25,13 +25,13 @@ import javax.ws.rs.core.Response;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.FilterCriteria;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
-import org.eclipse.smarthome.config.core.dto.FilterCriteriaDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
+import org.eclipse.smarthome.config.core.dto.FilterCriteriaDTO;
 import org.eclipse.smarthome.config.core.dto.ParameterOptionDTO;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
@@ -44,6 +44,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
@@ -106,8 +107,8 @@ public class ThingTypeResource implements RESTResource {
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI,
                 locale);
         if (configDescription != null) {
-            List<ConfigDescriptionParameterDTO> configDescriptionParameterBeans = new ArrayList<>(configDescription
-                    .getParameters().size());
+            List<ConfigDescriptionParameterDTO> configDescriptionParameterBeans = new ArrayList<>(
+                    configDescription.getParameters().size());
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
                 ConfigDescriptionParameterDTO configDescriptionParameterBean = new ConfigDescriptionParameterDTO(
                         configDescriptionParameter.getName(), configDescriptionParameter.getType(),
@@ -159,34 +160,36 @@ public class ThingTypeResource implements RESTResource {
     private ThingTypeDTO convertToThingTypeBean(ThingType thingType, Locale locale) {
         return new ThingTypeDTO(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
                 getConfigDescriptionParameterBeans(thingType.getConfigDescriptionURI(), locale),
-                convertToChannelDefinitionBeans(thingType.getChannelDefinitions()),
-                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions()),
+                convertToChannelDefinitionBeans(thingType.getChannelDefinitions(), locale),
+                convertToChannelGroupDefinitionBeans(thingType.getChannelGroupDefinitions(), locale),
                 thingType.getSupportedBridgeTypeUIDs(), thingType.getProperties(), thingType instanceof BridgeType,
                 convertToParameterGroupBeans(thingType.getConfigDescriptionURI(), locale));
     }
 
     private List<ChannelGroupDefinitionDTO> convertToChannelGroupDefinitionBeans(
-            List<ChannelGroupDefinition> channelGroupDefinitions) {
+            List<ChannelGroupDefinition> channelGroupDefinitions, Locale locale) {
         List<ChannelGroupDefinitionDTO> channelGroupDefinitionBeans = new ArrayList<>();
         for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
             String id = channelGroupDefinition.getId();
-            ChannelGroupType channelGroupType = channelGroupDefinition.getType();
+            ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID(), locale);
 
             String label = channelGroupType.getLabel();
             String description = channelGroupType.getDescription();
             List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
-            List<ChannelDefinitionDTO> channelDefinitionBeans = convertToChannelDefinitionBeans(channelDefinitions);
+            List<ChannelDefinitionDTO> channelDefinitionBeans = convertToChannelDefinitionBeans(channelDefinitions,
+                    locale);
 
-            channelGroupDefinitionBeans.add(new ChannelGroupDefinitionDTO(id, label, description,
-                    channelDefinitionBeans));
+            channelGroupDefinitionBeans
+                    .add(new ChannelGroupDefinitionDTO(id, label, description, channelDefinitionBeans));
         }
         return channelGroupDefinitionBeans;
     }
 
-    private List<ChannelDefinitionDTO> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions) {
+    private List<ChannelDefinitionDTO> convertToChannelDefinitionBeans(List<ChannelDefinition> channelDefinitions,
+            Locale locale) {
         List<ChannelDefinitionDTO> channelDefinitionBeans = new ArrayList<>();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
-            ChannelType channelType = channelDefinition.getType();
+            ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
 
             // Default to the channelDefinition label to override the channelType
             String label = channelDefinition.getLabel();
@@ -200,9 +203,10 @@ public class ThingTypeResource implements RESTResource {
                 description = channelType.getDescription();
             }
 
-            ChannelDefinitionDTO channelDefinitionBean = new ChannelDefinitionDTO(channelDefinition.getId(), label,
-                    description, channelType.getTags(), channelType.getCategory(), channelType.getState(),
-                    channelType.isAdvanced(), channelDefinition.getProperties());
+            ChannelDefinitionDTO channelDefinitionBean = new ChannelDefinitionDTO(channelDefinition.getId(),
+                    channelDefinition.getChannelTypeUID().toString(), label, description, channelType.getTags(),
+                    channelType.getCategory(), channelType.getState(), channelType.isAdvanced(),
+                    channelDefinition.getProperties());
             channelDefinitionBeans.add(channelDefinitionBean);
         }
         return channelDefinitionBeans;
@@ -228,9 +232,9 @@ public class ThingTypeResource implements RESTResource {
 
             List<ConfigDescriptionParameterGroup> parameterGroups = configDescription.getParameterGroups();
             for (ConfigDescriptionParameterGroup parameterGroup : parameterGroups) {
-                parameterGroupBeans.add(new ConfigDescriptionParameterGroupDTO(parameterGroup.getName(), parameterGroup
-                        .getContext(), parameterGroup.isAdvanced(), parameterGroup.getLabel(), parameterGroup
-                        .getDescription()));
+                parameterGroupBeans.add(new ConfigDescriptionParameterGroupDTO(parameterGroup.getName(),
+                        parameterGroup.getContext(), parameterGroup.isAdvanced(), parameterGroup.getLabel(),
+                        parameterGroup.getDescription()));
             }
         }
 

@@ -8,15 +8,12 @@
 package org.eclipse.smarthome.core.thing.xml.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -41,13 +38,12 @@ public class BridgeTypeXmlResult extends ThingTypeXmlResult {
     }
 
     @Override
-    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes, Map<String, ChannelType> channelTypes)
-            throws ConversionException {
+    public ThingType toThingType() throws ConversionException {
 
         BridgeType bridgeType = new BridgeType(super.thingTypeUID, super.supportedBridgeTypeUIDs, super.label,
-                super.description, super.toChannelDefinitions(this.channelTypeReferences, channelTypes),
-                super.toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes),
-                super.toPropertiesMap(), super.configDescriptionURI);
+                super.description, super.toChannelDefinitions(this.channelTypeReferences),
+                super.toChannelGroupDefinitions(this.channelGroupTypeReferences), super.toPropertiesMap(),
+                super.configDescriptionURI);
 
         return bridgeType;
     }

@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.type.AbstractDescriptionType
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.TypeResolver
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -58,10 +59,10 @@ class ThingTypeI18nTest extends OSGiTest {
         description = Stellt verschiedene Wetterdaten vom yahoo Wetterdienst bereit
         """, asString(weatherType))
     }
-    
+
     @Test
     void 'assert that channel group type was localized'() {
-        
+
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
 
@@ -71,18 +72,21 @@ class ThingTypeI18nTest extends OSGiTest {
 
         def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
-        
+
         def weatherGroupType = thingTypes.find { it.toString().equals("yahooweather:weather-with-group") } as ThingType
+        println weatherGroupType.channelGroupDefinitions[0].typeUID
+        println TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID).label
+
         assertThat weatherGroupType, is(notNullValue())
         assertEquals("""
         label = Wetterinformation mit Gruppe
         description = Wetterinformation mit Gruppe Beschreibung
-        """, asString(weatherGroupType.channelGroupDefinitions[0].type))
+        """, asString(TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID)))
     }
-    
+
     @Test
     void 'assert that channel type was localized'() {
-        
+
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
 
@@ -92,10 +96,10 @@ class ThingTypeI18nTest extends OSGiTest {
 
         def thingTypes = thingTypeProvider.getThingTypes(Locale.GERMAN)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
-        
+
         def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
-        def temperatureChannelType = weatherType.channelDefinitions.find { it.getId().equals("temperature")}.type as ChannelType
-        
+        def temperatureChannelType = TypeResolver.resolve(weatherType.channelDefinitions.find { it.getId().equals("temperature")}.channelTypeUID) as ChannelType
+
         assertEquals("""
         label = Temperatur
         description = Temperaturwert
@@ -103,8 +107,8 @@ class ThingTypeI18nTest extends OSGiTest {
         option = Mein String
         """, asString(temperatureChannelType))
     }
-    
-    
+
+
     String asString(final AbstractDescriptionType self) {
         def label = self.label
         def description = self.description
@@ -113,7 +117,7 @@ class ThingTypeI18nTest extends OSGiTest {
         description = ${description}
         """
     }
-    
+
     String asString(final ChannelType self) {
         def label = self.label
         def description = self.description
