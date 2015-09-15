@@ -39,10 +39,10 @@ import org.slf4j.LoggerFactory;
  * thus it is a core part for all stateful services.
  *
  * @author Kai Kreuzer - Initial contribution and API
- * @author Stefan Bußweiler - Migration to new event mechanism 
+ * @author Stefan Bußweiler - Migration to new event mechanism
  *
  */
-public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements ItemRegistry, ItemsChangeListener {
+public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements ItemRegistry, ItemsChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
@@ -116,7 +116,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItem(java.lang
      * .String)
@@ -144,7 +144,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItemByPattern
      * (java.lang.String)
@@ -167,7 +167,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems()
      */
     @Override
@@ -190,7 +190,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.internal.items.ItemRegistry#getItems(java.
      * lang.String)
@@ -253,8 +253,8 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
             // add the item to all relevant groups
             addToGroupItems(item, item.getGroupNames());
         } else {
-            throw new IllegalArgumentException("Ignoring item '" + item.getName() + "' as it does not comply with"
-                    + " the naming convention.");
+            throw new IllegalArgumentException(
+                    "Ignoring item '" + item.getName() + "' as it does not comply with" + " the naming convention.");
         }
     }
 
@@ -374,9 +374,9 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
     }
 
     @Override
-    public void remove(String itemName, boolean recursive) {
+    public Item remove(String itemName, boolean recursive) {
         if (this.managedProvider != null) {
-            ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
+            return ((ManagedItemProvider) this.managedProvider).remove(itemName, recursive);
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
         }
@@ -399,5 +399,5 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String> implements 
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
     }
-    
+
 }

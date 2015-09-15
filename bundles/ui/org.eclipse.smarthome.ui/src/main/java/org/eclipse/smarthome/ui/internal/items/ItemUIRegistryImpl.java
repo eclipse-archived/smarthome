@@ -407,8 +407,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 String type = matcher.group(1);
                 String pattern = matcher.group(2);
                 String value = matcher.group(3);
-                TransformationService transformation = TransformationHelper.getTransformationService(
-                        UIActivator.getContext(), type);
+                TransformationService transformation = TransformationHelper
+                        .getTransformationService(UIActivator.getContext(), type);
                 if (transformation != null) {
                     try {
                         label = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
@@ -500,8 +500,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 Item item = getItem(itemName);
                 return item.getState();
             } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve item '{}' for widget {}", new Object[] { itemName,
-                        w.eClass().getInstanceTypeName() });
+                logger.error("Cannot retrieve item '{}' for widget {}",
+                        new Object[] { itemName, w.eClass().getInstanceTypeName() });
             }
         }
         return UnDefType.UNDEF;
@@ -966,8 +966,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             try {
                 item = itemRegistry.getItem(rule.getItem());
             } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(), w.eClass()
-                        .getInstanceTypeName());
+                logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(),
+                        w.eClass().getInstanceTypeName());
 
                 // Default to visible!
                 return true;
@@ -1089,10 +1089,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public void remove(String itemName, boolean recursive) {
+    public Item remove(String itemName, boolean recursive) {
 
         if (itemRegistry != null) {
-            itemRegistry.remove(itemName, recursive);
+            return itemRegistry.remove(itemName, recursive);
+        } else {
+            return null;
         }
 
     }
