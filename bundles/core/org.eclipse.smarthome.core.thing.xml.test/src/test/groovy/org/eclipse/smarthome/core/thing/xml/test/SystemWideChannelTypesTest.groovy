@@ -13,15 +13,14 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelType
-import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider
-import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry
+import org.eclipse.smarthome.core.thing.type.TypeResolver
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
-import org.osgi.framework.ServiceReference
 
 /**
  * @author Ivan Iliev - Initial contribution
@@ -55,7 +54,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
 
-        def initialNumberOfChannelTypes = getAllSystemChannelTypes().size()
+        def initialNumberOfChannelTypes = getChannelTypes().size()
 
         // install test bundle
         Bundle bundle = SyntheticBundleInstaller.install(bundleContext, SYSTEM_CHANNELS_BUNDLE_NAME)
@@ -64,7 +63,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
         def thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 1)
 
-        assertThat getAllSystemChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
+        assertThat getChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
 
         // uninstall test bundle
         bundle.uninstall();
@@ -73,7 +72,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
         thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes)
 
-        assertThat getAllSystemChannelTypes().size(), is(initialNumberOfChannelTypes)
+        assertThat getChannelTypes().size(), is(initialNumberOfChannelTypes)
 
     }
 
@@ -81,7 +80,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
     void 'assert that System Channels are used by other binding'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
-        def initialNumberOfChannelTypes = getAllSystemChannelTypes().size()
+        def initialNumberOfChannelTypes = getChannelTypes().size()
 
 
         // install test bundle
@@ -94,7 +93,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
         def thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
 
-        assertThat getAllSystemChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
+        assertThat getChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
 
     }
 
@@ -102,7 +101,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
     void 'assert that Thing Types have proper channel definitions'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
-        def initialNumberOfChannelTypes = getAllSystemChannelTypes().size()
+        def initialNumberOfChannelTypes = getChannelTypes().size()
 
 
         // install test bundle
@@ -119,15 +118,15 @@ class SystemWideChannelTypesTest extends OSGiTest {
 
         def myChannel = channelDefs.findAll {
             it.id.equals("test") &&
-                    it.getType().UID.getAsString().equals("system:my-channel") }
+                    it.getChannelTypeUID().getAsString().equals("system:my-channel") }
 
         def sigStr = channelDefs.findAll {
             it.id.equals("sigstr") &&
-                    it.getType().UID.getAsString().equals("system:signal-strength") }
+                    it.getChannelTypeUID().getAsString().equals("system:signal-strength") }
 
         def lowBat = channelDefs.findAll {
             it.id.equals("lowbat") &&
-                    it.getType().UID.getAsString().equals("system:low-battery") }
+                    it.getChannelTypeUID().getAsString().equals("system:low-battery") }
 
 
         assertThat myChannel.size(), is(1)
@@ -140,7 +139,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
     void 'assert that System Channels are added without thing types'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
-        def initialNumberOfChannelTypes = getAllSystemChannelTypes().size()
+        def initialNumberOfChannelTypes = getChannelTypes().size()
 
 
         // install test bundle
@@ -150,13 +149,13 @@ class SystemWideChannelTypesTest extends OSGiTest {
         def thingTypes = thingTypeProvider.getThingTypes(null)
         assertThat thingTypes.size(), is(initialNumberOfThingTypes)
 
-        assertThat getAllSystemChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
+        assertThat getChannelTypes().size(), is(initialNumberOfChannelTypes + 1)
 
         // uninstall test bundle
         sysBundle.uninstall();
         assertThat sysBundle.state, is(Bundle.UNINSTALLED)
 
-        assertThat getAllSystemChannelTypes().size(), is(initialNumberOfChannelTypes)
+        assertThat getChannelTypes().size(), is(initialNumberOfChannelTypes)
 
     }
 
@@ -164,7 +163,7 @@ class SystemWideChannelTypesTest extends OSGiTest {
     void 'assert that i18n is working for system channels'() {
         def bundleContext = getBundleContext()
         def initialNumberOfThingTypes = thingTypeProvider.getThingTypes(null).size()
-        def initialNumberOfChannelTypes = getAllSystemChannelTypes().size()
+        def initialNumberOfChannelTypes = getChannelTypes().size()
 
 
         // install test bundle
@@ -183,35 +182,21 @@ class SystemWideChannelTypesTest extends OSGiTest {
 
         def myChannel = channelDefs.findAll {
             it.id.equals("test") &&
-                    it.getType().UID.getAsString().equals("system:my-channel") }
+                    it.getChannelTypeUID().getAsString().equals("system:my-channel") }
 
         def sigStr = channelDefs.findAll {
             it.id.equals("sigstr") &&
-                    it.getType().UID.getAsString().equals("system:signal-strength") }
+                    it.getChannelTypeUID().getAsString().equals("system:signal-strength") }
 
 
         assertThat myChannel.size(), is(1)
         assertThat sigStr.size(), is(1)
 
-        assertThat myChannel[0].getType().getLabel(), is("Mein String My Channel")
-        assertThat myChannel[0].getType().getDescription(), is("Wetterinformation mit My Channel Type Beschreibung")
-
-        assertThat sigStr[0].getType().getLabel(), is("Mein String Signal Strength")
-        assertThat sigStr[0].getType().getDescription(), is("Wetterinformation mit Signal Strength Channel Type Beschreibung")
+        assertThat TypeResolver.resolve(myChannel[0].channelTypeUID, Locale.GERMAN).getLabel(), is("Mein String My Channel")
+        assertThat TypeResolver.resolve(myChannel[0].channelTypeUID, Locale.GERMAN).getDescription(), is("Wetterinformation mit My Channel Type Beschreibung")
     }
 
-    List<ChannelType> getAllSystemChannelTypes() {
-        def bundleContext = getBundleContext()
-
-        List<ChannelType> list = new ArrayList<ChannelType>();
-
-        def allServices = bundleContext.getAllServiceReferences(SystemChannelTypeProvider.class.getName(), null);
-
-        for(ServiceReference ref : allServices) {
-            list.addAll(((SystemChannelTypeProvider)bundleContext.getService(ref)).getSystemChannelTypes());
-        }
-
-
-        return list;
+    List<ChannelType> getChannelTypes() {
+        return getService(ChannelTypeRegistry).getChannelTypes()
     }
 }

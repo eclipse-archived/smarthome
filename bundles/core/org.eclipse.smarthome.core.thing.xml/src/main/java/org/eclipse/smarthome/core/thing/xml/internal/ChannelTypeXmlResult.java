@@ -36,7 +36,7 @@ public class ChannelTypeXmlResult {
         this.system = system;
     }
 
-    public ChannelType getChannelType() {
+    public ChannelType toChannelType() {
         return this.channelType;
     }
 

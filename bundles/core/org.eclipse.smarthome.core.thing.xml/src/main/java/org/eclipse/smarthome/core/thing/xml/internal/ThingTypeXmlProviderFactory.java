@@ -25,9 +25,11 @@ public class ThingTypeXmlProviderFactory implements XmlDocumentProviderFactory<L
 
     private XmlConfigDescriptionProvider configDescriptionProvider;
     private XmlThingTypeProvider thingTypeProvider;
+    private XmlChannelTypeProvider channelTypeProvider;
 
     public ThingTypeXmlProviderFactory(XmlConfigDescriptionProvider configDescriptionProvider,
-            XmlThingTypeProvider thingTypeProvider) throws IllegalArgumentException {
+            XmlThingTypeProvider thingTypeProvider, XmlChannelTypeProvider channelTypeProvider)
+                    throws IllegalArgumentException {
 
         if (configDescriptionProvider == null) {
             throw new IllegalArgumentException("The XmlConfigDescriptionProvider must not be null!");
@@ -37,13 +39,19 @@ public class ThingTypeXmlProviderFactory implements XmlDocumentProviderFactory<L
             throw new IllegalArgumentException("The XmlThingTypeProvider must not be null!");
         }
 
+        if (channelTypeProvider == null) {
+            throw new IllegalArgumentException("The XmlChannelTypeProvider must not be null!");
+        }
+
         this.configDescriptionProvider = configDescriptionProvider;
         this.thingTypeProvider = thingTypeProvider;
+        this.channelTypeProvider = channelTypeProvider;
     }
 
     @Override
     public XmlDocumentProvider<List<?>> createDocumentProvider(Bundle bundle) {
-        return new ThingTypeXmlProvider(bundle, this.configDescriptionProvider, this.thingTypeProvider);
+        return new ThingTypeXmlProvider(bundle, this.configDescriptionProvider, this.thingTypeProvider,
+                this.channelTypeProvider);
     }
 
 }

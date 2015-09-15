@@ -25,56 +25,26 @@ public class ChannelDefinitionDTO {
     public String label;
     public Set<String> tags;
     public Map<String, String> properties;
-    private String category;
-    private StateDescription stateDescription;
-    private boolean advanced;
+    public String category;
+    public StateDescription stateDescription;
+    public boolean advanced;
+    public String typeUID;
 
     public ChannelDefinitionDTO() {
 
     }
 
-    public ChannelDefinitionDTO(String id, String label, String description, Set<String> tags, String category,
-            StateDescription stateDescription, boolean advanced, Map<String, String> properties) {
+    public ChannelDefinitionDTO(String id, String typeUID, String label, String description, Set<String> tags,
+            String category, StateDescription stateDescription, boolean advanced, Map<String, String> properties) {
         this.description = description;
         this.label = label;
         this.id = id;
+        this.typeUID = typeUID;
         this.tags = tags;
         this.category = category;
         this.stateDescription = stateDescription;
         this.advanced = advanced;
         this.properties = properties;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public StateDescription getStateDescription() {
-        return stateDescription;
-    }
-
-    public boolean isAdvanced() {
-        return advanced;
-    }
-    
-    public Map<String, String> getProperties() {
-        return properties;   
     }
 
 }

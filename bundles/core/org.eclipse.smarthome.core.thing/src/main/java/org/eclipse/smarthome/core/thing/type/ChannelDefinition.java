@@ -23,11 +23,12 @@ import org.eclipse.smarthome.core.thing.Thing;
  *
  * @author Michael Grammling - Initial Contribution
  * @author Chris Jackson - Added properties and label/description
+ * @author Dennis Nobel - Introduced ChannelTypeRegistry and channel type references
  */
 public class ChannelDefinition {
 
     private String id;
-    private ChannelType type;
+    private ChannelTypeUID channelTypeUID;
     private final Map<String, String> properties;
     private final String label;
     private final String description;
@@ -36,32 +37,32 @@ public class ChannelDefinition {
      * Creates a new instance of this class with the specified parameters.
      *
      * @param id the identifier of the channel (must neither be null nor empty)
-     * @param type the type of the channel (must not be null)
+     * @param channelTypeUID the type UID of the channel (must not be null)
      *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelType type) throws IllegalArgumentException {
-        this(id, type, null, null, null);
+    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID) throws IllegalArgumentException {
+        this(id, channelTypeUID, null, null, null);
     }
 
     /**
      * Creates a new instance of this class with the specified parameters.
      *
      * @param id the identifier of the channel (must neither be null nor empty)
-     * @param type the type of the channel (must not be null)
+     * @param channelTypeUID the type UID of the channel (must not be null)
      * @param properties the properties this Channel provides (could be null)
      * @param label the label for the channel to override channelType (could be null)
      * @param description the description for the channel to override channelType (could be null)
      *
      * @throws IllegalArgumentException if the ID is null or empty, or the type is null
      */
-    public ChannelDefinition(String id, ChannelType type, Map<String, String> properties, String label,
+    public ChannelDefinition(String id, ChannelTypeUID channelTypeUID, Map<String, String> properties, String label,
             String description) throws IllegalArgumentException {
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
         }
 
-        if (type == null) {
+        if (channelTypeUID == null) {
             throw new IllegalArgumentException("The channel type must not be null");
         }
 
@@ -72,7 +73,7 @@ public class ChannelDefinition {
         }
 
         this.id = id;
-        this.type = type;
+        this.channelTypeUID = channelTypeUID;
         this.label = label;
         this.description = description;
     }
@@ -91,8 +92,8 @@ public class ChannelDefinition {
      *
      * @return the type of the channel (not null)
      */
-    public ChannelType getType() {
-        return this.type;
+    public ChannelTypeUID getChannelTypeUID() {
+        return this.channelTypeUID;
     }
 
     /**
@@ -127,7 +128,7 @@ public class ChannelDefinition {
 
     @Override
     public String toString() {
-        return "ChannelDefinition [id=" + id + ", type=" + type + ", properties=" + properties + "]";
+        return "ChannelDefinition [id=" + id + ", type=" + channelTypeUID + ", properties=" + properties + "]";
     }
 
 }
