@@ -16,29 +16,28 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
-import org.eclipse.smarthome.automation.Connection;
+import org.eclipse.smarthome.automation.Connection
 import org.eclipse.smarthome.automation.Rule
-import org.eclipse.smarthome.automation.RuleProvider;
+import org.eclipse.smarthome.automation.RuleProvider
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
+import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
-import org.eclipse.smarthome.automation.module.handler.GenericEventTriggerHandler
+import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler
 import org.eclipse.smarthome.automation.template.RuleTemplate
 import org.eclipse.smarthome.automation.template.Template
-import org.eclipse.smarthome.automation.template.Template.Visibility;
 import org.eclipse.smarthome.automation.template.TemplateProvider
-import org.eclipse.smarthome.automation.template.TemplateRegistry;
+import org.eclipse.smarthome.automation.template.TemplateRegistry
+import org.eclipse.smarthome.automation.template.Template.Visibility
 import org.eclipse.smarthome.automation.type.ActionType
-import org.eclipse.smarthome.automation.type.ModuleType
-import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.type.ModuleTypeProvider
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.automation.type.TriggerType
-import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -50,14 +49,12 @@ import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
-import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
-import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.FrameworkUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -513,19 +510,19 @@ class AutomationIntegrationTest extends OSGiTest{
                 return [triggerType, actionType]
             }
         ] as ModuleTypeProvider
-        
+
         registerService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(notNullValue())
         registerService(moduleTypeProvider)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(notNullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(notNullValue())
-        
+
         unregisterService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(nullValue())
         unregisterService(moduleTypeProvider)
         assertThat moduleTypeRegistry.get(actionTypeUID), is(nullValue())
         assertThat moduleTypeRegistry.get(triggerTypeUID), is(nullValue())
-        
+
     }
 
     /**
