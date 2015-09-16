@@ -307,23 +307,20 @@ public class Rule {
     @SuppressWarnings("unchecked")
     @Deprecated
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
+        List<T> result = null;
         if (moduleClazz == null) {
-            List<T> result = new ArrayList<T>();
+            result = new ArrayList<T>();
             result.addAll((Collection<? extends T>) triggers);
             result.addAll((Collection<? extends T>) conditions);
             result.addAll((Collection<? extends T>) actions);
-            return result;
+        } else if (Trigger.class == moduleClazz) {
+            result = (List<T>) triggers;
+        } else if (Condition.class == moduleClazz) {
+            result = (List<T>) conditions;
+        } else if (Action.class == moduleClazz) {
+            result = (List<T>) actions;
         }
-        if (Trigger.class == moduleClazz) {
-            return (List<T>) triggers;
-        }
-        if (Condition.class == moduleClazz) {
-            return (List<T>) conditions;
-        }
-        if (Action.class == moduleClazz) {
-            return (List<T>) actions;
-        }
-        return null;
+        return result != null ? result : new ArrayList<T>(11);
     }
 
     /**

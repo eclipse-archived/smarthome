@@ -256,7 +256,7 @@ public class ModuleJSONParser {
      * @throws IOException
      */
     static <T extends Module> void writeModules(List<T> modules, OutputStreamWriter writer) throws IOException {
-        if (modules != null && !modules.isEmpty()) {
+        if (!modules.isEmpty()) {
             Iterator<T> i = modules.iterator();
             while (i.hasNext()) {
                 T module = i.next();

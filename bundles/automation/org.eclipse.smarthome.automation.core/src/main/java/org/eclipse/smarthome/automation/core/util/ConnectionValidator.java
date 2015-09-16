@@ -16,6 +16,7 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
+import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -39,6 +40,27 @@ public class ConnectionValidator {
      * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
      * @param mtRegistry module type registry
+     * @param r rule which must be checked
+     * @throws IllegalArgumentException when validation fails.
+     */
+    public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
+        if (r == null) {
+            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
+        }
+
+        if (mtRegistry == null) {
+            throw new IllegalStateException(
+                    "Validation of rule: " + r.getUID() + " is failed! ModuleTypeRegistry is missing!");
+        }
+
+        ConnectionValidator.validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
+    }
+
+    /**
+     * The method validates connections between inputs and outputs of modules participated in rule. It compares data
+     * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
+     *
+     * @param mtRegistry module type registry
      * @param triggers triggers of the rule
      * @param conditions condition of the rule
      * @param actions actions of the rule.
@@ -46,12 +68,14 @@ public class ConnectionValidator {
      */
     public static void validateConnections(ModuleTypeRegistry mtRegistry, List<Trigger> triggers,
             List<Condition> conditions, List<Action> actions) {
-        if (conditions != null && !conditions.isEmpty())
+        if (!conditions.isEmpty())
             for (Condition condition : conditions) {
                 validateConditionConnections(mtRegistry, condition, triggers);
             }
-        for (Action action : actions) {
-            validateActionConnections(mtRegistry, action, triggers, actions);
+        if (!actions.isEmpty()) {
+            for (Action action : actions) {
+                validateActionConnections(mtRegistry, action, triggers, actions);
+            }
         }
     }
 

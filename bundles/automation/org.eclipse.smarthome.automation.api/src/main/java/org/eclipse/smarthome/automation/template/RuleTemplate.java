@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.automation.template;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -200,59 +201,43 @@ public class RuleTemplate implements Template {
      *         specified.
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
         List<T> result = null;
-        if (moduleClazz == null || Trigger.class == moduleClazz) {
-            List<Trigger> l = triggers;
-            if (moduleClazz != null) {// only triggers
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
+        if (moduleClazz == null) {
+            result = new ArrayList<T>();
+            result.addAll((Collection<? extends T>) triggers);
+            result.addAll((Collection<? extends T>) conditions);
+            result.addAll((Collection<? extends T>) actions);
+        } else if (Trigger.class == moduleClazz) {
+            result = (List<T>) triggers;
+        } else if (Condition.class == moduleClazz) {
+            result = (List<T>) conditions;
+        } else if (Action.class == moduleClazz) {
+            result = (List<T>) actions;
         }
-        if (moduleClazz == null || Condition.class == moduleClazz) {
-            List<Condition> l = conditions;
-            if (moduleClazz != null) {// only conditions
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
-        }
-        if (moduleClazz == null || Action.class == moduleClazz) {
-            List<Action> l = actions;
-            if (moduleClazz != null) {// only actions
-                return (List<T>) l;
-            }
-            result = getList(result);
-            result.addAll((List<T>) l);
-        }
-        return result;
+        return result != null ? result : new ArrayList<T>(11);
     }
 
     public List<Trigger> getTriggers() {
+        if (triggers == null) {
+            triggers = new ArrayList<Trigger>(11);
+        }
         return triggers;
     }
 
     public List<Condition> getConditions() {
+        if (conditions == null) {
+            conditions = new ArrayList<Condition>(11);
+        }
         return conditions;
     }
 
     public List<Action> getActions() {
-        return actions;
-    }
-
-    /**
-     * Auxiliary method used in {@link #getModules(Class)} to prevent {@code null} for the returned list.
-     *
-     * @param t is the result from {@link #getModules(Class)} method.
-     * @return the resulted list from {@link #getModules(Class)} method or empty list if the result from
-     *         {@link #getModules(Class)} method is {@code null}.
-     */
-    private <T extends Module> List<T> getList(List<T> t) {
-        if (t != null) {
-            return t;
+        if (actions == null) {
+            actions = new ArrayList<Action>(11);
         }
-        return new ArrayList<T>();
+        return actions;
     }
 
 }

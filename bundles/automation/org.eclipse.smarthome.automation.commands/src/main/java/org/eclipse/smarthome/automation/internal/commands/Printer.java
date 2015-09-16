@@ -204,8 +204,8 @@ public class Printer {
                 printChars(writer, ' ', 4, false);
                 writer.append(printConfigurationDescription(cd) + "\n");
             }
-            List<Trigger> triggers = ((RuleTemplate) template).getModules(Trigger.class);
-            if (triggers != null && !triggers.isEmpty()) {
+            List<Trigger> triggers = ((RuleTemplate) template).getTriggers();
+            if (!triggers.isEmpty()) {
                 writer.append("TRIGGERS");
                 printChars(writer, ' ', 22, false);
                 int last = triggers.size();
@@ -216,8 +216,8 @@ public class Printer {
                         printChars(writer, ' ', 30, false);
                 }
             }
-            List<Condition> conditions = ((RuleTemplate) template).getModules(Condition.class);
-            if (conditions != null && !conditions.isEmpty()) {
+            List<Condition> conditions = ((RuleTemplate) template).getConditions();
+            if (!conditions.isEmpty()) {
                 writer.append("CONDITIONS");
                 printChars(writer, ' ', 20, false);
                 int last = conditions.size();
@@ -228,8 +228,8 @@ public class Printer {
                         printChars(writer, ' ', 30, false);
                 }
             }
-            List<Action> actions = ((RuleTemplate) template).getModules(Action.class);
-            if (actions != null && !actions.isEmpty()) {
+            List<Action> actions = ((RuleTemplate) template).getActions();
+            if (!actions.isEmpty()) {
                 writer.append("ACTIONS");
                 printChars(writer, ' ', 23, false);
                 int last = actions.size();

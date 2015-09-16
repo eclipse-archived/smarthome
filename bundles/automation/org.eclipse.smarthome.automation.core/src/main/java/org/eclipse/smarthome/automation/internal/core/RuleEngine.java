@@ -28,6 +28,7 @@ import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -308,7 +309,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         try {
-            Activator.validateConnections(r);
+            ConnectionValidator.validateConnections(Activator.getModuleTypeRegistry(), r);
         } catch (Exception e) {
             errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
         }

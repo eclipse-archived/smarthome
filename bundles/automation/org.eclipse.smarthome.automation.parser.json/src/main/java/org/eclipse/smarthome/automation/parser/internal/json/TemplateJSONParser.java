@@ -148,15 +148,15 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
         Set<ConfigDescriptionParameter> configDescriptions = ruleTemplate.getConfigurationDescription();
         ruleTemplateConfigurationToJSON(configDescriptions, writer);
 
-        List<Trigger> triggers = ruleTemplate.getModules(Trigger.class);
-        List<Condition> conditions = ruleTemplate.getModules(Condition.class);
-        List<Action> actions = ruleTemplate.getModules(Action.class);
+        List<Trigger> triggers = ruleTemplate.getTriggers();
+        List<Condition> conditions = ruleTemplate.getConditions();
+        List<Action> actions = ruleTemplate.getActions();
 
         writer.write("    \"" + JSONStructureConstants.ON + "\":[\n");
         ModuleJSONParser.writeModules(triggers, writer);
         writer.write("    ],\n");
 
-        if (conditions != null && !conditions.isEmpty()) {
+        if (!conditions.isEmpty()) {
             writer.write("    \"" + JSONStructureConstants.IF + "\":[\n");
             ModuleJSONParser.writeModules(conditions, writer);
             writer.write("    ],\n");

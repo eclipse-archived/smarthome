@@ -35,7 +35,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 @SuppressWarnings("rawtypes")
 public class ModuleTypeManager implements ServiceTrackerCustomizer {
 
-    @SuppressWarnings("rawtypes")
     private ServiceTracker moduleTypeTracker;
     private RuleEngine ruleEngine;
     private Set<ModuleTypeProvider> providers = new HashSet<>();
@@ -45,7 +44,7 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
      * @param bc
      * @param re
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     public ModuleTypeManager(BundleContext bc, RuleEngine re) {
         this.bc = bc;
         this.ruleEngine = re;

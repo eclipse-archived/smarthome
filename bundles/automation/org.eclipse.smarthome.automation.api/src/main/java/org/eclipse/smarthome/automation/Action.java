@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +56,7 @@ public class Action extends Module {
      * @return a {@link Set} of input {@link Connection}s.
      */
     public Set<Connection> getConnections() {
-        return connections;
+        return connections != null ? connections : new HashSet<Connection>(11);
     }
 
     /**

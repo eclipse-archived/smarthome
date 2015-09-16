@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.Status;
@@ -167,8 +164,7 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                 String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
-                            ruleT.getModules(Trigger.class), ruleT.getModules(Condition.class),
-                            ruleT.getModules(Action.class));
+                            ruleT.getTriggers(), ruleT.getConditions(), ruleT.getActions());
                 } catch (Exception e) {
                     status.success(null);
                     status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "

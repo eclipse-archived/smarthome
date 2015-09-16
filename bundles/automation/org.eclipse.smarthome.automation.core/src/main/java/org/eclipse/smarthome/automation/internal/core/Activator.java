@@ -7,10 +7,8 @@
  */
 package org.eclipse.smarthome.automation.internal.core;
 
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
-import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.internal.core.template.TemplateManager;
 import org.eclipse.smarthome.automation.internal.core.template.TemplateRegistryImpl;
@@ -164,17 +162,8 @@ public class Activator implements BundleActivator {
 
     }
 
-    protected static void validateConnections(Rule r) {
-        if (r == null) {
-            throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
-        }
-
-        if (moduleTypeRegistry == null) {
-            throw new IllegalStateException(
-                    "Validation of rule: " + r.getUID() + " is failed! ModuleTypeRegistry is missing!");
-        }
-
-        ConnectionValidator.validateConnections(moduleTypeRegistry, r.getTriggers(), r.getConditions(), r.getActions());
+    protected static ModuleTypeRegistry getModuleTypeRegistry() {
+        return moduleTypeRegistry;
     }
 
 }
