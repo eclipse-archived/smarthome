@@ -74,7 +74,7 @@ public class ItemConsoleCommandExtension extends AbstractConsoleCommandExtension
                     break;
             }
         } else {
-            printUsage(console);
+            listItems(console, "*");
         }
     }
 
