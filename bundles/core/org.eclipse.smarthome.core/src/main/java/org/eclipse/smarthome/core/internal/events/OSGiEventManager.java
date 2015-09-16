@@ -25,8 +25,12 @@ import org.eclipse.smarthome.core.events.EventFactory;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.events.EventSubscriber;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +53,29 @@ import com.google.common.collect.SetMultimap;
  */
 public class OSGiEventManager implements EventHandler, EventPublisher {
 
+    @SuppressWarnings("rawtypes")
+    private class EventSubscriberServiceTracker extends ServiceTracker {
+
+        @SuppressWarnings("unchecked")
+        public EventSubscriberServiceTracker(BundleContext context) {
+            super(context, EventSubscriber.class.getName(), null);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Object addingService(ServiceReference reference) {
+            EventSubscriber eventSubscriber = (EventSubscriber) this.context.getService(reference);
+            addEventSubscriber(eventSubscriber);
+            return eventSubscriber;
+        }
+
+        @Override
+        public void removedService(ServiceReference reference, Object service) {
+            removeEventSubscriber((EventSubscriber) service);
+        }
+
+    }
+
     private Logger logger = LoggerFactory.getLogger(OSGiEventManager.class);
 
     private EventAdmin osgiEventAdmin;
@@ -57,6 +84,19 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private final SetMultimap<String, EventSubscriber> typedEventSubscribers = Multimaps
             .synchronizedSetMultimap(HashMultimap.<String, EventSubscriber> create());
+
+    private EventSubscriberServiceTracker eventSubscriberServiceTracker;
+
+    protected void activate(ComponentContext componentContext) {
+        eventSubscriberServiceTracker = new EventSubscriberServiceTracker(componentContext.getBundleContext());
+        eventSubscriberServiceTracker.open();
+    }
+
+    protected void deactivate(ComponentContext componentContext) {
+        if (eventSubscriberServiceTracker != null) {
+            eventSubscriberServiceTracker.close();
+        }
+    }
 
     protected void setEventAdmin(EventAdmin eventAdmin) {
         this.osgiEventAdmin = eventAdmin;
@@ -83,26 +123,6 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
         for (String supportedEventType : supportedEventTypes) {
             typedEventFactories.remove(supportedEventType);
-        }
-    }
-
-    protected void addEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-
-        for (String subscribedEventType : subscribedEventTypes) {
-            synchronized (this) {
-                if (!typedEventSubscribers.containsEntry(subscribedEventType, eventSubscriber)) {
-                    typedEventSubscribers.put(subscribedEventType, eventSubscriber);
-                }
-            }
-        }
-    }
-
-    protected void removeEventSubscriber(EventSubscriber eventSubscriber) {
-        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
-
-        for (String subscribedEventType : subscribedEventTypes) {
-            typedEventSubscribers.remove(subscribedEventType, eventSubscriber);
         }
     }
 
@@ -236,6 +256,26 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
 
     private void assertValidState(EventAdmin eventAdmin) throws IllegalStateException {
         Preconditions.checkArgument(eventAdmin != null, "The event bus module is not available!");
+    }
+
+    private void addEventSubscriber(EventSubscriber eventSubscriber) {
+        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+
+        for (String subscribedEventType : subscribedEventTypes) {
+            synchronized (this) {
+                if (!typedEventSubscribers.containsEntry(subscribedEventType, eventSubscriber)) {
+                    typedEventSubscribers.put(subscribedEventType, eventSubscriber);
+                }
+            }
+        }
+    }
+
+    private void removeEventSubscriber(EventSubscriber eventSubscriber) {
+        Set<String> subscribedEventTypes = eventSubscriber.getSubscribedEventTypes();
+
+        for (String subscribedEventType : subscribedEventTypes) {
+            typedEventSubscribers.remove(subscribedEventType, eventSubscriber);
+        }
     }
 
 }
