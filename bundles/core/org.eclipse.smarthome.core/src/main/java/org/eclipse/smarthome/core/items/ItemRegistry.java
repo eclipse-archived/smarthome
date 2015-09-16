@@ -26,7 +26,7 @@ public interface ItemRegistry extends Registry<Item, String> {
 
     /**
      * This method retrieves a single item from the registry.
-     * 
+     *
      * @param name the item name
      * @return the uniquely identified item
      * @throws ItemNotFoundException if no item matches the input
@@ -36,7 +36,7 @@ public interface ItemRegistry extends Registry<Item, String> {
     /**
      * This method retrieves a single item from the registry.
      * Search patterns and shortened versions are supported, if they uniquely identify an item
-     * 
+     *
      * @param name the item name, a part of the item name or a search pattern
      * @return the uniquely identified item
      * @throws ItemNotFoundException if no item matches the input
@@ -46,14 +46,14 @@ public interface ItemRegistry extends Registry<Item, String> {
 
     /**
      * This method retrieves all items that are currently available in the registry
-     * 
+     *
      * @return a collection of all available items
      */
     public Collection<Item> getItems();
 
     /**
      * This method retrieves all items with the given type
-     * 
+     *
      * @param type
      *            - item type as defined by {@link ItemFactory}s
      * @return a collection of all items of the given type
@@ -62,7 +62,7 @@ public interface ItemRegistry extends Registry<Item, String> {
 
     /**
      * This method retrieves all items that match a given search pattern
-     * 
+     *
      * @return a collection of all items matching the search pattern
      */
     public Collection<Item> getItems(String pattern);
@@ -71,7 +71,7 @@ public interface ItemRegistry extends Registry<Item, String> {
      * Checks whether itemName matches the item name conventions.
      * Item names must only consist out of alpha-numerical characters and
      * underscores (_).
-     * 
+     *
      * @param itemName the item name to validate
      * @return true, if the name is valid
      */
@@ -113,6 +113,6 @@ public interface ItemRegistry extends Registry<Item, String> {
     /**
      * @see ManagedItemProvider#remove(String, boolean)
      */
-    public void remove(String itemName, boolean recursive);
+    public Item remove(String itemName, boolean recursive);
 
 }
