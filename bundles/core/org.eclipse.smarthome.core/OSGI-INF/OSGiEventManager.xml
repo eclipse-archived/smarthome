@@ -8,11 +8,10 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.internal.events.OSGiEventManager">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.core.internal.events.OSGiEventManager">
    <implementation class="org.eclipse.smarthome.core.internal.events.OSGiEventManager"/>
-   <reference bind="setEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="dynamic" unbind="unsetEventAdmin"/>
+   <reference bind="setEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static" unbind="unsetEventAdmin"/>
    <reference bind="addEventFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.events.EventFactory" name="EventFactory" policy="dynamic" unbind="removeEventFactory"/>
-   <reference bind="addEventSubscriber" cardinality="0..n" interface="org.eclipse.smarthome.core.events.EventSubscriber" name="EventSubscriber" policy="dynamic" unbind="removeEventSubscriber"/>   
    <service>
       <provide interface="org.osgi.service.event.EventHandler"/>
       <provide interface="org.eclipse.smarthome.core.events.EventPublisher"/>
