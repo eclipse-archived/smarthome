@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -68,6 +69,15 @@ public class ThingLinkManager {
                     }
                 }
             }
+            if (element instanceof GroupItem) {
+                Set<ThingUID> linkedThings = itemThingLinkRegistry.getLinkedThings(element.getName());
+                for (ThingUID thingUID : linkedThings) {
+                    Thing thing = thingRegistry.get(thingUID);
+                    if (thing instanceof ThingImpl) {
+                        ((ThingImpl) thing).setLinkedItem(null);
+                    }
+                }
+            }
         }
 
         @Override
@@ -80,6 +90,15 @@ public class ThingLinkManager {
                     if (channel != null) {
                         channel.addLinkedItem(element);
                         informHandlerAboutLinkedChannel(thing, channel);
+                    }
+                }
+            }
+            if (element instanceof GroupItem) {
+                Set<ThingUID> linkedThings = itemThingLinkRegistry.getLinkedThings(element.getName());
+                for (ThingUID thingUID : linkedThings) {
+                    Thing thing = thingRegistry.get(thingUID);
+                    if (thing instanceof ThingImpl) {
+                        ((ThingImpl) thing).setLinkedItem((GroupItem) element);
                     }
                 }
             }
@@ -353,10 +372,10 @@ public class ThingLinkManager {
     }
 
     private void removeLinkedItemFromThing(ThingImpl thing) {
-    	if(thing.getLinkedItem() != null) {
-	    	logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
-	        thing.setLinkedItem(null);
-    	}
+        if (thing.getLinkedItem() != null) {
+            logger.debug("Removing linked group item from thing '{}'.", thing.getUID());
+            thing.setLinkedItem(null);
+        }
     }
 
     private String getFirstLinkedItem(UID uid) {
