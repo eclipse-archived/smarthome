@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,9 +47,14 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path("inbox")
+@Path(InboxResource.PATH_INBOX)
+@Api
 public class InboxResource implements RESTResource {
+
+    /** The URI path to this resource */
+    public static final String PATH_INBOX = "inbox";
 
     private ThingSetupManager thingSetupManager;
     private Inbox inbox;
@@ -70,7 +81,11 @@ public class InboxResource implements RESTResource {
     @POST
     @Path("/{thingUID}/approve")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response approve(@PathParam("thingUID") String thingUID, String label) {
+    @ApiOperation(value = "Approves the discovery result by adding the thing to the registry.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found in the inbox.") })
+    public Response approve(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
+            @ApiParam(value = "thing label") String label) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
@@ -85,7 +100,10 @@ public class InboxResource implements RESTResource {
 
     @DELETE
     @Path("/{thingUID}")
-    public Response delete(@PathParam("thingUID") String thingUID) {
+    @ApiOperation(value = "Removes the discovery result from the inbox.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Discovery result not found in the inbox.") })
+    public Response delete(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID) {
         if (inbox.remove(new ThingUID(thingUID))) {
             return Response.ok().build();
         } else {
@@ -95,6 +113,8 @@ public class InboxResource implements RESTResource {
 
     @GET
     @Produces({ MediaType.WILDCARD })
+    @ApiOperation(value = "Get all discovered things.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getAll() {
         List<DiscoveryResult> discoveryResults = inbox.getAll();
         Set<DiscoveryResultDTO> discoveryResultBeans = convertToListBean(discoveryResults);
@@ -104,18 +124,21 @@ public class InboxResource implements RESTResource {
 
     @POST
     @Path("/{thingUID}/ignore")
-    public Response ignore(@PathParam("thingUID") String thingUID) {
+    @ApiOperation(value = "Flags a discovery result as ignored for further processing.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response ignore(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID) {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.IGNORED);
         return Response.ok().build();
     }
-    
+
     @POST
     @Path("/{thingUID}/unignore")
-    public Response unignore(@PathParam("thingUID") String thingUID) {
+    @ApiOperation(value = "Removes ignore flag from a discovery result.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response unignore(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID) {
         inbox.setFlag(new ThingUID(thingUID), DiscoveryResultFlag.NEW);
         return Response.ok().build();
     }
-
 
     private Set<DiscoveryResultDTO> convertToListBean(List<DiscoveryResult> discoveryResults) {
         Set<DiscoveryResultDTO> discoveryResultBeans = new LinkedHashSet<>();
