@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import org.eclipse.smarthome.core.thing.ThingUID;
+
 /**
  * {@link ItemThingLinkRegistry} tracks all {@link ItemThingLinkProvider}s and
  * aggregates all {@link ItemThingLink}s.
@@ -15,4 +20,20 @@ package org.eclipse.smarthome.core.thing.link;
  */
 public class ItemThingLinkRegistry extends AbstractLinkRegistry<ItemThingLink> {
 
+    /**
+     * Returns the list of linked thing UIDs, which are linked to the given item name.
+     *
+     * @param itemName
+     *            item name
+     * @return list of linked thing UIDs or an empty list of no thing is linked to the item
+     */
+    public Set<ThingUID> getLinkedThings(String itemName) {
+        Set<ThingUID> linkedThings = new LinkedHashSet<>();
+        for (ItemThingLink link : getAll()) {
+            if (link.getItemName().equals(itemName)) {
+                linkedThings.add(link.getUID());
+            }
+        }
+        return linkedThings;
+    }
 }

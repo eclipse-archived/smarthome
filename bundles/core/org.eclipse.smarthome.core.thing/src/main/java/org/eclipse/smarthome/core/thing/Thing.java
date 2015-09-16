@@ -14,6 +14,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 
 /**
  * A {@link Thing} is a representation of a connected part (e.g. physical device
@@ -62,15 +63,15 @@ public interface Thing {
 
     /**
      * Gets the status of a thing.
-     * In order to get all status information (status, status detail and status description)  
+     * In order to get all status information (status, status detail and status description)
      * please use {@link Thing#getStatusInfo()}.
      *
      * @return the status
      */
     ThingStatus getStatus();
-    
+
     /**
-     * Gets the status info of a thing. 
+     * Gets the status info of a thing.
      * The status info consists of the status itself, the status detail and a status description.
      *
      * @return the status info
@@ -140,20 +141,28 @@ public interface Thing {
      * Returns the group item, which is linked to the thing or null if no item is
      * linked.
      *
+     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
+     *             {@link ItemThingLinkRegistry} instead.
+     *
      * @return group item , which is linked to the thing or null
      */
+    @Deprecated
     GroupItem getLinkedItem();
 
     /**
      * Returns whether the thing is linked to an item.
      *
+     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
+     *             {@link ItemThingLinkRegistry} instead.
+     *
      * @return true if thing is linked, false otherwise.
      */
+    @Deprecated
     public boolean isLinked();
 
     /**
      * Returns an immutable copy of the {@link Thing} properties.
-     * 
+     *
      * @return an immutable copy of the {@link Thing} properties (not null)
      */
     Map<String, String> getProperties();
@@ -161,11 +170,11 @@ public interface Thing {
     /**
      * Sets the property value for the property identified by the given name. If the value to be set is null then the
      * property will be removed.
-     * 
+     *
      * @param name the name of the property to be set (must not be null or empty)
-     * 
+     *
      * @param value the value of the property (if null then the property with the given name is removed)
-     * 
+     *
      * @return the previous value associated with the name, or null if there was no mapping for the name
      */
     String setProperty(String name, String value);
