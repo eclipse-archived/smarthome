@@ -92,7 +92,11 @@ public class ConnectionValidator {
     private static void validateActionConnections(ModuleTypeRegistry mtRegistry, Action action, List<Trigger> triggers,
             List<Action> actions) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
-        Iterator<Connection> connectionsI = action.getConnections().iterator();
+        Set<Connection> cons = action.getConnections();
+        if (cons == null) {
+            return;
+        }
+        Iterator<Connection> connectionsI = cons.iterator();
         while (connectionsI.hasNext()) {
             Connection connection = connectionsI.next();
             String inputName = connection.getInputName();
@@ -178,7 +182,11 @@ public class ConnectionValidator {
     private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, Condition condition,
             List<Trigger> triggers) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
-        Iterator<Connection> connectionsI = condition.getConnections().iterator();
+        Set<Connection> cons = condition.getConnections();
+        if (cons == null) {
+            return;
+        }
+        Iterator<Connection> connectionsI = cons.iterator();
         while (connectionsI.hasNext()) {
             Connection connection = connectionsI.next();
             String inputName = connection.getInputName();
@@ -197,8 +205,9 @@ public class ConnectionValidator {
                 String inputName = input.getName();
                 Connection connection = connectionsMap.get(inputName);
                 if (connection == null) {
-                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Condition with ID \""
-                            + condition.getId() + "\" not connected!");
+                    continue;
+                    // throw new IllegalArgumentException("Input \"" + inputName + "\" in the Condition with ID \""
+                    // + condition.getId() + "\" not connected!");
                 }
                 String moduleId = connection.getOuputModuleId();
                 String outputName = connection.getOutputName();

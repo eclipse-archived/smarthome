@@ -54,9 +54,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
             try {
                 addIntoRuleEngine(rule);
             } catch (Exception e) {
-                logger.error("Can't add rule: " + rule.getUID() + " into rule engine.", e);
+                logger.error("Can't add rule: " + rule.getUID() + " into rule engine from provider " + provider, e);
             }
-
         }
         super.addProvider(provider);
     }

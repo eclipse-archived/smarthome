@@ -90,8 +90,6 @@ public class Activator implements BundleActivator {
                         ruleRegistry.setDisabledRuleStorage(storageDisabledRules);
 
                         final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
-                        ruleRegistry.addProvider(rp);
-
                         managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), rp, null);
                         return storage;
                     }

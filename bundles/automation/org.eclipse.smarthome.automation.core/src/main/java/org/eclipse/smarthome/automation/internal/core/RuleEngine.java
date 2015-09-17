@@ -311,6 +311,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         try {
             ConnectionValidator.validateConnections(Activator.getModuleTypeRegistry(), r);
         } catch (Exception e) {
+            e.printStackTrace();
             errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
         }
 
@@ -820,7 +821,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     logger.debug(LOG_HEADER + "The rule: " + rule.getUID() + " is executed.");
                 } else {
                     logger.debug(LOG_HEADER + "The rule: " + rule.getUID()
-                            + " is NOT executed! Conditoins are not satisfied!");
+                            + " is NOT executed! Conditions are not satisfied!");
                 }
             } catch (Throwable t) {
                 logger.error(LOG_HEADER + "Fail to execute rule: " + rule.getUID(), t);
@@ -870,7 +871,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, ?> inputs = getInputValues(connectionObjects);
             if (!tHandler.isSatisfied(inputs)) {
-                logger.debug(LOG_HEADER + "The contion: " + c.getId() + " of rule: " + rule.getUID() + " is faild!");
+                logger.debug(LOG_HEADER + "The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
                 return false;
             }
         }
@@ -947,7 +948,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     a.setOutputs(outputs);
                 }
             } catch (Throwable t) {
-                logger.error(LOG_HEADER + "Faild to execute the action: " + a.getId(), t);
+                logger.error(LOG_HEADER + "Fail to execute the action: " + a.getId(), t);
             }
 
         }

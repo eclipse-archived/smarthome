@@ -96,7 +96,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -117,7 +117,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -226,6 +226,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     eventConditionHandler = new EventConditionHandler((Condition) module, moduleTypes);
                     eventConditionHandlers.put(module.getId(), eventConditionHandler);
                 }
+                return eventConditionHandler;
             } else {
                 logger.error("The ModuleHandler is not supported:" + systemModuleTypeUID);
             }

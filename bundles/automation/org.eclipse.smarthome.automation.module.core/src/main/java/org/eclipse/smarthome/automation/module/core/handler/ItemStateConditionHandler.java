@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * ConditionHandler implementation to check item state
- * 
+ *
  * @author Benedikt Niehues
  *
  */
@@ -50,7 +50,7 @@ public class ItemStateConditionHandler extends BaseConditionHandler {
 
     /**
      * setter for itemRegistry, used by DS
-     * 
+     *
      * @param itemRegistry
      */
     public void setItemRegistry(ItemRegistry itemRegistry) {
@@ -59,7 +59,7 @@ public class ItemStateConditionHandler extends BaseConditionHandler {
 
     /**
      * unsetter for itemRegistry used by DS
-     * 
+     *
      * @param itemRegistry
      */
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
@@ -89,7 +89,8 @@ public class ItemStateConditionHandler extends BaseConditionHandler {
             Item item = itemRegistry.getItem(itemName);
             State compareState = TypeParser.parseState(item.getAcceptedDataTypes(), state);
             State itemState = item.getState();
-            logger.debug("checking if {} (State={}) {} {}", itemName, itemState, operator, compareState);
+            logger.debug("ItemStateCondition '" + module.getId() + "'checking if {} (State={}) {} {}", itemName,
+                    itemState, operator, compareState);
             switch (operator) {
                 case "=":
                     logger.debug("ConditionSatisfied --> " + itemState.equals(compareState));
