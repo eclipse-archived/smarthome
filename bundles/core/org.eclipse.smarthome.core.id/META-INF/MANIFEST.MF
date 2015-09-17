@@ -6,11 +6,9 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.id
-Export-Package: io.swagger.annotations,
- org.eclipse.smarthome.core.id
-Bundle-ClassPath: lib/swagger-annotations-1.5.0.jar,
- .
-Import-Package: javax.ws.rs;resolution:=optional,
+Export-Package: org.eclipse.smarthome.core.id
+Import-Package: io.swagger.annotations,
+ javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,

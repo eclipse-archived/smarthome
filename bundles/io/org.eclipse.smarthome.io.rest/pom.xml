@@ -19,4 +19,52 @@
   <name>Eclipse SmartHome REST Interface</name>
 
   <packaging>eclipse-plugin</packaging>
+
+  <build>
+    <plugins>
+
+      <!-- Package template files in a ZIP file. -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-templates</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assemble.xml</descriptor>
+              </descriptors>
+              <finalName>org.eclipse.smarthome.swagger.templates</finalName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Attach templates ZIP file as additional artifact for install and deploy. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/org.eclipse.smarthome.swagger.templates.zip</file>
+                  <type>zip</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

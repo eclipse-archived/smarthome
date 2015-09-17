@@ -65,8 +65,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.eclipse.smarthome.core</groupId>
-      <artifactId>org.eclipse.smarthome.core.id</artifactId>
+      <groupId>org.eclipse.smarthome.io</groupId>
+      <artifactId>org.eclipse.smarthome.io.rest</artifactId>
       <type>zip</type>
     </dependency>
   </dependencies>
