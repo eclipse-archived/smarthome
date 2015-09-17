@@ -12,6 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.items.ActiveItem
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
@@ -57,6 +58,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
     def ThingRegistry thingRegistry
     def ThingSetupManager thingSetupManager
+    def ItemRegistry itemRegistry
 
     public static Map context = new HashMap<>()
 
@@ -65,7 +67,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         context.clear();
 
         registerVolatileStorageService()
-
+        itemRegistry = getService(ItemRegistry)
         thingRegistry = getService(ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
 
@@ -182,6 +184,25 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         thingSetupManager.disableChannel(channelUID)
 
         assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
+    }
+
+    @Test
+    void 'assert that item update for items which are linked to things works'() {
+
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        def thing = thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+
+        def linkedItem = thing.getLinkedItem()
+
+        def linkedItemName = linkedItem.name
+        ActiveItem item = itemRegistry.get(linkedItemName)
+
+        GroupItem itemToUpdate = new GroupItem(item.getName())
+        itemToUpdate.setLabel("anotherLabel")
+
+        itemRegistry.update(itemToUpdate)
+
+        assertThat thing.getLinkedItem().label, is(equalTo("anotherLabel"))
     }
 
 
