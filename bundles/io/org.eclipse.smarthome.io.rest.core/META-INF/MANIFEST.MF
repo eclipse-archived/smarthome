@@ -6,6 +6,7 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson;version="2.2.4",
+ io.swagger.annotations,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,

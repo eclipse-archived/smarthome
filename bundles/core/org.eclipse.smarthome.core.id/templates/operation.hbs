@@ -1,0 +1,93 @@
+{{#deprecated}}-deprecated-{{/deprecated}}
+
+
+{{#summary}}
+{{#ifeq this "Get all events."}}<a href="/documentation/features/rest.html#server-sent-events-sse">Server Sent Events (SSE) standard</a>{{else}}{{summary}}{{/ifeq}}
+{{/summary}}
+
+{{description}}
+
+{{#if externalDocs.url}}{{externalDocs.description}}. [See external documents for more details]({{externalDocs.url}})
+{{/if}}
+
+{{#if security}}
+## Security
+{{/if}}
+
+{{#security}}
+{{#each this}}
+* {{@key}}
+{{#this}}   * {{this}}
+{{/this}}
+{{/each}}
+{{/security}}
+
+
+
+{{#if parameters}}
+
+### Request
+
+{{#if consumes}}
+<strong>Content-Type:</strong> {{join consumes ", "}}{{/if}}
+
+###### Parameters
+
+<table border="1">
+	<thead>
+	    <tr>
+	        <th>Name</th>
+	        <th>Located in</th>
+	        <th>Required</th>
+	        <th>Description</th>
+	        <th>Default</th>
+	        <th>Schema</th>
+	    </tr>
+    </thead>
+
+{{#parameters}}
+<tr>
+    <td><strong>{{name}}</strong></td>
+    <td>{{in}}</td>
+    <td>{{#if required}}yes{{else}}no{{/if}}</td>
+    <td>{{description}}{{#if pattern}} (<strong>Pattern</strong> : `{{pattern}}`){{/if}}</td>
+    <td>{{#if defaultValue}}{{defaultValue}}{{else}}-{{/if}}</td>
+{{#ifeq in "body"}}
+    <td>
+    {{#ifeq schema.type "array"}}Array[<a href="{{schema.items.$ref}}">{{basename schema.items.$ref}}</a>]{{/ifeq}}
+    {{#schema.$ref}}<a href="{{schema.$ref}}">{{basename schema.$ref}}</a> {{/schema.$ref}}
+    </td>
+{{else}}
+    {{#ifeq type "array"}}
+            <td>Array[{{items.type}}] ({{collectionFormat}})</td>
+    {{else}}
+            <td>{{type}} {{#format}}({{format}}){{/format}}</td>
+    {{/ifeq}}
+{{/ifeq}}
+</tr>
+{{/parameters}}
+</table>
+{{/if}}
+
+
+### Response
+
+{{#if produces}}<strong>Content-Type:</strong> {{join produces ", "}}{{/if}}
+
+<table border="1">
+	<thead>
+	    <tr>
+	        <th>Status Code</th>
+	        <th>Reason</th>
+	        <th>Response Model</th>
+	    </tr>
+    </thead>	
+    {{#each responses}} 
+    <tr>
+    	<td>{{@key}}</td>
+    	<td>{{description}}</td>
+    	<td>{{#schema.$ref}}<a href="{{schema.$ref}}">{{basename schema.$ref}}</a>{{/schema.$ref}}{{#ifeq schema.type "array"}}Array[<a href="{{schema.items.$ref}}">{{basename schema.items.$ref}}</a>]{{/ifeq}}{{^schema}} - {{/schema}}</td>
+    </tr>
+    {{/each}}
+</table>
+<hr />

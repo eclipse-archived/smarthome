@@ -7,6 +7,10 @@
     <version>0.8.0-SNAPSHOT</version>
   </parent>
 
+  <properties>
+    <swagger.document.name>rest-uuid</swagger.document.name>
+  </properties>
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.core</groupId>
   <artifactId>org.eclipse.smarthome.core.id</artifactId>
@@ -15,4 +19,65 @@
 
   <packaging>eclipse-plugin</packaging>
 
+  <build>
+    <plugins>
+
+      <!-- Activate swagger plugin -->
+      <plugin>
+        <groupId>com.github.kongchen</groupId>
+        <artifactId>swagger-maven-plugin</artifactId>
+        <configuration>
+          <apiSources>
+            <apiSource>
+              <!-- Packages containing classes containing Swagger's annotation @Api -->
+              <locations>org.eclipse.smarthome.core.id.internal</locations>
+            </apiSource>
+          </apiSources>
+        </configuration>
+      </plugin>
+
+      <!-- Package template files in a ZIP file. -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>package-templates</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assemble.xml</descriptor>
+              </descriptors>
+              <finalName>org.eclipse.smarthome.io.swagger.templates</finalName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Attach templates ZIP file as additional artifact for install and deploy. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>org.eclipse.smarthome.io.swagger.templates.zip</file>
+                  <type>zip</type>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
