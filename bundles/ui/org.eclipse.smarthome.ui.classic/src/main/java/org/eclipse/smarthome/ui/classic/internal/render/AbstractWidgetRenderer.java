@@ -16,6 +16,10 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemNotFoundException;
+import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppActivator;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
@@ -71,7 +75,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     /**
      * This method provides the html snippet for a given elementType of the sitemap model.
-     * 
+     *
      * @param elementType the name of the model type (e.g. "Group" or "Switch")
      * @return the html snippet to be used in the UI (including placeholders for variables)
      * @throws RenderException if snippet could not be read
@@ -98,7 +102,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     /**
      * Retrieves the label for a widget and formats it for the WebApp.Net framework
-     * 
+     *
      * @param w the widget to retrieve the label for
      * @return the label to use for the widget
      */
@@ -106,22 +110,24 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
         String label = itemUIRegistry.getLabel(w);
         int index = label.indexOf('[');
-        
+
         if (index != -1) {
-        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label.substring(0, index) + "</span>" + label.substring(index);
-        	// insert the span between the left and right side of the label, if state section exists
-            label = label.replaceAll("\\[", "<span class=\"iValue\" style=\"%valuestyle%\">").replaceAll("\\]", "</span>");
+            label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label.substring(0, index) + "</span>"
+                    + label.substring(index);
+            // insert the span between the left and right side of the label, if state section exists
+            label = label.replaceAll("\\[", "<span class=\"iValue\" style=\"%valuestyle%\">").replaceAll("\\]",
+                    "</span>");
         } else {
-        	label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label + "</span>";
+            label = "<span style=\"%labelstyle%\" class=\"iLabel\">" + label + "</span>";
         }
-        
+
         return label;
     }
 
     /**
      * Escapes the path part of a URL as defined in RFC2396. This means, that for example the
      * path "/hello world" gets escaped to "/hello%20world".
-     * 
+     *
      * @param path The path of the URL that has to be escaped
      * @return The escaped path
      */
@@ -136,7 +142,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     /**
      * Process the color tags - labelcolor and valuecolor
-     * 
+     *
      * @param w
      *            The widget to process
      * @param snippet
@@ -158,4 +164,37 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
         return snippet;
     }
+
+    protected String getFormat() {
+        return "svg";
+    }
+
+    protected String getState(Widget w) {
+        State state = itemUIRegistry.getState(w);
+        if (state != null) {
+            return escapeURLPath(state.toString());
+        } else {
+            return "NULL";
+        }
+    }
+
+    protected String getStateAsNumber(Widget w) {
+        String itemName = w.getItem();
+        if (itemName != null) {
+            try {
+                Item item = itemUIRegistry.getItem(itemName);
+                return escapeURLPath(item.getStateAs(DecimalType.class).toString());
+            } catch (ItemNotFoundException e) {
+                logger.error("Cannot retrieve item '{}' for widget {}",
+                        new Object[] { itemName, w.eClass().getInstanceTypeName() });
+            }
+        }
+        return "NULL";
+    }
+
+    protected String getCategory(Widget w) {
+        String icon = escapeURLPath(itemUIRegistry.getCategory(w));
+        return icon;
+    }
+
 }

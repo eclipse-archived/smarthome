@@ -37,7 +37,7 @@ public class GenericItemUIProvider implements ItemUIProvider {
     }
 
     @Override
-    public String getIcon(String itemName) {
+    public String getCategory(String itemName) {
         ModelItem item = getItem(itemName);
         return item != null ? item.getIcon() : null;
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.ui.iconsetresource">
+   <implementation class="org.eclipse.smarthome.ui.icon.internal.IconSetResource"/>
+   <reference bind="addIconProvider" cardinality="0..n" interface="org.eclipse.smarthome.ui.icon.IconProvider" name="IconProvider" policy="dynamic" unbind="removeIconProvider"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
+   </service>
+</scr:component>

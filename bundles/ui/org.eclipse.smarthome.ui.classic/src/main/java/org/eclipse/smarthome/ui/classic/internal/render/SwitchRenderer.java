@@ -52,7 +52,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
         Switch s = (Switch) w;
 
         String snippetName = null;
-        Item item;
+        Item item = null;
         try {
             item = itemUIRegistry.getItem(w.getItem());
             if (s.getMappings().size() == 0) {
@@ -74,7 +74,9 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
         String snippet = getSnippet(snippetName);
 
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
-        snippet = StringUtils.replace(snippet, "%icon%", escapeURLPath(itemUIRegistry.getIcon(w)));
+        snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
+        snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = StringUtils.replace(snippet, "%format%", getFormat());
         snippet = StringUtils.replace(snippet, "%item%", w.getItem());
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
