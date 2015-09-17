@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -35,13 +36,13 @@ public class Channel {
     private String acceptedItemType;
 
     private ChannelUID uid;
-    
+
     private String label;
-    
+
     private String description;
 
     private Configuration configuration;
-    
+
     private Map<String, String> properties;
 
     private Set<String> defaultTags;
@@ -69,11 +70,14 @@ public class Channel {
         this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, null, null, null);
     }
 
-    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags, Map<String, String> properties) {
-        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, properties, null, null);
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
+            Map<String, String> properties) {
+        this(uid, acceptedItemType, null, defaultTags == null ? new HashSet<String>(0) : defaultTags, properties, null,
+                null);
     }
 
-    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags, Map<String, String> properties, String label, String description) {
+    public Channel(ChannelUID uid, String acceptedItemType, Configuration configuration, Set<String> defaultTags,
+            Map<String, String> properties, String label, String description) {
         this.uid = uid;
         this.acceptedItemType = acceptedItemType;
         this.configuration = configuration;
@@ -84,7 +88,7 @@ public class Channel {
         if (this.configuration == null) {
             this.configuration = new Configuration();
         }
-        if(this.properties == null) {
+        if (this.properties == null) {
             this.properties = Collections.unmodifiableMap(new HashMap<String, String>(0));
         }
     }
@@ -110,7 +114,7 @@ public class Channel {
     /**
      * Returns the label (if set).
      * If no label is set, getLabel will return null and the default label for the {@link Channel} is used.
-     * 
+     *
      * @return the label for the channel. Can be null.
      */
     public String getLabel() {
@@ -119,8 +123,9 @@ public class Channel {
 
     /**
      * Returns the description (if set).
-     * If no description is set, getDescription will return null and the default description for the {@link Channel} is used.
-     * 
+     * If no description is set, getDescription will return null and the default description for the {@link Channel} is
+     * used.
+     *
      * @return the description for the channel. Can be null.
      */
     public String getDescription() {
@@ -177,8 +182,12 @@ public class Channel {
     /**
      * Returns a set of items, which are linked to the channel.
      *
+     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
+     *             {@link ItemChannelLinkRegistry} instead.
+     *
      * @return Set of items, which are linked to the channel
      */
+    @Deprecated
     public Set<Item> getLinkedItems() {
         return ImmutableSet.copyOf(this.linkedItems);
     }
@@ -186,9 +195,13 @@ public class Channel {
     /**
      * Returns whether at least one item is linked to the channel.
      *
+     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
+     *             {@link ItemChannelLinkRegistry} instead.
+     * 
      * @return true if at least one item is linked to the channel, false
      *         otherwise
      */
+    @Deprecated
     public boolean isLinked() {
         return !getLinkedItems().isEmpty();
     }
