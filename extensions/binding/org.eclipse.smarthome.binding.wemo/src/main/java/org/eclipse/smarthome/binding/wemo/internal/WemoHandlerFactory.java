@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
+    private UpnpIOService upnpIOService;
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WemoHandler.SUPPORTED_THING_TYPES);
 
@@ -46,13 +48,20 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (WemoHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(), thing
-                    .getConfiguration().get(UDN));
-            return new WemoHandler(thing);
+            logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(),
+                    thing.getConfiguration().get(UDN));
+            return new WemoHandler(thing, upnpIOService);
         }
 
         return null;
     }
 
+    protected void setUpnpIOService(UpnpIOService upnpIOService) {
+        this.upnpIOService = upnpIOService;
+    }
+
+    protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
+        this.upnpIOService = null;
+    }
 
 }
