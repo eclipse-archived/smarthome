@@ -17,13 +17,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
@@ -47,6 +47,7 @@ import org.osgi.framework.ServiceRegistration;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class CommandlineModuleTypeProvider extends AbstractCommandProvider<ModuleType>implements ModuleTypeProvider {
@@ -83,44 +84,43 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
     }
 
     /**
-     * @see AutomationCommandsPluggable#importModuleTypes(String, URL)
-     */
-    public Status exportModuleTypes(String parserType, Set<ModuleType> set, File file) {
-        return super.exportData(parserType, set, file);
-    }
-
-    /**
+     * This method is responsible for exporting a set of ModuleTypes in a specified file.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the ModuleTypes in text.
+     * @param set a set of ModuleTypes to export.
+     * @param file a specified file for export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      * @see AutomationCommandsPluggable#exportModuleTypes(String, Set, File)
      */
-    public Set<Status> importModuleTypes(String parserType, URL url) {
-        InputStreamReader inputStreamReader = null;
-        Parser<ModuleType> parser = parsers.get(parserType);
-        if (parser != null)
-            try {
-                InputStream is = url.openStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                inputStreamReader = new InputStreamReader(bis);
-                return importData(url, parser, inputStreamReader);
-            } catch (IOException e) {
-                Status s = new Status(logger, 0, null);
-                s.error("Can't read from URL " + url, e);
-                LinkedHashSet<Status> res = new LinkedHashSet<Status>();
-                res.add(s);
-                return res;
-            } finally {
-                try {
-                    if (inputStreamReader != null) {
-                        inputStreamReader.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        return null;
+    public void exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
+        super.exportData(parserType, set, file);
     }
 
     /**
-     * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleType(java.lang.String, java.util.Locale)
+     * This method is responsible for importing a set of ModuleTypes from a specified file or URL resource.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the ModuleTypes in text.
+     * @param url a specified URL for import.
+     * @throws IOException when I/O operation has failed or has been interrupted.
+     * @throws ParsingException when parsing of the text fails for some reasons.
+     * @see AutomationCommandsPluggable#importModuleTypes(String, URL)
      */
+    public Set<ModuleType> importModuleTypes(String parserType, URL url) throws IOException, ParsingException {
+        InputStreamReader inputStreamReader = null;
+        Parser<ModuleType> parser = parsers.get(parserType);
+        if (parser != null) {
+            InputStream is = url.openStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            inputStreamReader = new InputStreamReader(bis);
+            return importData(url, parser, inputStreamReader);
+        } else {
+            throw new ParsingException(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, null,
+                    new Exception("Parser " + parserType + " not available")));
+        }
+
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public ModuleType getModuleType(String UID, Locale locale) {
@@ -129,9 +129,6 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         }
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.ModuleTypeProvider#getModuleTypes(java.util.Locale)
-     */
     @Override
     public Collection<ModuleType> getModuleTypes(Locale locale) {
         synchronized (providedObjectsHolder) {
@@ -148,38 +145,41 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
         super.close();
     }
 
-    /**
-     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
-     */
     @SuppressWarnings("unchecked")
     @Override
-    protected Set<Status> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+    protected Set<ModuleType> importData(URL url, Parser<ModuleType> parser, InputStreamReader inputStreamReader)
+            throws ParsingException {
+        Set<ModuleType> providedObjects = parser.parse(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
             String uid = null;
             List<String> portfolio = new ArrayList<String>();
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            for (Status s : providedObjects) {
-                if (s.hasErrors())
-                    continue;
-                ModuleType providedObject = (ModuleType) s.getResult();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
+            for (ModuleType providedObject : providedObjects) {
+                List<ParsingNestedException> exceptions = new ArrayList<>();
                 uid = providedObject.getUID();
-                if (checkExistence(uid, s))
-                    continue;
-                portfolio.add(uid);
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, providedObject);
-                }
+                checkExistence(uid, exceptions);
+                if (exceptions.isEmpty()) {
+                    portfolio.add(uid);
+                    synchronized (providedObjectsHolder) {
+                        providedObjectsHolder.put(uid, providedObject);
+                    }
+                } else
+                    importDataExceptions.addAll(exceptions);
             }
-        }
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
-        if (mtpReg == null)
-            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-        else {
-            mtpReg.setProperties(properties);
+            if (importDataExceptions.isEmpty()) {
+                Dictionary<String, Object> properties = new Hashtable<String, Object>();
+                properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
+                if (mtpReg == null)
+                    mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+                else {
+                    mtpReg.setProperties(properties);
+                }
+            } else {
+                throw new ParsingException(importDataExceptions);
+            }
         }
         return providedObjects;
     }
@@ -189,26 +189,19 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * UIDs before these objects to be added in the system.
      *
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
-     * @param status {@link Status} of the {@link AutomationCommand} operation. Can be successful or can fail for these
-     *            {@link ModuleType}s, for which a {@link ModuleType} with the same UID, exists.
-     * @return <code>true</code> if {@link ModuleType} with the same UID exists or <code>false</code> in the opposite
-     *         case.
+     * @param exceptions accumulates exceptions if {@link ModuleType} with the same UID exists.
      */
-    protected boolean checkExistence(String uid, Status s) {
+    protected void checkExistence(String uid, List<ParsingNestedException> exceptions) {
         if (AutomationCommandsPluggable.moduleTypeRegistry == null) {
-            s.error("Failed to create Module Type with UID \"" + uid
-                    + "\"! Can't guarantee yet that other Module Type with the same UID does not exist.",
-                    new IllegalArgumentException());
-            s.success(null);
-            return true;
+            exceptions.add(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, uid,
+                    new IllegalArgumentException("Failed to create Module Type with UID \"" + uid
+                            + "\"! Can't guarantee yet that other Module Type with the same UID does not exist.")));
         }
         if (AutomationCommandsPluggable.moduleTypeRegistry.get(uid) != null) {
-            s.error("Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
-                    new IllegalArgumentException());
-            s.success(null);
-            return true;
+            exceptions.add(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, uid,
+                    new IllegalArgumentException("Module Type with UID \"" + uid
+                            + "\" already exists! Failed to create a second with the same UID!")));
         }
-        return false;
     }
 
 }

@@ -24,7 +24,7 @@ import org.eclipse.smarthome.automation.internal.core.provider.i18n.ConfigDescri
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.RuleTemplateI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -57,6 +57,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Ana Dimova - provides localization
+ * @author Ana Dimova - refactor Parser interface.
  */
 public class TemplateResourceBundleProvider extends AbstractResourceBundleProvider<Template>
         implements TemplateProvider {
@@ -221,7 +222,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser<Template> parser, InputStreamReader inputStreamReader) {
+    protected Set<Template> importData(Vendor vendor, Parser<Template> parser, InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
         if (vendor != null) {
             synchronized (providerPortfolio) {
@@ -232,23 +233,15 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 }
             }
         }
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<Template> providedObjects = null;
+        try {
+            providedObjects = parser.parse(inputStreamReader);
+        } catch (ParsingException e) {
+        }
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            for (Status status : providedObjects) {
-                if (status.hasErrors())
-                    continue;
-                RuleTemplate ruleT = (RuleTemplate) status.getResult();
+            for (Template ruleT : providedObjects) {
                 String uid = ruleT.getUID();
-                // try {
-                // ConnectionValidator.validateConnections(moduleTypeRegistry, ruleT.getModules(Trigger.class),
-                // ruleT.getModules(Condition.class), ruleT.getModules(Action.class));
-                // } catch (Exception e) {
-                // status.success(null);
-                // status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                // + e.getMessage(), e);
-                // continue;
-                // }
-                if (checkExistence(uid, status))
+                if (checkExistence(uid))
                     continue;
                 if (portfolio != null) {
                     portfolio.add(uid);
@@ -257,13 +250,13 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     providedObjectsHolder.put(uid, ruleT);
                 }
             }
-        }
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-        if (tpReg == null)
-            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-        else {
-            tpReg.setProperties(properties);
+            Dictionary<String, Object> properties = new Hashtable<String, Object>();
+            properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+            if (tpReg == null)
+                tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+            else {
+                tpReg.setProperties(properties);
+            }
         }
         return providedObjects;
     }
@@ -273,18 +266,15 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      * UIDs before these objects to be added in the system.
      *
      * @param uid UID of the newly created {@link Template}, which to be checked.
-     * @param status {@link Status} of the import operation. Can be successful or can fail for these {@link Template}s,
-     *            for which a {@link Template} with the same UID, exists.
      * @return {@code true} if {@link Template} with the same UID exists or {@code false} in the opposite
      *         case.
      */
-    private boolean checkExistence(String uid, Status status) {
+    private boolean checkExistence(String uid) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            status.error(
+            logger.error(
                     "Rule Template with UID \"" + uid
                             + "\" already exists! Failed to create a second with the same UID!",
                     new IllegalArgumentException());
-            status.success(null);
             return true;
         }
         return false;

@@ -25,6 +25,7 @@ import org.json.JSONException;
  * Parser for TriggerTypes.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 class TriggerTypeJSONParser {
@@ -33,9 +34,10 @@ class TriggerTypeJSONParser {
      * This method is used for reversion of {@link TriggerType} to JSON format.
      *
      * @param triggerType is a {@link TriggerType} object to revert.
+     * @param writer where TriggerType will be written
      * @return JSONObject is an object representing the {@link TriggerType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void triggerTypeToJSON(TriggerType triggerType, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -60,12 +62,13 @@ class TriggerTypeJSONParser {
     }
 
     /**
-     * This method is used for reversion of {@link CompositeTriggerType} to JSON format.
+     * This method is used for serialization of {@link CompositeTriggerType} to JSON format.
      *
      * @param cTriggerType is a {@link CompositeTriggerType} object to revert.
+     * @param writer where CompositeTriggerType will be written
      * @return JSONObject is an object representing the {@link CompositeTriggerType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void compositeTriggerTypeToJSON(CompositeTriggerType cTriggerType, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -80,10 +83,12 @@ class TriggerTypeJSONParser {
     }
 
     /**
-     * @param triggers
-     * @param writer
-     * @throws IOException
-     * @throws JSONException
+     * This method is used for serialization of {@link Trigger}s to JSON format.
+     *
+     * @param triggers is a map of {@link Trigger}s to serialize.
+     * @param writer where Triggers will be written
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void writeTriggerTypes(Map<String, TriggerType> triggers, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -94,7 +99,10 @@ class TriggerTypeJSONParser {
                 String triggerUID = triggersI.next();
                 TriggerType trigger = triggers.get(triggerUID);
                 writer.write("  \"" + triggerUID + "\":{\n");
-                TriggerTypeJSONParser.triggerTypeToJSON(trigger, writer);
+                if (trigger instanceof CompositeTriggerType)
+                    compositeTriggerTypeToJSON((CompositeTriggerType) trigger, writer);
+                else
+                    triggerTypeToJSON(trigger, writer);
                 if (triggersI.hasNext())
                     writer.write("\n  },\n");
                 else

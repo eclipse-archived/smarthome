@@ -8,18 +8,21 @@
 package org.eclipse.smarthome.automation.parser.internal.json;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
 
 /**
  * Utility class for performing operations over JSON structures.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class JSONUtility {
@@ -27,24 +30,24 @@ public class JSONUtility {
     static final int TRIGGERS = 1;
     static final int CONDITIONS = 2;
     static final int ACTIONS = 3;
-    static final int COMPOSITE = 4;
 
-    static final int ON = 5;
-    static final int IF = 6;
-    static final int THEN = 7;
-    static final int UID = 8;
-    static final int TAGS = 9;
-    static final int CONFIG = 10;
-    static final int DESCRIPTION = 11;
-    static final int VISIBILITY = 12;
-    static final int NAME = 13;
-    static final int ACTIVE = 14;
-    static final int TEMPLATE_UID = 15;
+    static final int ON = 4;
+    static final int IF = 5;
+    static final int THEN = 6;
+    static final int UID = 7;
+    static final int TAGS = 8;
+    static final int CONFIG = 9;
+    static final int DESCRIPTION = 10;
+    static final int VISIBILITY = 11;
+    static final int NAME = 12;
+    static final int ACTIVE = 13;
+    static final int TEMPLATE_UID = 14;
 
     /**
+     * Checks JSON content.
      *
-     * @param propertyName
-     * @return
+     * @param propertyName for checking.
+     * @return int value for using it in switch block or -1 if the property is invalid
      */
     static int checkModuleTypeProperties(String propertyName) {
         if (propertyName.equals(JSONStructureConstants.TRIGGERS))
@@ -53,15 +56,14 @@ public class JSONUtility {
             return CONDITIONS;
         if (propertyName.equals(JSONStructureConstants.ACTIONS))
             return ACTIONS;
-        if (propertyName.equals(JSONStructureConstants.COMPOSITE))
-            return COMPOSITE;
         return -1;
     }
 
     /**
+     * Checks JSON content.
      *
-     * @param propertyName
-     * @return
+     * @param propertyName for checking.
+     * @return int value for using it in switch block or -1 if the property is invalid
      */
     static int checkTemplateProperties(String propertyName) {
         if (propertyName.equals(JSONStructureConstants.ON))
@@ -84,8 +86,10 @@ public class JSONUtility {
     }
 
     /**
-     * @param propertyName
-     * @return
+     * Checks JSON content.
+     *
+     * @param propertyName for checking.
+     * @return int value for using it in switch block or -1 if the property is invalid
      */
     public static int checkRuleProperties(String propertyName) {
         if (propertyName.equals(JSONStructureConstants.TEMPLATE_UID))
@@ -140,11 +144,11 @@ public class JSONUtility {
     /**
      * This method is used to verify if one type is compatible to another.
      *
-     * @param type
-     * @param value
-     * @param status
+     * @param type is the type to compare.
+     * @param value is the value whose type is to compare.
+     * @throws IllegalArgumentException if the types are not compatible.
      */
-    static String verifyType(Type type, Object value, Status status) {
+    static String verifyType(Type type, Object value) {
         if (Type.TEXT.equals(type) && String.class.isAssignableFrom(value.getClass())) {
             return (String) value;
         }
@@ -177,6 +181,8 @@ public class JSONUtility {
                     new Long((String) value);
                     return (String) value;
                 } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(
+                            "String \"" + value + "\" can't be converted to " + Type.INTEGER.name(), e);
                 }
             }
         }
@@ -192,21 +198,22 @@ public class JSONUtility {
                     new Double((String) value);
                     return (String) value;
                 } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(
+                            "String \"" + value + "\" can't be converted to " + Type.DECIMAL.name(), e);
                 }
             }
         }
-        status.error("Incompatible types : \"" + type + "\" and \"" + value.getClass().getName() + "\".",
-                new IllegalArgumentException());
-        return null;
+        throw new IllegalArgumentException(
+                "Incompatible types : \"" + type + "\" and \"" + value.getClass().getName() + "\".");
     }
 
     /**
-     * This method is used to convert
+     * This method is used for deserializing the value from json format by using Introspector.
      *
-     * @param bc
-     * @param type
-     * @param value
-     * @return
+     * @param bc BundleContext
+     * @param type is the name of the class to be loaded.
+     * @param value is the value for deserializing.
+     * @return the serialized value
      * @throws ClassNotFoundException
      * @throws InvocationTargetException
      * @throws IllegalAccessException
@@ -222,129 +229,257 @@ public class JSONUtility {
         return value;
     }
 
-    static Boolean getBoolean(String key, boolean optional, boolean defValue, JSONObject json, Status status) {
+    /**
+     * Gets a Boolean value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param optional declares whether the property is optional or required
+     * @param defValue is default value for property that has to be gotten.
+     * @param json a JSONObject for parsing
+     * @param log is used for logging the exceptions
+     * @return a Boolean value
+     */
+    static Boolean getBoolean(int type, String uid, List<ParsingNestedException> exceptions, String key,
+            boolean optional, boolean defValue, JSONObject json, Logger log) {
         if (json.has(key)) {
             Object res = json.opt(key);
-            if (!JSONObject.NULL.equals(res)) {
-                if (res instanceof Boolean) {
-                    return (Boolean) res;
-                }
-                status.error("\"" + key + "\" must be Boolean in : " + json, new IllegalArgumentException());
-                return null;
-            }
+            if (!JSONObject.NULL.equals(res) && res instanceof Boolean) {
+                return (Boolean) res;
+            } else
+                catchParsingException(type, uid, exceptions,
+                        new IllegalArgumentException("\"" + key + "\" must be Boolean in : " + json), log);
         }
         if (!optional) {
-            status.error("\"" + key + "\" must be present in : " + json, new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException("\"" + key + "\" must be present in : " + json), log);
         }
         return defValue;
     }
 
-    static Boolean getBoolean(String key, int index, JSONArray jsonArray, Status status) {
+    /**
+     * Gets a Boolean value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param index in the jsonArray
+     * @param jsonArray a JSONArray for parsing
+     * @param log is used for logging the exceptions
+     * @return a Boolean value
+     */
+    static Boolean getBoolean(int type, String uid, List<ParsingNestedException> exceptions, String key, int index,
+            JSONArray jsonArray, Logger log) {
         Object element = jsonArray.opt(index);
         if (element == null || !(element instanceof Boolean)) {
-            status.error("Elements of \"" + key + "\" must be present and must be Boolean in : " + element,
-                    new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions, new IllegalArgumentException(
+                    "Elements of \"" + key + "\" must be present and must be Boolean in : " + element), log);
             return null;
         }
         return (Boolean) element;
     }
 
-    static Number getNumber(String key, boolean optional, JSONObject json, Status status) {
+    /**
+     * Gets a Number value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param optional declares whether the property is optional or required
+     * @param json a JSONObject for parsing
+     * @param log is used for logging the exceptions
+     * @return a Number value
+     */
+    static Number getNumber(int type, String uid, List<ParsingNestedException> exceptions, String key, boolean optional,
+            JSONObject json, Logger log) {
         if (json.has(key)) {
             Object res = json.opt(key);
-            if (!JSONObject.NULL.equals(res)) {
-                if (res instanceof Number) {
-                    return (Number) res;
-                }
-                status.error("\"" + key + "\" must be Number in : " + json, new IllegalArgumentException());
-                return null;
-            }
+            if (!JSONObject.NULL.equals(res) && res instanceof Number) {
+                return (Number) res;
+            } else
+                catchParsingException(type, uid, exceptions,
+                        new IllegalArgumentException("\"" + key + "\" must be Number in : " + json), log);
         }
         if (!optional) {
-            status.error("\"" + key + "\" must be present in : " + json, new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException("\"" + key + "\" must be present in : " + json), log);
         }
         return null;
     }
 
-    static Number getNumber(String key, int index, JSONArray jsonArray, Status status) {
+    /**
+     * Gets a Number value associated with the key if it is present.
+     *
+     * @param key is a json property whose value has to be gotten.
+     * @param index in the jsonArray
+     * @param jsonArray a JSONArray for parsing
+     * @return a Number value
+     * @throws IllegalArgumentException
+     */
+    static Number getNumber(int type, String uid, List<ParsingNestedException> exceptions, String key, int index,
+            JSONArray jsonArray, Logger log) {
         Object element = jsonArray.opt(index);
         if (element == null || !(element instanceof Number)) {
-            status.error("Elements of \"" + key + "\" must be present and must be Number in : " + element,
-                    new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions, new IllegalArgumentException(
+                    "Elements of \"" + key + "\" must be present and must be Number in : " + element), log);
             return null;
         }
         return (Number) element;
     }
 
-    static String getString(String key, boolean optional, JSONObject json, Status status) {
+    /**
+     * Gets a String value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param optional declares whether the property is optional or required
+     * @param json a JSONObject for parsing
+     * @param log is used for logging the exceptions
+     * @return a String value
+     */
+    static String getString(int type, String uid, List<ParsingNestedException> exceptions, String key, boolean optional,
+            JSONObject json, Logger log) {
         if (json.has(key)) {
             Object res = json.opt(key);
-            if (!JSONObject.NULL.equals(res)) {
-                if (res instanceof String) {
-                    return (String) res;
-                }
-                status.error("\"" + key + "\" must be String in : " + json, new IllegalArgumentException());
-                return null;
-            }
+            if (!JSONObject.NULL.equals(res) && res instanceof String) {
+                return (String) res;
+            } else
+                catchParsingException(type, uid, exceptions,
+                        new IllegalArgumentException("\"" + key + "\" must be String in : " + json), log);
         }
         if (!optional) {
-            status.error("\"" + key + "\" must be present in : " + json, new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException("\"" + key + "\" must be present in : " + json), log);
         }
         return null;
     }
 
-    static String getString(String key, int index, JSONArray jsonArray, Status status) {
+    /**
+     * Gets a String value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param index in the jsonArray
+     * @param jsonArray a JSONArray for parsing
+     * @param log is used for logging the exceptions
+     * @return a String value
+     */
+    static String getString(int type, String uid, List<ParsingNestedException> exceptions, String key, int index,
+            JSONArray jsonArray, Logger log) {
         Object element = jsonArray.opt(index);
         if (element == null || !(element instanceof String)) {
-            status.error("Elements of \"" + key + "\" must be present and must be String in : " + element,
-                    new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions, new IllegalArgumentException(
+                    "Elements of \"" + key + "\" must be present and must be String in : " + element), log);
             return null;
         }
         return (String) element;
     }
 
-    static JSONObject getJSONObject(String key, boolean optional, JSONObject json, Status status) {
+    /**
+     * Gets a JSONObject value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions
+     * @param key is a json property whose value has to be gotten.
+     * @param optional declares whether the property is optional or required
+     * @param json a JSONObject for parsing
+     * @param log is used for logging the exceptions
+     * @return a JSONObject value
+     */
+    static JSONObject getJSONObject(int type, String uid, List<ParsingNestedException> exceptions, String key,
+            boolean optional, JSONObject json, Logger log) {
         if (json.has(key)) {
             Object res = json.opt(key);
-            if (!JSONObject.NULL.equals(res)) {
-                if (res instanceof JSONObject) {
-                    return (JSONObject) res;
-                }
-                status.error("\"" + key + "\" must be JSONObject in : " + json, new IllegalArgumentException());
-                return null;
-            }
+            if (!JSONObject.NULL.equals(res) && res instanceof JSONObject) {
+                return (JSONObject) res;
+            } else
+                catchParsingException(type, uid, exceptions,
+                        new IllegalArgumentException("\"" + key + "\" must be JSONObject in : " + json), log);
         }
         if (!optional) {
-            status.error("\"" + key + "\" must be present in : " + json, new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException("\"" + key + "\" must be present in : " + json), log);
         }
         return null;
     }
 
-    static JSONObject getJSONObject(String key, int index, JSONArray jsonArray, Status status) {
+    /**
+     * Gets a JSONObject value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param index in the jsonArray
+     * @param jsonArray a JSONArray for parsing
+     * @param log is used for logging the exceptions
+     * @return a JSONObject value
+     */
+    static JSONObject getJSONObject(int type, String uid, List<ParsingNestedException> exceptions, String key,
+            int index, JSONArray jsonArray, Logger log) {
         Object element = jsonArray.opt(index);
         if (element == null || !(element instanceof JSONObject)) {
-            status.error("Elements of \"" + key + "\" must be present and must be JSONObjects in : " + element,
-                    new IllegalArgumentException());
-            return null;
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException(
+                            "Elements of \"" + key + "\" must be present and must be JSONObjects in : " + element),
+                    log);
         }
         return (JSONObject) element;
     }
 
-    static JSONArray getJSONArray(String key, boolean optional, JSONObject json, Status status) {
+    /**
+     * Gets a JSONArray value associated with the key if it is present.
+     *
+     * @param type specifies the type of the automation object - module type, rule or rule template.
+     * @param uid is the unique identifier of the automation object - module type, rule or rule template.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param key is a json property whose value has to be gotten.
+     * @param optional declares whether the property is optional or required
+     * @param json a JSONObject for parsing
+     * @param log is used for logging the exceptions
+     * @return a JSONArray value
+     */
+    static JSONArray getJSONArray(int type, String uid, List<ParsingNestedException> exceptions, String key,
+            boolean optional, JSONObject json, Logger log) {
         if (json.has(key)) {
             Object res = json.opt(key);
-            if (!JSONObject.NULL.equals(res)) {
-                if (res instanceof JSONArray) {
-                    return (JSONArray) res;
-                }
-                status.error("\"" + key + "\" must be JSONArray in : " + json, new IllegalArgumentException());
-                return null;
-            }
+            if (!JSONObject.NULL.equals(res) && res instanceof JSONArray) {
+                return (JSONArray) res;
+            } else
+                catchParsingException(type, uid, exceptions,
+                        new IllegalArgumentException("\"" + key + "\" must be JSONArray in : " + json), log);
         }
         if (!optional) {
-            status.error("\"" + key + "\" must be present in : " + json, new IllegalArgumentException());
+            catchParsingException(type, uid, exceptions,
+                    new IllegalArgumentException("\"" + key + "\" must be present in : " + json), log);
         }
         return null;
+    }
+
+    /**
+     * Utility method for catching the Exceptions, transforming them to ParsingNestedExceptions and accumulating them in
+     * list.
+     *
+     * @param type is the type of the automation object for parsing - module type, template or rule.
+     * @param id is the UID of the automation object for parsing - module type, template or rule.
+     * @param exceptions is a list used for collecting the exceptions occurred during parsing json.
+     * @param t is the exception occurred during parsing json.
+     * @param log is used for logging the exception
+     */
+    static void catchParsingException(int type, String id, List<ParsingNestedException> exceptions, Throwable t,
+            Logger log) {
+        ParsingNestedException pne = new ParsingNestedException(type, id, t);
+        log.error("[JSON Prser]", pne);
+        exceptions.add(pne);
     }
 
 }

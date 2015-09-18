@@ -24,8 +24,7 @@ import org.eclipse.smarthome.automation.internal.core.provider.i18n.ConfigDescri
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleTypeI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.template.Template;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -60,6 +59,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Ana Dimova - provides localization
+ * @author Ana Dimova - refactor Parser interface.
  */
 public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProvider<ModuleType>
         implements ModuleTypeProvider {
@@ -210,7 +210,8 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser<ModuleType> parser, InputStreamReader inputStreamReader) {
+    protected Set<ModuleType> importData(Vendor vendor, Parser<ModuleType> parser,
+            InputStreamReader inputStreamReader) {
         List<String> portfolio = null;
         if (vendor != null) {
             synchronized (providerPortfolio) {
@@ -221,15 +222,18 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                 }
             }
         }
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<ModuleType> providedObjects = null;
+        try {
+            providedObjects = parser.parse(inputStreamReader);
+        } catch (ParsingException e) {
+        }
         if (providedObjects != null && !providedObjects.isEmpty()) {
-            Iterator<Status> i = providedObjects.iterator();
+            Iterator<ModuleType> i = providedObjects.iterator();
             while (i.hasNext()) {
-                Status status = i.next();
-                ModuleType providedObject = (ModuleType) status.getResult();
+                ModuleType providedObject = i.next();
                 if (providedObject != null) {
                     String uid = providedObject.getUID();
-                    if (checkExistence(uid, status))
+                    if (checkExistence(uid))
                         continue;
                     if (portfolio != null) {
                         portfolio.add(uid);
@@ -239,32 +243,29 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                     }
                 }
             }
-        }
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
-        if (mtpReg == null)
-            mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-        else {
-            mtpReg.setProperties(properties);
+            Dictionary<String, Object> properties = new Hashtable<String, Object>();
+            properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
+            if (mtpReg == null)
+                mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
+            else {
+                mtpReg.setProperties(properties);
+            }
         }
         return providedObjects;
     }
 
     /**
-     * This method is responsible for checking the existence of {@link ModuleType}s or {@link Template}s with the same
-     * UIDs before these objects to be added in the system.
+     * This method is responsible for checking the existence of {@link ModuleType}s with the same UIDs before these
+     * objects to be added in the system.
      *
      * @param uid UID of the newly created {@link ModuleType}, which to be checked.
-     * @param status {@link Status} of an import operation. Can be successful or can fail for these {@link ModuleType}s,
-     *            for which a {@link ModuleType} with the same UID, exists.
      * @return {@code true} if {@link ModuleType} with the same UID exists or {@code false} in the opposite case.
      */
-    private boolean checkExistence(String uid, Status status) {
+    private boolean checkExistence(String uid) {
         if (moduleTypeRegistry.get(uid) != null) {
-            status.error(
+            logger.error(
                     "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
                     new IllegalArgumentException());
-            status.success(null);
             return true;
         }
         return false;

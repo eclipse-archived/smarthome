@@ -26,8 +26,9 @@ import org.json.JSONException;
 
 /**
  * Parser for ActionTypes.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ActionTypeJSONParser {
@@ -36,9 +37,10 @@ public class ActionTypeJSONParser {
      * This method is used for reversion of {@link ActionType} to JSON format.
      *
      * @param actionType is an {@link ActionType} object to revert.
+     * @param writer where ActionType will be written
      * @return JSONObject is an object representing the {@link ActionType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void actionTypeToJSON(ActionType actionType, OutputStreamWriter writer) throws IOException, JSONException {
         ModuleTypeJSONParser.moduleTypeToJSON(actionType, writer);
@@ -81,9 +83,10 @@ public class ActionTypeJSONParser {
      * This method is used for reversion of {@link CompositeActionType} to JSON format.
      *
      * @param cActionType is a {@link CompositeActionType} object to revert.
+     * @param writer where CompositeActionType will be written
      * @return JSONObject is an object representing the {@link CompositeActionType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void compositeActionTypeToJSON(CompositeActionType cActionType, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -104,8 +107,8 @@ public class ActionTypeJSONParser {
      * @param conditions ConditionTypes
      * @param triggers TriggerTypes
      * @param writer where ActionTypes will be written
-     * @throws IOException
-     * @throws JSONException
+     * @throws when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void writeActionTypes(Map<String, ActionType> actions, Map<String, ConditionType> conditions,
             Map<String, TriggerType> triggers, OutputStreamWriter writer) throws IOException, JSONException {
@@ -119,7 +122,10 @@ public class ActionTypeJSONParser {
                 String actionUID = actionsI.next();
                 ActionType action = actions.get(actionUID);
                 writer.write("  \"" + actionUID + "\":{\n");
-                ActionTypeJSONParser.actionTypeToJSON(action, writer);
+                if (action instanceof CompositeActionType)
+                    compositeActionTypeToJSON((CompositeActionType) action, writer);
+                else
+                    actionTypeToJSON(action, writer);
                 if (actionsI.hasNext())
                     writer.write("\n  },\n");
                 else

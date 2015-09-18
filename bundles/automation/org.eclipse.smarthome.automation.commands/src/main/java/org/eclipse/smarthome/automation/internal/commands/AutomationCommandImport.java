@@ -10,11 +10,8 @@ package org.eclipse.smarthome.automation.internal.commands;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
 
 /**
  * This class provides common functionality of commands:
@@ -25,6 +22,7 @@ import org.eclipse.smarthome.automation.parser.Status;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class AutomationCommandImport extends AutomationCommand {
@@ -67,50 +65,33 @@ public class AutomationCommandImport extends AutomationCommand {
         if (parsingResult != SUCCESS) {
             return parsingResult;
         }
-        Set<Status> status = null;
-        switch (providerType) {
-            case AutomationCommands.MODULE_TYPE_PROVIDER:
-                status = autoCommands.importModuleTypes(parserType, url);
-                if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
-                            FAIL, parserType);
-                }
-                break;
-            case AutomationCommands.TEMPLATE_PROVIDER:
-                status = autoCommands.importTemplates(parserType, url);
-                if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
-                            FAIL, parserType);
-                }
-                break;
-            case AutomationCommands.RULE_PROVIDER:
-                status = autoCommands.importRules(parserType, url);
-                if (status == null || status.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s : Parser %s not available", command,
-                            FAIL, parserType);
-                }
-                break;
-        }
-        if (status != null && !status.isEmpty()) {
+        try {
+            switch (providerType) {
+                case AutomationCommands.MODULE_TYPE_PROVIDER:
+                    autoCommands.importModuleTypes(parserType, url);
+                    break;
+                case AutomationCommands.TEMPLATE_PROVIDER:
+                    autoCommands.importTemplates(parserType, url);
+                    break;
+                case AutomationCommands.RULE_PROVIDER:
+                    autoCommands.importRules(parserType, url);
+                    break;
+            }
+        } catch (Exception e) {
             StringBuilder writer = new StringBuilder();
-            for (Status s : status) {
-                if (st && s.hasErrors()) {
-                    Map<String, Throwable> errors = s.getErrors();
-                    for (String key : errors.keySet()) {
-                        Throwable t = errors.get(key);
-                        writer.append(key + "\n");
-                        StackTraceElement[] ste = t.getStackTrace();
-                        for (int i = 0; i < ste.length; i++) {
-                            writer.append(ste[i].toString() + "\n");
-                        }
-                    }
-                } else {
-                    writer.append(s.toString() + "\n");
+            if (st) {
+                StackTraceElement[] ste = e.getStackTrace();
+                for (int i = 0; i < ste.length; i++) {
+                    writer.append(String.format("[Automation Commands : Command \"%s\"] FAIL : %s", command,
+                            ste[i].toString() + "\n"));
                 }
+            } else {
+                writer.append(String.format("[Automation Commands : Command \"%s\"] FAIL : %s", command,
+                        e.getMessage() + "\n"));
             }
             return writer.toString();
         }
-        return FAIL;
+        return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS + "\n");
     }
 
     /**

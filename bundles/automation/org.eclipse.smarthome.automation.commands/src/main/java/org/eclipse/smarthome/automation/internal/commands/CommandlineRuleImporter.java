@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -35,6 +35,7 @@ import org.osgi.framework.ServiceReference;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
@@ -65,53 +66,48 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
     }
 
     /**
+     * This method is responsible for exporting a set of Rules in a specified file.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the Rules in text.
+     * @param set a set of Rules to export.
+     * @param file a specified file for export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      * @see AutomationCommandsPluggable#exportRules(String, Set, File)
      */
-    public Status exportRules(String parserType, Set<Rule> set, File file) {
-        return super.exportData(parserType, set, file);
+    public void exportRules(String parserType, Set<Rule> set, File file) throws Exception {
+        super.exportData(parserType, set, file);
     }
 
     /**
+     * This method is responsible for importing a set of Rules from a specified file or URL resource.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the Rules in text.
+     * @param url a specified URL for import.
+     * @throws IOException when I/O operation has failed or has been interrupted.
+     * @throws ParsingException when parsing of the text fails for some reasons.
      * @see AutomationCommandsPluggable#importRules(String, URL)
      */
-    public Set<Status> importRules(String parserType, URL url) {
+    public Set<Rule> importRules(String parserType, URL url) throws IOException, ParsingException {
         InputStreamReader inputStreamReader = null;
         Parser<Rule> parser = parsers.get(parserType);
-        if (parser != null)
-            try {
-                inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
-                return importData(url, parser, inputStreamReader);
-            } catch (IOException e) {
-                Status s = new Status(logger, 0, null);
-                s.error("Can't read from URL " + url, e);
-                LinkedHashSet<Status> res = new LinkedHashSet<Status>();
-                res.add(s);
-                return res;
-            } finally {
-                try {
-                    if (inputStreamReader != null) {
-                        inputStreamReader.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        return null;
+        if (parser != null) {
+            inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
+            return importData(url, parser, inputStreamReader);
+        } else {
+            throw new ParsingException(new ParsingNestedException(ParsingNestedException.RULE, null,
+                    new Exception("Parser " + parserType + " not available")));
+        }
     }
 
-    /**
-     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
-     */
     @Override
-    protected Set<Status> importData(URL url, Parser<Rule> parser, InputStreamReader inputStreamReader) {
-
-        Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
-        if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
-            Iterator<Status> i = providedRulesStatus.iterator();
+    protected Set<Rule> importData(URL url, Parser<Rule> parser, InputStreamReader inputStreamReader)
+            throws ParsingException {
+        Set<Rule> providedRules = parser.parse(inputStreamReader);
+        if (providedRules != null && !providedRules.isEmpty()) {
+            Iterator<Rule> i = providedRules.iterator();
             while (i.hasNext()) {
-                Status s = i.next();
-                if (s.hasErrors())
-                    continue;
-                Rule rule = (Rule) s.getResult();
+                Rule rule = i.next();
                 if (rule != null) {
                     if (AutomationCommandsPluggable.ruleRegistry.get(rule.getUID()) != null) {
                         AutomationCommandsPluggable.ruleRegistry.update(rule);
@@ -119,9 +115,9 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
                         AutomationCommandsPluggable.ruleRegistry.add(rule);
                     }
                 }
-            } // while
+            }
         }
-        return providedRulesStatus;
+        return providedRules;
     }
 
 }

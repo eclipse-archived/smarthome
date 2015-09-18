@@ -24,8 +24,9 @@ import org.json.JSONException;
 
 /**
  * Parser for ConditionTypes.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ConditionTypeJSONParser {
@@ -35,8 +36,8 @@ public class ConditionTypeJSONParser {
      *
      * @param conditionType is a {@link ConditionType} object to revert.
      * @return JSONObject is an object representing the {@link ConditionType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void conditionTypeToJSON(ConditionType conditionType, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -65,8 +66,8 @@ public class ConditionTypeJSONParser {
      *
      * @param cConditionType is a {@link CompositeConditionType} object to revert.
      * @return JSONObject is an object representing the {@link CompositeConditionType} in json format.
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void compositeConditionTypeToJSON(CompositeConditionType cConditionType, OutputStreamWriter writer)
             throws IOException, JSONException {
@@ -86,8 +87,8 @@ public class ConditionTypeJSONParser {
      * @param conditions conditionTypes that will be written
      * @param triggers triggerTypes
      * @param writer where ConditionTypes will be written
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException when I/O operation has failed or has been interrupted
+     * @throws JSONException when generating of the text fails for some reasons.
      */
     static void writeConditionTypes(Map<String, ConditionType> conditions, Map<String, TriggerType> triggers,
             OutputStreamWriter writer) throws IOException, JSONException {
@@ -101,7 +102,10 @@ public class ConditionTypeJSONParser {
                 String conditionUID = conditionsI.next();
                 ConditionType condition = conditions.get(conditionUID);
                 writer.write("  \"" + conditionUID + "\":{\n");
-                ConditionTypeJSONParser.conditionTypeToJSON(condition, writer);
+                if (condition instanceof CompositeConditionType)
+                    compositeConditionTypeToJSON((CompositeConditionType) condition, writer);
+                else
+                    conditionTypeToJSON(condition, writer);
                 if (conditionsI.hasNext())
                     writer.write("\n  },\n");
                 else

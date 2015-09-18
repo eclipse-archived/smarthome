@@ -11,18 +11,20 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.type.Input;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
 
 /**
- * Parser for Inputs.
+ * This class is responsible for parsing the Inputs.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class InputJSONParser {
@@ -30,47 +32,52 @@ public class InputJSONParser {
     /**
      * Collects Inputs from JSON.
      *
-     * @param bc bundleContext
+     * @param bc BundleContext
+     * @param moduleTypeUID is the unique identifier of the ModuleType.
      * @param jsonInputs Inputs in json format
-     * @param inputs the collected inputs
-     * @param status Status Object
+     * @param exceptions is a list used for collecting the exceptions occurred during {@link Input}s creation.
+     * @param log is used for logging the exceptions.
      */
-    static boolean collectInputs(BundleContext bc, JSONObject jsonInputs, Set<Input> inputs, Status status) {
-        boolean res = true;
+    static LinkedHashSet<Input> collectInputs(BundleContext bc, String moduleTypeUID, JSONObject jsonInputs,
+            List<ParsingNestedException> exceptions, Logger log) {
+        LinkedHashSet<Input> inputs = new LinkedHashSet<Input>();
         Iterator<?> jsonInputsI = jsonInputs.keys();
         while (jsonInputsI.hasNext()) {
             String inputName = (String) jsonInputsI.next();
-            JSONObject inputInfo = JSONUtility.getJSONObject(inputName, false, jsonInputs, status);
-            if (inputInfo == null) {
-                res = false;
-                continue;
-            }
-            Input input = InputJSONParser.createInput(bc, inputName, inputInfo, status);
+            JSONObject inputInfo = JSONUtility.getJSONObject(ParsingNestedException.MODULE_TYPE, moduleTypeUID,
+                    exceptions, inputName, false, jsonInputs, log);
+            Input input = InputJSONParser.createInput(bc, moduleTypeUID, inputName, inputInfo, exceptions, log);
             if (input != null)
                 inputs.add(input);
-            else
-                res = false;
         }
-        return res;
+        return inputs;
     }
 
     /**
      * This method is used for creation of {@link Input} objects based on its JSON description.
      *
+     * @param bc BundleContext
+     * @param moduleTypeUID is the unique identifier of the ModuleType.
      * @param inputName is a string representing the name of the {@link Input}.
      * @param jsonInputDescription is a JSON object describing the {@link Input}.
+     * @param exceptions is a list used for collecting the exceptions occurred during {@link Input}'s creation.
+     * @param log is used for logging the exceptions.
      * @return an object representing the {@link Input} or <code>null</code>.
      */
-    static Input createInput(BundleContext bc, String inputName, JSONObject jsonInputDescription, Status status) {
-        String type = JSONUtility.getString(JSONStructureConstants.TYPE, false, jsonInputDescription, status);
+    static Input createInput(BundleContext bc, String moduleTypeUID, String inputName, JSONObject jsonInputDescription,
+            List<ParsingNestedException> exceptions, Logger log) {
+        String type = JSONUtility.getString(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.TYPE, false, jsonInputDescription, log);
         if (type == null)
             return null;
-        String label = JSONUtility.getString(JSONStructureConstants.LABEL, true, jsonInputDescription, status);
-        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonInputDescription,
-                status);
-        boolean required = JSONUtility.getBoolean(JSONStructureConstants.REQUIRED, true, false, jsonInputDescription,
-                status);
-        String reference = JSONUtility.getString(JSONStructureConstants.REFERENCE, true, jsonInputDescription, status);
+        String label = JSONUtility.getString(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.LABEL, true, jsonInputDescription, log);
+        String description = JSONUtility.getString(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.DESCRIPTION, true, jsonInputDescription, log);
+        boolean required = JSONUtility.getBoolean(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.REQUIRED, true, false, jsonInputDescription, log);
+        String reference = JSONUtility.getString(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.REFERENCE, true, jsonInputDescription, log);
         Object defaultValue = jsonInputDescription.has(JSONStructureConstants.DEFAULT_VALUE)
                 ? jsonInputDescription.opt(JSONStructureConstants.DEFAULT_VALUE) : null;
         Object convDefaultValue = null;
@@ -79,16 +86,21 @@ public class InputJSONParser {
                 convDefaultValue = JSONUtility.convertValue(bc, type, defaultValue);
                 JSONUtility.verifyType(bc, type, convDefaultValue);
             } catch (Exception e) {
-                status.error("Failed to create input \"" + inputName + "\" : " + jsonInputDescription, e);
-                return null;
+                JSONUtility
+                        .catchParsingException(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                                new IllegalArgumentException(
+                                        "Failed to create input \"" + inputName + "\" : " + jsonInputDescription, e),
+                                log);
             }
         }
-        JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonInputDescription, status);
+        JSONArray jsonTags = JSONUtility.getJSONArray(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                JSONStructureConstants.TAGS, true, jsonInputDescription, log);
         LinkedHashSet<String> tags = null;
         if (jsonTags != null) {
             tags = new LinkedHashSet<String>();
             for (int j = 0; j < jsonTags.length(); j++) {
-                String tag = JSONUtility.getString(JSONStructureConstants.TAGS, j, jsonTags, status);
+                String tag = JSONUtility.getString(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
+                        JSONStructureConstants.TAGS, j, jsonTags, log);
                 if (tag != null)
                     tags.add(tag);
             }
@@ -101,7 +113,7 @@ public class InputJSONParser {
      *
      * @param input the {@link Input}
      * @param writer the {@link OutputStreamWriter}
-     * @throws IOException
+     * @throws IOException is used for logging the exceptions.
      */
     static void inputToJSON(Input input, OutputStreamWriter writer) throws IOException {
         writer.write("        \"" + JSONStructureConstants.TYPE + "\":\"" + input.getType() + "\",\n");

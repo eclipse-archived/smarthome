@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.parser;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Set;
@@ -16,6 +15,8 @@ import java.util.Set;
  * This interface provides opportunity to plug different parsers, for example JSON, GSON or other.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
+ *
  */
 public interface Parser<T> {
 
@@ -52,18 +53,20 @@ public interface Parser<T> {
      * This method is used for loading file with some particular format and parse it to the automation objects.
      *
      * @param reader {@link InputStreamReader} which reads from a file containing automation object representations.
-     * @return a set of {@link Status} objects. Each {@link Status} object represents the result of parsing of one
-     *         automation object.
+     * @return a set of automation objects. Each object represents the result of parsing of one object.
+     * @throws ParsingException is thrown when json format is wrong or there is a semantic error in description of
+     *             the automation objects.
      */
-    public Set<Status> importData(InputStreamReader reader);
+    public Set<T> parse(InputStreamReader reader) throws ParsingException;
 
     /**
      * This method is used to record automation objects in a file with some particular format.
      *
      * @param dataObjects provides an objects for export.
      * @param writer is {@link OutputStreamWriter} used to write the automation objects in a file.
-     * @throws IOException is thrown when I/O operation has failed or has been interrupted.
+     * @throws Exception is thrown when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      */
-    public void exportData(Set<T> dataObjects, OutputStreamWriter writer) throws IOException;
+    public void serialize(Set<T> dataObjects, OutputStreamWriter writer) throws Exception;
 
 }

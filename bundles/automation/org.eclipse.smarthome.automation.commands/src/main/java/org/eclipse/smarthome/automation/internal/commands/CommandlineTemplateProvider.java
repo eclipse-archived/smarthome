@@ -16,14 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -45,6 +45,7 @@ import org.osgi.framework.ServiceRegistration;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTemplate>implements TemplateProvider {
@@ -81,42 +82,40 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
     }
 
     /**
+     * This method is responsible for exporting a set of RuleTemplates in a specified file.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the RuleTemplates in text.
+     * @param set a set of RuleTemplates to export.
+     * @param file a specified file for export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      * @see AutomationCommandsPluggable#exportTemplates(String, Set, File)
      */
-    public Status exportTemplates(String parserType, Set<RuleTemplate> set, File file) {
-        return super.exportData(parserType, set, file);
+    public void exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
+        super.exportData(parserType, set, file);
     }
 
     /**
+     * This method is responsible for importing a set of RuleTemplates from a specified file or URL resource.
+     *
+     * @param parserType is relevant to the format that you need for conversion of the RuleTemplates in text.
+     * @param url a specified URL for import.
+     * @throws IOException when I/O operation has failed or has been interrupted.
+     * @throws ParsingException when parsing of the text fails for some reasons.
      * @see AutomationCommandsPluggable#importTemplates(String, URL)
      */
-    public Set<Status> importTemplates(String parserType, URL url) {
+    public Set<RuleTemplate> importTemplates(String parserType, URL url) throws IOException, ParsingException {
         InputStreamReader inputStreamReader = null;
         Parser<RuleTemplate> parser = parsers.get(parserType);
-        if (parser != null)
-            try {
-                inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
-                return importData(url, parser, inputStreamReader);
-            } catch (IOException e) {
-                Status s = new Status(logger, 0, null);
-                s.error("Can't read from URL " + url, e);
-                LinkedHashSet<Status> res = new LinkedHashSet<Status>();
-                res.add(s);
-                return res;
-            } finally {
-                try {
-                    if (inputStreamReader != null) {
-                        inputStreamReader.close();
-                    }
-                } catch (IOException e) {
-                }
-            }
-        return null;
+        if (parser == null) {
+            inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
+            return importData(url, parser, inputStreamReader);
+        } else {
+            throw new ParsingException(new ParsingNestedException(ParsingNestedException.TEMPLATE, null,
+                    new Exception("Parser " + parserType + " not available")));
+        }
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
-     */
     @SuppressWarnings("unchecked")
     @Override
     public RuleTemplate getTemplate(String UID, Locale locale) {
@@ -125,9 +124,6 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         }
     }
 
-    /**
-     * @see org.eclipse.smarthome.automation.TemplateProvider#getTemplates(java.util.Locale)
-     */
     @SuppressWarnings("unchecked")
     @Override
     public Collection<RuleTemplate> getTemplates(Locale locale) {
@@ -145,46 +141,47 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
         super.close();
     }
 
-    /**
-     * @see AbstractCommandProvider#importData(URL, Parser, InputStreamReader)
-     */
     @SuppressWarnings("unchecked")
     @Override
-    protected Set<Status> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader) {
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+    protected Set<RuleTemplate> importData(URL url, Parser<RuleTemplate> parser, InputStreamReader inputStreamReader)
+            throws ParsingException {
+        Set<RuleTemplate> providedObjects = parser.parse(inputStreamReader);
         if (providedObjects != null && !providedObjects.isEmpty()) {
             List<String> portfolio = new ArrayList<String>();
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            for (Status status : providedObjects) {
-                if (status.hasErrors())
-                    continue;
-                RuleTemplate ruleT = (RuleTemplate) status.getResult();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
+            for (RuleTemplate ruleT : providedObjects) {
+                List<ParsingNestedException> exceptions = new ArrayList<>();
                 String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
                             ruleT.getTriggers(), ruleT.getConditions(), ruleT.getActions());
                 } catch (Exception e) {
-                    status.success(null);
-                    status.error("Failed to validate connections of RuleTemplate with UID \"" + uid + "\"! "
-                            + e.getMessage(), e);
-                    continue;
+                    exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
+                            "Failed to validate connections of RuleTemplate with UID \"" + uid + "\"!", e));
                 }
-                if (checkExistence(uid, status))
-                    continue;
-                portfolio.add(uid);
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, ruleT);
-                }
+                checkExistence(uid, exceptions);
+                if (exceptions.isEmpty()) {
+                    portfolio.add(uid);
+                    synchronized (providedObjectsHolder) {
+                        providedObjectsHolder.put(uid, ruleT);
+                    }
+                } else
+                    importDataExceptions.addAll(exceptions);
             }
-        }
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-        if (tpReg == null)
-            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-        else {
-            tpReg.setProperties(properties);
+            if (importDataExceptions.isEmpty()) {
+                Dictionary<String, Object> properties = new Hashtable<String, Object>();
+                properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
+                if (tpReg == null)
+                    tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+                else {
+                    tpReg.setProperties(properties);
+                }
+            } else {
+                throw new ParsingException(importDataExceptions);
+            }
         }
         return providedObjects;
     }
@@ -194,27 +191,19 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * UIDs before these objects to be added in the system.
      *
      * @param uid UID of the newly created {@link Template}, which to be checked.
-     * @param status {@link Status} of the {@link AutomationCommand} operation. Can be successful or can fail for these
-     *            {@link ModuleType}s or {@link Template}s, for which a {@link Template} with the same UID, exists.
-     * @return <code>true</code> if {@link Template} with the same UID exists or <code>false</code> in the opposite
-     *         case.
+     * @param exceptions accumulates exceptions if {@link ModuleType} with the same UID exists.
      */
-    protected boolean checkExistence(String uid, Status s) {
+    protected void checkExistence(String uid, List<ParsingNestedException> exceptions) {
         if (AutomationCommandsPluggable.templateRegistry == null) {
-            s.error("Failed to create Rule Template with UID \"" + uid
-                    + "\"! Can't guarantee yet that other Rule Template with the same UID does not exist.",
-                    new IllegalArgumentException());
-            s.success(null);
-            return true;
+            exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
+                    new IllegalArgumentException("Failed to create Rule Template with UID \"" + uid
+                            + "\"! Can't guarantee yet that other Rule Template with the same UID does not exist.")));
         }
         if (AutomationCommandsPluggable.templateRegistry.get(uid) != null) {
-            s.error("Rule Template with UID \"" + uid
-                    + "\" already exists! Failed to create a second with the same UID!",
-                    new IllegalArgumentException());
-            s.success(null);
-            return true;
+            exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
+                    new IllegalArgumentException("Rule Template with UID \"" + uid
+                            + "\" already exists! Failed to create a second with the same UID!")));
         }
-        return false;
     }
 
 }

@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -43,6 +43,8 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<Rule> {
@@ -103,9 +105,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
 
                 }
             });
-        } catch (InvalidSyntaxException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (InvalidSyntaxException notPossible) {
         }
 
     }
@@ -196,12 +196,16 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
     }
 
     @Override
-    protected Set<Status> importData(Vendor vendor, Parser<Rule> parser, InputStreamReader inputStreamReader) {
-        Set<Status> providedRulesStatus = parser.importData(inputStreamReader);
-        if (providedRulesStatus != null && !providedRulesStatus.isEmpty()) {
-            Iterator<Status> i = providedRulesStatus.iterator();
+    protected Set<Rule> importData(Vendor vendor, Parser<Rule> parser, InputStreamReader inputStreamReader) {
+        Set<Rule> providedRules = null;
+        try {
+            providedRules = parser.parse(inputStreamReader);
+        } catch (ParsingException e) {
+        }
+        if (providedRules != null && !providedRules.isEmpty()) {
+            Iterator<Rule> i = providedRules.iterator();
             while (i.hasNext()) {
-                Rule rule = (Rule) i.next().getResult();
+                Rule rule = i.next();
                 if (rule != null) {
                     try {
                         if (rule.getUID() == null)
@@ -218,7 +222,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                 }
             }
         }
-        return providedRulesStatus;
+        return providedRules;
     }
 
     /**

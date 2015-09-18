@@ -8,16 +8,16 @@
 package org.eclipse.smarthome.automation.internal.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -27,7 +27,6 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.osgi.framework.BundleContext;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides mechanism to separate the Automation Commands implementation from the Automation Core
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public abstract class AutomationCommands {
@@ -326,16 +326,14 @@ public abstract class AutomationCommands {
      * @param parserType is relevant to the format that you need for conversion of the {@link ModuleType}s in text.
      * @param set a set of {@link ModuleType}s to export.
      * @param file a specified file for export.
-     * @return a {@link Status} object, representing understandable for the user message containing information on the
-     *         outcome of the export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      */
-    public Status exportModuleTypes(String parserType, Set<ModuleType> set, File file) {
+    public void exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
         if (moduleTypeProvider != null) {
-            return moduleTypeProvider.exportModuleTypes(parserType, set, file);
+            moduleTypeProvider.exportModuleTypes(parserType, set, file);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        return s;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**
@@ -344,16 +342,14 @@ public abstract class AutomationCommands {
      * @param parserType is relevant to the format that you need for conversion of the {@link Template}s in text.
      * @param set a set of {@link Template}s to export.
      * @param file a specified file for export.
-     * @return a {@link Status} object, representing understandable for the user message containing information on the
-     *         outcome of the export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      */
-    public Status exportTemplates(String parserType, Set<RuleTemplate> set, File file) {
+    public void exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
         if (templateProvider != null) {
-            return templateProvider.exportTemplates(parserType, set, file);
+            templateProvider.exportTemplates(parserType, set, file);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        return s;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**
@@ -362,16 +358,14 @@ public abstract class AutomationCommands {
      * @param parserType is relevant to the format that you need for conversion of the {@link Rule}s in text.
      * @param set a set of {@link Rule}s to export.
      * @param file a specified file for export.
-     * @return a {@link Status} object, representing understandable for the user message containing information on the
-     *         outcome of the export.
+     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      */
-    public Status exportRules(String parserType, Set<Rule> set, File file) {
+    public void exportRules(String parserType, Set<Rule> set, File file) throws Exception {
         if (ruleImporter != null) {
-            return ruleImporter.exportRules(parserType, set, file);
+            ruleImporter.exportRules(parserType, set, file);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        return s;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**
@@ -381,16 +375,15 @@ public abstract class AutomationCommands {
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
      *         on the outcome of the import per each {@link ModuleType}.
+     * @throws ParsingException when parsing of the text fails for some reasons.
+     * @throws IOException when I/O operation has failed or has been interrupted.
+     * @throws Exception when Pluggable Commands Service not available.
      */
-    public Set<Status> importModuleTypes(String parserType, URL url) {
+    public Set<ModuleType> importModuleTypes(String parserType, URL url) throws Exception {
         if (moduleTypeProvider != null) {
             return moduleTypeProvider.importModuleTypes(parserType, url);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        Set<Status> set = new HashSet<Status>();
-        set.add(s);
-        return set;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**
@@ -400,16 +393,15 @@ public abstract class AutomationCommands {
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
      *         on the outcome of the import per each {@link Template}.
+     * @throws ParsingException is thrown when parsing of the text fails for some reasons.
+     * @throws IOException is thrown when I/O operation has failed or has been interrupted.
+     * @throws Exception is thrown when Pluggable Commands Service not available.
      */
-    public Set<Status> importTemplates(String parserType, URL url) {
+    public Set<RuleTemplate> importTemplates(String parserType, URL url) throws Exception {
         if (templateProvider != null) {
             return templateProvider.importTemplates(parserType, url);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        Set<Status> set = new HashSet<Status>();
-        set.add(s);
-        return set;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**
@@ -419,16 +411,15 @@ public abstract class AutomationCommands {
      * @param url is a specified file or URL resource.
      * @return a set of {@link Status} objects, representing understandable for the user message containing information
      *         on the outcome of the import per each {@link Rule}.
+     * @throws ParsingException is thrown when parsing of the text fails for some reasons.
+     * @throws IOException is thrown when I/O operation has failed or has been interrupted.
+     * @throws Exception is thrown when Pluggable Commands Service not available.
      */
-    public Set<Status> importRules(String parserType, URL url) {
+    public Set<Rule> importRules(String parserType, URL url) throws Exception {
         if (ruleImporter != null) {
             return ruleImporter.importRules(parserType, url);
         }
-        Status s = new Status(LoggerFactory.getLogger(AutomationCommands.class), 0, null);
-        s.error("Pluggable Commands Service not available.", new IllegalArgumentException());
-        Set<Status> set = new HashSet<Status>();
-        set.add(s);
-        return set;
+        throw new Exception("Pluggable Commands Service not available.");
     }
 
     /**

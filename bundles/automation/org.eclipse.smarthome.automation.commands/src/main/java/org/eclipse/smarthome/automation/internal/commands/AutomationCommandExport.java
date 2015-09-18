@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -31,6 +30,7 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class AutomationCommandExport extends AutomationCommand {
@@ -104,43 +104,46 @@ public class AutomationCommandExport extends AutomationCommand {
                 collection = autoCommands.getModuleTypes(CompositeActionType.class, locale);
                 if (collection != null)
                     set.addAll(collection);
-                Status s = autoCommands.exportModuleTypes(parserType, set, file);
+                try {
+                    autoCommands.exportModuleTypes(parserType, set, file);
+                } catch (Exception e) {
+                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                }
                 if (set.isEmpty()) {
                     return String.format("[Automation Commands : Command \"%s\"] There are no ModuleTypes available!",
                             command);
-                }
-                if (s.hasErrors()) {
-                    return s.toString();
                 }
                 return SUCCESS;
             case AutomationCommands.TEMPLATE_PROVIDER:
                 collection = autoCommands.getTemplates(locale);
                 if (collection != null)
                     set.addAll(collection);
-                s = autoCommands.exportTemplates(parserType, set, file);
+                try {
+                    autoCommands.exportTemplates(parserType, set, file);
+                } catch (Exception e) {
+                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                }
                 if (set.isEmpty()) {
                     return String.format("[Automation Commands : Command \"%s\"] There are no Templates available!",
                             command);
-                }
-                if (s.hasErrors()) {
-                    return s.toString();
                 }
                 return SUCCESS;
             case AutomationCommands.RULE_PROVIDER:
                 collection = autoCommands.getRules();
                 if (collection != null)
                     set.addAll(collection);
-                s = autoCommands.exportRules(parserType, set, file);
+                try {
+                    autoCommands.exportRules(parserType, set, file);
+                } catch (Exception e) {
+                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                }
                 if (set.isEmpty()) {
                     return String.format("[Automation Commands : Command \"%s\"] There are no Rules available!",
                             command);
                 }
-                if (s.hasErrors()) {
-                    return s.toString();
-                }
                 return SUCCESS;
         }
-        return FAIL;
+        return String.format("[Automation Commands : Command \"%s\"] %s : Unsupported provider type!", command, FAIL);
     }
 
     /**

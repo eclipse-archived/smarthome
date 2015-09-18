@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -53,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  * @author Ana Dimova - provides localization
+ * @author Ana Dimova - refactor Parser interface.
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractResourceBundleProvider<E> implements ServiceTrackerCustomizer {
@@ -329,6 +329,12 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         }
     }
 
+    /**
+     * This method is used to determine which parser to be used.
+     *
+     * @param url the URL of the source of data for parsing.
+     * @return the type of the parser.
+     */
     protected String getParserType(URL url) {
         String fileName = url.getPath();
         int fileExtesionStartIndex = fileName.lastIndexOf(".") + 1;
@@ -400,11 +406,12 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * This method is called from {@link #processAutomationProvider(Bundle)} to process the loading of the provided
      * objects.
      *
+     * @param vendor is a holder of information about the bundle providing data for import.
      * @param parser the {@link Parser} which is responsible for parsing of a particular format in which the provided
      *            objects are presented
      * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
-     * @return a set of {@link Status}es, each of them shows the result of loading per object.
+     * @return a set of automation objects - the result of loading.
      */
-    protected abstract Set<Status> importData(Vendor vendor, Parser<E> parser, InputStreamReader inputStreamReader);
+    protected abstract Set<E> importData(Vendor vendor, Parser<E> parser, InputStreamReader inputStreamReader);
 
 }

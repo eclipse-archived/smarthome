@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,7 +23,8 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * This class serves for loading JSON files and parse it to the Rule objects.
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class RuleJSONParser implements Parser<Rule> {
@@ -54,34 +57,38 @@ public class RuleJSONParser implements Parser<Rule> {
     }
 
     @Override
-    public Set<Status> importData(InputStreamReader reader) {
+    public Set<Rule> parse(InputStreamReader reader) throws ParsingException {
         JSONTokener tokener = new JSONTokener(reader);
-        Set<Status> rulesStatus = new LinkedHashSet<Status>();
+        Set<Rule> rules = new HashSet<>();
+        List<ParsingNestedException> exceptions = new ArrayList<>();
         try {
             Object json = tokener.nextValue();
             if (json != null) {
                 if (json instanceof JSONArray) {
                     for (int i = 0; i < ((JSONArray) json).length(); i++) {
-                        rulesStatus.add(createRule(((JSONArray) json).getJSONObject(i)));
+                        rules.add(createRule(((JSONArray) json).getJSONObject(i), exceptions));
                     }
                 } else {
-                    rulesStatus.add(createRule((JSONObject) json));
+                    rules.add(createRule((JSONObject) json, exceptions));
                 }
             }
         } catch (JSONException e) {
-            Status status = new Status(log, Status.TEMPLATE, null);
-            status.error("JSON contains extra objects or lines.", e);
-            rulesStatus.add(status);
+            JSONUtility.catchParsingException(ParsingNestedException.RULE, null, exceptions,
+                    new IllegalArgumentException("JSON contains extra objects or lines.", e), log);
         }
-        return rulesStatus;
+        if (exceptions.isEmpty())
+            return rules;
+        else
+            throw new ParsingException(exceptions);
+
     }
 
     @Override
-    public void exportData(Set<Rule> dataObjects, OutputStreamWriter writer) throws IOException {
+    public void serialize(Set<Rule> dataObjects, OutputStreamWriter writer) throws Exception {
         try {
             writeRules(dataObjects, writer);
         } catch (JSONException e) {
-            throw new IOException("Export failed: " + e.toString());
+            throw new Exception("Export failed: " + e.toString());
         }
     }
 
@@ -89,95 +96,97 @@ public class RuleJSONParser implements Parser<Rule> {
      * This method is used for creating {@link Rule} from JSONObject.
      *
      * @param jsonRule is a json object representing the {@link Rule} in json format.
-     * @return
+     * @param exceptions is a list used for collecting the exceptions occurred during {@link Rule}'s creation.
+     * @return the newly created {@link Rule} or {@code null};
      */
-    private Status createRule(JSONObject jsonRule) {
-        Status status = new Status(this.log, Status.RULE, null);
+    private Rule createRule(JSONObject jsonRule, List<ParsingNestedException> exceptions) {
         // verify json content
         Iterator<?> i = jsonRule.keys();
         while (i.hasNext()) {
             String propertyName = (String) i.next();
             int sType = JSONUtility.checkRuleProperties(propertyName);
             if (sType == -1) {
-                status.error("Unsupported property \"" + propertyName + "\" in rule : " + jsonRule,
-                        new IllegalArgumentException());
+                JSONUtility.catchParsingException(ParsingNestedException.RULE, null, exceptions,
+                        new IllegalArgumentException(
+                                "Unsupported property \"" + propertyName + "\" in rule : " + jsonRule),
+                        log);
             }
         }
         Map<String, Object> configurations = null;
         Rule rule = null;
-        String uid = JSONUtility.getString(JSONStructureConstants.UID, true, jsonRule, status);
-        String ruleTemplateUID = JSONUtility.getString(JSONStructureConstants.TEMPLATE_UID, true, jsonRule, status);
+        String uid = JSONUtility.getString(ParsingNestedException.RULE, null, exceptions, JSONStructureConstants.UID,
+                true, jsonRule, log);
+        String ruleTemplateUID = JSONUtility.getString(ParsingNestedException.RULE, uid, exceptions,
+                JSONStructureConstants.TEMPLATE_UID, true, jsonRule, log);
         if (ruleTemplateUID != null) {
-            JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
-            configurations = ConfigPropertyJSONParser.getConfigurationValues(jsonConfig, status);
-            if (configurations == null)
-                return status;
+            JSONObject jsonConfig = JSONUtility.getJSONObject(ParsingNestedException.RULE, uid, exceptions,
+                    JSONStructureConstants.CONFIG, true, jsonRule, log);
+            configurations = ConfigPropertyJSONParser.getConfigurationValues(ParsingNestedException.RULE, uid,
+                    exceptions, jsonConfig, log);
             if (uid != null)
                 rule = new Rule(uid, ruleTemplateUID, configurations);
             else
                 rule = new Rule(ruleTemplateUID, configurations);
         } else {
-            List<Trigger> triggers = new ArrayList<Trigger>();
-            List<Condition> conditions = new ArrayList<Condition>();
-            List<Action> actions = new ArrayList<Action>();
+            JSONArray sectionTriggers = JSONUtility.getJSONArray(ParsingNestedException.RULE, uid, exceptions,
+                    JSONStructureConstants.ON, false, jsonRule, log);
+            List<Trigger> triggers = ModuleJSONParser.createTriggerModules(ParsingNestedException.RULE, uid,
+                    JSONStructureConstants.ON, sectionTriggers, exceptions, log);
+
+            JSONArray sectionConditions = JSONUtility.getJSONArray(ParsingNestedException.RULE, uid, exceptions,
+                    JSONStructureConstants.IF, true, jsonRule, log);
+            List<Condition> conditions = ModuleJSONParser.createConditionModules(ParsingNestedException.RULE, uid,
+                    JSONStructureConstants.IF, sectionConditions, exceptions, log);
+
+            JSONArray sectionActions = JSONUtility.getJSONArray(ParsingNestedException.RULE, uid, exceptions,
+                    JSONStructureConstants.THEN, false, jsonRule, log);
+            List<Action> actions = ModuleJSONParser.createActionModules(ParsingNestedException.RULE, uid,
+                    JSONStructureConstants.THEN, sectionActions, exceptions, log);
+
+            JSONObject jsonConfig = JSONUtility.getJSONObject(ParsingNestedException.RULE, uid, exceptions,
+                    JSONStructureConstants.CONFIG, true, jsonRule, log);
             Set<ConfigDescriptionParameter> configDescriptions = null;
-            JSONArray sectionTrigers = JSONUtility.getJSONArray(JSONStructureConstants.ON, false, jsonRule, status);
-            if (sectionTrigers == null)
-                return status;
-            if (!ModuleJSONParser.createTrigerModules(status, triggers, sectionTrigers))
-                return status;
-            JSONArray sectionConditions = JSONUtility.getJSONArray(JSONStructureConstants.IF, true, jsonRule, status);
-            if (sectionConditions != null
-                    && !ModuleJSONParser.createConditionModules(status, conditions, sectionConditions))
-                return status;
-            JSONArray sectionActions = JSONUtility.getJSONArray(JSONStructureConstants.THEN, false, jsonRule, status);
-            if (sectionActions == null)
-                return status;
-            if (!ModuleJSONParser.createActionModules(status, actions, sectionActions))
-                return status;
-            configDescriptions = new LinkedHashSet<ConfigDescriptionParameter>();
-            JSONObject jsonConfig = JSONUtility.getJSONObject(JSONStructureConstants.CONFIG, true, jsonRule, status);
             if (jsonConfig != null) {
-                configurations = ConfigPropertyJSONParser.getConfiguration(jsonConfig, configDescriptions, status);
-                if (configurations == null) {
-                    return status;
-                }
+                configDescriptions = new LinkedHashSet<ConfigDescriptionParameter>();
+                configurations = ConfigPropertyJSONParser.getConfiguration(ParsingNestedException.RULE, uid, exceptions,
+                        jsonConfig, configDescriptions, log);
             }
             if (uid != null)
                 rule = new Rule(uid, triggers, conditions, actions, configDescriptions, configurations);
             else
                 rule = new Rule(triggers, conditions, actions, configDescriptions, configurations);
         }
+        String ruleName = JSONUtility.getString(ParsingNestedException.RULE, uid, exceptions,
+                JSONStructureConstants.NAME, true, jsonRule, log);
 
-        String ruleName = JSONUtility.getString(JSONStructureConstants.NAME, true, jsonRule, status);
-        if (ruleName != null)
-            rule.setName(ruleName);
-        String description = JSONUtility.getString(JSONStructureConstants.DESCRIPTION, true, jsonRule, status);
-        if (description != null)
-            rule.setDescription(description);
-        JSONArray jsonTags = JSONUtility.getJSONArray(JSONStructureConstants.TAGS, true, jsonRule, status);
-        if (jsonTags != null)
+        String description = JSONUtility.getString(ParsingNestedException.RULE, uid, exceptions,
+                JSONStructureConstants.DESCRIPTION, true, jsonRule, log);
 
-        {
-            Set<String> tags = new LinkedHashSet<String>();
+        JSONArray jsonTags = JSONUtility.getJSONArray(ParsingNestedException.RULE, uid, exceptions,
+                JSONStructureConstants.TAGS, true, jsonRule, log);
+        Set<String> tags = null;
+        if (jsonTags != null) {
+            tags = new HashSet<>();
             for (int j = 0; j < jsonTags.length(); j++) {
-                String tag = JSONUtility.getString(JSONStructureConstants.TAGS, j, jsonTags, status);
+                String tag = JSONUtility.getString(ParsingNestedException.RULE, uid, exceptions,
+                        JSONStructureConstants.TAGS, j, jsonTags, log);
                 if (tag != null)
                     tags.add(tag);
             }
+        }
+        if (rule != null) {
+            rule.setName(ruleName);
+            rule.setDescription(description);
             rule.setTags(tags);
         }
-        if (status.hasErrors())
-            return status;
-        status.success(rule);
-        status.init(Status.RULE, rule.getUID());
-        return status;
-
+        return rule;
     }
 
     /**
-     * This method is used to export the set of {@link Rule}s reverting them to JSON format..
+     * This method is used to export the set of {@link Rule}s reverting them to JSON format.
      *
+     * @param rules are the {@link Rule} objects to revert.
+     * @param writer is the {@link OutputStreamWriter} used for exporting the rules.
      * @throws IOException is thrown when the I/O operations are failed or interrupted.
      * @throws JSONException is thrown by the JSON.org classes when things are amiss.
      * @see org.eclipse.smarthome.automation.parser.RuleParser#writeRules(org.eclipse.smarthome.automation.Rule,
@@ -200,7 +209,7 @@ public class RuleJSONParser implements Parser<Rule> {
      * This method is used for reverting {@link Rule} to JSON format.
      *
      * @param rule is a {@link Rule} object to revert.
-     * @param writer
+     * @param writer is the {@link OutputStreamWriter} used for exporting the rule.
      * @return JSONObject is an object representing the {@link Rule} in json format.
      * @throws IOException is thrown when the I/O operations are failed or interrupted.
      * @throws JSONException is thrown by the JSON.org classes when things are amiss.

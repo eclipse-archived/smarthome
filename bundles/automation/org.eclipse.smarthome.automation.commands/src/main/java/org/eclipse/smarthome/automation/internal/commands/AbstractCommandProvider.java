@@ -8,9 +8,7 @@
 package org.eclipse.smarthome.automation.internal.commands;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
@@ -20,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.Status;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.BundleContext;
@@ -39,6 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 @SuppressWarnings("rawtypes")
@@ -155,38 +154,17 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      *
      * @param parserType is a criteria for choosing the {@link Parser} which to be used.
      * @param set a Set of automation objects for export.
-     * @param file the file in which to export the automation objects.
-     * @return {@link Status} of the {@link AutomationCommandExport} operation. Can be successful or can fail because of
-     *         missing parser or {@link IOException} or {@link FileNotFoundException}.
+     * @param file is the file in which to export the automation objects.
+     * @throws Exception is thrown when I/O operation has failed or has been interrupted or generating of the text fails
+     *             for some reasons.
      */
-    public Status exportData(String parserType, Set<E> set, File file) {
+    public void exportData(String parserType, Set<E> set, File file) throws Exception {
         OutputStreamWriter oWriter = null;
-        Status s = new Status(logger, 0, null);
-        try {
-            oWriter = new OutputStreamWriter(new FileOutputStream(file));
-            Parser<E> parser = parsers.get(parserType);
-            if (parser != null) {
-                try {
-                    parser.exportData(set, oWriter);
-                    s.success(null);
-                } catch (IOException e) {
-                    s.error(e.getMessage(), e);
-                }
-            } else {
-                s.error("Parser not found : \"" + parser + "\"!", new IllegalArgumentException());
-            }
-        } catch (FileNotFoundException e) {
-            s.error("File not found : " + file, e);
-        } finally {
-            try {
-                if (oWriter != null) {
-                    oWriter.flush();
-                    oWriter.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-        return s;
+        oWriter = new OutputStreamWriter(new FileOutputStream(file));
+        Parser<E> parser = parsers.get(parserType);
+        if (parser != null)
+            parser.serialize(set, oWriter);
+        throw new Exception("Parser \"" + parserType + "\" not found!");
     }
 
     /**
@@ -194,9 +172,12 @@ public abstract class AbstractCommandProvider<E> implements ServiceTrackerCustom
      *
      * @param parser the {@link Parser} which to be used for operation.
      * @param inputStreamReader
-     * @return {@link Status} of the {@link AutomationCommandImport} operation. Can be successful or can fail because of
-     *         {@link IOException}.
+     * @return the set of automation objects created as result of the {@link AutomationCommandImport} operation.
+     *         Operation can be successful or can fail because of {@link ParsingException}.
+     * @throws ParsingException is thrown when there are exceptions during the parsing process. It accumulates all of
+     *             them.
      */
-    protected abstract Set<Status> importData(URL url, Parser<E> parser, InputStreamReader inputStreamReader);
+    protected abstract Set<E> importData(URL url, Parser<E> parser, InputStreamReader inputStreamReader)
+            throws ParsingException;
 
 }

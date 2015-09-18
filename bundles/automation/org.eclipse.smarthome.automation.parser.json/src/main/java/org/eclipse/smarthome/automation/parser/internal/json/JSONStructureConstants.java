@@ -25,6 +25,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - refactor Parser interface.
  *
  */
 public interface JSONStructureConstants {
@@ -35,12 +36,6 @@ public interface JSONStructureConstants {
      * {@link CompositeActionType}s, {@link RuleTemplate}s or {@link Rule}s.
      */
     public final String ACTIONS = "actions";
-
-    /**
-     * This constant is used as json property that serves to define a set of {@link CompositeActionType}s,
-     * {@link CompositeConditionType}s or {@link CompositeTriggerType}s, when parsing the json files, containing them.
-     */
-    public final String COMPOSITE = "composite";
 
     /**
      * This constant is used as json property that serves to define a set of {@link ConditionType}s, when parsing the

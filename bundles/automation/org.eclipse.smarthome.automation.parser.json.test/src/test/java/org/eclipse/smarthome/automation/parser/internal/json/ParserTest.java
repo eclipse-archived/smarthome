@@ -11,19 +11,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
-import org.eclipse.smarthome.automation.parser.Status;
-import org.eclipse.smarthome.automation.parser.internal.json.ModuleTypeJSONParser;
-import org.eclipse.smarthome.automation.parser.internal.json.RuleJSONParser;
-import org.eclipse.smarthome.automation.parser.internal.json.TemplateJSONParser;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.json.JSONException;
@@ -42,20 +37,18 @@ public class ParserTest {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void importModuleTypes() throws JSONException, FileNotFoundException {
+    public void importModuleTypes() throws JSONException, FileNotFoundException, ParsingException {
         File file = new File("src/test/resources/moduletypes.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         ModuleTypeJSONParser parser = new ModuleTypeJSONParser(null);
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<ModuleType> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
+        Iterator<ModuleType> i = providedObjects.iterator();
         HashMap<String, ModuleType> map = new HashMap<>();
         while (i.hasNext()) {
-            Status status = i.next();
-            ModuleType providedObject = (ModuleType) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
+            ModuleType providedObject = i.next();
             Assert.assertNotNull(providedObject);
             map.put(providedObject.getUID(), providedObject);
         }
@@ -67,20 +60,18 @@ public class ParserTest {
     }
 
     @Test
-    public void importRuleTemplates() throws JSONException, FileNotFoundException {
+    public void importRuleTemplates() throws JSONException, FileNotFoundException, ParsingException {
         File file = new File("src/test/resources/templates.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         TemplateJSONParser parser = new TemplateJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<RuleTemplate> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
+        Iterator<RuleTemplate> i = providedObjects.iterator();
         HashMap<String, RuleTemplate> map = new HashMap<>();
         while (i.hasNext()) {
-            Status status = i.next();
-            RuleTemplate providedObject = (RuleTemplate) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
+            RuleTemplate providedObject = i.next();
             Assert.assertNotNull(providedObject);
             map.put(providedObject.getUID(), providedObject);
         }
@@ -88,20 +79,18 @@ public class ParserTest {
     }
 
     @Test
-    public void importRulesByModuleTypes() throws JSONException, FileNotFoundException {
+    public void importRulesByModuleTypes() throws JSONException, FileNotFoundException, ParsingException {
         File file = new File("src/test/resources/rules1bymodules.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         RuleJSONParser parser = new RuleJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<Rule> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
+        Iterator<Rule> i = providedObjects.iterator();
         HashMap<String, Rule> map = new HashMap<>();
         while (i.hasNext()) {
-            Status status = i.next();
-            Rule providedObject = (Rule) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
+            Rule providedObject = i.next();
             Assert.assertNotNull(providedObject);
             map.put(providedObject.getUID(), providedObject);
         }
@@ -110,20 +99,18 @@ public class ParserTest {
     }
 
     @Test
-    public void importRulesByTemplates() throws JSONException, FileNotFoundException {
+    public void importRulesByTemplates() throws JSONException, FileNotFoundException, ParsingException {
         File file = new File("src/test/resources/rules2bytemplate.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         RuleJSONParser parser = new RuleJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<Rule> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
+        Iterator<Rule> i = providedObjects.iterator();
         HashMap<String, Rule> map = new HashMap<>();
         while (i.hasNext()) {
-            Status status = i.next();
-            Rule providedObject = (Rule) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
+            Rule providedObject = i.next();
             Assert.assertNotNull(providedObject);
             map.put(providedObject.getUID(), providedObject);
         }
@@ -131,26 +118,17 @@ public class ParserTest {
     }
 
     @Test
-    public void exportModuleTypes() throws JSONException, IOException {
+    public void exportModuleTypes() throws Exception {
         File file = new File("src/test/resources/moduletypes.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         ModuleTypeJSONParser parser = new ModuleTypeJSONParser(null);
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<ModuleType> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
-        Set<ModuleType> moduleTypes = new LinkedHashSet<ModuleType>();
-        while (i.hasNext()) {
-            Status status = i.next();
-            ModuleType providedObject = (ModuleType) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
-            Assert.assertNotNull(providedObject);
-            moduleTypes.add(providedObject);
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos);
-        parser.exportData(moduleTypes, writer);
+        parser.serialize(providedObjects, writer);
         writer.flush();
         byte[] ba = baos.toByteArray();
         Assert.assertNotNull(ba);
@@ -159,26 +137,17 @@ public class ParserTest {
     }
 
     @Test
-    public void exportRuleTemplates() throws JSONException, IOException {
+    public void exportRuleTemplates() throws Exception {
         File file = new File("src/test/resources/templates.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         TemplateJSONParser parser = new TemplateJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<RuleTemplate> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
-        Set<RuleTemplate> ruleTemplates = new LinkedHashSet<RuleTemplate>();
-        while (i.hasNext()) {
-            Status status = i.next();
-            RuleTemplate providedObject = (RuleTemplate) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
-            Assert.assertNotNull(providedObject);
-            ruleTemplates.add(providedObject);
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos);
-        parser.exportData(ruleTemplates, writer);
+        parser.serialize(providedObjects, writer);
         writer.flush();
         byte[] ba = baos.toByteArray();
         Assert.assertNotNull(ba);
@@ -187,26 +156,17 @@ public class ParserTest {
     }
 
     @Test
-    public void exportRulesByModuleTypes() throws JSONException, IOException {
+    public void exportRulesByModuleTypes() throws Exception {
         File file = new File("src/test/resources/rules1bymodules.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         RuleJSONParser parser = new RuleJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<Rule> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
-        Set<Rule> rules = new LinkedHashSet<Rule>();
-        while (i.hasNext()) {
-            Status status = i.next();
-            Rule providedObject = (Rule) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
-            Assert.assertNotNull(providedObject);
-            rules.add(providedObject);
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos);
-        parser.exportData(rules, writer);
+        parser.serialize(providedObjects, writer);
         writer.flush();
         byte[] ba = baos.toByteArray();
         Assert.assertNotNull(ba);
@@ -215,26 +175,17 @@ public class ParserTest {
     }
 
     @Test
-    public void exportRulesByTemplates() throws JSONException, IOException {
+    public void exportRulesByTemplates() throws Exception {
         File file = new File("src/test/resources/rules2bytemplate.json");
         Assert.assertTrue("Not existing file: " + file.getAbsolutePath(), file.exists());
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
         RuleJSONParser parser = new RuleJSONParser();
-        Set<Status> providedObjects = parser.importData(inputStreamReader);
+        Set<Rule> providedObjects = parser.parse(inputStreamReader);
         Assert.assertNotNull(providedObjects);
         Assert.assertFalse(providedObjects.isEmpty());
-        Iterator<Status> i = providedObjects.iterator();
-        Set<Rule> rules = new LinkedHashSet<Rule>();
-        while (i.hasNext()) {
-            Status status = i.next();
-            Rule providedObject = (Rule) status.getResult();
-            Assert.assertFalse("Found errors when parsing: " + status.getErrors(), status.hasErrors());
-            Assert.assertNotNull(providedObject);
-            rules.add(providedObject);
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos);
-        parser.exportData(rules, writer);
+        parser.serialize(providedObjects, writer);
         writer.flush();
         byte[] ba = baos.toByteArray();
         Assert.assertNotNull(ba);
