@@ -37,7 +37,7 @@
 						</dependency>
 						<dependency>
 							<type>eclipse-plugin</type>
-							<artifactId>org.eclipse.smarthome.automation.module</artifactId>
+							<artifactId>org.eclipse.smarthome.automation.module.core</artifactId>
 							<version>0.0.0</version>
 						</dependency>
 						<dependency>
@@ -108,7 +108,7 @@
 							<autoStart>true</autoStart>
 						</bundle>
 						<bundle>
-							<id>org.eclipse.smarthome.automation.module</id>
+							<id>org.eclipse.smarthome.automation.module.core</id>
 							<level>4</level>
 							<autoStart>true</autoStart>
 						</bundle>
