@@ -20,9 +20,10 @@ import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.UpnpService;
-import org.jupnp.model.message.header.RootDeviceHeader;
+import org.jupnp.model.message.header.ServiceTypeHeader;
 import org.jupnp.model.meta.LocalDevice;
 import org.jupnp.model.meta.RemoteDevice;
+import org.jupnp.model.types.ServiceType;
 import org.jupnp.registry.Registry;
 import org.jupnp.registry.RegistryListener;
 import org.slf4j.Logger;
@@ -104,7 +105,11 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         }
         upnpService.getRegistry().addListener(this);
         upnpService.getControlPoint().search();
-        upnpService.getControlPoint().search(new RootDeviceHeader());
+
+        // Belkin WeMo devices can not be discovered by default search() function, but have to be searched by their
+        // named service.
+        ServiceType wemoBasicEvent = new ServiceType("Belkin", "basicevent");
+        upnpService.getControlPoint().search(new ServiceTypeHeader(wemoBasicEvent));
     }
 
     @Override
