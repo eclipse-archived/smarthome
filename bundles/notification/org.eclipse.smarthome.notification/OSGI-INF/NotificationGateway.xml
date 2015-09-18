@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.notification.gateway">
+   <implementation class="org.eclipse.smarthome.notification.consumer.NotificationServiceGateway"/>
+   <reference bind="setModelRepository" cardinality="0..1" interface="org.eclipse.smarthome.model.core.ModelRepository" name="ModelRepository" policy="dynamic" unbind="unsetModelRepository"/>
+   <reference bind="addEventFilterFactory" cardinality="0..n" interface="org.eclipse.smarthome.notification.consumer.filter.EventFilterFactory" name="EventFilterFactory" policy="dynamic" unbind="removeEventFilterFactory"/>
+   <reference bind="addNotificationService" cardinality="0..n" interface="org.eclipse.smarthome.notification.consumer.NotificationService" name="NotificationService" policy="dynamic" unbind="removeNotificationService"/>
+   <reference bind="setNotificationManager" cardinality="1..1" interface="org.eclipse.smarthome.notification.manager.NotificationManager" name="NotificationManager" policy="dynamic" unbind="unsetNotificationManager"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>
+   </service>
+</scr:component>
