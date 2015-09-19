@@ -33,14 +33,16 @@ The event source is optional and represents the name of the source identifying t
 
 #### Item Events
 
-| Event                 |Description                                       |Topic                                   |
-|-----------------------|-------------------------------------------------|-----------------------------------|
-| ItemAddedEvent         |An item has been added to the item registry.     |smarthome/items/{itemName}/added   |
-| ItemRemovedEvent         |An item has been removed from the item registry. |smarthome/items/{itemName}/removed |
-| ItemUpdatedEvent         |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated |
-| ItemCommandEvent         |A command is sent to an item via a channel.       |smarthome/items/{itemName}/command |
-| ItemStateEvent         |The state of an item is updated.                     |smarthome/items/{itemName}/state   |
+| Event                 |Description                                      |Topic                                   |
+|-----------------------|-------------------------------------------------|----------------------------------------|
+| ItemAddedEvent        |An item has been added to the item registry.     |smarthome/items/{itemName}/added        |
+| ItemRemovedEvent      |An item has been removed from the item registry. |smarthome/items/{itemName}/removed      |
+| ItemUpdatedEvent      |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated      |
+| ItemCommandEvent      |A command is sent to an item via a channel.      |smarthome/items/{itemName}/command      |
+| ItemStateEvent        |The state of an item is updated.                 |smarthome/items/{itemName}/state        |
+| ItemStateChangedEvent |The state of an item has changed.                |smarthome/items/{itemName}/statechanged |
 
+**Note:** The ItemStateEvent is sent, if the state of an item is updated, even if the state did not change. ItemStateChangedEvent is sent only if the state of an item was really changed. It contains the old and the new state of the item.
 
 #### Thing Events
 
