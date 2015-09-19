@@ -17,7 +17,11 @@ public class Constants {
 
     public static final String JAXRS_CONNECTOR_CONFIG = "com.eclipsesource.jaxrs.connector";
 
-    public static final String JAXRS_CONNECTOR_PROPERTY = "root";
+    public static final String JAXRS_CONNECTOR_ROOT_PROPERTY = "root";
+
+    public static final String JAXRS_CONNECTOR_CORS_PROPERTY = "cors";
+
+    public static final String JAXRS_CONNECTOR_CORS_PROPERTY_ENABLE_VALUE = "enable";
 
     public static final String REST_SERVLET_ALIAS = "/rest";
 
