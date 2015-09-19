@@ -94,9 +94,9 @@ public class RootResource {
                     properties = new Properties();
                 }
 
-                String rootAlias = (String) properties.get(Constants.JAXRS_CONNECTOR_PROPERTY);
+                String rootAlias = (String) properties.get(Constants.JAXRS_CONNECTOR_ROOT_PROPERTY);
                 if (!Constants.REST_SERVLET_ALIAS.equals(rootAlias)) {
-                    properties.put(Constants.JAXRS_CONNECTOR_PROPERTY, Constants.REST_SERVLET_ALIAS);
+                    properties.put(Constants.JAXRS_CONNECTOR_ROOT_PROPERTY, Constants.REST_SERVLET_ALIAS);
 
                     configuration.update(properties);
                 }
