@@ -62,6 +62,15 @@ The event source is optional and represents the name of the source identifying t
 | InboxRemovedEvent     |A discovery result has been removed from the inbox |smarthome/inbox/{thingUID}/removed |
 | InboxUpdateEvent         |A discovery result has been updated in the inbox   |smarthome/inbox/{thingUID}/updated |
 
+#### Link Events
+
+| Event                       |Description                                             |Topic                                           |
+|-----------------------------|--------------------------------------------------------|------------------------------------------------|
+| ItemChannelLinkAddedEvent   |An item channel link has been added to the registry     |smarthome/links/{itemName}-{channelUID}/added   |
+| ItemChannelLinkRemovedEvent |An item channel link has been removed from the registry |smarthome/links/{itemName}-{channelUID}/removed |
+| ItemThingLinkAddedEvent     |An item thing link has been added to the registry       |smarthome/links/{itemName}-{thingUID}/added     |
+| ItemThingLinkRemovedEvent   |An item thing link has been removed from the registry   |smarthome/links/{itemName}-{thingUID}/removed   |
+
 ## Receive Events
 
 This section describes how to receive Eclipse SmartHome events in Java. If you want to receive events "outside" from Eclipse SmartHome, e.g. with JavaScript, please refer to the [Server Send Events section](../features/rest.html).
