@@ -17,6 +17,7 @@
 
   <modules>
     <module>archetype</module>
+    <module>binding-docu-generator</module>
   </modules>
 
   <build>

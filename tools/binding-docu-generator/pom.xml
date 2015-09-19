@@ -6,8 +6,7 @@
 
     <packaging>maven-plugin</packaging>
 
-    <name>binding-docu-generator Maven Mojo</name>
-    <url>https://github.com/kummerer94/binding-docu-generator</url>
+    <name>Eclipse Smarthome Binding Documentation Generator</name>
 
     <dependencies>
         <dependency>
