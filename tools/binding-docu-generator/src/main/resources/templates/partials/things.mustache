@@ -1,0 +1,24 @@
+{{^thingList.empty}}
+<table>
+<thead>
+<th>Thing Type Id</th>
+<th>Channels</th>
+<th>Channel Groups</th>
+<th>Config</th>
+<th>Description</th>
+</thead>
+{{/thingList.empty}}
+<tbody>
+{{#thingList}}
+{{#model}}
+<tr>
+<td><a name="thing-id-{{id}}"></a>{{id}}</td>
+<td>{{#channels}} {{>channelInfo}} {{/channels}}</td>
+<td>{{#channelGroups}} {{>channelGroupInfo}} {{/channelGroups}}</td>
+<td>{{#configDescription}} <a href="#config-desc-{{uri}}">{{uri}}</a> {{/configDescription}}</td>
+<td>{{description}}</td>
+</tr>
+{{/model}}
+{{/thingList}}
+</tbody>
+</table>

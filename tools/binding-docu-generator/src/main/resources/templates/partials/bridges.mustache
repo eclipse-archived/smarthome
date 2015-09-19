@@ -1,0 +1,9 @@
+{{^bridgeList.empty}}
+## Bridges
+|Bridge Type Id|Channel Groups|Channels|Description|
+|---|---|---|---|
+{{/bridgeList.empty}}
+{{#bridgeList}}
+{{#model}}|<a name="bridge-id-{{id}}"></a>{{id}} | {{#channelGroups}} {{>channelGroupInfo}} {{/channelGroups}} | {{#channels}} {{>channelInfo}} {{/channels}} | {{description}}
+{{/model}}
+{{/bridgeList}}

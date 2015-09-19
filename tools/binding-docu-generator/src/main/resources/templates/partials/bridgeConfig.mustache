@@ -1,0 +1,12 @@
+{{^bridgeList.configDescriptions.empty}}
+## Bridge Config
+{{/bridgeList.configDescriptions.empty}}
+
+{{#bridgeList}}
+{{#model}}
+{{#configDescriptions}}
+### {{id}}
+{{>configDescriptions}}
+{{/configDescriptions}}
+{{/model}}
+{{/bridgeList}}

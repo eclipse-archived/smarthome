@@ -1,0 +1,12 @@
+{{^configList.empty}}
+## Configurations
+{{/configList.empty}}
+
+{{#configList}}
+{{#model}}
+## <a name="config-desc-{{uri}}"></a> {{uri}}
+|Name|Type|Properties|Context|Description|
+|---|---|---|---|---|
+{{>parameterRow}}
+{{/model}}
+{{/configList}}
