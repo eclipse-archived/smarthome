@@ -49,9 +49,9 @@ import com.google.common.collect.Sets
  * @author Marin Mitev - make the test to pass on each run
  *
  */
-class AutomationIntegrationTest2 extends OSGiTest{
+class AutomationIntegrationJsonTest extends OSGiTest{
 
-    final Logger logger = LoggerFactory.getLogger(AutomationIntegrationTest2.class)
+    final Logger logger = LoggerFactory.getLogger(AutomationIntegrationJsonTest.class)
     def EventPublisher eventPublisher
     def ItemRegistry itemRegistry
     def RuleRegistry ruleRegistry
