@@ -8,17 +8,16 @@
 package org.eclipse.smarthome.core.thing.link.dto;
 
 /**
- * This is a data transfer object that is used to serialize links.
+ * This is an abstract class for link data transfer object that is used to serialize links.
  *
  * @author Dennis Nobel - Initial contribution
  */
-public class ItemChannelLinkDTO extends AbstractLinkDTO {
+public abstract class AbstractLinkDTO {
 
-    public String channelUID;
+    public String itemName;
 
-    public ItemChannelLinkDTO(String itemName, String channelUID) {
-        super(itemName);
-        this.channelUID = channelUID;
+    public AbstractLinkDTO(String itemName) {
+        this.itemName = itemName;
     }
 
 }
