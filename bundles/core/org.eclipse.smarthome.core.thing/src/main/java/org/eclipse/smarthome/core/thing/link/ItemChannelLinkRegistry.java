@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
 
 /**
  * {@link ItemChannelLinkRegistry} tracks all {@link ItemChannelLinkProvider}s
@@ -45,6 +46,14 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         }
 
         return channelUIDs;
+    }
+
+    /**
+     * Channels can not be updated, so this methods throws an {@link UnsupportedOperationException}.
+     */
+    @Override
+    public ItemChannelLink update(ItemChannelLink element) {
+        throw new UnsupportedOperationException("Channels can not be updated.");
     }
 
     /**
@@ -83,5 +92,23 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
         }
+    }
+
+    @Override
+    protected void notifyListenersAboutAddedElement(ItemChannelLink element) {
+        super.notifyListenersAboutAddedElement(element);
+        postEvent(LinkEventFactory.createItemChannelLinkAddedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutRemovedElement(ItemChannelLink element) {
+        super.notifyListenersAboutRemovedElement(element);
+        postEvent(LinkEventFactory.createItemChannelLinkRemovedEvent(element));
+    }
+
+    @Override
+    protected void notifyListenersAboutUpdatedElement(ItemChannelLink oldElement, ItemChannelLink element) {
+        super.notifyListenersAboutUpdatedElement(oldElement, element);
+        // it is not needed to send an event, because links can not be updated
     }
 }
