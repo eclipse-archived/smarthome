@@ -23,21 +23,16 @@
     "if": [
       {
         "id": "ItemStateConditionID",
-        "type": "ItemStateCondition",
+        "type": "EventCondition",
         "config": {
-          "operator": "=",
-          "itemName": "myPresenceItem",
-		  "state":"ON"
-        }
-      },
-	  {
-		  "id": "ItemStateConditionID2",
-		  "type": "ItemStateCondition",
-		  "config":{
-			  "operator":"=",
-			  "itemName":"myMotionItem",
-			  "state":"ON"
-		  }
+          "topic": "smarthome/items/myMotionItem/state",
+		  "payload":".*ON.*"
+        },
+		"input":{
+			"topic":"ItemStateChangeTriggerID.topic",
+			"source":"ItemStateChangeTriggerID.source",
+			"payload":"ItemStateChangeTriggerID.payload"
+		}
 	  }
     ],
     "then": [

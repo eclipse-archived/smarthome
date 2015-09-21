@@ -130,7 +130,7 @@ class RuleEventTest extends OSGiTest{
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
         Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
-
+        
         Event itemEvent = null
 
         def itemEventHandler = [
@@ -167,6 +167,8 @@ class RuleEventTest extends OSGiTest{
         def runningEvent = stateEvents.find{it.statusInfo.status==RuleStatus.RUNNING}
         assertThat runningEvent, is(notNullValue())
         ruleRegistry.remove("myRule21")
-        assertThat ruleEvents.find{it.topic=="smarthome/rules/myRule21/removed"}, is(notNullValue())
+        waitForAssert({
+            assertThat ruleEvents.find{it.topic=="smarthome/rules/myRule21/removed"}, is(notNullValue())
+        })
     }
 }
