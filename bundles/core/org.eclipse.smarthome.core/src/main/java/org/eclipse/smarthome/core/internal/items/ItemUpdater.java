@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.internal.items;
 
+import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -14,6 +15,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
+import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.types.State;
 import org.slf4j.Logger;
@@ -30,14 +32,24 @@ public class ItemUpdater extends AbstractItemEventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(ItemUpdater.class);
 
-    protected ItemRegistry itemRegistry;
+    private ItemRegistry itemRegistry;
 
-    public void setItemRegistry(ItemRegistry itemRegistry) {
+    private EventPublisher eventPublisher;
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
     }
 
-    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
+    }
+
+    protected void setEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
+
+    protected void unsetEventPublisher(EventPublisher eventPublisher) {
+        this.eventPublisher = null;
     }
 
     @Override
@@ -67,7 +79,14 @@ public class ItemUpdater extends AbstractItemEventSubscriber {
                     }
                 }
                 if (isAccepted) {
+                    State oldState = item.getState();
                     item.setState(newState);
+                    if (!oldState.equals(newState)) {
+                        EventPublisher eventPublisher = this.eventPublisher;
+                        if (eventPublisher != null) {
+                            eventPublisher.post(ItemEventFactory.createStateChangedEvent(itemName, newState, oldState));
+                        }
+                    }
                 } else {
                     logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
                             + ") for item " + itemName);
