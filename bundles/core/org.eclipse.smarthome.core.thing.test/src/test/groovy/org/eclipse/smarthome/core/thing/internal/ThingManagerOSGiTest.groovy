@@ -12,7 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
-import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.events.TopicEventFilter
@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
+import org.eclipse.smarthome.core.thing.ThingStatusInfo
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -38,6 +39,7 @@ import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory
+import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
@@ -54,138 +56,137 @@ import com.google.common.collect.Sets
  */
 class ThingManagerOSGiTest extends OSGiTest {
 
-	ManagedThingProvider managedThingProvider
+    ManagedThingProvider managedThingProvider
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
-    
+
     def THING_TYPE_UID = new ThingTypeUID("binding:type")
-    
+
     def THING_UID = new ThingUID(THING_TYPE_UID, "id")
-    
+
     def CHANNEL_UID = new ChannelUID(THING_UID, "channel")
-    
-	Thing THING = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
+
+    Thing THING = ThingBuilder.create(THING_UID).withChannels([
+        new Channel(CHANNEL_UID, "Switch")
+    ]).build()
 
     EventPublisher eventPublisher
-    
-	@Before
-	void setUp() {
-		registerVolatileStorageService()
+
+    @Before
+    void setUp() {
+        registerVolatileStorageService()
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
-		managedThingProvider = getService(ManagedThingProvider)
+        managedThingProvider = getService(ManagedThingProvider)
         eventPublisher = getService(EventPublisher)
-	}
-	
-	@After
-	void teardown() {
-		managedThingProvider.getAll().each {
-			managedThingProvider.remove(it.getUID())
-		}
-	}
+    }
 
-	@Test
-	void 'ThingManager calls registerHandler for added Thing'() {
+    @After
+    void teardown() {
+        managedThingProvider.getAll().each {
+            managedThingProvider.remove(it.getUID())
+        }
+    }
 
-		def registerHandlerCalled = false
+    @Test
+    void 'ThingManager calls registerHandler for added Thing'() {
 
-		def thingHandlerFactory = [
-			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: {thing, callback -> registerHandlerCalled = true}
-		] as ThingHandlerFactory
+        def registerHandlerCalled = false
 
-		registerService(thingHandlerFactory)
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, callback -> registerHandlerCalled = true}
+        ] as ThingHandlerFactory
 
-		managedThingProvider.add(THING)
+        registerService(thingHandlerFactory)
 
-		waitForAssert {assertThat registerHandlerCalled, is(true)}
-	}
+        managedThingProvider.add(THING)
 
-	@Test
-	void 'ThingManager calls unregisterHandler for removed Thing'() {
+        waitForAssert {assertThat registerHandlerCalled, is(true)}
+    }
 
-		def unregisterHandlerCalled = false
+    @Test
+    void 'ThingManager calls unregisterHandler for removed Thing'() {
+
+        def unregisterHandlerCalled = false
         def removeThingCalled = false
 
-		def thingHandlerFactory = [
-			supportsThingType: {ThingTypeUID thingTypeUID -> true},
-			registerHandler: { Thing thing, ThingHandlerCallback callback ->
-				def thingHandler = {setCallback: {}} as ThingHandler
-				registerService(thingHandler,[
-					(ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
-					(ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
-				] as Hashtable)
-			},
-			unregisterHandler: {Thing thing -> unregisterHandlerCalled = true},
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: { Thing thing, ThingHandlerCallback callback ->
+                def thingHandler = {setCallback: {}} as ThingHandler
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)
+            },
+            unregisterHandler: {Thing thing -> unregisterHandlerCalled = true},
             removeThing: { ThingUID thingUID -> removeThingCalled = true}
-		] as ThingHandlerFactory
+        ] as ThingHandlerFactory
 
-		registerService(thingHandlerFactory)
+        registerService(thingHandlerFactory)
 
-		managedThingProvider.add(THING)
+        managedThingProvider.add(THING)
 
-		managedThingProvider.remove(THING.getUID())
+        managedThingProvider.remove(THING.getUID())
 
         waitForAssert {assertThat removeThingCalled, is(true)}
-		waitForAssert {assertThat unregisterHandlerCalled, is(true)}
-	}    
+        waitForAssert {assertThat unregisterHandlerCalled, is(true)}
+    }
 
     @Test
     void 'ThingManager does not delegate update events to its source'() {
 
         def itemName = "name"
         def handleUpdateWasCalled = false
-        
+
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             handleUpdate: { ChannelUID channelUID, State newState ->
                 handleUpdateWasCalled = true
             },
-            setCallback: {}
+            setCallback: {
+            }
         ] as ThingHandler
-        
+
         registerService(thingHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
+
         // event should be delivered
         eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
         waitForAssert { assertThat handleUpdateWasCalled, is(true) }
-       
+
         handleUpdateWasCalled = false
-        
+
         // event should not be delivered, because the source is the same
         eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
         waitFor {handleUpdateWasCalled == true}
-        assertThat handleUpdateWasCalled, is(false) 
+        assertThat handleUpdateWasCalled, is(false)
     }
-    
+
     @Test
     void 'ThingManager handles state updates correctly'() {
 
         def itemName = "name"
         def thingUpdatedWasCalled = false
         def callback;
-        
+
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            thingUpdated: {
-                thingUpdatedWasCalled = true
-            },
-            setCallback: {callbackArg -> 
-                callback = callbackArg 
-            }
+            thingUpdated: { thingUpdatedWasCalled = true },
+            setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
-        
+
         registerService(thingHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
-       Event receivedEvent = null  
-       def itemUpdateEventSubscriber = [
+
+        Event receivedEvent = null
+        def itemUpdateEventSubscriber = [
             receive: { event -> receivedEvent = event },
             getSubscribedEventTypes: { Sets.newHashSet(ItemStateEvent.TYPE) },
             getEventFilter: { new TopicEventFilter("smarthome/items/.*/state") },
@@ -205,9 +206,11 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         receivedEvent = null
         itemUpdateEvent = null
-        def thing = ThingBuilder.create(THING_UID).withChannels([new Channel(CHANNEL_UID, "Switch")]).build()
+        def thing = ThingBuilder.create(THING_UID).withChannels([
+            new Channel(CHANNEL_UID, "Switch")
+        ]).build()
         managedThingProvider.update(thing)
-        
+
         callback.stateUpdated(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat receivedEvent, not(null) }
         assertThat receivedEvent, is(instanceOf(ItemStateEvent))
@@ -219,34 +222,32 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat itemUpdateEvent.getItemState(), is("Value")
         waitForAssert { assertThat thingUpdatedWasCalled, is(true) }
     }
-    
+
     @Test
     void 'ThingManager handles post command correctly'() {
 
         def itemName = "name"
         def callback;
-        
+
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            }
+            setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
-        
+
         registerService(thingHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
+
         Event receivedEvent = null
         def itemCommandEventSubscriber = [
-             receive: { event -> receivedEvent = event },
-             getSubscribedEventTypes: { Sets.newHashSet(ItemCommandEvent.TYPE) },
-             getEventFilter: { new TopicEventFilter("smarthome/items/.*/command") },
-         ] as EventSubscriber
-         registerService(itemCommandEventSubscriber)
-        
+            receive: { event -> receivedEvent = event },
+            getSubscribedEventTypes: { Sets.newHashSet(ItemCommandEvent.TYPE) },
+            getEventFilter: { new TopicEventFilter("smarthome/items/.*/command") },
+        ] as EventSubscriber
+        registerService(itemCommandEventSubscriber)
+
         // thing manager posts the command to the event bus via EventPublisher
         callback.postCommand(CHANNEL_UID, new StringType("Value"))
         waitForAssert { assertThat receivedEvent, not(null) }
@@ -262,28 +263,26 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Test
     void 'ThingManager handles thing status updates online and offline correctly'() {
         ThingHandlerCallback callback;
-        
+
         managedThingProvider.add(THING)
         def thingHandler = [
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            }
+            setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
-        
+
         registerService(thingHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-		
+
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
-        
+
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(THING, statusInfo)
         assertThat THING.statusInfo, is(statusInfo)
     }
-    
+
     @Test
     void 'ThingManager handles thing status updates uninitialized and initializing correctly'() {
         def thingHandler = [
@@ -304,20 +303,20 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
         assertThat THING.statusInfo, is(statusInfo)
-        
+
         managedThingProvider.add(THING)
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
         assertThat THING.statusInfo, is(statusInfo)
-        
+
         unregisterService(THING.getHandler())
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         assertThat THING.statusInfo, is(statusInfo)
     }
-    
+
     @Test
     void 'ThingManager handles thing status update uninitialized with an exception correctly'() {
         def exceptionMsg = "Some runtime exception occurred!"
-        
+
         def thingHandler = [
             setCallback: {
             }
@@ -326,8 +325,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandlerFactory = [
             supportsThingType: {ThingTypeUID thingTypeUID -> true},
             registerHandler: {thing, callback ->
-                    throw new RuntimeException(exceptionMsg)
-                }
+                throw new RuntimeException(exceptionMsg)
+            }
         ] as ThingHandlerFactory
 
         registerService(thingHandlerFactory)
@@ -343,19 +342,17 @@ class ThingManagerOSGiTest extends OSGiTest {
         Bridge bridge = BridgeBuilder.create(new ThingUID(THING_TYPE_UID, "bridge-id")).build()
         Thing thingA = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-a-id")).withBridge(bridge.getUID())build()
         Thing thingB = ThingBuilder.create(new ThingUID(THING_TYPE_UID, "thing-b-id")).withBridge(bridge.getUID()).build()
-        
+
         ThingHandlerCallback callback;
-        
+
         managedThingProvider.add(bridge)
         managedThingProvider.add(thingA)
         managedThingProvider.add(thingB)
-        
+
         def bridgeHandler = [
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            }
+            setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
-        
+
         registerService(bridgeHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): bridge.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): bridge.getThingTypeUID()
@@ -369,11 +366,11 @@ class ThingManagerOSGiTest extends OSGiTest {
         for(Thing bridgeThing : bridge.getThings()) {
             assertThat bridgeThing.statusInfo, is(thingStatusInfo)
         }
-        
+
         bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(bridge, bridgeStatusInfo)
         assertThat bridge.statusInfo, is(bridgeStatusInfo)
-        
+
         thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         for(Thing bridgeThing : bridge.getThings()) {
             assertThat bridgeThing.statusInfo, is(thingStatusInfo)
@@ -385,26 +382,25 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         def itemName = "name"
         ThingHandlerCallback callback;
-        
+
         managedThingProvider.add(THING)
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            },
-            thingUpdated: {}
+            setCallback: {callbackArg -> callback = callbackArg },
+            thingUpdated: {
+            }
         ] as ThingHandler
-        
+
         registerService(thingHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
+
         boolean thingUpdated = false
-        
+
         ThingRegistry thingRegistry = getService(ThingRegistry)
         def registryChangeListener = [ updated: {old, updated -> thingUpdated = true} ] as RegistryChangeListener
-        
+
         try {
             thingRegistry.addRegistryChangeListener(registryChangeListener)
             callback.thingUpdated(THING)
@@ -413,18 +409,16 @@ class ThingManagerOSGiTest extends OSGiTest {
             thingRegistry.removeRegistryChangeListener(registryChangeListener)
         }
     }
-    
+
     @Test
     void 'ThingManager posts thing status events if the status of a thing is updated'() {
         ThingHandlerCallback callback
         ThingStatusInfoEvent receivedEvent
-        
+
         def thingHandler = [
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            }
+            setCallback: {callbackArg -> callback = callbackArg }
         ] as ThingHandler
-        
+
         def thingHandlerFactory = [
             supportsThingType: {ThingTypeUID thingTypeUID -> true},
             registerHandler: {thing, handlerCallback ->
@@ -434,30 +428,30 @@ class ThingManagerOSGiTest extends OSGiTest {
                 ] as Hashtable)}
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
-        
+
         def thingStatusEventSubscriber = [
             receive: { event -> receivedEvent = event as ThingStatusInfoEvent },
             getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoEvent.TYPE) },
             getEventFilter: { null },
         ] as EventSubscriber
         registerService(thingStatusEventSubscriber)
-        
+
         // set status to INITIALIZING
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
         ThingStatusInfoEvent event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         managedThingProvider.add(THING)
-        
+
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent.getType(), is(event.getType())
         assertThat receivedEvent.getPayload(), is(event.getPayload())
         assertThat receivedEvent.getTopic(), is(event.getTopic())
         receivedEvent = null
-        
+
         // set status to ONLINE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         callback.statusUpdated(THING, statusInfo)
-        
+
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent.getType(), is(event.getType())
         assertThat receivedEvent.getPayload(), is(event.getPayload())
@@ -468,21 +462,77 @@ class ThingManagerOSGiTest extends OSGiTest {
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR).build()
         event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         callback.statusUpdated(THING, statusInfo)
-        
+
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent.getType(), is(event.getType())
         assertThat receivedEvent.getPayload(), is(event.getPayload())
         assertThat receivedEvent.getTopic(), is(event.getTopic())
         receivedEvent = null
-        
+
         // set status to UNINITIALIZED
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
         event = ThingEventFactory.createStatusInfoEvent(THING.getUID(), statusInfo)
         unregisterService(THING.getHandler())
-        
+
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent.getType(), is(event.getType())
         assertThat receivedEvent.getPayload(), is(event.getPayload())
         assertThat receivedEvent.getTopic(), is(event.getTopic())
+    }
+
+    @Test
+    void 'ThingManager posts thing status changed events if the status of a thing is changed'() {
+        ThingHandlerCallback callback
+        ThingStatusInfoChangedEvent receivedEvent
+
+        def thingHandler = [
+            setCallback: {callbackArg -> callback = callbackArg }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thing, handlerCallback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
+                ] as Hashtable)}
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        def thingStatusEventSubscriber = [
+            receive: { event -> receivedEvent = event as ThingStatusInfoChangedEvent },
+            getSubscribedEventTypes: { Sets.newHashSet(ThingStatusInfoChangedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService(thingStatusEventSubscriber)
+
+        // add thing (UNINITIALIZED -> INITIALIZING)
+        managedThingProvider.add(THING)
+
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(ThingStatusInfoChangedEvent.TYPE)
+        assertThat receivedEvent.getTopic(), is("smarthome/things/binding:type:id/statuschanged")
+        assertThat receivedEvent.getStatusInfo().getStatus(), is(ThingStatus.INITIALIZING)
+        assertThat receivedEvent.getOldStatusInfo().getStatus(), is(ThingStatus.UNINITIALIZED)
+        receivedEvent = null
+
+        // set status to ONLINE (INITIALIZING -> ONLINE)
+        ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+
+        waitForAssert {assertThat receivedEvent, not(null)}
+        assertThat receivedEvent.getType(), is(ThingStatusInfoChangedEvent.TYPE)
+        assertThat receivedEvent.getTopic(), is("smarthome/things/binding:type:id/statuschanged")
+        assertThat receivedEvent.getStatusInfo().getStatus(), is(ThingStatus.ONLINE)
+        assertThat receivedEvent.getOldStatusInfo().getStatus(), is(ThingStatus.INITIALIZING)
+        receivedEvent = null
+
+        // set status to ONLINE again
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(THING, statusInfo)
+
+        // make sure no event has been sent
+        Thread.sleep(100)
+        assertThat receivedEvent, is(null)
     }
 }

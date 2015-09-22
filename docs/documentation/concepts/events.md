@@ -52,7 +52,9 @@ The event source is optional and represents the name of the source identifying t
 | ThingRemovedEvent      |A thing has been removed from the thing registry.|smarthome/things/{thingUID}/removed|
 | ThingUpdatedEvent     |A thing has been updated in the thing registry.  |smarthome/things/{thingUID}/updated|
 | ThingStatusInfoEvent    |The status of a thing is updated.                  |smarthome/things/{thingUID}/status |
+| ThingStatusInfoChangedEvent    |The status of a thing changed                  |smarthome/things/{thingUID}/statuschanged |
 
+**Note:** The ThingStatusInfoEvent is sent, if the status info of a thing is updated, even if the status did not change. ThingStatusInfoChangedEvent is sent only if the status of a thing was really changed. It contains the old and the new status of the thing.
 
 #### Inbox Events
 

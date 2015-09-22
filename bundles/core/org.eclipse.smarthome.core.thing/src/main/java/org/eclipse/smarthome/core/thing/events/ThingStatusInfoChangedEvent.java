@@ -12,21 +12,23 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
- * {@link ThingStatusInfoEvent}s will be delivered through the Eclipse SmartHome event bus if the status of a thing has
- * been updated. Thing status info objects must be created with the {@link ThingEventFactory}.
+ * {@link ThingStatusInfoChangedEvent}s will be delivered through the Eclipse SmartHome event bus if the status of a
+ * thing has changed. Thing status info objects must be created with the {@link ThingEventFactory}.
  *
- * @author Stefan Bußweiler - Initial contribution
+ * @author Dennis Nobel - Initial contribution
  */
-public class ThingStatusInfoEvent extends AbstractEvent {
+public class ThingStatusInfoChangedEvent extends AbstractEvent {
 
     /**
      * The thing status event type.
      */
-    public final static String TYPE = ThingStatusInfoEvent.class.getSimpleName();
+    public final static String TYPE = ThingStatusInfoChangedEvent.class.getSimpleName();
 
     private final ThingUID thingUID;
 
     private final ThingStatusInfo thingStatusInfo;
+
+    private final ThingStatusInfo oldStatusInfo;
 
     /**
      * Creates a new thing status event object.
@@ -35,11 +37,14 @@ public class ThingStatusInfoEvent extends AbstractEvent {
      * @param payload the payload
      * @param thingUID the thing UID
      * @param thingStatusInfo the thing status info object
+     * @param thingStatusInfo the old thing status info object
      */
-    protected ThingStatusInfoEvent(String topic, String payload, ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
+    protected ThingStatusInfoChangedEvent(String topic, String payload, ThingUID thingUID,
+            ThingStatusInfo newThingStatusInfo, ThingStatusInfo oldThingStatusInfo) {
         super(topic, payload, null);
         this.thingUID = thingUID;
-        this.thingStatusInfo = thingStatusInfo;
+        this.thingStatusInfo = newThingStatusInfo;
+        this.oldStatusInfo = oldThingStatusInfo;
     }
 
     @Override
@@ -65,9 +70,18 @@ public class ThingStatusInfoEvent extends AbstractEvent {
         return thingStatusInfo;
     }
 
+    /**
+     * Gets the old thing status info.
+     *
+     * @return the old thing status info
+     */
+    public ThingStatusInfo getOldStatusInfo() {
+        return oldStatusInfo;
+    }
+
     @Override
     public String toString() {
-        return "'" + thingUID + "' updated: " + thingStatusInfo.toString();
+        return "'" + thingUID + "' changed from " + oldStatusInfo.toString() + " to " + thingStatusInfo.toString();
     }
 
 }
