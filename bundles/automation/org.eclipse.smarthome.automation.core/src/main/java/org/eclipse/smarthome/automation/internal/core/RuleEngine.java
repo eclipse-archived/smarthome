@@ -36,6 +36,7 @@ import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.internal.core.RuleEngineCallbackImpl.TriggerData;
+import org.eclipse.smarthome.automation.internal.core.custom.CustomizedModuleHandlerFactory;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.Input;
@@ -61,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * it goes to the idle state.
  *
  * @author Yordan Mihaylov - Initial Contribution
- * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
  *
  */
 @SuppressWarnings("rawtypes")
@@ -130,6 +131,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private StatusInfoCallback statusInfoCallback;
 
+    private CustomizedModuleHandlerFactory customizedModuleHandlerFactory;
+
     /**
      * Prefix of {@link Rule}'s UID created by the rule engine.
      */
@@ -145,6 +148,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public RuleEngine(BundleContext bc) {
         this.bc = bc;
         logger = LoggerFactory.getLogger(getClass());
+        customizedModuleHandlerFactory = new CustomizedModuleHandlerFactory(bc);
         if (rules == null) {
             rules = new HashMap<String, RuntimeRule>(20);
         }
@@ -498,9 +502,14 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return handler for this module or null when it is not available.
      */
     private ModuleHandler getModuleHandler(Module m) {
-        String mtId = m.getTypeUID();
-        mtId = getSystemModuleType(mtId);
-        ModuleHandlerFactory mhf = moduleHandlerFactories.get(mtId);
+        String moduleTypeId = m.getTypeUID();
+        String parentModuleTypeId = getParentModuleType(moduleTypeId);
+        ModuleHandlerFactory mhf = null;
+        if (parentModuleTypeId.equals(moduleTypeId)) {
+            mhf = moduleHandlerFactories.get(moduleTypeId);
+        } else {
+            mhf = customizedModuleHandlerFactory;
+        }
         if (mhf == null) {
             // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
             return null;
@@ -515,9 +524,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * system type. The module of custom type will be processed by the module handler of its system type.
      *
      * @param mtId module type id
-     * @return UID of system module type for this module type.
+     * @return UID of parent module type for this module type.
      */
-    private String getSystemModuleType(String mtId) {
+    private String getParentModuleType(String mtId) {
         if (mtId == null) {
             throw new IllegalArgumentException("Invalid module type id. It must not be null!");
         }
@@ -742,8 +751,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
-            /* ModuleHandlerFactory */Object service) {
-    }
+            /* ModuleHandlerFactory */Object service) {}
 
     /**
      * This method tracks for disappearing of {@link ModuleHandlerFactory} service. It unregister all rules using
@@ -969,6 +977,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 RuntimeRule r = it.next();
                 removeRuleEntry(r);
                 it.remove();
+            }
+            if (customizedModuleHandlerFactory != null) {
+                customizedModuleHandlerFactory.dispose();
+                customizedModuleHandlerFactory = null;
             }
         }
         statusInfoCallback = null;

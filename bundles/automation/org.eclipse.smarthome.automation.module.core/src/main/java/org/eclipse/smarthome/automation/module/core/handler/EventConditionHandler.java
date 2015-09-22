@@ -7,22 +7,22 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.handler.BaseConditionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
+import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation of a event condition which checks if inputs matches configured values.
- * 
+ *
  * @author BenediktNiehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class EventConditionHandler extends BaseConditionHandler {
+public class EventConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
     public final Logger logger = LoggerFactory.getLogger(EventConditionHandler.class);
 
     public static final String MODULETYPE_ID = "EventCondition";
@@ -32,33 +32,25 @@ public class EventConditionHandler extends BaseConditionHandler {
     private static final String SOURCE = "source";
     private static final String PAYLOAD = "payload";
 
-    public EventConditionHandler(Condition module, List<ModuleType> moduleTypes) {
-        super(module, moduleTypes);
+    public EventConditionHandler(Condition module) {
+        super(module);
     }
 
-    @Override
-    public void dispose() {
-        // nothing to do
-    }
-
-    @Override
-    protected boolean evaluateCondition(Map<String, Object> resolvedInputs, Map<String, Object> resolvedConfiguration) {
-        return isConfiguredAndMatches(TOPIC, resolvedInputs, resolvedConfiguration)
-                && isConfiguredAndMatches(SOURCE, resolvedInputs, resolvedConfiguration)
-                && isConfiguredAndMatches(PAYLOAD, resolvedInputs, resolvedConfiguration)
-                && isConfiguredAndMatches(EVENTTYPE, resolvedInputs, resolvedConfiguration);
-    }
-
-    private boolean isConfiguredAndMatches(String keyParam, Map<String, Object> resolvedInputs,
-            Map<String, Object> resolvedConfiguration) {
-        if (resolvedConfiguration.get(keyParam) != null) {
-            if (resolvedInputs.get(keyParam) != null) {
-                return ((String) resolvedInputs.get(keyParam)).matches((String) resolvedConfiguration.get(keyParam));
+    private boolean isConfiguredAndMatches(String keyParam, Map<String, ?> inputs) {
+        if (module.getConfiguration().get(keyParam) != null) {
+            if (inputs.get(keyParam) != null) {
+                return ((String) inputs.get(keyParam)).matches((String) module.getConfiguration().get(keyParam));
             } else {
                 return false;
             }
         } else
             return true;
+    }
+
+    @Override
+    public boolean isSatisfied(Map<String, ?> inputs) {
+        return isConfiguredAndMatches(TOPIC, inputs) && isConfiguredAndMatches(SOURCE, inputs)
+                && isConfiguredAndMatches(PAYLOAD, inputs) && isConfiguredAndMatches(EVENTTYPE, inputs);
     }
 
 }

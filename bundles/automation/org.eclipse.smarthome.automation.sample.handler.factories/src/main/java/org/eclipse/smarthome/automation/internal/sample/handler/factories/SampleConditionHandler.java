@@ -19,21 +19,20 @@ s * Copyright (c) 1997, 2015 by ProSyst Software GmbH
 
 package org.eclipse.smarthome.automation.internal.sample.handler.factories;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.handler.BaseConditionHandler;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
  * Condition Handler Sample Implementation.
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class SampleConditionHandler extends BaseConditionHandler implements ConditionHandler {
+public class SampleConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
     public static final String OPERATOR_LESS = "<";
     public static final String OPERATOR_GREATER = ">";
     public static final String OPERATOR_EQUAL = "=";
@@ -48,22 +47,21 @@ public class SampleConditionHandler extends BaseConditionHandler implements Cond
      *
      * @param condition
      */
-    public SampleConditionHandler(Condition condition, List<ModuleType> moduleTypes) {
-        super(condition, moduleTypes);
+    public SampleConditionHandler(Condition condition) {
+        super(condition);
     }
 
     @Override
-    public void dispose() {
-    }
+    public void dispose() {}
 
     @Override
-    protected boolean evaluateCondition(Map<String, Object> resolvedInputs, Map<String, Object> resolvedConfiguration) {
-        String conditionInput = (String) resolvedInputs.get(CONDITION_INPUT_NAME);
+    public boolean isSatisfied(Map<String, ?> inputs) {
+        String conditionInput = (String) inputs.get(CONDITION_INPUT_NAME);
         if (conditionInput == null) {
             conditionInput = "";
         }
-        String operator = (String) resolvedConfiguration.get(PROPERTY_OPERATOR);
-        String constraint = (String) resolvedConfiguration.get(PROPERTY_CONSTRAINT);
+        String operator = (String) inputs.get(PROPERTY_OPERATOR);
+        String constraint = (String) inputs.get(PROPERTY_CONSTRAINT);
         boolean evaluation = false;
         if (OPERATOR_EQUAL.equals(operator)) {
             evaluation = conditionInput.equals(constraint);

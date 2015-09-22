@@ -9,14 +9,13 @@ package org.eclipse.smarthome.automation.module.core.handler;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.BaseTriggerHandler;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
 import org.eclipse.smarthome.core.events.EventSubscriber;
@@ -36,20 +35,19 @@ import com.google.common.collect.Maps;
  * automation component. Each GenericTriggerHandler instance registers as
  * EventSubscriber, so the dispose method must be called for unregistering the
  * service.
- * 
+ *
  * @author Benedikt Niehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class GenericEventTriggerHandler extends BaseTriggerHandler implements EventSubscriber {
+public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler, EventSubscriber {
 
     private final Logger logger = LoggerFactory.getLogger(GenericEventTriggerHandler.class);
 
     private RuleEngineCallback callback;
-    private Map<String, Object> config;
     private String source;
     private String topic;
     private Set<String> types;
-    private Trigger trigger;
     private BundleContext bundleContext;
 
     public static final String MODULE_TYPE_ID = "GenericEventTrigger";
@@ -60,13 +58,11 @@ public class GenericEventTriggerHandler extends BaseTriggerHandler implements Ev
 
     private ServiceRegistration<EventSubscriber> eventSubscriberRegistration;
 
-    public GenericEventTriggerHandler(Trigger module, List<ModuleType> moduleTypes, BundleContext bundleContext) {
-        super(module, moduleTypes);
-        this.trigger = (Trigger) module;
-        this.config = getResolvedConfiguration(null);
-        this.source = (String) config.get(CFG_EVENT_SOURCE);
-        this.topic = (String) config.get(CFG_EVENT_TOPIC);
-        this.types = ImmutableSet.copyOf(((String) config.get(CFG_EVENT_TYPES)).split(","));
+    public GenericEventTriggerHandler(Trigger module, BundleContext bundleContext) {
+        super(module);
+        this.source = (String) module.getConfiguration().get(CFG_EVENT_SOURCE);
+        this.topic = (String) module.getConfiguration().get(CFG_EVENT_TOPIC);
+        this.types = ImmutableSet.copyOf(((String) module.getConfiguration().get(CFG_EVENT_TYPES)).split(","));
         this.bundleContext = bundleContext;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", topic);
@@ -101,7 +97,7 @@ public class GenericEventTriggerHandler extends BaseTriggerHandler implements Ev
         values.put("payload", event.getPayload());
         values.put("type", event.getType());
         values.put("topic", event.getTopic());
-        callback.triggered(this.trigger, getResolvedOutputs(config, null, values));
+        callback.triggered(this.module, values);
     }
 
     /**
@@ -122,17 +118,12 @@ public class GenericEventTriggerHandler extends BaseTriggerHandler implements Ev
     /**
      * do the cleanup: unregistering eventSubscriber...
      */
+    @Override
     public void dispose() {
         if (eventSubscriberRegistration != null) {
             eventSubscriberRegistration.unregister();
             eventSubscriberRegistration = null;
         }
-    }
-
-    @Override
-    protected Map<String, Object> getTriggerValues() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

@@ -9,181 +9,41 @@ package org.eclipse.smarthome.automation.handler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.eclipse.smarthome.automation.Module;
-import org.eclipse.smarthome.automation.type.ModuleType;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Common implementation for {@link ModuleHandlerFactory}s.
- * Implementors must take care of registering the factory as service themselves.
+ * This is a base class that can be used by any ModuleHandlerFactory implementation
  *
- * @author Vasil Ilchev - Initial Contribution
- * @author Benedikt Niehues - Removed service registration of this
- *
+ * @author Kai Kreuzer - Initial Contribution
  */
-@SuppressWarnings("rawtypes")
-public abstract class BaseModuleHandlerFactory implements ModuleHandlerFactory, ServiceTrackerCustomizer {
-    public static final String MODULE_TYPE_UID_SEPARATOR = ":";
-    protected BundleContext bundleContext;
-    private ServiceTracker serviceTracker;
-    private ServiceReference moduleTypeRegistryRef;
-    private ModuleTypeRegistry moduleTypeRegistry;
-    private Logger log;
-    private List<ModuleHandler> createdHandlers;
+abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    @SuppressWarnings("unchecked")
+    protected List<ModuleHandler> handlers;
+    protected BundleContext bundleContext;
+
     public BaseModuleHandlerFactory(BundleContext bundleContext) {
         if (bundleContext == null) {
             throw new IllegalArgumentException("BundleContext must not be null.");
         }
         this.bundleContext = bundleContext;
-        log = LoggerFactory.getLogger(BaseModuleHandlerFactory.class);
-        init();
-        createdHandlers = new ArrayList();
-        serviceTracker = new ServiceTracker(bundleContext, ModuleTypeRegistry.class.getName(), this);
-        serviceTracker.open();
-    }
-
-    protected void init() {
-        // DO SUBCLASS FACHTORY INITIALIZATION
+        handlers = new ArrayList<ModuleHandler>();
     }
 
     @Override
     public ModuleHandler create(Module module) {
-        ModuleHandler moduleHandler = null;
-        if (module != null) {
-            if (moduleTypeRegistry != null) {
-                String typeUID = module.getTypeUID();
-                String systemModuleTypeUID = getSystemModuleTypeUID(typeUID);
-                List<ModuleType> moduleTypes = getAllModuleTypes(typeUID);
-                if (moduleTypes != null) {
-                    moduleHandler = createModuleHandlerInternal(module, systemModuleTypeUID, moduleTypes);
-                    if (moduleHandler != null) {
-                        createdHandlers.add(moduleHandler);
-                    } else {
-                        log.error("The Factory was not able to create ModuleHandler for Module with typeUID:"
-                                + module.getTypeUID());
-                    }
-                } else {
-                    log.error("Failed to retrieve all ModuleTypes from: " + typeUID);
-                }
-            } else {
-                log.error("ModuleTypeRegistry service is not available");
-            }
-        } else {
-            log.error("Module must not be null.");
-        }
-        return moduleHandler;
+        ModuleHandler handler = internalCreate(module);
+        handlers.add(handler);
+        return handler;
     }
+
+    abstract protected ModuleHandler internalCreate(Module module);
 
     public void dispose() {
-        if (moduleTypeRegistryRef != null) {
-            try {
-                bundleContext.ungetService(moduleTypeRegistryRef);
-            } catch (IllegalStateException e) {
-            }
+        for (ModuleHandler handler : handlers) {
+            handler.dispose();
         }
-        serviceTracker.close();
-        for (ModuleHandler moduleHandler : createdHandlers) {
-            moduleHandler.dispose();
-        }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object addingService(ServiceReference reference) {
-        Object service = null;
-        if (moduleTypeRegistryRef == null && reference != null) {
-            moduleTypeRegistryRef = reference;
-            service = bundleContext.getService(reference);
-            if (service != null) {
-                moduleTypeRegistry = (ModuleTypeRegistry) service;
-            }
-        }
-
-        return service;
-    }
-
-    @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-    }
-
-    @Override
-    public void removedService(ServiceReference reference, Object service) {
-        if (moduleTypeRegistryRef == reference) {
-            moduleTypeRegistryRef = null;
-            moduleTypeRegistry = null;
-        }
-        bundleContext.ungetService(reference);
-    }
-
-    /**
-     * Creates ModuleHandler for given Module.
-     *
-     * @param module the Module for which ModuleHandler will be created
-     * @param systemModuleTypeUID the System ModuleType (ModuleHandler UID)
-     * @param moduleTypes All ModuleTypes needed for this Module
-     *            For example: If Module has {@link Module#getTypeUID()} ->
-     *            SystemModuleType:CustomModuleType:CustomModuleType2
-     *            List of these 3 ModuleTypes will be passed.
-     * @return ModuleHandler for the given Module or <code>null</code> if creation have failed.
-     */
-    protected abstract ModuleHandler createModuleHandlerInternal(Module module, String systemModuleTypeUID,
-            List<ModuleType> moduleTypes);
-
-    /**
-     * Retrieves all ModuleTypes for given ModuleTypeUID
-     *
-     * @param moduleTypeUID the source module type
-     * @return
-     * @return list of all module types in the hierarchy
-     */
-
-    private List<ModuleType> getAllModuleTypes(String moduleTypeUID) {
-        List<ModuleType> allModuleTypes = new ArrayList<ModuleType>();
-        String currentModuleTypeUID = moduleTypeUID;
-        ModuleType currentModuleType;
-        do {
-            currentModuleType = moduleTypeRegistry.get(currentModuleTypeUID);
-            if (currentModuleType != null) {
-                allModuleTypes.add(currentModuleType);
-                currentModuleTypeUID = getParentModuleTypeUID(currentModuleTypeUID);
-            } else {// error case
-                allModuleTypes = null;
-                log.error("From ModuleType uid=" + moduleTypeUID + " -> ModuleType uid=" + currentModuleTypeUID
-                        + " is not available.");
-                break;
-            }
-        } while (currentModuleTypeUID != null);// while there is parent ModuleType
-
-        return allModuleTypes;
-    }
-
-    /**
-     * Gets parent moduleTypeUID if passed moduleTypeUID has parent
-     *
-     * @param childModuleTypeUID the UID of the moduleType
-     * @return parent module type UID if passed moduleType has parent, null otherwise
-     */
-    private String getParentModuleTypeUID(String childModuleTypeUID) {
-        String parentModuleTypeUID = null;
-        if (childModuleTypeUID.indexOf(MODULE_TYPE_UID_SEPARATOR) != -1) {
-            parentModuleTypeUID = childModuleTypeUID.substring(0,
-                    childModuleTypeUID.lastIndexOf(MODULE_TYPE_UID_SEPARATOR));
-        }
-        return parentModuleTypeUID;
-    }
-
-    protected String getSystemModuleTypeUID(String moduleTypeUID) {
-        StringTokenizer tokenizer = new StringTokenizer(moduleTypeUID, MODULE_TYPE_UID_SEPARATOR);
-        return tokenizer.nextToken();
+        handlers.clear();
     }
 }

@@ -118,7 +118,7 @@ public class RuleEngineTest {
     @Test
     public void testRuleConfigValue() {
         RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
-        Set<ConfigDescriptionParameter> configDescriptions = createConfigDescriptinos();
+        Set<ConfigDescriptionParameter> configDescriptions = createConfigDescriptions();
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("config1", 5);
 
@@ -274,7 +274,7 @@ public class RuleEngineTest {
         return actions;
     }
 
-    private Set<ConfigDescriptionParameter> createConfigDescriptinos() {
+    private Set<ConfigDescriptionParameter> createConfigDescriptions() {
         Set<ConfigDescriptionParameter> configDescriptions = new LinkedHashSet<ConfigDescriptionParameter>();
         List<ParameterOption> options = new ArrayList<ParameterOption>();
         options.add(new ParameterOption("1", "one"));

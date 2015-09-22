@@ -10,12 +10,12 @@ package org.eclipse.smarthome.automation.module.core.handler;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.BaseTriggerHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
+import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.types.State;
@@ -27,11 +27,12 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is the handler implementation for a trigger that triggers a rule
  * on item state changes.
- * 
+ *
  * @author Benedikt Niehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
+public class ItemStateChangeTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
 
     public static final String ITEM_STATE_CHANGE_TRIGGER = "ItemStateChangeTrigger";
     public static final String ITEM_NAME = "itemName";
@@ -45,10 +46,10 @@ public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
     private EventSubscriber itemStateUpdateReceiver;
 
     private ServiceRegistration<EventSubscriber> itemStateUpdateReceiverServiceRegistration;
+    private RuleEngineCallback ruleEngineCallback;
 
-    public ItemStateChangeTriggerHandler(Trigger trigger, List<ModuleType> moduleTypes, BundleContext context) {
-        super(trigger, moduleTypes);
-        this.trigger = trigger;
+    public ItemStateChangeTriggerHandler(Trigger trigger, BundleContext context) {
+        super(trigger);
         this.context = context;
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", "smarthome/*");
@@ -59,7 +60,7 @@ public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
 
     /**
      * sets the output values
-     * 
+     *
      * @param itemName
      * @param newState
      * @return
@@ -68,38 +69,38 @@ public class ItemStateChangeTriggerHandler extends BaseTriggerHandler {
         Map<String, Object> ret = new HashMap<String, Object>();
         ret.put(ITEM_NAME, itemName);
         ret.put(NEW_STATE, newState.toString());
-        return getResolvedOutputs(getResolvedConfiguration(null), null, ret);
+        return ret;
     }
 
+    @Override
     public void dispose() {
         itemStateUpdateReceiver = null;
+        itemStateUpdateReceiverServiceRegistration.unregister();
     }
 
     /**
      * this is the callback method for the ItemStateUpdateReceiver
-     * 
+     *
      * @param event
      */
     public void updateReceived(ItemStateEvent event) {
         logger.debug("update received for " + event.getItemName());
-        Map<String, Object> configuration = getResolvedConfiguration(null);
-        String itemName = (String) configuration.get(ITEM_NAME);
+        String itemName = (String) module.getConfiguration().get(ITEM_NAME);
 
-        if (ruleCallBack == null) {
+        if (ruleEngineCallback == null) {
             logger.error("the rule Callback is not initialized for ItemUpdate Event on item: " + itemName);
         }
         if (itemName.equals(event.getItemName())) {
             logger.debug("triggering rule callback on ItemStateEvent: " + event.getItemName() + " --> "
                     + event.getItemState());
-            ruleCallBack.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
+            ruleEngineCallback.triggered(trigger, calculateOutputs(itemName, event.getItemState()));
         }
 
     }
 
     @Override
-    protected Map<String, Object> getTriggerValues() {
-        // TODO Auto-generated method stub
-        return null;
+    public void setRuleEngineCallback(RuleEngineCallback ruleEngineCallback) {
+        this.ruleEngineCallback = ruleEngineCallback;
     }
 
 }

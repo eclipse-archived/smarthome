@@ -7,13 +7,11 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.handler.BaseActionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -28,11 +26,12 @@ import org.slf4j.LoggerFactory;
 /**
  * This is an implementation of an ActionHandler. It posts command events on
  * items to change their state.
- * 
+ *
  * @author Benedikt Niehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemPostCommandActionHandler extends BaseActionHandler implements ActionHandler {
+public class ItemPostCommandActionHandler extends BaseModuleHandler<Action>implements ActionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ItemPostCommandActionHandler.class);
 
@@ -45,17 +44,17 @@ public class ItemPostCommandActionHandler extends BaseActionHandler implements A
 
     /**
      * constructs a new ItemPostCommandActionHandler
-     * 
+     *
      * @param module
      * @param moduleTypes
      */
-    public ItemPostCommandActionHandler(Action module, List<ModuleType> moduleTypes) {
-        super(module, moduleTypes);
+    public ItemPostCommandActionHandler(Action module) {
+        super(module);
     }
 
     /**
      * setter for itemRegistry, used by DS
-     * 
+     *
      * @param itemRegistry
      */
     public void setItemRegistry(ItemRegistry itemRegistry) {
@@ -64,7 +63,7 @@ public class ItemPostCommandActionHandler extends BaseActionHandler implements A
 
     /**
      * unsetter for itemRegistry, used by DS
-     * 
+     *
      * @param itemRegistry
      */
     public void unsetItemRegistry(ItemRegistry itemRegistry) {
@@ -73,7 +72,7 @@ public class ItemPostCommandActionHandler extends BaseActionHandler implements A
 
     /**
      * setter for eventPublisher used by DS
-     * 
+     *
      * @param eventPublisher
      */
     public void setEventPublisher(EventPublisher eventPublisher) {
@@ -82,7 +81,7 @@ public class ItemPostCommandActionHandler extends BaseActionHandler implements A
 
     /**
      * unsetter for eventPublisher used by DS
-     * 
+     *
      * @param eventPublisher
      */
     public void unsetEventPublisher(EventPublisher eventPublisher) {
@@ -96,10 +95,9 @@ public class ItemPostCommandActionHandler extends BaseActionHandler implements A
     }
 
     @Override
-    protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
-            Map<String, Object> resolvedConfiguration) {
-        String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
-        String command = (String) resolvedConfiguration.get(COMMAND);
+    public Map<String, Object> execute(Map<String, ?> inputs) {
+        String itemName = (String) module.getConfiguration().get(ITEM_NAME);
+        String command = (String) module.getConfiguration().get(COMMAND);
         if (itemName != null && command != null && eventPublisher != null && itemRegistry != null) {
             try {
                 Item item = itemRegistry.getItem(itemName);

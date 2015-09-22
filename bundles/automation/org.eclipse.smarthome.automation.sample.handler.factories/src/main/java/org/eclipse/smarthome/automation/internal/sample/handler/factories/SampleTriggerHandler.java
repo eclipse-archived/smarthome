@@ -8,48 +8,40 @@
 package org.eclipse.smarthome.automation.internal.sample.handler.factories;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.handler.BaseTriggerHandler;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
+import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
 
 /**
  * Trigger Handler sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  */
-public class SampleTriggerHandler extends BaseTriggerHandler implements TriggerHandler {
+public class SampleTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
     private static final String OUTPUT_REFERENCE = "consoleInput";
-    private SampleHandlerFactory handlerFactory;
-    private String triggerParam;
+    private RuleEngineCallback ruleCallback;
 
-    public SampleTriggerHandler(SampleHandlerFactory handlerFactory, Trigger module, List<ModuleType> moduleTypes) {
-        super(module, moduleTypes);
-        this.handlerFactory = handlerFactory;
+    public SampleTriggerHandler(Trigger module) {
+        super(module);
     }
 
     public void trigger(String triggerParam) {
-        this.triggerParam = triggerParam;
-        trigger();
-    }
-
-    @Override
-    public void dispose() {
-        handlerFactory.disposeHandler(this);
-    }
-
-    @Override
-    protected Map<String, Object> getTriggerValues() {
-        Map<String, Object> triggerValues = new HashMap<String, Object>();
-        triggerValues.put(OUTPUT_REFERENCE, triggerParam);
-        return triggerValues;
+        Map<String, Object> outputs = new HashMap<String, Object>();
+        outputs.put(OUTPUT_REFERENCE, triggerParam);
+        ruleCallback.triggered(module, outputs);
     }
 
     String getTriggerID() {
         return module.getId();
+    }
+
+    @Override
+    public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
+        this.ruleCallback = ruleCallback;
     }
 
 }

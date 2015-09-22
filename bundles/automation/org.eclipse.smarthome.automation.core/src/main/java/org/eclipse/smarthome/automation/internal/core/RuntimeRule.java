@@ -47,7 +47,7 @@ public class RuntimeRule extends Rule {
     }
 
     public RuntimeRule(RuleTemplate template, Map<String, ?> configuration) {
-        super(createTrieggers(template.getTriggers()), createConditions(template.getConditions()),
+        super(createTriggers(template.getTriggers()), createConditions(template.getConditions()),
                 createActions(template.getActions()), template.getConfigurationDescription(), configuration);
     }
 
@@ -58,7 +58,7 @@ public class RuntimeRule extends Rule {
      *            has to be created.
      */
     protected RuntimeRule(Rule rule) {
-        super(rule.getUID(), createTrieggers(rule.getTriggers()), createConditions(rule.getConditions()),
+        super(rule.getUID(), createTriggers(rule.getTriggers()), createConditions(rule.getConditions()),
                 createActions(rule.getActions()), rule.getConfigurationDescriptions(), rule.getConfiguration());
         setName(rule.getName());
         setTags(rule.getTags());
@@ -301,7 +301,7 @@ public class RuntimeRule extends Rule {
         return res;
     }
 
-    private static List<Trigger> createTrieggers(List<Trigger> triggers) {
+    private static List<Trigger> createTriggers(List<Trigger> triggers) {
         List<Trigger> res = new ArrayList<Trigger>(11);
         if (triggers != null) {
             for (Trigger trigger : triggers) {

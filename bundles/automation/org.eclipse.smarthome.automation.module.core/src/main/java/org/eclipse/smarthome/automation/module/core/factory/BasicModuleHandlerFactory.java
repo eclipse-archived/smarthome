@@ -10,7 +10,6 @@ package org.eclipse.smarthome.automation.module.core.factory;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
@@ -24,7 +23,6 @@ import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerH
 import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateChangeTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.osgi.framework.BundleContext;
@@ -39,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * RuleEngine. It contains basic Triggers, Conditions and Actions.
  *
  * @author Benedikt Niehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
 public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
@@ -65,21 +64,11 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     public BasicModuleHandlerFactory(BundleContext bundleContext) {
         super(bundleContext);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory#init()
-     */
-    @Override
-    protected void init() {
         this.genericEventTriggerHandlers = new HashMap<String, GenericEventTriggerHandler>();
         this.itemStateConditionHandlers = new HashMap<String, ItemStateConditionHandler>();
         this.itemPostCommandActionHandlers = new HashMap<String, ItemPostCommandActionHandler>();
         this.eventConditionHandlers = new HashMap<String, EventConditionHandler>();
         initializeServiceTrackers();
-
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -96,7 +85,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-                    }
+            }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -117,7 +106,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-                    }
+            }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -187,61 +176,11 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         }
     }
 
-    @Override
-    protected ModuleHandler createModuleHandlerInternal(Module module, String systemModuleTypeUID,
-            List<ModuleType> moduleTypes) {
-        logger.debug("create {} -> {}", module.getId(), module.getTypeUID());
-        String moduleTypeUID = module.getTypeUID();
-        if (systemModuleTypeUID != null) {
-            if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(systemModuleTypeUID) && module instanceof Trigger) {
-                GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
-                if (triggerHandler == null) {
-                    triggerHandler = new GenericEventTriggerHandler((Trigger) module, moduleTypes, this.bundleContext);
-                    genericEventTriggerHandlers.put(module.getId(), triggerHandler);
-                }
-                return triggerHandler;
-            } else if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(systemModuleTypeUID)
-                    && module instanceof Condition) {
-                ItemStateConditionHandler conditionHandler = itemStateConditionHandlers.get(module.getId());
-                if (conditionHandler == null) {
-                    conditionHandler = new ItemStateConditionHandler((Condition) module, moduleTypes);
-                    conditionHandler.setItemRegistry(itemRegistry);
-                    itemStateConditionHandlers.put(module.getId(), conditionHandler);
-                }
-                return conditionHandler;
-            } else if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(systemModuleTypeUID)
-                    && module instanceof Action) {
-                ItemPostCommandActionHandler postCommandActionHandler = itemPostCommandActionHandlers
-                        .get(module.getId());
-                if (postCommandActionHandler == null) {
-                    postCommandActionHandler = new ItemPostCommandActionHandler((Action) module, moduleTypes);
-                    postCommandActionHandler.setEventPublisher(eventPublisher);
-                    postCommandActionHandler.setItemRegistry(itemRegistry);
-                    itemPostCommandActionHandlers.put(module.getId(), postCommandActionHandler);
-                }
-                return postCommandActionHandler;
-            } else if (EventConditionHandler.MODULETYPE_ID.equals(systemModuleTypeUID) && module instanceof Condition) {
-                EventConditionHandler eventConditionHandler = eventConditionHandlers.get(module.getId());
-                if (eventConditionHandler == null) {
-                    eventConditionHandler = new EventConditionHandler((Condition) module, moduleTypes);
-                    eventConditionHandlers.put(module.getId(), eventConditionHandler);
-                }
-                return eventConditionHandler;
-            } else {
-                logger.error("The ModuleHandler is not supported:" + systemModuleTypeUID);
-            }
-
-        } else {
-            logger.error("ModuleType is not registered: " + moduleTypeUID);
-        }
-        return null;
-    }
-
     /*
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory#dispose
+     * org.eclipse.smarthome.automation.handler.BaseCustomizedModuleHandlerFactory#dispose
      * ()
      */
     @Override
@@ -249,6 +188,49 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
         super.dispose();
         itemRegistryTracker.close();
         eventPublisherTracker.close();
+    }
+
+    @Override
+    protected ModuleHandler internalCreate(Module module) {
+        logger.debug("create {} -> {}", module.getId(), module.getTypeUID());
+        String moduleTypeUID = module.getTypeUID();
+        if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
+            GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
+            if (triggerHandler == null) {
+                triggerHandler = new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
+                genericEventTriggerHandlers.put(module.getId(), triggerHandler);
+            }
+            return triggerHandler;
+        } else
+            if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID) && module instanceof Condition) {
+            ItemStateConditionHandler conditionHandler = itemStateConditionHandlers.get(module.getId());
+            if (conditionHandler == null) {
+                conditionHandler = new ItemStateConditionHandler((Condition) module);
+                conditionHandler.setItemRegistry(itemRegistry);
+                itemStateConditionHandlers.put(module.getId(), conditionHandler);
+            }
+            return conditionHandler;
+        } else if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(moduleTypeUID)
+                && module instanceof Action) {
+            ItemPostCommandActionHandler postCommandActionHandler = itemPostCommandActionHandlers.get(module.getId());
+            if (postCommandActionHandler == null) {
+                postCommandActionHandler = new ItemPostCommandActionHandler((Action) module);
+                postCommandActionHandler.setEventPublisher(eventPublisher);
+                postCommandActionHandler.setItemRegistry(itemRegistry);
+                itemPostCommandActionHandlers.put(module.getId(), postCommandActionHandler);
+            }
+            return postCommandActionHandler;
+        } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
+            EventConditionHandler eventConditionHandler = eventConditionHandlers.get(module.getId());
+            if (eventConditionHandler == null) {
+                eventConditionHandler = new EventConditionHandler((Condition) module);
+                eventConditionHandlers.put(module.getId(), eventConditionHandler);
+            }
+            return eventConditionHandler;
+        } else {
+            logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
+        }
+        return null;
     }
 
 }

@@ -7,20 +7,19 @@
  */
 package org.eclipse.smarthome.automation.internal.sample.handler.factories;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.handler.BaseActionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 
 /**
  * Action Handler sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  */
-public class SampleActionHandler extends BaseActionHandler implements ActionHandler {
+public class SampleActionHandler extends BaseModuleHandler<Action>implements ActionHandler {
 
     /**
      * Constructs SampleActionHandler
@@ -28,18 +27,16 @@ public class SampleActionHandler extends BaseActionHandler implements ActionHand
      * @param module
      * @param actionType
      */
-    public SampleActionHandler(Action module, List<ModuleType> moduleTypes) {
-        super(module, moduleTypes);
+    public SampleActionHandler(Action module) {
+        super(module);
     }
 
     @Override
-    public void dispose() {
-    }
+    public void dispose() {}
 
     @Override
-    protected Map<String, Object> performOperation(Map<String, Object> resolvedInputs,
-            Map<String, Object> resolvedConfiguration) {
-        Object message = getMessage(resolvedConfiguration);
+    public Map<String, Object> execute(Map<String, ?> inputs) {
+        Object message = getMessage(inputs);
         if (message == null) {
             message = "";
         }

@@ -18,8 +18,6 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
-import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
-import org.eclipse.smarthome.automation.type.ModuleType;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
@@ -29,14 +27,14 @@ import org.slf4j.LoggerFactory;
  * Module Handler Factory Sample implementation
  *
  * @author Vasil Ilchev - Initial Contribution
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  */
-public class SampleHandlerFactory extends BaseModuleHandlerFactory implements ModuleHandlerFactory {
+public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String SUPPORTED_TRIGGER = "SampleTrigger";
     public static final String SUPPORTED_CONDITION = "SampleCondition";
     public static final String SUPPORTED_ACTION = "SampleAction";
     public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
-    private Logger log;
-    private List<SampleTriggerHandler> createdTriggerHandler;
+    private Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
     private static final Collection<String> types;
 
     static {
@@ -51,19 +49,13 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory implements Mo
         super(bc);
     }
 
-    @Override
-    protected void init() {
-        createdTriggerHandler = new ArrayList<SampleTriggerHandler>();
-        log = LoggerFactory.getLogger(SampleHandlerFactory.class);
-    }
-
     /**
      * Removes disposed handler from cache.
      *
      * @param handler the handler
      */
     protected void disposeHandler(ModuleHandler handler) {
-        createdTriggerHandler.remove(handler);
+        handlers.remove(handler);
     }
 
     @Override
@@ -83,7 +75,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory implements Mo
     // // create needed handler
     // if (SUPPORTED_TRIGGER.equals(handlerId)) {
     // moduleHandler = new SampleTriggerHandler(this, moduleTypeRegistry, (Trigger) module,
-    // (TriggerType) moduleType, log);
+    // (TriggerType) moduleType, logger);
     // createdTriggerHandler.add((SampleTriggerHandler) moduleHandler);
     // } else if (SUPPORTED_CONDITION.equals(handlerId)) {
     // moduleHandler = new SampleConditionHandler(moduleTypeRegistry, (Condition) module);
@@ -91,47 +83,38 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory implements Mo
     // moduleHandler = new SampleActionHandler(moduleTypeRegistry, (Action) module,
     // (ActionType) moduleType);
     // } else {
-    // log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
+    // logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
     // }
     // } else {
-    // log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleType: " + typeUID);
+    // logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleType: " + typeUID);
     // }
     // } else {
-    // log.error(MODULE_HANDLER_FACTORY_NAME + "ModuleTypeRegistry service is not available");
+    // logger.error(MODULE_HANDLER_FACTORY_NAME + "ModuleTypeRegistry service is not available");
     // }
     // return (T) moduleHandler;
     // }
-
-    /**
-     * Release used resources
-     */
-    @Override
-    public void dispose() {
-        createdTriggerHandler.clear();
-    }
 
     /**
      * Retrieves created TriggerHandlers from this HandlerFactory.
      *
      * @return list of created TriggerHandlers
      */
-    public List<SampleTriggerHandler> getCreatedTriggerHandler() {
-        return createdTriggerHandler;
+    public List<ModuleHandler> getCreatedTriggerHandler() {
+        return handlers;
     }
 
     @Override
-    protected ModuleHandler createModuleHandlerInternal(Module module, String systemModuleTypeUID,
-            List<ModuleType> moduleTypes) {
+    protected ModuleHandler internalCreate(Module module) {
         ModuleHandler moduleHandler = null;
-        if (SUPPORTED_TRIGGER.equals(systemModuleTypeUID)) {
-            moduleHandler = new SampleTriggerHandler(this, (Trigger) module, moduleTypes);
-            createdTriggerHandler.add((SampleTriggerHandler) moduleHandler);
-        } else if (SUPPORTED_CONDITION.equals(systemModuleTypeUID)) {
-            moduleHandler = new SampleConditionHandler((Condition) module, moduleTypes);
-        } else if (SUPPORTED_ACTION.equals(systemModuleTypeUID)) {
-            moduleHandler = new SampleActionHandler((Action) module, moduleTypes);
+        if (SUPPORTED_TRIGGER.equals(module.getTypeUID())) {
+            moduleHandler = new SampleTriggerHandler((Trigger) module);
+            handlers.add(moduleHandler);
+        } else if (SUPPORTED_CONDITION.equals(module.getTypeUID())) {
+            moduleHandler = new SampleConditionHandler((Condition) module);
+        } else if (SUPPORTED_ACTION.equals(module.getTypeUID())) {
+            moduleHandler = new SampleActionHandler((Action) module);
         } else {
-            log.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + systemModuleTypeUID);
+            logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
         }
 
         return moduleHandler;

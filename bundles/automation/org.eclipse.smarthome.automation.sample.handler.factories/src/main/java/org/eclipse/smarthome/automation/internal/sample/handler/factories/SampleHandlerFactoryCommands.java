@@ -10,6 +10,7 @@ package org.eclipse.smarthome.automation.internal.sample.handler.factories;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -20,6 +21,7 @@ import org.osgi.framework.ServiceRegistration;
  * Text console commands to list and execute the created sample trigger handlers
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  */
 public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtension {
 
@@ -29,7 +31,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     private static final String COMMAND_LIST = "listTrigger";
     private static final String COMMAND_EXECUTE = "executeTrigger";
 
-    private List<SampleTriggerHandler> currentTriggers;
+    private List<ModuleHandler> currentTriggers;
     private SampleHandlerFactory sampleHandlerFactory;
     private ServiceRegistration<?> commandsServiceReg;
 
@@ -81,7 +83,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
             for (int i = 0; i < currentTriggers.size(); i++) {
                 console.print(Integer.toString(i + 1));
                 console.print("                            ");
-                console.println(currentTriggers.get(i).getTriggerID());
+                console.println(((SampleTriggerHandler) currentTriggers.get(i)).getTriggerID());
             }
         } else {
             console.println("No created TriggerHandler. List is Empty");
@@ -97,7 +99,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
             int index = Integer.parseInt(params[0]);
             String param = null;
             if (currentTriggers.size() >= index) {
-                SampleTriggerHandler triggerHandler = currentTriggers.get(index - 1);
+                SampleTriggerHandler triggerHandler = (SampleTriggerHandler) currentTriggers.get(index - 1);
                 if (params.length >= 2) {
                     param = params[1];
                 }

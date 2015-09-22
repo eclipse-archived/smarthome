@@ -7,12 +7,11 @@
  */
 package org.eclipse.smarthome.automation.module.core.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.handler.BaseConditionHandler;
-import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
+import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -26,9 +25,10 @@ import org.slf4j.LoggerFactory;
  * ConditionHandler implementation to check item state
  *
  * @author Benedikt Niehues
+ * @author Kai Kreuzer - refactored and simplified customized module handling
  *
  */
-public class ItemStateConditionHandler extends BaseConditionHandler {
+public class ItemStateConditionHandler extends BaseModuleHandler<Condition>implements ConditionHandler {
 
     private final Logger logger = LoggerFactory.getLogger(ItemStateConditionHandler.class);
 
@@ -44,8 +44,8 @@ public class ItemStateConditionHandler extends BaseConditionHandler {
     private static final String OPERATOR = "operator";
     private static final String STATE = "state";
 
-    public ItemStateConditionHandler(Condition condition, List<ModuleType> moduleTypes) {
-        super(condition, moduleTypes);
+    public ItemStateConditionHandler(Condition condition) {
+        super(condition);
     }
 
     /**
@@ -72,10 +72,10 @@ public class ItemStateConditionHandler extends BaseConditionHandler {
     }
 
     @Override
-    protected boolean evaluateCondition(Map<String, Object> resolvedInputs, Map<String, Object> resolvedConfiguration) {
-        String itemName = (String) resolvedConfiguration.get(ITEM_NAME);
-        String state = (String) resolvedConfiguration.get(STATE);
-        String operator = (String) resolvedConfiguration.get(OPERATOR);
+    public boolean isSatisfied(Map<String, ?> inputs) {
+        String itemName = (String) module.getConfiguration().get(ITEM_NAME);
+        String state = (String) module.getConfiguration().get(STATE);
+        String operator = (String) module.getConfiguration().get(OPERATOR);
         if (operator == null || state == null || itemName == null) {
             logger.error("Module is not well configured: itemName={}  operator={}  state = {}", itemName, operator,
                     state);
