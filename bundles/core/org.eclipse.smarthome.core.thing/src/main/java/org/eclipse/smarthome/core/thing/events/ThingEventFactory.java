@@ -23,12 +23,15 @@ import com.google.common.collect.Sets;
 
 /**
  * A {@link ThingEventFactory} is responsible for creating thing event instances, e.g. {@link ThingStatusInfoEvent}s.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Dennis Nobel - Added status changed event
  */
 public class ThingEventFactory extends AbstractEventFactory {
 
     private static final String THING_STATUS_INFO_EVENT_TOPIC = "smarthome/things/{thingUID}/status";
+
+    private static final String THING_STATUS_INFO_CHANGED_EVENT_TOPIC = "smarthome/things/{thingUID}/statuschanged";
 
     private static final String THING_ADDED_EVENT_TOPIC = "smarthome/things/{thingUID}/added";
 
@@ -40,8 +43,8 @@ public class ThingEventFactory extends AbstractEventFactory {
      * Constructs a new ThingEventFactory.
      */
     public ThingEventFactory() {
-        super(Sets.newHashSet(ThingStatusInfoEvent.TYPE, ThingAddedEvent.TYPE, ThingRemovedEvent.TYPE,
-                ThingUpdatedEvent.TYPE));
+        super(Sets.newHashSet(ThingStatusInfoEvent.TYPE, ThingStatusInfoChangedEvent.TYPE, ThingAddedEvent.TYPE,
+                ThingRemovedEvent.TYPE, ThingUpdatedEvent.TYPE));
     }
 
     @Override
@@ -49,6 +52,8 @@ public class ThingEventFactory extends AbstractEventFactory {
         Event event = null;
         if (eventType.equals(ThingStatusInfoEvent.TYPE)) {
             event = createStatusInfoEvent(topic, payload);
+        } else if (eventType.equals(ThingStatusInfoChangedEvent.TYPE)) {
+            event = createStatusInfoChangedEvent(topic, payload);
         } else if (eventType.equals(ThingAddedEvent.TYPE)) {
             event = createAddedEvent(topic, payload);
         } else if (eventType.equals(ThingRemovedEvent.TYPE)) {
@@ -61,11 +66,20 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     private Event createStatusInfoEvent(String topic, String payload) throws Exception {
         String[] topicElements = getTopicElements(topic);
-        if(topicElements.length != 4)
+        if (topicElements.length != 4)
             throw new IllegalArgumentException("ThingStatusInfoEvent creation failed, invalid topic: " + topic);
         ThingUID thingUID = new ThingUID(topicElements[2]);
         ThingStatusInfo thingStatusInfo = deserializePayload(payload, ThingStatusInfo.class);
         return new ThingStatusInfoEvent(topic, payload, thingUID, thingStatusInfo);
+    }
+
+    private Event createStatusInfoChangedEvent(String topic, String payload) throws Exception {
+        String[] topicElements = getTopicElements(topic);
+        if (topicElements.length != 4)
+            throw new IllegalArgumentException("ThingStatusInfoChangedEvent creation failed, invalid topic: " + topic);
+        ThingUID thingUID = new ThingUID(topicElements[2]);
+        ThingStatusInfo[] thingStatusInfo = deserializePayload(payload, ThingStatusInfo[].class);
+        return new ThingStatusInfoChangedEvent(topic, payload, thingUID, thingStatusInfo[0], thingStatusInfo[1]);
     }
 
     private Event createAddedEvent(String topic, String payload) throws Exception {
@@ -87,12 +101,12 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     /**
      * Creates a new thing status info event based on a thing UID and a thing status info object.
-     * 
+     *
      * @param thingUID the thing UID
      * @param thingStatusInfo the thing status info object
-     * 
+     *
      * @return the created thing status info event
-     * 
+     *
      * @throws IllegalArgumentException if thingUID or thingStatusInfo is null
      */
     public static ThingStatusInfoEvent createStatusInfoEvent(ThingUID thingUID, ThingStatusInfo thingStatusInfo) {
@@ -105,12 +119,35 @@ public class ThingEventFactory extends AbstractEventFactory {
     }
 
     /**
+     * Creates a new thing status info changed event based on a thing UID, a thing status info and the old thing status
+     * info object.
+     *
+     * @param thingUID the thing UID
+     * @param thingStatusInfo the thing status info object
+     * @param oldThingStatusInfo the old thing status info object
+     *
+     * @return the created thing status info changed event
+     *
+     * @throws IllegalArgumentException if thingUID or thingStatusInfo is null
+     */
+    public static ThingStatusInfoChangedEvent createStatusInfoChangedEvent(ThingUID thingUID,
+            ThingStatusInfo thingStatusInfo, ThingStatusInfo oldThingStatusInfo) {
+        Preconditions.checkArgument(thingUID != null, "The argument 'thingUID' must not be null.");
+        Preconditions.checkArgument(thingStatusInfo != null, "The argument 'thingStatusInfo' must not be null.");
+        Preconditions.checkArgument(oldThingStatusInfo != null, "The argument 'oldThingStatusInfo' must not be null.");
+
+        String topic = buildTopic(THING_STATUS_INFO_CHANGED_EVENT_TOPIC, thingUID.getAsString());
+        String payload = serializePayload(new ThingStatusInfo[] { thingStatusInfo, oldThingStatusInfo });
+        return new ThingStatusInfoChangedEvent(topic, payload, thingUID, thingStatusInfo, oldThingStatusInfo);
+    }
+
+    /**
      * Creates a thing added event.
-     * 
+     *
      * @param thing the thing
-     * 
+     *
      * @return the created thing added event
-     * 
+     *
      * @throws IllegalArgumentException if thing is null
      */
     public static ThingAddedEvent createAddedEvent(Thing thing) {
@@ -123,11 +160,11 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     /**
      * Creates a thing removed event.
-     * 
+     *
      * @param thing the thing
-     * 
+     *
      * @return the created thing removed event
-     * 
+     *
      * @throws IllegalArgumentException if thing is null
      */
     public static ThingRemovedEvent createRemovedEvent(Thing thing) {
@@ -140,12 +177,12 @@ public class ThingEventFactory extends AbstractEventFactory {
 
     /**
      * Creates a thing updated event.
-     * 
+     *
      * @param thing the thing
      * @param oldThing the old thing
-     * 
+     *
      * @return the created thing updated event
-     * 
+     *
      * @throws IllegalArgumentException if thing or oldThing is null
      */
     public static ThingUpdatedEvent createUpdateEvent(Thing thing, Thing oldThing) {
