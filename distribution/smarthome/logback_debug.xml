@@ -12,6 +12,10 @@
     <logger name="smarthome.event.ItemStateEvent" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
+    <logger name="smarthome.event.ThingStatusInfoEvent" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    
 
 	<logger name="org.eclipse.smarthome" level="DEBUG" />
 
