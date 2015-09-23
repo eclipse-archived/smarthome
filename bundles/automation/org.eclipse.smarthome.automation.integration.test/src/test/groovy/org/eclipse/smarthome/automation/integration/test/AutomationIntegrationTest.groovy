@@ -292,11 +292,23 @@ class AutomationIntegrationTest extends OSGiTest{
 
         def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
         rule.name="RuleByJAVA_API"
+        def tags = ["myRule21"] as Set
+        rule.tags = tags;
 
         logger.info("Rule created: "+rule.getUID())
 
         ruleRegistry.add(rule)
         ruleRegistry.setEnabled(rule.UID, true)
+
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
+        waitForAssert({
+            assertThat ruleRegistry.getAll().isEmpty(), is(false)
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("myRule21")} as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
+            assertThat ruleStatus2, is(RuleStatus.IDLE)
+        }, 10000, 200)
+
 
         //TEST RULE
 

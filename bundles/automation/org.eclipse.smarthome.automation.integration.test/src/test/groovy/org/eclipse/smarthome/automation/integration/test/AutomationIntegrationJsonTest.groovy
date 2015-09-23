@@ -20,8 +20,8 @@ import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
-import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
+import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -115,9 +115,15 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     public void 'assert that a rule from json file is added automatically' () {
         logger.info("assert that a rule from json file is added automatically");
 
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
         waitForAssert({
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
-        }, 3000, 200)
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
+            assertThat ruleStatus2, is(RuleStatus.IDLE)
+        }, 10000, 200)
+
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
         assertThat rule, is(notNullValue())
 
@@ -136,12 +142,12 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertThat condition1.typeUID, is("EventCondition")
         assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
         assertThat condition1.configuration.get("payload"), is(".*ON.*")
-//        def condition2 = rule.conditions.find{it.id.equals("ItemStateConditionID2")} as Condition
-//        assertThat condition2, is(notNullValue())
-//        assertThat condition2.typeUID, is("ItemStateCondition")
-//        assertThat condition2.configuration.get("operator"), is("=")
-//        assertThat condition2.configuration.get("itemName"), is("myMotionItem")
-//        assertThat condition2.configuration.get("state"), is("ON")
+        //        def condition2 = rule.conditions.find{it.id.equals("ItemStateConditionID2")} as Condition
+        //        assertThat condition2, is(notNullValue())
+        //        assertThat condition2.typeUID, is("ItemStateCondition")
+        //        assertThat condition2.configuration.get("operator"), is("=")
+        //        assertThat condition2.configuration.get("itemName"), is("myMotionItem")
+        //        assertThat condition2.configuration.get("state"), is("ON")
         def action = rule.actions.find{it.id.equals("ItemPostCommandActionID")} as Action
         assertThat action, is(notNullValue())
         assertThat action.typeUID, is("ItemPostCommandAction")
@@ -173,7 +179,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         })
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
         eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON))
-//        myPresenceItem.setState(OnOffType.ON);
+        //        myPresenceItem.setState(OnOffType.ON);
 
         SwitchItem myLampItem = itemRegistry.getItem("myLampItem")
         assertThat myLampItem.getState(), is(UnDefType.NULL)
@@ -181,14 +187,14 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem")
 
         //TODO workarround issue with async event delivery - rule engine receives event before the item manages to update its state
-//        myMotionItem.setState(OnOffType.ON);
+        //        myMotionItem.setState(OnOffType.ON);
 
         Event ruleEvent = null
         def ruleEventHandler = [
             receive: { Event e ->
                 logger.info("RuleEvent: " + e.topic + " --> " + e.payload)
                 if (e.topic == "smarthome/rules/org_eclipse_smarthome_automation_integration_test_0/state" && e.payload.contains("RUNNING")){
-                    
+
                     ruleEvent=e
                 }
             },
@@ -201,7 +207,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
 
         ] as EventSubscriber
 
-        
+
         Event event = null
         def eventHandler = [
             receive: { Event e ->
@@ -225,7 +231,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem", OnOffType.ON))
         waitForAssert ({
             assertThat ruleEvent, is(notNullValue())
-//            assertThat (myLampItem.getState(), is(OnOffType.ON))
+            //            assertThat (myLampItem.getState(), is(OnOffType.ON))
             assertThat event, is(notNullValue())
             assertThat event.topic, is(equalTo("smarthome/items/myLampItem/state"))
         }
