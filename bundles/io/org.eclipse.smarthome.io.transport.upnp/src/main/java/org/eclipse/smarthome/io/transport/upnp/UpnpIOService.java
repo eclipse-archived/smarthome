@@ -40,6 +40,14 @@ public interface UpnpIOService {
     public void addSubscription(UpnpIOParticipant participant, String serviceID, int duration);
 
     /**
+     * Unsubscribe from a GENA subscription
+     * 
+     * @param participant - the participant of the subscription
+     * @param serviceID - the UPNP service we want to unsubscribe from
+     */
+    public void removeSubscription(UpnpIOParticipant participant, String serviceID);
+
+    /**
      * Verify if the a participant is registered
      * 
      * @param participant - the participant whom's participation we want to verify
@@ -54,6 +62,13 @@ public interface UpnpIOService {
      * @param participant - the participant whose participation we want to register
      */
     public void registerParticipant(UpnpIOParticipant participant);
+
+    /**
+     * Unregister a participant with the UPNP IO Service
+     * 
+     * @param participant - the participant whose participation we want to unregister
+     */
+    public void unregisterParticipant(UpnpIOParticipant participant);
 
     /**
      * Retrieves the descriptor url for the participant
@@ -76,4 +91,10 @@ public interface UpnpIOService {
      */
     public void addStatusListener(UpnpIOParticipant participant, String serviceID, String actionID, int interval);
 
+    /**
+     * Stops the polling mechanism to check the status of a specific UDN device.
+     * 
+     * @param participant - the participant for whom we want to remove the polling
+     */
+    public void removeStatusListener(UpnpIOParticipant participant);
 }
