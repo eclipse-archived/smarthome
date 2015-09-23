@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.transform.xslt.internal;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class XsltTransformationServiceTest extends AbstractTransformationService
         String transformedResponse = processor.transform("http/google_weather.xsl", source);
 
         // Asserts
-        Assert.assertEquals("8", transformedResponse);
+        assertEquals("8", transformedResponse);
     }
 
 }

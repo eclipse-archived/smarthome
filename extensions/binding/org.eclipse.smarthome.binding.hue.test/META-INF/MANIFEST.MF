@@ -16,11 +16,12 @@ Import-Package: com.google.gson,
  org.codehaus.groovy.runtime.typehandling,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.thing.binding.builder,
  org.eclipse.smarthome.core.thing.setup,
  org.eclipse.smarthome.core.thing.util,
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.junit;version="4.0.0",
  org.jupnp.model.types,
  org.osgi.service.device
-Require-Bundle: org.junit;bundle-version="4.0.0"

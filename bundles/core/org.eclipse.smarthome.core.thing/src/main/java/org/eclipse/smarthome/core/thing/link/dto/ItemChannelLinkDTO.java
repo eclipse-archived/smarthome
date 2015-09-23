@@ -12,25 +12,13 @@ package org.eclipse.smarthome.core.thing.link.dto;
  *
  * @author Dennis Nobel - Initial contribution
  */
-public class ItemChannelLinkDTO {
+public class ItemChannelLinkDTO extends AbstractLinkDTO {
 
-    private String channelUID;
-    private String itemName;
-
-    public ItemChannelLinkDTO() {
-    }
+    public String channelUID;
 
     public ItemChannelLinkDTO(String itemName, String channelUID) {
-        this.itemName = itemName;
+        super(itemName);
         this.channelUID = channelUID;
-    }
-
-    public String getChannelUID() {
-        return channelUID;
-    }
-
-    public String getItemName() {
-        return itemName;
     }
 
 }

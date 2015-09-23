@@ -6,6 +6,6 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Fragment-Host: org.eclipse.smarthome.io.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.junit;bundle-version="4.8.1"
 Import-Package: org.apache.commons.httpclient,
- org.apache.commons.httpclient.methods
+ org.apache.commons.httpclient.methods,
+ org.junit;version="4.0.0"

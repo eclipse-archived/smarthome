@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.ui.internal.items;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +38,6 @@ import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.NextPreviousType;
-import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.library.types.PlayPauseType;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
@@ -57,7 +55,6 @@ import org.eclipse.smarthome.model.sitemap.Slider;
 import org.eclipse.smarthome.model.sitemap.Switch;
 import org.eclipse.smarthome.model.sitemap.VisibilityRule;
 import org.eclipse.smarthome.model.sitemap.Widget;
-import org.eclipse.smarthome.ui.icon.IconProvider;
 import org.eclipse.smarthome.ui.internal.UIActivator;
 import org.eclipse.smarthome.ui.items.ItemUIProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -75,12 +72,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ItemUIRegistryImpl implements ItemUIRegistry {
 
-    private static final String ICON_NONE = "none";
-
     private final Logger logger = LoggerFactory.getLogger(ItemUIRegistryImpl.class);
-
-    /* the file extension of the images */
-    protected static final String IMAGE_EXT = ".png";
 
     /* the image location inside the installation folder */
     protected static final String IMAGE_LOCATION = "./webapps/images/";
@@ -92,8 +84,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     protected static final String IDENTIFY_FORMAT_PATTERN_PATTERN = "%(\\d+\\$)?([-#+ 0,(\\<]*)?(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z])";
 
     protected Set<ItemUIProvider> itemUIProviders = new HashSet<ItemUIProvider>();
-
-    private List<IconProvider> iconProviders = new ArrayList<>();
 
     protected ItemRegistry itemRegistry;
 
@@ -116,23 +106,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         itemUIProviders.remove(itemUIProvider);
     }
 
-    public void addIconProvider(IconProvider iconProvider) {
-        this.iconProviders.add(iconProvider);
-    }
-
-    public void removeIconProvider(IconProvider iconProvider) {
-        this.iconProviders.remove(iconProvider);
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getIcon(String itemName) {
+    public String getCategory(String itemName) {
         for (ItemUIProvider provider : itemUIProviders) {
-            String currentIcon = provider.getIcon(itemName);
-            if (currentIcon != null) {
-                return currentIcon;
+            String currentCategory = provider.getCategory(itemName);
+            if (currentCategory != null) {
+                return currentCategory;
             }
         }
 
@@ -150,7 +132,7 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
 
         // we handle items here that have no specific widget,
         // e.g. the default widget of a rollerblind is "Switch".
-        // We want to provide a dedicated default icon for it
+        // We want to provide a dedicated default category for it
         // like "rollerblind".
         if (itemType.equals(NumberItem.class) || itemType.equals(ContactItem.class)
                 || itemType.equals(RollershutterItem.class)) {
@@ -407,8 +389,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 String type = matcher.group(1);
                 String pattern = matcher.group(2);
                 String value = matcher.group(3);
-                TransformationService transformation = TransformationHelper.getTransformationService(
-                        UIActivator.getContext(), type);
+                TransformationService transformation = TransformationHelper
+                        .getTransformationService(UIActivator.getContext(), type);
                 if (transformation != null) {
                     try {
                         label = label.substring(0, label.indexOf("[") + 1) + transformation.transform(pattern, value)
@@ -433,60 +415,26 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * {@inheritDoc}
      */
     @Override
-    public String getIcon(Widget w) {
+    public String getCategory(Widget w) {
         String widgetTypeName = w.eClass().getInstanceTypeName()
                 .substring(w.eClass().getInstanceTypeName().lastIndexOf(".") + 1);
 
         // the default is the widget type name, e.g. "switch"
-        String icon = widgetTypeName.toLowerCase();
+        String category = widgetTypeName.toLowerCase();
 
         // if an icon is defined for the widget, use it
         if (w.getIcon() != null) {
-            icon = w.getIcon();
+            category = w.getIcon();
         } else {
             // otherwise check if any item ui provider provides an icon for this item
             String itemName = w.getItem();
             if (itemName != null) {
-                String result = getIcon(itemName);
+                String result = getCategory(itemName);
                 if (result != null)
-                    icon = result;
+                    category = result;
             }
         }
-
-        // now add the state, if the string does not already contain a state
-        // information
-        if (!icon.contains("-")) {
-            Object state = getState(w);
-            if (!state.equals(UnDefType.UNDEF)) {
-                if (state instanceof PercentType) {
-                    // we do a special treatment for percent types; we try to find the icon of the biggest value
-                    // that is still smaller or equal to the current state.
-                    // Example: if there are icons *-0.png, *-50.png and *-100.png, we choose *-0.png, if the state
-                    // is 40, and *-50.png, if the state is 70.
-                    int iconState = ((PercentType) state).toBigDecimal().intValue();
-                    String testIcon;
-                    do {
-                        testIcon = icon + "-" + String.valueOf(iconState--);
-                    } while (!iconExists(testIcon) && iconState >= 0);
-                    icon = testIcon;
-                } else {
-                    // for all other types, just add the string representation of the state
-                    icon += "-" + state.toString().toLowerCase();
-                }
-            }
-        }
-
-        // if the icon contains a status part, but does not exist, return the icon without status
-        if (iconExists(icon) || !icon.contains("-")) {
-            return icon;
-        } else {
-            icon = icon.substring(0, icon.indexOf("-"));
-            if (iconExists(icon)) {
-                return icon;
-            } else {
-                return ICON_NONE;
-            }
-        }
+        return category;
     }
 
     /**
@@ -500,8 +448,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
                 Item item = getItem(itemName);
                 return item.getState();
             } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve item '{}' for widget {}", new Object[] { itemName,
-                        w.eClass().getInstanceTypeName() });
+                logger.error("Cannot retrieve item '{}' for widget {}",
+                        new Object[] { itemName, w.eClass().getInstanceTypeName() });
             }
         }
         return UnDefType.UNDEF;
@@ -580,19 +528,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         }
         return children;
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean iconExists(String icon) {
-        for (IconProvider provider : iconProviders) {
-            if (provider.hasIcon(icon)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private Class<? extends Item> getItemType(String itemName) {
@@ -966,8 +901,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             try {
                 item = itemRegistry.getItem(rule.getItem());
             } catch (ItemNotFoundException e) {
-                logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(), w.eClass()
-                        .getInstanceTypeName());
+                logger.error("Cannot retrieve visibility item {} for widget {}", rule.getItem(),
+                        w.eClass().getInstanceTypeName());
 
                 // Default to visible!
                 return true;
@@ -1089,10 +1024,12 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public void remove(String itemName, boolean recursive) {
+    public Item remove(String itemName, boolean recursive) {
 
         if (itemRegistry != null) {
-            itemRegistry.remove(itemName, recursive);
+            return itemRegistry.remove(itemName, recursive);
+        } else {
+            return null;
         }
 
     }

@@ -515,7 +515,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     ThingStatusDetail.HANDLER_INITIALIZING_ERROR, ex.getMessage());
             setThingStatus(thing, statusInfo);
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                            + ex.getMessage(), ex);
+                    + ex.getMessage(), ex);
         }
     }
 
@@ -531,7 +531,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             });
         } catch (Exception ex) {
             logger.error("Exception occured while calling thing handler factory '" + thingHandlerFactory + "': "
-                            + ex.getMessage(), ex);
+                    + ex.getMessage(), ex);
         }
     }
 
@@ -636,9 +636,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void setThingStatus(Thing thing, ThingStatusInfo thingStatusInfo) {
+        ThingStatusInfo oldStatusInfo = thing.getStatusInfo();
         thing.setStatusInfo(thingStatusInfo);
         try {
             eventPublisher.post(ThingEventFactory.createStatusInfoEvent(thing.getUID(), thingStatusInfo));
+            if (!oldStatusInfo.equals(thingStatusInfo)) {
+                eventPublisher.post(
+                        ThingEventFactory.createStatusInfoChangedEvent(thing.getUID(), thingStatusInfo, oldStatusInfo));
+            }
         } catch (Exception ex) {
             logger.error("Could not post 'ThingStatusInfoEvent' event: " + ex.getMessage(), ex);
         }

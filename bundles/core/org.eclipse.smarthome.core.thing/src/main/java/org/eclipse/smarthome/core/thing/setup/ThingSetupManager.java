@@ -56,7 +56,7 @@ import com.google.common.collect.ImmutableSet;
  * Items and Links automatically and removes it, when the according thing is
  * removed.
  *
- * @author Dennis Nobel - Initial contribution
+ * @author Dennis Nobel - Initial contribution, changed way of receiving channel types
  * @author Alex Tugarev - addThing operation returns created Thing instance
  * @author Chris Jackson - Remove children when deleted bridge. Add label/description.
  */
@@ -191,7 +191,8 @@ public class ThingSetupManager implements EventSubscriber {
 
         ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
 
-        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels, properties);
+        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels,
+                properties);
     }
 
     /**
@@ -275,7 +276,8 @@ public class ThingSetupManager implements EventSubscriber {
         if (linkedItem != null) {
             addToHomeGroup(linkedItem, groupItemName);
         } else {
-            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID, groupItemName);
+            logger.warn("Could not add thing '{}' to group '{}', because thing is not linked.", thingUID,
+                    groupItemName);
         }
     }
 
@@ -305,18 +307,18 @@ public class ThingSetupManager implements EventSubscriber {
     public void enableChannel(ChannelUID channelUID) {
         // Get the thing so we can check if channel labels are defined
         Thing thing = getThing(channelUID.getThingUID());
-        if(thing == null) {
+        if (thing == null) {
             logger.warn("Could not enable channel '{}', because no thing was found.", channelUID);
             return;
         }
 
-        // Get the channel, 
+        // Get the channel,
         Channel channel = thing.getChannel(channelUID.getId());
-        if(channel == null) {
+        if (channel == null) {
             logger.warn("Could not enable channel '{}', because no channel was found.", channelUID);
             return;
         }
-        
+
         // Enable the channel
         ChannelType channelType = thingTypeRegistry.getChannelType(channelUID);
         if (channelType != null) {
@@ -338,7 +340,7 @@ public class ThingSetupManager implements EventSubscriber {
                     item.setCategory(channelType.getCategory());
 
                     // Set the label - use the thing defined label if it is set
-                    if(channel.getLabel() != null) {
+                    if (channel.getLabel() != null) {
                         item.setLabel(channel.getLabel());
                     } else {
                         item.setLabel(channelType.getLabel());
@@ -619,10 +621,10 @@ public class ThingSetupManager implements EventSubscriber {
             }
         }
 
-        if (enableChannels) {
+        if (thingType != null && enableChannels) {
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
-                ChannelType channelType = this.thingTypeRegistry.getChannelType(channel.getUID());
+                ChannelType channelType = thingType.getChannelType(channel.getUID());
                 if (channelType != null && !channelType.isAdvanced()) {
                     // Enable the channel.
                     // Pass the channel label. This will be null if it's not set, and the enableChannel method will use

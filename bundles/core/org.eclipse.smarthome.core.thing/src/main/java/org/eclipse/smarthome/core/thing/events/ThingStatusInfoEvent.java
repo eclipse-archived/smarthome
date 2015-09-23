@@ -13,8 +13,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
  * {@link ThingStatusInfoEvent}s will be delivered through the Eclipse SmartHome event bus if the status of a thing has
- * changed. Thing status info objects must be created with the {@link ThingEventFactory}.
- * 
+ * been updated. Thing status info objects must be created with the {@link ThingEventFactory}.
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ThingStatusInfoEvent extends AbstractEvent {
@@ -30,7 +30,7 @@ public class ThingStatusInfoEvent extends AbstractEvent {
 
     /**
      * Creates a new thing status event object.
-     * 
+     *
      * @param topic the topic
      * @param payload the payload
      * @param thingUID the thing UID
@@ -49,7 +49,7 @@ public class ThingStatusInfoEvent extends AbstractEvent {
 
     /**
      * Gets the thing UID.
-     * 
+     *
      * @return the thing UID
      */
     public ThingUID getThingUID() {
@@ -58,7 +58,7 @@ public class ThingStatusInfoEvent extends AbstractEvent {
 
     /**
      * Gets the thing status info.
-     * 
+     *
      * @return the thing status info
      */
     public ThingStatusInfo getStatusInfo() {
@@ -67,7 +67,7 @@ public class ThingStatusInfoEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return thingUID + "' updated: " + thingStatusInfo.toString();
+        return "'" + thingUID + "' updated: " + thingStatusInfo.toString();
     }
 
 }

@@ -17,4 +17,3 @@ Import-Package: groovy.lang,
  org.hamcrest;core=split,
  org.junit;version="4.0.0",
  org.junit.matchers;version="4.0.0"
-Require-Bundle: org.junit;bundle-version="4.0.0"

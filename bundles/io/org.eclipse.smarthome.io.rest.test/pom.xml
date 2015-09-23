@@ -1,16 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome.io</groupId>
-  <artifactId>org.eclipse.smarthome.io.rest.test</artifactId>
-  <packaging>eclipse-test-plugin</packaging>
-  <name>Eclipse SmartHome IO REST Tests</name>
+
   <parent>
     <groupId>org.eclipse.smarthome.bundles</groupId>
     <artifactId>io</artifactId>
     <version>0.8.0-SNAPSHOT</version>
   </parent>
 
+  <groupId>org.eclipse.smarthome.io</groupId>
+  <artifactId>org.eclipse.smarthome.io.rest.test</artifactId>
+  <packaging>eclipse-test-plugin</packaging>
+
+  <name>Eclipse SmartHome IO REST Tests</name>
 
   <properties>
     <bundle.symbolicName>org.eclipse.smarthome.io.rest.test</bundle.symbolicName>
@@ -20,22 +22,30 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-surefire-plugin</artifactId>
-        <version>${tycho-version}</version>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>target-platform-configuration</artifactId>
         <configuration>
-          <dependencies>
-            <dependency>
-              <type>eclipse-plugin</type>
-              <artifactId>org.eclipse.equinox.ds</artifactId>
-              <version>0.0.0</version>
-            </dependency>
-            <dependency>
-              <type>eclipse-plugin</type>
-              <artifactId>org.eclipse.equinox.event</artifactId>
-              <version>0.0.0</version>
-            </dependency>
-          </dependencies>
+          <environments combine.self="override"></environments>
+          <dependency-resolution>
+            <extraRequirements>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.ds</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.event</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+            </extraRequirements>
+          </dependency-resolution>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>${tycho-groupid}</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <configuration>
           <bundleStartLevel>
             <bundle>
               <id>org.eclipse.equinox.ds</id>

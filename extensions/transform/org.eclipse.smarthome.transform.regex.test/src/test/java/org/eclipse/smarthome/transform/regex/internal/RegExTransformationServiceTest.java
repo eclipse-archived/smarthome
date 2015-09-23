@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.transform.regex.internal;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.transform.regex.internal.RegExTransformationService;
@@ -33,7 +33,7 @@ public class RegExTransformationServiceTest extends AbstractTransformationServic
         String transformedResponse = processor.transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\".*", source);
 
         // Asserts
-        Assert.assertEquals("8", transformedResponse);
+        assertEquals("8", transformedResponse);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class RegExTransformationServiceTest extends AbstractTransformationServic
         String transformedResponse = processor.transform(".*", source);
 
         // Asserts
-        Assert.assertEquals("", transformedResponse);
+        assertEquals("", transformedResponse);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class RegExTransformationServiceTest extends AbstractTransformationServic
                 .transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\"(.*)", source);
 
         // Asserts
-        Assert.assertEquals("8", transformedResponse);
+        assertEquals("8", transformedResponse);
     }
 
 }

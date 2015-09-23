@@ -36,7 +36,7 @@ Bundle-ClassPath: .,
  lib/xchart-2.2.1.jar
 Bundle-SymbolicName: org.eclipse.smarthome.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.ui.chart,org.eclipse.smarthome.u
- i.icon,org.eclipse.smarthome.ui.items
+Export-Package: org.eclipse.smarthome.ui.chart,
+ org.eclipse.smarthome.ui.items
 Service-Component: OSGI-INF/genericitemuiprovider.xml, OSGI-INF/itemuiregistry.xml,
  OSGI-INF/proxy.xml, OSGI-INF/chartservlet.xml, OSGI-INF/chartprovider.xml

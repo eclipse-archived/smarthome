@@ -4,7 +4,6 @@ Bundle-Name: Eclipse SmartHome Item Model Runtime
 Bundle-SymbolicName: org.eclipse.smarthome.model.item.runtime;singleton:=true
 Bundle-Version: 0.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Eclipse.org/SmartHome
 Import-Package: org.osgi.framework,
  org.slf4j

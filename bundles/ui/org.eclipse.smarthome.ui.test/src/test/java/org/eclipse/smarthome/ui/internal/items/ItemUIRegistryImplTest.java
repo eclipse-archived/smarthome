@@ -15,8 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.text.DecimalFormatSymbols;
 
-import junit.framework.Assert;
-
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -306,11 +304,11 @@ public class ItemUIRegistryImplTest {
 
     @Test
     public void testFormatDefault() {
-        Assert.assertEquals("Server [(-)]", uiRegistry.formatUndefined("Server [(%d)]"));
-        Assert.assertEquals("Anruf [von - an -]", uiRegistry.formatUndefined("Anruf [von %2$s an %1$s]"));
-        Assert.assertEquals("Zeit [-.-.- -]", uiRegistry.formatUndefined("Zeit [%1$td.%1$tm.%1$tY %1$tT]"));
-        Assert.assertEquals("Temperatur [- °C]", uiRegistry.formatUndefined("Temperatur [%.1f °C]"));
-        Assert.assertEquals("Luftfeuchte [- %]", uiRegistry.formatUndefined("Luftfeuchte [%.1f %%]"));
+        assertEquals("Server [(-)]", uiRegistry.formatUndefined("Server [(%d)]"));
+        assertEquals("Anruf [von - an -]", uiRegistry.formatUndefined("Anruf [von %2$s an %1$s]"));
+        assertEquals("Zeit [-.-.- -]", uiRegistry.formatUndefined("Zeit [%1$td.%1$tm.%1$tY %1$tT]"));
+        assertEquals("Temperatur [- °C]", uiRegistry.formatUndefined("Temperatur [%.1f °C]"));
+        assertEquals("Luftfeuchte [- %]", uiRegistry.formatUndefined("Luftfeuchte [%.1f %%]"));
     }
 
 }

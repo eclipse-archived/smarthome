@@ -39,6 +39,8 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String ITEM_STATE_EVENT_TOPIC = "smarthome/items/{itemName}/state";
 
+    private static final String ITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/statechanged";
+
     private static final String ITEM_ADDED_EVENT_TOPIC = "smarthome/items/{itemName}/added";
 
     private static final String ITEM_REMOVED_EVENT_TOPIC = "smarthome/items/{itemName}/removed";
@@ -49,8 +51,8 @@ public class ItemEventFactory extends AbstractEventFactory {
      * Constructs a new ItemEventFactory.
      */
     public ItemEventFactory() {
-        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE,
-                ItemRemovedEvent.TYPE));
+        super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStateChangedEvent.TYPE,
+                ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE));
     }
 
     @Override
@@ -60,6 +62,8 @@ public class ItemEventFactory extends AbstractEventFactory {
             event = createCommandEvent(topic, payload, source);
         } else if (eventType.equals(ItemStateEvent.TYPE)) {
             event = createStateEvent(topic, payload, source);
+        } else if (eventType.equals(ItemStateChangedEvent.TYPE)) {
+            event = createStateChangedEvent(topic, payload);
         } else if (eventType.equals(ItemAddedEvent.TYPE)) {
             event = createAddedEvent(topic, payload);
         } else if (eventType.equals(ItemUpdatedEvent.TYPE)) {
@@ -85,13 +89,26 @@ public class ItemEventFactory extends AbstractEventFactory {
     private Event createStateEvent(String topic, String payload, String source) {
         String itemName = getItemName(topic);
         ItemEventPayloadBean bean = deserializePayload(payload, ItemEventPayloadBean.class);
+        State state = getState(bean.getType(), bean.getValue());
+        return new ItemStateEvent(topic, payload, itemName, state, source);
+    }
+
+    private Event createStateChangedEvent(String topic, String payload) {
+        String itemName = getItemName(topic);
+        ItemStateChangedEventPayloadBean bean = deserializePayload(payload, ItemStateChangedEventPayloadBean.class);
+        State state = getState(bean.getType(), bean.getValue());
+        State oldState = getState(bean.getOldType(), bean.getOldValue());
+        return new ItemStateChangedEvent(topic, payload, itemName, state, oldState);
+    }
+
+    private State getState(String type, String value) {
         State state = null;
         try {
-            state = (State) parse(bean.getType(), bean.getValue());
+            state = (State) parse(type, value);
         } catch (Exception e) {
             throw new IllegalArgumentException("Parsing of item state event failed.", e);
         }
-        return new ItemStateEvent(topic, payload, itemName, state, source);
+        return state;
     }
 
     private String getItemName(String topic) {
@@ -198,6 +215,27 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     /**
+     * Creates an item state changed event.
+     *
+     * @param itemName the name of the item to send the state changed event for
+     * @param newState the new state to send
+     * @param oldState the old state of the item
+     *
+     * @return the created item state changed event
+     *
+     * @throws IllegalArgumentException if itemName or state is null
+     */
+    public static ItemStateChangedEvent createStateChangedEvent(String itemName, State newState, State oldState) {
+        assertValidArguments(itemName, newState, "state");
+        String topic = buildTopic(ITEM_STATE_CHANGED_EVENT_TOPIC, itemName);
+        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(
+                newState.getClass().getSimpleName(), newState.toString(), oldState.getClass().getSimpleName(),
+                oldState.toString());
+        String payload = serializePayload(bean);
+        return new ItemStateChangedEvent(topic, payload, itemName, newState, oldState);
+    }
+
+    /**
      * Creates an item added event.
      *
      * @param item the item
@@ -293,4 +331,36 @@ public class ItemEventFactory extends AbstractEventFactory {
         }
     }
 
+    /**
+     * This is a java bean that is used to serialize/deserialize item state changed event payload.
+     */
+    private static class ItemStateChangedEventPayloadBean {
+        private String type;
+        private String value;
+        private String oldType;
+        private String oldValue;
+
+        public ItemStateChangedEventPayloadBean(String type, String value, String oldType, String oldValue) {
+            this.type = type;
+            this.value = value;
+            this.oldType = oldType;
+            this.oldValue = oldValue;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public String getOldType() {
+            return oldType;
+        }
+
+        public String getOldValue() {
+            return oldValue;
+        }
+    }
 }

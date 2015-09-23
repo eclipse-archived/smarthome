@@ -18,5 +18,5 @@ Import-Package: groovy.lang,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.test,
  org.glassfish.jersey.uri.internal,
- org.hamcrest;core=split
-Require-Bundle: org.junit;bundle-version="4.0.0"
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0"

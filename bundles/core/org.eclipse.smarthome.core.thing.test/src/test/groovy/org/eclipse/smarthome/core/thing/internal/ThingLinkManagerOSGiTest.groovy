@@ -12,6 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.items.ActiveItem
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemRegistry
@@ -45,10 +46,10 @@ import org.junit.Test
 import org.osgi.service.component.ComponentContext
 
 /**
- * 
- * These tests will check (un-)linking of items and things, or items and channels managed 
+ *
+ * These tests will check (un-)linking of items and things, or items and channels managed
  * by {@link ThingLinkManager}.
- * 
+ *
  * @author Alex Tugarev - Initial contribution
  * @author Dennis Nobel - Added test for bug 459628 (lifecycle problem)
  * @author Thomas Höfer - Thing type constructor modified because of thing properties introduction
@@ -57,6 +58,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
     def ThingRegistry thingRegistry
     def ThingSetupManager thingSetupManager
+    def ItemRegistry itemRegistry
 
     public static Map context = new HashMap<>()
 
@@ -65,7 +67,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         context.clear();
 
         registerVolatileStorageService()
-
+        itemRegistry = getService(ItemRegistry)
         thingRegistry = getService(ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
 
@@ -77,11 +79,11 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         thingHandlerFactory.activate(componentContext)
         registerService(thingHandlerFactory, ThingHandlerFactory.class.getName())
 
-        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [ new StateOption("SOUND", "My great sound.") ])
+        def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [new StateOption("SOUND", "My great sound.")])
 
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
 
-        def thingTypeProvider = new TestThingTypeProvider([ new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [ new ChannelDefinition("1", channelType) ], null, null, null) ])
+        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType)], null, null, null)])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
@@ -184,6 +186,25 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         assertThat context.get("unlinkedChannel"), is(equalTo(channelUID))
     }
 
+    @Test
+    void 'assert that item update for items which are linked to things works'() {
+
+        ThingUID thingUID = new ThingUID("hue:lamp:lamp1")
+        def thing = thingSetupManager.addThing(thingUID, new Configuration(), /* bridge */ null)
+
+        def linkedItem = thing.getLinkedItem()
+
+        def linkedItemName = linkedItem.name
+        ActiveItem item = itemRegistry.get(linkedItemName)
+
+        GroupItem itemToUpdate = new GroupItem(item.getName())
+        itemToUpdate.setLabel("anotherLabel")
+
+        itemRegistry.update(itemToUpdate)
+
+        assertThat thing.getLinkedItem().label, is(equalTo("anotherLabel"))
+    }
+
 
     /*
      * Helper
@@ -198,14 +219,14 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         @Override
         protected ThingHandler createHandler(Thing thing) {
             return new BaseThingHandler(thing) {
-                public void handleCommand(ChannelUID channelUID, Command command) { }
-                void channelLinked(ChannelUID channelUID) {
-                    context.put("linkedChannel", channelUID)
-                };
-                void channelUnlinked(ChannelUID channelUID) {
-                    context.put("unlinkedChannel", channelUID)
-                };
-            }
+                        public void handleCommand(ChannelUID channelUID, Command command) { }
+                        void channelLinked(ChannelUID channelUID) {
+                            context.put("linkedChannel", channelUID)
+                        };
+                        void channelUnlinked(ChannelUID channelUID) {
+                            context.put("unlinkedChannel", channelUID)
+                        };
+                    }
         }
     }
 
@@ -223,8 +244,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
 
         @Override
         public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-            return null
+            return thingTypes.find { it.UID == thingTypeUID }
         }
     }
-    
 }

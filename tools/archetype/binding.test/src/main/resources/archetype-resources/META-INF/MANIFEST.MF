@@ -20,9 +20,9 @@ Import-Package: ${package},
  org.eclipse.smarthome.test,
  org.eclipse.smarthome.test.storage,
  org.hamcrest;core=split,
+ org.junit;version="4.0.0",
  org.osgi.service.device,
  org.osgi.framework
-Require-Bundle: org.junit;bundle-version="4.11.0"
 Export-Package: ${package}.internal;x-internal:=true,
  ${package};uses:="org.eclipse.smarthome.test"
 

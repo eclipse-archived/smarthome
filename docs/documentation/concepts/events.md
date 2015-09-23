@@ -18,29 +18,31 @@ A code snippet about receiving events can be found in chapter "Receive Events". 
 
 ![Event Interfaces](diagrams/event_interfaces.png)
 
-The `EventPublisher` posts `Event`s through the Eclipse SmartHome event bus in an asynchronous way. The `EventSubscriber` defines the callback interface to receive  events of specific types to which the event subscriber is subscribed to. The EventPublisher and the EventSubscribers are registered as OSGi services. An event subscriber can provide an `EventFilter` in order to filter events based on the topic or the content. If there is no filter all subscribed event types are received. The event itself will be subclassed for each event type, which exists in the System (e.g. ItemCommandEvent, ItemUpdateEvent, ThingStatusInfoEvent). 
+The `EventPublisher` posts `Event`s through the Eclipse SmartHome event bus in an asynchronous way. The `EventSubscriber` defines the callback interface to receive  events of specific types to which the event subscriber is subscribed to. The EventPublisher and the EventSubscribers are registered as OSGi services. An event subscriber can provide an `EventFilter` in order to filter events based on the topic or the content. If there is no filter all subscribed event types are received. The event itself will be subclassed for each event type, which exists in the System (e.g. ItemCommandEvent, ItemUpdatedEvent, ThingStatusInfoEvent). 
 
 ### The Core Events
 This section lists the core events provided by Eclipse SmartHome which can be divided into the categories _Item Events_, _Thing Events_ and _Inbox Events_. 
 
-An event consists of a `topic`, a `type`, a `payload` and a `source`. The payload can be serialized with any String representation and is determined by its concrete event type implementation (e.g. ItemCommandEvent, ItemUpdateEvent). The payload of the Eclipse SmartHome core events is serialized with JSON. Each event implementation provides the payload as high level methods as well, usually presented by a data transfer object (DTO).
+An event consists of a `topic`, a `type`, a `payload` and a `source`. The payload can be serialized with any String representation and is determined by its concrete event type implementation (e.g. ItemCommandEvent, ItemUpdatedEvent). The payload of the Eclipse SmartHome core events are serialized with JSON. Each event implementation provides the payload as high level methods as well, usually presented by a data transfer object (DTO).
 
 A topic clearly defines the target of the event and its structure is similar to a REST URI, except the last part, the action. The topics of Eclipse SmartHome events are divided into the following four parts: `{namespace}/{entityType}/{entity}/{action}`, e.g. `smarthome/items/{itemName}/command`. 
 
-The type of an event is represented by a string, usually the name of the concrete event implementation class, e.g. ItemCommandEvent, ItemUpdateEvent. This string type presentation is used by event subscribers for event subscription (see chapter "Receive Events") and by the framework for the creation of concrete event instances. 
+The type of an event is represented by a string, usually the name of the concrete event implementation class, e.g. ItemCommandEvent, ItemUpdatedEvent. This string type presentation is used by event subscribers for event subscription (see chapter "Receive Events") and by the framework for the creation of concrete event instances. 
 
 The event source is optional and represents the name of the source identifying the sender. 
 
 #### Item Events
 
-| Event                 |Description                                       |Topic                                   |
-|-----------------------|-------------------------------------------------|-----------------------------------|
-| ItemAddedEvent         |An item has been added to the item registry.     |smarthome/items/{itemName}/added   |
-| ItemRemovedEvent         |An item has been removed from the item registry. |smarthome/items/{itemName}/removed |
-| ItemUpdateEvent         |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated |
-| ItemCommandEvent         |A command is sent to an item via a channel.       |smarthome/items/{itemName}/command |
-| ItemStateEvent         |The state of an item is updated.                     |smarthome/items/{itemName}/state   |
+| Event                 |Description                                      |Topic                                   |
+|-----------------------|-------------------------------------------------|----------------------------------------|
+| ItemAddedEvent        |An item has been added to the item registry.     |smarthome/items/{itemName}/added        |
+| ItemRemovedEvent      |An item has been removed from the item registry. |smarthome/items/{itemName}/removed      |
+| ItemUpdatedEvent      |An item has been updated in the item registry.   |smarthome/items/{itemName}/updated      |
+| ItemCommandEvent      |A command is sent to an item via a channel.      |smarthome/items/{itemName}/command      |
+| ItemStateEvent        |The state of an item is updated.                 |smarthome/items/{itemName}/state        |
+| ItemStateChangedEvent |The state of an item has changed.                |smarthome/items/{itemName}/statechanged |
 
+**Note:** The ItemStateEvent is sent, if the state of an item is updated, even if the state did not change. ItemStateChangedEvent is sent only if the state of an item was really changed. It contains the old and the new state of the item.
 
 #### Thing Events
 
@@ -50,7 +52,9 @@ The event source is optional and represents the name of the source identifying t
 | ThingRemovedEvent      |A thing has been removed from the thing registry.|smarthome/things/{thingUID}/removed|
 | ThingUpdatedEvent     |A thing has been updated in the thing registry.  |smarthome/things/{thingUID}/updated|
 | ThingStatusInfoEvent    |The status of a thing is updated.                  |smarthome/things/{thingUID}/status |
+| ThingStatusInfoChangedEvent    |The status of a thing changed                  |smarthome/things/{thingUID}/statuschanged |
 
+**Note:** The ThingStatusInfoEvent is sent, if the status info of a thing is updated, even if the status did not change. ThingStatusInfoChangedEvent is sent only if the status of a thing was really changed. It contains the old and the new status of the thing.
 
 #### Inbox Events
 
@@ -59,6 +63,15 @@ The event source is optional and represents the name of the source identifying t
 | InboxAddedEvent         |A discovery result has been added to the inbox     |smarthome/inbox/{thingUID}/added   |
 | InboxRemovedEvent     |A discovery result has been removed from the inbox |smarthome/inbox/{thingUID}/removed |
 | InboxUpdateEvent         |A discovery result has been updated in the inbox   |smarthome/inbox/{thingUID}/updated |
+
+#### Link Events
+
+| Event                       |Description                                             |Topic                                           |
+|-----------------------------|--------------------------------------------------------|------------------------------------------------|
+| ItemChannelLinkAddedEvent   |An item channel link has been added to the registry     |smarthome/links/{itemName}-{channelUID}/added   |
+| ItemChannelLinkRemovedEvent |An item channel link has been removed from the registry |smarthome/links/{itemName}-{channelUID}/removed |
+| ItemThingLinkAddedEvent     |An item thing link has been added to the registry       |smarthome/links/{itemName}-{thingUID}/added     |
+| ItemThingLinkRemovedEvent   |An item thing link has been removed from the registry   |smarthome/links/{itemName}-{thingUID}/removed   |
 
 ## Receive Events
 
@@ -92,7 +105,7 @@ public class SomeItemEventSubscriber implements EventSubscriber {
             Command command = itemCommandEvent.getItemCommand();
             // ...
         } else if (event instanceof ItemStateEvent) {
-            ItemStateEvent itemCommandEvent = (ItemStateEvent) event;
+            ItemStateEvent itemStateEvent = (ItemStateEvent) event;
             // ...
         }
     }
@@ -159,7 +172,7 @@ public class SomeComponentWantsToPost {
 
     public void postSomething() {
         ItemCommandEvent itemCommandEvent = ItemEventFactory.createCommandEvent("ItemX", OnOffType.ON);
-        eventPublisher.postEvent(itemCommandEvent);
+        eventPublisher.post(itemCommandEvent);
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {

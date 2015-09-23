@@ -11,4 +11,3 @@ Import-Package: org.eclipse.smarthome.core.scriptengine,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.script
 Bundle-Activator: org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeActivator
-Bundle-ActivationPolicy: lazy

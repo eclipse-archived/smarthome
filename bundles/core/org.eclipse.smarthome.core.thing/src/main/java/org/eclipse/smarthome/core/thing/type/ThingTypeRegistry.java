@@ -96,8 +96,9 @@ public class ThingTypeRegistry {
      *         was found
      */
     public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
-        for (ThingType thingType : getThingTypes(locale)) {
-            if (thingType.getUID().equals(thingTypeUID)) {
+        for (ThingTypeProvider thingTypeProvider : thingTypeProviders) {
+            ThingType thingType = thingTypeProvider.getThingType(thingTypeUID, locale);
+            if (thingType != null) {
                 return thingType;
             }
         }
@@ -117,34 +118,40 @@ public class ThingTypeRegistry {
         return getThingType(thingTypeUID, null);
     }
 
+    /**
+     * Returns the channel type for a given channel UID.
+     *
+     * <p>
+     * <strong>Attention:</strong> If you iterate over multiple channels to find the according channel types, please
+     * fetch the thing type first using
+     * {@link ThingTypeRegistry#getThingType(ThingTypeUID)} and use
+     * {@link ThingType#getChannelType(ChannelUID)} afterwards.
+     * </p>
+     *
+     * @param channelUID channel UID
+     * @return channel type or null if no channel type was found
+     */
     public ChannelType getChannelType(ChannelUID channelUID) {
         return getChannelType(channelUID, null);
     }
 
+    /**
+     * Returns the channel type for a given channel UID and locale.
+     *
+     * <p>
+     * <strong>Attention:</strong> If you iterate over multiple channels to find the according channel types, please
+     * fetch the thing type first using
+     * {@link ThingTypeRegistry#getThingType(ThingTypeUID)} and use
+     * {@link ThingType#getChannelType(ChannelUID)} afterwards.
+     * </p>
+     *
+     * @param channelUID channel UID
+     * @param locale locale (can be null)
+     * @return channel type or null if no channel type was found
+     */
     public ChannelType getChannelType(ChannelUID channelUID, Locale locale) {
         ThingType thingType = this.getThingType(channelUID.getThingTypeUID(), locale);
-        if (thingType != null) {
-            if (!channelUID.isInGroup()) {
-                for (ChannelDefinition channelDefinition : thingType.getChannelDefinitions()) {
-                    if (channelDefinition.getId().equals(channelUID.getId())) {
-                        return channelDefinition.getType();
-                    }
-                }
-            } else {
-                List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-                for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                    if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
-                        for (ChannelDefinition channelDefinition : channelGroupDefinition.getType()
-                                .getChannelDefinitions()) {
-                            if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
-                                return channelDefinition.getType();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+        return thingType != null ? thingType.getChannelType(channelUID) : null;
     }
 
     protected void addThingTypeProvider(ThingTypeProvider thingTypeProvider) {
