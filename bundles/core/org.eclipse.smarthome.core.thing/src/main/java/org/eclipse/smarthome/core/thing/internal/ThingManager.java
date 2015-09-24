@@ -159,17 +159,24 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             setThingStatus(thing, thingStatus);
 
             if (thing instanceof Bridge) {
-                Bridge bridge = (Bridge) thing;
-                for (Thing bridgeThing : bridge.getThings()) {
-                    if (thingStatus.getStatus() == ThingStatus.ONLINE) {
-                        ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build();
-                        setThingStatus(bridgeThing, statusInfo);
-                    } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
-                        ThingStatusInfo statusInfo = ThingStatusInfoBuilder
-                                .create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build();
-                        setThingStatus(bridgeThing, statusInfo);
-                    }
-                }
+            	Bridge bridge = (Bridge) thing;
+            	for (Thing bridgeChildThing : bridge.getThings()) {
+            		ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
+            		if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
+            				|| bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
+
+            			if (thingStatus.getStatus() == ThingStatus.ONLINE
+            					&& bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+            				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
+            						ThingStatusDetail.NONE).build();
+            				setThingStatus(bridgeChildThing, statusInfo);
+            			} else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
+            				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
+            						ThingStatusDetail.BRIDGE_OFFLINE).build();
+            				setThingStatus(bridgeChildThing, statusInfo);
+            			}
+            		}
+            	}
             }
 
             if (ThingStatus.REMOVING.equals(thing.getStatus())) {
