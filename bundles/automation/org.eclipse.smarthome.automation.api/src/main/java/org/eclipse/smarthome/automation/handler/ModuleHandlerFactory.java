@@ -20,6 +20,7 @@ import org.eclipse.smarthome.automation.Module;
  * instance.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
 public interface ModuleHandlerFactory {
 
@@ -31,7 +32,7 @@ public interface ModuleHandlerFactory {
     public Collection<String> getTypes();
 
     /**
-     * This method is used to create ModuleHandler instance for the passed module
+     * This method is used to get a ModuleHandler instance for the passed module
      * instance
      *
      * @param module module instance for which the {@link ModuleHandler} instance is
@@ -39,6 +40,14 @@ public interface ModuleHandlerFactory {
      *
      * @return ModuleHandler instance.
      */
-    public ModuleHandler create(Module module);
+    public ModuleHandler getHandler(Module module);
+
+    /**
+     * This method signalizes the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
+     * must take care of invalidating caches and disposing the Handlers.
+     * 
+     * @param module
+     */
+    public void ungetHandler(Module module, ModuleHandler handler);
 
 }

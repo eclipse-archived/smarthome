@@ -85,7 +85,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -106,7 +106,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -231,6 +231,19 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
             logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
         }
         return null;
+    }
+
+    @Override
+    public void ungetHandler(Module module, ModuleHandler hdler) {
+        ModuleHandler handler = itemPostCommandActionHandlers.remove(module.getId());
+        handler = handler == null ? eventConditionHandlers.remove(module.getId()) : null;
+        handler = handler == null ? genericEventTriggerHandlers.remove(module.getId()) : null;
+        handler = handler == null ? itemStateConditionHandlers.remove(module.getId()) : null;
+        if (handler != null) {
+            this.handlers.remove(handler);
+            handler.dispose();
+        }
+
     }
 
 }

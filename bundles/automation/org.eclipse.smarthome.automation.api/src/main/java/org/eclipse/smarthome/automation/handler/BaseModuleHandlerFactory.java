@@ -17,6 +17,7 @@ import org.osgi.framework.BundleContext;
  * This is a base class that can be used by any ModuleHandlerFactory implementation
  *
  * @author Kai Kreuzer - Initial Contribution
+ * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  */
 abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
@@ -32,7 +33,7 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     }
 
     @Override
-    public ModuleHandler create(Module module) {
+    public ModuleHandler getHandler(Module module) {
         ModuleHandler handler = internalCreate(module);
         handlers.add(handler);
         return handler;
@@ -45,5 +46,10 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
             handler.dispose();
         }
         handlers.clear();
+    }
+
+    @Override
+    public void ungetHandler(Module module, ModuleHandler handler) {
+        this.handlers.remove(handler);
     }
 }

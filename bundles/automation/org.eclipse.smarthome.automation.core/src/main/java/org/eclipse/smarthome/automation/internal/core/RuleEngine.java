@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Kai Kreuzer - refactored (managed) provider, registry implementation and customized modules
+ * @author Benedikt Niehues - change behavior for unregistering ModuleHandler
  *
  */
 @SuppressWarnings("rawtypes")
@@ -437,23 +438,17 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (modules != null) {
             for (Iterator<T> it = modules.iterator(); it.hasNext();) {
                 T m = it.next();
+                ModuleHandler handler=null;
                 if (m instanceof RuntimeAction) {
-                    ActionHandler moduleHandler = ((RuntimeAction) m).getModuleHandler();
-                    if (moduleHandler != null) {
-                        moduleHandler.dispose();
-                        ((RuntimeAction) m).setModuleHandler(null);
-                    }
+                    handler = ((RuntimeAction) m).getModuleHandler();
                 } else if (m instanceof RuntimeCondition) {
-                    ConditionHandler moduleHandler = ((RuntimeCondition) m).getModuleHandler();
-                    if (moduleHandler != null) {
-                        moduleHandler.dispose();
-                        ((RuntimeCondition) m).setModuleHandler(null);
-                    }
+                    handler = ((RuntimeCondition) m).getModuleHandler();
                 } else if (m instanceof RuntimeTrigger) {
-                    TriggerHandler moduleHandler = ((RuntimeTrigger) m).getModuleHandler();
-                    if (moduleHandler != null) {
-                        moduleHandler.dispose();
-                        ((RuntimeTrigger) m).setModuleHandler(null);
+                    handler = ((RuntimeTrigger) m).getModuleHandler();
+                }
+                if(handler!=null){
+                    for (ModuleHandlerFactory factory : this.moduleHandlerFactories.values()) {
+                        factory.ungetHandler(m, handler);
                     }
                 }
             }
@@ -514,7 +509,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
             return null;
         }
-        return mhf.create(m);
+        return mhf.getHandler(m);
     }
 
     /**
