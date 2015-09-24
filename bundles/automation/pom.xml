@@ -28,6 +28,9 @@
     <module>org.eclipse.smarthome.automation.sample.handler.resources</module>
     <module>org.eclipse.smarthome.automation.module.core</module>
     <module>org.eclipse.smarthome.automation.module.core.test</module>
+    <module>org.eclipse.smarthome.automation.module.script</module>
+    <module>org.eclipse.smarthome.automation.module.script.defaultscope</module>
+    <module>org.eclipse.smarthome.automation.module.script.test</module>
     <module>org.eclipse.smarthome.automation.event.test</module>
     <module>org.eclipse.smarthome.automation.integration.test</module>
   </modules>

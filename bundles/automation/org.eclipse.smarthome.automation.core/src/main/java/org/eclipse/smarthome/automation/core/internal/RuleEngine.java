@@ -828,18 +828,19 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
                     executeActions(rule);
-                    logger.debug("The rule: " + rule.getUID() + " is executed.");
+                    logger.debug("The rule '{}' is executed.", rule.getUID());
                 } else {
-                    logger.debug("The rule: " + rule.getUID() + " is NOT executed! Conditions are not satisfied!");
+                    logger.debug("The rule '{}' is NOT executed, since it has unsatisfied conditions.", rule.getUID());
                 }
             } catch (Throwable t) {
-                logger.error("Fail to execute rule: " + rule.getUID(), t);
+                logger.error("Fail to execute rule '{}': {}", new Object[] { rule.getUID(), t.getMessage() }, t);
             }
 
             // change state to IDLE
             setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
         } else {
-            logger.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = " + ruleStatus.getValue());
+            logger.error("Trying to execute rule ‘{}' with status '{}'",
+                    new Object[] { rule.getUID(), ruleStatus.getValue() });
         }
 
     }
@@ -927,7 +928,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, Object> context = getContext(rule.getUID(), c.getConnections());
             if (!tHandler.isSatisfied(context)) {
-                logger.debug("The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
+                logger.debug("The condition '{}' of rule '{}' is unsatisfied.",
+                        new Object[] { c.getId(), rule.getUID() });
                 return false;
             }
         }
