@@ -133,10 +133,10 @@ public class AutomationCommandList extends AutomationCommand {
             }
             if (getLocale) {
                 String l = parameterValues[i];
-                if (l.contains("-"))
-                    locale = Locale.forLanguageTag(l);
-                else
-                    locale = new Locale(l);
+                // if (l.contains("-"))
+                // locale = Locale.forLanguageTag(l);
+                // else
+                locale = new Locale(l);
                 getLocale = false;
             }
             if (getId && getLocale)
