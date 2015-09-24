@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
 import org.jupnp.UpnpService;
 import org.jupnp.controlpoint.ActionCallback;
 import org.jupnp.controlpoint.ControlPoint;
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * @author Karel Goderis - Initial contribution; added simple polling mechanism
  * @author Kai Kreuzer - added descriptor url retrieval
  * @author Markus Rathgeb - added NP checks in subscription ended callback
+ * @author Andre Fuechsel - added methods to remove subscriptions
  */
 @SuppressWarnings("rawtypes")
 public class UpnpIOServiceImpl implements UpnpIOService {
@@ -58,6 +60,8 @@ public class UpnpIOServiceImpl implements UpnpIOService {
     private Map<UpnpIOParticipant, ScheduledFuture> pollingJobs = new ConcurrentHashMap<UpnpIOParticipant, ScheduledFuture>(
             32);
     private Map<UpnpIOParticipant, Boolean> currentStates = new ConcurrentHashMap<UpnpIOParticipant, Boolean>(32);
+    private Map<Service, UpnpSubscriptionCallback> subscriptionCallbacks = new ConcurrentHashMap<Service, UpnpSubscriptionCallback>(
+            32);
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
 
     public class UpnpSubscriptionCallback extends SubscriptionCallback {
@@ -122,7 +126,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
                                 participant.onValueReceived(stateVariable, value.getValue().toString(), sub
                                         .getService().getServiceId().getId());
                             } catch (Exception e) {
-                                logger.debug("Error {}", e);
+                                logger.error("Participant threw an exception onValueReceived", e);
                             }
                         }
                     }
@@ -172,26 +176,13 @@ public class UpnpIOServiceImpl implements UpnpIOService {
             Device device = participants.get(participant);
 
             if (device != null) {
-
-                Device[] embedded = device.getEmbeddedDevices();
-
-                Service subService = findService(device, serviceID);
-                if (subService == null) {
-                    // service not on the root device, we search the embedded
-                    // devices as well
-                    for (Device aDevice : embedded) {
-                        subService = findService(aDevice, serviceID);
-                        if (subService != null) {
-                            break;
-                        }
-                    }
-                }
-
+                Service subService = searchSubService(serviceID, device);
                 if (subService != null) {
                     logger.trace("Setting up an UPNP service subscription '{}' for particpant '{}'", serviceID,
                             participant.getUDN());
 
                     UpnpSubscriptionCallback callback = new UpnpSubscriptionCallback(subService, duration);
+                    subscriptionCallbacks.put(subService, callback);
                     upnpService.getControlPoint().execute(callback);
                 } else {
                     logger.trace("Could not find service '{}' for device '{}'", serviceID, device.getIdentity()
@@ -199,10 +190,53 @@ public class UpnpIOServiceImpl implements UpnpIOService {
                 }
             } else {
                 logger.trace("Could not find an upnp device for participant '{}'", participant.getUDN());
-
             }
         }
 
+    }
+
+    private Service searchSubService(String serviceID, Device device) {
+        Service subService = findService(device, serviceID);
+        if (subService == null) {
+
+            // service not on the root device, we search the embedded devices as well
+            Device[] embedded = device.getEmbeddedDevices();
+            if (embedded != null) {
+                for (Device aDevice : embedded) {
+                    subService = findService(aDevice, serviceID);
+                    if (subService != null) {
+                        break;
+                    }
+                }
+            }
+        }
+        return subService;
+    }
+
+    @Override
+    public void removeSubscription(UpnpIOParticipant participant, String serviceID) {
+        if (participant != null && serviceID != null) {
+            Device device = participants.get(participant);
+
+            if (device != null) {
+                Service subService = searchSubService(serviceID, device);
+                if (subService != null) {
+                    logger.trace("Removing an UPNP service subscription '{}' for particpant '{}'", serviceID,
+                            participant.getUDN());
+
+                    UpnpSubscriptionCallback callback = subscriptionCallbacks.get(subService);
+                    if (callback != null) {
+                        callback.end();
+                    }
+                    subscriptionCallbacks.remove(subService);
+                } else {
+                    logger.trace("Could not find service '{}' for device '{}'", serviceID,
+                            device.getIdentity().getUdn());
+                }
+            } else {
+                logger.trace("Could not find an upnp device for participant '{}'", participant.getUDN());
+            }
+        }
     }
 
     @Override
@@ -299,6 +333,16 @@ public class UpnpIOServiceImpl implements UpnpIOService {
     }
 
     @Override
+    public void unregisterParticipant(UpnpIOParticipant participant) {
+        if (participant != null) {
+            stopPollingForParticipant(participant);
+            pollingJobs.remove(participant);
+            currentStates.remove(participant);
+            participants.remove(participant);
+        }
+    }
+
+    @Override
     public URL getDescriptorURL(UpnpIOParticipant participant) {
         RemoteDevice device = upnpService.getRegistry().getRemoteDevice(new UDN(participant.getUDN()), true);
         if (device != null) {
@@ -361,7 +405,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
                                 if (anException != null
                                         && anException.getMessage()
                                                 .contains("Connection error or no response received")) {
-                                    // The UDN is not reacheable anymore
+                                    // The UDN is not reachable anymore
                                     if (currentStates.get(participant)) {
                                         currentStates.put(participant, false);
                                         logger.debug("Signalling that '{}' is not responding", participant.getUDN());
@@ -402,12 +446,7 @@ public class UpnpIOServiceImpl implements UpnpIOService {
             int pollingInterval = interval == 0 ? DEFAULT_POLLING_INTERVAL : interval;
 
             // remove the previous polling job, if any
-            if (pollingJobs.containsKey(participant)) {
-                ScheduledFuture<?> pollingJob = pollingJobs.get(participant);
-                if (pollingJob != null) {
-                    pollingJob.cancel(true);
-                }
-            }
+            stopPollingForParticipant(participant);
 
             currentStates.put(participant, true);
 
@@ -415,6 +454,22 @@ public class UpnpIOServiceImpl implements UpnpIOService {
             pollingJobs.put(participant,
                     scheduler.scheduleAtFixedRate(pollingRunnable, 0, pollingInterval, TimeUnit.SECONDS));
 
+        }
+    }
+
+    private void stopPollingForParticipant(UpnpIOParticipant participant) {
+        if (pollingJobs.containsKey(participant)) {
+            ScheduledFuture<?> pollingJob = pollingJobs.get(participant);
+            if (pollingJob != null) {
+                pollingJob.cancel(true);
+            }
+        }
+    }
+
+    @Override
+    public void removeStatusListener(UpnpIOParticipant participant) {
+        if (participant != null) {
+            unregisterParticipant(participant);
         }
     }
 }
