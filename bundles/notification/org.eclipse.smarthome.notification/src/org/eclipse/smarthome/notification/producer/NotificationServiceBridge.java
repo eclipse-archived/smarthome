@@ -73,7 +73,7 @@ public class NotificationServiceBridge implements EventSubscriber {
                 }
             }
         } else {
-            logger.debug("Received and event Type {} Topic {}", event.getType(), event.getTopic());
+            logger.debug("Received an event Type {} Topic {}", event.getType(), event.getTopic());
             firstRegularEventReceived = true;
             synchronized (eventConfigurations) {
                 for (EventConfiguration config : eventConfigurations) {

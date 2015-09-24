@@ -26,6 +26,7 @@ Service-Component: OSGI-INF/NotificationGateway.xml,
  OSGI-INF/NotificationManagerEventFactory.xml,
  OSGI-INF/DefaultFactory.xml 
 Export-Package: org.eclipse.smarthome.notification,
- org.eclipse.smarthome.notification.consumer
+ org.eclipse.smarthome.notification.consumer,
+ org.eclipse.smarthome.notification.manager
 Bundle-ClassPath: lib/token-bucket-1.6.jar,
  .

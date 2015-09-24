@@ -152,39 +152,42 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
         if (event instanceof NotificationAddedEvent) {
             // logger.debug("Received an event Type {} Topic {}", event.getType(), event.getTopic());
             Notification notification = ((NotificationAddedEvent) event).getNotification();
-            String source = StringUtils.split(notification.getType(), ":")[0];
-            String serviceID = StringUtils.split(notification.getType(), ":")[1];
-            String target = StringUtils.split(notification.getType(), ":")[2];
-            if (source.equals(NotificationServiceBridge.class.getSimpleName()) && serviceID != null && target != null) {
-                logger.debug("Received a notification for Service {} Target {}", serviceID, target);
+            if (StringUtils.split(notification.getType(), ":").length == 3) {
+                String source = StringUtils.split(notification.getType(), ":")[0];
+                String serviceID = StringUtils.split(notification.getType(), ":")[1];
+                String target = StringUtils.split(notification.getType(), ":")[2];
+                if (source.equals(NotificationServiceBridge.class.getSimpleName()) && serviceID != null
+                        && target != null) {
+                    logger.debug("Received a notification for Service {} Target {}", serviceID, target);
 
-                if (modelRepository != null) {
-                    NotificationModel model = (NotificationModel) modelRepository.getModel(serviceID + ".notify");
-                    if (model != null) {
-                        List<Target> targets = model.getTargets();
-                        for (Target serviceTarget : targets) {
-                            if (serviceTarget.getName().equals(target)) {
-                                NotificationService service = notificationServices.get(serviceID);
-                                if (service != null) {
-                                    service.notify(serviceTarget.getName(), serviceTarget.getTargetOptions(),
-                                            notification);
-                                } else {
-                                    logger.warn(
-                                            "The Notification Service Gateway does not support a service of type '{}'",
-                                            serviceID);
+                    if (modelRepository != null) {
+                        NotificationModel model = (NotificationModel) modelRepository.getModel(serviceID + ".notify");
+                        if (model != null) {
+                            List<Target> targets = model.getTargets();
+                            for (Target serviceTarget : targets) {
+                                if (serviceTarget.getName().equals(target)) {
+                                    NotificationService service = notificationServices.get(serviceID);
+                                    if (service != null) {
+                                        service.notify(serviceTarget.getName(), serviceTarget.getTargetOptions(),
+                                                notification);
+                                    } else {
+                                        logger.warn(
+                                                "The Notification Service Gateway does not support a service of type '{}'",
+                                                serviceID);
+                                    }
+
+                                    break;
                                 }
-
-                                break;
                             }
+
+                            logger.debug("Removing the notification with ID '{}' after delivery",
+                                    notification.getUID());
+                            notificationManager.remove(notification.getUID());
+
                         }
-
-                        logger.debug("Removing the notification with ID '{}' after delivery", notification.getUID());
-                        notificationManager.remove(notification.getUID());
-
                     }
                 }
             }
-
         }
     }
 
