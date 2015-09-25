@@ -311,7 +311,7 @@ public abstract class AbstractCustomizedModuleHandler<T extends ModuleHandler, M
                             additionalValues);
                     resolvedOutputs.put(outputName, outputValue);
                     // fill up all referred Outputs in the chain
-                    fillReferred(outputName, outputValue, resolvedOutputs, outputConnectionsMap);
+                    // fillReferred(outputName, outputValue, resolvedOutputs, outputConnectionsMap);
                 }
             }
         }
@@ -406,7 +406,12 @@ public abstract class AbstractCustomizedModuleHandler<T extends ModuleHandler, M
                 } else if (inputValues != null && inputValues.containsKey(parsedNameRef)) { // reference is Input
                     outputValue = inputValues.get(parsedNameRef);
                 }
+            } else {
+                if (additionalValues != null) { // get from additional values
+                    outputValue = additionalValues.get(parsedNameRef);
+                }
             }
+
         } else {
             if (additionalValues != null) { // get from additional values
                 outputValue = additionalValues.get(outputReference);

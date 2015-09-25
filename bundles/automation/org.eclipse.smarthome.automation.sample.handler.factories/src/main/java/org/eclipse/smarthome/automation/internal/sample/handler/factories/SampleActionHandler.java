@@ -32,11 +32,13 @@ public class SampleActionHandler extends BaseModuleHandler<Action>implements Act
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 
     @Override
     public Map<String, Object> execute(Map<String, ?> inputs) {
-        Object message = getMessage(inputs);
+        Map<String, Object> config = module.getConfiguration();
+        Object message = getMessage(config);
         if (message == null) {
             message = "";
         }

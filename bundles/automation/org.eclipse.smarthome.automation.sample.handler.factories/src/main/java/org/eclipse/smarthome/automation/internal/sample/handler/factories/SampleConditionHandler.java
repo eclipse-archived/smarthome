@@ -52,7 +52,8 @@ public class SampleConditionHandler extends BaseModuleHandler<Condition>implemen
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+    }
 
     @Override
     public boolean isSatisfied(Map<String, ?> inputs) {
@@ -60,8 +61,9 @@ public class SampleConditionHandler extends BaseModuleHandler<Condition>implemen
         if (conditionInput == null) {
             conditionInput = "";
         }
-        String operator = (String) inputs.get(PROPERTY_OPERATOR);
-        String constraint = (String) inputs.get(PROPERTY_CONSTRAINT);
+        Map<String, Object> config = module.getConfiguration();
+        String operator = (String) config.get(PROPERTY_OPERATOR);
+        String constraint = (String) config.get(PROPERTY_CONSTRAINT);
         boolean evaluation = false;
         if (OPERATOR_EQUAL.equals(operator)) {
             evaluation = conditionInput.equals(constraint);

@@ -22,7 +22,7 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
  * @author Kai Kreuzer - refactored and simplified customized module handling
  */
 public class SampleTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
-    private static final String OUTPUT_REFERENCE = "consoleInput";
+    private static final String OUTPUT_REFERENCE = "triggerOutput";
     private RuleEngineCallback ruleCallback;
 
     public SampleTriggerHandler(Trigger module) {

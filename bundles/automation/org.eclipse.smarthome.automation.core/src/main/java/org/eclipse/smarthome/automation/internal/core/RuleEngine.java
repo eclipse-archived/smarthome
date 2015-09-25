@@ -30,6 +30,7 @@ import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
+import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
@@ -149,7 +150,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public RuleEngine(BundleContext bc) {
         this.bc = bc;
         logger = LoggerFactory.getLogger(getClass());
-        customizedModuleHandlerFactory = new CustomizedModuleHandlerFactory(bc);
+        customizedModuleHandlerFactory = new CustomizedModuleHandlerFactory(bc, this);
         if (rules == null) {
             rules = new HashMap<String, RuntimeRule>(20);
         }
@@ -446,9 +447,17 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 } else if (m instanceof RuntimeTrigger) {
                     handler = ((RuntimeTrigger) m).getModuleHandler();
                 }
+
                 if (handler != null) {
-                    for (ModuleHandlerFactory factory : this.moduleHandlerFactories.values()) {
-                        factory.ungetHandler(m, ruleUID, handler);
+                    BaseModuleHandlerFactory factory = (BaseModuleHandlerFactory) getModuleHandlerFactory(m);
+                    factory.ungetHandler(m, ruleUID, handler);
+
+                    if (m instanceof RuntimeAction) {
+                        ((RuntimeAction) m).setModuleHandler(null);
+                    } else if (m instanceof RuntimeCondition) {
+                        ((RuntimeCondition) m).setModuleHandler(null);
+                    } else if (m instanceof RuntimeTrigger) {
+                        ((RuntimeTrigger) m).setModuleHandler(null);
                     }
                 }
             }
@@ -496,7 +505,16 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param m a {@link Module} which is looking for handler
      * @return handler for this module or null when it is not available.
      */
-    private ModuleHandler getModuleHandler(Module m, String ruleUID) {
+    public ModuleHandler getModuleHandler(Module m, String ruleUID) {
+        ModuleHandlerFactory mhf = getModuleHandlerFactory(m);
+        if (mhf == null) {
+            // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
+            return null;
+        }
+        return mhf.getHandler(m, ruleUID);
+    }
+
+    public ModuleHandlerFactory getModuleHandlerFactory(Module m) {
         String moduleTypeId = m.getTypeUID();
         String parentModuleTypeId = getParentModuleType(moduleTypeId);
         ModuleHandlerFactory mhf = null;
@@ -505,11 +523,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         } else {
             mhf = customizedModuleHandlerFactory;
         }
-        if (mhf == null) {
-            // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
-            return null;
-        }
-        return mhf.getHandler(m, ruleUID);
+        return mhf;
     }
 
     /**

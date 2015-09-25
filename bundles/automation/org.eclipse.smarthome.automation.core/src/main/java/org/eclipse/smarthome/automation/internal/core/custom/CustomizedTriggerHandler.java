@@ -38,6 +38,7 @@ public class CustomizedTriggerHandler extends AbstractCustomizedModuleHandler<Tr
     @Override
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.ruleCallBack = ruleCallback;
+        parentHandler.setRuleEngineCallback(this);
     }
 
     @Override
@@ -53,6 +54,13 @@ public class CustomizedTriggerHandler extends AbstractCustomizedModuleHandler<Tr
         } else {
             log.error("RuleCallback in TriggerHandler with [typeUID=" + module.getTypeUID() + "is null");
         }
+    }
+
+    @Override
+    public void dispose() {
+        parentHandler.setRuleEngineCallback(null);
+        this.ruleCallBack = null;
+        super.dispose();
     }
 
 }

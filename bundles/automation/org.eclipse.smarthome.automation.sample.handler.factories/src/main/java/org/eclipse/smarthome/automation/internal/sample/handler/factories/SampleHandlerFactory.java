@@ -18,6 +18,7 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     public static final String MODULE_HANDLER_FACTORY_NAME = "[SampleHandlerFactory]";
     private Logger logger = LoggerFactory.getLogger(SampleHandlerFactory.class);
     private static final Collection<String> types;
+    private List<TriggerHandler> createdTriggerHandler = new ArrayList<TriggerHandler>(10);
 
     static {
         List<String> temp = new ArrayList<String>();
@@ -99,8 +101,8 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
      *
      * @return list of created TriggerHandlers
      */
-    public List<ModuleHandler> getCreatedTriggerHandler() {
-        return new ArrayList<>(handlers.values());
+    public List<TriggerHandler> getCreatedTriggerHandler() {
+        return createdTriggerHandler;
     }
 
     @Override
@@ -108,6 +110,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         ModuleHandler moduleHandler = null;
         if (SUPPORTED_TRIGGER.equals(module.getTypeUID())) {
             moduleHandler = new SampleTriggerHandler((Trigger) module);
+            createdTriggerHandler.add((TriggerHandler) moduleHandler);
         } else if (SUPPORTED_CONDITION.equals(module.getTypeUID())) {
             moduleHandler = new SampleConditionHandler((Condition) module);
         } else if (SUPPORTED_ACTION.equals(module.getTypeUID())) {
@@ -120,6 +123,18 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         }
 
         return moduleHandler;
+    }
+
+    @Override
+    public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
+        createdTriggerHandler.remove(hdlr);
+        super.ungetHandler(module, ruleUID, hdlr);
+    }
+
+    @Override
+    public void dispose() {
+        createdTriggerHandler.clear();
+        super.dispose();
     }
 
 }

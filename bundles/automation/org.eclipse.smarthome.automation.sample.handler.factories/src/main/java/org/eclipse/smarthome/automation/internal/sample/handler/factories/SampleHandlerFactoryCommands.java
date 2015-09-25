@@ -10,7 +10,7 @@ package org.eclipse.smarthome.automation.internal.sample.handler.factories;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
@@ -31,7 +31,7 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     private static final String COMMAND_LIST = "listTrigger";
     private static final String COMMAND_EXECUTE = "executeTrigger";
 
-    private List<ModuleHandler> currentTriggers;
+    private List<TriggerHandler> currentTriggers;
     private SampleHandlerFactory sampleHandlerFactory;
     private ServiceRegistration<?> commandsServiceReg;
 

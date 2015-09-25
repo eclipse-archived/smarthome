@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.internal.core.RuleEngine;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.osgi.framework.BundleContext;
@@ -48,13 +49,15 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
     private ServiceReference moduleTypeRegistryRef;
     private ModuleTypeRegistry moduleTypeRegistry;
     private Logger log;
+    private RuleEngine ruleEngine;
 
     @SuppressWarnings("unchecked")
-    public CustomizedModuleHandlerFactory(BundleContext bundleContext) {
+    public CustomizedModuleHandlerFactory(BundleContext bundleContext, RuleEngine re) {
         super(bundleContext);
         log = LoggerFactory.getLogger(CustomizedModuleHandlerFactory.class);
         serviceTracker = new ServiceTracker(bundleContext, ModuleTypeRegistry.class.getName(), this);
         serviceTracker.open();
+        this.ruleEngine = re;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
                 String typeUID = module.getTypeUID();
                 String parentModuleTypeUID = getParentModuleTypeUID(typeUID);
                 Module parentModule = createParentModule(module, parentModuleTypeUID);
-                ModuleHandler parentHandler = createParentHandler(parentModule);
+                ModuleHandler parentHandler = createParentHandler(parentModule, ruleUID);
                 List<ModuleType> moduleTypes = getAllModuleTypes(typeUID);
                 if (moduleTypes != null) {
                     handler = createCustomizedHandler(parentHandler, parentModule, module, moduleTypes);
@@ -102,9 +105,8 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
         return null;
     }
 
-    private ModuleHandler createParentHandler(Module parentModule) {
-        // TODO Auto-generated method stub
-        return null;
+    private ModuleHandler createParentHandler(Module parentModule, String rUID) {
+        return ruleEngine.getModuleHandler(parentModule, rUID);
     }
 
     private Module createParentModule(Module module, String parentModuleTypeUID) {
@@ -209,6 +211,16 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
     @Override
     public Collection<String> getTypes() {
         return Collections.emptyList();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
+        ModuleHandler pHandler = ((AbstractCustomizedModuleHandler<ModuleHandler, Module>) hdlr).parentHandler;
+        Module pModule = ((AbstractCustomizedModuleHandler<ModuleHandler, Module>) hdlr).parentModule;
+        ModuleHandlerFactory pFactory = ruleEngine.getModuleHandlerFactory(pModule);
+        pFactory.ungetHandler(pModule, ruleUID, pHandler);
+        super.ungetHandler(module, ruleUID, hdlr);
     }
 
 }
