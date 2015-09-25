@@ -63,7 +63,7 @@ The following example shows the implementation of the above mentioned methods in
 
 If the user triggers an active scan for a binding or specific set of thing types, the method `startScan` of each discovery service which supports these thing type is called. Within these methods the things can be discovered. The abstract base class automatically starts a thread, so the implementation of this method can be long-running.
 
-The following example implementation for `startScan` is taken from the `HueLightDiscoveryService`, that triggers a scan for known and also for new lights of the hue bridge. 
+The following example implementation for `startScan` is taken from the `HueLightDiscoveryService`, that triggers a scan for known and also for new lights of the hue bridge. Already discovered things are identified by the ThingUID the DiscoveryResult was created with, and won't appear in the inbox again.
 
 ```java
     @Override

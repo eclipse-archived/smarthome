@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome IO UPnP Tests
+Bundle-SymbolicName: org.eclipse.smarthome.io.transport.upnp.test;singleton:=true
+Bundle-Version: 0.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: Eclipse.org/SmartHome
+Fragment-Host: org.eclipse.smarthome.io.transport.upnp
+Import-Package: groovy.lang,
+ org.codehaus.groovy.reflection,
+ org.codehaus.groovy.runtime,
+ org.codehaus.groovy.runtime.callsite,
+ org.codehaus.groovy.runtime.typehandling,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.storage,
+ org.eclipse.smarthome.core.thing.binding,
+ org.eclipse.smarthome.core.thing.binding.builder,
+ org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.test,
+ org.glassfish.jersey.uri.internal,
+ org.hamcrest;core=split,
+ org.junit;version="4.0.0"

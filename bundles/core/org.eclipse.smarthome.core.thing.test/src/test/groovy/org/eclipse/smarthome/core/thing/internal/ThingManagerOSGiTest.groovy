@@ -358,24 +358,68 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): bridge.getThingTypeUID()
         ] as Hashtable)
 
-        def bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE).build()
-        callback.statusUpdated(bridge, bridgeStatusInfo)
-        assertThat bridge.statusInfo, is(bridgeStatusInfo)
+		def thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
 
-        def thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build()
-        for(Thing bridgeThing : bridge.getThings()) {
-            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
-        }
+		def bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE).build()
+		callback.statusUpdated(bridge, bridgeStatusInfo)
+		assertThat bridge.statusInfo, is(bridgeStatusInfo)
 
-        bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
-        callback.statusUpdated(bridge, bridgeStatusInfo)
-        assertThat bridge.statusInfo, is(bridgeStatusInfo)
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
 
-        thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
-        for(Thing bridgeThing : bridge.getThings()) {
-            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
-        }
-    }
+		bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build()
+		callback.statusUpdated(bridge, bridgeStatusInfo)
+		assertThat bridge.statusInfo, is(bridgeStatusInfo)
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			callback.statusUpdated(bridgeThing, thingStatusInfo)
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+
+		bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE).build()
+		callback.statusUpdated(bridge, bridgeStatusInfo)
+		assertThat bridge.statusInfo, is(bridgeStatusInfo)
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+
+		bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+		callback.statusUpdated(bridge, bridgeStatusInfo)
+		assertThat bridge.statusInfo, is(bridgeStatusInfo)
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			callback.statusUpdated(bridgeThing, thingStatusInfo)
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+
+		bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build()
+		callback.statusUpdated(bridge, bridgeStatusInfo)
+		assertThat bridge.statusInfo, is(bridgeStatusInfo)
+
+		thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+		for(Thing bridgeThing : bridge.getThings()) {
+			assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+		}
+	}
 
     @Test
     void 'ThingManager handles thing updates correctly'() {

@@ -44,7 +44,7 @@ Bridge hue:bridge:mybridge [ ipAddress="192.168.3.123" ] {
 }
 ```
 
-Within the curly brackets things can be defined, that should be members of the bridge. For the contained thing only the thing type ID and thing ID must be defined (e.g. `LCT001 bulb1`). So the syntax is `Thing <thingTypeId> <thingId> []`. The resulting UID of the thing is `hue:LCT001:bridge:bulb1`.
+Within the curly brackets things can be defined, that should be members of the bridge. For the contained thing only the thing type ID and thing ID must be defined (e.g. `LCT001 bulb1`). So the syntax is `Thing <thingTypeId> <thingId> []`. The resulting UID of the thing is `hue:LCT001:mybridge:bulb1`.
 
 Bridges that are defined somewhere else can also be referenced in the DSL:
 
