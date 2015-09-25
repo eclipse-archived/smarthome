@@ -40,7 +40,7 @@ public interface ModuleHandlerFactory {
      *
      * @return ModuleHandler instance.
      */
-    public ModuleHandler getHandler(Module module);
+    public ModuleHandler getHandler(Module module, String ruleUID);
 
     /**
      * This method signalizes the Factory that a ModuleHandler for the passed module is not needed anymore. Implementors
@@ -48,6 +48,6 @@ public interface ModuleHandlerFactory {
      * 
      * @param module
      */
-    public void ungetHandler(Module module, ModuleHandler handler);
+    public void ungetHandler(Module module, String ruleUID, ModuleHandler handler);
 
 }

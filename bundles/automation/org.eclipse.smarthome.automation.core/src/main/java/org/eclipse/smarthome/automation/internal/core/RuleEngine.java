@@ -376,11 +376,11 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     /**
      * This method links modules to corresponding module handlers.
      *
-     * @param rId id of rule containing these modules
+     * @param rUID id of rule containing these modules
      * @param modules list of modules
      * @return null when all modules are connected or list of RuleErrors for missing handlers.
      */
-    private <T extends Module> String setModuleHandler(String rId, List<T> modules) {
+    private <T extends Module> String setModuleHandler(String rUID, List<T> modules) {
         StringBuffer sb = null;
         if (modules != null) {
             for (Iterator<T> it = modules.iterator(); it.hasNext();) {
@@ -389,9 +389,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 if (rules == null) {
                     rules = new HashSet<String>(11);
                 }
-                rules.add(rId);
+                rules.add(rUID);
                 mapModuleTypeToRules.put(t.getTypeUID(), rules);
-                ModuleHandler moduleHandler = getModuleHandler(t);
+                ModuleHandler moduleHandler = getModuleHandler(t, rUID);
                 if (moduleHandler != null) {
                     if (t instanceof RuntimeAction) {
                         ((RuntimeAction) t).setModuleHandler((ActionHandler) moduleHandler);
@@ -434,11 +434,11 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      *
      * @param modules list of module which are disconnected.
      */
-    private <T extends Module> void removeHandlers(List<T> modules) {
+    private <T extends Module> void removeHandlers(List<T> modules, String ruleUID) {
         if (modules != null) {
             for (Iterator<T> it = modules.iterator(); it.hasNext();) {
                 T m = it.next();
-                ModuleHandler handler=null;
+                ModuleHandler handler = null;
                 if (m instanceof RuntimeAction) {
                     handler = ((RuntimeAction) m).getModuleHandler();
                 } else if (m instanceof RuntimeCondition) {
@@ -446,9 +446,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 } else if (m instanceof RuntimeTrigger) {
                     handler = ((RuntimeTrigger) m).getModuleHandler();
                 }
-                if(handler!=null){
+                if (handler != null) {
                     for (ModuleHandlerFactory factory : this.moduleHandlerFactories.values()) {
-                        factory.ungetHandler(m, handler);
+                        factory.ungetHandler(m, ruleUID, handler);
                     }
                 }
             }
@@ -484,9 +484,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             if (reCallback != null) {
                 reCallback.dispose();
             }
-            removeHandlers(r.getTriggers());
-            removeHandlers(r.getActions());
-            removeHandlers(r.getConditions());
+            removeHandlers(r.getTriggers(), r.getUID());
+            removeHandlers(r.getActions(), r.getUID());
+            removeHandlers(r.getConditions(), r.getUID());
         }
     }
 
@@ -496,7 +496,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param m a {@link Module} which is looking for handler
      * @return handler for this module or null when it is not available.
      */
-    private ModuleHandler getModuleHandler(Module m) {
+    private ModuleHandler getModuleHandler(Module m, String ruleUID) {
         String moduleTypeId = m.getTypeUID();
         String parentModuleTypeId = getParentModuleType(moduleTypeId);
         ModuleHandlerFactory mhf = null;
@@ -509,7 +509,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
             return null;
         }
-        return mhf.getHandler(m);
+        return mhf.getHandler(m, ruleUID);
     }
 
     /**
@@ -746,7 +746,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
-            /* ModuleHandlerFactory */Object service) {}
+            /* ModuleHandlerFactory */Object service) {
+    }
 
     /**
      * This method tracks for disappearing of {@link ModuleHandlerFactory} service. It unregister all rules using

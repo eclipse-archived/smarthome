@@ -58,7 +58,7 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
     }
 
     @Override
-    public ModuleHandler internalCreate(Module module) {
+    public ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler handler = null;
         if (module != null) {
             if (moduleTypeRegistry != null) {
@@ -70,7 +70,7 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
                 if (moduleTypes != null) {
                     handler = createCustomizedHandler(parentHandler, parentModule, module, moduleTypes);
                     if (handler != null) {
-                        handlers.add(handler);
+                        handlers.put(ruleUID + module.getId(), handler);
                     } else {
                         log.error("The Factory was not able to create ModuleHandler for Module with typeUID:"
                                 + module.getTypeUID());
@@ -127,9 +127,12 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
             }
         }
         serviceTracker.close();
-        for (ModuleHandler handler : handlers) {
-            handler.dispose();
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler != null) {
+                handler.dispose();
+            }
         }
+        handlers.clear();
     }
 
     @Override
@@ -148,7 +151,8 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {}
+    public void modifiedService(ServiceReference reference, Object service) {
+    }
 
     @Override
     public void removedService(ServiceReference reference, Object service) {

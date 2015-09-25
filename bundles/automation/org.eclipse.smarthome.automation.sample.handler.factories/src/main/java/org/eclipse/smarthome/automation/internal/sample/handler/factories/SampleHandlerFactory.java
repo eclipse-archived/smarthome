@@ -100,21 +100,23 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
      * @return list of created TriggerHandlers
      */
     public List<ModuleHandler> getCreatedTriggerHandler() {
-        return handlers;
+        return new ArrayList<>(handlers.values());
     }
 
     @Override
-    protected ModuleHandler internalCreate(Module module) {
+    protected ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler moduleHandler = null;
         if (SUPPORTED_TRIGGER.equals(module.getTypeUID())) {
             moduleHandler = new SampleTriggerHandler((Trigger) module);
-            handlers.add(moduleHandler);
         } else if (SUPPORTED_CONDITION.equals(module.getTypeUID())) {
             moduleHandler = new SampleConditionHandler((Condition) module);
         } else if (SUPPORTED_ACTION.equals(module.getTypeUID())) {
             moduleHandler = new SampleActionHandler((Action) module);
         } else {
             logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: {}", module.getTypeUID());
+        }
+        if (moduleHandler != null) {
+            handlers.put(ruleUID + module.getId(), moduleHandler);
         }
 
         return moduleHandler;

@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.automation.handler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.smarthome.automation.Module;
 import org.osgi.framework.BundleContext;
@@ -21,7 +21,7 @@ import org.osgi.framework.BundleContext;
  */
 abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
-    protected List<ModuleHandler> handlers;
+    protected Map<String, ModuleHandler> handlers;
     protected BundleContext bundleContext;
 
     public BaseModuleHandlerFactory(BundleContext bundleContext) {
@@ -29,27 +29,37 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
             throw new IllegalArgumentException("BundleContext must not be null.");
         }
         this.bundleContext = bundleContext;
-        handlers = new ArrayList<ModuleHandler>();
+        handlers = new HashMap<String, ModuleHandler>();
     }
 
     @Override
-    public ModuleHandler getHandler(Module module) {
-        ModuleHandler handler = internalCreate(module);
-        handlers.add(handler);
+    public ModuleHandler getHandler(Module module, String ruleUID) {
+        ModuleHandler handler = internalCreate(module, ruleUID);
+        handlers.put(ruleUID + module.getId(), handler);
         return handler;
     }
 
-    abstract protected ModuleHandler internalCreate(Module module);
+    abstract protected ModuleHandler internalCreate(Module module, String ruleUID);
 
     public void dispose() {
-        for (ModuleHandler handler : handlers) {
-            handler.dispose();
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler != null) {
+                handler.dispose();
+            }
         }
         handlers.clear();
     }
 
     @Override
-    public void ungetHandler(Module module, ModuleHandler handler) {
-        this.handlers.remove(handler);
+    public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
+        ModuleHandler handler = handlers.get(ruleUID + module.getId());
+        if (handler != null) {
+            this.handlers.remove(ruleUID + module.getId());
+            if (!this.handlers.containsValue(hdlr)) {
+                handler.dispose();
+                handler = null;
+            }
+        }
+
     }
 }

@@ -57,17 +57,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
 
-    private Map<String, GenericEventTriggerHandler> genericEventTriggerHandlers;
-    private Map<String, ItemStateConditionHandler> itemStateConditionHandlers;
-    private Map<String, ItemPostCommandActionHandler> itemPostCommandActionHandlers;
-    private Map<String, EventConditionHandler> eventConditionHandlers;
-
     public BasicModuleHandlerFactory(BundleContext bundleContext) {
         super(bundleContext);
-        this.genericEventTriggerHandlers = new HashMap<String, GenericEventTriggerHandler>();
-        this.itemStateConditionHandlers = new HashMap<String, ItemStateConditionHandler>();
-        this.itemPostCommandActionHandlers = new HashMap<String, ItemPostCommandActionHandler>();
-        this.eventConditionHandlers = new HashMap<String, EventConditionHandler>();
         initializeServiceTrackers();
     }
 
@@ -129,11 +120,12 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     private void setItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = itemRegistry;
-        for (ItemStateConditionHandler handler : itemStateConditionHandlers.values()) {
-            handler.setItemRegistry(itemRegistry);
-        }
-        for (ItemPostCommandActionHandler handler : itemPostCommandActionHandlers.values()) {
-            handler.setItemRegistry(itemRegistry);
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler instanceof ItemStateConditionHandler) {
+                ((ItemStateConditionHandler) handler).setItemRegistry(this.itemRegistry);
+            } else if (handler instanceof ItemPostCommandActionHandler) {
+                ((ItemPostCommandActionHandler) handler).setItemRegistry(this.itemRegistry);
+            }
         }
     }
 
@@ -143,13 +135,14 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      * @param itemRegistry
      */
     private void unsetItemRegistry(ItemRegistry itemRegistry) {
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler instanceof ItemStateConditionHandler) {
+                ((ItemStateConditionHandler) handler).unsetItemRegistry(this.itemRegistry);
+            } else if (handler instanceof ItemPostCommandActionHandler) {
+                ((ItemPostCommandActionHandler) handler).unsetItemRegistry(this.itemRegistry);
+            }
+        }
         this.itemRegistry = null;
-        for (ItemStateConditionHandler handler : itemStateConditionHandlers.values()) {
-            handler.unsetItemRegistry(itemRegistry);
-        }
-        for (ItemPostCommandActionHandler handler : itemPostCommandActionHandlers.values()) {
-            handler.unsetItemRegistry(itemRegistry);
-        }
     }
 
     /**
@@ -159,8 +152,10 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     private void setEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = eventPublisher;
-        for (ItemPostCommandActionHandler handler : itemPostCommandActionHandlers.values()) {
-            handler.setEventPublisher(eventPublisher);
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler instanceof ItemPostCommandActionHandler) {
+                ((ItemPostCommandActionHandler) handler).setEventPublisher(eventPublisher);
+            }
         }
     }
 
@@ -171,8 +166,10 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
      */
     private void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
-        for (ItemPostCommandActionHandler handler : itemPostCommandActionHandlers.values()) {
-            handler.unsetEventPublisher(eventPublisher);
+        for (ModuleHandler handler : handlers.values()) {
+            if (handler instanceof ItemPostCommandActionHandler) {
+                ((ItemPostCommandActionHandler) handler).unsetEventPublisher(eventPublisher);
+            }
         }
     }
 
@@ -191,59 +188,51 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    protected ModuleHandler internalCreate(Module module) {
+    protected ModuleHandler internalCreate(Module module, String ruleUID) {
         logger.debug("create {} -> {}", module.getId(), module.getTypeUID());
+        ModuleHandler handler = handlers.get(ruleUID + module.getId());
         String moduleTypeUID = module.getTypeUID();
         if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            GenericEventTriggerHandler triggerHandler = genericEventTriggerHandlers.get(module.getId());
+            GenericEventTriggerHandler triggerHandler = handler != null && handler instanceof GenericEventTriggerHandler
+                    ? (GenericEventTriggerHandler) handler : null;
             if (triggerHandler == null) {
                 triggerHandler = new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
-                genericEventTriggerHandlers.put(module.getId(), triggerHandler);
+                handlers.put(ruleUID + module.getId(), triggerHandler);
             }
             return triggerHandler;
         } else
             if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID) && module instanceof Condition) {
-            ItemStateConditionHandler conditionHandler = itemStateConditionHandlers.get(module.getId());
+            ItemStateConditionHandler conditionHandler = handler != null && handler instanceof ItemStateConditionHandler
+                    ? (ItemStateConditionHandler) handler : null;
             if (conditionHandler == null) {
                 conditionHandler = new ItemStateConditionHandler((Condition) module);
                 conditionHandler.setItemRegistry(itemRegistry);
-                itemStateConditionHandlers.put(module.getId(), conditionHandler);
+                handlers.put(ruleUID + module.getId(), conditionHandler);
             }
             return conditionHandler;
         } else if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(moduleTypeUID)
                 && module instanceof Action) {
-            ItemPostCommandActionHandler postCommandActionHandler = itemPostCommandActionHandlers.get(module.getId());
+            ItemPostCommandActionHandler postCommandActionHandler = handler != null
+                    && handler instanceof ItemPostCommandActionHandler ? (ItemPostCommandActionHandler) handler : null;
             if (postCommandActionHandler == null) {
                 postCommandActionHandler = new ItemPostCommandActionHandler((Action) module);
                 postCommandActionHandler.setEventPublisher(eventPublisher);
                 postCommandActionHandler.setItemRegistry(itemRegistry);
-                itemPostCommandActionHandlers.put(module.getId(), postCommandActionHandler);
+                handlers.put(ruleUID + module.getId(), postCommandActionHandler);
             }
             return postCommandActionHandler;
         } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
-            EventConditionHandler eventConditionHandler = eventConditionHandlers.get(module.getId());
+            EventConditionHandler eventConditionHandler = handler != null && handler instanceof EventConditionHandler
+                    ? (EventConditionHandler) handler : null;
             if (eventConditionHandler == null) {
                 eventConditionHandler = new EventConditionHandler((Condition) module);
-                eventConditionHandlers.put(module.getId(), eventConditionHandler);
+                handlers.put(ruleUID + module.getId(), eventConditionHandler);
             }
             return eventConditionHandler;
         } else {
             logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
         }
         return null;
-    }
-
-    @Override
-    public void ungetHandler(Module module, ModuleHandler hdler) {
-        ModuleHandler handler = itemPostCommandActionHandlers.remove(module.getId());
-        handler = handler == null ? eventConditionHandlers.remove(module.getId()) : null;
-        handler = handler == null ? genericEventTriggerHandlers.remove(module.getId()) : null;
-        handler = handler == null ? itemStateConditionHandlers.remove(module.getId()) : null;
-        if (handler != null) {
-            this.handlers.remove(handler);
-            handler.dispose();
-        }
-
     }
 
 }
