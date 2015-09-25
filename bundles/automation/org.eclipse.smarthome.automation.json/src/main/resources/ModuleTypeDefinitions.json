@@ -1,5 +1,5 @@
 {  
-  "triggers":{
+  "triggers":{  
     "ItemTrigger":{  
       "label":"Manual Start of Rule",
       "description":"Manually starts the execution of the Rule.",
@@ -10,21 +10,21 @@
           "description":"Name of motion sensor.",
           "required":true
         },
-		"itemProperty":{  
+        "itemProperty":{  
           "type":"text",
           "label":"Item Property Name",
           "description":"Name of updated item property",
-		  "required":true
+          "required":true
         }
       }
-	},
+    },
     "ManualTrigger":{  
       "label":"Manual Start of Rule",
       "description":"Manually starts the execution of the Rule.",
-	  "config":{  
-        "userInput":{
+      "config":{  
+        "userInput":{  
           "type":"text",
-		  "required":true
+          "required":true
         }
       },
       "output":{  
@@ -32,17 +32,17 @@
           "type":"java.lang.Object",
           "label":"User Input",
           "description":"Some user data",
-		  "reference":"$userInput"
+          "reference":"$userInput"
         }
       }
-	},	
-	"ItemTrigger:MotionTrigger":{  
+    },
+    "ItemTrigger:MotionTrigger":{  
       "label":"Motion Detection Trigger",
       "description":"Motion Detection trigger description.",
       "config":{  
-        "itemProperty":{
-          "type":"text",		
-		  "context": "system",	
+        "itemProperty":{  
+          "type":"text",
+          "context":"system",
           "value":"motion"
         }
       },
@@ -72,124 +72,22 @@
           "required":true
         }
       }
-	},
+    },
     "PeriodicalTimer:DailyAlarm":{  
-	  "label":"Daily Alarm",
-	  "description":"Alarm clock for afternoon shift",
-	  "config":{  
-		"period":{ 
-          "type":"integer",		
-		  "value": "86400000",
-		  "context":"system"
-		},
-		"startTime":{ 
-          "type":"text",			
-		  "defaultValue": "12:30:00"
-		}
-	  }
-	}
-  },
-  "conditions":{
-	"ComparatorConditionBoolean":{  
-      "label":"Comparator For Boolean",
-      "description":"Compares input value with configured constraint.",
+      "label":"Daily Alarm",
+      "description":"Alarm clock for afternoon shift",
       "config":{  
-        "operator":{  
-          "type":"text",
-          "label":"Operator",
-          "description":"Comparison operator.",
-		  "options":[
-		    {
-			  "label":"equivalence",
-			  "value":"=="
-			},
-			{
-			  "label":"difference",
-			  "value":"!="
-		    }
-		  ],
-          "required":true
+        "period":{  
+          "type":"integer",
+          "value":"86400000",
+          "context":"system"
         },
-        "constraint":{  
-          "type":"boolean",
-          "label":"Constraint Constant",
-          "description":"Constraint constant for right operand",
-          "required":true
-        }
-      },
-      "input":{  
-        "left":{  
-          "type":"java.lang.Boolean",
-          "label":"Left operand",
-          "description":"Data of the left operand."
+        "startTime":{  
+          "type":"text",
+          "defaultValue":"12:30:00"
         }
       }
-    }
-  }, 
-  "actions":{
-    "ItemAction":{
-	  "label":"Item Dimmer Action",
-      "description":"Set dimmer level",
-	  "config":{  
-        "item":{  
-          "type":"text",
-          "label":"Item Name",
-          "description":"Defines the Idem by name.",
-          "required":true
-        },
-		"itemProperty":{  
-          "type":"text",
-          "label":"Item Property Name",
-          "description":"Defines property of the item by name.",
-          "required":false
-        },
-		"itemPropertyValue":{  
-          "type":"text",
-          "label":"Item Property Value",
-          "description":"Defines the value of the item property.",
-          "required":false
-        },
-		"itemOperation":{  
-          "type":"text",
-          "label":"Item Operation Name",
-          "description":"Defines the item operation by name.",
-          "required":false
-        },
-		"itemOperationArgs":{  
-          "type":"text",
-          "label":"Item Operation Arguments",
-          "description":"Defines the arguments of the item operation by name and type.",
-		  "multiple":true,
-          "required":false
-        }
-	  }
-    }, 
-	"ItemAction:DimmerAction":{
-      "label":"Item Dimmer Action",
-      "description":"Set dimmer level",
-      "config":{  
-        "item":{  
-          "type":"text",
-          "label":"Dimmer Name",
-          "description":"Defines the Dimmer by name.",
-          "required":true
-        },
-        "itemProperty":{            
-		  "type":"text",
-		  "context": "system",	
-          "value":"level"
-        }
-	  },
-      "input":{  
-        "level":{  
-          "type":"java.lang.Integer",
-          "label":"Dimmer Level",
-          "description":"Input for dimmer level."
-        }
-      }
-    }
-  },
-  "composite":{  
+    },
     "CompositeMotionTrigger":{  
       "config":{  
         "item1":{  
@@ -209,7 +107,7 @@
         {  
           "id":"motionTrigger1",
           "type":"ItemTrigger:MotionTrigger",
-          "config":{ 
+          "config":{  
             "item":"$item1"
           }
         },
@@ -226,7 +124,107 @@
           "type":"java.lang.Boolean",
           "label":"Motion State",
           "description":"Indicator for motion."
-		}
+        }
+      }
+    }
+  },
+  "conditions":{  
+    "ComparatorConditionBoolean":{  
+      "label":"Comparator For Boolean",
+      "description":"Compares input value with configured constraint.",
+      "config":{  
+        "operator":{  
+          "type":"text",
+          "label":"Operator",
+          "description":"Comparison operator.",
+          "options":[  
+            {  
+              "label":"equivalence",
+              "value":"=="
+            },
+            {  
+              "label":"difference",
+              "value":"!="
+            }
+          ],
+          "required":true
+        },
+        "constraint":{  
+          "type":"boolean",
+          "label":"Constraint Constant",
+          "description":"Constraint constant for right operand",
+          "required":true
+        }
+      },
+      "input":{  
+        "left":{  
+          "type":"java.lang.Boolean",
+          "label":"Left operand",
+          "description":"Data of the left operand."
+        }
+      }
+    }
+  },
+  "actions":{  
+    "ItemAction":{  
+      "label":"Item Dimmer Action",
+      "description":"Set dimmer level",
+      "config":{  
+        "item":{  
+          "type":"text",
+          "label":"Item Name",
+          "description":"Defines the Idem by name.",
+          "required":true
+        },
+        "itemProperty":{  
+          "type":"text",
+          "label":"Item Property Name",
+          "description":"Defines property of the item by name.",
+          "required":false
+        },
+        "itemPropertyValue":{  
+          "type":"text",
+          "label":"Item Property Value",
+          "description":"Defines the value of the item property.",
+          "required":false
+        },
+        "itemOperation":{  
+          "type":"text",
+          "label":"Item Operation Name",
+          "description":"Defines the item operation by name.",
+          "required":false
+        },
+        "itemOperationArgs":{  
+          "type":"text",
+          "label":"Item Operation Arguments",
+          "description":"Defines the arguments of the item operation by name and type.",
+          "multiple":true,
+          "required":false
+        }
+      }
+    },
+    "ItemAction:DimmerAction":{  
+      "label":"Item Dimmer Action",
+      "description":"Set dimmer level",
+      "config":{  
+        "item":{  
+          "type":"text",
+          "label":"Dimmer Name",
+          "description":"Defines the Dimmer by name.",
+          "required":true
+        },
+        "itemProperty":{  
+          "type":"text",
+          "context":"system",
+          "value":"level"
+        }
+      },
+      "input":{  
+        "level":{  
+          "type":"java.lang.Integer",
+          "label":"Dimmer Level",
+          "description":"Input for dimmer level."
+        }
       }
     }
   }
