@@ -1,0 +1,53 @@
+{  
+  "actions":{
+	  "ItemPostCommandAction:Custom1":{
+		  "label":"ItemPostCommandAction:Custom1",
+		  "description":"custom action to posts commands on items",
+		  "config":{
+			  "itemName":{
+				  "type":"TEXT",
+				  "description":"the name of the item to post the command for",
+				  "defaultValue": "myLampItem11",
+				  "required":false
+			  },
+			  "customItemCommand": {
+				  "type": "TEXT",
+				  "label": "custom item command label",
+				  "description": "Defines the custom item command description.",
+				  "context": "(nameRef=$command)",
+				  "required": true
+			  }
+		  }
+	  },
+	  "ItemPostCommandAction:Custom2":{
+		  "label":"ItemPostCommandAction:Custom2",
+		  "description":"custom action to posts commands on items specified by the input value",
+		  "config": {  
+			"customItemCommand": {
+			  "type": "TEXT",
+			  "label": "custom item command label",
+			  "description": "Defines the custom item command description.",
+			  "context": "(nameRef=$command)",
+			  "defaultValue": "OFF",
+			  "required": false
+			},
+			"customItemName": {
+			  "type": "TEXT",
+			  "label": "custom item name label",
+			  "description": "Defines the custom item description.",
+			  "context": "(nameRef=$itemName, valueRef=$customActionInput)",
+			  "defaultValue": "",
+			  "required": false
+			}
+		  },
+		  "input": {  
+			"customActionInput": {
+			  "type": "java.lang.String",
+			  "label": "ItemCommand input",
+			  "description": "Item to be updated.",
+			  "required": true
+			}
+		  }
+	  }
+  }
+}
