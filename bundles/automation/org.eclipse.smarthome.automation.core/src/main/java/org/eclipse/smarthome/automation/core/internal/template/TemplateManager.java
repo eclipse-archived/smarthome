@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.internal.core.template;
+package org.eclipse.smarthome.automation.core.internal.template;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.internal.core.RuleEngine;
+import org.eclipse.smarthome.automation.core.internal.RuleEngine;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.osgi.framework.BundleContext;

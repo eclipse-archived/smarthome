@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.internal.core;
+package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +28,8 @@ import org.eclipse.smarthome.automation.RuleStatusDetail;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.RuleEngineCallbackImpl.TriggerData;
+import org.eclipse.smarthome.automation.core.internal.custom.CustomizedModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
@@ -36,8 +38,6 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
-import org.eclipse.smarthome.automation.internal.core.RuleEngineCallbackImpl.TriggerData;
-import org.eclipse.smarthome.automation.internal.core.custom.CustomizedModuleHandlerFactory;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.type.Input;

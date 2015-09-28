@@ -5,15 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.internal.core;
+package org.eclipse.smarthome.automation.core.internal;
 
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.core.internal.template.TemplateManager;
+import org.eclipse.smarthome.automation.core.internal.template.TemplateRegistryImpl;
+import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
+import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeRegistryImpl;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
-import org.eclipse.smarthome.automation.internal.core.template.TemplateManager;
-import org.eclipse.smarthome.automation.internal.core.template.TemplateRegistryImpl;
-import org.eclipse.smarthome.automation.internal.core.type.ModuleTypeManager;
-import org.eclipse.smarthome.automation.internal.core.type.ModuleTypeRegistryImpl;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.core.events.EventFactory;
