@@ -47,15 +47,15 @@
     ]
   },
   {  
-    "name": "ItemCustomRule",
+    "name": "ItemCustomRule1",
     "tags": [  
       "sample",
 	  "item",
-	  "custom",
+	  "custom1",
       "rule"
     ],
     "config": {},
-    "description": "Sample Custom Rule for items definition.",
+    "description": "Sample Custom Rule for items definition with custom trigger.",
     "on": [  
       {  
         "id": "ItemStateChangeTriggerID2",
@@ -90,22 +90,92 @@
           "itemName": "myLampItem",
 		  "command": "OFF"
         }
-      },
+      }
+    ]
+  },
+  {  
+    "name": "ItemCustomRule2",
+    "tags": [  
+      "sample",
+	  "item",
+	  "custom2",
+      "rule"
+    ],
+    "config": {},
+    "description": "Sample Custom Rule for items definition using custom action with modified config parameters.",
+    "on": [  
       {  
-        "id": "ItemPostCommandActionID2",
-        "type": "ItemPostCommandAction",
-        "config": {  
-          "itemName": "myLampItem11",
-		  "command": "OFF"
-        }
-      },
+        "id": "ItemStateChangeTriggerID2",
+        "type": "GenericEventTrigger:Custom1",
+		"config":{
+			"eventSource":"myMotionItem11",
+			"eventTopic":"smarthome/items/*",
+			"eventTypes":"ItemStateEvent"
+		}
+      }
+    ],
+    "if": [
+      {
+        "id": "ItemStateConditionID2",
+        "type": "EventCondition",
+        "config": {
+          "topic": "smarthome/items/myMotionItem11/state",
+		  "payload":".*ON.*"
+        },
+		"input":{
+			"topic":"ItemStateChangeTriggerID2.customTriggerTopic",
+			"source":"ItemStateChangeTriggerID2.customTriggerOutputSource",
+			"payload":"ItemStateChangeTriggerID2.customTriggerOutputPayload"
+		}
+	  }
+    ],
+    "then": [
       {  
         "id": "ItemPostCommandActionID3",
         "type": "ItemPostCommandAction:Custom1",
         "config": {  
 		  "customItemCommand": "ON"
         }
-      },
+      }
+    ]
+  },
+  {  
+    "name": "ItemCustomRule3",
+    "tags": [  
+      "sample",
+	  "item",
+	  "custom3",
+      "rule"
+    ],
+    "config": {},
+    "description": "Sample Custom Rule for items definition using custom action with input object.",
+    "on": [  
+      {  
+        "id": "ItemStateChangeTriggerID2",
+        "type": "GenericEventTrigger:Custom1",
+		"config":{
+			"eventSource":"myMotionItem11",
+			"eventTopic":"smarthome/items/*",
+			"eventTypes":"ItemStateEvent"
+		}
+      }
+    ],
+    "if": [
+      {
+        "id": "ItemStateConditionID2",
+        "type": "EventCondition",
+        "config": {
+          "topic": "smarthome/items/myMotionItem11/state",
+		  "payload":".*ON.*"
+        },
+		"input":{
+			"topic":"ItemStateChangeTriggerID2.customTriggerTopic",
+			"source":"ItemStateChangeTriggerID2.customTriggerOutputSource",
+			"payload":"ItemStateChangeTriggerID2.customTriggerOutputPayload"
+		}
+	  }
+    ],
+    "then": [
       {  
         "id": "ItemPostCommandActionID4",
         "type": "ItemPostCommandAction:Custom2",
