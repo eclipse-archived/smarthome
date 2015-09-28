@@ -778,7 +778,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         Map<String, List<String>> mapMissingHandlers = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
-            moduleHandlerFactories.remove(moduleTypeName);
             Set<String> rules = mapModuleTypeToRules.get(moduleTypeName);
             if (rules != null) {
                 for (String rUID : rules) {
@@ -801,7 +800,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     }
                 }
             }
-        }
+        } // for
         if (mapMissingHandlers != null) {
             for (Entry<String, List<String>> e : mapMissingHandlers.entrySet()) {
                 String rUID = e.getKey();
@@ -815,6 +814,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                         RuleStatusDetail.HANDLER_MISSING_ERROR, sb.toString()));
             }
+        }
+        for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
+            String moduleTypeName = it.next();
+            moduleHandlerFactories.remove(moduleTypeName);
         }
     }
 

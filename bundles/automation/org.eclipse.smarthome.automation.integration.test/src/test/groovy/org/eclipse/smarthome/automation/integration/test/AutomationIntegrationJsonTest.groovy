@@ -16,13 +16,13 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
+import org.eclipse.smarthome.automation.Connection
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider;
+import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -33,7 +33,7 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.storage.StorageService
-import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.UnDefType
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
@@ -76,6 +76,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
                     new SwitchItem("myMotionItem2"),
                     new SwitchItem("myPresenceItem2"),
                     new SwitchItem("myLampItem2"),
+                    new SwitchItem("myMotionItem11"),
+                    new SwitchItem("myLampItem11"),
                     new SwitchItem("myMotionItem3"),
                     new SwitchItem("templ_MotionItem"),
                     new SwitchItem("templ_LampItem")
@@ -95,7 +97,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
 
         ] as AutoUpdateBindingConfigProvider
         registerService(autoupdateConfig)
-        
+
         def ruleEventHandler = [
             receive: { Event e ->
                 logger.info("RuleEvent: " + e.topic + " --> " + e.payload)
@@ -144,9 +146,16 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     public void 'assert that a rule from json file is added automatically' () {
         logger.info("assert that a rule from json file is added automatically");
 
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
+        waitForAssert({
+            assertThat ruleRegistry.getAll().isEmpty(), is(false)
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
+            assertThat ruleStatus2, is(RuleStatus.IDLE)
+        }, 10000, 200)
         def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
         assertThat rule, is(notNullValue())
-
         assertThat rule.name, is("ItemSampleRule")
         assertTrue rule.tags.any{it == "sample"}
         assertTrue rule.tags.any{it == "item"}
@@ -162,31 +171,23 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertThat condition1.typeUID, is("EventCondition")
         assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
         assertThat condition1.configuration.get("payload"), is(".*ON.*")
-
         def action = rule.actions.find{it.id.equals("ItemPostCommandActionID")} as Action
         assertThat action, is(notNullValue())
         assertThat action.typeUID, is("ItemPostCommandAction")
         assertThat action.configuration.get("itemName"), is("myLampItem")
         assertThat action.configuration.get("command"), is("ON")
-
         def ruleStatus = ruleRegistry.getStatus(rule.uid) as RuleStatus
         assertThat ruleStatus, is(RuleStatus.IDLE)
-
         logger.info('assert that rule added by json is executed correctly');
         waitForAssert({
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
         }, 3000, 200)
-
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
         Command
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem", OnOffType.ON))
-
         SwitchItem myLampItem = itemRegistry.getItem("myLampItem")
         assertThat myLampItem.getState(), is(UnDefType.NULL)
-
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem")
-
-
         Event event = null
         def eventHandler = [
             receive: { Event e ->
@@ -195,27 +196,99 @@ class AutomationIntegrationJsonTest extends OSGiTest{
                     event=e
                 }
             },
-
             getSubscribedEventTypes: {
                 Sets.newHashSet(ItemStateEvent.TYPE)
             },
-
             getEventFilter:{ null }
-
         ] as EventSubscriber
-
         registerService(eventHandler)
         //        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON))
         eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem", OnOffType.ON))
         waitForAssert ({
-//            assertThat ruleEvent, is(notNullValue())
-                        assertThat (myLampItem.getState(), is(OnOffType.ON))
+            //            assertThat ruleEvent, is(notNullValue())
+            assertThat (myLampItem.getState(), is(OnOffType.ON))
             assertThat event, is(notNullValue())
             assertThat event.topic, is(equalTo("smarthome/items/myLampItem/state"))
-        }
-        , 9000, 100)
+        }, 9000, 100)
+
         assertThat event.topic, is(equalTo("smarthome/items/myLampItem/state"))
         assertThat (((ItemStateEvent)event).itemState, is(OnOffType.ON))
+
+
+        ///// Test Rule with custom module types ///////////
+        logger.info("assert that a rule with custom modules from json file is executed correctly");
+
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
+        waitForAssert({
+            assertThat ruleRegistry.getAll().isEmpty(), is(false)
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom")} as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
+            assertThat ruleStatus2, is(RuleStatus.IDLE)
+
+        }, 10000, 200)
+
+        def rule3 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom")} as Rule
+        assertThat rule3, is(notNullValue())
+
+        assertThat rule3.name, is("ItemCustomRule")
+        assertTrue rule3.tags.any{it == "custom"}
+        assertTrue rule3.tags.any{it == "item"}
+        assertTrue rule3.tags.any{it == "rule"}
+
+        def triggerCustom = rule3.triggers.find{it.id.equals("ItemStateChangeTriggerID2")} as Trigger
+        assertThat triggerCustom, is(notNullValue())
+        assertThat triggerCustom.typeUID, is("GenericEventTrigger:Custom1")
+        assertThat triggerCustom.configuration.get("eventSource"), is ("myMotionItem11")
+        assertThat triggerCustom.configuration.get("eventTopic"), is("smarthome/items/*")
+        assertThat triggerCustom.configuration.get("eventTypes"), is("ItemStateEvent")
+
+        def condition1Custom = rule3.conditions.find{it.id.equals("ItemStateConditionID2")} as Condition
+        assertThat condition1Custom, is(notNullValue())
+        assertThat condition1Custom.typeUID, is("EventCondition")
+        assertThat condition1Custom.configuration.get("topic"), is("smarthome/items/myMotionItem11/state")
+        assertThat condition1Custom.configuration.get("payload"), is(".*ON.*")
+
+        def actionCustom = rule3.actions.find{it.id.equals("ItemPostCommandActionID3")} as Action
+        assertThat actionCustom, is(notNullValue())
+        assertThat actionCustom.typeUID, is("ItemPostCommandAction:Custom1")
+        assertThat actionCustom.configuration.get("customItemCommand"), is("ON")
+
+        def actionCustom2 = rule3.actions.find{it.id.equals("ItemPostCommandActionID4")} as Action
+        assertThat actionCustom2, is(notNullValue())
+        assertThat actionCustom2.typeUID, is("ItemPostCommandAction:Custom2")
+        assertThat actionCustom2.configuration.get("customItemCommand"), is("OFF")
+        def actionCustom2Connection = actionCustom2.connections.find{it.inputName.equals("customActionInput")} as Connection
+        assertThat actionCustom2Connection, is(notNullValue())
+        assertThat actionCustom2Connection.ouputModuleId, is("ItemStateChangeTriggerID2")
+        assertThat actionCustom2Connection.outputName, is("customTriggerOutputSource")
+
+        SwitchItem myLampItemNew = itemRegistry.getItem("myLampItem")
+
+        SwitchItem myLampItem11 = itemRegistry.getItem("myLampItem11")
+        assertThat myLampItem11.getState(), is(UnDefType.NULL)
+
+        SwitchItem myMotionItem11 = itemRegistry.getItem("myMotionItem11")
+        assertThat myMotionItem11.getState(), is(UnDefType.NULL)
+
+        logger.info("post event for myMotionItem11");
+        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem11", OnOffType.ON))
+        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem11", OnOffType.ON))
+
+        //check rule with custom trigger is executed command
+        waitForAssert ({
+            assertThat (myLampItemNew.getState(), is(OnOffType.OFF))
+        }, 9000, 100)
+
+        waitForAssert ({
+            assertThat (myLampItem11.getState(), is(OnOffType.ON))
+        }, 9000, 100)
+        /*
+         waitForAssert ({
+         assertThat (myMotionItem11.getState(), is(OnOffType.OFF))
+         }, 9000, 100)
+         */
+        logger.info("JSON test end");
     }
 
 
