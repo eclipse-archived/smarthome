@@ -32,7 +32,6 @@ import org.eclipse.smarthome.automation.core.internal.RuleEngineCallbackImpl.Tri
 import org.eclipse.smarthome.automation.core.internal.custom.CustomizedModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
-import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
@@ -452,7 +451,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 }
 
                 if (handler != null) {
-                    BaseModuleHandlerFactory factory = (BaseModuleHandlerFactory) getModuleHandlerFactory(m);
+                    ModuleHandlerFactory factory = getModuleHandlerFactory(m);
                     factory.ungetHandler(m, ruleUID, handler);
 
                     if (m instanceof RuntimeAction) {
@@ -511,7 +510,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public ModuleHandler getModuleHandler(Module m, String ruleUID) {
         ModuleHandlerFactory mhf = getModuleHandlerFactory(m);
         if (mhf == null) {
-            // throw new IllegalArgumentException("Invalid module handler factpry: " + mtId);
             return null;
         }
         return mhf.getHandler(m, ruleUID);

@@ -68,9 +68,9 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
                 String typeUID = module.getTypeUID();
                 String parentModuleTypeUID = getParentModuleTypeUID(typeUID);
                 Module parentModule = createParentModule(module, parentModuleTypeUID);
-                ModuleHandler parentHandler = createParentHandler(parentModule, ruleUID);
                 List<ModuleType> moduleTypes = getAllModuleTypes(typeUID);
                 if (moduleTypes != null) {
+                    ModuleHandler parentHandler = createParentHandler(parentModule, ruleUID);
                     handler = createCustomizedHandler(parentHandler, parentModule, module, moduleTypes);
                     if (handler != null) {
                         handlers.put(ruleUID + module.getId(), handler);
