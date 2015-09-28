@@ -140,6 +140,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
 
+    private Map<String, Object> context;
+
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -150,6 +152,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public RuleEngine(BundleContext bc) {
         this.bc = bc;
         logger = LoggerFactory.getLogger(getClass());
+        context = new HashMap<String, Object>();
         customizedModuleHandlerFactory = new CustomizedModuleHandlerFactory(bc, this);
         if (rules == null) {
             rules = new HashMap<String, RuntimeRule>(20);
@@ -870,6 +873,27 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
         SourceModule ds = (SourceModule) t;
         ds.setOutputs(td.getOutputs());
+        updateContext(t.getId(), td.getOutputs());
+    }
+
+    /**
+     * Updates current context of rule engine.
+     *
+     * @param moduleUID uid of updated module.
+     *
+     * @param outputs new output values.
+     */
+    private void updateContext(String moduleUID, Map<String, ?> outputs) {
+        for (Map.Entry<String, ?> entry : outputs.entrySet()) {
+            context.put(moduleUID + "." + entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * @return copy of current context in rule engine
+     */
+    private Map<String, Object> getContext() {
+        return new HashMap<String, Object>(context);
     }
 
     /**
@@ -891,7 +915,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             }
             ConditionHandler tHandler = c.getModuleHandler();
             Map<String, ?> inputs = getInputValues(connectionObjects);
-            if (!tHandler.isSatisfied(inputs)) {
+            Map<String, Object> context = getContext();
+            context.putAll(inputs);
+            if (!tHandler.isSatisfied(context)) {
                 logger.debug(LOG_HEADER + "The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
                 return false;
             }
@@ -964,9 +990,14 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             ActionHandler aHandler = a.getModuleHandler();
             Map<String, ?> inputs = getInputValues(connectionObjects);
             try {
-                Map<String, ?> outputs = aHandler.execute(inputs);
+                Map<String, Object> context = getContext();
+                context.putAll(inputs);
+                Map<String, ?> outputs = aHandler.execute(context);
                 if (outputs != null) {
                     a.setOutputs(outputs);
+                    context = getContext();
+                    context.putAll(outputs);
+                    updateContext(a.getId(), outputs);
                 }
             } catch (Throwable t) {
                 logger.error(LOG_HEADER + "Fail to execute the action: " + a.getId(), t);
@@ -995,6 +1026,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 customizedModuleHandlerFactory.dispose();
                 customizedModuleHandlerFactory = null;
             }
+        }
+        if (context != null) {
+            context.clear();
+            context = null;
         }
         statusInfoCallback = null;
     }

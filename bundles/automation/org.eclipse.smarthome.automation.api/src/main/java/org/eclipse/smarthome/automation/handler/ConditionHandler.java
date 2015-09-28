@@ -25,9 +25,10 @@ public interface ConditionHandler extends ModuleHandler {
     /**
      * Method that states if the Condition is satisfied or not
      *
-     * @param inputs the values of condition inputs.
+     * @param context contains condition input values and snapshot of all module output values. The output ids are
+     *            defined in form: ModuleId.outputId
      * @return true if Condition is satisfied, false otherwise
      */
-    public boolean isSatisfied(Map<String, ?> inputs);
+    public boolean isSatisfied(Map<String, ?> context);
 
 }
