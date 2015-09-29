@@ -87,17 +87,19 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
 
     @Override
     public void receive(Event event) {
-        logger.debug("Received Event: Source:" + event.getSource() + " Topic:" + event.getTopic() + " Type:"
-                + event.getType() + " Payload:" + event.getPayload());
-        if (!event.getTopic().contains(source)) {
-            return;
+        if (callback != null) {
+            logger.debug("Received Event: Source:" + event.getSource() + " Topic:" + event.getTopic() + " Type:"
+                    + event.getType() + " Payload:" + event.getPayload());
+            if (!event.getTopic().contains(source)) {
+                return;
+            }
+            Map<String, Object> values = Maps.newHashMap();
+            values.put("source", source);
+            values.put("payload", event.getPayload());
+            values.put("type", event.getType());
+            values.put("topic", event.getTopic());
+            callback.triggered(this.module, values);
         }
-        Map<String, Object> values = Maps.newHashMap();
-        values.put("source", source);
-        values.put("payload", event.getPayload());
-        values.put("type", event.getType());
-        values.put("topic", event.getTopic());
-        callback.triggered(this.module, values);
     }
 
     /**
