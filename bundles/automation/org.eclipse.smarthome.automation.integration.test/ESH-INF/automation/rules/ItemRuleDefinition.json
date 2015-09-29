@@ -1,6 +1,7 @@
 [  
   {  
     "name": "ItemSampleRule",
+	"uid": "ItemSampleRule",
     "tags": [  
       "sample",
 	  "item",
@@ -48,6 +49,7 @@
   },
   {  
     "name": "ItemCustomRule1",
+	"uid": "ItemCustomRule1",
     "tags": [  
       "sample",
 	  "item",
@@ -95,6 +97,7 @@
   },
   {  
     "name": "ItemCustomRule2",
+    "uid": "ItemCustomRule2",
     "tags": [  
       "sample",
 	  "item",
@@ -141,6 +144,7 @@
   },
   {  
     "name": "ItemCustomRule3",
+    "uid": "ItemCustomRule3",
     "tags": [  
       "sample",
 	  "item",
