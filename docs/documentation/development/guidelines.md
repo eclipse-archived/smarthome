@@ -33,6 +33,7 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. The manifest must not export any internal package
 1. The manifest must not have any version constraint on package imports, unless this is thoughtfully added. Note that Eclipse automatically adds these constraints based on the version in the target platform, which might be too high in many cases.
 1. The manifest must include all services in the Service-Component entry. A good approach is to put OSGI-INF/*.xml in there.
+1. Every exported package of a bundle must be imported by the bundle itself again.
 
 ## C. Language Levels and Libraries
 

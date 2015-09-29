@@ -10,6 +10,8 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.jmdns,
  org.eclipse.smarthome.config.discovery,
  org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.io.transport.mdns,
+ org.eclipse.smarthome.io.transport.mdns.discovery,
  org.osgi.framework,
  org.slf4j
 Export-Package: org.eclipse.smarthome.io.transport.mdns,

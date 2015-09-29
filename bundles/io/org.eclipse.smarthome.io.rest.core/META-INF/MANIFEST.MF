@@ -36,8 +36,10 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.transform;resolution:=optional,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.rest,
+ org.eclipse.smarthome.io.rest.core.item,
+ org.eclipse.smarthome.io.rest.core.thing,
  org.osgi.framework,
- org.slf4j;version="1.7.2"
+ org.slf4j
 Export-Package: org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
