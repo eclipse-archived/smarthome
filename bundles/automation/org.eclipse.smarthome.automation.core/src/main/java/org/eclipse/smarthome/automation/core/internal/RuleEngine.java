@@ -76,11 +76,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public static final int MODULE_TYPE_SEPARATOR = ':';
 
     /**
-     * Constant defining header of automation logs.
-     */
-    public static final String LOG_HEADER = "[RuleEngine] ";
-
-    /**
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
      * only one rule callback.
      */
@@ -203,7 +198,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         r1.setUID(rUID);
 
         rules.put(rUID, r1);
-        logger.debug(LOG_HEADER + "Rule is added " + rUID);
+        logger.debug("Rule is added " + rUID);
 
         return rUID;
     }
@@ -246,7 +241,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         rules.put(rUID, r1);
-        logger.debug(LOG_HEADER + "The rule:" + rUID + " is updated");
+        logger.debug("The rule:" + rUID + " is updated");
 
         setRule(rUID);
     }
@@ -286,8 +281,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 }
                 rules.add(notInitializedRule.getUID());
                 mapTemplateToRules.put(templateUID, rules);
-                logger.error(LOG_HEADER + "[setRule] The rule: " + rUID + " is not created! The template: "
-                        + templateUID + " is not available!");
+                logger.error(
+                        "The rule: " + rUID + " is not created! The template: " + templateUID + " is not available!");
                 setRuleStatusInfo(rUID,
                         new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR,
                                 "The template: " + templateUID + " is not available!"));
@@ -319,7 +314,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         try {
             ConnectionValidator.validateConnections(r);
         } catch (Exception e) {
-            e.printStackTrace();
             errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
         }
 
@@ -329,7 +323,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             // change state to IDLE
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
 
-            logger.debug(LOG_HEADER + "Rule started: " + r.getUID());
+            logger.debug("Rule started: " + r.getUID());
         } else {
             unregister(r);
 
@@ -337,7 +331,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                     RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
 
-            logger.debug(LOG_HEADER + "Rule stopped: " + r.getUID());
+            logger.debug("Rule stopped: " + r.getUID());
 
         }
     }
@@ -352,7 +346,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         String ruleTemplateUID = rule.getTemplateUID();
         RuleTemplate template = (RuleTemplate) Activator.templateRegistry.get(ruleTemplateUID);
         if (template == null) {
-            logger.debug(RuleEngine.LOG_HEADER + "Rule template '" + ruleTemplateUID + "' does not exist.");
+            logger.debug("Rule template '" + ruleTemplateUID + "' does not exist.");
             return null;
         } else {
             RuntimeRule r1 = new RuntimeRule(template, rule.getConfiguration());
@@ -368,7 +362,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param status new rule status info
      */
     private void setRuleStatusInfo(String rUID, RuleStatusInfo status) {
-        logger.debug(LOG_HEADER + "[Rule Status] " + rUID + " -> " + status);
         statusMap.put(rUID, status);
         if (statusInfoCallback != null) {
             statusInfoCallback.statusInfoChanged(rUID, status);
@@ -409,7 +402,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     }
                     String message = "Missing handler: " + t.getTypeUID() + ", for module: " + t.getId();
                     sb.append(message).append("\n");
-                    logger.warn(message);
+                    logger.debug(message);
                 }
             }
         }
@@ -840,20 +833,18 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
                     executeActions(rule);
-                    logger.debug(LOG_HEADER + "The rule: " + rule.getUID() + " is executed.");
+                    logger.debug("The rule: " + rule.getUID() + " is executed.");
                 } else {
-                    logger.debug(LOG_HEADER + "The rule: " + rule.getUID()
-                            + " is NOT executed! Conditions are not satisfied!");
+                    logger.debug("The rule: " + rule.getUID() + " is NOT executed! Conditions are not satisfied!");
                 }
             } catch (Throwable t) {
-                logger.error(LOG_HEADER + "Fail to execute rule: " + rule.getUID(), t);
+                logger.error("Fail to execute rule: " + rule.getUID(), t);
             }
 
             // change state to IDLE
             setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
         } else {
-            logger.error(LOG_HEADER + "Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = "
-                    + ruleStatus.getValue());
+            logger.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = " + ruleStatus.getValue());
         }
 
     }
@@ -866,7 +857,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private void setTriggerOutputs(String ruleUID, TriggerData td) {
         Trigger t = td.getTrigger();
         if (!(t instanceof SourceModule)) {
-            throw new IllegalArgumentException(LOG_HEADER + "Invalid Trigger implementation: " + t);
+            throw new IllegalArgumentException("Invalid Trigger implementation: " + t);
         }
 
         SourceModule ds = (SourceModule) t;
@@ -925,7 +916,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             Map<String, Object> context = getContext(rule.getUID());
             context.putAll(inputs);
             if (!tHandler.isSatisfied(context)) {
-                logger.debug(LOG_HEADER + "The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
+                logger.debug("The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
                 return false;
             }
         }
@@ -969,7 +960,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     OutputRef outputRef = new OutputRef(conn.getOutputName(), (SourceModule) m);
                     connectedOutputs.put(conn.getInputName(), outputRef);
                 } else {
-                    logger.warn(LOG_HEADER + "Condition " + cm + "can not be connected to module: " + uid
+                    logger.warn("Condition " + cm + "can not be connected to module: " + uid
                             + ". The module is not available or not a data source!");
                 }
             }
@@ -1008,7 +999,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     updateContext(rUID, a.getId(), outputs);
                 }
             } catch (Throwable t) {
-                logger.error(LOG_HEADER + "Fail to execute the action: " + a.getId(), t);
+                logger.error("Fail to execute the action: " + a.getId(), t);
             }
 
         }

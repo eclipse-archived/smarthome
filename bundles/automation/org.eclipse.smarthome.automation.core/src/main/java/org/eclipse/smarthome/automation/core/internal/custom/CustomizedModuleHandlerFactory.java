@@ -170,9 +170,8 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
      *
      * @param moduleTypeUID the source module type
      * @return
-     * @return list of all module types in the hierarchy
+     * @return list of all module types in the hierarchy or null, if they could not be resolved
      */
-
     private List<ModuleType> getAllModuleTypes(String moduleTypeUID) {
         List<ModuleType> allModuleTypes = new ArrayList<ModuleType>();
         String currentModuleTypeUID = moduleTypeUID;
@@ -184,11 +183,11 @@ public class CustomizedModuleHandlerFactory extends BaseModuleHandlerFactory
                 currentModuleTypeUID = getParentModuleTypeUID(currentModuleTypeUID);
             } else {// error case
                 allModuleTypes = null;
-                log.error("From ModuleType uid=" + moduleTypeUID + " -> ModuleType uid=" + currentModuleTypeUID
-                        + " is not available.");
-                break;
+                log.debug("Failed to resolve ModuleType uid=" + moduleTypeUID + ": ModuleType uid="
+                        + currentModuleTypeUID + " is not available.");
+                return null;
             }
-        } while (currentModuleTypeUID != null);// while there is parent ModuleType
+        } while (currentModuleTypeUID != null); // while there is parent ModuleType
 
         return allModuleTypes;
     }

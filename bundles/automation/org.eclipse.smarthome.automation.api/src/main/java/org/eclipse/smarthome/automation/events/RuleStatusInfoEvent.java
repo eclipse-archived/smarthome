@@ -13,8 +13,9 @@ import org.eclipse.smarthome.core.events.AbstractEvent;
 /**
  * An {@link RuleStatusInfoEvent} notifies subscribers that an item has been
  * added. Rule added events must be created with the {@link RuleEventFactory}.
- * 
+ *
  * @author Benedikt Niehues - initial contribution
+ * @author Kai Kreuzer - added toString method
  *
  */
 public class RuleStatusInfoEvent extends AbstractEvent {
@@ -26,7 +27,7 @@ public class RuleStatusInfoEvent extends AbstractEvent {
 
     /**
      * constructs a new rule status event
-     * 
+     *
      * @param topic
      * @param payload
      * @param source
@@ -55,6 +56,11 @@ public class RuleStatusInfoEvent extends AbstractEvent {
      */
     public String getRuleId() {
         return ruleId;
+    }
+
+    @Override
+    public String toString() {
+        return ruleId + ": " + statusInfo.toString();
     }
 
 }
