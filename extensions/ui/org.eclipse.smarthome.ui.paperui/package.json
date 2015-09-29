@@ -1,0 +1,11 @@
+{
+  "name": "org.eclipse.smarthome.ui.paperui",
+  "version": "0.8.0",
+  "private": true,
+  "dependencies": {
+    "bower": "^1.4.1"
+  },
+  "engines": {
+    "node": ">=0.12.3"
+  }
+}

@@ -1,0 +1,257 @@
+<div ng-switch on="item.type" class="icontrol"
+	ng-controller="ItemController">
+	<div ng-switch-when="SwitchItem" ng-controller="SwitchItemController">
+		<div layout="row" layout-align="start center" class="dimmer-widget">
+			<div flex="40">
+				<p ng-class="getIcon(item.category)">{{getLabel(item.category,
+					item.label, 'Switch')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="switch-widget">
+				<md-switch ng-disabled="isReadOnly(item)" ng-model="item.state"
+					ng-change="setOn(item.state)" ng-true-value="'ON'"
+					ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="DimmerItem" ng-controller="DimmerItemController">
+		<div layout="row" layout-align="start center" class="dimmer-widget">
+			<div flex="40">
+				<p ng-class="getIcon(item.category, 'md-icon-brightness-medium')">{{getLabel(item.category,
+					item.label, 'Dimmer')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="dimmer-widget">
+				<h2>{{item.state}}%</h2>
+			</div>
+		</div>
+		<md-slider style="height: 40px;" flex min="0" max="100"
+			ng-model="item.state" ng-change="setBrightness(item.state)"
+			aria-label={{item.label}}></md-slider>
+		<div layout="row" layout-align="start center" class="dimmer-widget"
+			ng-if="!isHideSwitch(item.category)">
+			<div flex="40">
+				<p>Off/On</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="dimmer-widget">
+				<md-switch ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'"
+					ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="ColorItem" ng-controller="ColorItemController">
+		<div layout="row" layout-align="start center" class="dimmer-widget">
+			<div flex="40">
+				<p class="md-icon-wb-incandescent">{{getLabel(item.category,
+					null, 'Color')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="dimmer-widget">
+
+				<md-slider class="hue" flex min="0" max="360" ng-model="hue"
+					ng-change="setHue(hue)" aria-label="{{item.label}} hue"></md-slider>
+			</div>
+		</div>
+		<div layout="row" layout-align="start center" class="dimmer-widget">
+			<div flex="40">
+				<p class="">Brightness</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="dimmer-widget">
+				<md-slider flex min="0" max="100" ng-model="brightness"
+					ng-change="setBrightness(brightness)"
+					aria-label="{{item.label}} brightness"></md-slider>
+			</div>
+		</div>
+		<div layout="row" layout-align="start center" class="dimmer-widget">
+			<div flex="40">
+				<p class="">Off/On</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center"
+				class="dimmer-widget">
+				<md-switch ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'"
+					ng-false-value="'OFF'" aria-label="{{item.label}} on/off"></md-switch>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="NumberItem" ng-controller="NumberItemController">
+		<div layout="row" layout-align="start center">
+			<div flex="40" layout="row" layout-align="start center">
+				<p ng-class="getIcon(item.category, 'md-icon-trending-up')">{{getLabel(item.category,
+					item.label, 'Value')}}</p>
+			</div>
+			<div flex="60">
+				<div ng-show="isReadOnly(item)" layout="row"
+					layout-align="end center">
+					<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+				</div>
+				<div ng-show="!isReadOnly(item)" layout="row"
+					layout-align="end center">
+					<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{getStateText(item)}}</h2>
+					<md-input-container ng-show="editMode"> <input
+						ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+					<button class="md-button md-icon-check" ng-show="editMode"
+						ng-click="updateState()"></button>
+				</div>
+			</div>
+		</div>
+		<div ng-if="shouldRenderSlider(item)" layout="row"
+			layout-align="start center" class="number-control-widget">
+			<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
+			<md-slider flex="70" min="{{item.stateDescription.minimum}}"
+				max="{{item.stateDescription.maximum}}"
+				step="{{item.stateDescription.step}}" ng-model="item.state"
+				md-discrete="true" ng-if="getMinText(item) && getMaxText(item)"
+				ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
+			<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
+		</div>
+	</div>
+	<div ng-switch-when="RollershutterItem"
+		ng-controller="RollershutterItemController">
+		<div layout="row" layout-align="start center">
+			<div flex="40" layout="row" layout-align="start center">
+				<p ng-class="getIcon(item.category, 'md-icon-format-align-justify')">{{getLabel(item.category,
+					item.label, 'Position')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center">
+				<h2 class="state editable text-center" ng-if="!editMode"
+					ng-click="editState()">{{item.state}} %</h2>
+				<md-input-container ng-show="editMode" flex
+					aria-label={{item.label}}> <input
+					ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+				<button class="md-button md-icon-check" ng-show="editMode"
+					ng-click="updateState()"></button>
+			</div>
+		</div>
+		<div layout="row" layout-align="end center">
+			<div flex="40" layout="row" layout-align="start center">
+				<p>Control</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center">
+				<button class="md-button md-icon-vertical-align-bottom"
+					ng-click="sendCommand('DOWN')"></button>
+				<button class="md-button md-icon-stop"
+					ng-click="sendCommand('STOP')"></button>
+				<button class="md-button md-icon-vertical-align-top"
+					ng-click="sendCommand('UP')"></button>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="PlayerItem" ng-controller="PlayerItemController">
+		<div layout="row" layout-align="end center">
+			<div flex="40" layout="row" layout-align="start center">
+				<p ng-class="getIcon(item.category, 'md-icon-play-arrow')">{{getLabel(null,
+					item.label, 'Control')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center">
+				<button class="md-button md-icon-skip-previous"
+					ng-click="sendCommand('PREVIOUS')"></button>
+				<button ng-show="item.state !== 'PLAY'"
+					class="md-button md-icon-play-arrow"
+					ng-click="sendCommand('PLAY', true)"></button>
+				<button ng-show="item.state === 'PLAY'"
+					class="md-button md-icon-pause"
+					ng-click="sendCommand('PAUSE', true)"></button>
+				<button class="md-button md-icon-skip-next"
+					ng-click="sendCommand('NEXT')"></button>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="ContactItem" ng-controller="DefaultItemController">
+		<div layout="row" layout-align="end center">
+			<div flex="40" layout="row" layout-align="start center">
+				<p ng-class="getIcon(item.category)">{{getLabel(item.category,
+					item.label, 'Contact')}}</p>
+			</div>
+			<div flex="60" layout="row" layout-align="end center">
+				<h2 class="state">{{getStateText(item)}}</h2>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="LocationItem"
+		ng-controller="LocationItemController">
+		<div layout="row" layout-align="start center">
+			<p class="md-icon-place">{{getLabel(item.category, item.label,
+				'Location')}}</p>
+		</div>
+		<div layout="row" layout-align="start center" class="map-container">
+			<div layout="row" layout-align="start center" flex>
+				<iframe width="100%" ng-src="{{url}}"></iframe>
+			</div>
+		</div>
+		<div layout="row" layout-align="start center">
+			<div ng-show="isReadOnly(item)" layout="row"
+				layout-align="end center">
+				<h2 class="state" ng-if="isReadOnly(item)">{{formattedState}}</h2>
+			</div>
+			<div ng-show="!isReadOnly(item)" layout="row"
+				layout-align="end center">
+				<h2 class="state edit" ng-if="!editMode" ng-click="editState()">{{formattedState}}</h2>
+				<md-input-container ng-show="editMode"> <input
+					ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+				<button class="md-button md-icon-check" ng-show="editMode"
+					ng-click="updateState()"></button>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-when="ImageItem" ng-controller="ImageItemController">
+		<div layout-align="start center" layout="row">
+			<div flex="60">
+				<p class="ng-binding md-icon-camera-alt">Camera image</p>
+			</div>
+			<div layout="row" layout-align="end center" flex="40">
+				<button ng-click="refreshCameraImage()"
+					class="md-default-theme md-raised ng-binding md-button md-icon-autorenew"></button>
+			</div>
+		</div>
+		<div class="image-widget" layout-align="center center" layout="row">
+			<div layout-align="end center" layout="row">
+				<img class="image-scaled"
+					ng-hide="item.state === 'NULL' || item.state === 'UNDEF'"
+					ng-src="{{'data:image/jpeg;base64,'+ item.state}}"> <span
+					class="error-message"
+					ng-show="item.state === 'NULL' || item.state === 'UNDEF'"><center>No
+						image is currently present</center></span>
+			</div>
+		</div>
+	</div>
+	<div ng-switch-default ng-controller="DefaultItemController">
+		<div layout="row" layout-align="start center">
+			<p ng-class="getIcon(item.category)">{{getLabel(item.category,
+				item.label, 'Value')}}</p>
+		</div>
+
+		<!-- default text output -->
+		<div layout="row" layout-align="start center"
+			ng-show="!isOptionList(item)">
+			<div ng-show="isReadOnly(item)" layout="row"
+				layout-align="start center" flex>
+				<h2 class="state" ng-if="isReadOnly(item)">{{getStateText(item)}}</h2>
+			</div>
+			<div ng-show="!isReadOnly(item)" layout="row"
+				layout-align="end center" flex="100">
+				<h2 class="state editable text-center" ng-if="!editMode"
+					ng-click="editState()" flex>{{getStateText(item)}}</h2>
+				<md-input-container ng-show="editMode" flex> <input
+					ng-model="item.state" aria-label={{item.label}}></input> </md-input-container>
+				<button class="md-button md-icon-check" ng-show="editMode"
+					ng-click="updateState()"></button>
+			</div>
+		</div>
+
+		<!-- for option list selection -->
+		<div layout="row" layout-align="start center"
+			ng-show="isOptionList(item)">
+			<div layout="row" layout-align="end center" flex="100">
+				<div class="container options">
+					<md-select ng-model="item.state" ng-change="optionListChanged()"
+						ng-disabled="isReadOnly(item)" aria-label={{item.label}}>
+					<md-option ng-value="option.value"
+						ng-repeat="option in item.stateDescription.options">
+					{{option.label}} ({{option.value}}) </md-option> </md-select>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
