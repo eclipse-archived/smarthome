@@ -14,6 +14,7 @@ Import-Package: javax.net,
  org.eclipse.paho.client.mqttv3.persist,
  org.eclipse.paho.client.mqttv3.util,
  org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.io.transport.mqtt,
  org.osgi.service.cm,
  org.slf4j
 Service-Component: OSGI-INF/mqtt-*.xml

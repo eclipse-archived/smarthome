@@ -17,7 +17,9 @@ Import-Package: com.sun.jersey.api.json;version="1.17.0",
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.rest,
- org.slf4j;version="1.7.2"
+ org.eclipse.smarthome.io.rest.item,
+ org.eclipse.smarthome.io.rest.item.beans,
+ org.slf4j
 Export-Package: org.eclipse.smarthome.io.rest.item,org.eclipse.smartho
  me.io.rest.item.beans
 Service-Component: OSGI-INF/itemrest.xml
