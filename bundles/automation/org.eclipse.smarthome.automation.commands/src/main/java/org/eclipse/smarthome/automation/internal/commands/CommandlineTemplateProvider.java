@@ -156,8 +156,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                 List<ParsingNestedException> exceptions = new ArrayList<>();
                 String uid = ruleT.getUID();
                 try {
-                    ConnectionValidator.validateConnections(AutomationCommandsPluggable.moduleTypeRegistry,
-                            ruleT.getTriggers(), ruleT.getConditions(), ruleT.getActions());
+                    ConnectionValidator.validateConnections(ruleT.getTriggers(), ruleT.getConditions(),
+                            ruleT.getActions());
                 } catch (Exception e) {
                     exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
                             "Failed to validate connections of RuleTemplate with UID \"" + uid + "\"!", e));

@@ -38,10 +38,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 public class Activator implements BundleActivator {
 
-    static ModuleTypeRegistryImpl moduleTypeRegistry;
-    static TemplateRegistryImpl templateRegistry;
-    static RuleEventFactory ruleEventFactory;
-    static BundleContext bc;
+    static public ModuleTypeRegistryImpl moduleTypeRegistry;
+    static public TemplateRegistryImpl templateRegistry;
+    static public RuleEventFactory ruleEventFactory;
+    static public BundleContext bc;
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
@@ -158,10 +158,6 @@ public class Activator implements BundleActivator {
         serviceTracker.close();
         serviceTracker = null;
 
-    }
-
-    protected static ModuleTypeRegistry getModuleTypeRegistry() {
-        return moduleTypeRegistry;
     }
 
 }

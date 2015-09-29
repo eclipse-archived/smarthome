@@ -18,10 +18,10 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.Activator;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 
@@ -39,42 +39,34 @@ public class ConnectionValidator {
      * The method validates connections between inputs and outputs of modules participated in rule. It compares data
      * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param mtRegistry module type registry
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, Rule r) {
+    public static void validateConnections(Rule r) {
         if (r == null) {
             throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
         }
 
-        if (mtRegistry == null) {
-            throw new IllegalStateException(
-                    "Validation of rule: " + r.getUID() + " is failed! ModuleTypeRegistry is missing!");
-        }
-
-        ConnectionValidator.validateConnections(mtRegistry, r.getTriggers(), r.getConditions(), r.getActions());
+        ConnectionValidator.validateConnections(r.getTriggers(), r.getConditions(), r.getActions());
     }
 
     /**
      * The method validates connections between inputs and outputs of modules participated in rule. It compares data
      * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param mtRegistry module type registry
      * @param triggers triggers of the rule
      * @param conditions condition of the rule
      * @param actions actions of the rule.
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(ModuleTypeRegistry mtRegistry, List<Trigger> triggers,
-            List<Condition> conditions, List<Action> actions) {
+    public static void validateConnections(List<Trigger> triggers, List<Condition> conditions, List<Action> actions) {
         if (!conditions.isEmpty())
             for (Condition condition : conditions) {
-                validateConditionConnections(mtRegistry, condition, triggers);
+                validateConditionConnections(condition, triggers);
             }
         if (!actions.isEmpty()) {
             for (Action action : actions) {
-                validateActionConnections(mtRegistry, action, triggers, actions);
+                validateActionConnections(action, triggers, actions);
             }
         }
     }
@@ -83,14 +75,12 @@ public class ConnectionValidator {
      * The method validates connections between outputs of triggers and actions and action's inputs. It compares data
      * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param mtRegistry module type registry
      * @param action validated action.
      * @param triggers list of rule's triggers
      * @param actions list rule's actions.
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateActionConnections(ModuleTypeRegistry mtRegistry, Action action, List<Trigger> triggers,
-            List<Action> actions) {
+    private static void validateActionConnections(Action action, List<Trigger> triggers, List<Action> actions) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Set<Connection> cons = action.getConnections();
         if (cons == null) {
@@ -110,7 +100,7 @@ public class ConnectionValidator {
         for (Action a : actions) {
             actionsMap.put(a.getId(), a);
         }
-        ActionType type = (ActionType) mtRegistry.get(action.getTypeUID());
+        ActionType type = (ActionType) Activator.moduleTypeRegistry.get(action.getTypeUID());
         if (type == null)
             throw new IllegalArgumentException("Action Type with UID \"" + action.getTypeUID() + "\" not exists!");
         Set<Input> inputs = type.getInputs();
@@ -131,7 +121,7 @@ public class ConnectionValidator {
                 boolean notFound = true;
                 if (trigger != null) {
                     String triggerTypeUID = trigger.getTypeUID();
-                    TriggerType triggerType = mtRegistry.get(triggerTypeUID);
+                    TriggerType triggerType = Activator.moduleTypeRegistry.get(triggerTypeUID);
                     if (triggerType == null) {
                         throw new IllegalArgumentException(
                                 msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
@@ -143,7 +133,7 @@ public class ConnectionValidator {
                         throw new IllegalArgumentException(msg + " Action " + moduleId + " not exists!");
                     }
                     String processorTypeUID = processor.getTypeUID();
-                    ActionType processorType = mtRegistry.get(processorTypeUID);
+                    ActionType processorType = Activator.moduleTypeRegistry.get(processorTypeUID);
                     if (processorType == null) {
                         throw new IllegalArgumentException(
                                 msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
@@ -174,13 +164,11 @@ public class ConnectionValidator {
      * The method validates connections between trigger's outputs and condition's inputs. It compares data types of
      * connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param mtRegistry module type registry
      * @param condition validated condition
      * @param triggers list of triggers
      * @throws IllegalArgumentException when validation is failed.
      */
-    private static void validateConditionConnections(ModuleTypeRegistry mtRegistry, Condition condition,
-            List<Trigger> triggers) {
+    private static void validateConditionConnections(Condition condition, List<Trigger> triggers) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Set<Connection> cons = condition.getConnections();
         if (cons == null) {
@@ -196,7 +184,7 @@ public class ConnectionValidator {
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);
         }
-        ConditionType type = (ConditionType) mtRegistry.get(condition.getTypeUID());
+        ConditionType type = (ConditionType) Activator.moduleTypeRegistry.get(condition.getTypeUID());
         if (type == null)
             throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
         Set<Input> inputs = type.getInputs();
@@ -218,7 +206,7 @@ public class ConnectionValidator {
                     throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" not exists!");
                 }
                 String triggerTypeUID = trigger.getTypeUID();
-                TriggerType triggerType = mtRegistry.get(triggerTypeUID);
+                TriggerType triggerType = Activator.moduleTypeRegistry.get(triggerTypeUID);
                 if (triggerType == null) {
                     throw new IllegalArgumentException(
                             msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
