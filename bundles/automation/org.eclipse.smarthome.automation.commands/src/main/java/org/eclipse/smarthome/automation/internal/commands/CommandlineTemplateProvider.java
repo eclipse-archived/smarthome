@@ -151,9 +151,9 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<ParsingNestedException>();
             for (RuleTemplate ruleT : providedObjects) {
-                List<ParsingNestedException> exceptions = new ArrayList<>();
+                List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
                 String uid = ruleT.getUID();
                 try {
                     ConnectionValidator.validateConnections(ruleT.getTriggers(), ruleT.getConditions(),

@@ -33,7 +33,7 @@ public class ConfigDescriptionParameterI18nUtil {
 
     public static Set<ConfigDescriptionParameter> getLocalizedConfigurationDescription(I18nProvider i18nProvider,
             Set<ConfigDescriptionParameter> config, Bundle bundle, String uid, String prefix, Locale locale) {
-        Set<ConfigDescriptionParameter> configDescriptions = new HashSet<>();
+        Set<ConfigDescriptionParameter> configDescriptions = new HashSet<ConfigDescriptionParameter>();
         for (ConfigDescriptionParameter parameter : config) {
             String parameterName = parameter.getName();
             String llabel = getModuleTypeConfigParameterLabel(i18nProvider, bundle, uid, parameterName,

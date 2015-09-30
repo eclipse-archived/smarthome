@@ -59,8 +59,8 @@ public class RuleJSONParser implements Parser<Rule> {
     @Override
     public Set<Rule> parse(InputStreamReader reader) throws ParsingException {
         JSONTokener tokener = new JSONTokener(reader);
-        Set<Rule> rules = new HashSet<>();
-        List<ParsingNestedException> exceptions = new ArrayList<>();
+        Set<Rule> rules = new HashSet<Rule>();
+        List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
         try {
             Object json = tokener.nextValue();
             if (json != null) {
@@ -166,7 +166,7 @@ public class RuleJSONParser implements Parser<Rule> {
                 JSONStructureConstants.TAGS, true, jsonRule, log);
         Set<String> tags = null;
         if (jsonTags != null) {
-            tags = new HashSet<>();
+            tags = new HashSet<String>();
             for (int j = 0; j < jsonTags.length(); j++) {
                 String tag = JSONUtility.getString(ParsingNestedException.RULE, uid, exceptions,
                         JSONStructureConstants.TAGS, j, jsonTags, log);

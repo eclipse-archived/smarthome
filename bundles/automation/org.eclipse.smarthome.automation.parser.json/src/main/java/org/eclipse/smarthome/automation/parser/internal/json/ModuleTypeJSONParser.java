@@ -69,7 +69,7 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
     public Set<ModuleType> parse(InputStreamReader reader) throws ParsingException {
         Set<ModuleType> moduleTypes = new HashSet<ModuleType>();
         JSONTokener tokener = new JSONTokener(reader);
-        List<ParsingNestedException> exceptions = new ArrayList<>();
+        List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
         try {
             JSONObject json = (JSONObject) tokener.nextValue();
             Iterator<?> i = json.keys();

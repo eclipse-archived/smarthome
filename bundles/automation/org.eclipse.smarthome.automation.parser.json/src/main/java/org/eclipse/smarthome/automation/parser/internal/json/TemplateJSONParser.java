@@ -52,9 +52,9 @@ public class TemplateJSONParser implements Parser<RuleTemplate> {
 
     @Override
     public Set<RuleTemplate> parse(InputStreamReader reader) throws ParsingException {
-        Set<RuleTemplate> ruleTemplates = new HashSet<>();
+        Set<RuleTemplate> ruleTemplates = new HashSet<RuleTemplate>();
         JSONTokener tokener = new JSONTokener(reader);
-        List<ParsingNestedException> exceptions = new ArrayList<>();
+        List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
         try {
             Object jsonRuleTemplates = tokener.nextValue();
             if (jsonRuleTemplates != null) {

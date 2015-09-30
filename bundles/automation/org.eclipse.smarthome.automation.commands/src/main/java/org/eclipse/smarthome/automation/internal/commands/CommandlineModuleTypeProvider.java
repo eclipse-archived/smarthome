@@ -156,9 +156,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
             synchronized (providerPortfolio) {
                 providerPortfolio.put(url, portfolio);
             }
-            List<ParsingNestedException> importDataExceptions = new ArrayList<>();
+            List<ParsingNestedException> importDataExceptions = new ArrayList<ParsingNestedException>();
             for (ModuleType providedObject : providedObjects) {
-                List<ParsingNestedException> exceptions = new ArrayList<>();
+                List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
                 uid = providedObject.getUID();
                 checkExistence(uid, exceptions);
                 if (exceptions.isEmpty()) {

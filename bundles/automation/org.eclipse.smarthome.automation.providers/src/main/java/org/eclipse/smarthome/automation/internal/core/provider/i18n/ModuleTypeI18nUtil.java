@@ -44,7 +44,7 @@ public class ModuleTypeI18nUtil {
 
     public static Set<Input> getLocalizedInputs(I18nProvider i18nProvider, Set<Input> inputs, Bundle bundle, String uid,
             Locale locale) {
-        Set<Input> linputs = new HashSet<>();
+        Set<Input> linputs = new HashSet<Input>();
         if (inputs != null)
             for (Input input : inputs) {
                 String inputName = input.getName();
@@ -60,7 +60,7 @@ public class ModuleTypeI18nUtil {
 
     public static Set<Output> getLocalizedOutputs(I18nProvider i18nProvider, Set<Output> outputs, Bundle bundle,
             String uid, Locale locale) {
-        Set<Output> loutputs = new HashSet<>();
+        Set<Output> loutputs = new HashSet<Output>();
         if (outputs != null)
             for (Output output : outputs) {
                 String outputName = output.getName();

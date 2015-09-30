@@ -30,7 +30,7 @@ public class ParsingException extends Exception {
      * @param e is an exception during the parsing process.
      */
     public ParsingException(ParsingNestedException e) {
-        exceptions = new ArrayList<>();
+        exceptions = new ArrayList<ParsingNestedException>();
         exceptions.add(e);
     }
 

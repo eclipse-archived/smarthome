@@ -247,7 +247,7 @@ public class ConfigPropertyJSONParser {
         if (configProperty.isMultiple()) {
             if (configValue instanceof JSONArray) {
                 int size = ((JSONArray) configValue).length();
-                List<String> list = new ArrayList<>();
+                List<String> list = new ArrayList<String>();
                 for (int index = 0; index < size; index++) {
                     if (Type.TEXT.equals(configPropertyType))
                         value = JSONUtility.getString(type, UID, exceptions, configProperty.getName(), index,

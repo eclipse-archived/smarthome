@@ -107,7 +107,7 @@ public class ModuleJSONParser {
     static List<Condition> createConditionModules(int type, String UID, String key, JSONArray jsonConditions,
             List<ParsingNestedException> exceptions, Logger log) {
         if (jsonConditions != null) {
-            List<Condition> conditions = new ArrayList<>();
+            List<Condition> conditions = new ArrayList<Condition>();
             for (int index = 0; index < jsonConditions.length(); index++) {
                 JSONObject jsonCondition = JSONUtility.getJSONObject(type, UID, exceptions, key, index, jsonConditions,
                         log);
@@ -172,7 +172,7 @@ public class ModuleJSONParser {
         if (jsonActions == null) {
             return null;
         }
-        List<Action> actions = new ArrayList<>();
+        List<Action> actions = new ArrayList<Action>();
         for (int index = 0; index < jsonActions.length(); index++) {
             JSONObject jsonAction = JSONUtility.getJSONObject(type, UID, exceptions, key, index, jsonActions, log);
             if (jsonAction == null) {
