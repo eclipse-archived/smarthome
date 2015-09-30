@@ -136,6 +136,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private Map<String, Map<String, Object>> contextMap;
 
+    public static final String SYS_PROPERTY_CACHE_OUTPUTS = "ruleengine.cache.outputs";
+
+    private boolean isCacheOutputs = Boolean.getBoolean(SYS_PROPERTY_CACHE_OUTPUTS);
+
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -824,6 +828,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
                 // change state to RUNNING
                 setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.RUNNING));
+                if (!isCacheOutputs) {
+                    clearCacheOutputValues(rule);
+                }
                 setTriggerOutputs(rule.getUID(), td);
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
@@ -842,6 +849,21 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             logger.error("Try to execute NOT IDLE rule rID = " + rule.getUID() + " status = " + ruleStatus.getValue());
         }
 
+    }
+
+    private void clearCacheOutputValues(RuntimeRule rule) {
+        List<Trigger> tiggers = rule.getTriggers();
+        for (Trigger trigger : tiggers) {
+            ((RuntimeTrigger) trigger).setOutputs(null);
+        }
+        List<Action> actions = rule.getActions();
+        for (Action action : actions) {
+            ((RuntimeAction) action).setOutputs(null);
+        }
+        Map<String, Object> context = contextMap.get(rule.getUID());
+        if (context != null) {
+            context.clear();
+        }
     }
 
     /**
@@ -868,14 +890,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @param outputs new output values.
      */
     private void updateContext(String ruleUID, String moduleUID, Map<String, ?> outputs) {
-        Map<String, Object> context = contextMap.get(ruleUID);
-        if (context == null) {
-            context = new HashMap<String, Object>();
-        }
+        Map<String, Object> context = getContext(ruleUID);
         for (Map.Entry<String, ?> entry : outputs.entrySet()) {
             context.put(moduleUID + "." + entry.getKey(), entry.getValue());
         }
-        contextMap.put(ruleUID, context);
     }
 
     /**
@@ -885,8 +903,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         Map<String, Object> context = contextMap.get(ruleUID);
         if (context == null) {
             context = new HashMap<String, Object>();
+            contextMap.put(ruleUID, context);
         }
-        return new HashMap<String, Object>(context);
+        return context;
     }
 
     /**
