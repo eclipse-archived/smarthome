@@ -250,7 +250,12 @@ class AutomationIntegrationTest extends OSGiTest{
 
         def moduleBundle = FrameworkUtil.getBundle(GenericEventTriggerHandler)
         moduleBundle.stop()
-        assertThat ruleRegistry.getStatus(rule.UID), is(RuleStatus.NOT_INITIALIZED)
+        waitForAssert({
+            logger.info("RuleStatus: {}", ruleRegistry.getStatus(rule.UID))
+            assertThat ruleRegistry.getStatus(rule.UID), is(RuleStatus.NOT_INITIALIZED)
+        },3000,100)
+
+
         moduleBundle.start()
         ruleRegistry.setEnabled(rule.UID,true)
         waitForAssert({
