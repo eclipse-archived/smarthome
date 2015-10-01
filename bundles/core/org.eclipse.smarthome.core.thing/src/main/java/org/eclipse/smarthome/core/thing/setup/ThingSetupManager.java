@@ -45,6 +45,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -624,7 +625,7 @@ public class ThingSetupManager implements EventSubscriber {
         if (thingType != null && enableChannels) {
             List<Channel> channels = thing.getChannels();
             for (Channel channel : channels) {
-                ChannelType channelType = thingType.getChannelType(channel.getUID());
+                ChannelType channelType = TypeResolver.resolve(thingType.getChannelTypeUID(channel.getUID()));
                 if (channelType != null && !channelType.isAdvanced()) {
                     // Enable the channel.
                     // Pass the channel label. This will be null if it's not set, and the enableChannel method will use

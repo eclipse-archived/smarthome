@@ -20,7 +20,7 @@ import org.junit.Test
  * The {@link Example} test case is a usage example how the according {@code ThingType} parser
  * can be used. This example can also be used for manual tests when the schema is extended or
  * changed.
- * 
+ *
  * @author Michael Grammling - Initial Contribution.
  */
 class Example {
@@ -37,19 +37,18 @@ class Example {
             print it
 
             if (it instanceof ChannelTypeXmlResult) {
-                ChannelType channelType = ((ChannelTypeXmlResult) it).getChannelType()
+                ChannelType channelType = ((ChannelTypeXmlResult) it).toChannelType()
 
                 print ", advanced=" + channelType.isAdvanced() +
-                      ", itemType=" + channelType.getItemType() +
-                      ", label=" + channelType.getLabel() +
-                      ", description=" + channelType.getDescription() +
-                      ", category=" + channelType.getCategory() +
-                      ", tags=" + channelType.getTags() +
-                      ", state=" + channelType.getState();
+                        ", itemType=" + channelType.getItemType() +
+                        ", label=" + channelType.getLabel() +
+                        ", description=" + channelType.getDescription() +
+                        ", category=" + channelType.getCategory() +
+                        ", tags=" + channelType.getTags() +
+                        ", state=" + channelType.getState();
             }
 
             print "\n"
         }
     }
-
 }

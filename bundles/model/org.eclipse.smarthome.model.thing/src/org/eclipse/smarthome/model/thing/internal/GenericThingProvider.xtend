@@ -40,6 +40,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import java.util.concurrent.CopyOnWriteArrayList
 import org.eclipse.smarthome.model.thing.internal.GenericThingProvider.QueueContent
 import java.util.ArrayList
+import org.eclipse.smarthome.core.thing.type.TypeResolver
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -263,7 +264,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		]
 		channelDefinitions.forEach [
 			if (addedChannelIds.add(id)) {
-				channels += ChannelBuilder.create(new ChannelUID(thingUID, id), it.type.itemType).build
+			    val channelType = TypeResolver.resolve(it.channelTypeUID)
+			    if(channelType != null) {
+				    channels += ChannelBuilder.create(new ChannelUID(thingUID, id), channelType.itemType).build
+				} else {
+				    logger.warn(
+                        "Could not create channel '{}' for thing '{}', because channel type '{}' could not be found.",
+                        it.getId(), thingUID, it.getChannelTypeUID());
+				}
 			}
 		]
 		channels

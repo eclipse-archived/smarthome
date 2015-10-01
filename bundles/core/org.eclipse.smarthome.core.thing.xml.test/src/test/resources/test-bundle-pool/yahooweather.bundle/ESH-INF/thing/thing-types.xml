@@ -38,8 +38,8 @@
     
     <!-- Channel Group -->
     <channel-group-type id="group">
-        <label>Alarm System</label>
-        <description>The alarm system.</description>
+        <label>Weather information group</label>
+        <description>Weather information group description.</description>
         <channels>
         </channels>
     </channel-group-type>

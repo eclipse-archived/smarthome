@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
 import org.eclipse.smarthome.core.thing.type.BridgeType
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.TypeResolver
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -57,7 +58,7 @@ class ThingTypesTest extends OSGiTest {
         assertThat bridgeType.description, is("The hue Bridge represents the Philips hue bridge.")
         assertThat bridgeType.properties.size(), is(1)
         assertThat bridgeType.properties.get("vendor"), is("Philips")
-        
+
         def thingType = thingTypes.find { it.toString().equals("hue:lamp") } as ThingType
         assertThat thingType, is(notNullValue())
         assertThat thingType.label, is("HUE Lamp")
@@ -74,11 +75,11 @@ class ThingTypesTest extends OSGiTest {
 
             colorChannel.with {
                 assertThat properties.size(), is(2)
-        	    assertThat properties.get("chan.key1"), is("value1")
-        	    assertThat properties.get("chan.key2"), is("value2")
+                assertThat properties.get("chan.key1"), is("value1")
+                assertThat properties.get("chan.key2"), is("value2")
             }
 
-            def colorChannelType = colorChannel.type
+            def colorChannelType = TypeResolver.resolve(colorChannel.channelTypeUID)
             assertThat colorChannelType, is(notNullValue())
             colorChannelType.with {
                 assertThat it.toString(), is("hue:color")
@@ -95,7 +96,7 @@ class ThingTypesTest extends OSGiTest {
             def colorTemperatureChannel = it.find { it.id.equals("color_temperature") } as ChannelDefinition
             assertThat colorTemperatureChannel, is(notNullValue())
             assertThat colorTemperatureChannel.properties.size(), is(0)
-            def colorTemperatureChannelType = colorTemperatureChannel.type
+            def colorTemperatureChannelType = TypeResolver.resolve(colorTemperatureChannel.channelTypeUID)
             assertThat colorTemperatureChannelType, is(notNullValue())
             colorTemperatureChannelType.with {
                 assertThat it.toString(), is("hue:color_temperature")
@@ -111,7 +112,7 @@ class ThingTypesTest extends OSGiTest {
 
             def alarmChannel = it.find { it.id.equals("alarm") } as ChannelDefinition
             assertThat alarmChannel, is(notNullValue())
-            def alarmChannelType = alarmChannel.type
+            def alarmChannelType = TypeResolver.resolve(alarmChannel.channelTypeUID)
             assertThat alarmChannelType, is(notNullValue())
             alarmChannelType.with {
                 assertThat it.toString(), is("hue:alarm")
@@ -134,10 +135,10 @@ class ThingTypesTest extends OSGiTest {
                 assertThat state.options[0].label, is(equalTo("My great sound."))
             }
         }
-        
+
         thingType = thingTypes.find { it.toString().equals("hue:lamp-with-group") } as ThingType
         assertThat thingType.properties.size(), is(0)
-        
+
         // uninstall test bundle
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)

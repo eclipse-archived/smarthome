@@ -19,9 +19,8 @@ import org.eclipse.smarthome.config.xml.util.NodeValue;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.SystemChannelTypeProvider;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -68,77 +67,60 @@ public class ThingTypeXmlResult {
         return this.configDescription;
     }
 
-    protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences,
-            Map<String, ChannelType> channelTypes) throws ConversionException {
+    protected List<ChannelDefinition> toChannelDefinitions(List<ChannelXmlResult> channelTypeReferences)
+            throws ConversionException {
 
         List<ChannelDefinition> channelTypeDefinitions = null;
 
         if ((channelTypeReferences != null) && (channelTypeReferences.size() > 0)) {
             channelTypeDefinitions = new ArrayList<>(channelTypeReferences.size());
 
-            if (channelTypes != null) {
-                for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
-                    String id = channelTypeReference.getId();
-                    String typeId = channelTypeReference.getTypeId();
+            for (ChannelXmlResult channelTypeReference : channelTypeReferences) {
+                String id = channelTypeReference.getId();
+                String typeId = channelTypeReference.getTypeId();
 
-                    String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
+                String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
 
-                    int systemPrefixIdx = typeId.indexOf(SystemChannelTypeProvider.NAMESPACE_PREFIX);
-                    if (systemPrefixIdx != -1) {
-                        typeUID = XmlHelper.getSystemUID(typeId);
-                    }
-
-                    ChannelType channelType = channelTypes.get(typeUID);
-                    if (channelType != null) {
-                        // Convert the channel properties into a map
-                        Map<String, String> propertiesMap = new HashMap<>();
-                        for (NodeValue property : channelTypeReference.getProperties()) {
-                            propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
-                        }
-
-                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType, propertiesMap,
-                                channelTypeReference.getLabel(), channelTypeReference.getDescription());
-                        channelTypeDefinitions.add(channelDefinition);
-                    } else {
-                        throw new ConversionException("The channel type for '" + typeUID + "' is missing!");
-                    }
+                int systemPrefixIdx = typeId.indexOf(XmlHelper.SYSTEM_NAMESPACE_PREFIX);
+                if (systemPrefixIdx != -1) {
+                    typeUID = XmlHelper.getSystemUID(typeId);
                 }
-            } else {
-                throw new ConversionException("Missing the definition of channel types!");
+
+                // Convert the channel properties into a map
+                Map<String, String> propertiesMap = new HashMap<>();
+                for (NodeValue property : channelTypeReference.getProperties()) {
+                    propertiesMap.put(property.getAttributes().get("name"), (String) property.getValue());
+                }
+
+                ChannelDefinition channelDefinition = new ChannelDefinition(id, new ChannelTypeUID(typeUID),
+                        propertiesMap, channelTypeReference.getLabel(), channelTypeReference.getDescription());
+                channelTypeDefinitions.add(channelDefinition);
             }
+
         }
 
         return channelTypeDefinitions;
     }
 
-    protected List<ChannelGroupDefinition> toChannelGroupDefinitions(List<ChannelXmlResult> channelGroupTypeReferences,
-            Map<String, ChannelGroupType> channelGroupTypes) throws ConversionException {
+    protected List<ChannelGroupDefinition> toChannelGroupDefinitions(List<ChannelXmlResult> channelGroupTypeReferences)
+            throws ConversionException {
 
         List<ChannelGroupDefinition> channelGroupTypeDefinitions = null;
 
         if ((channelGroupTypeReferences != null) && (channelGroupTypeReferences.size() > 0)) {
             channelGroupTypeDefinitions = new ArrayList<>(channelGroupTypeReferences.size());
 
-            if (channelGroupTypes != null) {
-                for (ChannelXmlResult channelGroupTypeReference : channelGroupTypeReferences) {
-                    String id = channelGroupTypeReference.getId();
-                    String typeId = channelGroupTypeReference.getTypeId();
+            for (ChannelXmlResult channelGroupTypeReference : channelGroupTypeReferences) {
+                String id = channelGroupTypeReference.getId();
+                String typeId = channelGroupTypeReference.getTypeId();
 
-                    String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
+                String typeUID = String.format("%s:%s", this.thingTypeUID.getBindingId(), typeId);
 
-                    ChannelGroupType channelGroupType = channelGroupTypes.get(typeUID);
+                ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id,
+                        new ChannelGroupTypeUID(typeUID));
 
-                    if (channelGroupType != null) {
-                        ChannelGroupDefinition channelGroupDefinition = new ChannelGroupDefinition(id,
-                                channelGroupType);
+                channelGroupTypeDefinitions.add(channelGroupDefinition);
 
-                        channelGroupTypeDefinitions.add(channelGroupDefinition);
-                    } else {
-                        throw new ConversionException("The channel group type for '" + typeUID + "' is missing!");
-                    }
-                }
-            } else {
-                throw new ConversionException("Missing the definition of channel group types!");
             }
         }
 
@@ -157,12 +139,11 @@ public class ThingTypeXmlResult {
         return propertiesMap;
     }
 
-    public ThingType toThingType(Map<String, ChannelGroupType> channelGroupTypes, Map<String, ChannelType> channelTypes)
-            throws ConversionException {
+    public ThingType toThingType() throws ConversionException {
 
         ThingType thingType = new ThingType(this.thingTypeUID, this.supportedBridgeTypeUIDs, this.label,
-                this.description, toChannelDefinitions(this.channelTypeReferences, channelTypes),
-                toChannelGroupDefinitions(this.channelGroupTypeReferences, channelGroupTypes), toPropertiesMap(),
+                this.description, toChannelDefinitions(this.channelTypeReferences),
+                toChannelGroupDefinitions(this.channelGroupTypeReferences), toPropertiesMap(),
                 this.configDescriptionURI);
 
         return thingType;

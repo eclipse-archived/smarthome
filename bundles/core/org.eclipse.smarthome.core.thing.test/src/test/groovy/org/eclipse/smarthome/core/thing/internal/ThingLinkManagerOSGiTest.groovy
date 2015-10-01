@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.types.Command
@@ -82,8 +83,17 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
         def StateDescription state = new StateDescription(0, 100, 10, "%d Peek", true, [new StateOption("SOUND", "My great sound.")])
 
         def ChannelType channelType = new ChannelType(new ChannelTypeUID("hue:alarm"), false, "Number", " ", "", null, null, state, null)
+        def channelTypes = [channelType]
+        registerService([
+            getChannelTypes: { channelTypes },
+            getChannelType: { ChannelTypeUID uid, Locale locale ->
+                channelTypes.find { it.UID == uid }
+            },
+            getChannelGroupTypes: { []},
+            getChannelGroupType: { null }
+        ] as ChannelTypeProvider)
 
-        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType)], null, null, null)])
+        def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType.UID)], null, null, null)])
         registerService(thingTypeProvider)
 
         thingSetupManager = getService(ThingSetupManager)
