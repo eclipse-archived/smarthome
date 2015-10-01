@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.dto;
+package org.eclipse.smarthome.io.rest.sitemap.internal;
 
 /**
  * This is a data transfer object that is used to serialize command mappings.

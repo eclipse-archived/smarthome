@@ -9,7 +9,7 @@ Import-Package: javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
  javax.ws.rs.core,
- org.apache.commons.lang;version="2.6.0",
+ org.apache.commons.lang,
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.smarthome.core.items,
@@ -18,9 +18,8 @@ Import-Package: javax.servlet,
  org.eclipse.smarthome.io.rest,
  org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.model.core,
- org.eclipse.smarthome.model.dto,
  org.eclipse.smarthome.model.sitemap,
  org.eclipse.smarthome.ui.items,
- org.slf4j;version="1.7.2"
+ org.slf4j
 Service-Component: OSGI-INF/sitemaprest.xml
 Bundle-ActivationPolicy: lazy
