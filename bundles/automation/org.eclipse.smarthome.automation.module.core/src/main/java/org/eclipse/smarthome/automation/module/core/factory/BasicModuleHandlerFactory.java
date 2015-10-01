@@ -9,8 +9,6 @@ package org.eclipse.smarthome.automation.module.core.factory;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
@@ -189,7 +187,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     @Override
     protected ModuleHandler internalCreate(Module module, String ruleUID) {
-        logger.debug("create {} -> {}", module.getId(), module.getTypeUID());
+        logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
         ModuleHandler handler = handlers.get(ruleUID + module.getId());
         String moduleTypeUID = module.getTypeUID();
         if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {

@@ -67,7 +67,7 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put("event.topics", topic);
         eventSubscriberRegistration = this.bundleContext.registerService(EventSubscriber.class, this, properties);
-        logger.debug("Registered EventSubscriber: Topic: {} Type: {} Source:{}", topic, types, source);
+        logger.trace("Registered EventSubscriber: Topic: {} Type: {} Source: {}", topic, types, source);
     }
 
     @Override
@@ -88,8 +88,8 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
     @Override
     public void receive(Event event) {
         if (callback != null) {
-            logger.debug("Received Event: Source:" + event.getSource() + " Topic:" + event.getTopic() + " Type:"
-                    + event.getType() + " Payload:" + event.getPayload());
+            logger.trace("Received Event: Source: " + event.getSource() + " Topic: " + event.getTopic() + " Type: "
+                    + event.getType() + " Payload: " + event.getPayload());
             if (!event.getTopic().contains(source)) {
                 return;
             }

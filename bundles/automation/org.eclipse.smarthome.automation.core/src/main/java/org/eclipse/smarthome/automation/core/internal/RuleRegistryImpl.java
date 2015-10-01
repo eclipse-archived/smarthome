@@ -73,8 +73,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     @Override
     public synchronized void add(Rule element) {
         super.add(element);
-        addIntoRuleEngine(element);
         postEvent(RuleEventFactory.createRuleAddedEvent(element, SOURCE));
+        addIntoRuleEngine(element);
     }
 
     private String addIntoRuleEngine(Rule element) {
@@ -105,13 +105,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     public synchronized Rule update(Rule element) {
         Rule old = null;
         if (element != null) {
+            old = super.update(element); // update storage with new rule and return old rule
+            postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
             String rUID = element.getUID();
             if (disabledRuledSet.contains(rUID)) {
                 ruleEngine.setRuleEnabled(rUID, false);
             }
-            ruleEngine.updateRule(element);// update memory map
-            old = super.update(element);// update storage with new rule and return old rule
-            postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
+            ruleEngine.updateRule(element); // update memory map
         }
         return old;
     }

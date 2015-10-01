@@ -12,7 +12,7 @@ import org.eclipse.smarthome.automation.Rule;
 /**
  * An {@link RuleUpdatedEvent} notifies subscribers that an item has been added.
  * Rule added events must be created with the {@link RuleEventFactory}.
- * 
+ *
  * @author Benedikt Niehues - initial contribution
  *
  */
@@ -24,7 +24,7 @@ public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
 
     /**
      * constructs a new rule updated event
-     * 
+     *
      * @param topic
      * @param payload
      * @param source
@@ -45,6 +45,11 @@ public class RuleUpdatedEvent extends AbstractRuleRegistryEvent {
      */
     public Rule getOldRule() {
         return oldRule;
+    }
+
+    @Override
+    public String toString() {
+        return "Rule '" + getRule().getUID() + "' has been updated.";
     }
 
 }

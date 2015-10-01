@@ -198,7 +198,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         r1.setUID(rUID);
 
         rules.put(rUID, r1);
-        logger.debug("Rule is added " + rUID);
+        logger.debug("Added rule '{}'", rUID);
 
         return rUID;
     }
@@ -214,7 +214,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private String getRuleUID(String rUID) {
         if (rUID != null) {
             if (hasRule(rUID)) {
-                throw new IllegalArgumentException("The rule: " + rUID + " is already added.");
+                throw new IllegalArgumentException("Rule '" + rUID + "' already exists.");
             }
         } else {
             rUID = getUniqueId();
@@ -241,7 +241,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         rules.put(rUID, r1);
-        logger.debug("The rule:" + rUID + " is updated");
+        logger.debug("Updated rule '{}'.", rUID);
 
         setRule(rUID);
     }
@@ -314,7 +314,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         try {
             ConnectionValidator.validateConnections(r);
         } catch (Exception e) {
-            errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "is failed! " + e.getMessage();
+            errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
         }
 
         if (errMsgs == null) {
@@ -322,17 +322,12 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
             // change state to IDLE
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
-
-            logger.debug("Rule started: " + r.getUID());
         } else {
             unregister(r);
 
             // change state to NOTINITIALIZED
             setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                     RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
-
-            logger.debug("Rule stopped: " + r.getUID());
-
         }
     }
 

@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 
 /**
  * this is a factory to create Rule Events
- * 
+ *
  * @author Benedikt Niehues - initial contribution
  *
  */
@@ -44,7 +44,7 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
-        logger.debug("creating ruleEvent by Type: {}", eventType);
+        logger.trace("creating ruleEvent of type: {}", eventType);
         if (eventType == null) {
             return null;
         }
@@ -63,7 +63,7 @@ public class RuleEventFactory extends AbstractEventFactory {
     private Event createRuleUpdatedEvent(String topic, String payload, String source) {
         Rule[] ruleDTO = deserializePayload(payload, Rule[].class);
         if (ruleDTO.length != 2) {
-            throw new IllegalArgumentException("Creation of RuleUpdatedEvent failed: invalid payload. " + payload);
+            throw new IllegalArgumentException("Creation of RuleUpdatedEvent failed: invalid payload: " + payload);
         }
         return new RuleUpdatedEvent(topic, payload, source, ruleDTO[0], ruleDTO[1]);
     }
@@ -92,7 +92,7 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     /**
      * creates a rule updated event
-     * 
+     *
      * @param rule the updated rule
      * @param oldRule the old rule
      * @param source
@@ -109,7 +109,7 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     /**
      * creates a rule status info event
-     * 
+     *
      * @param statusInfo
      * @param rule
      * @param source
@@ -124,7 +124,7 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     /**
      * creates a rule removed event
-     * 
+     *
      * @param rule
      * @param source
      * @return
@@ -137,7 +137,7 @@ public class RuleEventFactory extends AbstractEventFactory {
 
     /**
      * creates a rule added event
-     * 
+     *
      * @param rule
      * @param source
      * @return

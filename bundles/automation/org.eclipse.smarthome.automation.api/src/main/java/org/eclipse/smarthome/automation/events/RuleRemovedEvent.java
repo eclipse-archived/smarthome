@@ -12,7 +12,7 @@ import org.eclipse.smarthome.automation.Rule;
 /**
  * An {@link RuleRemovedEvent} notifies subscribers that an item has been added.
  * Rule added events must be created with the {@link RuleEventFactory}.
- * 
+ *
  * @author Benedikt Niehues - initial contribution
  *
  */
@@ -22,7 +22,7 @@ public class RuleRemovedEvent extends AbstractRuleRegistryEvent {
 
     /**
      * constructs a new rule removed event
-     * 
+     *
      * @param topic
      * @param payload
      * @param source
@@ -35,6 +35,11 @@ public class RuleRemovedEvent extends AbstractRuleRegistryEvent {
     @Override
     public String getType() {
         return TYPE;
+    }
+
+    @Override
+    public String toString() {
+        return "Rule '" + getRule().getUID() + "' has been removed.";
     }
 
 }

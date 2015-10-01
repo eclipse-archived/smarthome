@@ -60,7 +60,7 @@ public class RuleStatusInfoEvent extends AbstractEvent {
 
     @Override
     public String toString() {
-        return ruleId + ": " + statusInfo.toString();
+        return ruleId + " updated: " + statusInfo.toString();
     }
 
 }
