@@ -136,10 +136,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private Map<String, Map<String, Object>> contextMap;
 
-    public static final String SYS_PROPERTY_CACHE_OUTPUTS = "ruleengine.cache.outputs";
-
-    private boolean isCacheOutputs = Boolean.getBoolean(SYS_PROPERTY_CACHE_OUTPUTS);
-
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -828,9 +824,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
                 // change state to RUNNING
                 setRuleStatusInfo(rule.getUID(), new RuleStatusInfo(RuleStatus.RUNNING));
-                if (!isCacheOutputs) {
-                    clearCacheOutputValues(rule);
-                }
+                clearCacheOutputValues(rule);
+
                 setTriggerOutputs(rule.getUID(), td);
                 boolean isSatisfied = calculateConditions(rule);
                 if (isSatisfied) {
