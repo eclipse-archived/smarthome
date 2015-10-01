@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.model.dto;
+package org.eclipse.smarthome.io.rest.sitemap.internal;
 
 import java.util.ArrayList;
 import java.util.List;
