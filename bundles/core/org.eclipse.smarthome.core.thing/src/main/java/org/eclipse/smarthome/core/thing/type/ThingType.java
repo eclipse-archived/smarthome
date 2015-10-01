@@ -189,27 +189,29 @@ public class ThingType extends AbstractDescriptionType {
     }
 
     /**
-     * Returns a channel type for the given channel UID from the thing type. The channel UID must be a channel, which is
-     * defined in a thing, which thing types matches this thing type.
+     * Returns a channel type UID for the given channel UID from the thing type. The channel UID must be a channel,
+     * which is defined in a thing, which thing types matches this thing type.
      *
      * @param channelUID channel UID
-     * @return channel type or null if no matching channel type could be found in the thing type
+     * @return channel type UID or null if no matching channel type UID could be found in the thing type
      */
-    public ChannelType getChannelType(ChannelUID channelUID) {
+    public ChannelTypeUID getChannelTypeUID(ChannelUID channelUID) {
         if (!channelUID.isInGroup()) {
             for (ChannelDefinition channelDefinition : this.getChannelDefinitions()) {
                 if (channelDefinition.getId().equals(channelUID.getId())) {
-                    return channelDefinition.getType();
+                    return channelDefinition.getChannelTypeUID();
                 }
             }
         } else {
             List<ChannelGroupDefinition> channelGroupDefinitions = this.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
                 if (channelGroupDefinition.getId().equals(channelUID.getGroupId())) {
-                    for (ChannelDefinition channelDefinition : channelGroupDefinition.getType()
-                            .getChannelDefinitions()) {
-                        if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
-                            return channelDefinition.getType();
+                    ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID());
+                    if (channelGroupType != null) {
+                        for (ChannelDefinition channelDefinition : channelGroupType.getChannelDefinitions()) {
+                            if (channelDefinition.getId().equals(channelUID.getIdWithoutGroup())) {
+                                return channelDefinition.getChannelTypeUID();
+                            }
                         }
                     }
                 }

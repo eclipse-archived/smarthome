@@ -66,7 +66,7 @@ public class ChannelGroupTypeXmlResult {
 
                     ChannelType channelType = channelTypes.get(typeUID);
                     if (channelType != null) {
-                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType);
+                        ChannelDefinition channelDefinition = new ChannelDefinition(id, channelType.getUID());
                         channelTypeDefinitions.add(channelDefinition);
                     } else {
                         throw new ConversionException("The channel type for '" + typeUID + "' is missing!");

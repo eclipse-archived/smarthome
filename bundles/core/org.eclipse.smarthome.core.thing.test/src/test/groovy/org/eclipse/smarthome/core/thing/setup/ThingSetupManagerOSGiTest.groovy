@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID
 import org.eclipse.smarthome.core.thing.type.ChannelType
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.types.Command
@@ -101,19 +102,32 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
         def channelType1 = new ChannelType(new ChannelTypeUID("binding:channelType1"), false, "String", "label", "", "light", [] as Set, null, null)
         def channelType2 = new ChannelType(new ChannelTypeUID("binding:channelType2"), true, "String", "label", "", "light", [] as Set, null, null)
 
+        def channelTypes = [channelType1, channelType2]
 
         def channelDefinitions = [
-            new ChannelDefinition("1", channelType1),
-            new ChannelDefinition("2", channelType1),
-            new ChannelDefinition("3", channelType2),
+            new ChannelDefinition("1", channelType1.UID),
+            new ChannelDefinition("2", channelType1.UID),
+            new ChannelDefinition("3", channelType2.UID),
         ] as List
 
         def ChannelGroupType channelGroupType = new ChannelGroupType(new ChannelGroupTypeUID("binding:channelGroupType"), false, "Group", null, channelDefinitions)
-
         def channelGroupDefinitions = [
-            new ChannelGroupDefinition("group1", channelGroupType),
-            new ChannelGroupDefinition("group2", channelGroupType),
+            new ChannelGroupDefinition("group1", channelGroupType.UID),
+            new ChannelGroupDefinition("group2", channelGroupType.UID),
         ] as List
+
+        def channelGroupTypes = [channelGroupType]
+
+        registerService([
+            getChannelTypes: { channelTypes },
+            getChannelType: { ChannelTypeUID uid, Locale locale ->
+                channelTypes.find { it.UID == uid }
+            },
+            getChannelGroupTypes: { channelGroupTypes },
+            getChannelGroupType: { ChannelGroupTypeUID uid, Locale locale ->
+                channelGroupTypes.find { it.UID == uid }
+            }
+        ] as ChannelTypeProvider)
 
         def thingTypes = [
             new ThingType(thingTypeUID1, null, "label", null, channelDefinitions, null, null, null),
