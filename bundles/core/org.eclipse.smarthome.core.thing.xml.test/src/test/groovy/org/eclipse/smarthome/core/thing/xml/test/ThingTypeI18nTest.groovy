@@ -75,13 +75,13 @@ class ThingTypeI18nTest extends OSGiTest {
 
         def weatherGroupType = thingTypes.find { it.toString().equals("yahooweather:weather-with-group") } as ThingType
         println weatherGroupType.channelGroupDefinitions[0].typeUID
-        println TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID).label
+        println TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID, Locale.GERMAN).label
 
         assertThat weatherGroupType, is(notNullValue())
         assertEquals("""
         label = Wetterinformation mit Gruppe
         description = Wetterinformation mit Gruppe Beschreibung
-        """, asString(TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID)))
+        """, asString(TypeResolver.resolve(weatherGroupType.channelGroupDefinitions[0].typeUID, Locale.GERMAN)))
     }
 
     @Test
@@ -98,7 +98,7 @@ class ThingTypeI18nTest extends OSGiTest {
         assertThat thingTypes.size(), is(initialNumberOfThingTypes + 2)
 
         def weatherType = thingTypes.find { it.toString().equals("yahooweather:weather") } as ThingType
-        def temperatureChannelType = TypeResolver.resolve(weatherType.channelDefinitions.find { it.getId().equals("temperature")}.channelTypeUID) as ChannelType
+        def temperatureChannelType = TypeResolver.resolve(weatherType.channelDefinitions.find { it.getId().equals("temperature")}.channelTypeUID, Locale.GERMAN) as ChannelType
 
         assertEquals("""
         label = Temperatur
