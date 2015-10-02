@@ -33,14 +33,12 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
  */
-public class RuntimeAction extends Action implements ConnectedModule, SourceModule {
+public class RuntimeAction extends Action {
 
     /**
      * The handler of this module.
      */
     private ActionHandler actionHandler;
-    private Map<String, OutputRef> connectedObjects;
-    private Map<String, ?> outputs;
 
     /**
      * Constructor of Action object.
@@ -76,26 +74,6 @@ public class RuntimeAction extends Action implements ConnectedModule, SourceModu
     @Override
     public void setConnections(Set<Connection> connections) {
         this.connections = copyConnections(connections);
-    }
-
-    @Override
-    public Map<String, OutputRef> getConnectedOutputs() {
-        return connectedObjects;
-    }
-
-    @Override
-    public void setConnectedOutputs(Map<String, OutputRef> connectedObjects) {
-        this.connectedObjects = connectedObjects;
-    }
-
-    @Override
-    public void setOutputs(Map<String, ?> outputs) {
-        this.outputs = outputs;
-    }
-
-    @Override
-    public Object getOutputValue(String outName) {
-        return outputs != null ? outputs.get(outName) : null;
     }
 
     /**

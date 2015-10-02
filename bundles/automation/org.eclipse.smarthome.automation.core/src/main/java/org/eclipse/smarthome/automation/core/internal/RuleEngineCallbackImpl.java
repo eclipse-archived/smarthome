@@ -45,11 +45,11 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
-        if (trigger instanceof SourceModule) {
-            feature = executor.submit(new TriggerData(trigger, outputs));
-        } else {
-            log.error("The trigger " + trigger.getId() + " is not data source!");
-        }
+        // if (trigger instanceof SourceModule) {
+        feature = executor.submit(new TriggerData(trigger, outputs));
+        // } else {
+        // log.error("The trigger " + trigger.getId() + " is not data source!");
+        // }
 
     }
 

@@ -16,20 +16,13 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class RuntimeTrigger extends Trigger implements SourceModule {
+public class RuntimeTrigger extends Trigger {
 
     private TriggerHandler triggerHandler;
-    private Map<String, ?> outputs;
 
     public RuntimeTrigger(String id, String typeUID, Map<String, ?> configuration) {
         super(id, typeUID, configuration);
     }
-
-    // protected TriggerImpl(TriggerImpl trigger) {
-    // super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
-    // setLabel(trigger.getLabel());
-    // setDescription(trigger.getDescription());
-    // }
 
     public RuntimeTrigger(Trigger trigger) {
         super(trigger.getId(), trigger.getTypeUID(), trigger.getConfiguration());
@@ -40,16 +33,6 @@ public class RuntimeTrigger extends Trigger implements SourceModule {
     @Override
     public void setConfiguration(Map<String, ?> configuration) {
         this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
-    }
-
-    @Override
-    public void setOutputs(Map<String, ?> outputs) {
-        this.outputs = outputs;
-    }
-
-    @Override
-    public Object getOutputValue(String outName) {
-        return outputs != null ? outputs.get(outName) : null;
     }
 
     /**

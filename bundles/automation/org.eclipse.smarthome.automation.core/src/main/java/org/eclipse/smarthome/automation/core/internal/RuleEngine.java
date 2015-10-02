@@ -39,7 +39,6 @@ import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
-import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.osgi.framework.BundleContext;
@@ -70,10 +69,15 @@ import org.slf4j.LoggerFactory;
 public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */ {
 
     /**
-     * Constant defining separator between system and custom module types. For example: SampleTrigger:CustomTrigger is a
+     * Constant defining separator between parent and custom module types. For example: SampleTrigger:CustomTrigger is a
      * custom module type uid which defines custom trigger type base on the SampleTrigge module type.
      */
     public static final int MODULE_TYPE_SEPARATOR = ':';
+
+    /**
+     * Constant defining separator between module uid and output name.
+     */
+    private static final int OUTPUT_SEPARATOR = '.';
 
     /**
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
@@ -847,14 +851,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     private void clearCachedOutputValues(RuntimeRule rule) {
-        List<Trigger> tiggers = rule.getTriggers();
-        for (Trigger trigger : tiggers) {
-            ((RuntimeTrigger) trigger).setOutputs(null);
-        }
-        List<Action> actions = rule.getActions();
-        for (Action action : actions) {
-            ((RuntimeAction) action).setOutputs(null);
-        }
         Map<String, Object> context = contextMap.get(rule.getUID());
         if (context != null) {
             context.clear();
@@ -868,12 +864,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     private void setTriggerOutputs(String ruleUID, TriggerData td) {
         Trigger t = td.getTrigger();
-        if (!(t instanceof SourceModule)) {
-            throw new IllegalArgumentException("Invalid Trigger implementation: " + t);
-        }
-
-        SourceModule ds = (SourceModule) t;
-        ds.setOutputs(td.getOutputs());
         updateContext(ruleUID, t.getId(), td.getOutputs());
     }
 
@@ -887,7 +877,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     private void updateContext(String ruleUID, String moduleUID, Map<String, ?> outputs) {
         Map<String, Object> context = getContext(ruleUID);
         for (Map.Entry<String, ?> entry : outputs.entrySet()) {
-            context.put(moduleUID + "." + entry.getKey(), entry.getValue());
+            context.put(moduleUID + OUTPUT_SEPARATOR + entry.getKey(), entry.getValue());
         }
     }
 
@@ -895,10 +885,22 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return copy of current context in rule engine
      */
     private Map<String, Object> getContext(String ruleUID) {
+        return getContext(ruleUID, null);
+    }
+
+    private Map<String, Object> getContext(String ruleUID, Set<Connection> connections) {
         Map<String, Object> context = contextMap.get(ruleUID);
         if (context == null) {
             context = new HashMap<String, Object>();
             contextMap.put(ruleUID, context);
+        }
+        if (connections != null) {
+            StringBuffer sb = new StringBuffer();
+            for (Connection c : connections) {
+                sb.append(c.getOuputModuleId()).append(OUTPUT_SEPARATOR).append(c.getOutputName());
+                context.put(c.getInputName(), context.get(sb.toString()));
+                sb.setLength(0);
+            }
         }
         return context;
     }
@@ -916,66 +918,14 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
         for (Iterator<Condition> it = conditions.iterator(); it.hasNext();) {
             RuntimeCondition c = (RuntimeCondition) it.next();
-            Map<String, OutputRef> connectionObjects = c.getConnectedOutputs();
-            if (connectionObjects == null) {
-                connectionObjects = initConnections(c, rule);
-            }
             ConditionHandler tHandler = c.getModuleHandler();
-            Map<String, ?> inputs = getInputValues(connectionObjects);
-            Map<String, Object> context = getContext(rule.getUID());
-            context.putAll(inputs);
+            Map<String, Object> context = getContext(rule.getUID(), c.getConnections());
             if (!tHandler.isSatisfied(context)) {
                 logger.debug("The condition: " + c.getId() + " of rule: " + rule.getUID() + " is failed!");
                 return false;
             }
         }
         return true;
-    }
-
-    /**
-     * Utility method for getting {@link Map} of {@link Input}'s name and values applied to these inputs
-     *
-     * @param connectionOutputs {@link Map} of input's names and associated reference to Outputs connected to these
-     *            inputs.
-     * @return {@link Map} of input ids and associated values.
-     */
-    private Map<String, ?> getInputValues(Map<String, OutputRef> connectionOutputs) {
-        Map<String, Object> inputs = new HashMap<String, Object>(11);
-        for (Iterator<Map.Entry<String, OutputRef>> it = connectionOutputs.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<String, OutputRef> e = it.next();
-            inputs.put(e.getKey(), e.getValue().getValue());
-        }
-        return inputs;
-    }
-
-    /**
-     * This method initialize connection between modules. It associate {@link OutputRef} objects to the inputs of
-     * {@link ConnectedModule}. The inputs uses these {@link OutputRef}s objects to get current value of the outputs
-     * associated with these inputs.
-     *
-     * @param cm connected module. These are module which have inputs (Conditions and Actions).
-     * @param r rule where the {@link ConnectedModule} belongs to.
-     * @return {@link Map} of inputs and associated to them {@link OutputRef}s
-     */
-    private Map<String, OutputRef> initConnections(ConnectedModule cm, Rule r) {
-        Set<Connection> connections = cm.getConnections();
-        Map<String, OutputRef> connectedOutputs = new HashMap<String, OutputRef>(11);
-        if (connections != null) {
-            for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
-                Connection conn = it.next();
-                String uid = conn.getOuputModuleId();
-                Module m = ((RuntimeRule) r).getModule(uid);
-                if (m instanceof SourceModule) {
-                    OutputRef outputRef = new OutputRef(conn.getOutputName(), (SourceModule) m);
-                    connectedOutputs.put(conn.getInputName(), outputRef);
-                } else {
-                    logger.warn("Condition " + cm + "can not be connected to module: " + uid
-                            + ". The module is not available or not a data source!");
-                }
-            }
-        }
-        cm.setConnectedOutputs(connectedOutputs);
-        return connectedOutputs;
     }
 
     /**
@@ -990,19 +940,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
         for (Iterator<Action> it = actions.iterator(); it.hasNext();) {
             RuntimeAction a = (RuntimeAction) it.next();
-            Map<String, OutputRef> connectionObjects = a.getConnectedOutputs();
-            if (connectionObjects == null) {
-                connectionObjects = initConnections(a, rule);
-            }
             ActionHandler aHandler = a.getModuleHandler();
-            Map<String, ?> inputs = getInputValues(connectionObjects);
             try {
                 String rUID = rule.getUID();
-                Map<String, Object> context = getContext(rUID);
-                context.putAll(inputs);
+                Map<String, Object> context = getContext(rUID, a.getConnections());
+                context.putAll(context);
                 Map<String, ?> outputs = aHandler.execute(context);
                 if (outputs != null) {
-                    a.setOutputs(outputs);
                     context = getContext(rUID);
                     context.putAll(outputs);
                     updateContext(rUID, a.getId(), outputs);

@@ -19,15 +19,13 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 
 /**
- * This class is implementation of {@link Condition} modules used in {@link Rule}s. The {@link Condition} modules are
- * also {@link ConnectedModule} becouse the can have inputs.
+ * This class is implementation of {@link Condition} modules used in {@link Rule}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public class RuntimeCondition extends Condition implements ConnectedModule {
+public class RuntimeCondition extends Condition {
 
     private ConditionHandler conditionHandler;
-    private Map<String, OutputRef> connectedObjects;
 
     /**
      * Constructor of {@link Condition} module object.
@@ -49,18 +47,6 @@ public class RuntimeCondition extends Condition implements ConnectedModule {
         setDescription(condition.getDescription());
     }
 
-    // /**
-    // * Cloning constructor of {@link Condition} module. It is used to create a new {@link Condition} module base on
-    // * passed {@link Condition} module.
-    // *
-    // * @param condition
-    // */
-    // public ConditionImpl(ConditionImpl condition) {
-    // super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getConnections());
-    // setLabel(condition.getLabel());
-    // setDescription(condition.getDescription());
-    // }
-
     @Override
     public void setConfiguration(Map<String, ?> configuration) {
         this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
@@ -75,16 +61,6 @@ public class RuntimeCondition extends Condition implements ConnectedModule {
     @Override
     public void setConnections(Set<Connection> connections) {
         super.setConnections(copyConnections(connections));
-    }
-
-    @Override
-    public Map<String, OutputRef> getConnectedOutputs() {
-        return connectedObjects;
-    }
-
-    @Override
-    public void setConnectedOutputs(Map<String, OutputRef> connectedObjects) {
-        this.connectedObjects = connectedObjects;
     }
 
     /**
