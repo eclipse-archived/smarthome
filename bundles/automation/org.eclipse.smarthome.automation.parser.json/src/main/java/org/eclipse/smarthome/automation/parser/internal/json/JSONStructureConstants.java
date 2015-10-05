@@ -26,6 +26,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 /**
  * @author Ana Dimova - Initial Contribution
  * @author Ana Dimova - refactor Parser interface.
+ * @author Ana Dimova - add new key word "children" for composite types support.
  *
  */
 public interface JSONStructureConstants {
@@ -33,14 +34,21 @@ public interface JSONStructureConstants {
     /**
      * This constant is used as json property that serves to define a set of {@link ActionType}s, when parsing the json
      * files, containing them or to define a set of {@link Action}s when parsing json files, containing
-     * {@link CompositeActionType}s, {@link RuleTemplate}s or {@link Rule}s.
+     * {@link RuleTemplate}s or {@link Rule}s.
      */
     public final String ACTIONS = "actions";
 
     /**
+     * This constant is used as json property that serves to define a set of {@link Condition}s that are children of the
+     * {@link CompositeConditionType}s or to define a set of {@link Action}s into the {@link CompositeActionType}s or to
+     * define a set of {@link Trigger}s into the {@link CompositeTriggerType}s
+     */
+    public final String CHILDREN = "children";
+
+    /**
      * This constant is used as json property that serves to define a set of {@link ConditionType}s, when parsing the
      * json files, containing them or to define a set of {@link Condition}s when parsing json files, containing
-     * {@link CompositeConditionType}s, {@link RuleTemplate}s or {@link Rule}s.
+     * {@link RuleTemplate}s or {@link Rule}s.
      */
     public final String CONDITIONS = "conditions";
 
@@ -187,7 +195,7 @@ public interface JSONStructureConstants {
     /**
      * This constant is used as json property that serves to define a set of {@link TriggerType}s, when parsing the
      * json files, containing them or to define a set of {@link Trigger}s when parsing json files, containing
-     * {@link CompositeTriggerType}s, {@link RuleTemplate}s or {@link Rule}s.
+     * {@link RuleTemplate}s or {@link Rule}s.
      */
     public final String TRIGGERS = "triggers";
 

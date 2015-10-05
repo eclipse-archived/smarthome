@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Ana Dimova - refactor Parser interface.
+ * @author Ana Dimova - add new key word "children" for composite types support.
  *
  */
 public class ModuleTypeJSONParser implements Parser<ModuleType> {
@@ -222,11 +223,11 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
         Set<Output> outputs = getOutputs(moduleTypeUID, jsonModuleType, exceptions);
 
         JSONArray jsonActions = JSONUtility.getJSONArray(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
-                JSONStructureConstants.ACTIONS, true, jsonModuleType, log);
+                JSONStructureConstants.CHILDREN, true, jsonModuleType, log);
         List<Action> actionModules = null;
         if (jsonActions != null) {
             actionModules = ModuleJSONParser.createActionModules(ParsingNestedException.MODULE_TYPE, moduleTypeUID,
-                    JSONStructureConstants.ACTIONS, jsonActions, exceptions, log);
+                    JSONStructureConstants.CHILDREN, jsonActions, exceptions, log);
         }
         ActionType actionType = null;
         if (actionModules != null) {
@@ -260,12 +261,12 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
 
         Set<Input> inputs = getInputs(moduleTypeUID, jsonModuleType, exceptions);
         JSONArray jsonConditions = JSONUtility.getJSONArray(ParsingNestedException.MODULE_TYPE, moduleTypeUID,
-                exceptions, JSONStructureConstants.CONDITIONS, true, jsonModuleType, log);
+                exceptions, JSONStructureConstants.CHILDREN, true, jsonModuleType, log);
         ConditionType conditionType = null;
         if (jsonConditions != null) {
             List<Condition> conditionModules = ModuleJSONParser.createConditionModules(
-                    ParsingNestedException.MODULE_TYPE, moduleTypeUID, JSONStructureConstants.CONDITIONS,
-                    jsonConditions, exceptions, log);
+                    ParsingNestedException.MODULE_TYPE, moduleTypeUID, JSONStructureConstants.CHILDREN, jsonConditions,
+                    exceptions, log);
             if (conditionModules != null) {
                 conditionType = new CompositeConditionType(moduleTypeUID, configDescriptions, label, description, tags,
                         v, inputs, conditionModules);
@@ -302,12 +303,12 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
         Set<Output> outputs = getOutputs(moduleTypeUID, jsonModuleType, exceptions);
 
         JSONArray jsonTriggers = JSONUtility.getJSONArray(ParsingNestedException.MODULE_TYPE, moduleTypeUID, exceptions,
-                JSONStructureConstants.TRIGGERS, true, jsonModuleType, log);
+                JSONStructureConstants.CHILDREN, true, jsonModuleType, log);
 
         TriggerType triggerType = null;
         if (jsonTriggers != null) {
             List<Trigger> triggerModules = ModuleJSONParser.createTriggerModules(ParsingNestedException.MODULE_TYPE,
-                    moduleTypeUID, JSONStructureConstants.TRIGGERS, jsonTriggers, exceptions, log);
+                    moduleTypeUID, JSONStructureConstants.CHILDREN, jsonTriggers, exceptions, log);
             if (triggerModules != null) {
                 triggerType = new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
                         outputs, triggerModules);

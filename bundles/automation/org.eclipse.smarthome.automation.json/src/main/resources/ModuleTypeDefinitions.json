@@ -103,7 +103,7 @@
           "required":true
         }
       },
-      "triggers":[  
+      "children":[  
         {  
           "id":"motionTrigger1",
           "type":"ItemTrigger:MotionTrigger",

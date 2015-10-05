@@ -209,7 +209,7 @@
                 }
               }
             },
-            "triggers":{  
+            "children":{  
               "type":"array",
               "title":"Trigger Modules",
               "description":"List of definitions of the Trigger Modules involved in the composite type.",
@@ -456,7 +456,7 @@
                 }
               }
             },
-            "conditions":{  
+            "children":{  
               "type":"array",
               "minItems":0,
               "title":"Condition Modules",
@@ -760,7 +760,7 @@
                 }
               }
             },
-            "actions":{  
+            "children":{  
               "type":"array",
               "minItems":1,
               "title":"Action Modules",
