@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
-
 
 /**
  * This object contains factory methods for each
@@ -37,10 +34,10 @@ import javax.xml.namespace.QName;
  * groups.  Factory methods for each of these are
  * provided in this class.
  */
-@XmlRegistry
-public class ObjectFactory {
+@XmlRegistry public class ObjectFactory {
 
-    private final static QName _ConfigDescription_QNAME = new QName("http://eclipse.org/smarthome/schemas/config-description/v1.0.0", "config-description");
+    private final static QName _ConfigDescription_QNAME = new QName(
+            "http://eclipse.org/smarthome/schemas/config-description/v1.0.0", "config-description");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.eclipse.smarthome.schemas.config_description.v1_0
@@ -114,8 +111,8 @@ public class ObjectFactory {
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link ConfigDescription }{@code >}}
      */
-    @XmlElementDecl(namespace = "http://eclipse.org/smarthome/schemas/config-description/v1.0.0", name = "config-description")
-    public JAXBElement<ConfigDescription> createConfigDescription(ConfigDescription value) {
+    @XmlElementDecl(namespace = "http://eclipse.org/smarthome/schemas/config-description/v1.0.0", name = "config-description") public JAXBElement<ConfigDescription> createConfigDescription(
+            ConfigDescription value) {
         return new JAXBElement<ConfigDescription>(_ConfigDescription_QNAME, ConfigDescription.class, null, value);
     }
 

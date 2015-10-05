@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for anonymous complex type.
@@ -44,22 +41,14 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-        "thingTypeOrBridgeTypeOrChannelType"
-})
-@XmlRootElement(name = "thing-descriptions", namespace = "http://eclipse.org/smarthome/schemas/thing-description/v1.0.0")
-public class ThingDescriptions {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "", propOrder = {
+        "thingTypeOrBridgeTypeOrChannelType" }) @XmlRootElement(name = "thing-descriptions", namespace = "http://eclipse.org/smarthome/schemas/thing-description/v1.0.0") public class ThingDescriptions {
 
-    @XmlElements({
-            @XmlElement(name = "thing-type", type = ThingType.class),
+    @XmlElements({ @XmlElement(name = "thing-type", type = ThingType.class),
             @XmlElement(name = "bridge-type", type = BridgeType.class),
             @XmlElement(name = "channel-type", type = ChannelType.class),
-            @XmlElement(name = "channel-group-type", type = ChannelGroupType.class)
-    })
-    protected List<Object> thingTypeOrBridgeTypeOrChannelType;
-    @XmlAttribute(name = "bindingId", required = true)
-    protected String bindingId;
+            @XmlElement(name = "channel-group-type", type = ChannelGroupType.class) }) protected List<Object> thingTypeOrBridgeTypeOrChannelType;
+    @XmlAttribute(name = "bindingId", required = true) protected String bindingId;
 
     /**
      * Gets the value of the thingTypeOrBridgeTypeOrChannelType property.

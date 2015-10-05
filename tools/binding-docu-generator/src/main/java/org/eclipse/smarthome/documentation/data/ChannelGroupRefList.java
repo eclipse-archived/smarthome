@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *

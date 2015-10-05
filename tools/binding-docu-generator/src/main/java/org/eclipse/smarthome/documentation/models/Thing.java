@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -18,8 +17,8 @@ import org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.ThingT
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- * <p/>
- * Wrapper class to not fully depend on the existing models.
+ *         <p/>
+ *         Wrapper class to not fully depend on the existing models.
  */
 public class Thing implements Model<ThingType> {
     /**
@@ -126,6 +125,5 @@ public class Thing implements Model<ThingType> {
             return null;
         }
     }
-
 
 }

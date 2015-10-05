@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,7 +14,6 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,7 +21,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 import java.math.BigDecimal;
-
 
 /**
  * <p>Java class for state complex type.
@@ -47,23 +44,14 @@ import java.math.BigDecimal;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "state", propOrder = {
-        "options"
-})
-public class State {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "state", propOrder = { "options" }) public class State {
 
     protected Options options;
-    @XmlAttribute(name = "min")
-    protected BigDecimal min;
-    @XmlAttribute(name = "max")
-    protected BigDecimal max;
-    @XmlAttribute(name = "step")
-    protected BigDecimal step;
-    @XmlAttribute(name = "pattern")
-    protected String pattern;
-    @XmlAttribute(name = "readOnly")
-    protected Boolean readOnly;
+    @XmlAttribute(name = "min") protected BigDecimal min;
+    @XmlAttribute(name = "max") protected BigDecimal max;
+    @XmlAttribute(name = "step") protected BigDecimal step;
+    @XmlAttribute(name = "pattern") protected String pattern;
+    @XmlAttribute(name = "readOnly") protected Boolean readOnly;
 
     /**
      * Gets the value of the options property.

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>Java class for parameterType.
@@ -39,9 +36,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;/simpleType>
  * </pre>
  */
-@XmlType(name = "parameterType")
-@XmlEnum
-public enum ParameterType {
+@XmlType(name = "parameterType") @XmlEnum public enum ParameterType {
 
     @XmlEnumValue("text")
     TEXT("text"),
@@ -57,10 +52,6 @@ public enum ParameterType {
         value = v;
     }
 
-    public String value() {
-        return value;
-    }
-
     public static ParameterType fromValue(String v) {
         for (ParameterType c : ParameterType.values()) {
             if (c.value.equals(v)) {
@@ -68,6 +59,10 @@ public enum ParameterType {
             }
         }
         throw new IllegalArgumentException(v);
+    }
+
+    public String value() {
+        return value;
     }
 
 }

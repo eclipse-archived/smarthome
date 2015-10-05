@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription;
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescriptionRef;
 
 import javax.xml.bind.annotation.*;
-
 
 /**
  * <p>Java class for channelType complex type.
@@ -53,37 +50,20 @@ import javax.xml.bind.annotation.*;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "channelType", propOrder = {
-        "itemType",
-        "label",
-        "description",
-        "category",
-        "tags",
-        "state",
-        "configDescription",
-        "configDescriptionRef"
-})
-public class ChannelType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "channelType", propOrder = { "itemType", "label", "description",
+        "category", "tags", "state", "configDescription", "configDescriptionRef" }) public class ChannelType {
 
-    @XmlElement(name = "item-type", required = true)
-    protected String itemType;
-    @XmlElement(required = true)
-    protected String label;
+    @XmlElement(name = "item-type", required = true) protected String itemType;
+    @XmlElement(required = true) protected String label;
     protected String description;
     protected String category;
     protected Tags tags;
     protected State state;
-    @XmlElement(name = "config-description")
-    protected ConfigDescription configDescription;
-    @XmlElement(name = "config-description-ref")
-    protected ConfigDescriptionRef configDescriptionRef;
-    @XmlAttribute(name = "id", required = true)
-    protected String id;
-    @XmlAttribute(name = "advanced")
-    protected Boolean advanced;
-    @XmlAttribute(name = "system")
-    protected Boolean system;
+    @XmlElement(name = "config-description") protected ConfigDescription configDescription;
+    @XmlElement(name = "config-description-ref") protected ConfigDescriptionRef configDescriptionRef;
+    @XmlAttribute(name = "id", required = true) protected String id;
+    @XmlAttribute(name = "advanced") protected Boolean advanced;
+    @XmlAttribute(name = "system") protected Boolean system;
 
     /**
      * Gets the value of the itemType property.

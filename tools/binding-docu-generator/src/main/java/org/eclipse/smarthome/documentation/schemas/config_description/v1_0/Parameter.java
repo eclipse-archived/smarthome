@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
 
 /**
  * <p>Java class for parameter complex type.
@@ -59,17 +56,13 @@ import java.math.BigInteger;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "parameter", propOrder = {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "parameter", propOrder = {
 
-})
-public class Parameter {
+}) public class Parameter {
 
     protected String context;
-    @XmlElement(defaultValue = "false")
-    protected Boolean required;
-    @XmlElement(name = "default")
-    protected String _default;
+    @XmlElement(defaultValue = "false") protected Boolean required;
+    @XmlElement(name = "default") protected String _default;
     protected String label;
     protected String description;
     protected OptionsType options;
@@ -77,26 +70,16 @@ public class Parameter {
     protected FilterType filter;
     protected Boolean advanced;
     protected BigInteger multipleLimit;
-    @XmlAttribute(name = "name", required = true)
-    protected String name;
-    @XmlAttribute(name = "type", required = true)
-    protected ParameterType type;
-    @XmlAttribute(name = "groupName")
-    protected String groupName;
-    @XmlAttribute(name = "min")
-    protected BigDecimal min;
-    @XmlAttribute(name = "max")
-    protected BigDecimal max;
-    @XmlAttribute(name = "step")
-    protected BigDecimal step;
-    @XmlAttribute(name = "pattern")
-    protected String pattern;
-    @XmlAttribute(name = "required")
-    protected Boolean valueToFixError2;
-    @XmlAttribute(name = "readOnly")
-    protected Boolean readOnly;
-    @XmlAttribute(name = "multiple")
-    protected Boolean multiple;
+    @XmlAttribute(name = "name", required = true) protected String name;
+    @XmlAttribute(name = "type", required = true) protected ParameterType type;
+    @XmlAttribute(name = "groupName") protected String groupName;
+    @XmlAttribute(name = "min") protected BigDecimal min;
+    @XmlAttribute(name = "max") protected BigDecimal max;
+    @XmlAttribute(name = "step") protected BigDecimal step;
+    @XmlAttribute(name = "pattern") protected String pattern;
+    @XmlAttribute(name = "required") protected Boolean valueToFixError2;
+    @XmlAttribute(name = "readOnly") protected Boolean readOnly;
+    @XmlAttribute(name = "multiple") protected Boolean multiple;
 
     /**
      * Gets the value of the context property.

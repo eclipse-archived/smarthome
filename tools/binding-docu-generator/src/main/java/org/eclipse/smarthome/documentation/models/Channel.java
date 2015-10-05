@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -14,8 +13,8 @@ import org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Channe
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- *
- * Wrapper class to not fully depend on the existing models.
+ *         <p/>
+ *         Wrapper class to not fully depend on the existing models.
  */
 public class Channel implements Model<ChannelType> {
     /**

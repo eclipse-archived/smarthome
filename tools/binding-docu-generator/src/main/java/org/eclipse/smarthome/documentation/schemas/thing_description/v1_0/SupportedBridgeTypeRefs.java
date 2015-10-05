@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,7 +14,6 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,7 +22,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for supportedBridgeTypeRefs complex type.
@@ -43,14 +40,10 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "supportedBridgeTypeRefs", propOrder = {
-        "bridgeTypeRef"
-})
-public class SupportedBridgeTypeRefs {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "supportedBridgeTypeRefs", propOrder = {
+        "bridgeTypeRef" }) public class SupportedBridgeTypeRefs {
 
-    @XmlElement(name = "bridge-type-ref", required = true)
-    protected List<BridgeTypeRef> bridgeTypeRef;
+    @XmlElement(name = "bridge-type-ref", required = true) protected List<BridgeTypeRef> bridgeTypeRef;
 
     /**
      * Gets the value of the bridgeTypeRef property.

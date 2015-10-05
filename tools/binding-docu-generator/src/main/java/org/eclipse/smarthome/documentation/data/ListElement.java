@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -14,8 +13,8 @@ import org.eclipse.smarthome.documentation.models.Model;
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- *
- * Used for Mustache templates. Works as placeholder for the concrete object implementation.
+ *         <p/>
+ *         Used for Mustache templates. Works as placeholder for the concrete object implementation.
  */
 public class ListElement {
     /**
@@ -50,6 +49,7 @@ public class ListElement {
 
     /**
      * Setter for element.
+     *
      * @param model The model we want to handle in this {@link ListElement}.
      */
     public void setModel(Model model) {

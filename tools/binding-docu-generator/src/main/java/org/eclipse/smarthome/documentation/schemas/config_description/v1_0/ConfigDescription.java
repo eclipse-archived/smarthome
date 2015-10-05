@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for configDescription complex type.
@@ -42,18 +39,12 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "configDescription", propOrder = {
-        "parameterGroup",
-        "parameter"
-})
-public class ConfigDescription {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "configDescription", propOrder = { "parameterGroup",
+        "parameter" }) public class ConfigDescription {
 
-    @XmlElement(name = "parameter-group")
-    protected List<ParameterGroup> parameterGroup;
+    @XmlElement(name = "parameter-group") protected List<ParameterGroup> parameterGroup;
     protected List<Parameter> parameter;
-    @XmlAttribute(name = "uri")
-    protected String uri;
+    @XmlAttribute(name = "uri") protected String uri;
 
     /**
      * Gets the value of the parameterGroup property.

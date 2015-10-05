@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>Java class for configDescriptionRef complex type.
@@ -39,12 +36,9 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "configDescriptionRef")
-public class ConfigDescriptionRef {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "configDescriptionRef") public class ConfigDescriptionRef {
 
-    @XmlAttribute(name = "uri", required = true)
-    protected String uri;
+    @XmlAttribute(name = "uri", required = true) protected String uri;
 
     /**
      * Gets the value of the uri property.

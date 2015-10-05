@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for filterType complex type.
@@ -48,11 +45,8 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "filterType", propOrder = {
-        "criteria"
-})
-public class FilterType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "filterType", propOrder = {
+        "criteria" }) public class FilterType {
 
     protected List<FilterType.Criteria> criteria;
 
@@ -83,7 +77,6 @@ public class FilterType {
         return this.criteria;
     }
 
-
     /**
      * <p>Java class for anonymous complex type.
      * <p/>
@@ -99,16 +92,10 @@ public class FilterType {
      * &lt;/complexType>
      * </pre>
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-            "value"
-    })
-    public static class Criteria {
+    @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "", propOrder = { "value" }) public static class Criteria {
 
-        @XmlValue
-        protected String value;
-        @XmlAttribute(name = "name", required = true)
-        protected String name;
+        @XmlValue protected String value;
+        @XmlAttribute(name = "name", required = true) protected String name;
 
         /**
          * Gets the value of the value property.

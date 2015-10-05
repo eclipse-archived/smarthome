@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,11 +14,9 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import javax.xml.bind.annotation.*;
-
 
 /**
  * <p>Java class for option complex type.
@@ -36,16 +33,10 @@ import javax.xml.bind.annotation.*;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "option", propOrder = {
-        "value"
-})
-public class Option {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "option", propOrder = { "value" }) public class Option {
 
-    @XmlValue
-    protected String value;
-    @XmlAttribute(name = "value", required = true)
-    protected String valueToFixError1;
+    @XmlValue protected String value;
+    @XmlAttribute(name = "value", required = true) protected String valueToFixError1;
 
     /**
      * Gets the value of the value property.

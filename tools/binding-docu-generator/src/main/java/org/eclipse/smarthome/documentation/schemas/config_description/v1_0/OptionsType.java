@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for optionsType complex type.
@@ -48,11 +45,8 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "optionsType", propOrder = {
-        "option"
-})
-public class OptionsType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "optionsType", propOrder = {
+        "option" }) public class OptionsType {
 
     protected List<OptionsType.Option> option;
 
@@ -83,7 +77,6 @@ public class OptionsType {
         return this.option;
     }
 
-
     /**
      * <p>Java class for anonymous complex type.
      * <p/>
@@ -99,16 +92,10 @@ public class OptionsType {
      * &lt;/complexType>
      * </pre>
      */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "", propOrder = {
-            "value"
-    })
-    public static class Option {
+    @XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "", propOrder = { "value" }) public static class Option {
 
-        @XmlValue
-        protected String value;
-        @XmlAttribute(name = "value", required = true)
-        protected String valueToFixError3;
+        @XmlValue protected String value;
+        @XmlAttribute(name = "value", required = true) protected String valueToFixError3;
 
         /**
          * Gets the value of the value property.

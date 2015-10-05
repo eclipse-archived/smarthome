@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * <p>Java class for parameterGroup complex type.
@@ -45,18 +42,15 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "parameterGroup", propOrder = {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "parameterGroup", propOrder = {
 
-})
-public class ParameterGroup {
+}) public class ParameterGroup {
 
     protected String label;
     protected String description;
     protected String context;
     protected Boolean advanced;
-    @XmlAttribute(name = "name", required = true)
-    protected String name;
+    @XmlAttribute(name = "name", required = true) protected String name;
 
     /**
      * Gets the value of the label property.

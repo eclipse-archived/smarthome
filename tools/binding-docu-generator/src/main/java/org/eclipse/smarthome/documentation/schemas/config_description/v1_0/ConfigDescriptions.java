@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,13 +14,11 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.config_description.v1_0;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * <p>Java class for anonymous complex type.
@@ -40,15 +37,10 @@ import java.util.List;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-        "configDescription"
-})
-@XmlRootElement(name = "config-descriptions", namespace = "http://eclipse.org/smarthome/schemas/config-description/v1.0.0")
-public class ConfigDescriptions {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "", propOrder = {
+        "configDescription" }) @XmlRootElement(name = "config-descriptions", namespace = "http://eclipse.org/smarthome/schemas/config-description/v1.0.0") public class ConfigDescriptions {
 
-    @XmlElement(name = "config-description", required = true)
-    protected List<ConfigDescription> configDescription;
+    @XmlElement(name = "config-description", required = true) protected List<ConfigDescription> configDescription;
 
     /**
      * Gets the value of the configDescription property.

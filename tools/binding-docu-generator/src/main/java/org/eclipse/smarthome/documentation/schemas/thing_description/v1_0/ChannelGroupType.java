@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,11 +14,9 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import javax.xml.bind.annotation.*;
-
 
 /**
  * <p>Java class for channelGroupType complex type.
@@ -42,23 +39,14 @@ import javax.xml.bind.annotation.*;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "channelGroupType", propOrder = {
-        "label",
-        "description",
-        "channels"
-})
-public class ChannelGroupType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "channelGroupType", propOrder = { "label", "description",
+        "channels" }) public class ChannelGroupType {
 
-    @XmlElement(required = true)
-    protected String label;
+    @XmlElement(required = true) protected String label;
     protected String description;
-    @XmlElement(required = true)
-    protected Channels channels;
-    @XmlAttribute(name = "id", required = true)
-    protected String id;
-    @XmlAttribute(name = "advanced")
-    protected Boolean advanced;
+    @XmlElement(required = true) protected Channels channels;
+    @XmlAttribute(name = "id", required = true) protected String id;
+    @XmlAttribute(name = "advanced") protected Boolean advanced;
 
     /**
      * Gets the value of the label property.

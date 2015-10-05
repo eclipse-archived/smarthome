@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -12,9 +11,9 @@ package org.eclipse.smarthome.documentation.models;
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- *
- * The models implementing this interface act as an additional layer between the data we
- * parse from the XML files and the concrete use of these models in the template system.
+ *         <p/>
+ *         The models implementing this interface act as an additional layer between the data we
+ *         parse from the XML files and the concrete use of these models in the template system.
  */
 public interface Model<RealImpl> {
     /**

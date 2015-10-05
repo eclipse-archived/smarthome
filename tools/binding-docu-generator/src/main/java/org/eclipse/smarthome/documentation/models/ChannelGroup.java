@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,8 +14,8 @@ import org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Channe
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- *
- * Wrapper class to not fully depend on the existing models.
+ *         <p/>
+ *         Wrapper class to not fully depend on the existing models.
  */
 public class ChannelGroup implements Model<ChannelGroupType> {
     /**
@@ -82,12 +81,12 @@ public class ChannelGroup implements Model<ChannelGroupType> {
     public ChannelRefList channels() {
         ChannelRefList channelRefs = new ChannelRefList();
         if (channel.getChannels() != null) {
-            for (org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Channel ch : channel.getChannels().getChannel()) {
+            for (org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Channel ch : channel.getChannels()
+                    .getChannel()) {
                 channelRefs.put(ch);
             }
         }
         return channelRefs;
     }
-
 
 }

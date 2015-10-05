@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -16,9 +15,9 @@ import java.util.ArrayList;
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- * <p/>
- * This structure is implemented to fit Mustache templates.
- * It enables us to handle lists in Mustache easily.
+ *         <p/>
+ *         This structure is implemented to fit Mustache templates.
+ *         It enables us to handle lists in Mustache easily.
  */
 public abstract class ModelList extends ArrayList<ListElement> {
 
@@ -27,6 +26,7 @@ public abstract class ModelList extends ArrayList<ListElement> {
      *
      * @param impl The concrete implementation of the model.
      */
+    @SuppressWarnings("unchecked")
     public void put(Object impl) {
         // Create new Model.
         Model model = getNewModel();

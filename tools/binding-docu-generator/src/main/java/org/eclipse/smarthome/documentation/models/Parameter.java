@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,7 +14,6 @@ import org.eclipse.smarthome.documentation.data.OptionList;
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.OptionsType;
 
 import java.math.BigDecimal;
-
 
 public class Parameter implements Model<org.eclipse.smarthome.documentation.schemas.config_description.v1_0.Parameter> {
     /**
@@ -91,6 +89,7 @@ public class Parameter implements Model<org.eclipse.smarthome.documentation.sche
 
     /**
      * Wrapper method for mustache.
+     *
      * @return "True" if it is readonly, "False" if not.
      */
     public String isReadOnly() {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -42,8 +41,8 @@ import java.util.List;
  * <p/>
  * NOTE: CARE FOR THE NAMESPACE IN {@link ThingDescriptions} and {@link ConfigDescriptions}.
  */
-@Mojo(name = "generate-docu", defaultPhase = LifecyclePhase.PACKAGE)
-public class GenerateDocumentation extends AbstractMojo {
+@Mojo(name = "generate-docu", defaultPhase = LifecyclePhase.PACKAGE) public class GenerateDocumentation
+        extends AbstractMojo {
 
     /**
      * ESH-INF/ subdirectories.
@@ -70,27 +69,22 @@ public class GenerateDocumentation extends AbstractMojo {
     /**
      * The directory in which your binding xml files are.
      */
-    @Parameter(defaultValue = "src/main/java/ESH-INF/")
-    private String eshDir;
+    @Parameter(defaultValue = "src/main/java/ESH-INF/") private String eshDir;
 
     /**
      * Your template files.
      */
-    @Parameter(defaultValue = "src/main/resources/templates/")
-    private String templates;
+    @Parameter(defaultValue = "src/main/resources/templates/") private String templates;
 
     /**
      * Name of your readme template file.
      */
-    @Parameter(defaultValue = "readme.mustache")
-    private String template;
+    @Parameter(defaultValue = "readme.mustache") private String template;
 
     /**
      * The name of the generated docu file.
      */
-    @Parameter(defaultValue = "generated-docu.md")
-    private String readmeName;
-
+    @Parameter(defaultValue = "generated-docu.md") private String readmeName;
 
     /**
      * Execute the mojo.
@@ -129,18 +123,21 @@ public class GenerateDocumentation extends AbstractMojo {
         // Scan the binding directory.
         File binding = new File(eshDir + BINDING_SUBDIR + "binding.xml");
         if (binding.exists()) {
-            getLog().debug("Found binding xml: "+ binding.getName());
+            getLog().debug("Found binding xml: " + binding.getName());
             parseBindingDescription(binding);
         }
 
         // Scan the things directory.
         File things = new File(eshDir + THING_SUBDIR);
         if (things.exists() && things.isDirectory()) {
-            for (File file : things.listFiles()) {
-                if (file != null) {
-                    if (file.getName().endsWith(".xml")) {
-                        getLog().info("Found thing xml: " + file.getName());
-                        parseThingDescriptions(file);
+            File[] files = things.listFiles();
+            if(files != null) {
+                for (File file : files) {
+                    if (file != null) {
+                        if (file.getName().endsWith(".xml")) {
+                            getLog().info("Found thing xml: " + file.getName());
+                            parseThingDescriptions(file);
+                        }
                     }
                 }
             }
@@ -149,11 +146,14 @@ public class GenerateDocumentation extends AbstractMojo {
         // Scan the config directory.
         File configs = new File(eshDir + CONFIG_SUBDIR);
         if (configs.exists() && configs.isDirectory()) {
-            for (File file : configs.listFiles()) {
-                if (file != null) {
-                    if (file.getName().endsWith(".xml")) {
-                        getLog().info("Found config xml: " + file.getName());
-                        parseConfigDescriptions(file);
+            File[] files = configs.listFiles();
+            if(files != null) {
+                for (File file : files) {
+                    if (file != null) {
+                        if (file.getName().endsWith(".xml")) {
+                            getLog().info("Found config xml: " + file.getName());
+                            parseConfigDescriptions(file);
+                        }
                     }
                 }
             }
@@ -173,32 +173,21 @@ public class GenerateDocumentation extends AbstractMojo {
 
     /**
      * Prepares the template directory.
-     *
+     * <p/>
      * If needed downloads a set of template files.
      */
     private void prepareTemplateDir() {
-        String[] downloads = {
-                template.replace(".mustache", ""),
-                "partials/bridgeConfig",
-                "partials/bridges",
-                "partials/channelGroupInfo",
-                "partials/channelGroups",
-                "partials/channelInfo",
-                "partials/channels",
-                "partials/config",
-                "partials/configDescriptions",
-                "partials/parameterRow",
-                "partials/paramProperties",
-                "partials/thingConfig",
-                "partials/things"
-        };
+        String[] downloads = { template.replace(".mustache", ""), "partials/bridgeConfig", "partials/bridges",
+                "partials/channelGroupInfo", "partials/channelGroups", "partials/channelInfo", "partials/channels",
+                "partials/config", "partials/configDescriptions", "partials/parameterRow", "partials/paramProperties",
+                "partials/thingConfig", "partials/things" };
         // Download all files.
-        for(String url : downloads) {
+        for (String url : downloads) {
             try {
                 // Copy file from URL.
                 String downloadUrl = DOWNLOAD_DIR + url + ".mustache";
                 String fileName = templates + url + ".mustache";
-                if(downloadNeeded(fileName)) {
+                if (downloadNeeded(fileName)) {
                     getLog().debug("Downloading " + fileName + " from " + downloadUrl);
                     FileUtils.copyURLToFile(new URL(downloadUrl), new File(fileName));
                 }
@@ -278,10 +267,12 @@ public class GenerateDocumentation extends AbstractMojo {
      */
     private void parseBindingDescription(File file) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(org.eclipse.smarthome.documentation.schemas.binding.v1_0.Binding.class);
+            JAXBContext jc = JAXBContext
+                    .newInstance(org.eclipse.smarthome.documentation.schemas.binding.v1_0.Binding.class);
 
             Unmarshaller unmarshaller = jc.createUnmarshaller();
-            binding = new Binding((org.eclipse.smarthome.documentation.schemas.binding.v1_0.Binding) unmarshaller.unmarshal(file));
+            binding = new Binding(
+                    (org.eclipse.smarthome.documentation.schemas.binding.v1_0.Binding) unmarshaller.unmarshal(file));
         } catch (Exception e) {
             getLog().error(e);
         }

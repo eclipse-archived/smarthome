@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.27 at 11:55:42 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.binding.v1_0;
 
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription;
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescriptionRef;
 
 import javax.xml.bind.annotation.*;
-
 
 /**
  * <p>Java class for anonymous complex type.
@@ -48,28 +45,15 @@ import javax.xml.bind.annotation.*;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-        "name",
-        "description",
-        "author",
-        "configDescription",
-        "configDescriptionRef"
-})
-@XmlRootElement(name = "binding")
-public class Binding {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "", propOrder = { "name", "description", "author",
+        "configDescription", "configDescriptionRef" }) @XmlRootElement(name = "binding") public class Binding {
 
-    @XmlElement(required = true)
-    protected String name;
+    @XmlElement(required = true) protected String name;
     protected String description;
-    @XmlElement(required = true)
-    protected String author;
-    @XmlElement(name = "config-description")
-    protected ConfigDescription configDescription;
-    @XmlElement(name = "config-description-ref")
-    protected ConfigDescriptionRef configDescriptionRef;
-    @XmlAttribute(name = "id", required = true)
-    protected String id;
+    @XmlElement(required = true) protected String author;
+    @XmlElement(name = "config-description") protected ConfigDescription configDescription;
+    @XmlElement(name = "config-description-ref") protected ConfigDescriptionRef configDescriptionRef;
+    @XmlAttribute(name = "id", required = true) protected String id;
 
     /**
      * Gets the value of the name property.

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -92,7 +91,8 @@ public class State implements Model<org.eclipse.smarthome.documentation.schemas.
     public OptionList options() {
         OptionList optionList = new OptionList();
         if (state.getOptions() != null) {
-            for (org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Option option : state.getOptions().getOption()) {
+            for (org.eclipse.smarthome.documentation.schemas.thing_description.v1_0.Option option : state.getOptions()
+                    .getOption()) {
                 optionList.put(option);
             }
         }

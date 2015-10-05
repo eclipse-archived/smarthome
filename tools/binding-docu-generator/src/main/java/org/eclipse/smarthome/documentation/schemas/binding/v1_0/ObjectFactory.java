@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,11 +14,9 @@
 // Generated on: 2015.08.27 at 11:55:42 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.binding.v1_0;
 
 import javax.xml.bind.annotation.XmlRegistry;
-
 
 /**
  * This object contains factory methods for each
@@ -34,9 +31,7 @@ import javax.xml.bind.annotation.XmlRegistry;
  * groups.  Factory methods for each of these are
  * provided in this class.
  */
-@XmlRegistry
-public class ObjectFactory {
-
+@XmlRegistry public class ObjectFactory {
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.eclipse.smarthome.schemas.binding.v1_0

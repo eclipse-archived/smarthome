@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -18,8 +17,8 @@ import java.util.List;
 
 /**
  * @author Alexander Kammerer <alexander.kammerer@online.de>
- * <p/>
- * Wrapper class to not fully depend on the existing models.
+ *         <p/>
+ *         Wrapper class to not fully depend on the existing models.
  */
 public class Bridge extends Thing {
     /**
@@ -44,8 +43,7 @@ public class Bridge extends Thing {
     /**
      * @return Returns the {@link BridgeType} instance.
      */
-    @Override
-    public BridgeType getRealImpl() {
+    @Override public BridgeType getRealImpl() {
         return bridge;
     }
 

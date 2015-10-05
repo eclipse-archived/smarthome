@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -12,7 +11,8 @@ package org.eclipse.smarthome.documentation.models;
 
 import org.eclipse.smarthome.documentation.data.ParameterList;
 
-public class ConfigDescription implements Model<org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription> {
+public class ConfigDescription
+        implements Model<org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription> {
     /**
      * The original instance from the XML parser.
      */
@@ -29,7 +29,8 @@ public class ConfigDescription implements Model<org.eclipse.smarthome.documentat
      *
      * @param config The instance from the XML parser.
      */
-    public ConfigDescription(org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription config) {
+    public ConfigDescription(
+            org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription config) {
         setModel(config);
     }
 
@@ -61,7 +62,8 @@ public class ConfigDescription implements Model<org.eclipse.smarthome.documentat
      */
     public ParameterList parameter() {
         ParameterList parameterList = new ParameterList();
-        for (org.eclipse.smarthome.documentation.schemas.config_description.v1_0.Parameter param : config.getParameter()) {
+        for (org.eclipse.smarthome.documentation.schemas.config_description.v1_0.Parameter param : config
+                .getParameter()) {
             parameterList.put(param);
         }
         return parameterList;

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Alexander Kammerer 2015.
  *
@@ -15,14 +14,12 @@
 // Generated on: 2015.08.18 at 07:48:00 PM CEST 
 //
 
-
 package org.eclipse.smarthome.documentation.schemas.thing_description.v1_0;
 
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescription;
 import org.eclipse.smarthome.documentation.schemas.config_description.v1_0.ConfigDescriptionRef;
 
 import javax.xml.bind.annotation.*;
-
 
 /**
  * <p>Java class for thingType complex type.
@@ -53,37 +50,19 @@ import javax.xml.bind.annotation.*;
  * &lt;/complexType>
  * </pre>
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "thingType", propOrder = {
-        "supportedBridgeTypeRefs",
-        "label",
-        "description",
-        "channels",
-        "channelGroups",
-        "properties",
-        "configDescription",
-        "configDescriptionRef"
-})
-@XmlSeeAlso({
-        BridgeType.class
-})
-public class ThingType {
+@XmlAccessorType(XmlAccessType.FIELD) @XmlType(name = "thingType", propOrder = { "supportedBridgeTypeRefs", "label",
+        "description", "channels", "channelGroups", "properties", "configDescription",
+        "configDescriptionRef" }) @XmlSeeAlso({ BridgeType.class }) public class ThingType {
 
-    @XmlElement(name = "supported-bridge-type-refs")
-    protected SupportedBridgeTypeRefs supportedBridgeTypeRefs;
-    @XmlElement(required = true)
-    protected String label;
+    @XmlElement(name = "supported-bridge-type-refs") protected SupportedBridgeTypeRefs supportedBridgeTypeRefs;
+    @XmlElement(required = true) protected String label;
     protected String description;
     protected Channels channels;
-    @XmlElement(name = "channel-groups")
-    protected ChannelGroups channelGroups;
+    @XmlElement(name = "channel-groups") protected ChannelGroups channelGroups;
     protected Properties properties;
-    @XmlElement(name = "config-description")
-    protected ConfigDescription configDescription;
-    @XmlElement(name = "config-description-ref")
-    protected ConfigDescriptionRef configDescriptionRef;
-    @XmlAttribute(name = "id", required = true)
-    protected String id;
+    @XmlElement(name = "config-description") protected ConfigDescription configDescription;
+    @XmlElement(name = "config-description-ref") protected ConfigDescriptionRef configDescriptionRef;
+    @XmlAttribute(name = "id", required = true) protected String id;
 
     /**
      * Gets the value of the supportedBridgeTypeRefs property.
