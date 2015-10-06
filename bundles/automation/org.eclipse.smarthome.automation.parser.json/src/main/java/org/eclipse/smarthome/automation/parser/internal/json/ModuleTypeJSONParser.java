@@ -233,8 +233,10 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
         if (actionModules != null) {
             actionType = new CompositeActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
                     outputs, actionModules);
+        } else {
+            actionType = new ActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs,
+                    outputs);
         }
-        actionType = new ActionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs, outputs);
         return actionType;
     }
 
@@ -271,8 +273,9 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
                 conditionType = new CompositeConditionType(moduleTypeUID, configDescriptions, label, description, tags,
                         v, inputs, conditionModules);
             }
-        } else
+        } else {
             conditionType = new ConditionType(moduleTypeUID, configDescriptions, label, description, tags, v, inputs);
+        }
         return conditionType;
     }
 
@@ -313,8 +316,9 @@ public class ModuleTypeJSONParser implements Parser<ModuleType> {
                 triggerType = new CompositeTriggerType(moduleTypeUID, configDescriptions, label, description, tags, v,
                         outputs, triggerModules);
             }
-        } else
+        } else {
             triggerType = new TriggerType(moduleTypeUID, configDescriptions, label, description, tags, v, outputs);
+        }
         return triggerType;
     }
 
