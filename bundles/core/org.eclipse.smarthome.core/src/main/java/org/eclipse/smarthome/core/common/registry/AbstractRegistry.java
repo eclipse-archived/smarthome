@@ -25,22 +25,24 @@ import com.google.common.collect.Iterables;
  * base class for {@link Registry} implementations.
  *
  * @author Dennis Nobel - Initial contribution
- * @author Stefan Bußweiler - Migration to new event mechanism 
- * 
+ * @author Stefan Bußweiler - Migration to new event mechanism
+ *
  * @param <E>
  *            type of the element
  */
 public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E>, Registry<E, K> {
 
     private enum EventType {
-        ADDED, REMOVED, UPDATED;
+        ADDED,
+        REMOVED,
+        UPDATED;
     }
 
     private final Logger logger = LoggerFactory.getLogger(AbstractRegistry.class);
 
-    protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<>();
+    protected Map<Provider<E>, Collection<E>> elementMap = new ConcurrentHashMap<Provider<E>, Collection<E>>();
 
-    protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<>();
+    protected Collection<RegistryChangeListener<E>> listeners = new CopyOnWriteArraySet<RegistryChangeListener<E>>();
 
     protected ManagedProvider<E, K> managedProvider;
 
@@ -279,7 +281,7 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     /**
      * This method can be used in a subclass in order to post events through the Eclipse SmartHome events bus. A common
      * use case is to notify event subscribers about an element which has been added/removed/updated to the registry.
-     * 
+     *
      * @param event the event
      */
     protected void postEvent(Event event) {
@@ -291,5 +293,5 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
             }
         }
     }
-    
+
 }

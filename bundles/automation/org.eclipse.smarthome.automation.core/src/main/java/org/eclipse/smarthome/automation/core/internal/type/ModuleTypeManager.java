@@ -37,7 +37,7 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
 
     private ServiceTracker moduleTypeTracker;
     private RuleEngine ruleEngine;
-    private Set<ModuleTypeProvider> providers = new HashSet<>();
+    private Set<ModuleTypeProvider> providers = new HashSet<ModuleTypeProvider>();
     private BundleContext bc;
 
     /**
