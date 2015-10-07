@@ -5,17 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.scriptengine.internal.extensions;
+package org.eclipse.smarthome.model.script.extension;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.smarthome.core.scriptengine.Script;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
-import org.eclipse.smarthome.core.scriptengine.ScriptParsingException;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
+import org.eclipse.smarthome.model.script.engine.Script;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
+import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
 
 import com.google.common.base.Joiner;
 

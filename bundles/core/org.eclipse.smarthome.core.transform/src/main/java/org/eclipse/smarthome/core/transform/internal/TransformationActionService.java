@@ -7,8 +7,8 @@
  */
 package org.eclipse.smarthome.core.transform.internal;
 
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.core.transform.actions.Transformation;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 
 /**
  * This class registers an OSGi service for the Transformation action.

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.net.actions;
+package org.eclipse.smarthome.model.script.actions;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.smarthome.io.net.http.HttpUtil;

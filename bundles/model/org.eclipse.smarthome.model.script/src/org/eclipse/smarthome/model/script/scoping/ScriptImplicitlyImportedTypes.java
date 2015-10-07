@@ -14,12 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.model.persistence.extensions.PersistenceExtensions;
 import org.eclipse.smarthome.model.script.actions.BusEvent;
+import org.eclipse.smarthome.model.script.actions.Exec;
+import org.eclipse.smarthome.model.script.actions.HTTP;
 import org.eclipse.smarthome.model.script.actions.LogAction;
+import org.eclipse.smarthome.model.script.actions.Ping;
 import org.eclipse.smarthome.model.script.actions.ScriptExecution;
 import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
 import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
 import org.joda.time.DateTime;
@@ -37,7 +40,7 @@ import com.google.inject.Singleton;
  *
  */
 
-@SuppressWarnings("restriction")
+@SuppressWarnings({ "restriction", "deprecation" })
 @Singleton
 public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
 
@@ -60,6 +63,9 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
         result.add(URLEncoder.class);
         result.add(PersistenceExtensions.class);
         result.add(BusEvent.class);
+        result.add(Exec.class);
+        result.add(HTTP.class);
+        result.add(Ping.class);
         return result;
     }
 
@@ -67,6 +73,9 @@ public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
     protected List<Class<?>> getStaticImportClasses() {
         List<Class<?>> result = super.getStaticImportClasses();
         result.add(BusEvent.class);
+        result.add(Exec.class);
+        result.add(HTTP.class);
+        result.add(Ping.class);
         result.add(ScriptExecution.class);
         result.add(LogAction.class);
 

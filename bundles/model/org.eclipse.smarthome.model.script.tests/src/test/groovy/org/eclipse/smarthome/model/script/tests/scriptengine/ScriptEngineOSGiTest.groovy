@@ -10,11 +10,11 @@ package org.eclipse.smarthome.model.script.tests.scriptengine
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.library.items.SwitchItem
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine
+import org.eclipse.smarthome.model.script.engine.Script;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before;
 import org.junit.Test
-import org.eclipse.smarthome.core.scriptengine.Script;
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*

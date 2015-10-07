@@ -11,8 +11,9 @@ import org.eclipse.core.runtime.CoreException
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.preferences.InstanceScope
 import org.eclipse.jdt.core.JavaCore
-import org.eclipse.smarthome.core.scriptengine.action.ActionService
+import org.eclipse.smarthome.model.script.engine.action.ActionService
 import org.eclipse.smarthome.designer.core.CoreActivator
+import java.util.Collections
 
 class PluginProjectCreator implements IProjectCreator {
 
@@ -124,8 +125,12 @@ class PluginProjectCreator implements IProjectCreator {
 	}
 	
 	def private getImportedPackages() {
-		val actionServices = CoreActivator.actionServiceTracker.services.filter(ActionService)
-		actionServices.map[it.actionClass.package.name].toSet
+		val actionServices = CoreActivator.actionServiceTracker.services?.filter(ActionService)
+		if (actionServices != null) {
+		    return actionServices.map[it.actionClass.package.name].toSet
+	    } else {
+	        return Collections.emptySet
+        }
 	}
 	
 	def private void createBuildProps( IProject project) {

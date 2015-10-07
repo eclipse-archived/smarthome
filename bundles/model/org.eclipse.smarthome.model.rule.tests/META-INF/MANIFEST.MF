@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.smarthome.model.rule,
  org.eclipse.xtext.xbase.lib
 Import-Package: org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
- org.eclipse.smarthome.core.scriptengine.action,
  org.eclipse.smarthome.model.script.engine,
  org.hamcrest.core,
  org.junit.runner;version="4.0.0",

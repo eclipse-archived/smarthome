@@ -9,7 +9,7 @@ package org.eclipse.smarthome.model.script.engine;
 
 import java.util.List;
 
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.internal.engine.ServiceTrackerActionServiceProvider;
 
 import com.google.inject.ImplementedBy;

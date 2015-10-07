@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.scriptengine.action;
+package org.eclipse.smarthome.model.script.engine.action;
 
 /**
  * This interface must be implemented by services that want to contribute script actions.

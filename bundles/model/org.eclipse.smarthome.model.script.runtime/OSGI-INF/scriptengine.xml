@@ -11,6 +11,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.model.script">
    <implementation class="org.eclipse.smarthome.model.script.runtime.internal.engine.ScriptEngineImpl"/>
    <service>
-      <provide interface="org.eclipse.smarthome.core.scriptengine.ScriptEngine"/>
+      <provide interface="org.eclipse.smarthome.model.script.engine.ScriptEngine"/>
    </service>
 </scr:component>
