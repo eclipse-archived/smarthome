@@ -531,6 +531,8 @@ class AutomationIntegrationTest extends OSGiTest{
             template = templateRegistry.get("SimpleTestTemplate") as Template
             assertThat template, is(notNullValue())
         })
+        assertThat template.tags, is(notNullValue())
+        assertThat template.tags.size(), is(not(0))
         def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
         def templateRule = new Rule("templateRuleUID", "SimpleTestTemplate", configs)
         ruleRegistry.add(templateRule)

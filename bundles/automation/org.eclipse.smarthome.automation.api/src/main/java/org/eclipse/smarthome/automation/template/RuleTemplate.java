@@ -109,7 +109,7 @@ public class RuleTemplate implements Template {
 
         if (tags == null || tags.isEmpty())
             return;
-        tags = new HashSet<String>(tags);
+        this.tags = new HashSet<String>(tags);
     }
 
     /**

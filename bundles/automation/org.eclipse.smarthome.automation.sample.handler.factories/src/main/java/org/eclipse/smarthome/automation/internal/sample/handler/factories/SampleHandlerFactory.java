@@ -51,15 +51,6 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         super(bc);
     }
 
-    /**
-     * Removes disposed handler from cache.
-     *
-     * @param handler the handler
-     */
-    protected void disposeHandler(ModuleHandler handler) {
-        handlers.remove(handler);
-    }
-
     @Override
     public Collection<String> getTypes() {
         return types;
