@@ -194,6 +194,8 @@ class RuntimeRuleTest extends OSGiTest{
             assertThat mtr.get("ItemStateChangeTrigger"), is(notNullValue())
             assertThat mtr.get("EventCondition"), is(notNullValue())
             assertThat mtr.get("ItemStateEventCondition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEvent_ON_Condition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEvent_OFF_Condition"), is(notNullValue())
         },3000,100)
     }
     
