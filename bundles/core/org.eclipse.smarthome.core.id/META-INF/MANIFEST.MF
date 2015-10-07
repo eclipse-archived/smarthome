@@ -13,6 +13,7 @@ Import-Package: javax.ws.rs;resolution:=optional,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.id,
  org.eclipse.smarthome.io.rest;resolution:=optional,
  org.osgi.framework,
  org.slf4j

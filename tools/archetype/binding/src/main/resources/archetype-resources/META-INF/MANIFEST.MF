@@ -7,6 +7,8 @@ Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: 
+ ${package},
+ ${package}.handler,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.thing,

@@ -8,6 +8,7 @@ Bundle-Activator: org.eclipse.smarthome.core.autoupdate.internal.AutoUpdateActiv
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: org.apache.commons.lang,
+ org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,

@@ -7,6 +7,7 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.persistence
 Import-Package: org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.persistence,
  org.eclipse.smarthome.core.types
 Export-Package: org.eclipse.smarthome.core.persistence
 Bundle-ClassPath: .

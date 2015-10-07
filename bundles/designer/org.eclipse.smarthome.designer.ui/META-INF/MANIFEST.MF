@@ -20,5 +20,6 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.designer.ui,
  org.slf4j
 Export-Package: org.eclipse.smarthome.designer.ui
