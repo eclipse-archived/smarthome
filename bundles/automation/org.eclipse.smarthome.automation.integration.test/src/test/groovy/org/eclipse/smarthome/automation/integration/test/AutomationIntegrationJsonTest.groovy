@@ -188,7 +188,6 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
         }, 3000, 200)
         SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem")
-        Command
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem", OnOffType.ON))
         SwitchItem myLampItem = itemRegistry.getItem("myLampItem")
         assertThat myLampItem.getState(), is(UnDefType.NULL)
@@ -207,10 +206,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             getEventFilter:{ null }
         ] as EventSubscriber
         registerService(eventHandler)
-        //        eventPublisher.post(ItemEventFactory.createStateEvent("myPresenceItem", OnOffType.ON))
         eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem", OnOffType.ON))
         waitForAssert ({
-            //            assertThat ruleEvent, is(notNullValue())
             assertThat (myLampItem.getState(), is(OnOffType.ON))
             assertThat event, is(notNullValue())
             assertThat event.topic, is(equalTo("smarthome/items/myLampItem/state"))
@@ -221,118 +218,5 @@ class AutomationIntegrationJsonTest extends OSGiTest{
 
 
     }
-
-    ///// Test Rule with custom module types ///////////
-    @Test
-    public void 'assert that a rule from json file with custom module types is executed 1' () {
-        logger.info("assert that a rule from json file with custom module types is executed 1");
-        //WAIT until Rule modules types are parsed and the rule becomes IDLE
-        waitForAssert({
-            assertThat ruleRegistry.getAll().isEmpty(), is(false)
-            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom1")} as Rule
-            assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
-            assertThat ruleStatus2, is(RuleStatus.IDLE)
-
-        }, 10000, 200)
-
-        def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom1")} as Rule
-        assertThat rule2, is(notNullValue())
-
-        SwitchItem myLampItemNew = itemRegistry.getItem("myLampItem")
-
-        logger.info("post event for myMotionItem11");
-        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem11", OnOffType.ON))
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem11", OnOffType.ON))
-
-        //check rule with custom trigger is executed
-        waitForAssert ({
-            assertThat (myLampItemNew.getState(), is(OnOffType.OFF))
-        }, 9000, 100)
-
-    }
-
-    @Test
-    public void 'assert that a rule from json file with custom module types is executed 2' () {
-        logger.info("assert that a rule from json file with custom module types is executed 2");
-
-        //WAIT until Rule modules types are parsed and the rule becomes IDLE
-        waitForAssert({
-            assertThat ruleRegistry.getAll().isEmpty(), is(false)
-            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom2")} as Rule
-            assertThat rule2, is(notNullValue())
-            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
-            assertThat ruleStatus2, is(RuleStatus.IDLE)
-
-        }, 10000, 200)
-
-        def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom2")} as Rule
-        assertThat rule2, is(notNullValue())
-
-        assertThat rule2.name, is("ItemCustomRule2")
-        assertTrue rule2.tags.any{it == "custom2"}
-        assertTrue rule2.tags.any{it == "item"}
-        assertTrue rule2.tags.any{it == "rule"}
-
-        def triggerCustom = rule2.triggers.find{it.id.equals("ItemStateChangeTriggerID2")} as Trigger
-        assertThat triggerCustom, is(notNullValue())
-        assertThat triggerCustom.typeUID, is("GenericEventTrigger:Custom1")
-        assertThat triggerCustom.configuration.get("eventSource"), is ("myMotionItem11")
-        assertThat triggerCustom.configuration.get("eventTopic"), is("smarthome/items/*")
-        assertThat triggerCustom.configuration.get("eventTypes"), is("ItemStateEvent")
-
-        def condition1Custom = rule2.conditions.find{it.id.equals("ItemStateConditionID2")} as Condition
-        assertThat condition1Custom, is(notNullValue())
-        assertThat condition1Custom.typeUID, is("EventCondition")
-        assertThat condition1Custom.configuration.get("topic"), is("smarthome/items/myMotionItem11/state")
-        assertThat condition1Custom.configuration.get("payload"), is(".*ON.*")
-
-        def actionCustom = rule2.actions.find{it.id.equals("ItemPostCommandActionID3")} as Action
-        assertThat actionCustom, is(notNullValue())
-        assertThat actionCustom.typeUID, is("ItemPostCommandAction:Custom1")
-        assertThat actionCustom.configuration.get("customItemCommand"), is("ON")
-
-        SwitchItem myLampItem11 = itemRegistry.getItem("myLampItem11")
-        assertThat myLampItem11.getState(), is(UnDefType.NULL)
-
-
-        logger.info("post event for myMotionItem11");
-        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem11", OnOffType.ON))
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem11", OnOffType.ON))
-
-        waitForAssert ({
-            assertThat (myLampItem11.getState(), is(OnOffType.ON))
-        }, 9000, 100)
-
-    }
-
-    @Test
-    public void 'assert that a rule from json file with custom module types is executed 3' () {
-        logger.info("assert that a rule from json file with custom module types is executed 3");
-
-        def rule3 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("custom3")} as Rule
-        assertThat rule3, is(notNullValue())
-
-        def actionCustom2 = rule3.actions.find{it.id.equals("ItemPostCommandActionID4")} as Action
-        assertThat actionCustom2, is(notNullValue())
-        assertThat actionCustom2.typeUID, is("ItemPostCommandAction:Custom2")
-        assertThat actionCustom2.configuration.get("customItemCommand"), is("OFF")
-        def actionCustom2Connection = actionCustom2.connections.find{it.inputName.equals("customActionInput")} as Connection
-        assertThat actionCustom2Connection, is(notNullValue())
-        assertThat actionCustom2Connection.ouputModuleId, is("ItemStateChangeTriggerID2")
-        assertThat actionCustom2Connection.outputName, is("customTriggerOutputSource")
-
-        SwitchItem myMotionItem11 = itemRegistry.getItem("myMotionItem11")
-        assertThat myMotionItem11.getState(), is(UnDefType.NULL)
-
-        logger.info("post event for myMotionItem11");
-        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem11", OnOffType.ON))
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem11", OnOffType.ON))
-
-        waitForAssert ({
-            assertThat (myMotionItem11.getState(), is(OnOffType.OFF))
-        }, 9000, 100)
-    }
-
 
 }

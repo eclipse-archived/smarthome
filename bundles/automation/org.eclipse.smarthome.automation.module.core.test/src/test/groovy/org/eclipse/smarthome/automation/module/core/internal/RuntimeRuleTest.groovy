@@ -18,7 +18,9 @@ import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
+import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.Trigger
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -64,7 +66,10 @@ class RuntimeRuleTest extends OSGiTest{
                     new SwitchItem("myLampItem"),
                     new SwitchItem("myMotionItem2"),
                     new SwitchItem("myPresenceItem2"),
-                    new SwitchItem("myLampItem2")
+                    new SwitchItem("myLampItem2"),
+                    new SwitchItem("myMotionItem3"),
+                    new SwitchItem("myPresenceItem3"),
+                    new SwitchItem("myLampItem3")
                 ]
             },
             addProviderChangeListener: {},
@@ -114,7 +119,7 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Test
     public void 'assert that item state is updated by simple rule'() {
-        //Creation of RULE
+        //Creation of RULE    
         def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
@@ -130,7 +135,7 @@ class RuntimeRuleTest extends OSGiTest{
             new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)
         ]
 
-        def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21"+new Random().nextInt(),triggers, conditions, actions, null, null)
         // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
         rule.name="RuleByJAVA_API"
 
@@ -178,5 +183,53 @@ class RuntimeRuleTest extends OSGiTest{
         assertThat myLampItem2, is(notNullValue())
         logger.info("myLampItem2 State: " + myLampItem2.state)
         assertThat myLampItem2.state, is(OnOffType.ON)
+    }
+    
+    
+    @Test
+    public void 'check if moduleTypes are registered'(){
+        def mtr = getService(ModuleTypeRegistry) as ModuleTypeRegistry
+        waitForAssert({
+            assertThat mtr.get("GenericEventTrigger"), is(notNullValue())
+            assertThat mtr.get("ItemStateChangeTrigger"), is(notNullValue())
+            assertThat mtr.get("EventCondition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEventCondition"), is(notNullValue())
+        },3000,100)
+    }
+    
+    @Test
+    public void 'assert that rule is triggered by composite trigger'() {
+        
+        //Test the creation of a rule out of 
+        def triggerConfig = [itemName:"myMotionItem3"]
+        def condition1Config = [operator:"=", itemName:"myPresenceItem3", state:"ON"]
+        def condition2Config = [operator:"=", itemName:"myMotionItem3", state:"ON"]
+        def actionConfig = [itemName:"myLampItem3", command:"ON"]
+        def triggers = [
+            new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)
+        ]
+        def conditions = [
+            new Condition("ItemStateCondition5", "ItemStateCondition", condition1Config, null),
+            new Condition("ItemStateCondition6", "ItemStateCondition", condition2Config, null)
+        ]
+        def actions = [
+            new Action("ItemPostCommandAction3", "ItemPostCommandAction", actionConfig, null)
+        ]
+
+        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
+        rule.name="RuleByJAVA_API_WIthCompositeTrigger"
+
+        logger.info("Rule created: "+rule.getUID())
+
+        def ruleRegistry = getService(RuleRegistry)
+        ruleRegistry.add(rule)
+
+        //TEST RULE
+        waitForAssert({
+            assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.IDLE)
+        }) 
+
+      
+       
     }
 }

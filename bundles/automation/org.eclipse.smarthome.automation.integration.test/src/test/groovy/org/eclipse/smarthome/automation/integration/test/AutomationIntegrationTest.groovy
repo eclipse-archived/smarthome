@@ -91,7 +91,10 @@ class AutomationIntegrationTest extends OSGiTest{
                     new SwitchItem("myLampItem2"),
                     new SwitchItem("myMotionItem3"),
                     new SwitchItem("templ_MotionItem"),
-                    new SwitchItem("templ_LampItem")
+                    new SwitchItem("templ_LampItem"),
+                    new SwitchItem("myMotionItem3"),
+                    new SwitchItem("myPresenceItem3"),
+                    new SwitchItem("myLampItem3")
                 ]
             },
             addProviderChangeListener: {},
@@ -286,24 +289,73 @@ class AutomationIntegrationTest extends OSGiTest{
         },3000,100)
     }
 
+  
     @Test
-    @Ignore
-    public void 'assert that a template-based rule is initialized and executed correctly' () {
-    }
-    @Test
-    @Ignore
-    public void 'assert that a rule based on a composite trigger is initialized and executed correctly' () {
-    }
-    @Test
-    @Ignore
-    public void 'assert that a rule based on a composite condition is initialized and executed correctly' () {
-    }
-    @Test
-    @Ignore
-    public void 'assert that a rule based on a composite action is initialized and executed correctly' () {
-    }
+    public void 'assert that a rule based on a composite modules is initialized and executed correctly' () {
+        def triggerConfig = [itemName:"myMotionItem3"]
+        def condition1Config = [itemName:"myPresenceItem3", state:"ON"]
+        def Connection eventConnection = new Connection("event","ItemStateChangeTrigger3","event")
+        def condition2Config = [operator:"=", itemName:"myMotionItem3", state:"ON"]
+        def actionConfig = [itemName:"myLampItem3", command:"ON"]
+        def triggers = [
+            new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)
+        ]
+        def conditions = [
+            new Condition("ItemStateCondition5", "ItemStateEventCondition", condition1Config, [eventConnection] as Set),
+            new Condition("ItemStateCondition6", "ItemStateCondition", condition2Config, null)
+        ]
+        def actions = [
+            new Action("ItemPostCommandAction3", "ItemPostCommandAction", actionConfig, null)
+        ]
 
+        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
+        rule.name="RuleByJAVA_API_WIthCompositeTrigger"
 
+        logger.info("Rule created: "+rule.getUID())
+
+        def ruleRegistry = getService(RuleRegistry)
+        ruleRegistry.add(rule)
+
+        //TEST RULE
+        waitForAssert({
+            assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.IDLE)
+        })
+
+        def EventPublisher eventPublisher = getService(EventPublisher)
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem3")
+        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
+        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem3", commandObj))
+
+        Event itemEvent = null
+
+        def itemEventHandler = [
+            receive: {  Event e ->
+                logger.info("Event: " + e.topic)
+                if (e.topic.contains("myLampItem3")){
+                    itemEvent=e
+                }
+            },
+
+            getSubscribedEventTypes: {
+                Sets.newHashSet(ItemUpdatedEvent.TYPE, ItemStateEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+
+        ] as EventSubscriber
+
+        registerService(itemEventHandler)
+        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem3").getAcceptedCommandTypes(),"ON")
+        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3", commandObj))
+        waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
+        assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem3/state"))
+        assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
+        def myLampItem3 = itemRegistry.getItem("myLampItem3")
+        assertThat myLampItem3, is(notNullValue())
+        logger.info("myLampItem3 State: " + myLampItem3.state)
+        assertThat myLampItem3.state, is(OnOffType.ON)
+    }
 
     @Test
     public void 'assert a rule added by api is executed as expected'() {

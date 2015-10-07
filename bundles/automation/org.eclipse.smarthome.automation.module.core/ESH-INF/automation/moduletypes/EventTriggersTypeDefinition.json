@@ -27,30 +27,43 @@
 				}
 			},
 			"output":{
-	            "source": {
-	              "type": "java.lang.String",
-	              "label": "Source",
-	              "description": "The name of the events source.",
-	              "reference": "source",
-	            },
-	            "payload": {
-	              "type": "java.lang.String",
-	              "label": "Payload",
-	              "description": "The payload of the event",
-	              "reference": "payload",
-	            },
-	            "type": {
-	              "type": "java.lang.String",
-	              "label": "EventType",
-	              "description": "The type of the Event.",
-	              "reference": "type",
-	            },
-	            "topic": {
-	              "type": "java.lang.String",
-	              "label": "topic",
-	              "description": "The Topic of the event",
-	              "reference": "topic",
+	            "event": {
+	              "type": "org.eclipse.smarthome.core.events.Event",
+	              "label": "Event",
+	              "description": "The events which was sent.",
+	              "reference": "event",
 	            }
+			}
+		},
+		"ItemStateChangeTrigger":{
+			"label": "Item State Trigger",
+			"description": "This triggers a rule if an items state changed",
+			"config":{
+				"itemName":{
+					"type":"TEXT",
+					"label":"item name",
+					"description":"the name of the item which's state change should be observed",
+					"required":true
+				}
+			},
+			"children":[
+				{
+					"id":"itemStateChangeTriggerID",
+					"type":"GenericEventTrigger",
+					"config":{
+						"eventSource":"$itemName",
+						"eventTopic":"smarthome/items/*",
+						"eventTypes":"ItemStateEvent"
+					}
+				}
+			],
+			"output":{
+				"event":{
+					"type":"org.eclipse.smarthome.core.events.Event",
+					"description":"the event of the item state change",
+					"label":"event",
+					"reference":"itemStateChangeTriggerID.event"
+				}
 			}
 		}
 	}

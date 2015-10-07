@@ -1,0 +1,45 @@
+{  
+  "conditions":{
+	  "ItemStateEventCondition":{
+		  "label":"ItemStateEvent Condition",
+		  "description":"checks if an item event was a state event and compares the new state",
+		  "config":{
+			  "itemName":{
+				  "type":"TEXT",
+				  "label":"ItemName",
+				  "description":"The itemName which should match",
+				  "required":true
+			  },
+			  "state":{
+				  "type":"TEXT",
+				  "label":"State",
+				  "description":"The state which should match",
+				  "required":true
+			  }
+		  },
+		  "input":{
+			"event":{
+				"type":"org.eclipse.smarthome.core.events.Event",
+				"description":"the event of the item state change",
+				"label":"event",
+				"required":true
+			}
+		  },
+		  "children":[
+			{
+				"id":"itemStateEventConditionID",
+				"type":"EventCondition",
+				"config":{
+					"eventSource":"$itemName",
+					"eventTopic":"smarthome/items/*",
+					"eventTypes":"ItemStateEvent",
+					"payload":"$state"
+				},
+				"input":{
+					"event":"$event"
+				}
+			}
+		  ]
+	  }
+  }
+}

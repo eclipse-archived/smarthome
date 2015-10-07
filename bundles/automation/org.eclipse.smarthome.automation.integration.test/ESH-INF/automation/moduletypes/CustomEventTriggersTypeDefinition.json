@@ -27,24 +27,12 @@
 				}
 			},
 			"output": {
-				"customTriggerOutputPayload": {
-					"type": "java.lang.String",
+				"customTriggerOutputEvent": {
+					"type": "org.eclipse.smarthome.core.events.Event",
 					"label": "CustomTriggerOutput1 label",
 					"description": "Custom trigger output for the payload.",
-					"reference": "$payload"
-				},
-				"customTriggerTopic": {
-	              "type": "java.lang.String",
-	              "label": "topic",
-	              "description": "Custom trigger output for the topic of the event",
-	              "reference": "$topic",					
-				},
-				"customTriggerOutputSource": {
-					"type": "java.lang.String",
-					"label": "CustomTriggerOutput2 label",
-					"description": "Custom trigger output for the source.",
-					"reference": "$source"
-				}
+					"reference": "$event"
+					}
 			}
 		}
 	}

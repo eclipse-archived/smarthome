@@ -42,7 +42,7 @@
 		  },
 		  "input": {  
 			"customActionInput": {
-			  "type": "java.lang.String",
+			  "type": "org.eclipse.smarthome.core.events.Event",
 			  "label": "ItemCommand input",
 			  "description": "Item to be updated.",
 			  "required": true

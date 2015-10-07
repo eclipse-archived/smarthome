@@ -19,7 +19,6 @@ import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.module.core.handler.EventConditionHandler;
 import org.eclipse.smarthome.automation.module.core.handler.GenericEventTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemPostCommandActionHandler;
-import org.eclipse.smarthome.automation.module.core.handler.ItemStateChangeTriggerHandler;
 import org.eclipse.smarthome.automation.module.core.handler.ItemStateConditionHandler;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -43,7 +42,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     private Logger logger = LoggerFactory.getLogger(BasicModuleHandlerFactory.class);
 
     private static final Collection<String> types = Arrays.asList(new String[] {
-            ItemStateChangeTriggerHandler.ITEM_STATE_CHANGE_TRIGGER, ItemStateConditionHandler.ITEM_STATE_CONDITION,
+            ItemStateConditionHandler.ITEM_STATE_CONDITION,
             ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION, GenericEventTriggerHandler.MODULE_TYPE_ID,
             EventConditionHandler.MODULETYPE_ID });
 

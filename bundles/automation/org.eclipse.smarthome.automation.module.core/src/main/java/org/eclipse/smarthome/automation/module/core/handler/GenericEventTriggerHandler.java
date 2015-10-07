@@ -94,10 +94,7 @@ public class GenericEventTriggerHandler extends BaseModuleHandler<Trigger>implem
                 return;
             }
             Map<String, Object> values = Maps.newHashMap();
-            values.put("source", source);
-            values.put("payload", event.getPayload());
-            values.put("type", event.getType());
-            values.put("topic", event.getTopic());
+            values.put("event", event);
             callback.triggered(this.module, values);
         }
     }

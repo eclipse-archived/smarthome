@@ -12,6 +12,7 @@ import java.util.Map;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.eclipse.smarthome.core.events.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,10 +37,17 @@ public class EventConditionHandler extends BaseModuleHandler<Condition>implement
         super(module);
     }
 
-    private boolean isConfiguredAndMatches(String keyParam, Map<String, ?> inputs) {
-        if (module.getConfiguration().get(keyParam) != null) {
-            if (inputs.get(keyParam) != null) {
-                return ((String) inputs.get(keyParam)).matches((String) module.getConfiguration().get(keyParam));
+    private boolean isConfiguredAndMatches(String keyParam, String value) {
+        Object mo = module.getConfiguration().get(keyParam);
+        String configValue = mo != null && mo instanceof String ? (String) mo : null;
+        if (configValue != null) {
+            if (keyParam.equals(PAYLOAD)) {
+                //automatically adding wildcards only for payload matching
+                configValue = configValue.startsWith("*") ? configValue : "*" + configValue;
+                configValue = configValue.endsWith("*") ? configValue : configValue + "*";
+            }
+            if (value != null) {
+                return value.matches((String) module.getConfiguration().get(keyParam));
             } else {
                 return false;
             }
@@ -49,8 +57,14 @@ public class EventConditionHandler extends BaseModuleHandler<Condition>implement
 
     @Override
     public boolean isSatisfied(Map<String, ?> inputs) {
-        return isConfiguredAndMatches(TOPIC, inputs) && isConfiguredAndMatches(SOURCE, inputs)
-                && isConfiguredAndMatches(PAYLOAD, inputs) && isConfiguredAndMatches(EVENTTYPE, inputs);
+        Event event = inputs.get("event") != null ? (Event) inputs.get("event") : null;
+        if (event != null) {
+            return isConfiguredAndMatches(TOPIC, event.getTopic()) && isConfiguredAndMatches(SOURCE, event.getSource())
+                    && isConfiguredAndMatches(PAYLOAD, event.getPayload())
+                    && isConfiguredAndMatches(EVENTTYPE, event.getType());
+        }
+        return false;
+
     }
 
 }
