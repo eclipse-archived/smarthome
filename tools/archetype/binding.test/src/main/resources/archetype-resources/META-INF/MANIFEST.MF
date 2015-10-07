@@ -7,6 +7,7 @@ Bundle-Version: ${version.replaceAll("-SNAPSHOT", ".qualifier")}
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Fragment-Host: ${package}
 Import-Package: ${package},
+ ${package}.internal,
  org.slf4j,
  groovy.json,
  groovy.lang,

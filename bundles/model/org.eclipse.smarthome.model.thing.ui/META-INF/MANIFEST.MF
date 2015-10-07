@@ -17,6 +17,10 @@ Require-Bundle: org.eclipse.smarthome.model.thing;visibility:=reexport,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.compare
 Import-Package: org.apache.log4j,
+ org.eclipse.smarthome.model.thing.ui.contentassist,
+ org.eclipse.smarthome.model.thing.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.thing.ui.internal,
+ org.eclipse.smarthome.model.thing.ui.quickfix,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.eclipse.smarthome.model.thing.ui.quickfix,org.ecli

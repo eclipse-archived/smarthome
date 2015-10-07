@@ -10,6 +10,7 @@ Import-Package: org.apache.commons.collections,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.io.multimedia.tts,
  org.osgi.framework,
  org.slf4j
 Export-Package: org.eclipse.smarthome.io.multimedia.tts

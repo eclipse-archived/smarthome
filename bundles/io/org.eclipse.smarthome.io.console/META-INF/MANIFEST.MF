@@ -10,6 +10,8 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
