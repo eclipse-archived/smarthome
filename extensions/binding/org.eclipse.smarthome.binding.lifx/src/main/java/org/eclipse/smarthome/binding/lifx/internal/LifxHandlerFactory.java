@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.binding.lifx.internal;
 
-import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.THING_TYPE_LIGHT;
+import static org.eclipse.smarthome.binding.lifx.LifxBindingConstants.*;
 
 import java.util.Collection;
 
@@ -25,12 +25,12 @@ import com.google.common.collect.Lists;
  * handlers.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Karel Goderis - Remove dependency on external libraries
  */
 public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
-    public final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(THING_TYPE_LIGHT);
-
-    private LifxConnection lifxConnection;
+    public final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(THING_TYPE_COLORLIGHT,
+            THING_TYPE_WHITELIGHT);
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -40,8 +40,6 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected void activate(ComponentContext componentContext) {
         super.activate(componentContext);
-        lifxConnection = LifxConnection.getInstance();
-        lifxConnection.connect();
     }
 
     @Override
@@ -49,7 +47,7 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(THING_TYPE_LIGHT)) {
+        if (thingTypeUID.equals(THING_TYPE_COLORLIGHT) || thingTypeUID.equals(THING_TYPE_WHITELIGHT)) {
             return new LifxLightHandler(thing);
         }
 
@@ -59,6 +57,5 @@ public class LifxHandlerFactory extends BaseThingHandlerFactory {
     @Override
     protected void deactivate(ComponentContext componentContext) {
         super.deactivate(componentContext);
-        lifxConnection.disconnect();
     }
 }

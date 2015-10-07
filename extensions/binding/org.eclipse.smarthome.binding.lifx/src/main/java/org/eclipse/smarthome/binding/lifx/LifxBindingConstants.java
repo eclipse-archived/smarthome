@@ -21,11 +21,17 @@ public class LifxBindingConstants {
 
     // List of all Channel IDs
     public final static String CHANNEL_COLOR = "color";
+    public final static String CHANNEL_TEMPERATURE = "temperature";
+    public final static String CHANNEL_BRIGHTNESS = "brightness";
 
     // config property for the LIFX device id
     public static final String CONFIG_PROPERTY_DEVICE_ID = "deviceId";
 
+    // config property for the interface to listen for broadcast UDP traffic
+    public static final String CONFIG_PROPERTY_INTERFACE_ID = "interface";
+
     // List of all Thing Type UIDs
-    public final static ThingTypeUID THING_TYPE_LIGHT = new ThingTypeUID(BINDING_ID, "light");
+    public final static ThingTypeUID THING_TYPE_COLORLIGHT = new ThingTypeUID(BINDING_ID, "colorlight");
+    public final static ThingTypeUID THING_TYPE_WHITELIGHT = new ThingTypeUID(BINDING_ID, "whitelight");
 
 }
