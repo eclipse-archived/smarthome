@@ -46,8 +46,8 @@
     "description": "Sample Rule definition2.",
     "on": [  
       {  
-        "id": "CustomSampleTriggerID",
-        "type": "SampleTrigger:CustomTrigger"
+        "id": "CompositeSampleTriggerID",
+        "type": "CompositeSampleTrigger"
       }
     ],
     "if": [
@@ -59,7 +59,7 @@
           "constraint": "dtag"
         },
         "input": {
-          "conditionInput": "CustomSampleTriggerID.customTriggerOutput"
+          "conditionInput": "CompositeSampleTriggerID.compositeTriggerOutput"
         }
       }
     ],
@@ -72,10 +72,10 @@
         }
       },
       {  
-        "id": "CustomActionID",
-        "type": "SampleAction:CustomAction",
+        "id": "CompositeActionID",
+        "type": "CompositeSampleAction",
         "input": {  
-          "customActionInput": "CustomSampleTriggerID.customTriggerOutput"
+          "compositeActionInput": "CompositeSampleTriggerID.compositeTriggerOutput"
         }
       }
     ]

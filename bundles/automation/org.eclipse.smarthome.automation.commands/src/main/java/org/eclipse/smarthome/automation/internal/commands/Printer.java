@@ -322,7 +322,7 @@ public class Printer {
         if (moduleType instanceof CompositeTriggerType) {
             List<Trigger> triggers = ((CompositeTriggerType) moduleType).getModules();
             if (triggers != null && !triggers.isEmpty()) {
-                writer.append("TRIGGERS");
+                writer.append("CHILDREN");
                 printChars(writer, ' ', 22, false);
                 int last = triggers.size();
                 for (Trigger trigger : triggers) {
@@ -336,7 +336,7 @@ public class Printer {
         if (moduleType instanceof CompositeConditionType) {
             List<Condition> conditions = ((CompositeConditionType) moduleType).getModules();
             if (conditions != null && !conditions.isEmpty()) {
-                writer.append("CONDITIONS");
+                writer.append("CHILDREN");
                 printChars(writer, ' ', 20, false);
                 int last = conditions.size();
                 for (Condition condition : conditions) {
@@ -350,7 +350,7 @@ public class Printer {
         if (moduleType instanceof CompositeActionType) {
             List<Action> actions = ((CompositeActionType) moduleType).getModules();
             if (actions != null && !actions.isEmpty()) {
-                writer.append("ACTIONS");
+                writer.append("CHILDREN");
                 printChars(writer, ' ', 23, false);
                 int last = actions.size();
                 for (Action action : actions) {

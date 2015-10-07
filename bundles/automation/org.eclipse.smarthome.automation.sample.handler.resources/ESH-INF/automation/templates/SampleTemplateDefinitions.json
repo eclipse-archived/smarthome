@@ -21,8 +21,8 @@
     },
     "on": [  
       {  
-        "id": "CustomSampleTriggerTemplateID",
-        "type": "SampleTrigger:CustomTrigger"
+        "id": "CompositeSampleTriggerTemplateID",
+        "type": "CompositeSampleTrigger"
       }
     ],
     "if": [
@@ -34,16 +34,16 @@
           "constraint": "$condition_constraint"
         },
         "input": {
-          "conditionInput": "CustomSampleTriggerTemplateID.customTriggerOutput"
+          "conditionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }
       }
     ],
     "then": [
       {  
-        "id": "CustomActionTemplateID",
-        "type": "SampleAction:CustomAction",
+        "id": "CompositeActionTemplateID",
+        "type": "CompositeSampleAction",
         "input": {  
-          "customActionInput": "CustomSampleTriggerTemplateID.customTriggerOutput"
+          "compositeActionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }
       }
     ]
