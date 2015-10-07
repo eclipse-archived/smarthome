@@ -8,13 +8,13 @@
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.smarthome.core.scriptengine.Script;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
+import org.eclipse.smarthome.model.script.engine.Script;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

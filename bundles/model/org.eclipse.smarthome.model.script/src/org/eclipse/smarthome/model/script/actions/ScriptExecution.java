@@ -11,10 +11,10 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.scriptengine.Script;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.script.engine.Script;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 import org.eclipse.smarthome.model.script.internal.actions.TimerExecutionJob;
 import org.eclipse.smarthome.model.script.internal.actions.TimerImpl;

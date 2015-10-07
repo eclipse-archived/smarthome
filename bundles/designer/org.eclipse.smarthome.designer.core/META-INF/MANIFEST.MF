@@ -16,6 +16,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.smarthome.designer.core,org.eclipse.smarth
  ome.designer.core.config
 Import-Package: org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.core.scriptengine.action,
+ org.eclipse.smarthome.model.script.engine.action,
  org.osgi.service.cm,
  org.slf4j

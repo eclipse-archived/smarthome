@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.model.script.runtime.internal.engine;
 
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.smarthome.core.scriptengine.Script;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
+import org.eclipse.smarthome.model.script.engine.Script;
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.resource.IResourceServiceProvider;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;

@@ -20,6 +20,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ org.apache.commons.io;version="2.2.0",
  org.apache.commons.lang,
  org.apache.commons.logging,
  org.apache.log4j,
@@ -30,9 +31,11 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.library.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.persistence,
- org.eclipse.smarthome.core.scriptengine,
- org.eclipse.smarthome.core.scriptengine.action,
  org.eclipse.smarthome.core.types,
+ org.eclipse.smarthome.io.console,
+ org.eclipse.smarthome.io.console.extensions,
+ org.eclipse.smarthome.io.net.exec,
+ org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.persistence.extensions,
  org.eclipse.xtext.xbase.lib,
@@ -49,16 +52,23 @@ Import-Package: com.google.common.base,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.model.script,org.eclipse.smartho
- me.model.script.actions,org.eclipse.smarthome.model.script.engine,org
- .eclipse.smarthome.model.script.formatting,org.eclipse.smarthome.mode
- l.script.interpreter,org.eclipse.smarthome.model.script.jvmmodel,org.
- eclipse.smarthome.model.script.lib,org.eclipse.smarthome.model.script
- .parser.antlr,org.eclipse.smarthome.model.script.parser.antlr.interna
- l,org.eclipse.smarthome.model.script.scoping,org.eclipse.smarthome.mo
- del.script.script,org.eclipse.smarthome.model.script.script.impl,org.
- eclipse.smarthome.model.script.script.util,org.eclipse.smarthome.mode
- l.script.serializer,org.eclipse.smarthome.model.script.services,org.e
- clipse.smarthome.model.script.validation
+Export-Package: org.eclipse.smarthome.model.script,
+ org.eclipse.smarthome.model.script.actions,
+ org.eclipse.smarthome.model.script.engine,
+ org.eclipse.smarthome.model.script.engine.action,
+ org.eclipse.smarthome.model.script.extension,
+ org.eclipse.smarthome.model.script.formatting,
+ org.eclipse.smarthome.model.script.interpreter,
+ org.eclipse.smarthome.model.script.jvmmodel,
+ org.eclipse.smarthome.model.script.lib,
+ org.eclipse.smarthome.model.script.parser.antlr,
+ org.eclipse.smarthome.model.script.parser.antlr.internal,
+ org.eclipse.smarthome.model.script.scoping,
+ org.eclipse.smarthome.model.script.script,
+ org.eclipse.smarthome.model.script.script.impl,
+ org.eclipse.smarthome.model.script.script.util,
+ org.eclipse.smarthome.model.script.serializer,
+ org.eclipse.smarthome.model.script.services,
+ org.eclipse.smarthome.model.script.validation
 Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .

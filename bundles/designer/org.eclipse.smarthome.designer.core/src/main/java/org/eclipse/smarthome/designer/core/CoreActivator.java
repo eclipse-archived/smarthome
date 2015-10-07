@@ -13,7 +13,7 @@ import java.util.Properties;
 
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -43,7 +43,7 @@ public class CoreActivator extends Plugin {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
      * )
@@ -61,7 +61,7 @@ public class CoreActivator extends Plugin {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
      * )
@@ -90,7 +90,7 @@ public class CoreActivator extends Plugin {
 
     /**
      * Returns the shared instance
-     * 
+     *
      * @return the shared instance
      */
     public static CoreActivator getDefault() {
