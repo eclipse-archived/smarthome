@@ -6,8 +6,7 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.script.runtime;singleton:=true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Service-Component: OSGI-INF/scriptengine.xml
-Import-Package: org.eclipse.smarthome.core.scriptengine,
- org.osgi.framework,
+Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.script
 Bundle-Activator: org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeActivator

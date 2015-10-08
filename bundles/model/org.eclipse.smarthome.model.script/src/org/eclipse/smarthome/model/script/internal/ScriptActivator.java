@@ -9,9 +9,9 @@ package org.eclipse.smarthome.model.script.internal;
 
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
 import org.eclipse.smarthome.model.core.ModelRepository;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;

@@ -9,12 +9,12 @@ package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.util.EContentAdapter;
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
-import org.eclipse.smarthome.core.scriptengine.ScriptExecutionException;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.rules.VariableDeclaration;
 import org.eclipse.smarthome.model.rule.runtime.internal.RuleRuntimeActivator;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
+import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.xtext.naming.QualifiedName;
 import org.eclipse.xtext.xbase.interpreter.IEvaluationContext;
 import org.slf4j.Logger;

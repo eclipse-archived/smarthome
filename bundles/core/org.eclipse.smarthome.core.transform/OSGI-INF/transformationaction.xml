@@ -12,6 +12,6 @@
 	<implementation class="org.eclipse.smarthome.core.transform.internal.TransformationActionService" />
 
 	<service>
-		<provide interface="org.eclipse.smarthome.core.scriptengine.action.ActionService" />
+		<provide interface="org.eclipse.smarthome.model.script.engine.action.ActionService" />
 	</service>
 </scr:component>

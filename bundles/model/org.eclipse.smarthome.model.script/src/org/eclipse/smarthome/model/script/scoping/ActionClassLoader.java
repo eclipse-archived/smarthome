@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.model.script.scoping;
 
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.internal.ScriptActivator;
 
 /**
