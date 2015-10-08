@@ -7,9 +7,9 @@
  */
 package org.eclipse.smarthome.model.rule.runtime.internal;
 
-import org.eclipse.smarthome.core.scriptengine.ScriptEngine;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
+import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;

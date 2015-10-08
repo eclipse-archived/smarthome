@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.model.script.ui.internal;
 
-import org.eclipse.smarthome.core.scriptengine.action.ActionService;
+import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 

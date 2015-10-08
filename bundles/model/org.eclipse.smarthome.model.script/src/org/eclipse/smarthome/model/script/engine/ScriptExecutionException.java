@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.scriptengine;
+package org.eclipse.smarthome.model.script.engine;
 
 /**
  * Exception that is thrown on errors during script execution.

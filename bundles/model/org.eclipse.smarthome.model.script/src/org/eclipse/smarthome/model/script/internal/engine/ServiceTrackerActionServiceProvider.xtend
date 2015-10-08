@@ -2,7 +2,7 @@ package org.eclipse.smarthome.model.script.internal.engine;
 
 import com.google.inject.Singleton
 import java.util.List
-import org.eclipse.smarthome.core.scriptengine.action.ActionService
+import org.eclipse.smarthome.model.script.engine.action.ActionService
 import org.eclipse.smarthome.model.script.internal.ScriptActivator
 
 @Singleton

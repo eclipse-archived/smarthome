@@ -5,12 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.net.actions;
+package org.eclipse.smarthome.model.script.actions;
 
 import java.io.IOException;
 
-import org.eclipse.smarthome.core.scriptengine.action.ActionDoc;
-import org.eclipse.smarthome.core.scriptengine.action.ParamDoc;
 import org.eclipse.smarthome.io.net.exec.ExecUtil;
 
 /**
@@ -32,13 +30,12 @@ public class Exec {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @see http://www.peterfriese.de/running-applescript-from-java/
      */
-    @ActionDoc(text = "Executes <code>commandLine</code>.")
-    static public void executeCommandLine(@ParamDoc(name = "commandLine") String commandLine) {
+    static public void executeCommandLine(String commandLine) {
         ExecUtil.executeCommandLine(commandLine);
     }
 
@@ -52,16 +49,14 @@ public class Exec {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @param timeout
      *            timeout for execution in milliseconds
      * @return response data from executed command line
      */
-    @ActionDoc(text = "Executes <code>commandLine</code>.")
-    static public String executeCommandLine(@ParamDoc(name = "commandLine") String commandLine,
-            @ParamDoc(name = "timeout", text = "timeout for execution in milliseconds") int timeout) {
+    static public String executeCommandLine(String commandLine, int timeout) {
         return ExecUtil.executeCommandLineAndWaitResponse(commandLine, timeout);
     }
 
