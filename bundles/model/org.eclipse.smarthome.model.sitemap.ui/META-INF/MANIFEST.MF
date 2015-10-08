@@ -20,9 +20,6 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.designer.core.config,
  org.eclipse.smarthome.designer.ui,
- org.eclipse.smarthome.model.ui.contentassist,
- org.eclipse.smarthome.model.ui.contentassist.antlr,
- org.eclipse.smarthome.model.ui.quickfix,
  org.eclipse.xtext.xbase.lib
 Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,org
  .eclipse.smarthome.model.ui.contentassist,org.eclipse.smarthome.model
