@@ -21,7 +21,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.RuleEngine;
+import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.FilterCriteria;
@@ -33,19 +33,26 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Test adding, retrieving and updating rules from the RuleEngine
- * 
+ *
  * @author Marin Mitev - initial version
  */
 public class RuleEngineTest {
 
     Logger log = LoggerFactory.getLogger(RuleEngineTest.class);
 
+    private RuleEngine createRuleEngine() {
+        BundleContextMockup bc = new BundleContextMockup();
+        RuleEngine ruleEngine = new RuleEngine(bc);
+        ruleEngine.setModuleTypeManager(new ModuleTypeManager(bc, ruleEngine));
+        return ruleEngine;
+    }
+
     /**
      * test adding and retrieving rules
      */
     @Test
     public void testAddRetrieveRules() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
         Rule rule0 = new Rule();
         ruleEngine.addRule(rule0);
         Collection<Rule> rules = ruleEngine.getRules();
@@ -75,7 +82,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleTags() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Rule rule2 = new Rule("rule2", null, null, null, null, null);
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
@@ -105,7 +113,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConfigNull() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Rule rule3 = new Rule("rule3", createTriggers(), createConditions(), createActions(), null, null);
         ruleEngine.addRule(rule3);
         Rule rule3Get = ruleEngine.getRule("rule3");
@@ -118,7 +127,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConfigValue() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Set<ConfigDescriptionParameter> configDescriptions = createConfigDescriptions();
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("config1", 5);
@@ -149,7 +159,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleActions() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1);
         Rule rule1Get = ruleEngine.getRule("rule1");
@@ -179,7 +190,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleTriggers() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1);
         Rule rule1Get = ruleEngine.getRule("rule1");
@@ -205,7 +217,8 @@ public class RuleEngineTest {
      */
     @Test
     public void testRuleConditions() {
-        RuleEngine ruleEngine = new RuleEngine(new BundleContextMockup());
+        RuleEngine ruleEngine = createRuleEngine();
+
         Rule rule1 = createRule();
         ruleEngine.addRule(rule1);
         Rule rule1Get = ruleEngine.getRule("rule1");

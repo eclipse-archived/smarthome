@@ -38,8 +38,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
 
-    public RuleRegistryImpl(RuleEngine ruleEngine) {
+    private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
+    public RuleRegistryImpl(RuleEngine ruleEngine) {
         logger = LoggerFactory.getLogger(getClass());
         this.ruleEngine = ruleEngine;
         ruleEngine.setStatusInfoCallback(this);
@@ -187,11 +188,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public void statusInfoChanged(RuleStatusInfo statusInfo) {
-        // TODO Auto-generated method stub
-
-    }
-    
     public void setEventPublisher(EventPublisher eventPublisher) {
         super.setEventPublisher(eventPublisher);
     }
@@ -201,4 +197,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         super.unsetEventPublisher(eventPublisher);
     }
 
+    @Override
+    public void statusInfoChanged(String ruleUID, RuleStatusInfo statusInfo) {
+        postEvent(RuleEventFactory.createRuleStatusInfoEvent(statusInfo, ruleUID, SOURCE));
+    }
 }

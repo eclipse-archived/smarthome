@@ -377,7 +377,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         if (statusInfoCallback != null) {
             statusInfoCallback.statusInfoChanged(rUID, status);
         }
-        
     }
 
     /**
@@ -1108,12 +1107,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     protected void setStatusInfoCallback(StatusInfoCallback statusInfoCallback) {
         this.statusInfoCallback = statusInfoCallback;
-        
-    }
-
-    public void unsetEventPublisher(EventPublisher service) {
-       this.eventPublisher= null;
-        
     }
 
     protected void setModuleTypeManager(ModuleTypeManager mtManager) {
@@ -1140,14 +1133,16 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             String typeId = module.getTypeUID();
             ModuleType mt = mtManager.getType(typeId);
             Set<ConfigDescriptionParameter> configs = mt.getConfigurationDescription();
-            for (ConfigDescriptionParameter config : configs) {
-                String defaultValue = config.getDefault();
-                if (defaultValue != null) {
-                    String configName = config.getName();
-                    if (moduleConfiguration.get(configName) == null) {
-                        moduleConfiguration.put(configName, defaultValue);
+            if (configs != null) {
+                for (ConfigDescriptionParameter config : configs) {
+                    String defaultValue = config.getDefault();
+                    if (defaultValue != null) {
+                        String configName = config.getName();
+                        if (moduleConfiguration.get(configName) == null) {
+                            moduleConfiguration.put(configName, defaultValue);
+                        }
                     }
-                }
+                } // for
             }
 
             Set<Output> outputs = null;

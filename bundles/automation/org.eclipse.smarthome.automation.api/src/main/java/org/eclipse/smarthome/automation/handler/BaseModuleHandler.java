@@ -25,10 +25,6 @@ public class BaseModuleHandler<T extends Module> implements ModuleHandler {
     @Override
     public void dispose() {
         // can be overridden
-                if(outputDescriptionsMap!=null){
-                	currentOutputDescription = outputDescriptionsMap.get(parsedNameRef);
-                }
-                            && inputDescriptionsMap!=null && inputDescriptionsMap.get(parsedNameRef) == null) {
     }
 
 }
