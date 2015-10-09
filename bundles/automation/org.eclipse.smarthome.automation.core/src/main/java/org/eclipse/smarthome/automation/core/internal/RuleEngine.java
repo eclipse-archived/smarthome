@@ -96,7 +96,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     /**
      * {@link Map} of module type UIDs to rules where these module types participated.
      */
-    private static Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> mapModuleTypeToRules = new HashMap<String, Set<String>>();
 
     /**
      * {@link Map} of template UIDs to rules where these templates participated.
@@ -794,7 +794,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             for (Entry<String, List<String>> e : mapMissingHandlers.entrySet()) {
                 String rUID = e.getKey();
                 List<String> missingTypes = e.getValue();
-                // List<RuleError> errList = new ArrayList<RuleError>();
                 StringBuffer sb = new StringBuffer();
                 for (String typeUID : missingTypes) {
                     sb.append("Missing handler: ").append(typeUID).append("\n");
@@ -952,11 +951,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             try {
                 String rUID = rule.getUID();
                 Map<String, Object> context = getContext(rUID, a.getConnections());
-                // context.putAll(context);
                 Map<String, ?> outputs = aHandler.execute(context);
                 if (outputs != null) {
                     context = getContext(rUID);
-                    // context.putAll(outputs);
                     updateContext(rUID, a.getId(), outputs);
                 }
             } catch (Throwable t) {
@@ -1063,7 +1060,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         Set<String> notInitailizedRules = null;
         for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next().getUID();
-            // moduleHandlerFactories.put(moduleTypeName, mhf);
             Set<String> rules = mapModuleTypeToRules.get(moduleTypeName);
             if (rules != null) {
                 for (String rUID : rules) {
