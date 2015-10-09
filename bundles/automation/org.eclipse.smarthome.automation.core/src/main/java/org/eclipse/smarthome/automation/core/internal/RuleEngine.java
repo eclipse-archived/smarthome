@@ -88,6 +88,11 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     public static final char OUTPUT_SEPARATOR = '.';
 
     /**
+     * Prefix of {@link Rule}'s UID created by the rule engine.
+     */
+    public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
+
+    /**
      * {@link Map} of rule's id to corresponding {@link RuleEngineCallback}s. For each {@link Rule} there is one and
      * only one rule callback.
      */
@@ -139,18 +144,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private StatusInfoCallback statusInfoCallback;
 
-    /**
-     * Prefix of {@link Rule}'s UID created by the rule engine.
-     */
-    public static final String ID_PREFIX = "rule_"; //$NON-NLS-1$
-
     private Map<String, Map<String, Object>> contextMap;
 
-    private static ModuleTypeManager mtManager;
+    private ModuleTypeManager mtManager;
 
-    private static TemplateManager tManager;
+    private TemplateManager tManager;
 
-    private static CompositeModuleHandlerFactory compositeFactory;
+    private CompositeModuleHandlerFactory compositeFactory;
 
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
@@ -1117,15 +1117,15 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
     }
 
     protected void setModuleTypeManager(ModuleTypeManager mtManager) {
-        RuleEngine.mtManager = mtManager;
+        this.mtManager = mtManager;
     }
 
     protected void setTemplateManager(TemplateManager tManager) {
-        RuleEngine.tManager = tManager;
+        this.tManager = tManager;
     }
 
     protected void setCompositeModuleFactory(CompositeModuleHandlerFactory compositeFactory) {
-        RuleEngine.compositeFactory = compositeFactory;
+        this.compositeFactory = compositeFactory;
     }
 
     private void resolveDefaultValues(RuntimeRule r) {
