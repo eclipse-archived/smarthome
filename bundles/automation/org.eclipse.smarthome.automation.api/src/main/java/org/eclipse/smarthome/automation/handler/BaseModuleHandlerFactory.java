@@ -51,14 +51,15 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
         }
         handlers.clear();
     }
-
+    
     @Override
     public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
-        hdlr.dispose();
-        ModuleHandler handler = handlers.remove(ruleUID + module.getId());
+        ModuleHandler handler = handlers.get(ruleUID + module.getId());
         if (handler != null) {
-            if (hdlr != handler) {
+            this.handlers.remove(ruleUID + module.getId());
+            if (!this.handlers.containsValue(hdlr)) {
                 handler.dispose();
+                handler = null;
             }
         }
 

@@ -379,8 +379,9 @@ public class ModuleJSONParser {
                         connections.add(connection);
 
                     } else {
-                        JSONUtility.catchParsingException(type, UID, exceptions, new IllegalArgumentException(
-                                "Wrong format of Output : " + jsonOutput + ". Should be as \"Module_Id.Output_Id\"."),
+                        JSONUtility.catchParsingException(
+                                type, UID, exceptions, new IllegalArgumentException("Wrong format of Output : "
+                                        + jsonOutput + "smarthome autotype ls. Should be as \"Module_Id.Output_Id\"."),
                                 log);
                         continue;
                     }
