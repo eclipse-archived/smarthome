@@ -26,15 +26,11 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
 
     public final static String REFERENCE = "reference";
 
-    // private CompositeActionType moduleType;
-    // private Action action;
     private Map<String, String> compositeOutputs;
 
     public CompositeActionHandler(Action action, CompositeActionType mt,
             LinkedHashMap<Action, ActionHandler> mapModuleToHandler, String ruleUID) {
         super(action, mt, mapModuleToHandler);
-        // this.moduleType = mt;
-        // this.action = action;
         compositeOutputs = getCompositeOutputMap(moduleType.getOutputs());
     }
 

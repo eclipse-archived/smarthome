@@ -34,7 +34,6 @@ public class Connection {
      */
     public Connection(String inputName, String ouputModuleId, String outputName) {
         validate("inputName", inputName);
-        validate("ouputModuleId", ouputModuleId);
         validate("outputName", outputName);
         this.inputName = inputName;
         this.ouputModuleId = ouputModuleId;

@@ -126,17 +126,6 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
             resolveConfigurationProperties(compositeConfig, child);
             mapModuleToHandler.put(child, childHandler);
 
-            // if (child instanceof RuntimeTrigger) {
-            // ((RuntimeTrigger) child).setModuleHandler((TriggerHandler) childHandler);
-            // } else if (child instanceof RuntimeAction) {
-            // ((RuntimeAction) child).setModuleHandler((ActionHandler) childHandler);
-            // } else if (child instanceof RuntimeCondition) {
-            // ((RuntimeCondition) child).setModuleHandler((ConditionHandler) childHandler);
-            // } else {
-            // logger.error("Invalid type of module. It must be runtime module: " + child.getClass());
-            // }
-            //
-            // logger.debug("Set handler to:" + child + " -> " + childHandler);
         }
         return mapModuleToHandler;
     }

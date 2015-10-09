@@ -139,8 +139,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private StatusInfoCallback statusInfoCallback;
 
-    // private CustomizedModuleHandlerFactory customizedModuleHandlerFactory;
-
     /**
      * Prefix of {@link Rule}'s UID created by the rule engine.
      */
@@ -165,7 +163,6 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         this.bc = bc;
         logger = LoggerFactory.getLogger(getClass());
         contextMap = new HashMap<String, Map<String, Object>>();
-        // customizedModuleHandlerFactory = new CustomizedModuleHandlerFactory(bc, this);
         if (rules == null) {
             rules = new HashMap<String, RuntimeRule>(20);
         }

@@ -119,6 +119,9 @@ public class ConnectionValidator {
                             + action.getId() + "\" not connected!");
                 }
                 String moduleId = connection.getOuputModuleId();
+                if (moduleId == null) {
+                    continue; // connection contain reference to config property or composite input
+                }
                 String outputName = connection.getOutputName();
                 String msg = "Connection \"" + inputName + ":" + moduleId + "." + outputName
                         + "\" in the Action with ID \"" + action.getId() + "\" is invalid!";
@@ -200,10 +203,12 @@ public class ConnectionValidator {
                 Connection connection = connectionsMap.get(inputName);
                 if (connection == null) {
                     continue;
-                    // throw new IllegalArgumentException("Input \"" + inputName + "\" in the Condition with ID \""
-                    // + condition.getId() + "\" not connected!");
                 }
                 String moduleId = connection.getOuputModuleId();
+                if (moduleId == null) {
+                    continue; // connection contain reference to config property or composite input
+                }
+
                 String outputName = connection.getOutputName();
                 String msg = "Connection \"" + inputName + ":" + moduleId + "." + outputName
                         + "\" in the Condition with ID \"" + condition.getId() + "\" is invalid!";
