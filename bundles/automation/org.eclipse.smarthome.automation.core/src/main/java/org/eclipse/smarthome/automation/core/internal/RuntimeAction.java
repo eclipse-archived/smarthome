@@ -108,7 +108,7 @@ public class RuntimeAction extends Action {
      *
      * @param actionHandler
      */
-    void setModuleHandler(ActionHandler actionHandler) {
+    public void setModuleHandler(ActionHandler actionHandler) {
         this.actionHandler = actionHandler;
     }
 

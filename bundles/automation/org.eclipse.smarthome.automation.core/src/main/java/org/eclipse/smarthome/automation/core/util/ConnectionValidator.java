@@ -18,7 +18,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.Activator;
+import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
@@ -34,6 +34,12 @@ import org.eclipse.smarthome.automation.type.TriggerType;
  *
  */
 public class ConnectionValidator {
+
+    private static ModuleTypeManager mtManager;
+
+    public static void setManager(ModuleTypeManager mtManager) {
+        ConnectionValidator.mtManager = mtManager;
+    }
 
     /**
      * The method validates connections between inputs and outputs of modules participated in rule. It compares data
@@ -100,7 +106,7 @@ public class ConnectionValidator {
         for (Action a : actions) {
             actionsMap.put(a.getId(), a);
         }
-        ActionType type = (ActionType) Activator.moduleTypeRegistry.get(action.getTypeUID());
+        ActionType type = (ActionType) mtManager.getType(action.getTypeUID());
         if (type == null)
             throw new IllegalArgumentException("Action Type with UID \"" + action.getTypeUID() + "\" not exists!");
         Set<Input> inputs = type.getInputs();
@@ -121,7 +127,7 @@ public class ConnectionValidator {
                 boolean notFound = true;
                 if (trigger != null) {
                     String triggerTypeUID = trigger.getTypeUID();
-                    TriggerType triggerType = Activator.moduleTypeRegistry.get(triggerTypeUID);
+                    TriggerType triggerType = mtManager.getType(triggerTypeUID);
                     if (triggerType == null) {
                         throw new IllegalArgumentException(
                                 msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
@@ -133,7 +139,7 @@ public class ConnectionValidator {
                         throw new IllegalArgumentException(msg + " Action " + moduleId + " not exists!");
                     }
                     String processorTypeUID = processor.getTypeUID();
-                    ActionType processorType = Activator.moduleTypeRegistry.get(processorTypeUID);
+                    ActionType processorType = mtManager.getType(processorTypeUID);
                     if (processorType == null) {
                         throw new IllegalArgumentException(
                                 msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
@@ -184,7 +190,7 @@ public class ConnectionValidator {
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);
         }
-        ConditionType type = (ConditionType) Activator.moduleTypeRegistry.get(condition.getTypeUID());
+        ConditionType type = (ConditionType) mtManager.getType(condition.getTypeUID());
         if (type == null)
             throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
         Set<Input> inputs = type.getInputs();
@@ -206,7 +212,7 @@ public class ConnectionValidator {
                     throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" not exists!");
                 }
                 String triggerTypeUID = trigger.getTypeUID();
-                TriggerType triggerType = Activator.moduleTypeRegistry.get(triggerTypeUID);
+                TriggerType triggerType = mtManager.getType(triggerTypeUID);
                 if (triggerType == null) {
                     throw new IllegalArgumentException(
                             msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");

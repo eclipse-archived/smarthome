@@ -77,13 +77,17 @@ public class SampleHandlerFactoryCommands extends AbstractConsoleCommandExtensio
     }
 
     private void listTriggerHandlers(String[] params, Console console) {
-        console.println("ID                             Name");
+        console.println("ID                             Rule                             Trigger");
+        console.println("-------------------------------------------------------------------------------------------");
         currentTriggers = sampleHandlerFactory.getCreatedTriggerHandler();
         if (currentTriggers.size() > 0) {
             for (int i = 0; i < currentTriggers.size(); i++) {
+                SampleTriggerHandler triggerHandler = (SampleTriggerHandler) currentTriggers.get(i);
                 console.print(Integer.toString(i + 1));
                 console.print("                            ");
-                console.println(((SampleTriggerHandler) currentTriggers.get(i)).getTriggerID());
+                console.print(triggerHandler.getRuleUID());
+                console.print("                            ");
+                console.println(triggerHandler.getTriggerID());
             }
         } else {
             console.println("No created TriggerHandler. List is Empty");

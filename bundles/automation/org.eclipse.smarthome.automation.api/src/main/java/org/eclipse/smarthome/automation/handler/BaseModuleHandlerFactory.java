@@ -35,7 +35,9 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     @Override
     public ModuleHandler getHandler(Module module, String ruleUID) {
         ModuleHandler handler = internalCreate(module, ruleUID);
-        handlers.put(ruleUID + module.getId(), handler);
+        if (handler != null) {
+            handlers.put(ruleUID + module.getId(), handler);
+        }
         return handler;
     }
 
@@ -52,12 +54,11 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
 
     @Override
     public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
-        ModuleHandler handler = handlers.get(ruleUID + module.getId());
+        hdlr.dispose();
+        ModuleHandler handler = handlers.remove(ruleUID + module.getId());
         if (handler != null) {
-            this.handlers.remove(ruleUID + module.getId());
-            if (!this.handlers.containsValue(hdlr)) {
+            if (hdlr != handler) {
                 handler.dispose();
-                handler = null;
             }
         }
 

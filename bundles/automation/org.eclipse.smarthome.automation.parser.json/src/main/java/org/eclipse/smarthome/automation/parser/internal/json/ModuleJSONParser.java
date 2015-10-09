@@ -372,14 +372,24 @@ public class ModuleJSONParser {
                 }
                 int index = jsonOutput.indexOf('.');
                 if (index == -1) {
-                    JSONUtility.catchParsingException(type, UID, exceptions, new IllegalArgumentException(
-                            "Wrong format of Output : " + jsonOutput + ". Should be as \"Module_Id.Output_Id\"."), log);
-                    continue;
+                    if (jsonOutput.startsWith("$")) {
+                        String ouputModuleId = null;
+                        String outputName = jsonOutput;
+                        Connection connection = new Connection(inputName, ouputModuleId, outputName);
+                        connections.add(connection);
+
+                    } else {
+                        JSONUtility.catchParsingException(type, UID, exceptions, new IllegalArgumentException(
+                                "Wrong format of Output : " + jsonOutput + ". Should be as \"Module_Id.Output_Id\"."),
+                                log);
+                        continue;
+                    }
+                } else {
+                    String ouputModuleId = jsonOutput.substring(0, index);
+                    String outputName = jsonOutput.substring(index + 1);
+                    Connection connection = new Connection(inputName, ouputModuleId, outputName);
+                    connections.add(connection);
                 }
-                String ouputModuleId = jsonOutput.substring(0, index);
-                String outputName = jsonOutput.substring(index + 1);
-                Connection connection = new Connection(inputName, ouputModuleId, outputName);
-                connections.add(connection);
             }
         }
         return connections;

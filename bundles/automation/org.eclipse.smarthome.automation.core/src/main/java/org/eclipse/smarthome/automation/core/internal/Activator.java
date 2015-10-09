@@ -9,10 +9,12 @@ package org.eclipse.smarthome.automation.core.internal;
 
 import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
+import org.eclipse.smarthome.automation.core.internal.composite.CompositeModuleHandlerFactory;
 import org.eclipse.smarthome.automation.core.internal.template.TemplateManager;
 import org.eclipse.smarthome.automation.core.internal.template.TemplateRegistryImpl;
 import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeRegistryImpl;
+import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
@@ -38,10 +40,13 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
  */
 public class Activator implements BundleActivator {
 
-    static public ModuleTypeRegistryImpl moduleTypeRegistry;
-    static public TemplateRegistryImpl templateRegistry;
-    static public RuleEventFactory ruleEventFactory;
-    static public BundleContext bc;
+    private ModuleTypeRegistryImpl moduleTypeRegistry;
+    private TemplateRegistryImpl templateRegistry;
+    private RuleEventFactory ruleEventFactory;
+    private BundleContext bc;
+
+    private ModuleTypeManager mtManager;
+    private TemplateManager tManager;
 
     @SuppressWarnings("rawtypes")
     private ServiceRegistration/* <?> */ ruleRegistryReg;
@@ -60,12 +65,19 @@ public class Activator implements BundleActivator {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void start(final BundleContext bc) throws Exception {
-        Activator.bc = bc;
+        this.bc = bc;
         final RuleEngine re = new RuleEngine(bc);
 
-        templateRegistry = new TemplateRegistryImpl(new TemplateManager(bc, re));
+        this.tManager = new TemplateManager(bc, re);
+        re.setTemplateManager(tManager);
+        mtManager = new ModuleTypeManager(bc, re);
+        re.setModuleTypeManager(mtManager);
+        re.setCompositeModuleFactory(new CompositeModuleHandlerFactory(bc, mtManager, re));
+        ConnectionValidator.setManager(mtManager);
+
+        templateRegistry = new TemplateRegistryImpl(tManager);
         templateRegistryReg = bc.registerService(TemplateRegistry.class.getName(), templateRegistry, null);
-        moduleTypeRegistry = new ModuleTypeRegistryImpl(new ModuleTypeManager(bc, re));
+        moduleTypeRegistry = new ModuleTypeRegistryImpl(mtManager);
         moduleTypeRegistryReg = bc.registerService(ModuleTypeRegistry.class.getName(), moduleTypeRegistry, null);
         ruleEventFactory = new RuleEventFactory();
         ruleEventFactoryReg = bc.registerService(EventFactory.class, ruleEventFactory, null);

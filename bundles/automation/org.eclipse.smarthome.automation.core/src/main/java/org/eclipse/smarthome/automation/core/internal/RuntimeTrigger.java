@@ -49,7 +49,7 @@ public class RuntimeTrigger extends Trigger {
      *
      * @param triggerHandler
      */
-    void setModuleHandler(TriggerHandler triggerHandler) {
+    public void setModuleHandler(TriggerHandler triggerHandler) {
         this.triggerHandler = triggerHandler;
     }
 

@@ -143,7 +143,7 @@ public abstract class Module {
      * @return current configuration values or null.
      */
     public Map<String, Object> getConfiguration() {
-        return configuration;
+        return configuration != null ? configuration : new HashMap<String, Object>(3);
     }
 
     /**

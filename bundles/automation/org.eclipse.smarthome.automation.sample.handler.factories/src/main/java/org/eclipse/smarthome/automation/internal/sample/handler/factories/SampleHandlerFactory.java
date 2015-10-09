@@ -100,7 +100,7 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
     protected ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler moduleHandler = null;
         if (SUPPORTED_TRIGGER.equals(module.getTypeUID())) {
-            moduleHandler = new SampleTriggerHandler((Trigger) module);
+            moduleHandler = new SampleTriggerHandler((Trigger) module, ruleUID);
             createdTriggerHandler.add((TriggerHandler) moduleHandler);
         } else if (SUPPORTED_CONDITION.equals(module.getTypeUID())) {
             moduleHandler = new SampleConditionHandler((Condition) module);

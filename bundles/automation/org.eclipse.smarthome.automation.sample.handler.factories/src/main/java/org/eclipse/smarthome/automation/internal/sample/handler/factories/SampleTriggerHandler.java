@@ -24,9 +24,11 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
 public class SampleTriggerHandler extends BaseModuleHandler<Trigger>implements TriggerHandler {
     private static final String OUTPUT_REFERENCE = "triggerOutput";
     private RuleEngineCallback ruleCallback;
+    private String ruleUID;
 
-    public SampleTriggerHandler(Trigger module) {
+    public SampleTriggerHandler(Trigger module, String ruleUID) {
         super(module);
+        this.ruleUID = ruleUID;
     }
 
     public void trigger(String triggerParam) {
@@ -42,6 +44,10 @@ public class SampleTriggerHandler extends BaseModuleHandler<Trigger>implements T
     @Override
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.ruleCallback = ruleCallback;
+    }
+
+    public String getRuleUID() {
+        return ruleUID;
     }
 
 }

@@ -21,12 +21,12 @@
                     "type":"java.lang.String",
                     "label":"compositeTriggerOutput label",
                     "description":"Text from user input or default message.",
-                    "reference":"sampleTrigger1.triggerOutput"
+                    "reference":"compositeChildTrigger1.triggerOutput"
                 }
             },
             "children":[
                 {
-                    "id":"sampleTrigger1",
+                    "id":"compositeChildTrigger1",
                     "type":"SampleTrigger",
                     
                 }

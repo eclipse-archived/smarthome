@@ -95,7 +95,7 @@ public class RuntimeCondition extends Condition {
      *
      * @param conditionHandler
      */
-    void setModuleHandler(ConditionHandler conditionHandler) {
+    public void setModuleHandler(ConditionHandler conditionHandler) {
         this.conditionHandler = conditionHandler;
     }
 
