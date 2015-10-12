@@ -107,11 +107,10 @@ public class AutomationCommandExport extends AutomationCommand {
                 try {
                     autoCommands.exportModuleTypes(parserType, set, file);
                 } catch (Exception e) {
-                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                    return e.getMessage();
                 }
                 if (set.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] There are no ModuleTypes available!",
-                            command);
+                    return "There are no ModuleTypes available!";
                 }
                 return SUCCESS;
             case AutomationCommands.TEMPLATE_PROVIDER:
@@ -121,11 +120,10 @@ public class AutomationCommandExport extends AutomationCommand {
                 try {
                     autoCommands.exportTemplates(parserType, set, file);
                 } catch (Exception e) {
-                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                    return e.getMessage();
                 }
                 if (set.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] There are no Templates available!",
-                            command);
+                    return "There are no Templates available!";
                 }
                 return SUCCESS;
             case AutomationCommands.RULE_PROVIDER:
@@ -135,15 +133,14 @@ public class AutomationCommandExport extends AutomationCommand {
                 try {
                     autoCommands.exportRules(parserType, set, file);
                 } catch (Exception e) {
-                    return String.format("[Automation Commands : Command \"%s\"]" + e.getMessage(), command);
+                    return e.getMessage();
                 }
                 if (set.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] There are no Rules available!",
-                            command);
+                    return "There are no Rules available!";
                 }
                 return SUCCESS;
         }
-        return String.format("[Automation Commands : Command \"%s\"] %s : Unsupported provider type!", command, FAIL);
+        return String.format("%s : Unsupported provider type!", FAIL);
     }
 
     /**
@@ -194,26 +191,22 @@ public class AutomationCommandExport extends AutomationCommand {
             } else if (parameterValues[i].equalsIgnoreCase(OPTION_P)) {
                 i++;
                 if (i >= parameterValues.length) {
-                    return String.format(
-                            "[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
-                            command, OPTION_P);
+                    return String.format("The option [%s] should be followed by value for the parser type.", OPTION_P);
                 }
                 parserType = parameterValues[i];
             } else if (parameterValues[i].charAt(0) == '-') {
-                return String.format("[Automation Commands : Command \"{0}\"] Unsupported option: {1}", command,
-                        parameterValues[i]);
+                return String.format("Unsupported option: {1}", parameterValues[i]);
             } else if (getFile) {
                 file = initFile(parameterValues[i]);
                 if (file != null) {
                     getFile = false;
                 }
             } else {
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValues[i]);
             }
         }
         if (getFile) {
-            return String.format("[Automation Commands : Command \"%s\"] Missing destination file parameter!", command);
+            return "Missing destination file parameter!";
         }
         return SUCCESS;
     }

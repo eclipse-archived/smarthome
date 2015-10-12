@@ -24,6 +24,7 @@ import org.eclipse.smarthome.automation.Rule;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Kai Kreuzer - fixed feedback when deleting non-existent rule
+ * @author Marin Mitev - removed prefixes in the output
  *
  */
 public class AutomationCommandRemove extends AutomationCommand {
@@ -63,31 +64,27 @@ public class AutomationCommandRemove extends AutomationCommand {
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 if (autoCommands.remove(AutomationCommands.MODULE_TYPE_PROVIDER, url)) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS);
+                    return SUCCESS;
                 }
-                return String.format("[Automation Commands : Command \"%s\"] %s! ModuleTypeProvider not available!",
-                        command, FAIL);
+                return String.format("%s! ModuleTypeProvider not available!", FAIL);
             case AutomationCommands.TEMPLATE_PROVIDER:
                 if (autoCommands.remove(AutomationCommands.TEMPLATE_PROVIDER, url)) {
-                    return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS);
+                    return SUCCESS;
                 }
-                return String.format("[Automation Commands : Command \"%s\"] %s! TemplateProvider not available!",
-                        command, FAIL);
+                return String.format("%s! TemplateProvider not available!", FAIL);
             case AutomationCommands.RULE_PROVIDER:
                 if (command == AutomationCommands.REMOVE_RULE) {
                     if (autoCommands.removeRule(id)) {
-                        return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS);
+                        return SUCCESS;
                     }
                 } else {
                     if (autoCommands.removeRules(id)) {
-                        return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS);
+                        return SUCCESS;
                     } else {
-                        return String.format("[Automation Commands : Command \"%s\"] Rule with id '%s' does not exist.",
-                                command, id);
+                        return String.format("Rule with id '%s' does not exist.", id);
                     }
                 }
-                return String.format("[Automation Commands : Command \"%s\"] %s! RuleRegistry not available!", command,
-                        FAIL);
+                return String.format("%s! RuleRegistry not available!", FAIL);
         }
         return FAIL;
     }
@@ -153,8 +150,7 @@ public class AutomationCommandRemove extends AutomationCommand {
             if (parameterValues[i].equals(OPTION_ST)) {
                 st = true;
             } else if (parameterValues[i].charAt(0) == '-') {
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValues[i]);
             } else if (getUrl) {
                 url = initURL(parameterValues[i]);
                 if (url != null) {
@@ -166,15 +162,14 @@ public class AutomationCommandRemove extends AutomationCommand {
                     getId = false;
                 }
             } else {
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValues[i]);
             }
         }
         if (getUrl) {
-            return String.format("[Automation Commands : Command \"%s\"] Missing source URL parameter!", command);
+            return "Missing source URL parameter!";
         }
         if (getId) {
-            return String.format("[Automation Commands : Command \"%s\"] Missing UID parameter!", command);
+            return "Missing UID parameter!";
         }
         return SUCCESS;
     }

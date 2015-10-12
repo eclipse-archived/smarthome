@@ -472,7 +472,7 @@ public abstract class AutomationCommands {
         if (commandInst != null) {
             return commandInst.execute();
         }
-        return String.format("[Automation Commands : Command \"%s\"] Command not supported!", command);
+        return String.format("Command \"%s\" is not supported!", command);
     }
 
     /**

@@ -123,8 +123,7 @@ public class AutomationCommandList extends AutomationCommand {
                     st = true;
                     continue;
                 }
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValues[i]);
             }
             if (getId) {
                 id = parameterValues[i];
@@ -140,8 +139,7 @@ public class AutomationCommandList extends AutomationCommand {
                 getLocale = false;
             }
             if (getId && getLocale)
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValues[i]);
         }
         return SUCCESS;
     }
@@ -167,10 +165,10 @@ public class AutomationCommandList extends AutomationCommand {
                         RuleStatus status = autoCommands.getRuleStatus(r.getUID());
                         return Printer.printRule(r, status);
                     } else {
-                        return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                        return String.format("Nonexistent ID: %s", id);
                     }
                 } else if (collection.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                    return String.format("Nonexistent ID: %s", id);
                 } else {
                     if (!rules.isEmpty())
                         rules.clear();
@@ -183,7 +181,7 @@ public class AutomationCommandList extends AutomationCommand {
                 return Printer.printRules(listRules);
             }
         }
-        return String.format("[Automation Commands : Command \"%s\"] There are no Rules available!", command);
+        return "There are no Rules available!";
     }
 
     /**
@@ -232,10 +230,10 @@ public class AutomationCommandList extends AutomationCommand {
                     if (t != null) {
                         return Printer.printTemplate(t);
                     } else {
-                        return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                        return String.format("Nonexistent ID: %s", id);
                     }
                 } else if (collection.isEmpty()) {
-                    return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                    return String.format("Nonexistent ID: %s", id);
                 } else {
                     if (!templates.isEmpty())
                         templates.clear();
@@ -247,7 +245,7 @@ public class AutomationCommandList extends AutomationCommand {
                 return Printer.print(listTemplates);
             }
         }
-        return String.format("[Automation Commands : Command \"%s\"] There are no Templates available!", command);
+        return "There are no Templates available!";
     }
 
     /**
@@ -280,10 +278,10 @@ public class AutomationCommandList extends AutomationCommand {
                 if (mt != null) {
                     return Printer.printModuleType(mt);
                 } else {
-                    return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                    return String.format("Nonexistent ID: %s", id);
                 }
             } else if (collection.isEmpty()) {
-                return String.format("[Automation Commands : Command \"%s\"] Nonexistent ID: %s", command, id);
+                return String.format("Nonexistent ID: %s", id);
             } else {
                 if (!moduleTypes.isEmpty())
                     moduleTypes.clear();
@@ -294,7 +292,7 @@ public class AutomationCommandList extends AutomationCommand {
         if (listModuleTypes != null && !listModuleTypes.isEmpty()) {
             return Printer.print(listModuleTypes);
         }
-        return String.format("[Automation Commands : Command \"%s\"] There are no Module Types available!", command);
+        return "There are no Module Types available!";
     }
 
     /**

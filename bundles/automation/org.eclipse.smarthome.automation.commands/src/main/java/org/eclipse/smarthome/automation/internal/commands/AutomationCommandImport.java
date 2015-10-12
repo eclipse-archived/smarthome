@@ -82,16 +82,14 @@ public class AutomationCommandImport extends AutomationCommand {
             if (st) {
                 StackTraceElement[] ste = e.getStackTrace();
                 for (int i = 0; i < ste.length; i++) {
-                    writer.append(String.format("[Automation Commands : Command \"%s\"] FAIL : %s", command,
-                            ste[i].toString() + "\n"));
+                    writer.append(String.format("FAIL : %s", ste[i].toString() + "\n"));
                 }
             } else {
-                writer.append(String.format("[Automation Commands : Command \"%s\"] FAIL : %s", command,
-                        e.getMessage() + "\n"));
+                writer.append(String.format("FAIL : %s", e.getMessage() + "\n"));
             }
             return writer.toString();
         }
-        return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS + "\n");
+        return SUCCESS + "\n";
     }
 
     /**
@@ -150,28 +148,22 @@ public class AutomationCommandImport extends AutomationCommand {
             } else if (parameterValues[i].equalsIgnoreCase(OPTION_P)) {
                 i++;
                 if (i >= parameterValues.length) {
-                    return String.format(
-                            "[Automation Commands : Command \"%s\"] The option [%s] should be followed by value for the parser type.",
-                            command, OPTION_P);
+                    return String.format("The option [%s] should be followed by value for the parser type.", OPTION_P);
                 }
                 parserType = parameterValues[i];
             } else if (parameterValues[i].charAt(0) == '-') {
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValues[i]);
             } else if (getUrl) {
                 url = initURL(parameterValues[i]);
                 if (url != null) {
                     getUrl = false;
                 }
             } else {
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported parameter: %s", parameterValues[i]);
             }
         }
         if (getUrl) {
-            return String.format(
-                    "[Automation Commands : Command \"%s\"] Missing source URL parameter or its value is incorrect!",
-                    command);
+            return "Missing source URL parameter or its value is incorrect!";
         }
         return SUCCESS;
     }

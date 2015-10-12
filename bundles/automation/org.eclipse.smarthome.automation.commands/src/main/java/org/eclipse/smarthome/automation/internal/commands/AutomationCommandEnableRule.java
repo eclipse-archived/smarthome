@@ -64,8 +64,7 @@ public class AutomationCommandEnableRule extends AutomationCommand {
                     st = true;
                     continue;
                 }
-                return String.format("[Automation Commands : Command \"%s\"] Unsupported option: %s", command,
-                        parameterValues[i]);
+                return String.format("Unsupported option: %s", parameterValues[i]);
             }
             if (uid == null) {
                 uid = parameterValues[i];
@@ -80,10 +79,8 @@ public class AutomationCommandEnableRule extends AutomationCommand {
             if (hasEnable)
                 continue;
             if (uid == null)
-                return String.format("[Automation Commands : Command \"%s\"] Missing required parameter: Rule UID",
-                        command);
-            return String.format("[Automation Commands : Command \"%s\"] Unsupported parameter: %s", command,
-                    parameterValues[i]);
+                return "Missing required parameter: Rule UID";
+            return String.format("Unsupported parameter: %s", parameterValues[i]);
         }
         return SUCCESS;
     }
