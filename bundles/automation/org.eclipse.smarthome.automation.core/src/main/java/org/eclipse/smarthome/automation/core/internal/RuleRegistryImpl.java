@@ -113,12 +113,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         Rule old = null;
         if (element != null) {
             old = super.update(element); // update storage with new rule and return old rule
-            postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
-            String rUID = element.getUID();
-            if (disabledRuledSet.contains(rUID)) {
-                ruleEngine.setRuleEnabled(rUID, false);
+            if (old != null) {
+                postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
+                String rUID = element.getUID();
+                if (disabledRuledSet.contains(rUID)) {
+                    ruleEngine.setRuleEnabled(rUID, false);
+                }
+                ruleEngine.updateRule(element); // update memory map
             }
-            ruleEngine.updateRule(element); // update memory map
         }
         return old;
     }
