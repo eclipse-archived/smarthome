@@ -152,6 +152,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
 
     private CompositeModuleHandlerFactory compositeFactory;
 
+    private int ruleMaxID = 0;
+
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -1054,7 +1056,12 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 }
             }
         }
-        return result;
+        if (result > ruleMaxID) {
+            ruleMaxID = result + 1;
+        } else {
+            ++ruleMaxID;
+        }
+        return ruleMaxID;
     }
 
     public void moduleTypeUpdated(Collection<ModuleType> moduleTypes) {
