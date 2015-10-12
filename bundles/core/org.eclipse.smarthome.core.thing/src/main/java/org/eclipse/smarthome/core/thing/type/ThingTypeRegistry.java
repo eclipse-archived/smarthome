@@ -153,7 +153,9 @@ public class ThingTypeRegistry {
         ThingType thingType = this.getThingType(channelUID.getThingTypeUID(), locale);
         if (thingType != null) {
             ChannelTypeUID channelTypeUID = thingType.getChannelTypeUID(channelUID);
-            return TypeResolver.resolve(channelTypeUID);
+            if (channelTypeUID != null) {
+                return TypeResolver.resolve(channelTypeUID);
+            }
         }
         return null;
     }
