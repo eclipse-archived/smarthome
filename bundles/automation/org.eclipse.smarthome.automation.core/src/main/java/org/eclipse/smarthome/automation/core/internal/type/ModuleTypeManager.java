@@ -148,7 +148,7 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
                 for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
                     ModuleType mt = it.next();
                     if (moduleType != null) {
-                        if (moduleType.getName().equals(mt.getClass().getName())) {
+                        if (moduleType.isInstance(mt)) {
                             result.add((T) createCopy(mt));
                         }
                     } else {

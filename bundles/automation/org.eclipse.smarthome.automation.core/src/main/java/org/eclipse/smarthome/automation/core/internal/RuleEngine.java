@@ -328,18 +328,23 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             errMsgs = errMsgs + "\n" + errMessage;
         }
 
-        try {
-            ConnectionValidator.validateConnections(r);
-        } catch (Exception e) {
-            errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
-        }
-
         if (errMsgs == null) {
-            resolveDefaultValues(r);
-            register(r);
 
-            // change state to IDLE
-            setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
+            try {
+                ConnectionValidator.validateConnections(r);
+                resolveDefaultValues(r);
+                register(r);
+                // change state to IDLE
+                setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
+
+            } catch (Exception e) {
+                unregister(r);
+                errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
+                // change state to NOTINITIALIZED
+                setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                        RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
+            }
+
         } else {
             unregister(r);
 
