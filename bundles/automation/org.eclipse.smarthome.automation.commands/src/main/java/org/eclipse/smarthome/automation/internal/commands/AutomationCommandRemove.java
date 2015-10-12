@@ -23,6 +23,7 @@ import org.eclipse.smarthome.automation.Rule;
  * </ul>
  *
  * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - fixed feedback when deleting non-existent rule
  *
  */
 public class AutomationCommandRemove extends AutomationCommand {
@@ -80,6 +81,9 @@ public class AutomationCommandRemove extends AutomationCommand {
                 } else {
                     if (autoCommands.removeRules(id)) {
                         return String.format("[Automation Commands : Command \"%s\"] %s", command, SUCCESS);
+                    } else {
+                        return String.format("[Automation Commands : Command \"%s\"] Rule with id '%s' does not exist.",
+                                command, id);
                     }
                 }
                 return String.format("[Automation Commands : Command \"%s\"] %s! RuleRegistry not available!", command,
