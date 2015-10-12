@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Persistence implementation
- * @author Kai Kreuzer - refactored (managed) provider and registry implementation
+ * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  */
 public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
@@ -95,7 +95,9 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     @Override
     public synchronized Rule remove(String key) {
         Rule rule = get(key);
-        removeFromRuleEngine(rule);
+        if (rule != null) {
+            removeFromRuleEngine(rule);
+        }
         return super.remove(key);
     }
 
