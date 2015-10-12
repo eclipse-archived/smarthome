@@ -6,6 +6,7 @@
 		  "config":{
 			  "itemName":{
 				  "type":"TEXT",
+                  "context":"item",
 				  "label":"ItemName",
 				  "description":"The itemName which should match",
 				  "required":true
@@ -47,6 +48,7 @@
 		  "config":{
 			  "itemName":{
 				  "type":"TEXT",
+                  "context":"item",
 				  "label":"ItemName",
 				  "description":"The itemName which should match",
 				  "required":true
@@ -80,6 +82,7 @@
 		  "config":{
 			  "itemName":{
 				  "type":"TEXT",
+				  "context":"item",
 				  "label":"ItemName",
 				  "description":"The itemName which should match",
 				  "required":true
