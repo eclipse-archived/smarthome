@@ -1,6 +1,12 @@
+---
+layout: documentation
+---
+
+{% include base.html %}
+
 # NTP Binding
  
-The NTP binding is used for displaying the local date and time based update from a NTP server.
+The NTP binding is used for displaying the local date and time based update from an NTP server.
  
 ## Supported Things
  
@@ -19,7 +25,7 @@ The binding has no configuration options, all configuration is done at Thing lev
 The things has a few configuration options:
 | Option |  Description  |
 |-----------------|--------------------------------------------------- |
-| ntpServer | NTP host server. e.g. nl.pool.ntp.org |
+| hostname | NTP host server, e.g. nl.pool.ntp.org |
 | refreshInterval | Interval that new time updates are posted to the eventbus in seconds |
 | refreshNtp | Number of updates between querying the NTP server (e.g. with refreshinterval = 60 (seconds) and refreshNtp = 30 the NTP server is queried each half hour. |
 | timeZone | Timezone, can be left blank for using the default system one |
