@@ -21,6 +21,7 @@ import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
+import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -230,10 +231,53 @@ class RuntimeRuleTest extends OSGiTest{
             assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.IDLE)
         })
 
+        def ruleEvent = null
+        def ruleStatusRunning = false;
+        def ruleLastStatus = null
+
+        def ruleEventHandler = [
+            receive: {  Event e ->
+                logger.info("RuleEvent: " + e.topic)
+                ruleEvent = e
+                def ruleStatusEvent = ruleEvent as RuleStatusInfoEvent
+                if (ruleStatusEvent.getStatusInfo().getStatus() == RuleStatus.RUNNING) {
+                    ruleStatusRunning = true
+                }
+                ruleLastStatus = ruleStatusEvent.getStatusInfo().getStatus();
+            },
+
+            getSubscribedEventTypes: {
+                Sets.newHashSet(RuleStatusInfoEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(ruleEventHandler)
+
+
         def EventPublisher eventPublisher = getService(EventPublisher)
-        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON))
+        //        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON))
+
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+
+        SwitchItem myPresenceItem3 = itemRegistry.getItem("myPresenceItem3")
+        Command commandObjPresence = TypeParser.parseCommand(myPresenceItem3.getAcceptedCommandTypes(), "ON")
+        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem3", commandObjPresence))
+
+
+        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem3")
+        Command commandObjMotion = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
+        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3", commandObjMotion))
+
+
         waitForAssert({
-            assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.RUNNING)
+            assertThat ruleEvent, is(notNullValue())
+            assertThat ruleEvent, is(instanceOf(RuleStatusInfoEvent))
+            assertTrue ruleStatusRunning
+        })
+
+        waitForAssert({
+            assertEquals ruleLastStatus.getValue(), RuleStatus.IDLE.getValue()
         })
 
     }
