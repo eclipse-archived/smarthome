@@ -190,12 +190,12 @@ class RuntimeRuleTest extends OSGiTest{
     public void 'check if moduleTypes are registered'(){
         def mtr = getService(ModuleTypeRegistry) as ModuleTypeRegistry
         waitForAssert({
-            assertThat mtr.getAll("GenericEventTrigger"), is(notNullValue())
-            assertThat mtr.getAll("ItemStateChangeTrigger"), is(notNullValue())
-            assertThat mtr.getAll("EventCondition"), is(notNullValue())
-            assertThat mtr.getAll("ItemStateEventCondition"), is(notNullValue())
-            assertThat mtr.getAll("ItemStateEvent_ON_Condition"), is(notNullValue())
-            assertThat mtr.getAll("ItemStateEvent_OFF_Condition"), is(notNullValue())
+            assertThat mtr.get("GenericEventTrigger"), is(notNullValue())
+            assertThat mtr.get("ItemStateChangeTrigger"), is(notNullValue())
+            assertThat mtr.get("EventCondition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEventCondition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEvent_ON_Condition"), is(notNullValue())
+            assertThat mtr.get("ItemStateEvent_OFF_Condition"), is(notNullValue())
         },3000,100)
     }
 
