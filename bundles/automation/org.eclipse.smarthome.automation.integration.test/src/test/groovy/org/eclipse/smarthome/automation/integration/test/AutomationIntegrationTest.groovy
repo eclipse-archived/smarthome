@@ -602,14 +602,14 @@ class AutomationIntegrationTest extends OSGiTest{
         registerService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(notNullValue())
         registerService(moduleTypeProvider)
-        assertThat moduleTypeRegistry.get(actionTypeUID), is(notNullValue())
-        assertThat moduleTypeRegistry.get(triggerTypeUID), is(notNullValue())
+        assertThat moduleTypeRegistry.getAll(actionTypeUID), is(notNullValue())
+        assertThat moduleTypeRegistry.getAll(triggerTypeUID), is(notNullValue())
 
         unregisterService(templateProvider)
         assertThat templateRegistry.get(templateUID), is(nullValue())
         unregisterService(moduleTypeProvider)
-        assertThat moduleTypeRegistry.get(actionTypeUID), is(nullValue())
-        assertThat moduleTypeRegistry.get(triggerTypeUID), is(nullValue())
+        assertThat moduleTypeRegistry.getAll(actionTypeUID), is(nullValue())
+        assertThat moduleTypeRegistry.getAll(triggerTypeUID), is(nullValue())
 
     }
 

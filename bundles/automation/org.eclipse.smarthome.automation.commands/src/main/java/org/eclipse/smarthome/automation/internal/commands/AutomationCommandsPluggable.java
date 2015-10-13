@@ -268,7 +268,7 @@ public class AutomationCommandsPluggable extends AutomationCommands
     @Override
     public <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale) {
         if (moduleTypeRegistry != null) {
-            return moduleTypeRegistry.get(clazz, locale);
+            return moduleTypeRegistry.getAll(clazz, locale);
         }
         return null;
     }

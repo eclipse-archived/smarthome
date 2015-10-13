@@ -57,7 +57,7 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> get(Class<T> moduleType, Locale locale) {
+    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType, Locale locale) {
         return moduleTypeManager.getTypes(moduleType, locale);
     }
 
@@ -66,7 +66,7 @@ public class ModuleTypeRegistryImpl implements ModuleTypeRegistry {
     }
 
     @Override
-    public <T extends ModuleType> Collection<T> get(Class<T> classModuleType) {
+    public <T extends ModuleType> Collection<T> getAll(Class<T> classModuleType) {
         return moduleTypeManager.getTypes(classModuleType);
     }
 
