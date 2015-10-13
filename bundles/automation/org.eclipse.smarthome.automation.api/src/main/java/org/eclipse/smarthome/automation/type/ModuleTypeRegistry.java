@@ -82,7 +82,7 @@ public interface ModuleTypeRegistry {
      * @param moduleType the class of module which is looking for.
      * @return collection of ModuleTypes, corresponding to specified type
      */
-    public <T extends ModuleType> Collection<T> get(Class<T> moduleType);
+    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType);
 
     /**
      * This method is used for getting the ModuleTypes, specified by type module,
@@ -91,6 +91,6 @@ public interface ModuleTypeRegistry {
      * @param moduleType the class of module which is looking for.
      * @return collection of ModuleTypes, corresponding to specified type
      */
-    public <T extends ModuleType> Collection<T> get(Class<T> moduleType, Locale locale);
+    public <T extends ModuleType> Collection<T> getAll(Class<T> moduleType, Locale locale);
 
 }
