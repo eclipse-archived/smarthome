@@ -248,16 +248,20 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      */
     public synchronized void updateRule(Rule rule) {
         String rUID = rule.getUID();
-        RuntimeRule r1;
+        RuntimeRule r;
         if (rUID == null) {
             rUID = getUniqueId();
-            r1 = new RuntimeRule(rule);
-            r1.setUID(rUID);
+            r = new RuntimeRule(rule);
+            r.setUID(rUID);
         } else {
-            r1 = new RuntimeRule(rule);
+            r = rules.get(rUID); // old rule
+            if (r != null) {
+                unregister(r);
+            }
+            r = new RuntimeRule(rule); // new updated rule
         }
 
-        rules.put(rUID, r1);
+        rules.put(rUID, r);
         logger.debug("Updated rule '{}'.", rUID);
 
         setRule(rUID);
