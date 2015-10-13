@@ -329,14 +329,8 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
         }
 
         if (errMsgs == null) {
-
             try {
                 ConnectionValidator.validateConnections(r);
-                resolveDefaultValues(r);
-                register(r);
-                // change state to IDLE
-                setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
-
             } catch (IllegalArgumentException e) {
                 unregister(r);
                 errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
@@ -344,6 +338,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                         RuleStatusDetail.CONFIGURATION_ERROR, errMessage));
             }
+        }
+
+        if (errMsgs != null) {
+            resolveDefaultValues(r);
+            register(r);
+            // change state to IDLE
+            setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
 
         } else {
             unregister(r);
