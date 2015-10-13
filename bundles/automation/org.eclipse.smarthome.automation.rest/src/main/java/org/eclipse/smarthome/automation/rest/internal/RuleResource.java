@@ -31,12 +31,13 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.io.rest.ConfigUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class acts as a REST resource for rules, module types and templates and is registered with the Jersey servlet.
+ * This class acts as a REST resource for rules and is registered with the Jersey servlet.
  *
  * @author Kai Kreuzer - Initial contribution
  */
@@ -58,20 +59,23 @@ public class RuleResource implements RESTResource {
         this.ruleRegistry = null;
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(Rule rule) throws IOException {
-
-        ruleRegistry.add(rule);
-
-        return Response.ok().build();
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
         Collection<Rule> rules = ruleRegistry.getAll();
         return Response.ok(rules).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response create(Rule rule) throws IOException {
+
+        try {
+            ruleRegistry.add(rule);
+            return Response.status(Status.CREATED).build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Status.CONFLICT).build();
+        }
     }
 
     @GET
@@ -133,14 +137,14 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateConfiguration(@PathParam("ruleUID") String ruleUID,
             Map<String, Object> configurationParameters) throws IOException {
-
+        Map<String, Object> config = ConfigUtil.normalizeTypes(configurationParameters);
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule == null) {
             logger.info("Received HTTP PUT request for update config at '{}' for the unknown rule '{}'.",
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            rule.setConfiguration(configurationParameters);
+            rule.setConfiguration(config);
             ruleRegistry.update(rule);
             return Response.ok().build();
         }
@@ -238,7 +242,9 @@ public class RuleResource implements RESTResource {
         if (rule != null) {
             Module module = getModule(rule, moduleCategory, id);
             if (module != null) {
-                module.getConfiguration().put(param, value);
+                Map<String, Object> configuration = module.getConfiguration();
+                configuration.put(param, ConfigUtil.normalizeType(value));
+                module.setConfiguration(configuration);
                 ruleRegistry.update(rule);
                 return Response.ok().build();
             }
