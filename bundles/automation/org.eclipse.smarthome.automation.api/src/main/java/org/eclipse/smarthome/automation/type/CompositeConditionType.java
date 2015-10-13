@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.type;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * {@code CompositeConditionType} is as {@link ConditionType} which logically combines {@link Condition} modules. The
  * composite condition hides internal logic between participating conditions and it can be used as a regular
  * {@link Condition} module.
- * 
+ *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
@@ -31,7 +32,7 @@ public class CompositeConditionType extends ConditionType {
      * This constructor is responsible for creation of a {@code CompositeConditionType} with ordered set of
      * {@link Condition}s.
      * It initialize only base properties of the {@code CompositeConditionType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param modules is a LinkedHashSet of {@link Condition}s.
@@ -40,15 +41,14 @@ public class CompositeConditionType extends ConditionType {
     public CompositeConditionType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Input> inputs,
             List<Condition> modules) {
         super(UID, configDescriptions, inputs);
-        this.modules = modules;
-
+        this.modules = modules != null ? modules : new ArrayList<Condition>(0);
     }
 
     /**
      * This constructor is responsible for creation of a {@code CompositeConditionType} with ordered set of
      * {@link Condition}s.
      * It initialize all properties of the {@code CompositeConditionType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param label is a short and accurate name of the {@code CompositeConditionType}.
@@ -65,12 +65,12 @@ public class CompositeConditionType extends ConditionType {
     public CompositeConditionType(String UID, Set<ConfigDescriptionParameter> configDescriptions, String label,
             String description, Set<String> tags, Visibility visibility, Set<Input> inputs, List<Condition> modules) {
         super(UID, configDescriptions, label, description, tags, visibility, inputs);
-        this.modules = modules;
+        this.modules = modules != null ? modules : new ArrayList<Condition>(0);
     }
 
     /**
      * This method is used for getting Conditions of the {@code CompositeConditionType}.
-     * 
+     *
      * @return a {@link LinkedHashSet} of the {@link Condition} modules of this {@code CompositeConditionType}.
      */
     public List<Condition> getModules() {

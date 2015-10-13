@@ -117,13 +117,13 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
                 mapModuleToHandler = null;
                 return null;
             }
+            resolveConfigurationProperties(compositeConfig, child);
             MT childHandler = (MT) childMhf.getHandler(child, ruleUID);
             if (childHandler == null) {
                 mapModuleToHandler.clear();
                 mapModuleToHandler = null;
                 return null;
             }
-            resolveConfigurationProperties(compositeConfig, child);
             mapModuleToHandler.put(child, childHandler);
 
         }

@@ -42,12 +42,12 @@ public class EventConditionHandler extends BaseModuleHandler<Condition>implement
         String configValue = mo != null && mo instanceof String ? (String) mo : null;
         if (configValue != null) {
             if (keyParam.equals(PAYLOAD)) {
-                //automatically adding wildcards only for payload matching
-                configValue = configValue.startsWith("*") ? configValue : "*" + configValue;
-                configValue = configValue.endsWith("*") ? configValue : configValue + "*";
+                // automatically adding wildcards only for payload matching
+                configValue = configValue.startsWith("*") ? configValue : ".*" + configValue;
+                configValue = configValue.endsWith("*") ? configValue : configValue + ".*";
             }
             if (value != null) {
-                return value.matches((String) module.getConfiguration().get(keyParam));
+                return value.matches(configValue);
             } else {
                 return false;
             }

@@ -11,10 +11,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.smarthome.automation.Action;
+import org.eclipse.smarthome.automation.Condition;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.RuleEngine;
+import org.eclipse.smarthome.automation.core.internal.RuntimeAction;
+import org.eclipse.smarthome.automation.core.internal.RuntimeCondition;
+import org.eclipse.smarthome.automation.core.internal.RuntimeTrigger;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
@@ -174,7 +181,8 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         if (mType instanceof CompositeTriggerType) {
             CompositeTriggerType m = (CompositeTriggerType) mType;
             result = new CompositeTriggerType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs(), m.getModules());
+                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs(),
+                    copyTriggers(m.getModules()));
 
         } else if (mType instanceof TriggerType) {
             TriggerType m = (TriggerType) mType;
@@ -184,7 +192,8 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         } else if (mType instanceof CompositeConditionType) {
             CompositeConditionType m = (CompositeConditionType) mType;
             result = new CompositeConditionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
-                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getModules());
+                    mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(),
+                    copyConditions(m.getModules()));
 
         } else if (mType instanceof ConditionType) {
             ConditionType m = (ConditionType) mType;
@@ -195,7 +204,7 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
             CompositeActionType m = (CompositeActionType) mType;
             result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(),
-                    m.getModules());
+                    copyActions(m.getModules()));
 
         } else if (mType instanceof ActionType) {
             ActionType m = (ActionType) mType;
@@ -206,6 +215,36 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
             throw new IllegalArgumentException("Invalid template type:" + mType);
         }
         return result;
+    }
+
+    private static List<Trigger> copyTriggers(List<Trigger> triggers) {
+        List<Trigger> res = new ArrayList<Trigger>(11);
+        if (triggers != null) {
+            for (Trigger trigger : triggers) {
+                res.add(new RuntimeTrigger(trigger));
+            }
+        }
+        return res;
+    }
+
+    private static List<Condition> copyConditions(List<Condition> conditions) {
+        List<Condition> res = new ArrayList<Condition>(11);
+        if (conditions != null) {
+            for (Condition condition : conditions) {
+                res.add(new RuntimeCondition(condition));
+            }
+        }
+        return res;
+    }
+
+    private static List<Action> copyActions(List<Action> actions) {
+        List<Action> res = new ArrayList<Action>();
+        if (actions != null) {
+            for (Action action : actions) {
+                res.add(new RuntimeAction(action));
+            }
+        }
+        return res;
     }
 
     @SuppressWarnings("unchecked")

@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.type;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * action hides internal logic and inner connections between participating {@link Action}s and it can be used as a
  * regular
  * {@link Action} module.
- * 
+ *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
@@ -32,7 +33,7 @@ public class CompositeActionType extends ActionType {
      * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}
      * s.
      * It initialize only base properties of the {@code CompositeActionType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param modules is a {@link LinkedHashSet} of {@link Action}s.
@@ -43,14 +44,14 @@ public class CompositeActionType extends ActionType {
             Set<Output> outputs, List<Action> modules) {
         super(UID, configDescriptions, inputs, outputs);
         this.modules = modules;
-
+        this.modules = modules != null ? modules : new ArrayList<Action>(0);
     }
 
     /**
      * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}
      * s.
      * It initialize all properties of the {@code CompositeActionType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param label is a short and accurate name of the {@code CompositeActionType}.
@@ -69,12 +70,12 @@ public class CompositeActionType extends ActionType {
             String description, Set<String> tags, Visibility visibility, Set<Input> inputs, Set<Output> outputs,
             List<Action> modules) {
         super(UID, configDescriptions, label, description, tags, visibility, inputs, outputs);
-        this.modules = modules;
+        this.modules = modules != null ? modules : new ArrayList<Action>(0);
     }
 
     /**
      * This method is used for getting the {@link Action}s of the {@code CompositeActionType}.
-     * 
+     *
      * @return a {@link LinkedHashSet} of the {@link Action} modules of this {@code CompositeActionType}.
      */
     public List<Action> getModules() {

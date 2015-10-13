@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.type;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +19,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * {@code CompositeTriggerType} is as {@link TriggerType} which logically combines {@link Trigger} modules. The
  * composite trigger hides internal logic between participating {@link Trigger}s and it can be used as a regular
  * {@link Trigger} module.
- * 
+ *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Initial Contribution
  * @author Vasil Ilchev - Initial Contribution
@@ -31,25 +32,24 @@ public class CompositeTriggerType extends TriggerType {
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
      * {@link Trigger}s.
      * It initialize only base properties of the {@code CompositeTriggerType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param modules is a {@link LinkedHashSet} of {@link Trigger}s.
      * @param outputs is a {@link Set} of {@link Output} descriptions.
-     * 
+     *
      */
     public CompositeTriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, Set<Output> outputs,
             List<Trigger> modules) {
         super(UID, configDescriptions, outputs);
-        this.modules = modules;
-
+        this.modules = modules != null ? modules : new ArrayList<Trigger>(0);
     }
 
     /**
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
      * {@link Trigger}s.
      * It initialize all properties of the {@code CompositeTriggerType}.
-     * 
+     *
      * @param UID is the unique id of this module type in scope of the RuleEngine.
      * @param configDescriptions is a {@link Set} of configuration descriptions.
      * @param label is a short and accurate name of the {@code CompositeTriggerType}.
@@ -66,12 +66,12 @@ public class CompositeTriggerType extends TriggerType {
     public CompositeTriggerType(String UID, Set<ConfigDescriptionParameter> configDescriptions, String label,
             String description, Set<String> tags, Visibility visibility, Set<Output> outputs, List<Trigger> modules) {
         super(UID, configDescriptions, label, description, tags, visibility, outputs);
-        this.modules = modules;
+        this.modules = modules != null ? modules : new ArrayList<Trigger>(0);
     }
 
     /**
      * This method is used for getting the {@link Trigger}s of the {@code CompositeTriggerType}.
-     * 
+     *
      * @return a {@link LinkedHashSet} of the {@link Trigger} modules of this {@code CompositeTriggerType}.
      */
     public List<Trigger> getModules() {
