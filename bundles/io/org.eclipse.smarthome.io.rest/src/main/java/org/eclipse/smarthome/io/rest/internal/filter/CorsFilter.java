@@ -8,8 +8,8 @@
 package org.eclipse.smarthome.io.rest.internal.filter;
 
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -19,11 +19,10 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.rest.internal.Constants;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 /**
@@ -59,11 +58,9 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final List<String> ACCEPTED_HTTP_METHODS_LIST = Lists.newArrayList(HTTP_GET_METHOD, HTTP_POST_METHOD,
             HTTP_PUT_METHOD, HTTP_DELETE_METHOD, HTTP_HEAD_METHOD, HTTP_OPTIONS_METHOD);
 
-    private static final String ACCEPTED_HTTP_METHODS = String.join(HEADERS_SEPARATOR, ACCEPTED_HTTP_METHODS_LIST);
+    private static final String ACCEPTED_HTTP_METHODS = Joiner.on(HEADERS_SEPARATOR).join(ACCEPTED_HTTP_METHODS_LIST);
 
     private final transient Logger logger = LoggerFactory.getLogger(CorsFilter.class);
-
-    private ConfigurationAdmin configurationAdmin;
 
     private boolean isEnabled;
 
@@ -164,34 +161,15 @@ public class CorsFilter implements ContainerResponseFilter {
         }
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    protected void activate() {
-        try {
-            Configuration configuration = configurationAdmin.getConfiguration(Constants.JAXRS_CONNECTOR_CONFIG, null);
-
-            if (configuration != null) {
-                Dictionary properties = configuration.getProperties();
-
-                if (properties != null) {
-                    String corsPropertyValue = (String) properties.get(Constants.JAXRS_CONNECTOR_CORS_PROPERTY);
-                    this.isEnabled = Constants.JAXRS_CONNECTOR_CORS_PROPERTY_ENABLE_VALUE
-                            .equalsIgnoreCase(corsPropertyValue);
-                }
-
-                logger.info("REST API CORS filter is {}.", this.isEnabled ? "enabled" : "disabled");
-
-            }
-        } catch (IOException e) {
-            logger.warn("Failed to read configuration properties for CORS Filter. CORS filter is disabled.", e);
+    protected void activate(Map<String, Object> properties) {
+        if (properties != null) {
+            String corsPropertyValue = (String) properties.get(Constants.CORS_PROPERTY);
+            this.isEnabled = "true".equalsIgnoreCase(corsPropertyValue);
         }
-    }
 
-    protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-    protected void unsetConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = null;
+        if(this.isEnabled) {
+            logger.info("enabled CORS for REST API.");
+        }
     }
 
 }
