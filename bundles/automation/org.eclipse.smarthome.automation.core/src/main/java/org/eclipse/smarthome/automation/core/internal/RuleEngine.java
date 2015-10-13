@@ -506,8 +506,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
      * @return handler for this module or null when it is not available.
      */
     public ModuleHandler getModuleHandler(Module m, String ruleUID) {
-        ModuleHandlerFactory mhf = getModuleHandlerFactory(m.getTypeUID(), ruleUID);
-        if (mhf == null) {
+        String moduleTypeId = m.getTypeUID();
+        ModuleHandlerFactory mhf = getModuleHandlerFactory(moduleTypeId, ruleUID);
+        if (mhf == null || mtManager.getType(moduleTypeId) == null) {
             return null;
         }
         return mhf.getHandler(m, ruleUID);
