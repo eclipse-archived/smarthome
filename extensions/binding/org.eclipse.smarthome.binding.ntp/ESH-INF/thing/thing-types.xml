@@ -5,29 +5,29 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
 	<thing-type id="ntp">
-		<label>NTP Client</label>
-		<description>An NTP client that provides current date and time</description>
+		<label>NTP Server</label>
+		<description>An NTP server that provides current date and time</description>
 		<channels>
 			<channel id="dateTime" typeId="dateTime-channel" />
 		</channels>
 		<config-description>
 			<parameter name="hostname" type="text" required="true">
 				<context>network_address</context>
-				<label>NTP Server hostname</label>
+				<label>Hostname</label>
 				<description>The NTP server hostname.</description>
 				<default>0.pool.ntp.org</default>
 			</parameter>
 			<parameter name="refreshInterval" type="integer" required="true">
-				<label>Refresh Interval</label>
+				<label>Refresh interval</label>
 				<description>
-                    Interval that new time updates are posted to the eventbus in seconds.
+                    Interval that new time updates are posted to the event bus in seconds.
                 </description>
 				<default>60</default>
 			</parameter>
 			<parameter name="refreshNtp" type="integer" required="true">
-				<label>Refresh Frequency for NTP updates</label>
+				<label>NTP refresh frequency</label>
 				<description>
-                    Number of updates between querying the NTP server.
+                    Number of updates before querying the NTP server.
                 </description>
 				<default>30</default>
 			</parameter>
