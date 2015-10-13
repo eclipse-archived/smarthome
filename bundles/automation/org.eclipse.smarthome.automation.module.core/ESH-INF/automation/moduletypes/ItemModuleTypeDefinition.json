@@ -11,6 +11,7 @@
 			  },
 			  "itemName":{
 				  "type":"TEXT",
+                  "context":"item",
 				  "description":"the name of the Item",
 				  "required":true
 			  },
@@ -29,6 +30,7 @@
 		  "config":{
 			  "itemName":{
 				  "type":"TEXT",
+                  "context":"item",
 				  "description":"the name of the item to post the command for",
 				  "required":true
 			  },

@@ -41,6 +41,7 @@
 			"config":{
 				"itemName":{
 					"type":"TEXT",
+					"context":"item",
 					"label":"item name",
 					"description":"the name of the item which's state change should be observed",
 					"required":true

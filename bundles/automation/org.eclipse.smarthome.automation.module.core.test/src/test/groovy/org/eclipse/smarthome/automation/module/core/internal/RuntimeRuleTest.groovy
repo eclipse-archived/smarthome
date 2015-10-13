@@ -18,10 +18,9 @@ import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
-import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry;
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -57,7 +56,7 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Before
     void before() {
-        
+
         def itemProvider = [
             getAll: {
                 [
@@ -119,7 +118,7 @@ class RuntimeRuleTest extends OSGiTest{
 
     @Test
     public void 'assert that item state is updated by simple rule'() {
-        //Creation of RULE    
+        //Creation of RULE
         def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem2", state:"ON"]
@@ -184,8 +183,8 @@ class RuntimeRuleTest extends OSGiTest{
         logger.info("myLampItem2 State: " + myLampItem2.state)
         assertThat myLampItem2.state, is(OnOffType.ON)
     }
-    
-    
+
+
     @Test
     public void 'check if moduleTypes are registered'(){
         def mtr = getService(ModuleTypeRegistry) as ModuleTypeRegistry
@@ -198,11 +197,11 @@ class RuntimeRuleTest extends OSGiTest{
             assertThat mtr.get("ItemStateEvent_OFF_Condition"), is(notNullValue())
         },3000,100)
     }
-    
+
     @Test
     public void 'assert that rule is triggered by composite trigger'() {
-        
-        //Test the creation of a rule out of 
+
+        //Test the creation of a rule out of
         def triggerConfig = [itemName:"myMotionItem3"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem3", state:"ON"]
         def condition2Config = [operator:"=", itemName:"myMotionItem3", state:"ON"]
@@ -219,7 +218,7 @@ class RuntimeRuleTest extends OSGiTest{
         ]
 
         def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
-        rule.name="RuleByJAVA_API_WIthCompositeTrigger"
+        rule.name="RuleByJAVA_API_WithCompositeTrigger"
 
         logger.info("Rule created: "+rule.getUID())
 
@@ -229,9 +228,13 @@ class RuntimeRuleTest extends OSGiTest{
         //TEST RULE
         waitForAssert({
             assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.IDLE)
-        }) 
+        })
 
-      
-       
+        def EventPublisher eventPublisher = getService(EventPublisher)
+        eventPublisher.post(ItemEventFactory.createStateEvent("myMotionItem3", OnOffType.ON))
+        waitForAssert({
+            assertThat ruleRegistry.getStatus(rule.uid), is(RuleStatus.RUNNING)
+        })
+
     }
 }
