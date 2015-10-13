@@ -340,7 +340,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
             }
         }
 
-        if (errMsgs != null) {
+        if (errMsgs == null) {
             resolveDefaultValues(r);
             register(r);
             // change state to IDLE
