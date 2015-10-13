@@ -337,12 +337,12 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 // change state to IDLE
                 setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.IDLE));
 
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 unregister(r);
                 errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
                 // change state to NOTINITIALIZED
                 setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                        RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
+                        RuleStatusDetail.CONFIGURATION_ERROR, errMessage));
             }
 
         } else {
