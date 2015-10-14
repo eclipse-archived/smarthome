@@ -16,6 +16,7 @@ import javax.ws.rs.core.MultivaluedHashMap
 import javax.ws.rs.core.MultivaluedMap
 
 import org.eclipse.smarthome.io.rest.internal.filter.CorsFilter
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -50,7 +51,16 @@ class CorsFilterTest {
 
     private static final String ACCEPTED_HTTP_METHODS = HTTP_GET_METHOD + "," + HTTP_POST_METHOD + "," + HTTP_PUT_METHOD + "," + HTTP_DELETE_METHOD + "," + HTTP_HEAD_METHOD + "," + HTTP_OPTIONS_METHOD
 
-    private static final CorsFilter filter = new CorsFilter()
+    private CorsFilter filter
+
+
+    @Before
+    void setUp() {
+        filter = new CorsFilter()
+        filter.activate([
+            'enable': 'true'
+        ])
+    }
 
 
     @Test
