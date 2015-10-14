@@ -340,4 +340,35 @@ public class Rule {
         return scopeId;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((ruleTemplateUID == null) ? 0 : ruleTemplateUID.hashCode());
+        result = prime * result + ((uid == null) ? 0 : uid.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Rule other = (Rule) obj;
+        if (ruleTemplateUID == null) {
+            if (other.ruleTemplateUID != null)
+                return false;
+        } else if (!ruleTemplateUID.equals(other.ruleTemplateUID))
+            return false;
+        if (uid == null) {
+            if (other.uid != null)
+                return false;
+        } else if (!uid.equals(other.uid))
+            return false;
+        return true;
+    }
+
 }

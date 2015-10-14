@@ -213,6 +213,9 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                         ruleRegistry.add(rule);
                     } catch (IllegalArgumentException e) {
                         logger.debug("Not importing rule '{}' since a rule with this id already exists", rule.getUID());
+                    } catch (IllegalStateException e) {
+                        logger.debug("Not importing rule '{}' since the rule registry is in an invalid state: {}",
+                                new Object[] { rule.getUID(), e.getMessage() });
                     }
                 }
             } // while
