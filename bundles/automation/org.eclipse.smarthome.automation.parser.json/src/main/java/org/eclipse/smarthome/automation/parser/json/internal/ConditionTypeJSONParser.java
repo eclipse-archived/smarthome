@@ -26,7 +26,6 @@ import org.json.JSONException;
  * Parser for ConditionTypes.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ConditionTypeJSONParser {

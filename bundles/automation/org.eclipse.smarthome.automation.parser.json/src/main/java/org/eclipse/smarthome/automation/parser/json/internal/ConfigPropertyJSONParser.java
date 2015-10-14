@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * Connection) from JSON Objects.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ConfigPropertyJSONParser {

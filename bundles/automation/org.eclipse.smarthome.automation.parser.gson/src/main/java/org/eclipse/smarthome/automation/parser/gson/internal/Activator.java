@@ -1,11 +1,11 @@
 /**
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.parser.json.internal;
+package org.eclipse.smarthome.automation.parser.gson.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -19,22 +19,24 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 /**
- * This class is a {@link BundleActivator} of the json parser bundle. It is responsible for registration of several
+ * This class is a {@link BundleActivator} of the gson parser bundle. It is responsible for registration of several
  * services:
- * <li>{@link ModuleType} JSON Parser
- * <li>{@link RuleTemplate} JSON Parser
- * <li>{@link Rule} JSON Parser
+ * <li>{@link ModuleType} GSON Parser
+ * <li>{@link RuleTemplate} GSON Parser
+ * <li>{@link Rule} GSON Parser
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Kai Kreuzer - Initial contribution
  *
  */
-@SuppressWarnings("rawtypes")
 public class Activator implements BundleActivator {
 
     private BundleContext bc;
 
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration mpReg;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration tpReg;
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration rpReg;
 
     @Override
@@ -43,15 +45,15 @@ public class Activator implements BundleActivator {
 
         Dictionary<String, String> mpReg_props = new Hashtable<String, String>(1);
         mpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_MODULE_TYPE);
-        mpReg = bc.registerService(Parser.class.getName(), new ModuleTypeJSONParser(bc), mpReg_props);
+        mpReg = bc.registerService(Parser.class.getName(), new ModuleTypeGSONParser(), mpReg_props);
 
         Dictionary<String, String> tpReg_props = new Hashtable<String, String>(1);
         tpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_TEMPLATE);
-        tpReg = bc.registerService(Parser.class.getName(), new TemplateJSONParser(), tpReg_props);
+        tpReg = bc.registerService(Parser.class.getName(), new TemplateGSONParser(), tpReg_props);
 
         Dictionary<String, String> rpReg_props = new Hashtable<String, String>(1);
         rpReg_props.put(Parser.PARSER_TYPE, Parser.PARSER_RULE);
-        rpReg = bc.registerService(Parser.class.getName(), new RuleJSONParser(), rpReg_props);
+        rpReg = bc.registerService(Parser.class.getName(), new RuleGSONParser(), rpReg_props);
     }
 
     @Override
@@ -69,5 +71,4 @@ public class Activator implements BundleActivator {
             rpReg = null;
         }
     }
-
 }

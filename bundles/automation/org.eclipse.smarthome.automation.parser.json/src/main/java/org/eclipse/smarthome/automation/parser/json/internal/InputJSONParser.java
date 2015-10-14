@@ -24,7 +24,6 @@ import org.slf4j.Logger;
  * This class is responsible for parsing the Inputs.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class InputJSONParser {

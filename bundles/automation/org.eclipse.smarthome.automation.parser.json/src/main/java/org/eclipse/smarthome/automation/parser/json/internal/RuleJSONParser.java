@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
  * This class serves for loading JSON files and parse it to the Rule objects.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class RuleJSONParser implements Parser<Rule> {

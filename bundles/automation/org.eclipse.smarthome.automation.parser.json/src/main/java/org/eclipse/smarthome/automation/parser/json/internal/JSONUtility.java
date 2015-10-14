@@ -22,7 +22,6 @@ import org.slf4j.Logger;
  * Utility class for performing operations over JSON structures.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class JSONUtility {
