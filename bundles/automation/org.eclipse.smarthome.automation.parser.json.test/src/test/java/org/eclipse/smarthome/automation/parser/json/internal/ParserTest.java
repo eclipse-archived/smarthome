@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.parser.internal.json;
+package org.eclipse.smarthome.automation.parser.json.internal;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,6 +23,9 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.automation.parser.json.internal.ModuleTypeJSONParser;
+import org.eclipse.smarthome.automation.parser.json.internal.RuleJSONParser;
+import org.eclipse.smarthome.automation.parser.json.internal.TemplateJSONParser;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;

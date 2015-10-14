@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.parser.internal.json;
+package org.eclipse.smarthome.automation.parser.json.internal;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -16,6 +16,8 @@ import java.util.Properties;
 
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
+import org.eclipse.smarthome.automation.parser.json.internal.Introspector;
+import org.eclipse.smarthome.automation.parser.json.internal.JSONUtility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.json.JSONArray;
 import org.json.JSONException;
