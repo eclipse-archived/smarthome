@@ -21,17 +21,44 @@ import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.Output;
 
+/**
+ * This class is a handler implementation for {@link CompositeTriggerType}. The trigger which has
+ * {@link CompositeTriggerType} has to be notified by the handlers of child triggers and it will be triggered when some
+ * of them is triggered. The handler has to put outputs of the trigger, base on the outputs of the child triggers, into
+ * rule context. The outputs of the child triggers are not visible out of context of the trigger.
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ *
+ */
 public class CompositeTriggerHandler
         extends AbstractCompositeModuleHandler<Trigger, CompositeTriggerType, TriggerHandler>
         implements TriggerHandler, RuleEngineCallback {
 
     private RuleEngineCallback ruleCallback;
 
+    /**
+     * Constructor of this system handler.
+     *
+     * @param trigger trigger of composite type (parent trigger).
+     * @param mt module type of parent trigger
+     * @param mapModuleToHandler map of pairs child triggers to their handlers
+     * @param ruleUID UID of rule where the parent trigger is part of
+     */
     public CompositeTriggerHandler(Trigger trigger, CompositeTriggerType mt,
             LinkedHashMap<Trigger, TriggerHandler> mapModuleToHandler, String ruleUID) {
         super(trigger, mt, mapModuleToHandler);
     }
 
+    /**
+     * This method is called by the child triggers defined by the {@link CompositeTriggerType} of parent trigger.
+     * The method goes through the outputs of the parent trigger and fill them base on the ouput's reference value.
+     * The ouput's reference value can contain more then one references to the child outputs separated by comma. In this
+     * case the method will try to fill the output value in sequence defined in the reference value. The letter
+     * reference can be overwritten by the previous ones.
+     *
+     * @see org.eclipse.smarthome.automation.handler.RuleEngineCallback#triggered(org.eclipse.smarthome.automation.Trigger,
+     *      java.util.Map)
+     */
     @Override
     public void triggered(Trigger trigger, Map<String, ?> context) {
         Set<Output> outputs = moduleType.getOutputs();
@@ -60,6 +87,13 @@ public class CompositeTriggerHandler
         ruleCallback.triggered(module, result);
     }
 
+    /**
+     * The {@link CompositeTriggerHandler} sets itself as callback to the child triggers and store the callback to the
+     * rule engine. In this way the trigger of composite type will be notified always when some of the child triggers
+     * are triggered and has an opportunity to set the outputs of parent trigger to the rule context.
+     *
+     * @see org.eclipse.smarthome.automation.handler.TriggerHandler#setRuleEngineCallback(org.eclipse.smarthome.automation.handler.RuleEngineCallback)
+     */
     @Override
     public void setRuleEngineCallback(RuleEngineCallback ruleCallback) {
         this.ruleCallback = ruleCallback;

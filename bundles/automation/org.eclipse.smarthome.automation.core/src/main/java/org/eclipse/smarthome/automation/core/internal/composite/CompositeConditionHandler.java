@@ -17,6 +17,14 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 
+/**
+ * This class is a handler implementation for {@link CompositeConditionType}. The condition which has
+ * {@link CompositeConditionType} module type will be satisfied only when all child conditions (defined
+ * by its {@link CompositeConditionType}) are satisfied.
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ *
+ */
 public class CompositeConditionHandler extends
         AbstractCompositeModuleHandler<Condition, CompositeConditionType, ConditionHandler>implements ConditionHandler {
 
@@ -25,6 +33,11 @@ public class CompositeConditionHandler extends
         super(condition, mt, mapModuleToHandler);
     }
 
+    /**
+     * The method calls handlers of child modules and return true only when they all are satisfied.
+     *
+     * @see org.eclipse.smarthome.automation.handler.ConditionHandler#isSatisfied(java.util.Map)
+     */
     @Override
     public boolean isSatisfied(Map<String, ?> context) {
         Map<String, Object> internalContext = new HashMap<>(context);
