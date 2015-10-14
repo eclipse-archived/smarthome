@@ -18,10 +18,33 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.RuleEngine;
+import org.eclipse.smarthome.automation.handler.ActionHandler;
+import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
+import org.eclipse.smarthome.automation.handler.TriggerHandler;
+import org.eclipse.smarthome.automation.type.ActionType;
+import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.automation.type.TriggerType;
 
+/**
+ * This class is base implementation of all system composite module handlers: {@link CompositeTriggerHandler},
+ * {@link CompositeConditionHandler} and {@link CompositeActionHandler}. The instances of these handlers are created by
+ * {@link CompositeModuleHandlerFactory}.
+ * The composite module handlers have to serve modules of composite module types. These handlers are responsible to
+ * propagate configuration properties and input values of composite module to the child modules defined by the composite
+ * module type and to call the handlers which are responsible for the child modules.
+ *
+ *
+ * @author Yordan Mihaylov - Initial Contribution
+ *
+ * @param <M> type of module. It can be {@link Trigger}, {@link Condition} or {@link Action}
+ * @param <MT> type of module type. It can be {@link TriggerType}, {@link ConditionType} or {@link ActionType}
+ * @param <H> type of module handler. It can be {@link TriggerHandler}, {@link ConditionHandler} or
+ *            {@link ActionHandler}
+ */
 public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleType, H extends ModuleHandler>
         implements ModuleHandler {
 
@@ -29,12 +52,31 @@ public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleT
     protected M module;
     protected MT moduleType;
 
+    /**
+     * This constructor creates composite module handler base on composite module, module type of the module and map of
+     * pairs of child module instances and corresponding handlers.
+     *
+     * @param module module of composite type.
+     * @param moduleType composite module type. This is the type of module.
+     * @param mapModuleToHandler map containing pairs of child modules instances (defined by module type) and their
+     *            handlers
+     */
     public AbstractCompositeModuleHandler(M module, MT moduleType, LinkedHashMap<M, H> mapModuleToHandler) {
         this.module = module;
         this.moduleType = moduleType;
         this.moduleHandlerMap = mapModuleToHandler;
     }
 
+    /**
+     * This method creates internal composite context which will be used as context passed to the child
+     * handlers. The composite context is base on the rule context, but it also has configuration properties and input
+     * values of parent module (the module which type is composite one). The keys in composite context of parent input
+     * values and config values are same with '$' prefix.
+     *
+     * @param context rule context pass to the parent module
+     * @param module parent module. The module which type is composite type.
+     * @return context which combines rule context and input and configuration properties of the parent module.
+     */
     protected Map<String, ?> getCompositeContext(Map<String, ?> context, Module module) {
         Map<String, Object> result = new HashMap<>(context);
         for (Entry<String, Object> config : module.getConfiguration().entrySet()) {
@@ -59,6 +101,16 @@ public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleT
         return result;
     }
 
+    /**
+     * This method updates (changes) configuration properties of the child module base on the composite context values.
+     * It resolve references of child module configuration properties to inputs and configuration properties of
+     * parent module.
+     * For example: if a child configuration property has a value '$name' the method looks for such key in composite
+     * context and replace the child's configuration value.
+     *
+     * @param child child module defined by composite module type
+     * @param compositeContext context containing rule context and inputs and configuration values of parent module.
+     */
     protected void updateChildConfig(Module child, Map<String, ?> compositeContext) {
         for (Entry<String, Object> config : child.getConfiguration().entrySet()) {
             Object o = config.getValue();
@@ -72,6 +124,12 @@ public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleT
         }
     }
 
+    /**
+     * Check if the string argument is a reference to the composite context or it is a real value.
+     *
+     * @param ref a string value.
+     * @return true when the string value is a reference to the context value
+     */
     protected boolean isReference(String ref) {
         return ref.startsWith("$") && ref.length() > 1;
     }
