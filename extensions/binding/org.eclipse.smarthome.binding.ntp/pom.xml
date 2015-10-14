@@ -13,7 +13,7 @@
   <artifactId>org.eclipse.smarthome.binding.ntp</artifactId>
   <version>0.8.0-SNAPSHOT</version>
 
-  <name>ntp Binding</name>
+  <name>Eclipse SmartHome NTP Binding</name>
   <packaging>eclipse-plugin</packaging>
 
 </project>
