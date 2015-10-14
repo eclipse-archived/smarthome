@@ -340,7 +340,7 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
                 // change state to NOTINITIALIZED
                 setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                        RuleStatusDetail.CONFIGURATION_ERROR, errMessage));
+                        RuleStatusDetail.CONFIGURATION_ERROR, errMessage.trim()));
             }
         }
 
@@ -416,9 +416,9 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                     if (sb == null) {
                         sb = new StringBuffer();
                     }
-                    String message = "Missing handler: " + m.getTypeUID() + ", for module: " + m.getId();
+                    String message = "Missing handler  '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
                     sb.append(message).append("\n");
-                    logger.debug(message);
+                    logger.trace(message);
                 }
             }
         }
@@ -809,12 +809,13 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 String rUID = e.getKey();
                 List<String> missingTypes = e.getValue();
                 StringBuffer sb = new StringBuffer();
+                sb.append("Missing handlers: ");
                 for (String typeUID : missingTypes) {
-                    sb.append("Missing handler: ").append(typeUID).append("\n");
+                    sb.append(typeUID).append(", ");
                 }
                 unregister(getRule0(rUID));
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                        RuleStatusDetail.HANDLER_MISSING_ERROR, sb.toString()));
+                        RuleStatusDetail.HANDLER_MISSING_ERROR, sb.substring(0, sb.length() - 2)));
             }
         }
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
