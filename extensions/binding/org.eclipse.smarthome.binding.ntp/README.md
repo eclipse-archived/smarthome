@@ -23,6 +23,7 @@ The binding has no configuration options, all configuration is done at Thing lev
 ## Thing Configuration
  
 The things has a few configuration options:
+
 | Option |  Description  |
 |-----------------|--------------------------------------------------- |
 | hostname | NTP host server, e.g. nl.pool.ntp.org |
@@ -30,7 +31,7 @@ The things has a few configuration options:
 | refreshNtp | Number of updates between querying the NTP server (e.g. with refreshinterval = 60 (seconds) and refreshNtp = 30 the NTP server is queried each half hour. |
 | timeZone | Timezone, can be left blank for using the default system one |
 | locale | Locale, can be left blank for using the default system one |
- 
+
  
 ## Channels
  
@@ -42,10 +43,8 @@ The ntp binding has only one channel  `dateTime`
 Things:
 ```
 ntp:ntp:local  [ ntpServer="nl.pool.ntp.org", refreshInterval=60, refreshNtp=30 ]
- 
 ```
 Items:
 ```
 DateTime Date  "Date [%1$tA, %1$td.%1$tm.%1$tY %1$tH:%1$tM]"  { channel="ntp:ntp:local:dateTime" }
 ```
- 
