@@ -25,8 +25,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
- * @author Ana Dimova - add new key word "children" for composite types support.
  *
  */
 public interface JSONStructureConstants {

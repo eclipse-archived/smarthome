@@ -13,7 +13,7 @@
 				  "type":"TEXT",
 				  "description":"the script to execute",
 				  "required":true
-			  },
+			  }
 		  }
 	  }
   },
@@ -31,7 +31,7 @@
                   "type":"TEXT",
                   "description":"the script to execute",
                   "required":true
-              },
+              }
           }
 	  }
   }

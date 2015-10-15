@@ -28,7 +28,6 @@ import org.json.JSONException;
  * Parser for ActionTypes.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ActionTypeJSONParser {

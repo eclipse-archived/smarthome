@@ -30,7 +30,6 @@ import org.slf4j.Logger;
  * This class serves for creating the Module objects from JSON Objects.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
  *
  */
 public class ModuleJSONParser {

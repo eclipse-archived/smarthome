@@ -47,8 +47,6 @@ import org.slf4j.LoggerFactory;
  * This class serves for loading JSON files and parse it to the Module Type objects.
  *
  * @author Ana Dimova - Initial Contribution
- * @author Ana Dimova - refactor Parser interface.
- * @author Ana Dimova - add new key word "children" for composite types support.
  *
  */
 public class ModuleTypeJSONParser implements Parser<ModuleType> {
