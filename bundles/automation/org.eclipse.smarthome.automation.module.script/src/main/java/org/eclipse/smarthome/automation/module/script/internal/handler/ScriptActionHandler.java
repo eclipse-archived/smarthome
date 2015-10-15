@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.module.script.internal.handler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.script.ScriptContext;
@@ -54,7 +55,10 @@ public class ScriptActionHandler extends AbstractScriptModuleHandler<Action>impl
                 if (engine != null) {
                     ScriptContext executionContext = getExecutionContext(engine, context);
                     try {
-                        engine.eval((String) script, executionContext);
+                        Object result = engine.eval((String) script, executionContext);
+                        HashMap<String, Object> resultMap = new HashMap();
+                        resultMap.put("result", result);
+                        return resultMap;
                     } catch (ScriptException e) {
                         logger.error("Script execution failed: {}", e.getMessage());
                     }

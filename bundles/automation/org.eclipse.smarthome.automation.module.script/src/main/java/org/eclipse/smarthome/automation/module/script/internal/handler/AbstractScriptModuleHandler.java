@@ -7,13 +7,13 @@
  */
 package org.eclipse.smarthome.automation.module.script.internal.handler;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 
@@ -53,8 +53,19 @@ abstract public class AbstractScriptModuleHandler<T extends Module> extends Base
         }
         // add the rule context to the script engine (only for this execution)
         for (Entry<String, ?> entry : context.entrySet()) {
-            executionContext.setAttribute(StringUtils.replace(entry.getKey(), ".", "_"), entry.getValue(),
-                    ScriptContext.ENGINE_SCOPE);
+
+            final HashMap jsonObj = new HashMap();
+            Object value = entry.getValue();
+            String key = entry.getKey();
+            int dotIndex = key.indexOf('.');
+            if (dotIndex != -1) {
+                String jsonKey = key.substring(dotIndex + 1);
+                key = key.substring(0, dotIndex);
+                jsonObj.put(jsonKey, value);
+                executionContext.setAttribute(key, jsonObj, ScriptContext.ENGINE_SCOPE);
+            } else {
+                executionContext.setAttribute(key, value, ScriptContext.ENGINE_SCOPE);
+            }
         }
         return executionContext;
     }
