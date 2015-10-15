@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.internal.core.provider;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for tracking the bundles providing automation resources and delegating the processing to
@@ -36,6 +39,11 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * have such manifest header this means that they are such providers.
      */
     public static final String AUTOMATION_RESOURCES_HEADER = "Automation-ResourceType";
+
+    /**
+     * This field keeps instance of {@link Logger} that is used for logging.
+     */
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * This field serves for saving the bundles providing automation resources until their processing completes.
@@ -239,7 +247,12 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
         URL url = bundle.getEntry(AbstractResourceBundleProvider.PATH);
-        return url != null;
+        return url != null && !isFragmentBundle(bundle);
+    }
+
+    private boolean isFragmentBundle(Bundle bundle) {
+        Dictionary<String, String> h = bundle.getHeaders();
+        return h.get("Fragment-Host") != null;
     }
 
     /**
@@ -258,6 +271,8 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
             shared = false;
         }
         if (queue.add(event)) {
+            logger.debug("Process bundle event {}, for automation bundle '{}' ", event.getType(),
+                    event.getBundle().getSymbolicName());
             if (running)
                 notifyAll();
             else {
