@@ -32,7 +32,15 @@
                   "description":"the script to execute",
                   "required":true
               }
-          }
+          },
+          "output":{
+            "result":{
+                "type":"java.lang.String",
+                "label":"result",
+                "description":"the script result.",
+                "reference":""
+            }
+         }
 	  }
   }
 }
