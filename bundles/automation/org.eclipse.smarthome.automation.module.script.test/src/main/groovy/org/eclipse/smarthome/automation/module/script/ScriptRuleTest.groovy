@@ -11,6 +11,12 @@ package org.eclipse.smarthome.automation.module.script;
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
+import org.eclipse.smarthome.automation.Action
+import org.eclipse.smarthome.automation.Condition
+import org.eclipse.smarthome.automation.Rule
+import org.eclipse.smarthome.automation.RuleRegistry
+import org.eclipse.smarthome.automation.RuleStatus
+import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.ItemProvider
@@ -47,10 +53,7 @@ class ScriptRuleTest extends OSGiTest {
 
         def itemProvider = [
             getAll: {
-                [
-                    new SwitchItem("MyTrigger"),
-                    new SwitchItem("ScriptItem")
-                ]
+                [new SwitchItem("MyTrigger"), new SwitchItem("ScriptItem")]
             },
             addProviderChangeListener: {},
             removeProviderChangeListener: {},
@@ -76,6 +79,40 @@ class ScriptRuleTest extends OSGiTest {
 
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
+        def RuleRegistry ruleRegistry = getService(RuleRegistry)
+
+
+
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
+        waitForAssert({
+            assertThat ruleRegistry.getAll().isEmpty(), is(false)
+            def rule2 = ruleRegistry.get("javascript.rule1") as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatus
+            assertThat ruleStatus2, is(RuleStatus.IDLE)
+        }, 10000, 200)
+        def rule = ruleRegistry.get("javascript.rule1") as Rule
+        assertThat rule, is(notNullValue())
+        assertThat rule.name, is("DemoScriptRule")
+        def trigger = rule.triggers.find{it.id.equals("trigger")} as Trigger
+        assertThat trigger, is(notNullValue())
+        assertThat trigger.typeUID, is("GenericEventTrigger")
+        assertThat trigger.configuration.get("eventSource"), is ("MyTrigger")
+        assertThat trigger.configuration.get("eventTopic"), is("smarthome/items/MyTrigger/state")
+        assertThat trigger.configuration.get("eventTypes"), is("ItemStateEvent")
+        def condition1 = rule.conditions.find{it.id.equals("condition")} as Condition
+        assertThat condition1, is(notNullValue())
+        assertThat condition1.typeUID, is("ScriptCondition")
+        assertThat condition1.configuration.get("type"), is("application/javascript")
+        assertThat condition1.configuration.get("script"), is("trigger_event.itemState==ON")
+        def action = rule.actions.find{it.id.equals("action")} as Action
+        assertThat action, is(notNullValue())
+        assertThat action.typeUID, is("ScriptAction")
+        assertThat action.configuration.get("type"), is("application/javascript")
+        assertThat action.configuration.get("script"), is("print(ir.getItems()), print(tr.getAll()), print(trigger_event), be.sendCommand('ScriptItem', 'ON')")
+        def ruleStatus = ruleRegistry.getStatus(rule.uid) as RuleStatus
+        assertThat ruleStatus, is(RuleStatus.IDLE)
+
         SwitchItem myTriggerItem = itemRegistry.getItem("MyTrigger")
         eventPublisher.post(ItemEventFactory.createStateEvent("MyTrigger", OnOffType.ON))
 

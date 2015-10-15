@@ -166,6 +166,7 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
      */
     @Override
     protected void processAutomationProvider(Bundle bundle) {
+        logger.debug("Parse rules from bundle '{}' ", bundle.getSymbolicName());
         Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
         if (urlEnum == null)
             return;
