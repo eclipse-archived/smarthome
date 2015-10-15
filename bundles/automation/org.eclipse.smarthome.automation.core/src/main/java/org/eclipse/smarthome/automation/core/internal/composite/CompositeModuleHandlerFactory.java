@@ -83,8 +83,9 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
             Set<Module> modules = h.moduleHandlerMap.keySet();
             if (modules != null) {
                 for (Module child : modules) {
+                    ModuleHandler childHandler = h.moduleHandlerMap.get(child);
                     ModuleHandlerFactory mhf = ruleEngine.getModuleHandlerFactory(child.getTypeUID(), ruleUID);
-                    mhf.ungetHandler(child, ruleUID, handlerOfModule);
+                    mhf.ungetHandler(child, ruleUID, childHandler);
                 }
             }
         }
