@@ -7,19 +7,16 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.slf4j.LoggerFactory;
 
 /**
  * Actions are the part of "THEN" section of the {@link Rule} definition.
@@ -39,21 +36,7 @@ public class RuntimeAction extends Action {
      * The handler of this module.
      */
     private ActionHandler actionHandler;
-
-    /**
-     * Constructor of Action object.
-     *
-     * @param ID action unique id.
-     * @param typeUID module type unique id.
-     * @param configuration map of configuration values.
-     * @param connections set of connections to other modules (triggers and other actions).
-     * @param actionHandler
-     */
-    public RuntimeAction(String ID, String typeUID, Map<String, Object> configuration, Set<Connection> connections,
-            ActionHandler actionHandler) {
-        super(ID, typeUID, configuration, connections);
-        this.actionHandler = actionHandler;
-    }
+    private Set<Connection> connections;
 
     /**
      * Utility constructor creating copy of passed action.
@@ -61,7 +44,8 @@ public class RuntimeAction extends Action {
      * @param action another action which is uses as base of created
      */
     public RuntimeAction(Action action) {
-        super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getConnections());
+        super(action.getId(), action.getTypeUID(), action.getConfiguration(), action.getInputs());
+        setConnections(Connection.getConnections(action.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(action.getLabel());
         setDescription(action.getDescription());
     }
@@ -71,27 +55,12 @@ public class RuntimeAction extends Action {
      *
      * @see org.eclipse.smarthome.automation.Action#setConnections(java.util.Set)
      */
-    @Override
-    public void setConnections(Set<Connection> connections) {
-        this.connections = copyConnections(connections);
+    void setConnections(Set<Connection> connections) {
+        this.connections = connections;
     }
 
-    /**
-     * Utility method creating deep copy of passed connection set.
-     *
-     * @param connections connections used by this module.
-     * @return copy of passed connections.
-     */
-    Set<Connection> copyConnections(Set<Connection> connections) {
-        if (connections == null) {
-            return null;
-        }
-        Set<Connection> result = new HashSet<Connection>(connections.size());
-        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
-            Connection c = it.next();
-            result.add(new Connection(c.getInputName(), c.getOuputModuleId(), c.getOutputName()));
-        }
-        return result;
+    public Set<Connection> getConnections() {
+        return connections;
     }
 
     /**

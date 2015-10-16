@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class Action extends Module {
 
-    protected Set<Connection> connections;
+    private Map<String, String> inputs;
 
     public Action() {
     }
@@ -41,11 +41,11 @@ public class Action extends Module {
      * @param UID action unique id.
      * @param typeUID module type unique id.
      * @param configuration map of configuration values.
-     * @param connections set of connections to other modules (triggers and other actions).
+     * @param inputs set of connections to other modules (triggers and other actions).
      */
-    public Action(String UID, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+    public Action(String UID, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
         super(UID, typeUID, configuration);
-        setConnections(connections);
+        setInputs(inputs != null ? inputs : new HashMap<String, String>(0));
     }
 
     /**
@@ -55,8 +55,8 @@ public class Action extends Module {
      *
      * @return a {@link Set} of input {@link Connection}s.
      */
-    public Set<Connection> getConnections() {
-        return connections != null ? connections : new HashSet<Connection>(11);
+    public Map<String, String> getInputs() {
+        return inputs;
     }
 
     /**
@@ -64,8 +64,8 @@ public class Action extends Module {
      *
      * @param connections a {@link Set} of input {@link Connection}s.
      */
-    public void setConnections(Set<Connection> connections) {
-        this.connections = connections;
+    public void setInputs(Map<String, String> inputs) {
+        this.inputs = inputs;
     }
 
 }

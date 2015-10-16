@@ -63,15 +63,14 @@ public class ModuleI18nUtil {
 
     private static Condition createLocalizedCondition(Condition module, String label, String description) {
         Condition condition = new Condition(module.getId(), module.getTypeUID(), module.getConfiguration(),
-                module.getConnections());
+                module.getInputs());
         condition.setLabel(label);
         condition.setDescription(description);
         return condition;
     }
 
     private static Action createLocalizedAction(Action module, String label, String description) {
-        Action action = new Action(module.getId(), module.getTypeUID(), module.getConfiguration(),
-                module.getConnections());
+        Action action = new Action(module.getId(), module.getTypeUID(), module.getConfiguration(), module.getInputs());
         action.setLabel(label);
         action.setDescription(description);
         return action;

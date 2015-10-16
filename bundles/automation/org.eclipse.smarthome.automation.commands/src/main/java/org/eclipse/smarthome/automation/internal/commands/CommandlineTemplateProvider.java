@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.smarthome.automation.core.util.ConnectionValidator;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
@@ -155,13 +154,6 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
             for (RuleTemplate ruleT : providedObjects) {
                 List<ParsingNestedException> exceptions = new ArrayList<ParsingNestedException>();
                 String uid = ruleT.getUID();
-                try {
-                    ConnectionValidator.validateConnections(ruleT.getTriggers(), ruleT.getConditions(),
-                            ruleT.getActions());
-                } catch (Exception e) {
-                    exceptions.add(new ParsingNestedException(ParsingNestedException.TEMPLATE, uid,
-                            "Failed to validate connections of RuleTemplate with UID \"" + uid + "\"!", e));
-                }
                 checkExistence(uid, exceptions);
                 if (exceptions.isEmpty()) {
                     portfolio.add(uid);

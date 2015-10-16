@@ -12,14 +12,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.RuleEngine;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -74,28 +71,26 @@ public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleT
      * values and config values are same with '$' prefix.
      *
      * @param context rule context pass to the parent module
-     * @param module parent module. The module which type is composite type.
      * @return context which combines rule context and input and configuration properties of the parent module.
      */
-    protected Map<String, ?> getCompositeContext(Map<String, ?> context, Module module) {
+    protected Map<String, ?> getCompositeContext(Map<String, ?> context) {
         Map<String, Object> result = new HashMap<>(context);
         for (Entry<String, Object> config : module.getConfiguration().entrySet()) {
             result.put("$" + config.getKey(), config.getValue());
         }
 
-        Set<Connection> connections = null;
+        Map<String, String> inputs = null;
 
         if (module instanceof Condition) {
-            connections = ((Condition) module).getConnections();
+            inputs = ((Condition) module).getInputs();
         } else if (module instanceof Action) {
-            connections = ((Action) module).getConnections();
+            inputs = ((Action) module).getInputs();
         }
 
-        if (connections != null) {
-            for (Connection connection : connections) {
-                Object o = context
-                        .get(connection.getOuputModuleId() + RuleEngine.OUTPUT_SEPARATOR + connection.getOutputName());
-                result.put("$" + connection.getInputName(), o);
+        if (inputs != null) {
+            for (Entry<String, String> input : inputs.entrySet()) {
+                Object o = context.get(input.getValue());
+                result.put("$" + input.getKey(), o);
             }
         }
         return result;

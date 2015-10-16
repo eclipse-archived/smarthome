@@ -62,7 +62,7 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
         Map<String, Object> result = new HashMap<>();
         List<Action> children = moduleType.getModules();
         for (Action child : children) {
-            Map<String, ?> compositeContext = getCompositeContext(internalContext, module);
+            Map<String, ?> compositeContext = getCompositeContext(internalContext);
             Map<String, Object> originalConfig = new HashMap<>(child.getConfiguration());
             updateChildConfig(child, compositeContext);
             ActionHandler childHandler = moduleHandlerMap.get(child);

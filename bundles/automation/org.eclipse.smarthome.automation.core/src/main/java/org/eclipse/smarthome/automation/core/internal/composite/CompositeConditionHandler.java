@@ -43,7 +43,7 @@ public class CompositeConditionHandler extends
         Map<String, Object> internalContext = new HashMap<>(context);
         List<Condition> children = moduleType.getModules();
         for (Condition child : children) {
-            Map<String, ?> compositeContext = getCompositeContext(internalContext, module);
+            Map<String, ?> compositeContext = getCompositeContext(internalContext);
             Map<String, Object> originalConfig = new HashMap<>(child.getConfiguration());
             updateChildConfig(child, compositeContext);
             ConditionHandler childHandler = moduleHandlerMap.get(child);

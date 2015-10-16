@@ -12,11 +12,11 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
@@ -412,12 +412,12 @@ public class Printer {
             String str = "                                                            ";
             writer.append(makeString(str, config));
         }
-        Set<Connection> connections = null;
+        Map<String, String> connections = null;
         if (module instanceof Condition) {
-            connections = ((Condition) module).getConnections();
+            connections = ((Condition) module).getInputs();
         }
         if (module instanceof Action) {
-            connections = ((Action) module).getConnections();
+            connections = ((Action) module).getInputs();
         }
         if (connections != null && !connections.isEmpty()) {
             printChars(writer, ' ', 30, false);
@@ -552,10 +552,10 @@ public class Printer {
     }
 
     /**
-     * This method is responsible for printing the set of {@link Input}s or {@link Output}s or {@link Connection}s.
+     * This method is responsible for printing the set of {@link Input}s or {@link Output}s or {@link Inputs}s.
      *
-     * @param set is the set of {@link Input}s or {@link Output}s or {@link Connection}s for printing.
-     * @return a formated string, representing the set of {@link Input}s or {@link Output}s or {@link Connection}s.
+     * @param set is the set of {@link Input}s or {@link Output}s or {@link Inputs}s for printing.
+     * @return a formated string, representing the set of {@link Input}s or {@link Output}s or {@link Input}s.
      */
     private static String makeString(Set<?> set) {
         if (set == null || set.size() == 0) {
@@ -587,17 +587,28 @@ public class Printer {
                 res = res + "\n    " + str + "DEFAULT = " + ((Output) element).getDefaultValue();
                 res = res + "\n    " + str + "REFERENCE = " + ((Output) element).getReference();
                 res = res + "\n    " + str + "TAGS = " + makeString(((Output) element).getTags());
-            } else if (element instanceof Connection) {
-                if (i.hasNext()) {
-                    res = "\n" + str + str + ((Connection) element).getInputName() + " = "
-                            + ((Connection) element).getOuputModuleId() + "." + ((Connection) element).getOutputName();
-                } else {
-                    res = ((Connection) element).getInputName() + " = " + ((Connection) element).getOuputModuleId()
-                            + "." + ((Connection) element).getOutputName();
-                }
             }
         }
         return res;
+    }
+
+    private static String makeString(Map<String, ?> map) {
+        if (map == null || map.isEmpty()) {
+            return "[ ]";
+        }
+        String str = "                              ";
+        String res = "[";
+        Iterator<?> i = map.entrySet().iterator();
+        while (i.hasNext()) {
+            Map.Entry element = (Entry) i.next();
+            if (i.hasNext()) {
+                res = "\n" + str + str + element.getKey() + " = " + element.getValue();
+            } else {
+                res = element.getKey() + " = " + element.getValue();
+            }
+        }
+        return res;
+
     }
 
     /**

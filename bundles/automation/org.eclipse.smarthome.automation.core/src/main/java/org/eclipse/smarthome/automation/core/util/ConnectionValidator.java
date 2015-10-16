@@ -15,9 +15,11 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
-import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.Connection;
+import org.eclipse.smarthome.automation.core.internal.RuntimeAction;
+import org.eclipse.smarthome.automation.core.internal.RuntimeCondition;
+import org.eclipse.smarthome.automation.core.internal.RuntimeRule;
 import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -48,7 +50,7 @@ public class ConnectionValidator {
      * @param r rule which must be checked
      * @throws IllegalArgumentException when validation fails.
      */
-    public static void validateConnections(Rule r) {
+    public static void validateConnections(RuntimeRule r) {
         if (r == null) {
             throw new IllegalArgumentException("Validation of rule  is failed! Rule must not be null!");
         }
@@ -68,11 +70,11 @@ public class ConnectionValidator {
     public static void validateConnections(List<Trigger> triggers, List<Condition> conditions, List<Action> actions) {
         if (!conditions.isEmpty())
             for (Condition condition : conditions) {
-                validateConditionConnections(condition, triggers);
+                validateConditionConnections((RuntimeCondition) condition, triggers);
             }
         if (!actions.isEmpty()) {
             for (Action action : actions) {
-                validateActionConnections(action, triggers, actions);
+                validateActionConnections((RuntimeAction) action, triggers, actions);
             }
         }
     }
@@ -86,7 +88,7 @@ public class ConnectionValidator {
      * @param actions list rule's actions.
      * @throws IllegalArgumentException when validation fails.
      */
-    private static void validateActionConnections(Action action, List<Trigger> triggers, List<Action> actions) {
+    private static void validateActionConnections(RuntimeAction action, List<Trigger> triggers, List<Action> actions) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Set<Connection> cons = action.getConnections();
         if (cons == null) {
@@ -177,7 +179,7 @@ public class ConnectionValidator {
      * @param triggers list of triggers
      * @throws IllegalArgumentException when validation is failed.
      */
-    private static void validateConditionConnections(Condition condition, List<Trigger> triggers) {
+    private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
         Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Set<Connection> cons = condition.getConnections();
         if (cons == null) {

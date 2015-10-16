@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
@@ -262,13 +261,12 @@ public class RuleEngineTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        LinkedHashSet<Connection> connections = new LinkedHashSet<Connection>();
+        Map<String, String> inputs = new HashMap<>(11);
         String ouputModuleId = "triggerId";
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
-        Connection connection = new Connection(inputName, ouputModuleId, outputName);
-        connections.add(connection);
-        conditions.add(new Condition("conditionId", "typeUID", configurations, connections));
+        inputs.put(inputName, ouputModuleId + "." + outputName);
+        conditions.add(new Condition("conditionId", "typeUID", configurations, inputs));
         return conditions;
     }
 
@@ -278,13 +276,12 @@ public class RuleEngineTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        LinkedHashSet<Connection> connections = new LinkedHashSet<Connection>();
+        Map<String, String> inputs = new HashMap<>(11);
         String ouputModuleId = "triggerId";
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
-        Connection connection = new Connection(inputName, ouputModuleId, outputName);
-        connections.add(connection);
-        actions.add(new Action("actionId", "typeUID", configurations, connections));
+        inputs.put(inputName, ouputModuleId + "." + outputName);
+        actions.add(new Action("actionId", "typeUID", configurations, inputs));
         return actions;
     }
 

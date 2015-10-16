@@ -7,7 +7,8 @@
  */
 package org.eclipse.smarthome.automation;
 
-import java.util.HashSet;
+import java.sql.Connection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  */
 public class Condition extends Module {
 
-    private Set<Connection> connections;
+    private Map<String, String> inputs;
 
     public Condition() {
         super();
@@ -38,11 +39,11 @@ public class Condition extends Module {
      * @param id id of the module.
      * @param typeUID unique module type id.
      * @param configuration configuration values of the {@link Condition} module.
-     * @param connections set of {@link Connection}s used by this module.
+     * @param inputs set of {@link Connection}s used by this module.
      */
-    public Condition(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections) {
+    public Condition(String id, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
         super(id, typeUID, configuration);
-        setConnections(connections);
+        setInputs(inputs != null ? inputs : new HashMap<String, String>(0));
     }
 
     /**
@@ -50,10 +51,10 @@ public class Condition extends Module {
      * connections are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
      * {@link Module}s.
      *
-     * @return a {@link Set} of input {@link Connection}s.
+     * @return a {@link Map} of input connections.
      */
-    public Set<Connection> getConnections() {
-        return connections != null ? connections : new HashSet<Connection>(11);
+    public Map<String, String> getInputs() {
+        return inputs;
     }
 
     /**
@@ -61,8 +62,8 @@ public class Condition extends Module {
      *
      * @param connections a {@link Set} of input {@link Connection}s.
      */
-    public void setConnections(Set<Connection> connections) {
-        this.connections = connections;
+    public void setInputs(Map<String, String> inputs) {
+        this.inputs = inputs;
     }
 
 }

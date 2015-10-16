@@ -14,9 +14,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is implementation of {@link Condition} modules used in {@link Rule}s.
@@ -26,23 +26,11 @@ import org.eclipse.smarthome.automation.handler.ConditionHandler;
 public class RuntimeCondition extends Condition {
 
     private ConditionHandler conditionHandler;
-
-    /**
-     * Constructor of {@link Condition} module object.
-     *
-     * @param id id of the module.
-     * @param typeUID unique module type id.
-     * @param configuration configuration values of the {@link Condition} module.
-     * @param connections set of {@link Connection}s used by this module.
-     */
-    public RuntimeCondition(String id, String typeUID, Map<String, ?> configuration, Set<Connection> connections,
-            ConditionHandler conditionHandler) {
-        super(id, typeUID, configuration, connections);
-        this.conditionHandler = conditionHandler;
-    }
+    private Set<Connection> connections;
 
     public RuntimeCondition(Condition condition) {
-        super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getConnections());
+        super(condition.getId(), condition.getTypeUID(), condition.getConfiguration(), condition.getInputs());
+        setConnections(Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());
     }
@@ -58,9 +46,12 @@ public class RuntimeCondition extends Condition {
      *
      * @see org.eclipse.smarthome.automation.Condition#setConnections(java.util.Set)
      */
-    @Override
-    public void setConnections(Set<Connection> connections) {
-        super.setConnections(copyConnections(connections));
+    void setConnections(Set<Connection> connections) {
+        this.connections = connections;
+    }
+
+    public Set<Connection> getConnections() {
+        return connections;
     }
 
     /**

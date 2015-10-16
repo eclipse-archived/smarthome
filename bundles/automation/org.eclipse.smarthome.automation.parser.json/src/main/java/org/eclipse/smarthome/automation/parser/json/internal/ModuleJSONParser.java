@@ -10,19 +10,19 @@ package org.eclipse.smarthome.automation.parser.json.internal;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
-import org.eclipse.smarthome.automation.Connection;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.parser.ParsingNestedException;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
@@ -141,8 +141,10 @@ public class ModuleJSONParser {
                 jsonCondition, log);
         Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(type, UID, exceptions,
                 jsonConfig, log);
-        Set<Connection> connections = ModuleJSONParser.collectConnections(type, UID, jsonCondition, exceptions, log);
-        Condition condition = new Condition(conditionId, uid, configurations, connections);
+        JSONObject jsonInput = JSONUtility.getJSONObject(type, UID, exceptions, JSONStructureConstants.INPUT, true,
+                jsonCondition, log);
+        Map<String, String> inputs = ModuleJSONParser.getInputs(type, UID, exceptions, jsonInput, log);
+        Condition condition = new Condition(conditionId, uid, configurations, inputs);
         String label = JSONUtility.getString(type, UID, exceptions, JSONStructureConstants.LABEL, true, jsonCondition,
                 log);
         if (label != null)
@@ -202,8 +204,10 @@ public class ModuleJSONParser {
                 jsonAction, log);
         Map<String, Object> configurations = ConfigPropertyJSONParser.getConfigurationValues(type, UID, exceptions,
                 jsonConfig, log);
-        Set<Connection> connections = ModuleJSONParser.collectConnections(type, UID, jsonAction, exceptions, log);
-        Action action = new Action(actionId, uid, configurations, connections);
+        JSONObject jsonInput = JSONUtility.getJSONObject(type, UID, exceptions, JSONStructureConstants.INPUT, true,
+                jsonAction, log);
+        Map<String, String> inputs = ModuleJSONParser.getInputs(type, UID, exceptions, jsonInput, log);
+        Action action = new Action(actionId, uid, configurations, inputs);
         String label = JSONUtility.getString(type, UID, exceptions, JSONStructureConstants.LABEL, true, jsonAction,
                 log);
         if (label != null)
@@ -224,21 +228,19 @@ public class ModuleJSONParser {
      */
     static void actionToJSON(Action action, OutputStreamWriter writer) throws IOException {
         moduleToJSON(action, writer);
-        Set<Connection> connections = action.getConnections();
-        if (connections != null && !connections.isEmpty()) {
+        Map<String, String> inputs = action.getInputs();
+        if (inputs != null && !inputs.isEmpty()) {
             Map<String, ?> configValues = action.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
-            Iterator<Connection> connectionsI = connections.iterator();
+            Iterator<Entry<String, String>> connectionsI = inputs.entrySet().iterator();
             while (connectionsI.hasNext()) {
-                Connection connection = connectionsI.next();
+                Entry<String, String> input = connectionsI.next();
                 if (connectionsI.hasNext()) {
-                    writer.write("          \"" + connection.getInputName() + "\":\"" + connection.getOuputModuleId()
-                            + "." + connection.getOutputName() + "\",");
+                    writer.write("          \"" + input.getKey() + "\":\"" + input.getValue() + "\",");
                 } else {
-                    writer.write("          \"" + connection.getInputName() + "\":\"" + connection.getOuputModuleId()
-                            + "." + connection.getOutputName() + "\"");
+                    writer.write("          \"" + input.getKey() + "\":\"" + input.getValue() + "\"");
                 }
                 writer.write("\n        }");
             }
@@ -254,21 +256,19 @@ public class ModuleJSONParser {
      */
     static void conditionToJSON(Condition condition, OutputStreamWriter writer) throws IOException {
         moduleToJSON(condition, writer);
-        Set<Connection> connections = condition.getConnections();
+        Map<String, String> connections = condition.getInputs();
         if (connections != null && !connections.isEmpty()) {
             Map<String, ?> configValues = condition.getConfiguration();
             if (configValues != null && !configValues.isEmpty())
                 writer.write(",\n");
             writer.write("        \"" + JSONStructureConstants.INPUT + "\":{\n");
-            Iterator<Connection> connectionsI = connections.iterator();
+            Iterator<Entry<String, String>> connectionsI = connections.entrySet().iterator();
             while (connectionsI.hasNext()) {
-                Connection connection = connectionsI.next();
+                Entry<String, String> connection = connectionsI.next();
                 if (connectionsI.hasNext()) {
-                    writer.write("          \"" + connection.getInputName() + "\":\"" + connection.getOuputModuleId()
-                            + "." + connection.getOutputName() + "\",");
+                    writer.write("          \"" + connection.getKey() + "\":\"" + connection.getValue() + "." + "\",");
                 } else {
-                    writer.write("          \"" + connection.getInputName() + "\":\"" + connection.getOuputModuleId()
-                            + "." + connection.getOutputName() + "\"");
+                    writer.write("          \"" + connection.getKey() + "\":\"" + connection.getValue() + "\"");
                 }
                 writer.write("\n        }");
             }
@@ -346,53 +346,24 @@ public class ModuleJSONParser {
         }
     }
 
-    /**
-     * This method is used for collecting of Connections of {@link Module}s.
-     *
-     * @param type specifies the type of the automation object - module type, rule or rule template.
-     * @param UID is the unique identifier of the automation object - module type, rule or rule template.
-     * @param jsonModule is a JSONObject representing the module.
-     * @param exceptions is a list used for collecting the exceptions occurred during {@link Module}s creation.
-     * @param log is used for logging of exceptions.
-     * @return collected Connections
-     */
-    static Set<Connection> collectConnections(int type, String UID, JSONObject jsonModule,
-            List<ParsingNestedException> exceptions, Logger log) {
-        LinkedHashSet<Connection> connections = new LinkedHashSet<Connection>();
-        JSONObject jsonInputs = JSONUtility.getJSONObject(type, UID, exceptions, JSONStructureConstants.INPUT, true,
-                jsonModule, log);
-        if (jsonInputs != null) {
-            Iterator<?> i = jsonInputs.keys();
-            while (i.hasNext()) {
-                String inputName = (String) i.next();
-                String jsonOutput = JSONUtility.getString(type, UID, exceptions, inputName, false, jsonInputs, log);
-                if (jsonOutput == null) {
-                    continue;
-                }
-                int index = jsonOutput.indexOf('.');
-                if (index == -1) {
-                    if (jsonOutput.startsWith("$")) {
-                        String ouputModuleId = null;
-                        String outputName = jsonOutput;
-                        Connection connection = new Connection(inputName, ouputModuleId, outputName);
-                        connections.add(connection);
-
-                    } else {
-                        JSONUtility.catchParsingException(
-                                type, UID, exceptions, new IllegalArgumentException("Wrong format of Output : "
-                                        + jsonOutput + "smarthome autotype ls. Should be as \"Module_Id.Output_Id\"."),
-                                log);
-                        continue;
-                    }
-                } else {
-                    String ouputModuleId = jsonOutput.substring(0, index);
-                    String outputName = jsonOutput.substring(index + 1);
-                    Connection connection = new Connection(inputName, ouputModuleId, outputName);
-                    connections.add(connection);
-                }
+    static Map<String, String> getInputs(int type, String UID, List<ParsingNestedException> exceptions,
+            JSONObject jsonConfig, Logger log) {
+        Map<String, String> inputs = new HashMap<String, String>();
+        if (jsonConfig == null) {
+            return inputs;
+        }
+        Iterator<?> i = jsonConfig.keys();
+        while (i.hasNext()) {
+            String inputName = (String) i.next();
+            try {
+                inputs.put(inputName, (String) jsonConfig.get(inputName));
+            } catch (JSONException e) {
+                JSONUtility.catchParsingException(type, UID, exceptions,
+                        new Throwable("Failed to get the value for the input: " + inputName, e), log);
+                return null;
             }
         }
-        return connections;
+        return inputs;
     }
 
 }
