@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.binding.yahooweather.handler;
 
-import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_HUMIDITY;
-import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_PRESSURE;
-import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.CHANNEL_TEMPERATURE;
+import static org.eclipse.smarthome.binding.yahooweather.YahooWeatherBindingConstants.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -40,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * sent to one of the channels.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Stefan Bußweiler - Integrate new thing status handling 
+ * @author Stefan Bußweiler - Integrate new thing status handling
  */
 public class YahooWeatherHandler extends BaseThingHandler {
 
@@ -70,6 +68,7 @@ public class YahooWeatherHandler extends BaseThingHandler {
             refresh = (BigDecimal) config.get("refresh");
         } catch (Exception e) {
             // let's ignore it and go for the default
+            refresh = new BigDecimal(60);
         }
 
         startAutomaticRefresh();
