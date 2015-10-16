@@ -1,0 +1,75 @@
+{
+    "triggers": {
+		"GenericEventTrigger":{
+			"label": "Basic Event Trigger",
+			"description": "Triggers Rules on Events",
+			"config":{
+				"eventTopic":{
+		            "type": "TEXT",
+		            "label": "Topic",
+		            "description": "This is the topic, the trigger will listen to: >>smarthome/*<<",
+		            "required": true,
+		            "defaultValue": "smarthome/*"
+				},
+				"eventSource":{
+		            "type": "TEXT",
+		            "label": "Source",
+		            "description": "This is the source of the event (eg. item name)",
+		            "required": true,
+		            "defaultValue": ""
+				},
+				"eventTypes":{
+		            "type": "TEXT",
+		            "label": "Event Type",
+		            "description": "the event type, the trigger should listen to. Multiple types can be specified comma-separated",
+		            "required": true,
+		            "defaultValue": ""
+				}
+			},
+			"output":{
+	            "event": {
+	              "type": "org.eclipse.smarthome.core.events.Event",
+	              "label": "Event",
+	              "description": "The events which was sent.",
+	              "reference": "event"
+	            }
+			}
+		},
+		"ItemStateChangeTrigger":{
+			"label": "Item State Trigger",
+			"description": "This triggers a rule if an items state changed",
+			"config":{
+				"itemName":{
+					"type":"TEXT",
+					"context":"item",
+					"label":"item name",
+					"description":"the name of the item which's state change should be observed",
+					"required":true
+				}
+			},
+			"children":[
+				{
+					"id":"itemStateChangeTriggerID",
+					"type":"GenericEventTrigger",
+					"config":{
+						"eventSource":"$itemName",
+						"eventTopic":"smarthome/items/*",
+						"eventTypes":"ItemStateEvent"
+					}
+				}
+			],
+			"output":{
+				"event":{
+					"type":"org.eclipse.smarthome.core.events.Event",
+					"description":"the event of the item state change",
+					"label":"event",
+					"reference":"itemStateChangeTriggerID.event"
+				}
+			}
+		}
+	}
+}
+
+
+
+  

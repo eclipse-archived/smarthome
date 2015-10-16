@@ -32,7 +32,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
     public ResourceBundleTracker(BundleContext bundleContext) throws IllegalArgumentException {
         super(bundleContext); // can throw an IllegalArgumentException
 
-        this.bundleLanguageResourceMap = new LinkedHashMap<>();
+        this.bundleLanguageResourceMap = new LinkedHashMap<Bundle, LanguageResourceBundleManager>();
     }
 
     @Override

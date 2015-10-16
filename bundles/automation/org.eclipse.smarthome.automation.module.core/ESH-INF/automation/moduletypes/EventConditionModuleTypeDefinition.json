@@ -1,0 +1,37 @@
+{  
+  "conditions":{
+	  "EventCondition":{
+		  "label":"StateCondition",
+		  "description":"checks if the State matches",
+		  "config":{
+			  "topic":{
+				  "type":"TEXT",
+				  "description":"topic should match",
+				  "required":false
+			  },
+			  "eventType":{
+				  "type":"TEXT",
+				  "description":"eventType should match",
+				  "required":false
+			  },
+			  "source":{
+				  "type":"TEXT",
+				  "description":"source should match",
+				  "required":false
+			  },"payload":{
+				  "type":"TEXT",
+				  "description":"payload should match",
+				  "required":false
+			  }
+		  },
+	      "input": {
+            "event": {
+              "type": "org.eclipse.smarthome.core.events.Event",
+              "label": "Event",
+              "description": "The events which was sent.",
+			  "required":true
+            }
+	      }
+	  }
+  }
+}

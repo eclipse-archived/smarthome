@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.automation.rest.rule">
+   <implementation class="org.eclipse.smarthome.automation.rest.internal.RuleResource"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
+   </service>
+   <reference bind="setRuleRegistry" cardinality="1..1" interface="org.eclipse.smarthome.automation.RuleRegistry" name="RuleRegistry" policy="static" unbind="unsetRuleRegistry"/>
+</scr:component>
