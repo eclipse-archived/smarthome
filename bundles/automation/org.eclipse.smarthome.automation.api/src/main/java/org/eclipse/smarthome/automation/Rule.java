@@ -126,6 +126,27 @@ public class Rule {
     }
 
     /**
+     * This constructor is used when creating the rule and there is provided UID for the rule.
+     *
+     * @param uid is the unique identifier of the rule provided by its creator.
+     * @param triggers
+     * @param conditions
+     * @param actions
+     * @param configDescriptions
+     * @param configurations are values of the configuration parameters that are needed for configuring the rule,
+     *            represented as pairs key-value, where the key is the name of the configuration parameter and the value
+     *            is its value.
+     * @param templateUID the unique identifier of the RuleTemplate
+     */
+    public Rule(String uid, List<Trigger> triggers, //
+            List<Condition> conditions, //
+            List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions, //
+            Map<String, ?> configurations, String templateUID) {
+        this(uid, triggers, conditions, actions, configDescriptions, configurations);
+        this.ruleTemplateUID = templateUID;
+    }
+
+    /**
      * This method is used for getting the unique identifier of the Rule. This property is set by the RuleEngine when
      * the {@link Rule} is added. It's optional property.
      *

@@ -75,8 +75,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     public synchronized void add(Rule element) {
         String uid = addIntoRuleEngine(element);
         if (element.getUID() == null) {
-            element = new Rule(uid, element.getTriggers(), element.getConditions(), element.getActions(),
-                    element.getConfigurationDescriptions(), element.getConfiguration());
+            Rule elementNew = new Rule(uid, element.getTriggers(), element.getConditions(), element.getActions(),
+                    element.getConfigurationDescriptions(), element.getConfiguration(), element.getTemplateUID());
+            elementNew.setName(element.getName());
+            elementNew.setTags(element.getTags());
+            elementNew.setDescription(element.getDescription());
+
+            element = elementNew;
         }
         super.add(element);
         postEvent(RuleEventFactory.createRuleAddedEvent(element, SOURCE));
