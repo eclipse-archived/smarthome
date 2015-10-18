@@ -14,8 +14,7 @@
    <service>
       <provide interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry"/>
    </service>
+   <reference bind="addConfigOptionProvider" cardinality="0..n" interface="org.eclipse.smarthome.config.core.ConfigOptionProvider" name="ConfigOptionProvider" policy="dynamic" unbind="removeConfigOptionProvider"/>
    <reference bind="addConfigDescriptionProvider" cardinality="0..n" interface="org.eclipse.smarthome.config.core.ConfigDescriptionProvider" name="ConfigDescriptionProvider" policy="dynamic" unbind="removeConfigDescriptionProvider"/>
-   
-   
-   
+
 </scr:component>
