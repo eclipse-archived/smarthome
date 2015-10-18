@@ -232,3 +232,6 @@ If a thing should be removed, the framework informs the binding about the remova
 But for some radio-based devices it is needed to communicate with the device in order to unpair it safely. After the device was successfully unpaired, the binding can inform the framework that the thing was removed by setting the thing status to `REMOVED`.
 
 After the removal was requested the status of the thing is `REMOVING` and can not be changed back to `ONLINE` or `OFFLINE` by the binding. The binding can only initiate the status transition to `REMOVED`.
+
+## Providing the Configuration Status
+As on the [XML Reference](xml-reference.html) page explained the *ThingHandler* as handler for the thing entity can provide the configuration status of the thing by implementing the `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` interface. The `BaseThingHandlerFactory` registers the configuration status provider automatically as OSGi service if the interface is implemented by the concrete thing handler.    

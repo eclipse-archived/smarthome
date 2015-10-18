@@ -20,7 +20,7 @@ Specific services and bindings have to provide meta information which are used f
 Specific services or bindings require usually a configuration to be operational in a meaningful way. To visualize or validate concrete configuration properties, configuration descriptions should be provided. All available configuration descriptions are accessible through the `org.eclipse.smarthome.config.core.ConfigDescriptionRegistry` service.
 
 Although configuration descriptions are usually specified in a declarative way (as described in this section), they can also be provided as `org.eclipse.smarthome.config.core.ConfigDescriptionProvider`.
-Any `ConfigDescriptionProvider`s must be registered as service at the *OSGi* service registry. The full Java API for configuration descriptions can be found in the Java package `org.eclipse.smarthome.config.core`.
+Any `ConfigDescriptionProvider`s must be registered as service at the *OSGi* service registry. The full Java API for configuration descriptions can be found in the Java package `org.eclipse.smarthome.config.core`. In addition to this there is a `org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator` that can be used to validate a set of configuration parameters against their declarations in the configuration description before the the actual configuration is updated with the new configuration parameters.
 
 Configuration descriptions must be placed as XML file(s) (with the ending `.xml`) in the bundle's folder `/ESH-INF/config/`.
 
@@ -402,3 +402,6 @@ Hints:
 <li> The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `bridge-type:bindingID:id`, `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.</li>
 <li> If a configuration description is already specified somewhere else and the bridge/*Thing*/channel type wants to (re-)use it, a `config-description-ref` should be used instead.</li>
 </ul>
+
+## Config Status Provider
+Each entity that has a configuration can provide its current configuration status for UIs or specific services to point to issues or to provide further general information of the current configuration. For this purpose the handler of the entity has to implement the interface `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` that has to be registered as OSGi service. The `org.eclipse.smarthome.config.core.status.ConfigStatusService` tracks each configuration status provider and delivers the corresponding `org.eclipse.smarthome.config.core.status.ConfigStatusInfo` by the operation `getConfigStatus(String, Locale)`.
