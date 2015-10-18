@@ -163,7 +163,8 @@ public class ThingResource implements RESTResource {
         }
 
         if (removedThing == null) {
-            logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(),
+                    thingUID);
             return Response.status(Status.NOT_FOUND).build();
         }
 
