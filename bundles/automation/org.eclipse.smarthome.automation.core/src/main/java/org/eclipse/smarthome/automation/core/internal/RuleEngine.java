@@ -337,10 +337,10 @@ public class RuleEngine implements ServiceTrackerCustomizer/* <ModuleHandlerFact
                 ConnectionValidator.validateConnections(r);
             } catch (IllegalArgumentException e) {
                 unregister(r);
-                errMsgs = errMsgs + "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
+                errMsgs = "\n Validation of rule" + r.getUID() + "has failed! " + e.getMessage();
                 // change state to NOTINITIALIZED
                 setRuleStatusInfo(r.getUID(), new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                        RuleStatusDetail.CONFIGURATION_ERROR, errMessage.trim()));
+                        RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
             }
         }
 
