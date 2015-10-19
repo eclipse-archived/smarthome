@@ -36,12 +36,6 @@
             "title":"Rule Description",
             "description":"A brief description of what the rule is and for what it is used."
           },
-          "active":{  
-            "type":"boolean",
-            "title":"State",
-            "description":"Shows if the pule is in active state or not.",
-            "default":true
-          },
           "config":{  
             "type":"object",
             "title":"Rule Configurations",
@@ -339,12 +333,6 @@
             "type":"string",
             "title":"Rule Description",
             "description":"A brief description of what the rule is and for what it is used."
-          },
-          "active":{  
-            "type":"boolean",
-            "title":"State",
-            "description":"Shows if the pule is in active state or not.",
-            "default":true
           },
           "config":{  
             "type":"object",

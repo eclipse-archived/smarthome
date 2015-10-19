@@ -7,7 +7,6 @@
 	  "dimmer"
     ],
     "description":"Switch lamp on motion detection.",
-    "active":true,
 	"config":{  
       "dimmerLevel":{
 	      "type":"integer",
@@ -61,7 +60,6 @@
       "motion",
       "dimmer"
     ],
-    "active":false,
     "config":{  
       "motionItem":"MyMotionSensor",
       "dimmerItem":"MyDimmerActuator",

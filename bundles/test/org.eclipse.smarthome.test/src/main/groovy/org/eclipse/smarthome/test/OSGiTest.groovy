@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.test.storage.VolatileStorageService
 import org.junit.After
 import org.junit.Assert
@@ -204,4 +205,12 @@ abstract class OSGiTest {
 		}
 		registeredServices.clear()
 	}
+    
+    protected void enableItemAutoUpdate(){
+        def autoupdateConfig = [
+            autoUpdate: { String itemName -> return true }
+
+        ] as AutoUpdateBindingConfigProvider
+        registerService(autoupdateConfig)
+    }
 }

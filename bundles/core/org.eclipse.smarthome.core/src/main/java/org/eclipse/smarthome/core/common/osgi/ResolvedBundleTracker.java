@@ -45,7 +45,7 @@ public abstract class ResolvedBundleTracker implements SynchronousBundleListener
         }
 
         this.bundleContext = bundleContext;
-        this.trackedBundles = new ArrayList<>();
+        this.trackedBundles = new ArrayList<Bundle>();
     }
 
     /**

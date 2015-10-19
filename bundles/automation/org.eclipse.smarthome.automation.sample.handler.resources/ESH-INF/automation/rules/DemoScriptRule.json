@@ -1,0 +1,89 @@
+[  
+  {  
+    "uid": "javascript.rule1",
+    "name": "DemoScriptRule",
+    "description": "Sample rule based on scripts",
+    "on": [  
+      {  
+        "id": "trigger",
+        "type": "GenericEventTrigger",
+                    "config":{
+                        "eventSource":"MyTrigger",
+                        "eventTopic":"smarthome/items/MyTrigger/state",
+                        "eventTypes":"ItemStateEvent"
+                    }
+      }
+    ],
+    "if": [
+      {  
+        "id": "condition",
+        "type": "ScriptCondition",
+        "config": {  
+          "type": "application/javascript",
+          "script": "trigger_event.itemState==ON"
+        }
+      }
+    ],
+    "then": [
+      {  
+        "id": "action",
+        "type": "ScriptAction",
+        "config": {  
+          "type": "application/javascript",
+          "script": "print(ir.getItems()), print(tr.getAll()), print(trigger_event), be.sendCommand('ScriptItem', 'ON')"
+        }
+      }
+    ]
+  },
+  {  
+    "uid": "javascript.rule2",
+    "name": "DemoScriptRule2",
+    "description": "Sample rule based on scripts2",
+    "on": [  
+      {  
+        "id": "ScriptSampleTriggerID",
+        "type": "SampleTrigger"
+      }
+    ],
+    "if": [
+      {
+        "id": "ScriptSampleConditionID",
+        "type": "SampleCondition",
+        "config": {
+          "operator": "=",
+          "constraint": "marin"
+        },
+        "input": {
+          "conditionInput": "ScriptSampleTriggerID.triggerOutput"
+        }
+      }
+    ],
+    "then": [
+      {  
+        "id": "action",
+        "type": "ScriptAction",
+        "config": {  
+          "type": "application/javascript",
+          "script": 'print("Items:" + ir.getItems()); print("Things:" + tr.getAll()); print("ScriptSampleTriggerID.triggerOutput: " + ScriptSampleTriggerID.triggerOutput); print("current directory: " + java.lang.System.getProperty("user.dir")); var Thread = Java.type("java.lang.Thread"); var th1 = new Thread(function() print("Separate thread started at " + new java.util.Date())).start(); var th2 = new Thread(function() print("Separate thread started at " + new java.util.Date())).start(); '
+        }
+      },
+      {  
+        "id": "action2",
+        "type": "ScriptAction",
+        "config": {  
+          "type": "application/javascript",
+          "script": '"ProSyst rules!"';
+        }
+      },
+      {  
+        "id": "action3",
+        "type": "ScriptAction",
+        "config": {  
+          "type": "application/javascript",
+          "script": 'print("action2.result: " + action2.result)';
+        }
+      }
+      
+    ]
+  }
+]
