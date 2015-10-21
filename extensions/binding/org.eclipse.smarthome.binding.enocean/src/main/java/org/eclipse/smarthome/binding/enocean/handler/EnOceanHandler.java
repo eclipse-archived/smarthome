@@ -90,8 +90,7 @@ public class EnOceanHandler extends BaseThingHandler implements EventHandler {
 
     @Override
     public void handleEvent(Event event) {
-        String topic = event.getTopic();
-        if (topic.equals(EnOceanEvent.TOPIC_MSG_RECEIVED)) {
+
             String chipId = (String) event.getProperty(EnOceanDevice.CHIP_ID);
 
             if (device.getChipId() == Integer.valueOf(chipId)) {
@@ -110,9 +109,7 @@ public class EnOceanHandler extends BaseThingHandler implements EventHandler {
                 } else if (thing.getThingTypeUID().equals(THING_TYPE_ON_OFF_PLUG)) {
 
                 }
-
-            }
-        }
+            }        
     }
 
     public EnOceanDevice getDevice() {

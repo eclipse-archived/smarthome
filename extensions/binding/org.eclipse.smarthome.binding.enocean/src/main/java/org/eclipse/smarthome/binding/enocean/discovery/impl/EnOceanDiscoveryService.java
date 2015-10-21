@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.binding.enocean.discovery;
+package org.eclipse.smarthome.binding.enocean.discovery.impl;
 
 import static org.eclipse.smarthome.binding.enocean.EnOceanBindingConstants.*;
 
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.smarthome.binding.enocean.discovery.IEnOceanDiscoveryService;
 import org.eclipse.smarthome.binding.enocean.internal.EnOceanHandlerFactory;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -22,19 +23,17 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.osgi.service.enocean.EnOceanDevice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * The {@link EnOceanDiscoveryService} is responsible for discovering a weather Thing
- * of the local city from the IP address
+ * The {@link EnOceanDiscoveryService} is responsible for discovering a EnOcean Thing
+ * 
  *
  */
 
 public class EnOceanDiscoveryService extends AbstractDiscoveryService implements IEnOceanDiscoveryService {
 
-    private final Logger logger = LoggerFactory.getLogger(EnOceanDiscoveryService.class);
-    private List<EnOceanDevice> deviceList = new ArrayList<EnOceanDevice>();
+    //private Logger logger = LoggerFactory.getLogger(EnOceanDiscoveryService.class);
+    private List<EnOceanDevice> deviceList = new ArrayList<EnOceanDevice>();    
 
     public EnOceanDiscoveryService() {
         super(EnOceanHandlerFactory.SUPPORTED_THING_TYPES, 10);
@@ -57,10 +56,14 @@ public class EnOceanDiscoveryService extends AbstractDiscoveryService implements
 
     public void setEnoceanDevice(EnOceanDevice device) {
         deviceList.add(device);
+        
         String chipId = Integer.toString(device.getChipId());
-        ThingUID th = new ThingUID(chipId);
+        
+        //logger.debug("new device - chip Id: "+chipId);
+        System.out.println("new device - chip Id: "+chipId);
+        
         ThingTypeUID thingTypeUID = getThingTypeUIDFromDevice(device);
-
+        ThingUID th = new ThingUID(thingTypeUID,chipId);
         Map<String, Object> properties = new HashMap<>(1);
         properties.put("deviceId", chipId);
 
@@ -76,10 +79,14 @@ public class EnOceanDiscoveryService extends AbstractDiscoveryService implements
         int type = device.getType();
         int func = device.getFunc();
 
-        if (rorg == 246 && type == 99 && func == 99) {
+        if (rorg == 246 && type == -1 && func == -1) {
+        	//logger.debug("Eltako smoke detector has been asked");
+        	System.out.println("Eltako smoke detector has been asked");
             return THING_TYPE_ELTAKO_SMOKE_DETECTOR;
-        } else if (rorg == 162 && type == 0 && func == 5) {
-            return THING_TYPE_ON_OFF_PLUG;
+        } else if (rorg == 226 && type == 0 && func == 6) {        	
+        	//logger.debug("on/off plug has been asked");
+        	System.out.println("on/off plug has been asked");
+        	return THING_TYPE_ON_OFF_PLUG;
         }
 
         return null;
@@ -88,6 +95,8 @@ public class EnOceanDiscoveryService extends AbstractDiscoveryService implements
 
     public void unsetEnoceanDevice(EnOceanDevice device) {
         deviceList.remove(device);
+        
+        //TODO kill the handler
     }
 
     @Override

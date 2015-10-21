@@ -6,22 +6,19 @@
 
     <!-- smoke detector binding Binding -->
     <thing-type id="smokeDetector">
-        <label>Weather Information</label>
-        <description>Provides various weather data from the Yahoo service</description>
-
+        <label>Smoke detector </label>
+        <description>Rises an alarm if some smoke is detected</description>
 		<channels>
 			<channel id="alarm" typeId="alarm" />
 
 		</channels>
-
     </thing-type>
     <thing-type id="plugOnOff">
-        <label>Weather Information</label>
-        <description>Provides various weather data from the Yahoo service</description>
+        <label>plug on off</label>
+        <description>can remotely switch on or off</description>
 
         <channels>
             <channel id="onOff" typeId="onOff" />
-
         </channels>
 
     </thing-type>
@@ -34,7 +31,7 @@
         <state readOnly="true">
         </state>
     </channel-type>
-        <channel-type id="onOff">
+    <channel-type id="onOff">
         <item-type>Switch</item-type>
         <label>Alarm</label>
         <description>alarm turned as on or off</description>
@@ -42,5 +39,4 @@
         <state readOnly="true">
         </state>
     </channel-type>
-
 </thing:thing-descriptions>

@@ -1,51 +1,90 @@
-# YahooWeather Binding
+# EnOcean Binding
 
-This binding uses the [Yahoo Weather service](https://developer.yahoo.com/weather/) for providing current weather information.
+This binding uses the EnOcean base driver located in the protocol part.
 
-_Note:_ The Yahoo Weather API is provided by Yahoo free of charge for personal, non-commercial uses, but it requires attribution and the acceptance of their terms of use.
-By using this binding, you confirm that you agree with this - please read the details on [https://developer.yahoo.com/weather/](https://developer.yahoo.com/weather/).
 
 ## Supported Things
 
-There is exactly one supported thing, which represents the weather service. It has the id ```weather```.
+It supports 2 examples for now: Eltako smoke detector and a G-media switch plug to show an implemention of a command and an event
 
 ## Discovery
 
-The binding supports discovery, which does a geo location lookup based on the current IP address (using [freegeoip.net](http://freegeoip.net)).
+All is handled in the class EnOceanDiscoveryService. In the declarative services part, service is bound to each EnOceanDevice created by the base driver:
+
+   <reference name="enoceanDevice" cardinality="0..n" policy="dynamic"
+   interface="org.osgi.service.enocean.EnOceanDevice"
+   bind="setEnoceanDevice" unbind="unsetEnoceanDevice"/>
+
+So each time an EnOcean device is created an EnOcean thing will be created as well in the setEnoceanDevice method.
+
 
 ## Thing Configuration
 
-Besides the location (as ```location``` as a [WOEID](https://en.wikipedia.org/wiki/WOEID) number), the second configuration parameter is ```refresh``` which defines the refresh interval in seconds.
+No configuration is needed for these EnOcean devices as nothing can be set and thus no configuration to keep.
 
 ## Channels
 
-The weather information that is retrieved is available as these channels:
+The Eltako smoke detector is available as this channel:
+Channel Type ID: alarm
+Item Type: Switch
+Description: alarm turned on or off
 
-| Channel Type ID | Item Type    | Description  |
-|-----------------|------------------------|------------- |
-| temperature | Number       | The current temperature in degrees celsius |
-| humidity | Number       | The current humidity in % |
-| pressure | Number       | The current pressure in millibar (hPa) |
+G-media switch plug:
+Channel Type ID: onOff
+Item Type: Switch
+Description: the plug turned on or off
 
 
-## Full Example
+## EnOcean Thing handler
 
-demo.things:
-```
-yahooweather:weather:berlin [ location="638242" ]
-```
+Command sending and events are handled in this class.
 
-demo.items:
-```
-Number Temperature 	"Outside Temperature" { channel="yahooweather:weather:berlin:temperature" }
-```
+Commands are implemented in the classic Eclipse SmartHome way in the handleCommand method switching on the channel case:
 
-demo.sitemap:
-```
-sitemap demo label="Main Menu"
-{
-	Frame {
-		Text item=Temperature
-	}
-}
-```
+public void handleCommand(ChannelUID channelUID, Command command) {
+	if (command instanceof RefreshType) {
+	    //
+	    boolean success = true;
+	    if (success) {
+	       switch (channelUID.getId()) {
+		    case CHANNEL_ELTAKO_SMOKE_DETECTOR:
+		        // should not happen
+		        break;
+		    case CHANNEL_ON_OFF:
+		        EnOceanRPC rpc = null;
+
+	...
+
+the Enocean device sends events using the event admin so the class EnOceanHandler must implements the interface EventHandler:
+
+public class EnOceanHandler extends BaseThingHandler implements EventHandler {
+
+...
+    @Override
+    public void handleEvent(Event event) {
+
+    String chipId = (String) event.getProperty(EnOceanDevice.CHIP_ID);
+
+    if (device.getChipId() == Integer.valueOf(chipId)) {
+	if (thing.getThingTypeUID().equals(THING_TYPE_ELTAKO_SMOKE_DETECTOR)) {
+	    EnOceanMessage data = (EnOceanMessage) event.getProperty(EnOceanEvent.PROPERTY_MESSAGE);
+	    byte[] payload = data.getBytes();
+...
+
+
+Each thing handler has its EnoceanDevice as a private field
+
+## EnOcean device
+
+An EnOcean device can be identified by its unique chipId. This chip Id will be used to create the thingUID.
+An EnOcean device type can be identified by 3 parameters: 
+
+RORG: defines the telegram type
+FUNC: defines the function of the device like temperature sensor
+TYPE: defines a sub element of the function like temperature sensor 0-40°
+
+
+
+
+
+
