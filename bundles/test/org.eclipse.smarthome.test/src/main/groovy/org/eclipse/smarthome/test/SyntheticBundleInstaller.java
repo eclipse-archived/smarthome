@@ -95,7 +95,7 @@ public class SyntheticBundleInstaller {
             String path = url.getPath();
             URI baseURI = url.toURI();
 
-            List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties");
+            List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties", "*.json");
             for (URL entryURL : list) {
                 String fileEntry = convertToFileEntry(baseURI, entryURL);
                 result.add(fileEntry);
