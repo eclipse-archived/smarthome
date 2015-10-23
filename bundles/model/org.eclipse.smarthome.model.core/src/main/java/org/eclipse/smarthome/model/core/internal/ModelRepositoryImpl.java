@@ -29,11 +29,6 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-
 /**
  * @author Oliver Libutzki - Added reloadAllModelsOfType method
  *
@@ -141,25 +136,20 @@ public class ModelRepositoryImpl implements ModelRepository {
 
     @Override
     public Iterable<String> getAllModelNamesOfType(final String modelType) {
+        final List<String> modelNames = new ArrayList<>();
         synchronized (resourceSet) {
-            Iterable<Resource> matchingResources = Iterables.filter(resourceSet.getResources(),
-                    new Predicate<Resource>() {
-                        @Override
-                        public boolean apply(Resource input) {
-                            if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
-                                return modelType.equalsIgnoreCase(input.getURI().fileExtension());
-                            } else {
-                                return false;
-                            }
-                        }
-                    });
-            return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
-                @Override
-                public String apply(Resource from) {
-                    return from.getURI().path();
+            // Make a copy to avoid ConcurrentModificationException
+            final List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            for (final Resource resource : resourceListCopy) {
+                if (resource != null && resource.isLoaded()) {
+                    final URI uri = resource.getURI();
+                    if (uri.lastSegment().contains(".") && modelType.equalsIgnoreCase(uri.fileExtension())) {
+                        modelNames.add(uri.path());
+                    }
                 }
-            }));
+            }
         }
+        return modelNames;
     }
 
     @Override
