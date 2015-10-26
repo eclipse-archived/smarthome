@@ -5,13 +5,15 @@ Bundle-SymbolicName: org.eclipse.smarthome.config.core
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.google.common.collect,
+Import-Package: com.google.common.base,
+ com.google.common.collect,
+ com.google.gson,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.lang.reflect,
- org.eclipse.smarthome.config.core,
- org.eclipse.smarthome.config.core.dto,
- org.eclipse.smarthome.config.core.i18n,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.common.osgi,
+ org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
  org.osgi.service.cm,
@@ -20,6 +22,10 @@ Import-Package: com.google.common.collect,
  org.slf4j
 Export-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.dto,
- org.eclipse.smarthome.config.core.i18n
+ org.eclipse.smarthome.config.core.i18n,
+ org.eclipse.smarthome.config.core.status,
+ org.eclipse.smarthome.config.core.status.events,
+ org.eclipse.smarthome.config.core.validation
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
+Bundle-Activator: org.eclipse.smarthome.config.core.internal.Activator
