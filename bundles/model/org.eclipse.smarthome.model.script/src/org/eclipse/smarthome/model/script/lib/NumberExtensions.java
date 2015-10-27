@@ -163,10 +163,10 @@ public class NumberExtensions {
         }
     }
 
-    // Comparison operators between openHAB types and numbers
+    // Comparison operators between ESH types and numbers
 
     public static boolean operator_equals(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) == 0;
         } else {
             return type == x; // both might be null, then we should return true
@@ -174,7 +174,7 @@ public class NumberExtensions {
     }
 
     public static boolean operator_notEquals(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) != 0;
         } else {
             return type != x; // both might be null, then we should return
@@ -183,7 +183,7 @@ public class NumberExtensions {
     }
 
     public static boolean operator_greaterThan(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) > 0;
         } else {
             return false;
@@ -191,7 +191,7 @@ public class NumberExtensions {
     }
 
     public static boolean operator_greaterEqualsThan(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) >= 0;
         } else {
             return false;
@@ -199,7 +199,7 @@ public class NumberExtensions {
     }
 
     public static boolean operator_lessThan(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) < 0;
         } else {
             return false;
@@ -207,7 +207,7 @@ public class NumberExtensions {
     }
 
     public static boolean operator_lessEqualsThan(Type type, Number x) {
-        if (type != null && type instanceof DecimalType) {
+        if (type != null && type instanceof DecimalType && x != null) {
             return ((DecimalType) type).toBigDecimal().compareTo(numberToBigDecimal(x)) <= 0;
         } else {
             return false;
@@ -216,7 +216,7 @@ public class NumberExtensions {
 
     /**
      * Convert the given number into a BigDecimal
-     * 
+     *
      * @param number
      *            the number to convert
      * @return the given number as BigDecimal or null if number is null
