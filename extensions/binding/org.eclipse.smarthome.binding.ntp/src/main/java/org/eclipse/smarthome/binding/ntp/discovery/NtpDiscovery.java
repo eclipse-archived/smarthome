@@ -7,10 +7,12 @@
  */
 package org.eclipse.smarthome.binding.ntp.discovery;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -28,15 +30,32 @@ import static org.eclipse.smarthome.binding.ntp.NtpBindingConstants.*;
 public class NtpDiscovery extends AbstractDiscoveryService {
 
 	private final static String DEFAULT_NTP_SERVER = "0.pool.ntp.org";
-	private final static int DEFAULT_REFRESH_INTERVAL = 60;
-	private final static int DEFAULT_NTP_INTERVAL = 30;
+	private final static BigDecimal DEFAULT_REFRESH_INTERVAL = new BigDecimal(60);
+	private final static BigDecimal DEFAULT_NTP_INTERVAL = new BigDecimal(30);
 
 	public NtpDiscovery() throws IllegalArgumentException {
 		super(SUPPORTED_THING_TYPES_UIDS, 10);
 	}
 
 	@Override
+	protected void startBackgroundDiscovery() {
+		scheduler.schedule(new Runnable() {
+			@Override
+			public void run() {
+				discoverNtp();
+			}
+		}, 1, TimeUnit.SECONDS);
+	}
+	
+	@Override
 	protected void startScan() {
+		discoverNtp();
+	}
+
+	/**
+	 *  Add a ntp Thing for the local time in the discovery inbox
+	 */
+	private void discoverNtp() {
 		Map<String, Object> properties = new HashMap<>(4);
 		properties.put(PROPERTY_NTP_SERVER, DEFAULT_NTP_SERVER);
 		properties.put(PROPERTY_REFRESH_INTERVAL, DEFAULT_REFRESH_INTERVAL);
