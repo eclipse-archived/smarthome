@@ -60,7 +60,7 @@
             <version>${xtext-version}</version>
           </dependency>
           <dependency>
-            <groupId>org.eclipse.smarthome.model</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>org.eclipse.smarthome.model.script</artifactId>
             <version>${project.version}</version>
           </dependency>
