@@ -60,11 +60,6 @@
             <version>${xtext-version}</version>
           </dependency>
           <dependency>
-            <groupId>org.eclipse.smarthome.model</groupId>
-            <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
             <version>${project.version}</version>
