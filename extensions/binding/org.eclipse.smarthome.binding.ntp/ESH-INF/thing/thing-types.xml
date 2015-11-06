@@ -46,6 +46,5 @@
 		<label>Date</label>
 		<description>NTP refreshed date &amp; time</description>
 		<category>Date</category>
-		  <state readOnly="true" pattern="%1$tA, %1$td.%1$tm.%1$tY %1$tH:%1$tM"></state>
 	</channel-type>
 </thing:thing-descriptions>
