@@ -20,6 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -27,12 +28,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
+import org.eclipse.smarthome.config.core.status.ConfigStatusService;
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
@@ -48,6 +53,7 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +64,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Thomas Höfer - added validation of configuration
  */
 @Path("things")
 public class ThingResource implements RESTResource {
@@ -71,6 +78,7 @@ public class ThingResource implements RESTResource {
     private ManagedItemProvider managedItemProvider;
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
+    private ConfigStatusService configStatusService;
 
     @Context
     private UriInfo uriInfo;
@@ -163,7 +171,8 @@ public class ThingResource implements RESTResource {
         }
 
         if (removedThing == null) {
-            logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            logger.info("Received HTTP DELETE request at '{}' for the unknown thing '{}'.", uriInfo.getPath(),
+                    thingUID);
             return Response.status(Status.NOT_FOUND).build();
         }
 
@@ -215,12 +224,17 @@ public class ThingResource implements RESTResource {
     @PUT
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateConfiguration(@PathParam("thingUID") String thingUID,
-            Map<String, Object> configurationParameters) throws IOException {
+    public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") String thingUID, Map<String, Object> configurationParameters) throws IOException {
 
         try {
             thingRegistry.updateConfiguration(new ThingUID(thingUID),
                     convertDoublesToBigDecimal(configurationParameters));
+        } catch (ConfigValidationException ex) {
+            logger.debug("Config description validation exception occured for thingUID " + thingUID,
+                    ex.getValidationMessages());
+            return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(LocaleUtil.getLocale(language)))
+                    .build();
         } catch (IllegalArgumentException ex) {
             logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
                     uriInfo.getPath(), thingUID);
@@ -228,6 +242,17 @@ public class ThingResource implements RESTResource {
         }
 
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{thingUID}/config/status")
+    public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
+            @PathParam("thingUID") String thingUID) throws IOException {
+        ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
+        if (info != null) {
+            return Response.ok().entity(info.getConfigStatusMessages()).build();
+        }
+        return Response.status(Status.NOT_FOUND).build();
     }
 
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
@@ -284,6 +309,14 @@ public class ThingResource implements RESTResource {
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
+    }
+
+    protected void setConfigStatusService(ConfigStatusService configStatusService) {
+        this.configStatusService = configStatusService;
+    }
+
+    protected void unsetConfigStatusService(ConfigStatusService configStatusService) {
+        this.configStatusService = null;
     }
 
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things) {

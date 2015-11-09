@@ -10,10 +10,11 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
@@ -26,6 +27,8 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -41,14 +44,15 @@ import org.osgi.util.tracker.ServiceTracker;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
- * @author Thomas Höfer - Added thing properties
+ * @author Thomas Höfer - Added thing properties and config description validation
  * @author Stefan Bußweiler - Added new thing status handling
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
     private static final String THING_HANDLER_THREADPOOL_NAME = "thingHandler";
 
-    protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
+    protected final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
     protected ThingRegistry thingRegistry;
     protected BundleContext bundleContext;
@@ -144,15 +148,18 @@ public abstract class BaseThingHandler implements ThingHandler {
         // can be overridden by subclasses
         updateStatus(ThingStatus.REMOVED);
     }
-    
+
     @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParmeters) {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
+        validateConfigurationParameters(configurationParameters);
+
         // can be overridden by subclasses
         Configuration configuration = editConfiguration();
-        for (Entry<String, Object> configurationParmeter : configurationParmeters.entrySet()) {
+        for (Entry<String, Object> configurationParmeter : configurationParameters.entrySet()) {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
-        
+
         // reinitialize with new configuration and persist changes
         dispose();
         updateConfiguration(configuration);
@@ -204,6 +211,22 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void channelUnlinked(ChannelUID channelUID) {
         // can be overridden by subclasses
+    }
+
+    /**
+     * Validates the given configuration parameters against the configuration description.
+     *
+     * @param configurationParameters the configuration parameters to be validated
+     *
+     * @throws ConfigValidationException if one or more of the given configuration parameters do not match
+     *             their declarations in the configuration description
+     */
+    protected void validateConfigurationParameters(Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
+        ThingType thingType = TypeResolver.resolve(getThing().getThingTypeUID());
+        if (thingType != null) {
+            ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
+        }
     }
 
     /**

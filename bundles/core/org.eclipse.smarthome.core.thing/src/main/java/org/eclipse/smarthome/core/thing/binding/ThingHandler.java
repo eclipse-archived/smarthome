@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -27,6 +28,7 @@ import org.eclipse.smarthome.core.types.State;
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Michael Grammling - Added dynamic configuration update
+ * @auther Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
  */
 public interface ThingHandler {
 
@@ -86,8 +88,11 @@ public interface ThingHandler {
      * An implementing class needs to persist the configuration changes if necessary.
      *
      * @param configurationParameters map of changed configuration parameters
+     *
+     * @throws ConfigValidationException if one or more of the given configuration parameters do not match
+     *             their declarations in the configuration description
      */
-    void handleConfigurationUpdate(Map<String, Object> configurationParameters);
+    void handleConfigurationUpdate(Map<String, Object> configurationParameters) throws ConfigValidationException;
 
     /**
      * This method is called, before the handler is shut down.

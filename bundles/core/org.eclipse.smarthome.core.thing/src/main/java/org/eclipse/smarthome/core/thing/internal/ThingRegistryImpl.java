@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -29,8 +30,9 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Simon Kaufmann - Added forceRemove
  * @author Chris Jackson - ensure thing added event is sent before linked events
+ * @auther Thomas Höfer - Added config description validation exception to updateConfiguration operation
  */
-public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
+public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implements ThingRegistry {
 
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 
@@ -49,7 +51,7 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.thing.ThingRegistry#getByUID(java.lang.String)
      */
@@ -64,7 +66,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> impleme
     }
 
     @Override
-    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters) {
+    public void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
         Thing thing = get(thingUID);
         if (thing != null) {
             ThingHandler thingHandler = thing.getHandler();
