@@ -108,7 +108,7 @@ public final class Activator implements BundleActivator {
     public static final class I18nProviderBinder {
         @Bind
         @Unbind
-        public void bindConfigDescriptionRegistry(I18nProvider i18nProvider) {
+        public void bindI18nProvider(I18nProvider i18nProvider) {
             Activator.i18nProvider = i18nProvider;
         }
     }
