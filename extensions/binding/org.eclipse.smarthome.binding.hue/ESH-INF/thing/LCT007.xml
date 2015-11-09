@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Standard Hue Color Bulb with E27 socket (see http://www.developers.meethue.com/documentation/supported-lights) -->
+    <thing-type id="LCT007">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Hue Lamp</label>
+        <description>This is a standard Philips hue bulb with E27 socket (Hue bulb A19)</description>
+
+        <channels>
+            <channel id="color" typeId="color" />
+            <channel id="color_temperature" typeId="color_temperature" />
+        </channels>
+        
+        <properties>
+        	<property name="vendor">Philips</property>
+        	<property name="modelId">LCT007</property>
+        </properties>
+
+        <config-description>
+            <parameter name="lightId" type="text">
+                <label>Light ID</label>
+                <description>The light identifier identifies one certain hue light.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+</thing:thing-descriptions>
