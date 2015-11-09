@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="hue"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Hue Lux with E27 socket (see http://www.everyhue.com/vanilla/discussion/47/model-ids/p1) -->
+    <thing-type id="LWB006">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>Hue Bulb</label>
+        <description>This is a Philips Hue Lux with E27 socket</description>
+
+        <channels>
+            <channel id="brightness" typeId="brightness" />
+        </channels>
+        
+        <properties>
+        	<property name="vendor">Philips</property>
+        	<property name="modelId">LWB006</property>
+        </properties>
+
+        <config-description>
+            <parameter name="lightId" type="text">
+                <label>Light ID</label>
+                <description>The light identifier identifies one certain hue light.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+</thing:thing-descriptions>
