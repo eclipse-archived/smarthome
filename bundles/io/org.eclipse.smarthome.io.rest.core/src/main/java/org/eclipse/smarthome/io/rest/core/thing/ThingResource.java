@@ -48,6 +48,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -58,6 +59,12 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This class acts as a REST resource for things and is registered with the
  * Jersey servlet.
@@ -65,11 +72,16 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Thomas Höfer - added validation of configuration
+ * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path("things")
+@Path(ThingResource.PATH_THINGS)
+@Api
 public class ThingResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);
+
+    /** The URI path to this resource */
+    public static final String PATH_THINGS = "things";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ItemFactory itemFactory;
@@ -85,7 +97,10 @@ public class ThingResource implements RESTResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response create(ThingDTO thingBean) throws IOException {
+    @ApiOperation(value = "Adds a new thing to the registry.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "No binding can create the thing.") })
+    public Response create(@ApiParam(value = "thing data", required = true) ThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -96,38 +111,53 @@ public class ThingResource implements RESTResource {
 
         Configuration configuration = getConfiguration(thingBean);
 
-        managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID, configuration);
+        ThingTypeUID thingTypeUIDObject = thingUIDObject.getThingTypeUID();
+        Thing createdThing = managedThingProvider.createThing(thingTypeUIDObject, thingUIDObject, bridgeUID,
+                configuration);
+
+        if (createdThing == null) {
+            logger.warn("Received HTTP @POST request at '{}'. No binding found that supports creating a thing"
+                    + " of type {}.", uriInfo.getPath(), thingTypeUIDObject.getAsString());
+            return Response.status(Status.BAD_REQUEST).build();
+        }
 
         return Response.ok().build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get all available things.", response = EnrichedThingDTO.class, responseContainer = "Set")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getAll() {
-
         Collection<Thing> things = thingRegistry.getAll();
         Set<EnrichedThingDTO> thingBeans = convertToListBean(things);
-
         return Response.ok(thingBeans).build();
     }
 
     @GET
     @Path("/{thingUID}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getByUID(@PathParam("thingUID") String thingUID) {
+    @ApiOperation(value = "Gets thing by UID.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "Thing with provided thingUID does not exist.") })
+    public Response getByUID(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID) {
         Thing thing = thingRegistry.get((new ThingUID(thingUID)));
         if (thing != null) {
             return Response.ok(EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri())).build();
         } else {
-            return Response.noContent().build();
+            return Response.status(Status.NO_CONTENT).build();
         }
     }
 
     @POST
     @Path("/{thingUID}/channels/{channelId}/link")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response link(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
-            String itemName) {
+    @ApiOperation(value = "Links item to a channel. Creates item if such does not exist yet.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found or channel not found") })
+    public Response link(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
+            @ApiParam(value = "item name") String itemName) {
 
         Thing thing = thingRegistry.get(new ThingUID(thingUID));
         if (thing == null) {
@@ -160,8 +190,11 @@ public class ThingResource implements RESTResource {
 
     @DELETE
     @Path("/{thingUID}")
-    public Response remove(@PathParam("thingUID") String thingUID,
-            @DefaultValue("false") @QueryParam("force") boolean force) {
+    @ApiOperation(value = "Removes a thing from the registry. Set \'force\' to __true__ if you want the thing te be removed immediately.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found.") })
+    public Response remove(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
 
         Thing removedThing = null;
         if (force) {
@@ -181,8 +214,11 @@ public class ThingResource implements RESTResource {
 
     @DELETE
     @Path("/{thingUID}/channels/{channelId}/link")
-    public Response unlink(@PathParam("thingUID") String thingUID, @PathParam("channelId") String channelId,
-            String itemName) {
+    @ApiOperation(value = "Unlinks item from a channel.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response unlink(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
+            @ApiParam(value = "channelId") String itemName) {
 
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
@@ -196,7 +232,11 @@ public class ThingResource implements RESTResource {
     @PUT
     @Path("/{thingUID}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response update(@PathParam("thingUID") String thingUID, ThingDTO thingBean) throws IOException {
+    @ApiOperation(value = "Updates a thing.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found") })
+    public Response update(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @ApiParam(value = "thing", required = true) ThingDTO thingBean) throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
         ThingUID bridgeUID = null;
@@ -224,8 +264,13 @@ public class ThingResource implements RESTResource {
     @PUT
     @Path("/{thingUID}/config")
     @Consumes(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Updates thing's configuration.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Thing not found") })
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
-            @PathParam("thingUID") String thingUID, Map<String, Object> configurationParameters) throws IOException {
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
+            @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
+                    throws IOException {
 
         try {
             thingRegistry.updateConfiguration(new ThingUID(thingUID),
