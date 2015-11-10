@@ -7,6 +7,11 @@
  */
 package org.eclipse.smarthome.core.id.internal;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -22,13 +27,16 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path(UUIDResource.PATH_UUID)
+@Api
 public class UUIDResource implements RESTResource {
 
     public static final String PATH_UUID = "uuid";
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getSitemaps() {
+    @ApiOperation(value = "A unified unique id.", response = String.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response getInstanceUUID() {
         return Response.ok(InstanceUUID.get()).build();
     }
 

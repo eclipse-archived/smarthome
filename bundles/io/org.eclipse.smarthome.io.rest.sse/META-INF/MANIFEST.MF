@@ -6,8 +6,8 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: org.eclipse.smarthome.io.rest.sse.internal.SseActivator
-Import-Package: 
- com.google.common.collect,
+Import-Package: com.google.common.collect,
+ io.swagger.annotations,
  javax.inject;version="1.0.0",
  javax.servlet;version="[2.4.0,4.0.0)",
  javax.servlet.http;version="[2.4.0,4.0.0)",

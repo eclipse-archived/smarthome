@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest.core.binding;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -32,9 +38,14 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path("bindings")
+@Path(BindingResource.PATH_BINDINGS)
+@Api
 public class BindingResource implements RESTResource {
+
+    /** The URI path to this resource */
+    public static final String PATH_BINDINGS = "bindings";
 
     private BindingInfoRegistry bindingInfoRegistry;
 
@@ -51,7 +62,9 @@ public class BindingResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@HeaderParam("Accept-Language") String language) {
+    @ApiOperation(value = "Get all bindings.", response = BindingInfoDTO.class, responseContainer = "Set")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
