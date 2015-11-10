@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.collect,
  com.google.gson,
+ io.swagger.annotations,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,

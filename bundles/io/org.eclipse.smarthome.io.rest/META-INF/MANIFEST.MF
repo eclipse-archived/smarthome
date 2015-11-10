@@ -7,6 +7,7 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
  com.google.common.collect,
+ io.swagger.annotations,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
@@ -27,8 +28,10 @@ Import-Package: com.google.common.base,
  org.osgi.service.http,
  org.osgi.util.tracker,
  org.slf4j
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ lib/swagger-annotations-1.5.0.jar
 Service-Component: OSGI-INF/*.xml
-Export-Package: org.eclipse.smarthome.io.rest
+Export-Package: io.swagger.annotations,
+ org.eclipse.smarthome.io.rest
 Bundle-Activator: org.eclipse.smarthome.io.rest.internal.RESTActivator
 

@@ -58,6 +58,12 @@ import org.eclipse.smarthome.ui.items.ItemUIRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * <p>
  * This class acts as a REST resource for sitemaps and provides different methods to interact with them, like retrieving
@@ -66,8 +72,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Chris Jackson
+ * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(SitemapResource.PATH_SITEMAPS)
+@Api
 public class SitemapResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
@@ -101,6 +109,8 @@ public class SitemapResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Get all available sitemaps.", response = SitemapDTO.class, responseContainer = "Collection")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getSitemaps() {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
         Object responseObject = getSitemapBeans(uriInfo.getAbsolutePathBuilder().build());
@@ -110,7 +120,10 @@ public class SitemapResource implements RESTResource {
     @GET
     @Path("/{sitemapname: [a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSitemapData(@Context HttpHeaders headers, @PathParam("sitemapname") String sitemapname,
+    @ApiOperation(value = "Get sitemap by name.", response = SitemapDTO.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response getSitemapData(@Context HttpHeaders headers,
+            @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
             @QueryParam("type") String type, @QueryParam("jsoncallback") @DefaultValue("callback") String callback) {
         logger.debug("Received HTTP GET request at '{}' for media type '{}'.",
                 new Object[] { uriInfo.getPath(), type });
@@ -121,8 +134,12 @@ public class SitemapResource implements RESTResource {
     @GET
     @Path("/{sitemapname: [a-zA-Z_0-9]*}/{pageid: [a-zA-Z_0-9]*}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPageData(@Context HttpHeaders headers, @PathParam("sitemapname") String sitemapname,
-            @PathParam("pageid") String pageId) {
+    @ApiOperation(value = "Polls the data for a sitemap.", response = PageDTO.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Sitemap with requested name does not exist or page does not exist, or page refers to a non-linkable widget") })
+    public Response getPageData(@Context HttpHeaders headers,
+            @PathParam("sitemapname") @ApiParam(value = "sitemap name") String sitemapname,
+            @PathParam("pageid") @ApiParam(value = "page id") String pageId) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         if (headers.getRequestHeader("X-Atmosphere-Transport") != null) {
@@ -426,10 +443,11 @@ public class SitemapResource implements RESTResource {
     }
 
     /**
-     * This method only returns when a change has occurred to any item on the page to display
-     * or if the timeout is reached
+     * This method only returns when a change has occurred to any item on the
+     * page to display or if the timeout is reached
      *
-     * @param widgets the widgets of the page to observe
+     * @param widgets
+     *            the widgets of the page to observe
      */
     private boolean waitForChanges(EList<Widget> widgets) {
         long startTime = (new Date()).getTime();
@@ -458,7 +476,8 @@ public class SitemapResource implements RESTResource {
     /**
      * Collects all items that are represented by a given list of widgets
      *
-     * @param widgets the widget list to get the items for
+     * @param widgets
+     *            the widget list to get the items for added to all bundles containing REST resources
      * @return all items that are represented by the list of widgets
      */
     private Set<GenericItem> getAllItems(EList<Widget> widgets) {
@@ -487,8 +506,8 @@ public class SitemapResource implements RESTResource {
     }
 
     /**
-     * This is a state change listener, which is merely used to determine, if a state
-     * change has occurred on one of a list of items.
+     * This is a state change listener, which is merely used to determine, if a
+     * state change has occurred on one of a list of items.
      *
      * @author Kai Kreuzer - Initial contribution and API
      *
