@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.setup;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +32,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -40,14 +47,23 @@ import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTO;
 import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTOMapper;
 import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class acts as a REST resource for the setup manager.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path("setup")
+@Path(ThingSetupManagerResource.PATH_SETUP)
+@Api
 public class ThingSetupManagerResource implements RESTResource {
+
+    private final Logger logger = LoggerFactory.getLogger(ThingSetupManagerResource.class);
+
+    /** The URI path to this resource */
+    public static final String PATH_SETUP = "setup";
 
     private ThingSetupManager thingSetupManager;
 
@@ -57,7 +73,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addThing(EnrichedThingDTO thingBean) throws IOException {
+    @ApiOperation(value = "Adds a new thing to the registry.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean)
+            throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -77,7 +96,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("things")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateThing(EnrichedThingDTO thingBean) throws IOException {
+    @ApiOperation(value = "Updates a thing.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response updateThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean)
+            throws IOException {
 
         ThingUID thingUID = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -121,22 +143,28 @@ public class ThingSetupManagerResource implements RESTResource {
 
     @DELETE
     @Path("/things/{thingUID}")
-    public Response removeThing(@PathParam("thingUID") String thingUID,
-            @DefaultValue("false") @QueryParam("force") boolean force) {
+    @ApiOperation(value = "Removes a thing from the registry. Set \'force\' to __true__ if you want the thing te be removed immediately")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response removeThing(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @DefaultValue("false") @QueryParam("force") @ApiParam(value = "force") boolean force) {
         thingSetupManager.removeThing(new ThingUID(thingUID), force);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/things/channels/{channelUID}")
-    public Response disableChannel(@PathParam("channelUID") String channelUID) {
+    @ApiOperation(value = "Removes corresponding item and the link for the channel.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response disableChannel(@PathParam("channelUID") @ApiParam(value = "channelUID") String channelUID) {
         thingSetupManager.disableChannel(new ChannelUID(channelUID));
         return Response.ok().build();
     }
 
     @PUT
     @Path("/things/channels/{channelUID}")
-    public Response enableChannel(@PathParam("channelUID") String channelUID) {
+    @ApiOperation(value = "Adds corresponding item and the link for the channel.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response enableChannel(@PathParam("channelUID") @ApiParam(value = "channelUID") String channelUID) {
         thingSetupManager.enableChannel(new ChannelUID(channelUID));
         return Response.ok().build();
     }
@@ -144,6 +172,8 @@ public class ThingSetupManagerResource implements RESTResource {
     @GET
     @Path("things")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Gets all available things.", response = EnrichedThingDTO.class, responseContainer = "List")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getThings() {
         List<EnrichedThingDTO> thingBeans = new ArrayList<>();
         Collection<Thing> things = thingSetupManager.getThings();
@@ -157,7 +187,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("/things/{thingUID}/label")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response setLabel(@PathParam("thingUID") String thingUID, String label) {
+    @ApiOperation(value = "Sets the label for a given thing UID")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response setLabel(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @ApiParam(value = "label") String label) {
         thingSetupManager.setLabel(new ThingUID(thingUID), label);
         return Response.ok().build();
     }
@@ -165,7 +198,10 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("/things/{thingUID}/groups")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response setGroups(@PathParam("thingUID") String thingUID, List<String> groupNames) {
+    @ApiOperation(value = "Sets group names to the group item linked to the thing.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response setGroups(@PathParam("thingUID") @ApiParam(value = "thingUID") String thingUID,
+            @ApiParam(value = "group names") List<String> groupNames) {
         Thing thing = thingSetupManager.getThing(new ThingUID(thingUID));
 
         if (thing != null) {
@@ -184,6 +220,8 @@ public class ThingSetupManagerResource implements RESTResource {
     @GET
     @Path("groups")
     @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Gets all available group items with tag \'home-group\'.", response = EnrichedItemDTO.class, responseContainer = "List")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getHomeGroups() {
         List<EnrichedItemDTO> itemBeans = new ArrayList<>();
         Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
@@ -197,14 +235,18 @@ public class ThingSetupManagerResource implements RESTResource {
     @POST
     @Path("groups")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addHomeGroup(ItemDTO itemBean) {
+    @ApiOperation(value = "Creates a group item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response addHomeGroup(@ApiParam(value = "item data") ItemDTO itemBean) {
         thingSetupManager.addHomeGroup(itemBean.name, itemBean.label);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("groups/{itemName}")
-    public Response removeHomeGroup(@PathParam("itemName") String itemName) {
+    @ApiOperation(value = "Removes a group item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response removeHomeGroup(@PathParam("itemName") @ApiParam(value = "item name") String itemName) {
         thingSetupManager.removeHomeGroup(itemName);
         return Response.ok().build();
     }
@@ -212,8 +254,18 @@ public class ThingSetupManagerResource implements RESTResource {
     @PUT
     @Path("groups/{itemName}/label")
     @Consumes(MediaType.TEXT_PLAIN)
-    public Response setHomeGroupLabel(@PathParam("itemName") String itemName, String label) {
-        thingSetupManager.setHomeGroupLabel(itemName, label);
+    @ApiOperation(value = "Sets label of the group item.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Group item not found") })
+    public Response setHomeGroupLabel(@PathParam("itemName") @ApiParam(value = "item name") String itemName,
+            @ApiParam(value = "label") String label) {
+        try {
+            thingSetupManager.setHomeGroupLabel(itemName, label);
+        } catch (IllegalArgumentException ex) {
+            logger.info("Received HTTP PUT request for set home group label at '{}' for the unknown group item '{}'.",
+                    uriInfo.getPath(), itemName);
+            return Response.status(Status.NOT_FOUND).build();
+        }
         return Response.ok().build();
     }
 

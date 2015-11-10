@@ -7,6 +7,12 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,11 +61,17 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Thomas Höfer - Added thing and thing type properties
- * @author Chris Jackson - Added parameter groups, advanced, multipleLimit, limitToOptions
+ * @author Chris Jackson - Added parameter groups, advanced, multipleLimit,
+ *         limitToOptions
+ * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path("thing-types")
+@Path(ThingTypeResource.PATH_THINGS_TYPES)
+@Api
 public class ThingTypeResource implements RESTResource {
 
+    /** The URI path to this resource */
+    public static final String PATH_THINGS_TYPES = "thing-types";
+    
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -81,7 +93,9 @@ public class ThingTypeResource implements RESTResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(@HeaderParam("Accept-Language") String language) {
+    @ApiOperation(value = "Gets all available things types.", response = ThingTypeDTO.class, responseContainer = "Set")
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
         Set<ThingTypeDTO> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes(locale), locale);
         return Response.ok(thingTypeBeans).build();
@@ -90,8 +104,12 @@ public class ThingTypeResource implements RESTResource {
     @GET
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getByUID(@PathParam("thingTypeUID") String thingTypeUID,
-            @HeaderParam("Accept-Language") String language) {
+    @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
+            @ApiResponse(code = 204, message = "No content") })
+    public Response getByUID(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
+            @HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
         ThingType thingType = thingTypeRegistry.getThingType(new ThingTypeUID(thingTypeUID), locale);
         if (thingType != null) {
@@ -191,13 +209,15 @@ public class ThingTypeResource implements RESTResource {
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
 
-            // Default to the channelDefinition label to override the channelType
+            // Default to the channelDefinition label to override the
+            // channelType
             String label = channelDefinition.getLabel();
             if (label == null) {
                 label = channelType.getLabel();
             }
 
-            // Default to the channelDefinition description to override the channelType
+            // Default to the channelDefinition description to override the
+            // channelType
             String description = channelDefinition.getDescription();
             if (description == null) {
                 description = channelType.getDescription();
