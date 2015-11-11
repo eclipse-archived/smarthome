@@ -63,11 +63,23 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>org.eclipse.smarthome.model.script</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>p2.eclipse-plugin</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
           <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>p2.eclipse-plugin</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
           </dependency>
         </dependencies>
       </plugin>
