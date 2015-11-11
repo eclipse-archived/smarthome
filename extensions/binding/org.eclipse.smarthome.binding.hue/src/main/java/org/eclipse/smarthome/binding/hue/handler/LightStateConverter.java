@@ -7,22 +7,27 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
+import nl.q42.jue.State;
+import nl.q42.jue.State.AlertMode;
+import nl.q42.jue.State.Effect;
+import nl.q42.jue.StateUpdate;
+
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
-
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
+import org.eclipse.smarthome.core.library.types.StringType;
 
 /**
- * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome types to jue types and vice versa.
+ * The {@link LightStateConverter} is responsible for mapping Eclipse SmartHome
+ * types to jue types and vice versa.
  *
  * @author Dennis Nobel - Initial contribution
  * @author Oliver Libutzki - Adjustments
  * @author Kai Kreuzer - made code static
  * @author Andre Fuechsel - added method for brightness
+ * @author Yordan Zhelev - added method for alert
  *
  */
 public class LightStateConverter {
@@ -34,6 +39,20 @@ public class LightStateConverter {
     private static final int MIN_COLOR_TEMPERATURE = 153;
     private static final int MAX_COLOR_TEMPERATURE = 500;
     private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
+
+    /**
+     * {@value #ALERT_MODE_NONE}. The light is not performing an alert effect.
+     */
+    static final String ALERT_MODE_NONE = "NONE";
+    /**
+     * {@value #ALERT_MODE_SELECT}. The light is performing one breathe cycle.
+     */
+    static final String ALERT_MODE_SELECT = "SELECT";
+    /**
+     * {@value #ALERT_MODE_LONG_SELECT}. The light is performing breathe cycles
+     * for 15 seconds or until an "alert": "none" command is received.
+     */
+    static final String ALERT_MODE_LONG_SELECT = "LSELECT";
 
     private static final int DIM_STEPSIZE = 30;
 
@@ -89,10 +108,13 @@ public class LightStateConverter {
     }
 
     /**
-     * Adjusts the given brightness using the {@link IncreaseDecreaseType} and returns the updated value.
+     * Adjusts the given brightness using the {@link IncreaseDecreaseType} and
+     * returns the updated value.
      *
-     * @param type The {@link IncreaseDecreaseType} to be used
-     * @param currentBrightness The current brightness
+     * @param type
+     *            The {@link IncreaseDecreaseType} to be used
+     * @param currentBrightness
+     *            The current brightness
      * @return The adjusted brightness value
      */
     public static int toAdjustedBrightness(IncreaseDecreaseType command, int currentBrightness) {
@@ -123,8 +145,10 @@ public class LightStateConverter {
     /**
      * Adjusts the given color temperature using the {@link IncreaseDecreaseType} and returns the updated value.
      *
-     * @param type The {@link IncreaseDecreaseType} to be used
-     * @param currentColorTemp The current color temperature
+     * @param type
+     *            The {@link IncreaseDecreaseType} to be used
+     * @param currentColorTemp
+     *            The current color temperature
      * @return The adjusted color temperature value
      */
     public static int toAdjustedColorTemp(IncreaseDecreaseType type, int currentColorTemp) {
@@ -164,6 +188,17 @@ public class LightStateConverter {
     }
 
     /**
+     * Transforms {@link State} into {@link StringType} representing the {@link AlertMode}.
+     * 
+     * @param lightState
+     *            light state.
+     * @return string type representing the alert mode.
+     */
+    public static StringType toAlertStringType(State lightState) {
+        return new StringType(lightState.getAlertMode().toString());
+    }
+
+    /**
      * Transforms {@link HueLightState} into {@link HSBType} representing the
      * color.
      *
@@ -184,6 +219,60 @@ public class LightStateConverter {
                 new PercentType(brightnessInPercent));
 
         return hsbType;
+    }
+
+    /**
+     * Transforms the given {@link StringType} into a light state containing the {@link AlertMode} to be triggered.
+     *
+     * @param alertType
+     *            {@link StringType} representing the required {@link AlertMode} . <br>
+     *            Supported values are:
+     *            <ul>
+     *            <li>{@value #ALERT_MODE_NONE}.
+     *            <li>{@value #ALERT_MODE_SELECT}.
+     *            <li>{@value #ALERT_MODE_LONG_SELECT}.
+     *            <ul>
+     * @return light state containing the {@link AlertMode} or <b><code>null </code></b> if the provided
+     *         {@link StringType} represents unsupported mode.
+     */
+    public static StateUpdate toAlertState(StringType alertType) {
+        AlertMode alertMode = null;
+
+        switch (alertType.toString()) {
+            case ALERT_MODE_NONE:
+                alertMode = State.AlertMode.NONE;
+                break;
+            case ALERT_MODE_SELECT:
+                alertMode = State.AlertMode.SELECT;
+                break;
+            case ALERT_MODE_LONG_SELECT:
+                alertMode = State.AlertMode.LSELECT;
+                break;
+            default:
+                return null;
+        }
+        return new StateUpdate().setAlert(alertMode);
+    }
+
+    /**
+     * Transforms the given {@link OnOffType} into a light state containing the {@link Effect} value.
+     * {@link OnOffType#ON} will result in {@link Effect#COLORLOOP}. {@link OnOffType#OFF} will result in
+     * {@link Effect#NONE}.
+     *
+     * @param onOffType
+     *            on or off state
+     * @return light state containing the {@link Effect} value
+     */
+    public static StateUpdate toOnOffEffectState(OnOffType onOffType) {
+        StateUpdate stateUpdate;
+
+        if (OnOffType.ON.equals(onOffType)) {
+            stateUpdate = new StateUpdate().setEffect(Effect.COLORLOOP);
+        } else {
+            stateUpdate = new StateUpdate().setEffect(Effect.NONE);
+        }
+
+        return stateUpdate;
     }
 
     private static int restrictToBounds(int percentValue) {
