@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.library.types.HSBType
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
+import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
@@ -334,12 +335,38 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         def expectedReply ='{"on" : false}'
         assertSendCommandForBrightness(OnOffType.OFF, currentState, expectedReply)
     }
-
+    
     @Test
     void 'assert command for brightness channel: on'() {
         def currentState = new HueLightState()
         def expectedReply ='{"on" : true}'
         assertSendCommandForBrightness(OnOffType.ON, currentState, expectedReply)
+    }
+    
+    @Test
+    void 'assert command for alert channel'() {
+        def currentState = new HueLightState().alert('NONE')
+        def expectedReply ='{"alert" : "none"}'
+        assertSendCommandForAlert(new StringType("NONE"), currentState, expectedReply)
+        
+        currentState.alert("NONE")
+        expectedReply ='{"alert" : "select"}'
+        assertSendCommandForAlert(new StringType("SELECT"), currentState, expectedReply)
+
+        currentState.alert("LSELECT")
+        expectedReply ='{"alert" : "lselect"}'
+        assertSendCommandForAlert(new StringType("LSELECT"), currentState, expectedReply)
+    }
+
+    @Test
+    void 'assert command for effect channel'() {
+        def currentState = new HueLightState().effect('ON')
+        def expectedReply ='{"effect" : "colorloop"}'
+        assertSendCommandForEffect(OnOffType.ON, currentState, expectedReply)
+
+        currentState.effect('OFF')
+        expectedReply ='{"effect" : "none"}'
+        assertSendCommandForEffect(OnOffType.OFF, currentState, expectedReply)
     }
 
     private void assertSendCommandForColorTempForPar16(Command command, HueLightState currentState, String expectedReply) {
@@ -360,6 +387,14 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     private void assertSendCommandForBrightness(Command command, HueLightState currentState, String expectedReply) {
         assertSendCommand(CHANNEL_BRIGHTNESS, command, LUX_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+    }
+
+    private void assertSendCommandForAlert(Command command, HueLightState currentState, String expectedReply){
+        assertSendCommand(CHANNEL_ALERT, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+    }
+
+    private void assertSendCommandForEffect(Command command, HueLightState currentState, String expectedReply){
+        assertSendCommand(CHANNEL_EFFECT, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
     }
 
     private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply) {

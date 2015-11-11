@@ -33,4 +33,25 @@
         <category>ColorLight</category>
     </channel-type>
 
+    <!-- Alert Channel -->
+    <channel-type id="alert">
+        <item-type>String</item-type>
+        <label>Alert</label>
+        <description>The alert channel allows a temporary change to the bulb’s state.</description>
+        <state readOnly="true">
+            <options>
+                <option value="NONE">None</option>
+                <option value="SELECT">Alert</option>
+                <option value="LSELECT">Long Alert</option>
+            </options>
+        </state>
+    </channel-type>
+
+    <!-- Effect Channel -->
+    <channel-type id="effect">
+        <item-type>Switch</item-type>
+        <label>Color Loop</label>
+        <description>The effect channel allows putting the bulb in a color looping mode.</description>
+        <category>ColorLight</category>
+    </channel-type>
 </thing:thing-descriptions>
