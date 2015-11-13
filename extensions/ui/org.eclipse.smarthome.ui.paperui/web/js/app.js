@@ -3,6 +3,8 @@ angular.module('PaperUI', [
   'PaperUI.controllers.control',
   'PaperUI.controllers.setup',
   'PaperUI.controllers.configuration',
+  'PaperUI.controllers.extension',
+  'PaperUI.controllers.rules',
   'PaperUI.services',
   'PaperUI.services.rest',
   'PaperUI.services.repositories',
@@ -24,10 +26,16 @@ angular.module('PaperUI', [
 	when('/setup/wizard/add/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
 	when('/configuration', {redirectTo: '/configuration/bindings'}).
 	when('/configuration/bindings', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
+	when('/configuration/services', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
 	when('/configuration/groups', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
 	when('/configuration/things', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
 	when('/configuration/things/view/:thingUID', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
 	when('/configuration/things/edit/:thingUID', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
+	when('/extensions', {templateUrl: 'partials/extensions.html', controller: 'ExtensionPageController', title: 'Extensions'}).
+	when('/rules', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
+	when('/rules/new', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
+	when('/rules/view/:ruleUID', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
+	when('/rules/configure/:ruleUID', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
 	when('/preferences', {templateUrl: 'partials/preferences.html', controller: 'PreferencesPageController', title: 'Preferences'}).
 	otherwise({redirectTo: '/control'});
 }]).directive('editableitemstate', function(){
@@ -47,7 +55,7 @@ angular.module('PaperUI', [
             }
         }
     }
-}).run(['$location', '$rootScope', function($location, $rootScope) {
+}).run(['$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
 	var original = $location.path;
 	$rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
 	 	if (current.hasOwnProperty('$$route')) {
@@ -67,4 +75,11 @@ angular.module('PaperUI', [
         $location.path('');
     }
     $rootScope.$location = $location;
+    var advancedMode = localStorage.getItem('paperui.advancedMode');
+    if(advancedMode !== 'true' && advancedMode !== 'false') {
+        $rootScope.advancedMode = globalConfig.advancedDefault;
+    } else {
+        $rootScope.advancedMode = advancedMode === 'true';
+    }
+    
 }]);

@@ -2,16 +2,10 @@
 	<div class="bindings tab-panel content" ng-if="page === 'bindings'"
 		ng-controller="BindingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button class="md-icon-refresh" ng-click="refresh()"
+				aria-label="Refresh"></md-button>
 		</div>
-		<div class="section-header">
-			<div class="container">
-				<div class="toolbar">
-					<md-button class="md-fab md-icon-download"
-						ng-click="installBinding()" aria-label="Download"></md-button>
-				</div>
-			</div>
-		</div>
+		<div class="section-header"></div>
 		<div class="container">
 			<div class="bindings row">
 				<div class="col-md-4 col-sm-6 col-xs-12 item-wrapper"
@@ -19,12 +13,15 @@
 					<div class="card binding text-left"
 						data-binding-id="{{binding.id}}">
 						<div class="clabel">
-							<h3 class="md-title" >
+							<h3 class="md-title">
 								{{binding.name}} <small>{{binding.id}}</small>
 							</h3>
 
 							<p class="text-left">{{binding.author}}</p>
 							<div class="text-right">
+								<md-button ng-show="binding.configDescriptionURI"
+									aria-label="Configure"
+									ng-click="configure(binding.id, binding.configDescriptionURI, $event)">Configure</md-button>
 								<md-button ng-click="openBindingInfoDialog(binding.id, $event)">More</md-button>
 							</div>
 						</div>
@@ -33,15 +30,60 @@
 			</div>
 		</div>
 	</div>
-	<div class="groups white-bg" ng-if="page === 'groups'"
-		ng-controller="GroupController">
+	<div class="services tab-panel content" ng-if="page === 'services'"
+		ng-controller="ServicesController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button class="md-icon-refresh" ng-click="refresh()"
+				aria-label="Refresh"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="add($event)" aria-label="Add"></md-button>
+					<md-button class="md-fab md-icon-add" ng-click="add()"
+						aria-label="Add Configuration"></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="services row">
+				<div class="col-md-4 col-sm-6 col-xs-12"
+					ng-repeat="service in services">
+					<div class="card text-left" data-service-id="{{service.id}}">
+						<div class="clabel">
+							<h3 class="md-title">
+								{{service.label}} <small>{{service.id}}</small>
+							</h3>
+
+							<p class="text-left">{{service.category}}</p>
+							<div class="text-right">
+								<md-button aria-label="Remove"
+									ng-click="remove(service.id, $event)">Remove</md-button>
+								<md-button aria-label="Configure"
+									ng-click="configure(service.id, service.configDescriptionURI, $event)">Configure</md-button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="text-center" ng-show="services.length === 0">
+				<span>No configurable service active yet. You can bootstrap a
+					service by adding a configuration.</span>
+				<button class="md-button" title="Add Configuration" ng-click="add()">Add
+					Service Configurarion</button>
+			</p>
+		</div>
+	</div>
+	<div class="groups white-bg" ng-if="page === 'groups'"
+		ng-controller="GroupController">
+		<div class="header-toolbar">
+			<md-button class="md-icon-refresh" ng-click="refresh()"
+				aria-label="Refresh"></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button class="md-fab md-icon-add" ng-click="add($event)"
+						aria-label="Add"></md-button>
 				</div>
 			</div>
 		</div>
@@ -58,8 +100,7 @@
 							<h3>{{homeGroup.label}}</h3>
 							<div class="actions">
 								<md-button class="md-raised md-icon-delete"
-									ng-click="remove(homeGroup, $event)"
-									 aria-label="Remove"></md-button>
+									ng-click="remove(homeGroup, $event)" aria-label="Remove"></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -71,22 +112,22 @@
 	<div class="things white-bg" ng-if="page === 'things' && !path[3]"
 		ng-controller="ThingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button class="md-icon-refresh" ng-click="refresh()"
+				aria-label="Refresh"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
 					<md-button class="md-fab md-icon-add"
-						ng-click="$location.path('setup/wizard')"
-						 aria-label="Add"></md-button>
+						ng-click="$location.path('setup/wizard')" aria-label="Add"></md-button>
 				</div>
 			</div>
 		</div>
 		<div class="container">
 			<p class="text-center" ng-show="data.things.length == 0">
 				No things configured yet.
-				<button class="md-button"
-					ng-click="$location.path('setup/wizard')">Add Things</button>
+				<button class="md-button" ng-click="$location.path('setup/wizard')">Add
+					Things</button>
 			</p>
 			<div class="things">
 				<div class="clickable"
@@ -107,8 +148,7 @@
 									ng-click="navigateTo('things/edit/' + thing.UID)"
 									aria-label="Edit"></md-button>
 								<md-button class="md-raised md-icon-delete"
-									ng-click="remove(thing, $event)"
-									aria-label="Delete"></md-button>
+									ng-click="remove(thing, $event)" aria-label="Delete"></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -121,8 +161,10 @@
 		ng-if="page === 'things' && path[3] === 'view'"
 		ng-controller="ViewThingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-delete" ng-click="remove(thing, $event)" aria-label="Delete"></md-button>
-			<md-button class="md-icon-close" ng-click="navigateTo('things')" aria-label="Close"></md-button>
+			<md-button class="md-icon-delete" ng-click="remove(thing, $event)"
+				aria-label="Delete"></md-button>
+			<md-button class="md-icon-close" ng-click="navigateTo('things')"
+				aria-label="Close"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
@@ -138,10 +180,10 @@
 			<p>{{thingType.description}}</p>
 			<hr />
 			<p>
-			    Status:  
-				<span class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}} {{thing.statusInfo.statusDetail !==
-                        'NONE' ? ' - ' + thing.statusInfo.statusDetail : ''}}</span>
-				<span><small></small></span> <span>{{thing.statusInfo.description}}</span>
+				Status: <span class="badge"
+					ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}
+					{{thing.statusInfo.statusDetail !== 'NONE' ? ' - ' +
+					thing.statusInfo.statusDetail : ''}}</span> <span><small></small></span> <span>{{thing.statusInfo.description}}</span>
 			</p>
 			<h2 ng-show="thing.channels.length > 0">Channels</h2>
 			<div class="channels">
@@ -149,16 +191,22 @@
 					ng-repeat="channel in getChannels(false)">
 					<md-button ng-if="channel.linkedItems.length == 0"
 						class="md-fab md-icon-radio-button-off"
-						ng-click="enableChannel(thing.UID, channel.id)"
-						aria-label="Off"></md-button>
+						ng-click="enableChannel(thing.UID, channel.id)" aria-label="Off"></md-button>
 					<md-button ng-if="channel.linkedItems.length > 0"
 						class="md-fab md-icon-radio-button-on"
-						ng-click="disableChannel(thing.UID, channel.id)"
-						aria-label="On"></md-button>
+						ng-click="disableChannel(thing.UID, channel.id)" aria-label="On"></md-button>
 					<div class="item-content">
-						<h3>{{getChannelById(channel.id).label}}</h3>
+						<h3>{{getChannelTypeById(channel.id).label}}</h3>
 						<p>{{thing.UID + ':' + channel.id}}</p>
-						<p>{{getChannelById(channel.id).description}}</p>
+						<p>{{getChannelTypeById(channel.id).description}}</p>
+						<div class="actions" ng-show="advancedMode">
+							<md-button ng-if="channel.linkedItems.length == 0"
+								class="md-raised md-icon-link"
+								ng-click="linkChannel(channel.id, $event)" aria-label="Link"></md-button>
+							<md-button ng-if="channel.linkedItems.length > 0"
+								class="md-raised md-icon-content-cut"
+								ng-click="unlinkChannel(channel.id)" aria-label="Unlink"></md-button>
+						</div>
 					</div>
 					<hr class="border-line" />
 				</div>
@@ -172,16 +220,14 @@
 					ng-repeat="channel in getChannels(true)">
 					<md-button ng-if="channel.linkedItems.length == 0"
 						class="md-fab md-icon-radio-button-off"
-						ng-click="enableChannel(thing.UID, channel.id)"
-						aria-label="Off"></md-button>
+						ng-click="enableChannel(thing.UID, channel.id)" aria-label="Off"></md-button>
 					<md-button ng-if="channel.linkedItems.length > 0"
 						class="md-fab md-icon-radio-button-on"
-						ng-click="disableChannel(thing.UID, channel.id)"
-						aria-label="On"></md-button>
+						ng-click="disableChannel(thing.UID, channel.id)" aria-label="On"></md-button>
 					<div class="item-content">
-						<h3>{{getChannelById(channel.id).label}}</h3>
+						<h3>{{getChannelTypeById(channel.id).label}}</h3>
 						<p>{{thing.UID + ':' + channel.id}}</p>
-						<p>{{getChannelById(channel.id).description}}</p>
+						<p>{{getChannelTypeById(channel.id).description}}</p>
 					</div>
 					<hr class="border-line" />
 				</div>
@@ -193,15 +239,13 @@
 		ng-controller="EditThingController">
 		<div class="header-toolbar">
 			<md-button class="md-icon-close"
-				ng-click="navigateTo('things/view/' + thing.UID)"
-				aria-label="Close"></md-button>
+				ng-click="navigateTo('things/view/' + thing.UID)" aria-label="Close"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
 					<md-button title="Save" ng-click="update(thing)"
-						class="md-fab md-icon-check"
-						aria-label="Save"></md-button>
+						class="md-fab md-icon-check" aria-label="Save"></md-button>
 				</div>
 			</div>
 		</div>

@@ -108,6 +108,24 @@ angular.module('PaperUI.services', ['PaperUI.constants']).config(function($httpP
             }
             return parameters;
         },
+        getConfigAsArray: function(config) {
+        	var configArray = [];
+        	angular.forEach(config, function(value, name) {
+        		var value = config[name];
+        		configArray.push({
+        			name: name,
+        			value: value
+        		});
+        	});
+        	return configArray;
+        },
+        getConfigAsObject: function(configArray) {
+        	var config = {};
+        	angular.forEach(configArray, function(configEntry) {
+        		config[configEntry.name] = configEntry.value;
+        	});
+        	return config;
+        },
         setDefaults: function(thing, thingType) {
             if(thingType && thingType.configParameters) {
                 $.each(thingType.configParameters, function(i, parameter) {

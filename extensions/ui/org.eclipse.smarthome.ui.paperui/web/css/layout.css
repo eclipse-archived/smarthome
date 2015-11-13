@@ -8,6 +8,10 @@ body, h1, h2, h3 {
 	font-weight: 300;
 }
 
+.vhidden {
+	visibility: hidden;
+}
+
 body {
 	background-color: #F9F9F9;
 }
@@ -324,15 +328,20 @@ header a.open-menu {
 section#main {
 	padding: 0px;
 	margin-top: 40px;
-	height: 100%;
 }
 
 .header-toolbar {
 	position: fixed;
-	top: 15px;
+	top: 20px;
 	right: 10px;
 	z-index: 23;
 	color: white;
+}
+
+@media only screen and (max-width: 1120px) {
+    .header-toolbar {
+        top: 15px;
+    }
 }
 
 /* Action Bar / Section Header */
