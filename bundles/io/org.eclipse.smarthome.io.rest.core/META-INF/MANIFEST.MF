@@ -43,6 +43,8 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing,
  org.osgi.framework,
+ org.osgi.service.cm,
+ org.osgi.service.component,
  org.slf4j
 Export-Package: org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
