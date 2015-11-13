@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="digitalstrom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd"
+>
+    <thing-type id="zoneScene">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="dssBridge" />
+        </supported-bridge-type-refs>
+
+        <label>@text/DS_ZONE_SCENE_LABEL</label>
+        <description>@text/DS_ZONE_SCENE_DESC</description>
+
+        <channels>
+            <channel id="scene" typeId="scene" />
+        </channels>
+
+        <config-description>
+            <!--sceneName -->
+            <parameter name="sceneName" type="text">
+                <label>@text/DS_SCENE_PARM_SCENE_NAME_LABEL</label>
+                <description>@text/DS_SCENE_PARM_SCENE_NAME_DESC</description>
+            </parameter>
+            <!--zone id -->
+            <parameter name="zoneID" type="text">
+                <label>@text/DS_SCENE_PARM_GROUP_ID_LABEL</label>
+                <description>@text/DS_SCENE_PARM_GROUP_ID_DESC</description>
+                <required>false</required>
+            </parameter>
+            <!--scene id -->
+            <parameter name="sceneID" type="text">
+                <label>@text/DS_SCENE_PARM_SCENE_ID_LABEL</label>
+                <description>@text/DS_SCENE_PARM_SCENE_ID_DESC</description>
+                <required>false</required>
+                <options>
+                    <option value="DEEP_OFF">@text/DEEP_OFF</option>
+                    <option value="STANDBY">@text/STANDBY</option>
+                    <option value="SLEEPING">@text/SLEEPING</option>
+                    <option value="WAKEUP">@text/WAKEUP</option>
+                </options>
+            </parameter>
+        </config-description>
+    </thing-type>
+</thing:thing-descriptions>

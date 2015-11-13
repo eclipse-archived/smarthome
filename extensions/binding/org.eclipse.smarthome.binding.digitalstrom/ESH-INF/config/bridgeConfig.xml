@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd"
+>
+    <config-description uri="binding:digitalstrom:dssBridge">
+        <parameter-group name="connection">
+            <label>@text/DSS_BRIDGE_PARM_GROUP_CONNECTION_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_GROUP_CONNECTION_DESC</description>
+        </parameter-group>
+        <parameter-group name="general">
+            <label>@text/DSS_BRIDGE_PARM_GROUP_GENERAL_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_GROUP_GENERAL_DESC</description>
+        </parameter-group>
+        <parameter-group name="info">
+            <label>@text/DSS_BRIDGE_PARM_GROUP_INFO_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_GROUP_INFO_DESC</description>
+        </parameter-group>
+        <!--Application token -->
+        <parameter name="applicationToken" type="text" groupName="connection">
+            <label>@text/DSS_BRIDGE_PARM_APP_TOKEN_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_APP_TOKEN_DESC</description>
+            <required>false</required>
+        </parameter><!--ipAddress -->
+        <parameter name="ipAddress" type="text" groupName="connection">
+            <context>network_address</context>
+            <label>@text/DSS_BRIDGE_PARM_IP_ADDRESS_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_IP_ADDRESS_DESC</description>
+            <required>true</required>
+        </parameter><!--userName -->
+        <parameter name="userName" type="text" groupName="connection">
+            <label>@text/DSS_BRIDGE_PARM_USERNAME_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_USERNAME_DESC</description>
+            <required>false</required>
+        </parameter><!--password -->
+        <parameter name="password" type="text" groupName="connection">
+            <label>@text/DSS_BRIDGE_PARM_PASSWORD_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_PASSWORD_DESC</description>
+            <required>false</required>
+            <context>password</context>
+        </parameter><!--dSID -->
+        <parameter name="dSID" type="text" groupName="info" readOnly="true">
+            <label>@text/DSS_BRIDGE_PARM_DSID_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_DSID_DESC</description>
+            <required>false</required>
+        </parameter><!--dsName -->
+        <parameter name="dsName" type="text" groupName="info" readOnly="true">
+            <label>@text/DSS_BRIDGE_PARM_DS_NAME_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_DS_NAME_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--sensorDataUpdateInterval -->
+        <parameter name="sensorDataUpdateInterval" type="integer" groupName="general" min="60">
+            <default>120</default>
+            <label>@text/DSS_BRIDGE_PARM_SENSOR_INTER_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_SENSOR_INTER_DESC</description>
+            <required>false</required>
+        </parameter><!--totalPowerUpdateInterval -->
+        <parameter name="totalPowerUpdateInterval" type="integer" groupName="general" min="1">
+            <default>30</default>
+            <label>@text/DSS_BRIDGE_PARM_TOTAL_POWER_INTER_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_TOTAL_POWER_INTER_DESC</description>
+            <required>false</required>
+        </parameter><!--TrashBinDeleteTime -->
+        <parameter name="defaultTrashBinDeleteTime" type="integer" groupName="general" min="1">
+            <default>7</default>
+            <label>@text/DSS_BRIDGE_PARM_TRASH_DELETE_LABEL</label>
+            <description>@text/DSS_BRIDGE_PARM_TRASH_DELETE_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--sensorWaitTime -->
+        <parameter name="sensorWaitTime" type="integer" groupName="general" min="1">
+            <advanced>true</advanced>
+            <description>@text/DSS_BRIDGE_PARM_SENSOR_WAIT_DESC</description>
+            <default>60</default>
+            <label>@text/DSS_BRIDGE_PARM_SENSOR_WAIT_LABEL</label>
+            <required>false</required>
+        </parameter>
+    </config-description>
+</config-description:config-descriptions>
