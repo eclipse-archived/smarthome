@@ -15,4 +15,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.types.StateDescriptionProvider"/>
    </service>
+   <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
 </scr:component>
