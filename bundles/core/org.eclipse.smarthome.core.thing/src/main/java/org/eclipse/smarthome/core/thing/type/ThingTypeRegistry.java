@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
@@ -119,7 +120,7 @@ public class ThingTypeRegistry {
     }
 
     /**
-     * Returns the channel type for a given channel UID.
+     * Returns the channel type for a given channel.
      *
      * <p>
      * <strong>Attention:</strong> If you iterate over multiple channels to find the according channel types, please
@@ -128,15 +129,15 @@ public class ThingTypeRegistry {
      * {@link ThingType#getChannelType(ChannelUID)} afterwards.
      * </p>
      *
-     * @param channelUID channel UID
+     * @param channel channel
      * @return channel type or null if no channel type was found
      */
-    public ChannelType getChannelType(ChannelUID channelUID) {
-        return getChannelType(channelUID, null);
+    public ChannelType getChannelType(Channel channel) {
+        return getChannelType(channel, null);
     }
 
     /**
-     * Returns the channel type for a given channel UID and locale.
+     * Returns the channel type for a given channel and locale.
      *
      * <p>
      * <strong>Attention:</strong> If you iterate over multiple channels to find the according channel types, please
@@ -145,14 +146,20 @@ public class ThingTypeRegistry {
      * {@link ThingType#getChannelType(ChannelUID)} afterwards.
      * </p>
      *
-     * @param channelUID channel UID
+     * @param channel channel
      * @param locale locale (can be null)
      * @return channel type or null if no channel type was found
      */
-    public ChannelType getChannelType(ChannelUID channelUID, Locale locale) {
+    public ChannelType getChannelType(Channel channel, Locale locale) {
+        ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
+        if (channelTypeUID != null) {
+            return TypeResolver.resolve(channelTypeUID);
+        }
+        // fallback for lookup over the thing type
+        ChannelUID channelUID = channel.getUID();
         ThingType thingType = this.getThingType(channelUID.getThingTypeUID(), locale);
         if (thingType != null) {
-            ChannelTypeUID channelTypeUID = thingType.getChannelTypeUID(channelUID);
+            channelTypeUID = thingType.getChannelTypeUID(channelUID);
             if (channelTypeUID != null) {
                 return TypeResolver.resolve(channelTypeUID);
             }

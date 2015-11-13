@@ -321,7 +321,7 @@ public class ThingSetupManager implements EventSubscriber {
         }
 
         // Enable the channel
-        ChannelType channelType = thingTypeRegistry.getChannelType(channelUID);
+        ChannelType channelType = thingTypeRegistry.getChannelType(channel);
         if (channelType != null) {
             String itemType = channelType.getItemType();
             ItemFactory itemFactory = getItemFactoryForItemType(itemType);
