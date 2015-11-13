@@ -72,7 +72,7 @@ public class ConfigDescription {
      *
      * @param parameters the description of a concrete configuration parameter
      *            (could be null or empty)
-     *            
+     * 
      * @param groups the list of groups associated with the parameters
      *
      * @throws IllegalArgumentException if the URI is null or invalid
@@ -107,7 +107,7 @@ public class ConfigDescription {
     /**
      * Returns the URI of this description within the {@link ConfigDescriptionRegistry}.
      * The URI follows the syntax {@code '<scheme>:<token>[:<token>]'} (e.g. {@code "binding:hue:bridge"}).
-     * 
+     *
      * @return the URI of this description (not null)
      */
     public URI getURI() {

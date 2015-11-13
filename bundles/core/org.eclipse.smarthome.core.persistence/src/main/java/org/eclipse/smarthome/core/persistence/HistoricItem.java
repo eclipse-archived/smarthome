@@ -27,21 +27,21 @@ public interface HistoricItem {
 
     /**
      * returns the timestamp of the persisted item
-     * 
+     *
      * @return the timestamp of the item
      */
     Date getTimestamp();
 
     /**
      * returns the current state of the item
-     * 
+     *
      * @return the current state
      */
     public State getState();
 
     /**
      * returns the name of the item
-     * 
+     *
      * @return the name of the item
      */
     public String getName();

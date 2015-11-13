@@ -14,7 +14,7 @@ import org.eclipse.smarthome.config.xml.util.NodeValue;
 
 /**
  * The {@link ChannelXmlResult} is an intermediate XML conversion result object.
- * 
+ *
  * @author Chris Jackson - Initial Contribution
  */
 public class ChannelXmlResult {
@@ -27,7 +27,7 @@ public class ChannelXmlResult {
 
     /**
      * Constructs a new {@link ChannelXmlResult}
-     * 
+     *
      * @param id the channel id
      * @param typeId the channel type id
      * @param label the channel label
@@ -44,7 +44,7 @@ public class ChannelXmlResult {
 
     /**
      * Retrieves the ID for this channel
-     * 
+     *
      * @return channel id
      */
     public String getId() {
@@ -53,7 +53,7 @@ public class ChannelXmlResult {
 
     /**
      * Retrieves the type ID for this channel
-     * 
+     *
      * @return type ID
      */
     public String getTypeId() {
@@ -62,7 +62,7 @@ public class ChannelXmlResult {
 
     /**
      * Retrieves the properties for this channel
-     * 
+     *
      * @return properties list (not null)
      */
     public List<NodeValue> getProperties() {
@@ -74,7 +74,7 @@ public class ChannelXmlResult {
 
     /**
      * Get the label for this channel
-     * 
+     *
      * @return the channel label. Can be null
      */
     public String getLabel() {
@@ -83,7 +83,7 @@ public class ChannelXmlResult {
 
     /**
      * Get the description for this channel
-     * 
+     *
      * @return the channel description. Can be null
      */
     public String getDescription() {

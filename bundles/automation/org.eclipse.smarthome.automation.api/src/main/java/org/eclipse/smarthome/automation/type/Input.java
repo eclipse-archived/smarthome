@@ -67,7 +67,8 @@ public class Input {
      * @param tags tags associated with the Input. The tags adds additional
      *            restrictions to connections between {@link Input}s and {@link Output}s. The input tags must be subset
      *            of the output tags
-     *            to succeed the connection.</br> For example: When we want to
+     *            to succeed the connection.</br>
+     *            For example: When we want to
      *            connect input to output and both have same java.lang.double data
      *            type. The the output has assign "temperature" and "celsius" tags
      *            then the input must have at least one of these output's tags (i.e.
@@ -141,7 +142,8 @@ public class Input {
      * This method is used for getting the tags of the Input. The tags adds
      * additional restrictions to connections between {@link Input}s and {@link Output}s. The input tags must be subset
      * of the output tags to
-     * succeed the connection.</br> For example: When we want to connect input to
+     * succeed the connection.</br>
+     * For example: When we want to connect input to
      * output and they both have same java.lang.double data type, and the output
      * has assign "temperature" and "celsius" tags then the input must have at
      * least one of these output's tags (i.e. "temperature") to connect this input

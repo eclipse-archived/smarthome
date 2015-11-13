@@ -284,8 +284,8 @@ public class DefaultChartProvider implements ChartProvider {
         // If the start value is below the median, then count legend position down
         // Otherwise count up.
         // We use this to decide whether to put the legend in the top or bottom corner.
-        if (yData.iterator().next().floatValue() > ((series.getyMax().floatValue() - series.getyMin().floatValue()) / 2 + series
-                .getyMin().floatValue())) {
+        if (yData.iterator().next().floatValue() > ((series.getyMax().floatValue() - series.getyMin().floatValue()) / 2
+                + series.getyMin().floatValue())) {
             legendPosition++;
         } else {
             legendPosition--;

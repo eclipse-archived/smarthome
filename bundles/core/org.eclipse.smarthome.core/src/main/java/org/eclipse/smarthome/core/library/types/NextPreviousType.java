@@ -16,8 +16,9 @@ import org.eclipse.smarthome.core.types.PrimitiveType;
  *
  * @author Alex Tugarev
  */
-public enum NextPreviousType implements PrimitiveType, Command {
-    NEXT, PREVIOUS;
+public enum NextPreviousType implements PrimitiveType,Command {
+    NEXT,
+    PREVIOUS;
 
     @Override
     public String format(String pattern) {

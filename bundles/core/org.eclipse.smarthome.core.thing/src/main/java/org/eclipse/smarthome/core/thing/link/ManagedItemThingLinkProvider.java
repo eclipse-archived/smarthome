@@ -16,8 +16,8 @@ import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider
  * @author Dennis Nobel - Initial contribution
  *
  */
-public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider<ItemThingLink, String> implements
-        ItemThingLinkProvider {
+public class ManagedItemThingLinkProvider extends DefaultAbstractManagedProvider<ItemThingLink, String>
+        implements ItemThingLinkProvider {
 
     @Override
     protected String getKey(ItemThingLink element) {

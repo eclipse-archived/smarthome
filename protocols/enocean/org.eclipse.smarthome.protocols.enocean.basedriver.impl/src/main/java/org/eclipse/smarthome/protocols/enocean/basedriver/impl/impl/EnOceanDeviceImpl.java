@@ -19,18 +19,7 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.conf.RorgFuncType
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.radio.MessageSYS_EX;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.device.Constants;
-import org.osgi.service.enocean.EnOceanDevice;
-import org.osgi.service.enocean.EnOceanException;
-import org.osgi.service.enocean.EnOceanHandler;
-import org.osgi.service.enocean.EnOceanMessage;
-import org.osgi.service.enocean.EnOceanRPC;
-import org.osgi.service.enocean.descriptions.EnOceanMessageDescription;
-import org.osgi.service.enocean.descriptions.EnOceanMessageDescriptionSet;
 
 /**
  * EnOceanDeviceImpl.
@@ -59,7 +48,7 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
      * registration within the framework. Such a Device should only be
      * registered after a proper teach-in procedure, so that the RORG, FUNC and
      * TYPE are already known.
-     * 
+     *
      * @param bc
      * @param driver
      * @param uid
@@ -88,8 +77,8 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
 
         // Check if something is defined in the config file
         RorgFuncTypeFriendlynameDescription rFTFD = ConfigurationFileManager
-                .getRorgFuncTypeAndFriendlynameFromConfigFile("0x"
-                        + Utils.bytesToHexString(Utils.intTo4Bytes(this.chip_id)));
+                .getRorgFuncTypeAndFriendlynameFromConfigFile(
+                        "0x" + Utils.bytesToHexString(Utils.intTo4Bytes(this.chip_id)));
 
         int correctedFunc = func;
         int correctedType = type;
@@ -144,8 +133,7 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             }
         } else if ("246".equals(String.valueOf(rorg))) {
             // hex 0xf6 == int 246.
-            Logger.d(
-                    TAG,
+            Logger.d(TAG,
                     "This is a F6-wx-yz device. FUNC, and TYPE are NOT sent by F6-wx-yz device. The system then assumes that the device is an F6-02-01.");
             if (friendlyName == null) {
                 // default friendlyName
@@ -162,8 +150,7 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             }
         } else if ("213".equals(String.valueOf(rorg))) {
             // hex 0xd5 == int 213.
-            Logger.d(
-                    TAG,
+            Logger.d(TAG,
                     "This is a D5-wx-yz device. FUNC, and TYPE are NOT sent by D5-wx-yz device. The system then assumes that the device is a D5-00-01.");
             if (friendlyName == null) {
                 friendlyName = "D5-00-01";
@@ -178,8 +165,9 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
                 }
             }
         } else {
-            Logger.d(TAG, "This is a NOT HANDLED device (rorg: " + String.valueOf(rorg)
-                    + ", i.e. neither an A5-02-05 device, nor a F6-wx-yz device, nor a D5-wx-yz device. "
+            Logger.d(TAG,
+                    "This is a NOT HANDLED device (rorg: " + String.valueOf(
+                            rorg) + ", i.e. neither an A5-02-05 device, nor a F6-wx-yz device, nor a D5-wx-yz device. "
                     + "RORG is NOT equal to a5, nor f6,nor d5 (0xa5 is equal to int 165; 0xf6 -> 246, 0xd5 -> 213).");
         }
 
@@ -386,7 +374,7 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
 
     /**
      * Safe function to get an int property
-     * 
+     *
      * @param key
      * @return the int-converted property, or -1
      */
@@ -412,9 +400,11 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             // 00 00 00 00 00 03 01 133 100 20 255 00 233
 
             byte[] fullVldTurnOnPacket = { 85, 00, 13, 07, 01, (byte) 253, (byte) 212, (byte) 210, 01, 8, 00, 62,
-                    (byte) 255, (byte) 145, 00, 00, 00, 00, 00, 03, 01, (byte) 133, 100, 20, (byte) 255, 00, (byte) 233 };
+                    (byte) 255, (byte) 145, 00, 00, 00, 00, 00, 03, 01, (byte) 133, 100, 20, (byte) 255, 00,
+                    (byte) 233 };
 
-            Logger.d(TAG, "Utils.bytesToHexString(fullVldTurnOnPacket): " + Utils.bytesToHexString(fullVldTurnOnPacket));
+            Logger.d(TAG,
+                    "Utils.bytesToHexString(fullVldTurnOnPacket): " + Utils.bytesToHexString(fullVldTurnOnPacket));
             Logger.d(TAG, "BEFORE: driver.send(fullVldTurnOnPacket)");
             driver.send(fullVldTurnOnPacket);
             Logger.d(TAG, "AFTER: driver.send(fullVldTurnOnPacket)");
@@ -477,7 +467,8 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             byte[] fullVldTurnOnPacket = { 85, 00, 9, 07, 01, 86, (byte) 210, 01, 00, 01, 00, 00, 00, 00, 00, 03, 01,
                     (byte) 133, 100, 20, (byte) 255, 00, 100 };
 
-            Logger.d(TAG, "Utils.bytesToHexString(fullVldTurnOnPacket): " + Utils.bytesToHexString(fullVldTurnOnPacket));
+            Logger.d(TAG,
+                    "Utils.bytesToHexString(fullVldTurnOnPacket): " + Utils.bytesToHexString(fullVldTurnOnPacket));
             Logger.d(TAG, "BEFORE: driver.send(fullVldTurnOnPacket)");
             driver.send(fullVldTurnOnPacket);
             Logger.d(TAG, "AFTER: driver.send(fullVldTurnOnPacket)");
@@ -508,13 +499,11 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             // unsigned int - : 85 00 07 07 01 122 246 80 00 41 33 159 48 01 255
             // 255 255 255 49 00 55
 
-            byte[] fullSwitchAppairTurnOnPacket = { 85, 00, 07, 07, 01, 122, (byte) 246, 80, 00, 41, 33, (byte) 159,
-                    48, 01, (byte) 255, (byte) 255, (byte) 255, (byte) 255, 49, 00, 55 };
+            byte[] fullSwitchAppairTurnOnPacket = { 85, 00, 07, 07, 01, 122, (byte) 246, 80, 00, 41, 33, (byte) 159, 48,
+                    01, (byte) 255, (byte) 255, (byte) 255, (byte) 255, 49, 00, 55 };
 
-            Logger.d(
-                    TAG,
-                    "Utils.bytesToHexString(fullSwitchAppairTurnOnPacket): "
-                            + Utils.bytesToHexString(fullSwitchAppairTurnOnPacket));
+            Logger.d(TAG, "Utils.bytesToHexString(fullSwitchAppairTurnOnPacket): "
+                    + Utils.bytesToHexString(fullSwitchAppairTurnOnPacket));
             Logger.d(TAG, "BEFORE: driver.send(fullSwitchAppairTurnOnPacket)");
             driver.send(fullSwitchAppairTurnOnPacket);
             Logger.d(TAG, "AFTER: driver.send(fullSwitchAppairTurnOnPacket)");
@@ -528,13 +517,11 @@ public class EnOceanDeviceImpl implements EnOceanDevice {
             // unsigned int - : 85 00 07 07 01 122 246 112 00 41 33 159 48 01
             // 255 255 255 255 45 00 98
 
-            byte[] fullSwitchTurnOffPacket = { 85, 00, 07, 07, 01, 122, (byte) 246, 112, 00, 41, 33, (byte) 159, 48,
-                    01, (byte) 255, (byte) 255, (byte) 255, (byte) 255, 45, 00, 98 };
+            byte[] fullSwitchTurnOffPacket = { 85, 00, 07, 07, 01, 122, (byte) 246, 112, 00, 41, 33, (byte) 159, 48, 01,
+                    (byte) 255, (byte) 255, (byte) 255, (byte) 255, 45, 00, 98 };
 
-            Logger.d(
-                    TAG,
-                    "Utils.bytesToHexString(fullSwitchTurnOffPacket): "
-                            + Utils.bytesToHexString(fullSwitchTurnOffPacket));
+            Logger.d(TAG, "Utils.bytesToHexString(fullSwitchTurnOffPacket): "
+                    + Utils.bytesToHexString(fullSwitchTurnOffPacket));
             Logger.d(TAG, "BEFORE: driver.send(fullSwitchTurnOffPacket)");
             driver.send(fullSwitchTurnOffPacket);
             Logger.d(TAG, "AFTER: driver.send(fullSwitchTurnOffPacket)");

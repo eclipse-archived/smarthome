@@ -52,7 +52,7 @@ public class Utils {
     /**
      * Computes the EnOcean ESP3 CRC8 of a byte array. See EnOcean ESP3
      * specification for details.
-     * 
+     *
      * @param data
      * @return the computed crc8.
      */

@@ -180,7 +180,7 @@ public class ChartServlet extends HttpServlet implements ManagedService {
 
     /**
      * Creates a {@link HttpContext}
-     * 
+     *
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {

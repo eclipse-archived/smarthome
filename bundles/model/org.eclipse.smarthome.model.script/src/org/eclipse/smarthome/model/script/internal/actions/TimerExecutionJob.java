@@ -27,7 +27,7 @@ public class TimerExecutionJob implements Job {
 
     /**
      * Runs the configured closure of this job
-     * 
+     *
      * @param context the execution context of the job
      */
     @Override

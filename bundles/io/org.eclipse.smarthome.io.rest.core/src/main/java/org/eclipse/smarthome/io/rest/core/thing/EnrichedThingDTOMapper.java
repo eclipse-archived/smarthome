@@ -24,7 +24,7 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
 
     /**
      * Maps thing into enriched thing data transfer object.
-     * 
+     *
      * @param thing the thing
      * @param uri the uri
      * @return the enriched thing DTO object
@@ -34,8 +34,8 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
         GroupItem groupItem = thing.getLinkedItem();
-        EnrichedGroupItemDTO groupItemDTO = groupItem != null ? (EnrichedGroupItemDTO) EnrichedItemDTOMapper.map(
-                groupItem, true, uri) : null;
+        EnrichedGroupItemDTO groupItemDTO = groupItem != null
+                ? (EnrichedGroupItemDTO) EnrichedItemDTOMapper.map(groupItem, true, uri) : null;
 
         return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), groupItemDTO);
     }

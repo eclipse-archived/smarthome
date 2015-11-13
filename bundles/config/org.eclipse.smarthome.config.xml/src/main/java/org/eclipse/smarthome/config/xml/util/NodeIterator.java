@@ -78,8 +78,8 @@ public class NodeIterator implements Iterator<Object> {
                 nodes.add(next());
             }
 
-            throw new ConversionException("The document is invalid, it contains further" + " unsupported data: "
-                    + nodes + "!");
+            throw new ConversionException(
+                    "The document is invalid, it contains further" + " unsupported data: " + nodes + "!");
         }
     }
 
@@ -153,8 +153,8 @@ public class NodeIterator implements Iterator<Object> {
         }
 
         if (required) {
-            throw new ConversionException("The attribute '" + attributeName + "' in the node '" + nodeName
-                    + "' is missing!");
+            throw new ConversionException(
+                    "The attribute '" + attributeName + "' in the node '" + nodeName + "' is missing!");
         }
 
         return null;

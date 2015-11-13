@@ -38,7 +38,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /**
      * Perform a simple cast of given event to WatchEvent
-     * 
+     *
      * @param event
      *            the event to cast
      * @return the casted event
@@ -50,7 +50,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /**
      * Build the object with the given parameters
-     * 
+     *
      * @param watchService
      *            the watch service
      * @param dir
@@ -62,7 +62,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.core.service.IWatchService#activate()
      */
     @Override
@@ -98,8 +98,8 @@ public abstract class AbstractWatchQueueReader implements Runnable {
                 key.reset();
             }
         } catch (ClosedWatchServiceException ecx) {
-            logger.debug("ClosedWatchServiceException catched! {}. \n{} Stopping ", ecx.getLocalizedMessage(), Thread
-                    .currentThread().getName());
+            logger.debug("ClosedWatchServiceException catched! {}. \n{} Stopping ", ecx.getLocalizedMessage(),
+                    Thread.currentThread().getName());
 
             return;
         }
@@ -107,7 +107,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     /**
      * Processes the given watch event
-     * 
+     *
      * @param event
      *            the watch event to perform
      * @param kind

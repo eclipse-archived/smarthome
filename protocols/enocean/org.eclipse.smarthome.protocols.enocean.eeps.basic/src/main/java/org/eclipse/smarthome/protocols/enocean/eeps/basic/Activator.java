@@ -12,17 +12,10 @@
 package org.eclipse.smarthome.protocols.enocean.eeps.basic;
 
 import org.eclipse.smarthome.protocols.enocean.eeps.basic.utils.Logger;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.enocean.descriptions.EnOceanMessageDescription;
-import org.osgi.service.enocean.descriptions.EnOceanMessageDescriptionSet;
 
 /**
  * Activator.
- * 
+ *
  * Register the three EnOceanMessageDescriptions.
  */
 public class Activator implements BundleActivator {
@@ -39,8 +32,8 @@ public class Activator implements BundleActivator {
 
     public void start(BundleContext bundleContext) throws InvalidSyntaxException {
 
-        Logger.d(TAG, "IN: org.eclipse.smarthome.protocols.enocean.eeps.basic.Activator.start(bc: " + bundleContext
-                + ")");
+        Logger.d(TAG,
+                "IN: org.eclipse.smarthome.protocols.enocean.eeps.basic.Activator.start(bc: " + bundleContext + ")");
 
         this.bc = bundleContext;
 
@@ -83,10 +76,8 @@ public class Activator implements BundleActivator {
                 String[] pks = sRef.getPropertyKeys();
                 int j = 0;
                 while (j < pks.length) {
-                    Logger.d(
-                            TAG,
-                            "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
-                                    + sRef.getProperty(pks[j]));
+                    Logger.d(TAG, "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
+                            + sRef.getProperty(pks[j]));
                     j = j + 1;
                 }
 
@@ -109,8 +100,8 @@ public class Activator implements BundleActivator {
     }
 
     public void stop(BundleContext bundleContext) {
-        Logger.d(TAG, "IN: org.eclipse.smarthome.protocols.enocean.eeps.basic.Activator.stop(bc: " + bundleContext
-                + ")");
+        Logger.d(TAG,
+                "IN: org.eclipse.smarthome.protocols.enocean.eeps.basic.Activator.stop(bc: " + bundleContext + ")");
         sReg.unregister();
         Logger.d(TAG, "OUT: org.eclipse.smarthome.protocols.enocean.eeps.basic.Activator.stop(bc: " + bc + ")");
     }

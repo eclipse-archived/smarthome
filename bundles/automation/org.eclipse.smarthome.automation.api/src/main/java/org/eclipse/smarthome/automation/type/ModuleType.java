@@ -87,7 +87,8 @@ public abstract class ModuleType {
     }
 
     /**
-     * ModuleTypes can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
+     * ModuleTypes can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the ModuleTypes. This method is used for getting the tags assign to this ModuleType.
      *
      * @return tags assign to this ModuleType
@@ -97,7 +98,8 @@ public abstract class ModuleType {
     }
 
     /**
-     * ModuleTypes can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
+     * ModuleTypes can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the ModuleTypes. This method is used for assigning tags to this ModuleType.
      *
      * @param tags set of tags assign to this Rule.

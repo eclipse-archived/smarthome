@@ -62,7 +62,7 @@ public class ChannelGroupType extends AbstractDescriptionType {
      * Returns {@code true} if this {@link ChannelGroupType} contains advanced functionalities
      * which should be typically not shown in the basic view of user interfaces,
      * otherwise {@code false}.
-     * 
+     *
      * @return true if this channel group contains advanced functionalities, otherwise false
      */
     public boolean isAdvanced() {

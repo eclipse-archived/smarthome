@@ -22,7 +22,7 @@ public interface PersistenceService {
     /**
      * Returns the name of this {@link PersistenceService}.
      * This name is used to uniquely identify the {@link PersistenceService}.
-     * 
+     *
      * @return the name to uniquely identify the {@link PersistenceService}.
      */
     String getName();
@@ -34,7 +34,7 @@ public interface PersistenceService {
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
      * </p>
-     * 
+     *
      * @param item the item which state should be persisted.
      */
     void store(Item item);
@@ -48,7 +48,7 @@ public interface PersistenceService {
      * long running operations should be processed asynchronously. E.g. <code>store</code> adds things to a queue which
      * is processed by some asynchronous workers (Quartz Job, Thread, etc.).
      * </p>
-     * 
+     *
      * @param item the item which state should be persisted.
      * @param alias the alias under which the item should be persisted.
      */

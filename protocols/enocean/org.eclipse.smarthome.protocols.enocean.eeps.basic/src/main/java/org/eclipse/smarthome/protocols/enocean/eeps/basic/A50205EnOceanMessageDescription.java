@@ -11,9 +11,6 @@
 
 package org.eclipse.smarthome.protocols.enocean.eeps.basic;
 
-import org.osgi.service.enocean.EnOceanChannel;
-import org.osgi.service.enocean.descriptions.EnOceanMessageDescription;
-
 /**
  * EnOcean A5-02-05 EEP EnOceanMessageDescription.
  */

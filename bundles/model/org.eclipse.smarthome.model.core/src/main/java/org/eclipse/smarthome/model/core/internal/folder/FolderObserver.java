@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.model.core.internal.folder;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -243,8 +241,8 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
                     }
                 }
             } catch (IOException e) {
-                LoggerFactory.getLogger(FolderObserver.class).warn(
-                        "Cannot open file '" + file.getAbsolutePath() + "' for reading.", e);
+                LoggerFactory.getLogger(FolderObserver.class)
+                        .warn("Cannot open file '" + file.getAbsolutePath() + "' for reading.", e);
             }
         }
     }
@@ -273,7 +271,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     /**
      * Returns the {@link File} object for the given filename. <br />
      * It must be contained in the configuration folder
-     * 
+     *
      * @param configDispatcher
      *            the configuration dispatcher service
      * @param filename
@@ -288,7 +286,7 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
 
     /**
      * Returns the extension of the given file
-     * 
+     *
      * @param filename
      *            the file name to get the extension
      * @return the file's extension

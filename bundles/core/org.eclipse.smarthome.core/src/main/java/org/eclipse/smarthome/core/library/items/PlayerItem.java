@@ -46,7 +46,7 @@ public class PlayerItem extends GenericItem {
         super(CoreItemFactory.PLAYER, name);
     }
 
-    /* package */PlayerItem(String type, String name) {
+    /* package */ PlayerItem(String type, String name) {
         super(type, name);
     }
 

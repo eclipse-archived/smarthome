@@ -116,8 +116,8 @@ public class ColorItem extends DimmerItem {
         } else if (typeClass == DecimalType.class) {
             if (state instanceof HSBType) {
                 HSBType hsbState = (HSBType) state;
-                return new DecimalType(hsbState.getBrightness().toBigDecimal()
-                        .divide(new BigDecimal(100), 8, RoundingMode.UP));
+                return new DecimalType(
+                        hsbState.getBrightness().toBigDecimal().divide(new BigDecimal(100), 8, RoundingMode.UP));
             }
         }
         return super.getStateAs(typeClass);

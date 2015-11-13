@@ -13,7 +13,6 @@ package org.eclipse.smarthome.protocols.enocean.basedriver.impl.esp;
 
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.service.enocean.EnOceanMessage;
 
 /**
  * EspPacket.

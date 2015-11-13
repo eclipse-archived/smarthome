@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.events;
 
 /**
  * Abstract implementation of the {@link Event} interface.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public abstract class AbstractEvent implements Event {
@@ -22,7 +22,7 @@ public abstract class AbstractEvent implements Event {
 
     /**
      * Must be called in subclass constructor to create a new event.
-     * 
+     *
      * @param topic the topic
      * @param payload the payload
      * @param source the source

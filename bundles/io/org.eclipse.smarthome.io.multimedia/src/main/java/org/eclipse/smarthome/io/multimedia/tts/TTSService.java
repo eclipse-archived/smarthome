@@ -17,7 +17,7 @@ public interface TTSService {
 
     /**
      * Speaks the text with a given voice
-     * 
+     *
      * @param text the text to speak
      * @param voice the name of the voice to use or null, if the default voice should be used
      * @param device the name of audio device to be used to play the audio or null, if the default output device should

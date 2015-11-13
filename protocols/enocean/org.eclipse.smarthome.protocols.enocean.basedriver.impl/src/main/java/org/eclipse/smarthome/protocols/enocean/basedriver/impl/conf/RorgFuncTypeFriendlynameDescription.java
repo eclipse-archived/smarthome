@@ -13,7 +13,7 @@ package org.eclipse.smarthome.protocols.enocean.basedriver.impl.conf;
 
 /**
  * RorgFuncTypeFriendlynameDescription object.
- * 
+ *
  * Note that: description must come from EnOceanMessageDescription, apart for
  * specific/configured cases, e.g. for demo purpose.
  */

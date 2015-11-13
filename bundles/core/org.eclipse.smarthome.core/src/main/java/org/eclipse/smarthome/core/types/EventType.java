@@ -19,7 +19,8 @@ package org.eclipse.smarthome.core.types;
  */
 public enum EventType {
 
-    COMMAND("command"), UPDATE("update");
+    COMMAND("command"),
+    UPDATE("update");
 
     private String name;
 

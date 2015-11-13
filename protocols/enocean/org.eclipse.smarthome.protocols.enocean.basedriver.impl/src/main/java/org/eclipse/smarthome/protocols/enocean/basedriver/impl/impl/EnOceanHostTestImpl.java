@@ -19,7 +19,6 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.esp.EspPacket;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.EnOceanHostImplException;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.framework.BundleContext;
 
 /**
  * EnOceanHostTestImpl.
@@ -77,8 +76,8 @@ public class EnOceanHostTestImpl extends EnOceanHostImpl {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public void close() {
         this.isRunning = false;
         if (this.outputStream != null)

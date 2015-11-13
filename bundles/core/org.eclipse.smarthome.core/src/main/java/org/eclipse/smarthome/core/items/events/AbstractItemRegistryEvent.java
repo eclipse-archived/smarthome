@@ -36,7 +36,7 @@ public abstract class AbstractItemRegistryEvent extends AbstractEvent {
 
     /**
      * Gets the item.
-     * 
+     *
      * @return the item
      */
     public ItemDTO getItem() {

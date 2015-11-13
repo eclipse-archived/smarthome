@@ -17,26 +17,26 @@ import org.osgi.framework.BundleContext;
  */
 public class RESTCoreActivator implements BundleActivator {
 
-	private static BundleContext context;
+    private static BundleContext context;
 
     /**
      * Called whenever the OSGi framework starts our bundle
      */
-	@Override
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-	}
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+    }
 
     /**
      * Called whenever the OSGi framework stops our bundle
      */
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		context = null;
-	}
-	
-	public static BundleContext getBundleContext() {
-		return context;
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        context = null;
+    }
+
+    public static BundleContext getBundleContext() {
+        return context;
+    }
 
 }

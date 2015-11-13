@@ -24,7 +24,7 @@ public interface Type {
 
     /**
      * Formats the value of this type according to a pattern (see {@link Formatter}).
-     * 
+     *
      * @param pattern the pattern to use
      * @return the formatted string
      */

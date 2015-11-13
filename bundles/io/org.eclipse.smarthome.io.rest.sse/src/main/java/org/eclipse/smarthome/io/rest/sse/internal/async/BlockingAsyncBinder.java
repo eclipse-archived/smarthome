@@ -25,8 +25,8 @@ public class BlockingAsyncBinder extends AbstractBinder {
     protected void configure() {
         // the qualifiedBy is needed in order for our implementation to be used
         // if there are multiple implementations of AsyncContextDelegateProvider
-        bind(new BlockingAsyncContextDelegateProvider()).to(AsyncContextDelegateProvider.class).qualifiedBy(
-                CustomAnnotationLiteral.INSTANCE);
+        bind(new BlockingAsyncContextDelegateProvider()).to(AsyncContextDelegateProvider.class)
+                .qualifiedBy(CustomAnnotationLiteral.INSTANCE);
     }
 
 }

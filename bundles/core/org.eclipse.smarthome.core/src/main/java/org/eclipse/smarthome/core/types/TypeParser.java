@@ -28,7 +28,7 @@ public class TypeParser {
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
      * </p>
-     * 
+     *
      * @param types possible types of the state to consider
      * @param s the string to parse
      * @return the corresponding State instance or <code>null</code>
@@ -58,7 +58,7 @@ public class TypeParser {
      * Example: The type list is OnOffType.class,StringType.class. The string "ON" is now accepted by the OnOffType and
      * thus OnOffType.ON will be returned (and not a StringType with value "ON").
      * </p>
-     * 
+     *
      * @param types possible types of the command to consider
      * @param s the string to parse
      * @return the corresponding Command instance or <code>null</code>

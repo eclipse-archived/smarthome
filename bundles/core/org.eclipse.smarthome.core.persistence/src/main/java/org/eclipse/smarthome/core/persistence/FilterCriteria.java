@@ -33,7 +33,12 @@ public class FilterCriteria {
 
     /** Enumeration with all possible compare options */
     public enum Operator {
-        EQ("="), NEQ("!="), GT(">"), LT("<"), GTE(">="), LTE("<=");
+        EQ("="),
+        NEQ("!="),
+        GT(">"),
+        LT("<"),
+        GTE(">="),
+        LTE("<=");
 
         private final String symbol;
 
@@ -48,7 +53,8 @@ public class FilterCriteria {
 
     /** Enumeration with all ordering options */
     public enum Ordering {
-        ASCENDING, DESCENDING
+        ASCENDING,
+        DESCENDING
     }
 
     /** filter result to only contain entries for the given item */

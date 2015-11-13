@@ -54,8 +54,8 @@ public class ThingImpl implements Thing {
 
     private ThingTypeUID thingTypeUID;
 
-    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-            ThingStatusDetail.NONE).build();
+    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder
+            .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
     transient volatile private ThingHandler thingHandler;
 

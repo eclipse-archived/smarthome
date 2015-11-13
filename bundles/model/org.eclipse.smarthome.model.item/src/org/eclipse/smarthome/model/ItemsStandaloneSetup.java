@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.model;
 
-
 /**
  * Initialization support for running Xtext languages
  * without equinox extension registry

@@ -31,7 +31,7 @@ public class ConfigurationFileManager {
 
     /**
      * Tests.
-     * 
+     *
      * @param args
      * @throws IOException
      */
@@ -47,20 +47,14 @@ public class ConfigurationFileManager {
         // 0x12345678 == int 305419896
         Logger.d(TAG, "---" + Utils.bytesToHexString(Utils.intTo4Bytes(305419896)));
 
-        Logger.d(
-                TAG,
-                "---"
-                        + ConfigurationFileManager.getRorgFuncTypeAndFriendlynameFromConfigFile("0x"
-                                + Utils.bytesToHexString(Utils.intTo4Bytes(305419896))));
+        Logger.d(TAG, "---" + ConfigurationFileManager.getRorgFuncTypeAndFriendlynameFromConfigFile(
+                "0x" + Utils.bytesToHexString(Utils.intTo4Bytes(305419896))));
 
         // 0x00123456 == int 1193046
         Logger.d(TAG, "---" + Utils.bytesToHexString(Utils.intTo4Bytes(1193046)));
 
-        Logger.d(
-                TAG,
-                "---"
-                        + ConfigurationFileManager.getRorgFuncTypeAndFriendlynameFromConfigFile("0x"
-                                + Utils.bytesToHexString(Utils.intTo4Bytes(1193046))));
+        Logger.d(TAG, "---" + ConfigurationFileManager.getRorgFuncTypeAndFriendlynameFromConfigFile(
+                "0x" + Utils.bytesToHexString(Utils.intTo4Bytes(1193046))));
 
     }
 
@@ -77,7 +71,7 @@ public class ConfigurationFileManager {
      * is: "Bla bla-bla friendly bla-bla name ;-)", and the Description is:
      * "a desc". Friendly name, and Description may contain spaces, but can not
      * contain "##".
-     * 
+     *
      * @param enOceanId
      *            as an hexa value written as follow, e.g. 0x12345678.
      * @return the associated RORG-FUNC-TYPE-FRIENDLYNAME-DESCRIPTION object if

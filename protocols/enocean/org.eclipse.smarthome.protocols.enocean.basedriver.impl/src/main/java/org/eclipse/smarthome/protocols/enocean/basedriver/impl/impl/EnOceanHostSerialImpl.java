@@ -11,13 +11,6 @@
 
 package org.eclipse.smarthome.protocols.enocean.basedriver.impl.impl;
 
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.RXTXPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
-import gnu.io.UnsupportedCommOperationException;
-
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
@@ -25,7 +18,6 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.esp.EspPacket;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.EnOceanHostImplException;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.framework.BundleContext;
 
 /**
  * EnOceanHostSerialImpl.
@@ -46,8 +38,8 @@ public class EnOceanHostSerialImpl extends EnOceanHostImpl implements SerialPort
      */
     public EnOceanHostSerialImpl(String path, BundleContext bc) {
         super(path, bc);
-        Logger.d(TAG, "EnOceanHostSerialImpl.EnOceanHostSerialImpl(String path: " + path + ", BundleContext bc: " + bc
-                + ")");
+        Logger.d(TAG,
+                "EnOceanHostSerialImpl.EnOceanHostSerialImpl(String path: " + path + ", BundleContext bc: " + bc + ")");
         this.syncObject = new Object();
     }
 
@@ -102,8 +94,8 @@ public class EnOceanHostSerialImpl extends EnOceanHostImpl implements SerialPort
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public void close() {
         this.isRunning = false;
         synchronized (this.syncObject) {

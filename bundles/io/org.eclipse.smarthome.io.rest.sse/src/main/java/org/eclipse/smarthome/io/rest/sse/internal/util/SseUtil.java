@@ -21,7 +21,7 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
 
 /**
  * Utility class containing helper methods for the SSE implementation.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
  * @author Dennis Nobel - Changed EventBean
  */
@@ -47,9 +47,9 @@ public class SseUtil {
     /**
      * Creates a new {@link OutboundEvent} object containing an {@link EventBean} created for the given Eclipse
      * SmartHome {@link Event}.
-     * 
+     *
      * @param event the event
-     * 
+     *
      * @return a new OutboundEvent
      */
     public static OutboundEvent buildEvent(Event event) {
@@ -79,7 +79,7 @@ public class SseUtil {
     /**
      * Returns true if the current thread is processing an SSE request that
      * should block.
-     * 
+     *
      * @return
      */
     public static boolean shouldAsyncBlock() {
@@ -95,10 +95,10 @@ public class SseUtil {
 
     /**
      * Validates the given topicFilter
-     * 
+     *
      * @param topicFilter
      * @return true if the given input filter is empty or a valid topic filter string
-     * 
+     *
      */
     public static boolean isValidTopicFilter(String topicFilter) {
         return StringUtils.isEmpty(topicFilter) || topicFilter.matches(TOPIC_VALIDATE_PATTERN);
@@ -107,7 +107,7 @@ public class SseUtil {
     /**
      * Splits the given topicFilter at any commas (",") and for each token replaces any wildcards(*) with the regex
      * pattern (.*)
-     * 
+     *
      * @param topicFilter
      * @return
      */

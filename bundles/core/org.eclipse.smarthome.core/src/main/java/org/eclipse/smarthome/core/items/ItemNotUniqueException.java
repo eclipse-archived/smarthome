@@ -29,7 +29,7 @@ public class ItemNotUniqueException extends ItemLookupException {
 
     /**
      * Returns all items that match the search pattern
-     * 
+     *
      * @return collection of items matching the search pattern
      */
     public Collection<Item> getMatchingItems() {

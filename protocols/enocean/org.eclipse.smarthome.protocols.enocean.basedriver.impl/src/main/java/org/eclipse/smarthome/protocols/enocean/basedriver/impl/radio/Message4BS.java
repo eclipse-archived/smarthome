@@ -13,13 +13,13 @@ package org.eclipse.smarthome.protocols.enocean.basedriver.impl.radio;
 
 /**
  * Message4BS: Prototype of a 4BS telegram
- * 
+ *
  * Teach-in procedure:
- * 
+ *
  * - if DB0.3 is 0, then it's a teach-in telegram.
- * 
+ *
  * - if DB0.7 is also 0, no manufacturer info.
- * 
+ *
  * - if DB0.7 is 1, manufacturer info is present.
  */
 public class Message4BS extends Message {

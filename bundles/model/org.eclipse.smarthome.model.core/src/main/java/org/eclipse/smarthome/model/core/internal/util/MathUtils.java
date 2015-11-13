@@ -18,7 +18,7 @@ public class MathUtils {
 
     /**
      * calculates the greatest common divisor of two numbers
-     * 
+     *
      * @param m
      *            first number
      * @param n
@@ -33,7 +33,7 @@ public class MathUtils {
 
     /**
      * calculates the least common multiple of two numbers
-     * 
+     *
      * @param m
      *            first number
      * @param n
@@ -46,7 +46,7 @@ public class MathUtils {
 
     /**
      * calculates the greatest common divisor of n numbers
-     * 
+     *
      * @param numbers
      *            an array of n numbers
      * @return the gcd of the n numbers
@@ -61,7 +61,7 @@ public class MathUtils {
 
     /**
      * determines the least common multiple of n numbers
-     * 
+     *
      * @param numbers
      *            an array of n numbers
      * @return the least common multiple of all numbers of the array

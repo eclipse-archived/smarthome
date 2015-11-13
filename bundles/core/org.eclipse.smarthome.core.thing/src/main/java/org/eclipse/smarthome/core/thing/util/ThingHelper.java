@@ -32,7 +32,7 @@ public class ThingHelper {
 
     /**
      * Indicates whether two {@link Thing}s are technical equal.
-     * 
+     *
      * @param a
      *            Thing object
      * @param b

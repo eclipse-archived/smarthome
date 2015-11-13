@@ -52,7 +52,7 @@ public class ScriptExecutionThread extends Thread {
 
     /**
      * Returns the script evaluation result (or null, if thread is still active)
-     * 
+     *
      * @return the script evaluation result
      */
     public Object getResult() {

@@ -18,14 +18,14 @@ public interface MDNSService {
 
     /**
      * This method registers a service to be announced through Bonjour/MDNS
-     * 
+     *
      * @param serviceDescription the {@link ServiceDescription} instance with all details to identify the service
      */
     public void registerService(ServiceDescription description);
 
     /**
      * This method unregisters a service not to be announced through Bonjour/MDNS
-     * 
+     *
      * @param serviceDescription the {@link ServiceDescription} instance with all details to identify the service
      */
     public void unregisterService(ServiceDescription description);

@@ -25,17 +25,7 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.radio.MessageUTE;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.EnOceanHostImplException;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.enocean.EnOceanDevice;
-import org.osgi.service.enocean.EnOceanEvent;
-import org.osgi.service.enocean.EnOceanHost;
-import org.osgi.service.enocean.EnOceanMessage;
-import org.osgi.service.enocean.descriptions.EnOceanChannelDescriptionSet;
+import org.osgi.service.device.Constants;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
@@ -70,7 +60,7 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
      * service listener for any {@link EnOceanDevice}, {@link EnOceanMessage}, {@link EnOceanChannelDescriptionSet} that
      * would be registered in the
      * framework.
-     * 
+     *
      * @param bundleContext
      */
     public EnOceanBaseDriver(BundleContext bundleContext) {
@@ -124,7 +114,7 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
     /**
      * This callback gets called every time a message has been correctly parsed
      * by one of the hosts.
-     * 
+     *
      * @param data
      *            , i.e the data, and the optional data parts of an EnOcean
      *            packet/telegram (see, section "1.6.1 Packet description", page
@@ -317,8 +307,7 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
         Logger.d(TAG, "Try to associate the message with a device and send to EventAdmin.");
         EnOceanDevice dev = getAssociatedDevice(msg);
         if (dev == null) {
-            Logger.e(
-                    TAG,
+            Logger.e(TAG,
                     "The system can NOT find any EnOceanDevice that could be associated to the message. The message can not then be broadcasted to event admin.");
         } else {
             if (dev instanceof EnOceanDeviceImpl) {
@@ -327,7 +316,8 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
                 int rorg = implDev.getRorg();
                 int func = implDev.getFunc();
                 int type = implDev.getType();
-                Logger.d(TAG, "dev's rorg (e.g. int 165 means hex a5): " + rorg + ", func: " + func + ", type: " + type);
+                Logger.d(TAG,
+                        "dev's rorg (e.g. int 165 means hex a5): " + rorg + ", func: " + func + ", type: " + type);
                 msg.setFunc(func);
                 msg.setType(type);
                 implDev.setLastMessage(msg);
@@ -383,8 +373,8 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
             String[] propertyNames = event.getPropertyNames();
             int i = 0;
             while (i < propertyNames.length) {
-                Logger.d(TAG, "propertyNames[" + i + "]: " + propertyNames[i] + ", event.getProperty(propertyNames["
-                        + i + "]): " + event.getProperty(propertyNames[i]));
+                Logger.d(TAG, "propertyNames[" + i + "]: " + propertyNames[i] + ", event.getProperty(propertyNames[" + i
+                        + "]): " + event.getProperty(propertyNames[i]));
                 i = i + 1;
             }
             if (event.getProperty(EnOceanEvent.PROPERTY_EXPORTED) != null) {
@@ -407,8 +397,8 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public void start() {
         try {
             host.startup();
@@ -418,8 +408,8 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public void stop() {
         unregisterDevices();
     }
@@ -484,7 +474,7 @@ public class EnOceanBaseDriver implements EnOceanPacketListener, ServiceTrackerC
     /**
      * Internal method to retrieve the service reference associated to a
      * message's SENDER_ID.
-     * 
+     *
      * @param msg
      * @return the EnOceanDevice service, or null.
      */

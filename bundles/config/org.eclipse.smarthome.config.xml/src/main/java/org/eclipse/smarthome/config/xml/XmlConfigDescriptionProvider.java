@@ -198,8 +198,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
 
         // We can only localise if we have both converters (for parameters and groups)
         if (this.configDescriptionParamI18nUtil != null && this.configDescriptionGroupI18nUtil != null) {
-            List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(configDescription
-                    .getParameters().size());
+            List<ConfigDescriptionParameter> localizedConfigDescriptionParameters = new ArrayList<>(
+                    configDescription.getParameters().size());
 
             // Loop through all the configuration parameters and localize them
             for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
@@ -208,11 +208,12 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
                 localizedConfigDescriptionParameters.add(localizedConfigDescriptionParameter);
             }
 
-            List<ConfigDescriptionParameterGroup> localizedConfigDescriptionGroups = new ArrayList<>(configDescription
-                    .getParameterGroups().size());
+            List<ConfigDescriptionParameterGroup> localizedConfigDescriptionGroups = new ArrayList<>(
+                    configDescription.getParameterGroups().size());
 
             // Loop through all the configuration groups and localize them
-            for (ConfigDescriptionParameterGroup configDescriptionParameterGroup : configDescription.getParameterGroups()) {
+            for (ConfigDescriptionParameterGroup configDescriptionParameterGroup : configDescription
+                    .getParameterGroups()) {
                 ConfigDescriptionParameterGroup localizedConfigDescriptionGroup = getLocalizedConfigDescriptionGroup(
                         bundle, configDescription, configDescriptionParameterGroup, locale);
                 localizedConfigDescriptionGroups.add(localizedConfigDescriptionGroup);
@@ -230,8 +231,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         URI configDescriptionURI = configDescription.getURI();
         String parameterName = parameter.getName();
 
-        String label = this.configDescriptionParamI18nUtil.getParameterLabel(bundle, configDescriptionURI, parameterName,
-                parameter.getLabel(), locale);
+        String label = this.configDescriptionParamI18nUtil.getParameterLabel(bundle, configDescriptionURI,
+                parameterName, parameter.getLabel(), locale);
 
         String description = this.configDescriptionParamI18nUtil.getParameterDescription(bundle, configDescriptionURI,
                 parameterName, parameter.getDescription(), locale);
@@ -282,8 +283,8 @@ public class XmlConfigDescriptionProvider implements ConfigDescriptionProvider {
         for (ParameterOption option : originalOptions) {
 
             String localizedLabel = this.configDescriptionParamI18nUtil.getParameterOptionLabel(bundle,
-                    configDescriptionURI, parameterName, /* key */option.getValue(),
-                    /* fallback */option.getLabel(), locale);
+                    configDescriptionURI, parameterName, /* key */option.getValue(), /* fallback */option.getLabel(),
+                    locale);
             ParameterOption localizedOption = new ParameterOption(option.getValue(), localizedLabel);
             localizedOptions.add(localizedOption);
         }

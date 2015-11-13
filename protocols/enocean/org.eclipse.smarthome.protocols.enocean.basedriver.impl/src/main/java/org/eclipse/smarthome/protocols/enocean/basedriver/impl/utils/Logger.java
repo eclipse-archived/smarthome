@@ -23,7 +23,7 @@ public final class Logger {
 
     /**
      * DEBUG
-     * 
+     *
      * @param tag
      * @param msg
      */
@@ -35,7 +35,7 @@ public final class Logger {
 
     /**
      * INFO
-     * 
+     *
      * @param tag
      * @param msg
      */
@@ -47,7 +47,7 @@ public final class Logger {
 
     /**
      * WARN
-     * 
+     *
      * @param tag
      * @param msg
      */
@@ -59,7 +59,7 @@ public final class Logger {
 
     /**
      * ERROR
-     * 
+     *
      * @param tag
      * @param msg
      */
@@ -71,7 +71,7 @@ public final class Logger {
 
     /**
      * Print
-     * 
+     *
      * @param msg
      */
     private static final void print(String msg) {

@@ -41,15 +41,16 @@ public class PointType implements ComplexType, Command, State {
     private static final BigDecimal circle = new BigDecimal(360);
     private static final BigDecimal flat = new BigDecimal(180);
     private static final BigDecimal right = new BigDecimal(90);
-    
+
     /**
      * Default constructor creates a point at sea level where the equator
-     * (0° latitude) and the prime meridian (0° longitude) intersect. 
+     * (0° latitude) and the prime meridian (0° longitude) intersect.
      * A nullary constructor is needed by
      * {@link org.eclipse.smarthome.core.internal.items.ItemUpdater#receiveUpdate})
      */
-    public PointType() {}
-    
+    public PointType() {
+    }
+
     public PointType(DecimalType latitude, DecimalType longitude) {
         canonicalize(latitude, longitude);
     }
@@ -64,8 +65,8 @@ public class PointType implements ComplexType, Command, State {
     }
 
     public PointType(StringType latitude, StringType longitude, StringType altitude) {
-        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), new DecimalType(
-                altitude.toString()));
+        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()),
+                new DecimalType(altitude.toString()));
     }
 
     public PointType(String value) {
@@ -133,7 +134,8 @@ public class PointType implements ComplexType, Command, State {
         if (!altitude.equals(BigDecimal.ZERO)) {
             sb.append(',');
             sb.append(altitude.toPlainString());
-        };
+        }
+        ;
         return sb.toString();
     }
 

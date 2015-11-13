@@ -175,11 +175,11 @@ public class ServiceBinder {
             if (paramTypes.length == 1) {
                 return paramTypes[0];
             } else if (paramTypes.length > 1) {
-                throw new IllegalArgumentException("The annotated method '" + method.getName()
-                        + "' must contain one and only one parameter!");
+                throw new IllegalArgumentException(
+                        "The annotated method '" + method.getName() + "' must contain one and only one parameter!");
             } else if (required) {
-                throw new IllegalArgumentException("The annotated method '" + method.getName()
-                        + "' must contain one parameter!");
+                throw new IllegalArgumentException(
+                        "The annotated method '" + method.getName() + "' must contain one parameter!");
             }
         }
 

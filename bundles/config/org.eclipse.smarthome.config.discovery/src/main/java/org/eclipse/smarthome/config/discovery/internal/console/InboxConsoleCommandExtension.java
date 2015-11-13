@@ -71,10 +71,12 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                                 console.println(e.getMessage());
                             }
                         } else {
-                            console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
+                            console.println(
+                                    "Cannot approve thing as managed thing provider or setup manager is missing.");
                         }
                     } else {
-                        console.println("Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
+                        console.println(
+                                "Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
                     }
                     break;
                 case SUBCMD_IGNORE:
@@ -117,10 +119,12 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            String timestamp = new Date(discoveryResult.getTimestamp()).toString(); 
-            String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED" : "" + discoveryResult.getTimeToLive(); 
-            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]", 
-                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
+            String timestamp = new Date(discoveryResult.getTimestamp()).toString();
+            String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED"
+                    : "" + discoveryResult.getTimeToLive();
+            console.println(
+                    String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]",
+                            flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
 
         }
     }
@@ -146,8 +150,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] {
-                buildCommandUsage("lists all current inbox entries"),
+        return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
                 buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <fullSetup - true|false>",
                         "creates a thing for an inbox entry"),

@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingStatus} defines possible statuses of a {@link ThingStatusInfo}.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public enum ThingStatus {
@@ -28,7 +28,7 @@ public enum ThingStatus {
 
     /**
      * Gets the value of a thing status.
-     * 
+     *
      * @return the value
      */
     public int getValue() {

@@ -39,8 +39,8 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
     public BindingInfoConverter() {
         super(BindingInfoXmlResult.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "schemaLocation", "false" } });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "schemaLocation", "false" } });
     }
 
     private URI readConfigDescriptionURI(NodeIterator nodeIterator) throws ConversionException {
@@ -50,8 +50,8 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
             try {
                 return new URI(uriText);
             } catch (NullPointerException | URISyntaxException ex) {
-                throw new ConversionException("The URI '" + uriText + "' in node "
-                        + "'config-description-ref' is invalid!", ex);
+                throw new ConversionException(
+                        "The URI '" + uriText + "' in node " + "'config-description-ref' is invalid!", ex);
             }
         }
 

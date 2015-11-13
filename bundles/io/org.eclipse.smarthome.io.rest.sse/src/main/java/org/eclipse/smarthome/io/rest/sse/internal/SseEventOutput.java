@@ -19,9 +19,9 @@ import org.glassfish.jersey.media.sse.OutboundEvent;
  * {@link EventOutput} implementation that takes a filter parameter and only writes out events that match this filter.
  * Should only be used when the {@link OutboundEvent}s sent through this {@link EventOutput} contain a data object of
  * type {@link EventBean}
- * 
+ *
  * @author Ivan Iliev - Initial contribution and API
- * 
+ *
  */
 public class SseEventOutput extends EventOutput {
 

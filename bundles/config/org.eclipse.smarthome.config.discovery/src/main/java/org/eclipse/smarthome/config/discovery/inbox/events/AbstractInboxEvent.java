@@ -35,7 +35,7 @@ public abstract class AbstractInboxEvent extends AbstractEvent {
 
     /**
      * Gets the discovery result as data transfer object.
-     * 
+     *
      * @return the discoveryResult
      */
     public DiscoveryResultDTO getDiscoveryResult() {

@@ -20,7 +20,7 @@ public interface Storage<T> {
 
     /**
      * Puts a key-value mapping into this Storage.
-     * 
+     *
      * @param key the key to add
      * @param value the value to add
      * @return previous value for the key or null if no value was replaced
@@ -37,7 +37,7 @@ public interface Storage<T> {
 
     /**
      * Gets the value mapped to the key specified.
-     * 
+     *
      * @param key the key
      * @return the mapped value, null if no match
      */
@@ -45,14 +45,14 @@ public interface Storage<T> {
 
     /**
      * Gets all keys of this Storage.
-     * 
+     *
      * @return the keys of this Storage
      */
     Collection<String> getKeys();
 
     /**
      * Gets all values of this Storage.
-     * 
+     *
      * @return the values of this Storage
      */
     Collection<T> getValues();

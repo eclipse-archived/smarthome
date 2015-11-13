@@ -26,16 +26,15 @@ public final class MaxValidator implements ConfigDescriptionParameterValidator {
      * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
      */
     @Override
-    public ConfigValidationMessage validate(ConfigDescriptionParameter configDescriptionParameter,
-            Object value) {
+    public ConfigValidationMessage validate(ConfigDescriptionParameter configDescriptionParameter, Object value) {
         if (configDescriptionParameter.getMaximum() != null && value != null) {
             int max = configDescriptionParameter.getMaximum().intValue();
             if (configDescriptionParameter.getType() == Type.TEXT && value instanceof String) {
                 String string = (String) value;
                 if (string.length() > max) {
                     MessageKey messageKey = MessageKey.MAX_VALUE_EXCEEDED;
-                    return new ConfigValidationMessage(configDescriptionParameter.getName(),
-                            messageKey.defaultMessage, messageKey.key, max);
+                    return new ConfigValidationMessage(configDescriptionParameter.getName(), messageKey.defaultMessage,
+                            messageKey.key, max);
                 }
             }
         }

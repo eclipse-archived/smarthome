@@ -41,7 +41,7 @@ public class SitemapProviderImpl implements SitemapProvider {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.smarthome.model.sitemap.internal.SitemapProvider#getSitemap(java.lang.String)
      */
     @Override
@@ -64,7 +64,7 @@ public class SitemapProviderImpl implements SitemapProvider {
     public Set<String> getSitemapNames() {
         Set<String> names = new HashSet<>();
         if (modelRepo != null) {
-            for(String name : modelRepo.getAllModelNamesOfType("sitemap")) {
+            for (String name : modelRepo.getAllModelNamesOfType("sitemap")) {
                 names.add(StringUtils.removeEnd(name, SITEMAP_FILEEXT));
             }
         } else {

@@ -59,7 +59,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Persists the state of a given <code>item</code> through a {@link PersistenceService} identified
      * by the <code>serviceName</code>.
-     * 
+     *
      * @param item the item to store
      * @param serviceName the name of the {@link PersistenceService} to use
      */
@@ -68,14 +68,14 @@ public class PersistenceExtensions implements ManagedService {
         if (service != null) {
             service.store(item);
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
-                    "There is no persistence service registered with the name '{}'", serviceName);
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("There is no persistence service registered with the name '{}'", serviceName);
         }
     }
 
     /**
      * Persists the state of a given <code>item</code> through the default persistence service.
-     * 
+     *
      * @param item the item to store
      */
     static public void persist(Item item) {
@@ -87,7 +87,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Retrieves the state of a given <code>item</code> to a certain point in time through the default persistence
      * service.
-     * 
+     *
      * @param item the item to retrieve the state for
      * @param the point in time for which the state should be retrieved
      * @return the item state at the given point in time
@@ -104,7 +104,7 @@ public class PersistenceExtensions implements ManagedService {
      * Retrieves the state of a given <code>item</code> to a certain point in time through a {@link PersistenceService}
      * identified
      * by the <code>serviceName</code>.
-     * 
+     *
      * @param item the item to retrieve the state for
      * @param the point in time for which the state should be retrieved
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -126,8 +126,8 @@ public class PersistenceExtensions implements ManagedService {
                 return null;
             }
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
-                    "There is no queryable persistence service registered with the name '{}'", serviceName);
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("There is no queryable persistence service registered with the name '{}'", serviceName);
             return null;
         }
     }
@@ -135,7 +135,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Checks if the state of a given <code>item</code> has changed since a certain point in time.
      * The default persistence service is used.
-     * 
+     *
      * @param item the item to check for state changes
      * @param the point in time to start the check
      * @return true, if item state had changed
@@ -151,7 +151,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Checks if the state of a given <code>item</code> has changed since a certain point in time.
      * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-     * 
+     *
      * @param item the item to check for state changes
      * @param the point in time to start the check
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -181,7 +181,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Checks if the state of a given <code>item</code> has been updated since a certain point in time.
      * The default persistence service is used.
-     * 
+     *
      * @param item the item to check for state updates
      * @param the point in time to start the check
      * @return true, if item state was updated
@@ -197,7 +197,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Checks if the state of a given <code>item</code> has changed since a certain point in time.
      * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-     * 
+     *
      * @param item the item to check for state changes
      * @param the point in time to start the check
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -216,7 +216,7 @@ public class PersistenceExtensions implements ManagedService {
      * Gets the historic item with the maximum value of the state of a given <code>item</code> since
      * a certain point in time.
      * The default persistence service is used.
-     * 
+     *
      * @param item the item to get the maximum state value for
      * @param the point in time to start the check
      * @return a historic item with the maximum state value since the given point in time
@@ -233,7 +233,7 @@ public class PersistenceExtensions implements ManagedService {
      * Gets the historic item with the maximum value of the state of a given <code>item</code> since
      * a certain point in time.
      * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-     * 
+     *
      * @param item the item to get the maximum state value for
      * @param the point in time to start the check
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -284,7 +284,7 @@ public class PersistenceExtensions implements ManagedService {
      * Gets the historic item with the minimum value of the state of a given <code>item</code> since
      * a certain point in time.
      * The default persistence service is used.
-     * 
+     *
      * @param item the item to get the minimum state value for
      * @param the point in time to start the check
      * @return the historic item with the minimum state value since the given point in time
@@ -301,7 +301,7 @@ public class PersistenceExtensions implements ManagedService {
      * Gets the historic item with the minimum value of the state of a given <code>item</code> since
      * a certain point in time.
      * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-     * 
+     *
      * @param item the item to get the minimum state value for
      * @param the point in time to start the check
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -351,7 +351,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Gets the average value of the state of a given <code>item</code> since a certain point in time.
      * The default persistence service is used.
-     * 
+     *
      * @param item the item to get the average state value for
      * @param the point in time to start the check
      * @return the average state value since the given point in time
@@ -367,7 +367,7 @@ public class PersistenceExtensions implements ManagedService {
     /**
      * Gets the average value of the state of a given <code>item</code> since a certain point in time.
      * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-     * 
+     *
      * @param item the item to get the average state value for
      * @param the point in time to start the check
      * @param serviceName the name of the {@link PersistenceService} to use
@@ -407,146 +407,147 @@ public class PersistenceExtensions implements ManagedService {
             filter.setOrdering(Ordering.ASCENDING);
             return qService.query(filter);
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
-                    "There is no queryable persistence service registered with the name '{}'", serviceName);
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("There is no queryable persistence service registered with the name '{}'", serviceName);
             return Collections.emptySet();
         }
     }
-    
-	/**
-	 * Query for the last update timestamp of a given <code>item</code>.
-	 * The default persistence service is used.
-	 *
-	 * @param item the item to check for state updates
-	 * @return point in time of the last update or null if none available
-	 */
-	static public AbstractInstant lastUpdate(Item item) {
-		if(isDefaultServiceAvailable()) {
-			return lastUpdate(item, defaultService);
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * Query for the last update timestamp of a given <code>item</code>.
-	 *
-	 * @param item the item to check for state updates
-	 * @param serviceName the name of the {@link PersistenceService} to use
-	 * @return point in time of the last update or null if none available
-	 */
-	static public AbstractInstant lastUpdate(Item item, String serviceName) {
-		PersistenceService service = services.get(serviceName);
-		if (service instanceof QueryablePersistenceService) {
-			QueryablePersistenceService qService = (QueryablePersistenceService) service;
-			FilterCriteria filter = new FilterCriteria();
-			filter.setItemName(item.getName());
-			filter.setOrdering(Ordering.DESCENDING);
-			filter.setPageSize(1);
-			Iterable<HistoricItem> result = qService.query(filter);
-			if (result.iterator().hasNext()) {
-				return new DateTime(result.iterator().next().getTimestamp());				
-			} else {
-				return null;
-			}
-		} else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
-                    "There is no queryable persistence service registered with the name '{}'", serviceName);
-			return null;
-		}
-	}
-	
-	/**
-	 * Gets the difference value of the state of a given <code>item</code> since a certain point in time.
-	 * The default persistence service is used.
-	 *
-	 * @param item the item to get the average state value for
-	 * @param the point in time to start the check
-	 * @return the difference between now and then, null if not calculable
-	 */
-	static public DecimalType deltaSince(Item item, AbstractInstant timestamp) {
-		if(isDefaultServiceAvailable()) {
-			return deltaSince(item, timestamp, defaultService);
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * Gets the difference value of the state of a given <code>item</code> since a certain point in time.
-	 * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-	 *
-	 * @param item the item to get the average state value for
-	 * @param the point in time to start the check
-	 * @param serviceName the name of the {@link PersistenceService} to use
-	 * @return the difference between now and then, null if not calculable
-	 */
-	static public DecimalType deltaSince(Item item, AbstractInstant timestamp, String serviceName) {
-		HistoricItem itemThen = historicState(item, timestamp, serviceName);
-		if (itemThen != null) {
-			DecimalType valueThen = (DecimalType) itemThen.getState();
-			DecimalType valueNow = (DecimalType) item.getStateAs(DecimalType.class);
-		
-			if (( valueThen != null) && ( valueNow != null)) {
-				return new DecimalType(valueNow.doubleValue() - valueThen.doubleValue());
-			}
-		}
-		return null;
- 	}
-	
-	/**
-	 * Gets the evolution rate of the state of a given <code>item</code> since a certain point in time.
-	 * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-	 *
-	 * @param item the item to get the average state value for
-	 * @param the point in time to start the check
-	 * @param serviceName the name of the {@link PersistenceService} to use
-	 * @return the evolution rate in percent (positive and negative) between now and then, 
-	 * 			null if not calculable
-	 */
-	static public DecimalType evolutionRate(Item item, AbstractInstant timestamp) {
-		if(isDefaultServiceAvailable()) {
-			return evolutionRate(item, timestamp, defaultService);
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * Gets the evolution rate of the state of a given <code>item</code> since a certain point in time.
-	 * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
-	 *
-	 * @param item the item to get the average state value for
-	 * @param the point in time to start the check
-	 * @param serviceName the name of the {@link PersistenceService} to use
-	 * @return the evolution rate in percent (positive and negative) between now and then, 
-	 * 			null if not calculable
-	 */
-	static public DecimalType evolutionRate(Item item, AbstractInstant timestamp, String serviceName) {
-		HistoricItem itemThen = historicState(item, timestamp, serviceName);
-		if (itemThen != null) {
-			DecimalType valueThen = (DecimalType) itemThen.getState();
-			DecimalType valueNow = (DecimalType) item.getStateAs(DecimalType.class);
-			
-			if (( valueThen != null) && ( valueNow != null)) {
-				return new DecimalType(100 * (valueNow.doubleValue() - valueThen.doubleValue()) / valueThen.doubleValue());
-			}
-		}
-		return null;
- 	}
+
+    /**
+     * Query for the last update timestamp of a given <code>item</code>.
+     * The default persistence service is used.
+     *
+     * @param item the item to check for state updates
+     * @return point in time of the last update or null if none available
+     */
+    static public AbstractInstant lastUpdate(Item item) {
+        if (isDefaultServiceAvailable()) {
+            return lastUpdate(item, defaultService);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Query for the last update timestamp of a given <code>item</code>.
+     *
+     * @param item the item to check for state updates
+     * @param serviceName the name of the {@link PersistenceService} to use
+     * @return point in time of the last update or null if none available
+     */
+    static public AbstractInstant lastUpdate(Item item, String serviceName) {
+        PersistenceService service = services.get(serviceName);
+        if (service instanceof QueryablePersistenceService) {
+            QueryablePersistenceService qService = (QueryablePersistenceService) service;
+            FilterCriteria filter = new FilterCriteria();
+            filter.setItemName(item.getName());
+            filter.setOrdering(Ordering.DESCENDING);
+            filter.setPageSize(1);
+            Iterable<HistoricItem> result = qService.query(filter);
+            if (result.iterator().hasNext()) {
+                return new DateTime(result.iterator().next().getTimestamp());
+            } else {
+                return null;
+            }
+        } else {
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("There is no queryable persistence service registered with the name '{}'", serviceName);
+            return null;
+        }
+    }
+
+    /**
+     * Gets the difference value of the state of a given <code>item</code> since a certain point in time.
+     * The default persistence service is used.
+     *
+     * @param item the item to get the average state value for
+     * @param the point in time to start the check
+     * @return the difference between now and then, null if not calculable
+     */
+    static public DecimalType deltaSince(Item item, AbstractInstant timestamp) {
+        if (isDefaultServiceAvailable()) {
+            return deltaSince(item, timestamp, defaultService);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the difference value of the state of a given <code>item</code> since a certain point in time.
+     * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
+     *
+     * @param item the item to get the average state value for
+     * @param the point in time to start the check
+     * @param serviceName the name of the {@link PersistenceService} to use
+     * @return the difference between now and then, null if not calculable
+     */
+    static public DecimalType deltaSince(Item item, AbstractInstant timestamp, String serviceName) {
+        HistoricItem itemThen = historicState(item, timestamp, serviceName);
+        if (itemThen != null) {
+            DecimalType valueThen = (DecimalType) itemThen.getState();
+            DecimalType valueNow = (DecimalType) item.getStateAs(DecimalType.class);
+
+            if ((valueThen != null) && (valueNow != null)) {
+                return new DecimalType(valueNow.doubleValue() - valueThen.doubleValue());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the evolution rate of the state of a given <code>item</code> since a certain point in time.
+     * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
+     *
+     * @param item the item to get the average state value for
+     * @param the point in time to start the check
+     * @param serviceName the name of the {@link PersistenceService} to use
+     * @return the evolution rate in percent (positive and negative) between now and then,
+     *         null if not calculable
+     */
+    static public DecimalType evolutionRate(Item item, AbstractInstant timestamp) {
+        if (isDefaultServiceAvailable()) {
+            return evolutionRate(item, timestamp, defaultService);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets the evolution rate of the state of a given <code>item</code> since a certain point in time.
+     * The {@link PersistenceService} identified by the <code>serviceName</code> is used.
+     *
+     * @param item the item to get the average state value for
+     * @param the point in time to start the check
+     * @param serviceName the name of the {@link PersistenceService} to use
+     * @return the evolution rate in percent (positive and negative) between now and then,
+     *         null if not calculable
+     */
+    static public DecimalType evolutionRate(Item item, AbstractInstant timestamp, String serviceName) {
+        HistoricItem itemThen = historicState(item, timestamp, serviceName);
+        if (itemThen != null) {
+            DecimalType valueThen = (DecimalType) itemThen.getState();
+            DecimalType valueNow = (DecimalType) item.getStateAs(DecimalType.class);
+
+            if ((valueThen != null) && (valueNow != null)) {
+                return new DecimalType(
+                        100 * (valueNow.doubleValue() - valueThen.doubleValue()) / valueThen.doubleValue());
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns <code>true</code>, if a default service is configured and returns <code>false</code> and logs a warning
      * otherwise.
-     * 
+     *
      * @return true, if a default service is available
      */
     static private boolean isDefaultServiceAvailable() {
         if (defaultService != null) {
             return true;
         } else {
-            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
-                    "No default persistence service is configured in smarthome.cfg!");
+            LoggerFactory.getLogger(PersistenceExtensions.class)
+                    .warn("No default persistence service is configured in smarthome.cfg!");
             return false;
         }
     }

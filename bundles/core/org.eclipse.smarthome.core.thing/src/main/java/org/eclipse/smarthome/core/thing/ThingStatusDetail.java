@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingStatusDetail} defines possible status details of a {@link ThingStatusInfo}.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public enum ThingStatusDetail {
@@ -31,35 +31,37 @@ public enum ThingStatusDetail {
 
     /**
      * Gets the value of a thing status detail.
-     * 
+     *
      * @return the value
      */
     public int getValue() {
         return value;
     }
-    
+
     public static UninitializedStatus UNINITIALIZED = new UninitializedStatus();
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 
     public static OfflineStatus OFFLINE = new OfflineStatus();
-    
 
     public static final class UninitializedStatus {
-        private UninitializedStatus() {}
-        
+        private UninitializedStatus() {
+        }
+
         public ThingStatusDetail HANDLER_MISSING_ERROR = ThingStatusDetail.HANDLER_MISSING_ERROR;
         public ThingStatusDetail HANDLER_INITIALIZING_ERROR = ThingStatusDetail.HANDLER_INITIALIZING_ERROR;
     };
 
     public static final class OnlineStatus {
-        private OnlineStatus() {}
+        private OnlineStatus() {
+        }
 
         public ThingStatusDetail CONFIGURATION_PENDING = ThingStatusDetail.CONFIGURATION_PENDING;
     };
-    
+
     public static final class OfflineStatus {
-        private OfflineStatus() {}
+        private OfflineStatus() {
+        }
 
         public ThingStatusDetail COMMUNICATION_ERROR = ThingStatusDetail.COMMUNICATION_ERROR;
         public ThingStatusDetail CONFIGURATION_ERROR = ThingStatusDetail.CONFIGURATION_ERROR;

@@ -35,7 +35,7 @@ public class RuleContextHelper {
     /**
      * Retrieves the evaluation context (= set of variables) for a rule. The context is shared with all rules in the
      * same model (= rule file).
-     * 
+     *
      * @param rule the rule to get the context for
      * @return the evaluation context
      */
@@ -56,8 +56,8 @@ public class RuleContextHelper {
             IEvaluationContext evaluationContext = contextProvider.get();
             for (VariableDeclaration var : ruleModel.getVariables()) {
                 try {
-                    Object initialValue = var.getRight() == null ? null : scriptEngine.newScriptFromXExpression(
-                            var.getRight()).execute();
+                    Object initialValue = var.getRight() == null ? null
+                            : scriptEngine.newScriptFromXExpression(var.getRight()).execute();
                     evaluationContext.newValue(QualifiedName.create(var.getName()), initialValue);
                 } catch (ScriptExecutionException e) {
                     logger.warn("Variable '{}' on rule file '{}' cannot be initialized with value '{}': {}",
@@ -68,8 +68,8 @@ public class RuleContextHelper {
             ruleModel.eAdapters().add(new RuleContextAdapter(evaluationContext));
             return evaluationContext;
         } else {
-            logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!", ruleModel
-                    .eResource().getURI().path());
+            logger.debug("Rule variables of rule {} cannot be evaluated as no scriptengine is available!",
+                    ruleModel.eResource().getURI().path());
             return contextProvider.get();
         }
     }

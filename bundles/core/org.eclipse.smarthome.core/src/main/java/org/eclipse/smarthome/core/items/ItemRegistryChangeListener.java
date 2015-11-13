@@ -22,7 +22,7 @@ public interface ItemRegistryChangeListener extends RegistryChangeListener<Item>
 
     /**
      * Notifies the listener that all items in the registry have changed and thus should be reloaded.
-     * 
+     *
      * @param oldItemNames a collection of all previous item names, so that references can be removed
      */
     public void allItemsChanged(Collection<String> oldItemNames);

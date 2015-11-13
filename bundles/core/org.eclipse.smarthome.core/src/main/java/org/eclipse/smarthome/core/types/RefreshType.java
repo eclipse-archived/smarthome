@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.core.types;
 
-public enum RefreshType implements PrimitiveType, Command {
+public enum RefreshType implements PrimitiveType,Command {
 
     REFRESH;
 

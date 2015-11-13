@@ -28,7 +28,7 @@ public class MessageUTE extends Message {
     /**
      * See section 3.6) UTE - Universal Uni- and Bidirectional Teach-in, page
      * 167 of EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf
-     * 
+     *
      * @param data
      *            , i.e the data, and the optional data parts of an EnOcean
      *            packet/telegram (see, section "1.6.1 Packet description", page

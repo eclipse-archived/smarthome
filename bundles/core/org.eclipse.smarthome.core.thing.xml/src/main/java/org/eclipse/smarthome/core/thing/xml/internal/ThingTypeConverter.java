@@ -88,10 +88,11 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(new ThingTypeUID(super.getUID(attributes,
-                context)), readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator),
-                getProperties(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
+        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
+                new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
+                super.readLabel(nodeIterator), super.readDescription(nodeIterator),
+                getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
+                super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
     }

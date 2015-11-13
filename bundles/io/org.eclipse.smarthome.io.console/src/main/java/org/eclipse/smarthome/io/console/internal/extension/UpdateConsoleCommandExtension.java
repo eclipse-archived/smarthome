@@ -28,7 +28,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
  * @author Stefan Bußweiler - Migration to new ESH event concept
- * 
+ *
  */
 public class UpdateConsoleCommandExtension extends AbstractConsoleCommandExtension {
 

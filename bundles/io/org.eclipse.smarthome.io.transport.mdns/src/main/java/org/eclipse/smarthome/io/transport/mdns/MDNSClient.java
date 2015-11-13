@@ -19,7 +19,7 @@ public interface MDNSClient {
 
     /**
      * This method returns an jmDNS instance
-     * 
+     *
      */
     public JmDNS getClient();
 

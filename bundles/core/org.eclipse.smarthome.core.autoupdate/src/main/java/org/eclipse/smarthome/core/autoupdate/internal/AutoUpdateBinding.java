@@ -78,13 +78,13 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
      * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate
      * configuration is available for <code>itemName</code>.
      * </p>
-     * 
+     *
      * <p>
      * If there are more then one {@link AutoUpdateBindingConfigProvider}s providing a configuration the results are
      * combined by a logical <em>OR</em>. If no configuration is provided at all the autoupdate defaults to
      * <code>true</code> and an update is posted for the corresponding {@link State}.
      * </p>
-     * 
+     *
      * @param itemName the item for which to find an autoupdate configuration
      * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
      *            of {@link State} as well.
@@ -127,7 +127,8 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                     // Look for class hierarchy
                     for (Class<? extends State> state : item.getAcceptedDataTypes()) {
                         try {
-                            if (!state.isEnum() && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
+                            if (!state.isEnum()
+                                    && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
                                 isAccepted = true;
                                 break;
                             }

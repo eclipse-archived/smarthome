@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a {@link DiscoveryService} implementation, which can find UPnP devices in the network.
  * Support for further devices can be added by implementing and registering a {@link UpnpDiscoveryParticipant}.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - Added call of removeOlderResults
  *

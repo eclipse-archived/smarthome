@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * The {@link EventSubscriber} defines the callback interface for receiving events from
  * the Eclipse SmartHome event bus.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public interface EventSubscriber {
@@ -25,15 +25,15 @@ public interface EventSubscriber {
 
     /**
      * Gets the event types to which the event subscriber is subscribed to.
-     * 
-     * @return subscribed event types (not null) 
+     *
+     * @return subscribed event types (not null)
      */
     Set<String> getSubscribedEventTypes();
 
     /**
      * Gets an {@link EventFilter} in order to receive specific events if the filter applies. If there is no
      * filter all subscribed event types are received.
-     * 
+     *
      * @return the event filter, or null
      */
     EventFilter getEventFilter();
@@ -41,7 +41,7 @@ public interface EventSubscriber {
     /**
      * Callback method for receiving {@link Event}s from the Eclipse SmartHome event bus. This method is called for
      * every event where the event subscriber is subscribed to and the event filter applies.
-     * 
+     *
      * @param event the received event (not null)
      */
     void receive(Event event);

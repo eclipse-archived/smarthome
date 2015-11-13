@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.service.enocean.EnOceanMessage;
 
 /**
  * Message.
@@ -56,8 +55,8 @@ public abstract class Message implements EnOceanMessage {
     private byte[] messageBytes;
 
     /**
-	 * 
-	 */
+     * 
+     */
     public Message() {
 
     }
@@ -126,7 +125,7 @@ public abstract class Message implements EnOceanMessage {
 
     /**
      * Sender ID of the message
-     * 
+     *
      * @param senderId
      */
     public void setSenderId(byte[] senderId) {

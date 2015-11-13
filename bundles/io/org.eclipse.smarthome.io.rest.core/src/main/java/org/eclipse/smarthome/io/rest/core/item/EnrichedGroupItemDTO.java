@@ -12,7 +12,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
  * This is an enriched data transfer object that is used to serialize group items.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

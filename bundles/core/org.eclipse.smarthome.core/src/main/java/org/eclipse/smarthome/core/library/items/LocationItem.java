@@ -44,7 +44,7 @@ public class LocationItem extends GenericItem {
     public LocationItem(String name) {
         super(CoreItemFactory.LOCATION, name);
     }
-    
+
     public void send(PointType command) {
         internalSend(command);
     }

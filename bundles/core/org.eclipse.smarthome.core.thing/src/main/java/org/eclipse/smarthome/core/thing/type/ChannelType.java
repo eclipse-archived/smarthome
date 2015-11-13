@@ -64,7 +64,7 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label, String description,
             String category, Set<String> tags, StateDescription state, URI configDescriptionURI)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
 
         super(uid, label, description);
 
