@@ -96,6 +96,28 @@ angular.module('PaperUI.services.rest', ['PaperUI.constants'])
             method : 'GET',
             isArray : true
         },
+        getConfigById : {
+            method : 'GET',
+            params : {
+                id : '@id'
+            },
+            interceptor: {
+                response: function(response) {  
+                    return response.data;
+                }
+            },
+            url : restConfig.restPath + '/bindings/:id/config'
+        },
+        updateConfig : {
+            method : 'PUT',
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/bindings/:id/config'
+        },
     });
 }).factory('inboxService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/inbox', {}, {
@@ -322,5 +344,142 @@ angular.module('PaperUI.services.rest', ['PaperUI.constants'])
         	method : 'GET',
             isArray : true
         },
+    });
+}).factory('serviceConfigService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/services', {}, {
+        getAll: {
+        	method : 'GET',
+            isArray : true
+        },
+        getById : {
+            method : 'GET',
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/services/:id'
+        },
+        getConfigById : {
+            method : 'GET',
+            params : {
+                id : '@id'
+            },
+            interceptor: {
+            	response: function(response) {  
+                	return response.data;
+                }
+            },
+            url : restConfig.restPath + '/services/:id/config'
+        },
+        updateConfig : {
+            method : 'PUT',
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/services/:id/config'
+        },
+        deleteConfig : {
+            method : 'DELETE',
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/services/:id/config'
+        },
+    });
+}).factory('configDescriptionService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/config-descriptions', {}, {
+        getAll: {
+        	method : 'GET',
+            isArray : true
+        },
+        getByUri : {
+            method : 'GET',
+            params : {
+                uri : '@uri'
+            },
+            url : restConfig.restPath + '/config-descriptions/:uri'
+        },
+    });
+}).factory('extensionService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/extensions', {}, {
+        getAll: {
+        	method : 'GET',
+            isArray : true
+        },
+        getByUri : {
+            method : 'GET',
+            params : {
+                uri : '@id'
+            },
+            url : restConfig.restPath + '/extensions/:id'
+        },
+        getAllTypes: {
+        	method : 'GET',
+            isArray : true,
+            url : restConfig.restPath + '/extensions/types'
+        },
+        install : {
+            method : 'POST',
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/extensions/:id/install'
+        },
+        uninstall : {
+            method : 'POST',
+            params : {
+                id : '@id'
+            },
+            url : restConfig.restPath + '/extensions/:id/uninstall'
+        }
+    });
+}).factory('ruleService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/rules', {}, {
+        getAll: {
+            method : 'GET',
+            isArray : true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID'
+        },
+        add : {
+            method : 'POST',
+            headers : {
+                'Content-Type' : 'application/json'
+            }
+        },
+        remove : {
+            method : 'DELETE',
+            params : {
+                ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID'
+        },
+        getModuleConfigParameter : {
+            method : 'GET',
+            params : {
+            	ruleUID : '@ruleUID'
+            },
+            transformResponse: function(data, headersGetter, status) {
+                return {content: data};
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/actions/action/config/script'
+        },
+        setModuleConfigParameter : {
+            method : 'PUT',
+            params : {
+            	ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/actions/action/config/script',
+            headers : {
+                'Content-Type' : 'text/plain'
+            }
+        }
     });
 });

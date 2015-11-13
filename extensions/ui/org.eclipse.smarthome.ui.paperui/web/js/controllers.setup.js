@@ -43,8 +43,8 @@ angular.module('PaperUI.controllers.setup',
                 return discoveryResult.thingUID === thingUID;
             })}
         }).then(function(result) {
-            inboxService.approve({'thingUID' : thingUID }, result.label).$promise.then(function() {
-                return thingSetupService.setGroups({'thingUID' : thingUID }, result.groupNames).$promise;
+            inboxService.approve({'thingUID' : thingUID, 'enableChannels': !$scope.advancedMode }, result.label).$promise.then(function() {
+                return thingSetupService.setGroups({'thingUID' : thingUID}, result.groupNames).$promise;
             }).then(function() {
                 thingRepository.setDirty(true);
 
@@ -219,7 +219,7 @@ angular.module('PaperUI.controllers.setup',
                 thing.item.groupNames.push(groupName);
             }
         }
-		thingSetupService.add(thing, function() {
+		thingSetupService.add({'enableChannels': !$scope.advancedMode}, thing, function() {
 		    homeGroupRepository.setDirty(true);
 			toastService.showDefaultToast('Thing added');
 			$scope.navigateTo('wizard/search/' + $scope.thingType.UID.split(':')[0]);

@@ -53,25 +53,33 @@
 			<h1 class="title">SmartHome</h1>
 		</div>
 		<ul>
-			<li ng-class="{active: isActive('control')}"><a href="#control"><span
+			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}"><a href="#control"><span
 					class="icon md-icon-dashboard"></span> Control</a></li>
 			<li ng-class="{active: isActive('setup')}"><a
 				href="#setup/wizard" class="clickable"><span
 					class="icon md-icon-add-circle-outline"></span> Setup Wizard <span
 					ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span></a>
 			</li>
-			<li ng-class="{active: isActive('configuration')}"><a
+			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}"><a
 				ng-click="open('configuration')" class="clickable"><span
 					class="icon md-icon-settings"></span> Configuration</a>
 				<ul ng-show="isActive('configuration')">
 					<li ng-class="{active: isSubActive('bindings')}"><a
 						href="#configuration/bindings">Bindings</a></li>
+					<li ng-class="{active: isSubActive('services')}"><a
+                        href="#configuration/services">Services</a></li>
 					<li ng-class="{active: isSubActive('groups')}"><a
 						href="#configuration/groups">Groups</a></li>
 					<li ng-class="{active: isSubActive('things')}"><a
 						href="#configuration/things">Things</a></li>
 				</ul></li>
-			<li ng-class="{active: isActive('preferences')}"><a
+			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}"><a
+                href="#extensions"><span class="icon md-icon-extension"></span>
+                    Extensions</a></li>
+            <li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}"><a
+                href="#rules"><span class="icon md-icon-movie-creation"></span>
+                    Rules</a></li>
+			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}"><a
 				href="#preferences"><span class="icon md-icon-brightness-medium"></span>
 					Preferences</a></li>
 		</ul>
@@ -125,6 +133,8 @@
 	<script src="js/controllers.control.js"></script>
 	<script src="js/controllers.setup.js"></script>
 	<script src="js/controllers.configuration.js"></script>
+	<script src="js/controllers.extension.js"></script>
+	<script src="js/controllers.rules.js"></script>
 	<script src="js/extensions.js"></script>
 	<script src="js/main.js"></script>
 </body>

@@ -4,9 +4,10 @@
 
 /* Control */
 
-section#main.control {
+section#main.header-tabs {
 	margin-top: 0px;
 	padding-top: 0px;
+    height: 100%;
 }
 
 .items {
@@ -230,4 +231,25 @@ section#main.control {
 
 .homeGroup.fab-item h3 {
 	line-height: 55px;
+}
+
+/* Extensions */
+
+section#main.extensions {
+	margin-top: 0px;
+}
+
+.extensions.white-bg .content {
+	padding-top: 0px;
+}
+
+.extensions.white-bg md-tab-content {
+    padding: 0px;
+}
+
+/* Rules */
+
+.rules .card {
+	padding: 20px;
+	min-height: 200px;
 }
