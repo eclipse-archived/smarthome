@@ -13,6 +13,7 @@ import java.util.Set;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -29,17 +30,20 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ThingTypeRegistry thingTypeRegistry;
+    private ThingRegistry thingRegistry;
 
     @Override
     public StateDescription getStateDescription(String itemName, Locale locale) {
         Set<ChannelUID> boundChannels = itemChannelLinkRegistry.getBoundChannels(itemName);
         if (!boundChannels.isEmpty()) {
             ChannelUID channelUID = boundChannels.iterator().next();
-            ChannelType channelType = thingTypeRegistry.getChannelType(channelUID, locale);
-            return channelType != null ? channelType.getState() : null;
-        } else {
-            return null;
+            Channel channel = thingRegistry.getChannel(channelUID);
+            if (channel != null) {
+                ChannelType channelType = thingTypeRegistry.getChannelType(channel, locale);
+                return channelType != null ? channelType.getState() : null;
+            }
         }
+        return null;
     }
 
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
@@ -56,6 +60,14 @@ public class ChannelStateDescriptionProvider implements StateDescriptionProvider
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = null;
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 
 }

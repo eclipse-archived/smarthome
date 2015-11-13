@@ -197,7 +197,7 @@ public class ThingFactory {
 
         ChannelBuilder channelBuilder = ChannelBuilder
                 .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
-                .withDefaultTags(type.getTags());
+                .withType(type.getUID()).withDefaultTags(type.getTags());
 
         // If we want to override the label, add it...
         if (channelDefinition.getLabel() != null) {

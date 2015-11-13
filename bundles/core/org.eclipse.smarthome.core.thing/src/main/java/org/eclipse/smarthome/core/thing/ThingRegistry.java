@@ -36,6 +36,14 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
     Thing get(ThingUID uid);
 
     /**
+     * Returns a channel for the given channel UID or null if no channel was found
+     *
+     * @param channelUID channel UID
+     * @return channel for the given channel UID or null of no channel was found
+     */
+    Channel getChannel(ChannelUID channelUID);
+
+    /**
      * Updates the configuration of a thing for the given UID.
      *
      * @param thingUID thing UID
