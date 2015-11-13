@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers', []).controller('BodyController', function($rootScope, $scope, eventService, 
+angular.module('PaperUI.controllers', ['PaperUI.constants']).controller('BodyController', function($rootScope, $scope, eventService, 
         toastService, discoveryResultRepository, thingTypeRepository, bindingRepository) {
 	$scope.scrollTop = 0;
 	$(window).scroll(function() {
@@ -106,24 +106,25 @@ angular.module('PaperUI.controllers', []).controller('BodyController', function(
     discoveryResultRepository.getAll();
     thingTypeRepository.getAll();
     bindingRepository.getAll();
-}).controller('PreferencesPageController', function($scope, toastService) {
+}).controller('PreferencesPageController', function($rootScope, $scope, toastService) {
 	$scope.setHeaderText('Edit user preferences.');
 	
 	var localStorage = window.localStorage;
     var language = localStorage.getItem('language');
-    var theme = localStorage.getItem('theme');
 
     $scope.language = language ? language : 'english';
-
+    $scope.advancedMode = $rootScope.advancedMode;
     $scope.save = function() {
-        localStorage.setItem('language', $scope.language);
+        $rootScope.advancedMode = $scope.advancedMode;
+        localStorage.setItem('paperui.language', $scope.language);
+        localStorage.setItem('paperui.advancedMode', $rootScope.advancedMode);
         toastService.showSuccessToast('Preferences saved successfully. Please reload the page.');
     }
 
     $scope.getSelected = function(property) {
         return $('select#' + property + ' option:selected').val();
     }
-}).controller('NavController', function($scope, $location) {
+}).controller('NavController', function($scope, $location, moduleConfig) {
     $scope.opened = null;
     $scope.open = function(viewLocation) {
     	$scope.opened = viewLocation;
@@ -135,6 +136,9 @@ angular.module('PaperUI.controllers', []).controller('BodyController', function(
     $scope.isSubActive = function(viewLocation) {
         var active = (viewLocation === $location.path().split('/')[2]);
         return active;
+    }
+    $scope.isHidden = function(module) {
+        return moduleConfig[module] === false;
     }
     $scope.$on('$routeChangeSuccess', function() {
         $('body').removeClass('sml-open');

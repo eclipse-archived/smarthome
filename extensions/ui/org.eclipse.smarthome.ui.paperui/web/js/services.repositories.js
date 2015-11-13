@@ -171,4 +171,9 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
 	var repository = new Repository($q, $rootScope, itemService, 'items')
 	$rootScope.data.items = [];
 	return repository;
+}).factory('ruleRepository', 
+		function($q, $rootScope, ruleService) {
+	var repository = new Repository($q, $rootScope, ruleService, 'rules')
+	$rootScope.data.rules = [];
+	return repository;
 });

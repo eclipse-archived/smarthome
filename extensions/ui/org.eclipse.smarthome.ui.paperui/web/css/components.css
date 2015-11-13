@@ -327,6 +327,11 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	line-height: 54px;
 }
 
+.fab-item .circle.green {
+    background-color: #4CAF50;
+    color: white;
+}
+
 .fab-item .circle.small {
 	width: 28px;
 	height: 28px;
@@ -358,6 +363,12 @@ md-input-group.md-default-theme.md-input-focused input, md-input-group.md-defaul
 
 md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused label {
 	color: #4CAF50;
+}
+
+
+md-input-container textarea.mono {
+    font-family: monospace;
+    line-height: 150%;
 }
 
 md-select.md-default-theme:not([disabled]):focus .md-select-label {
@@ -402,6 +413,10 @@ select.form-control {
 	border-radius: 0px;
 	-webkit-appearance: none;
 	margin: 5px 0px 10px;
+}
+
+md-input-container:not(.md-input-invalid).md-input-focused md-icon {
+	color: #4CAF50;
 }
 
 /* Dialog */
@@ -463,3 +478,34 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle {
    border-bottom-style: none;
    font-size: 18px;
 }
+
+/* List */
+.md-subheader .md-subheader-inner {
+	padding-left: 0px;
+}
+
+/* Search */
+.search {
+	padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+@media only screen and (max-width: 1120px) {
+	.search {
+	    padding: 10px;
+	}
+}
+
+.search md-input-container {
+	padding: 0px;
+	margin: 0px 20px;
+}
+
+.search md-input-container input {
+    border-bottom: 1px solid #FFF;
+}
+
+.search md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused .md-input {
+	border-color: #FFF;
+}
+
