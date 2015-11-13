@@ -14,6 +14,8 @@ import java.util.Set;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * {@link ChannelBuilder} is responsible for creating {@link Channel}s.
@@ -31,6 +33,7 @@ public class ChannelBuilder {
     private Map<String, String> properties;
     private String label;
     private String description;
+    private ChannelTypeUID channelTypeUID;
 
     private ChannelBuilder(ChannelUID channelUID, String acceptedItemType, Set<String> defaultTags) {
         this.channelUID = channelUID;
@@ -52,6 +55,17 @@ public class ChannelBuilder {
     }
 
     /**
+     * Appends the channel type to the channel to build
+     *
+     * @param channelTypeUID channel type UID
+     * @return channel builder
+     */
+    public ChannelBuilder withType(ChannelTypeUID channelTypeUID) {
+        this.channelTypeUID = channelTypeUID;
+        return this;
+    }
+
+    /**
      * Appends a configuration to the channel to build.
      *
      * @param configuration
@@ -65,6 +79,7 @@ public class ChannelBuilder {
 
     /**
      * Adds properties to the channel
+     *
      * @param properties properties to add
      * @return channel builder
      */
@@ -75,6 +90,7 @@ public class ChannelBuilder {
 
     /**
      * Sets the channel label. This allows overriding of the default label set in the {@link ChannelType}
+     *
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
@@ -85,6 +101,7 @@ public class ChannelBuilder {
 
     /**
      * Sets the channel label. This allows overriding of the default label set in the {@link ChannelType}
+     *
      * @param label the channel label to override the label set in the {@link ChannelType}
      * @return channel builder
      */
@@ -111,6 +128,7 @@ public class ChannelBuilder {
      * @return channel
      */
     public Channel build() {
-        return new Channel(channelUID, acceptedItemType, configuration, defaultTags, properties, label, description);
+        return new Channel(channelUID, channelTypeUID, acceptedItemType, configuration, defaultTags, properties, label,
+                description);
     }
 }

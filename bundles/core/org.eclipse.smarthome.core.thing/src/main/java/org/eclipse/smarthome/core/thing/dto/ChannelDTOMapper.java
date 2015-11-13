@@ -12,17 +12,18 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link ChannelDTOMapper} is an utility class to map channels into channel data transfer objects (DTOs).
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ChannelDTOMapper {
 
     /**
      * Maps channel into channel DTO object.
-     * 
+     *
      * @param channel the channel
      * @return the channel DTO object
      */
@@ -31,7 +32,9 @@ public class ChannelDTOMapper {
         for (Item item : channel.getLinkedItems()) {
             linkedItemNames.add(item.getName());
         }
-        return new ChannelDTO(channel.getUID().getId(), channel.getAcceptedItemType().toString(), linkedItemNames,
-                channel.getProperties());
+        ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
+        String channelTypeUIDValue = channelTypeUID != null ? channelTypeUID.toString() : null;
+        return new ChannelDTO(channel.getUID().getId(), channelTypeUIDValue, channel.getAcceptedItemType().toString(),
+                linkedItemNames, channel.getProperties());
     }
 }
