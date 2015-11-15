@@ -115,8 +115,8 @@ public class NodeList implements NodeName {
                     if (attributeValue != null) {
                         attributes.add(String.format(formattedText, attributeValue));
                     } else {
-                        throw new ConversionException("Missing attribute '" + attributeName + "' in '" + nodeName
-                                + "'!");
+                        throw new ConversionException(
+                                "Missing attribute '" + attributeName + "' in '" + nodeName + "'!");
                     }
                 } else {
                     throw new ConversionException("Invalid attribute in '" + nodeName + "'!");

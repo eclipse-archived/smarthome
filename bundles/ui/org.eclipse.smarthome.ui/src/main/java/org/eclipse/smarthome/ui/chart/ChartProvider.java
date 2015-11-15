@@ -24,7 +24,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 public interface ChartProvider {
     /**
      * Gets the name of this chart provider.
-     * 
+     *
      * @return String containing the provider name
      */
     String getName();
@@ -32,7 +32,7 @@ public interface ChartProvider {
     /**
      * Creates a chart object. This sets the initial parameters for the chart
      * before the items are added
-     * 
+     *
      * @param service
      *            A string containing the name of the persistence service. May
      *            be null in which case the chart provider can decide itself
@@ -61,10 +61,10 @@ public interface ChartProvider {
      *            The items to display on the chart
      * @param groups
      *            The groups to display on the chart
-     * 
+     *
      * @return BufferedImage object if the chart is rendered correctly,
      *         otherwise null.
-     * 
+     *
      * @throws ItemNotFoundException if an item or group is not found
      * @throws IllegalArgumentException if an invalid argument is passed
      */
@@ -73,7 +73,7 @@ public interface ChartProvider {
 
     /**
      * Gets the type of data that will be written by the chart.
-     * 
+     *
      * @return ImageType
      */
     ImageType getChartType();
@@ -83,6 +83,8 @@ public interface ChartProvider {
      *
      */
     public enum ImageType {
-        png, jpg, gif;
+        png,
+        jpg,
+        gif;
     }
 }

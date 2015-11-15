@@ -31,15 +31,15 @@ public class ConfigDescriptionGroupI18nUtil {
 
     public String getGroupDescription(Bundle bundle, URI configDescriptionURI, String groupName,
             String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
-                configDescriptionURI, groupName, "description");
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferKey(configDescriptionURI, groupName, "description");
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getGroupLabel(Bundle bundle, URI configDescriptionURI, String groupName, String defaultLabel,
             Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(
-                configDescriptionURI, groupName, "label");
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
+                : inferKey(configDescriptionURI, groupName, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 

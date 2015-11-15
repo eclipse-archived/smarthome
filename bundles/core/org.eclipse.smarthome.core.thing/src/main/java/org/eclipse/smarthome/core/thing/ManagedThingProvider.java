@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Integrated Storage
  * @author Michael Grammling - Added dynamic configuration update
  */
-public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, ThingUID> implements ThingProvider {
+public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, ThingUID>implements ThingProvider {
 
     private final Logger logger = LoggerFactory.getLogger(ManagedThingProvider.class);
 

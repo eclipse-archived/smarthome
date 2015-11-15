@@ -23,8 +23,8 @@ public class ScriptImportSectionNamespaceScopeProvider extends XImportSectionNam
             "items");
     public static final QualifiedName CORE_PERSISTENCE_PACKAGE = QualifiedName.create("org", "eclipse", "smarthome",
             "core", "persistence");
-    public static final QualifiedName MODEL_SCRIPT_ACTIONS_PACKAGE = QualifiedName.create("org", "eclipse",
-            "smarthome", "model", "script", "actions");
+    public static final QualifiedName MODEL_SCRIPT_ACTIONS_PACKAGE = QualifiedName.create("org", "eclipse", "smarthome",
+            "model", "script", "actions");
 
     @Override
     protected List<ImportNormalizer> getImplicitImports(boolean ignoreCase) {

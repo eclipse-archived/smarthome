@@ -41,7 +41,7 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @see http://www.peterfriese.de/running-applescript-from-java/
@@ -72,7 +72,7 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @param timeout

@@ -108,7 +108,7 @@ public class ProxyServlet extends HttpServlet {
 
     /**
      * Creates a {@link HttpContext}
-     * 
+     *
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {
@@ -122,7 +122,8 @@ public class ProxyServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String sitemapName = request.getParameter("sitemap");
         String widgetId = request.getParameter("widgetId");
 

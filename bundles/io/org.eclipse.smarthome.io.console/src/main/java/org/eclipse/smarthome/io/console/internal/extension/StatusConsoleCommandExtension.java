@@ -23,7 +23,7 @@ import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtensi
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Create DS for command extension
  * @author Dennis Nobel - Changed service references to be injected via DS
- * 
+ *
  */
 public class StatusConsoleCommandExtension extends AbstractConsoleCommandExtension {
 

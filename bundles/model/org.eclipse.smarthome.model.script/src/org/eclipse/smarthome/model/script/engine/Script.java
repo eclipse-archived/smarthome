@@ -22,7 +22,7 @@ public interface Script {
 
     /**
      * Executes the script instance and returns the execution result
-     * 
+     *
      * @return the execution result or <code>null</code>, if the script does not have a return value
      * @throws ScriptExecutionException if an error occurs during the execution
      */
@@ -30,7 +30,7 @@ public interface Script {
 
     /**
      * Executes the script instance with a given evaluation context and returns the execution result
-     * 
+     *
      * @param evaluationContext the evaluation context is a map of variables (name, object)
      *            that should be available during the script execution
      * @return the execution result or <code>null</code>, if the script does not have a return value

@@ -11,7 +11,7 @@ import java.util.Hashtable;
 
 /**
  * This is a simple data container to keep all details of a service description together.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
@@ -24,7 +24,7 @@ public class ServiceDescription {
 
     /**
      * Constructor for a {@link ServiceDescription}, which takes all details as parameters
-     * 
+     *
      * @param serviceType String service type, like "_smarthome-server._tcp.local."
      * @param serviceName String service name, like "Eclipse SmartHome"
      * @param servicePort Int service port, like 8080

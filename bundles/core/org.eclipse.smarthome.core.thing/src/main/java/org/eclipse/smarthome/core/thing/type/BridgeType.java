@@ -54,7 +54,7 @@ public class BridgeType extends ThingType {
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     * 
+     *
      * @param properties the properties this Bridge type provides (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
@@ -66,8 +66,8 @@ public class BridgeType extends ThingType {
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, supportedBridgeTypeUIDs, label, description, channelDefinitions, channelGroupDefinitions,
-                properties, configDescriptionURI);
+        super(uid, supportedBridgeTypeUIDs, label, description, channelDefinitions, channelGroupDefinitions, properties,
+                configDescriptionURI);
     }
 
 }

@@ -29,9 +29,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * definition information within an XML document into a concrete type object.
  * <p>
  * This class should be used for each type definition which inherits from the {@link AbstractDescriptionType} class.
- * 
+ *
  * @param <T> the result type of the conversion
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  */
 public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarshaller<T> {
@@ -42,7 +42,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * Creates a new instance of this class with the specified parameter.
-     * 
+     *
      * @param clazz the class of the result type (must not be null)
      * @param type the name of the type (e.g. "thing-type", "channel-type")
      */
@@ -56,7 +56,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * Returns the {@code id} attribute of the specific XML type definition.
-     * 
+     *
      * @param attributes the attributes where to extract the ID information (must not be null)
      * @return the ID of the type definition (neither null, nor empty)
      */
@@ -66,10 +66,10 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * Returns the full extracted UID of the specific XML type definition.
-     * 
+     *
      * @param attributes the attributes where to extract the ID information (must not be null)
      * @param context the context where to extract the binding ID information (must not be null)
-     * 
+     *
      * @return the UID of the type definition (neither null, nor empty)
      */
     protected String getUID(Map<String, String> attributes, UnmarshallingContext context) {
@@ -83,7 +83,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * Returns the value of the {@code label} tag from the specific XML type definition.
-     * 
+     *
      * @param nodeIterator the iterator to be used to extract the information (must not be null)
      * @return the value of the label (neither null, nor empty)
      * @throws ConversionException if the label could not be read
@@ -94,7 +94,7 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * Returns the value of the {@code description} tag from the specific XML type definition.
-     * 
+     *
      * @param nodeIterator the iterator to be used to extract the information (must not be null)
      * @return the value of the description (could be null or empty)
      */
@@ -109,8 +109,8 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
             try {
                 return new URI(uriText);
             } catch (NullPointerException | URISyntaxException ex) {
-                throw new ConversionException("The URI '" + uriText + "' in node "
-                        + "'config-description-ref' is invalid!", ex);
+                throw new ConversionException(
+                        "The URI '" + uriText + "' in node " + "'config-description-ref' is invalid!", ex);
             }
         }
 
@@ -134,9 +134,9 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
     /**
      * Returns the value of the {@code config-description-ref} and the {@code config-description} tags from the specific
      * XML type definition.
-     * 
+     *
      * @param nodeIterator the iterator to be used to extract the information (must not be null)
-     * 
+     *
      * @return the URI and configuration object
      *         (contains two elements: URI - could be null, ConfigDescription - could be null)
      */
@@ -155,19 +155,19 @@ public abstract class AbstractDescriptionTypeConverter<T> extends GenericUnmarsh
 
     /**
      * The abstract unmarshal method which must be implemented by the according type converter.
-     * 
+     *
      * @param reader the reader to be used to read XML information from a stream (not null)
-     * 
+     *
      * @param context the context to be used for the XML document conversion (not null)
-     * 
+     *
      * @param attributes the attributes map containing attributes of the type - only UID -
      *            (not null, could be empty)
-     * 
+     *
      * @param nodeIterator the iterator to be used to simply extract information in the right
      *            order and appearance from the XML stream
-     * 
+     *
      * @return the concrete type definition object (could be null)
-     * 
+     *
      * @throws ConversionException if any conversion error occurs
      */
     protected abstract T unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,

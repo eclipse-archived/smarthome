@@ -101,19 +101,19 @@ public abstract class AbstractWatchService {
     }
 
     protected void stopWatchService() {
-    	if(watchService != null) {
-	    	try {
-	            watchService.close();
-	        } catch (IOException e) {
-	            logger.warn("Cannot deactivate folder watcher", e);
-	        }
-	
-	        watchService = null;
-    	}
+        if (watchService != null) {
+            try {
+                watchService.close();
+            } catch (IOException e) {
+                logger.warn("Cannot deactivate folder watcher", e);
+            }
+
+            watchService = null;
+        }
     }
 
     /**
-     * 
+     *
      * @param watchService
      * @param toWatch
      * @return
@@ -121,13 +121,13 @@ public abstract class AbstractWatchService {
     protected abstract AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch);
 
     /**
-     * 
+     *
      * @return
      */
     protected abstract String getSourcePath();
 
     /**
-     * 
+     *
      * @return
      */
     protected abstract boolean watchSubDirectories();

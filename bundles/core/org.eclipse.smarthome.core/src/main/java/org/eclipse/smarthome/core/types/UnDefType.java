@@ -17,8 +17,9 @@ package org.eclipse.smarthome.core.types;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public enum UnDefType implements PrimitiveType, State {
-    UNDEF, NULL;
+public enum UnDefType implements PrimitiveType,State {
+    UNDEF,
+    NULL;
 
     @Override
     public String format(String pattern) {

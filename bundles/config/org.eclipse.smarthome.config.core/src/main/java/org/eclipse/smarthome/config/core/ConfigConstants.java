@@ -31,7 +31,7 @@ public class ConfigConstants {
      * Returns the configuration folder path name. The main config folder <code>&lt;smarthome&gt;/config</code> can be
      * overwritten by setting
      * the System property <code>smarthome.configdir</code>.
-     * 
+     *
      * @return the configuration folder path name
      */
     static public String getConfigFolder() {
@@ -47,7 +47,7 @@ public class ConfigConstants {
      * Returns the user data folder path name. The main user data folder <code>&lt;smarthome&gt;/userdata</code> can be
      * overwritten by setting
      * the System property <code>smarthome.userdata</code>.
-     * 
+     *
      * @return the user data folder path name
      */
     static public String getUserDataFolder() {

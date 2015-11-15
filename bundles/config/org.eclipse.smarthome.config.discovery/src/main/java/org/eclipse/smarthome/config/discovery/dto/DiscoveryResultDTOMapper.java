@@ -18,7 +18,7 @@ public class DiscoveryResultDTOMapper {
 
     /**
      * Maps discovery result into discovery result data transfer object.
-     * 
+     *
      * @param discoveryResult the discovery result
      * @return the discovery result data transfer object
      */

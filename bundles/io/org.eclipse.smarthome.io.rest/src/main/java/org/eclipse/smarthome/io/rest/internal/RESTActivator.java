@@ -43,7 +43,7 @@ public class RESTActivator implements BundleActivator {
 
     /**
      * Returns the bundle context of this bundle
-     * 
+     *
      * @return the bundle context
      */
     public static BundleContext getContext() {

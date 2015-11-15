@@ -16,14 +16,14 @@ public interface ActionService {
 
     /**
      * returns the FQCN of the action class.
-     * 
+     *
      * @return the FQCN of the action class
      */
     String getActionClassName();
 
     /**
      * Returns the action class itself
-     * 
+     *
      * @return the action class
      */
     Class<?> getActionClass();

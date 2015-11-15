@@ -35,8 +35,8 @@ public class SyntheticBundleInstaller {
         String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
         byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName);
 
-        Bundle syntheticBundle = bundleContext.installBundle(testBundleName, new ByteArrayInputStream(
-                syntheticBundleBytes));
+        Bundle syntheticBundle = bundleContext.installBundle(testBundleName,
+                new ByteArrayInputStream(syntheticBundleBytes));
         syntheticBundle.start(Bundle.ACTIVE);
         waitUntilLoadingFinished(syntheticBundle);
         return syntheticBundle;

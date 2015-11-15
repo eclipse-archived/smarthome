@@ -7,13 +7,12 @@
  */
 package org.eclipse.smarthome.io.console.karaf.internal;
 
+import java.rmi.registry.Registry;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.karaf.shell.api.console.Registry;
-import org.apache.karaf.shell.api.console.SessionFactory;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

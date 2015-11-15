@@ -23,8 +23,7 @@ package org.eclipse.smarthome.core.transform;
  *
  */
 public interface TransformationService {
-    
-    
+
     public static final String TRANSFORM_FOLDER_NAME = "transform";
 
     /**
@@ -33,13 +32,13 @@ public interface TransformationService {
      * for any reason, one should return the unchanged <code>source</code>. This
      * method should never return <code>null</code>. In case of any error an {@link TransformationException} should be
      * thrown.
-     * 
+     *
      * @param function the function to be used to transform the input
      * @param source the input to be transformed
-     * 
+     *
      * @return the transformed result or the unchanged <code>source</code> if the
      *         transformation couldn't be completed for any reason.
-     * 
+     *
      * @throws TransformationException if any error occurs
      */
     String transform(String function, String source) throws TransformationException;

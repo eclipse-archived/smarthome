@@ -64,8 +64,8 @@ public class ConfigDescriptionConverter extends GenericUnmarshaller<ConfigDescri
         try {
             uri = new URI(uriText);
         } catch (NullPointerException | URISyntaxException ex) {
-            throw new ConversionException("The URI '" + uriText + "' in node '" + reader.getNodeName()
-                    + "' is invalid!", ex);
+            throw new ConversionException(
+                    "The URI '" + uriText + "' in node '" + reader.getNodeName() + "' is invalid!", ex);
         }
 
         // create the lists to hold parameters and groups

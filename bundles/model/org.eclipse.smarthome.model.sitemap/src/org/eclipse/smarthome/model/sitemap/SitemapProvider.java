@@ -9,12 +9,11 @@ package org.eclipse.smarthome.model.sitemap;
 
 import java.util.Set;
 
-
 public interface SitemapProvider {
 
     /**
      * This method provides access to sitemap model files, loads them and returns the object model tree.
-     * 
+     *
      * @param sitemapName the name of the sitemap to load
      * @return the object model tree, null if it is not found
      */
@@ -22,7 +21,7 @@ public interface SitemapProvider {
 
     /**
      * Returns the names of all available sitemaps
-     * 
+     *
      * @return names of provided sitemaps
      */
     public Set<String> getSitemapNames();

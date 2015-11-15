@@ -155,7 +155,7 @@ public class ChannelUID extends UID {
 
     /**
      * Returns the id without the group id.
-     * 
+     *
      * @return id id without group id
      */
     public String getIdWithoutGroup() {
@@ -193,10 +193,8 @@ public class ChannelUID extends UID {
             super.validateSegment(segment, index, length);
         } else {
             if (!segment.matches("[A-Za-z0-9_#-]*")) {
-                throw new IllegalArgumentException(
-                        "UID segment '"
-                                + segment
-                                + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
+                throw new IllegalArgumentException("UID segment '" + segment
+                        + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
             }
         }
     }

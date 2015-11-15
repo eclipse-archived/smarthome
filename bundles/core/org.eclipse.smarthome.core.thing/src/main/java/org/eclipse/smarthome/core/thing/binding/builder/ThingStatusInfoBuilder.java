@@ -13,7 +13,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 
 /**
  * {@link ThingStatusInfoBuilder} is responsible for creating {@link ThingStatusInfo}s.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  * @author Dennis Nobel - Added null checks
  */
@@ -33,11 +33,11 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Creates a status info builder for the given status and detail.
-     * 
+     *
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
     public static ThingStatusInfoBuilder create(ThingStatus status, ThingStatusDetail statusDetail)
@@ -53,10 +53,10 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Creates a status info builder for the given status.
-     * 
+     *
      * @param status the status (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status is null
      */
     public static ThingStatusInfoBuilder create(ThingStatus status) throws IllegalArgumentException {
@@ -65,7 +65,7 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Appends a description to the status to build.
-     * 
+     *
      * @param description the description
      * @return status info builder
      */
@@ -76,10 +76,10 @@ public class ThingStatusInfoBuilder {
 
     /**
      * Appends a status detail to the status to build.
-     * 
+     *
      * @param statusDetail the status detail (must not be null)
      * @return status info builder
-     * 
+     *
      * @throws IllegalArgumentException if thing status detail is null
      */
     public ThingStatusInfoBuilder withStatusDetail(ThingStatusDetail statusDetail) throws IllegalArgumentException {

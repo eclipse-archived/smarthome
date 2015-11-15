@@ -23,12 +23,8 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.esp.EspPacket;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.EnOceanHostImplException;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.enocean.EnOceanException;
-import org.osgi.service.enocean.EnOceanHost;
 
 /**
  * EnOceanHostImpl.
@@ -98,7 +94,7 @@ public class EnOceanHostImpl extends Thread implements EnOceanHost {
 
     /**
      * Implementation-specific method to add a remote packet listener.
-     * 
+     *
      * @param packetListener
      *            an object implementing the {@link EnOceanPacketListener} interface.
      */
@@ -161,7 +157,7 @@ public class EnOceanHostImpl extends Thread implements EnOceanHost {
      * Low-level ESP3 reader implementation. Reads the header, deducts the
      * paylsoad size, checks for errors, and sends back the read packet to the
      * caller.
-     * 
+     *
      * @return the complete byte[] ESP packet
      * @throws IOException
      */

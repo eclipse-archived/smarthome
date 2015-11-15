@@ -45,7 +45,7 @@ public class SwitchItem extends GenericItem {
         super(CoreItemFactory.SWITCH, name);
     }
 
-    /* package */SwitchItem(String type, String name) {
+    /* package */ SwitchItem(String type, String name) {
         super(type, name);
     }
 

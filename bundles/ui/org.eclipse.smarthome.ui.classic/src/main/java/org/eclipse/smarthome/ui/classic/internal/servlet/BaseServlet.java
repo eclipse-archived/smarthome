@@ -46,7 +46,7 @@ public abstract class BaseServlet implements Servlet {
 
     /**
      * Creates a {@link HttpContext}
-     * 
+     *
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {

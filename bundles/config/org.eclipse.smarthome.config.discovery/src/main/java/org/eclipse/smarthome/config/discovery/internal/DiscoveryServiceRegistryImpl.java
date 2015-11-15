@@ -85,7 +85,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                     }
                     errorOccured = true;
                 } else {
-                    logger.warn("Error occured while executing discovery service: " + exception.getMessage(), exception);
+                    logger.warn("Error occured while executing discovery service: " + exception.getMessage(),
+                            exception);
                 }
             }
         }
@@ -284,13 +285,13 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
         for (DiscoveryService discoveryService : discoveryServices) {
             Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
             try {
-                logger.debug("Abort scan for thing types '{}' on '{}'...", supportedThingTypes, discoveryService
-                        .getClass().getName());
+                logger.debug("Abort scan for thing types '{}' on '{}'...", supportedThingTypes,
+                        discoveryService.getClass().getName());
 
                 discoveryService.abortScan();
 
-                logger.debug("Scan for thing types '{}' aborted on '{}'.", supportedThingTypes, discoveryService
-                        .getClass().getName());
+                logger.debug("Scan for thing types '{}' aborted on '{}'.", supportedThingTypes,
+                        discoveryService.getClass().getName());
             } catch (Exception ex) {
                 logger.error("Cannot abort scan for thing types '" + supportedThingTypes + "' on '"
                         + discoveryService.getClass().getName() + "'!", ex);
@@ -313,7 +314,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
                 if (startScan(discoveryService, aggregatingScanListener)) {
                     atLeastOneDiscoveryServiceHasBeenStarted = true;
                 } else {
-                    logger.debug("Reducing number of discovery services in aggregating listener, because discovery service failed to start scan.");
+                    logger.debug(
+                            "Reducing number of discovery services in aggregating listener, because discovery service failed to start scan.");
                     aggregatingScanListener.reduceNumberOfDiscoveryServices();
                 }
             }
@@ -330,8 +332,8 @@ public final class DiscoveryServiceRegistryImpl implements DiscoveryServiceRegis
     private boolean startScan(DiscoveryService discoveryService, ScanListener listener) {
         Collection<ThingTypeUID> supportedThingTypes = discoveryService.getSupportedThingTypes();
         try {
-            logger.debug("Triggering scan for thing types '{}' on '{}'...", supportedThingTypes, discoveryService
-                    .getClass().getSimpleName());
+            logger.debug("Triggering scan for thing types '{}' on '{}'...", supportedThingTypes,
+                    discoveryService.getClass().getSimpleName());
 
             discoveryService.startScan(listener);
             return true;

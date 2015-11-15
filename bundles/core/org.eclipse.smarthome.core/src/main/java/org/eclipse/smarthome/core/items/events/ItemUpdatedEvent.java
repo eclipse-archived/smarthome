@@ -18,7 +18,7 @@ import org.eclipse.smarthome.core.items.dto.ItemDTO;
 public class ItemUpdatedEvent extends AbstractItemRegistryEvent {
 
     private final ItemDTO oldItem;
-    
+
     /**
      * The item updated event type.
      */
@@ -44,7 +44,7 @@ public class ItemUpdatedEvent extends AbstractItemRegistryEvent {
 
     /**
      * Gets the old item.
-     * 
+     *
      * @return the oldItem
      */
     public ItemDTO getOldItem() {

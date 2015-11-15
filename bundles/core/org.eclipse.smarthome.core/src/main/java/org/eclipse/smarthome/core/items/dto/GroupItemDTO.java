@@ -9,7 +9,7 @@ package org.eclipse.smarthome.core.items.dto;
 
 /**
  * This is a data transfer object that is used to serialize group items.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  *
  */

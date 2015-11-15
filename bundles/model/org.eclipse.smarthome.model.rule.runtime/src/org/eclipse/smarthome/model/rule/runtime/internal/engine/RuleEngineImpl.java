@@ -7,11 +7,7 @@
  */
 package org.eclipse.smarthome.model.rule.runtime.internal.engine;
 
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.CHANGE;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.COMMAND;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.SHUTDOWN;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.STARTUP;
-import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.UPDATE;
+import static org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleTriggerManager.TriggerTypes.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,8 +56,8 @@ import com.google.inject.Injector;
  *
  */
 @SuppressWarnings("restriction")
-public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemRegistryChangeListener, StateChangeListener,
-        ModelRepositoryChangeListener, RuleEngine {
+public class RuleEngineImpl extends AbstractItemEventSubscriber
+        implements ItemRegistryChangeListener, StateChangeListener, ModelRepositoryChangeListener, RuleEngine {
 
     private final Logger logger = LoggerFactory.getLogger(RuleEngineImpl.class);
 
@@ -74,7 +70,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
     private RuleTriggerManager triggerManager;
 
     private Injector injector;
-    
+
     private ScheduledFuture<?> startupJob;
 
     private Runnable startupRunnable = new Runnable() {
@@ -240,8 +236,8 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
                 }
 
                 // add new and modified rules to the trigger sets
-                if (model != null
-                        && (type == org.eclipse.smarthome.model.core.EventType.ADDED || type == org.eclipse.smarthome.model.core.EventType.MODIFIED)) {
+                if (model != null && (type == org.eclipse.smarthome.model.core.EventType.ADDED
+                        || type == org.eclipse.smarthome.model.core.EventType.MODIFIED)) {
                     triggerManager.addRuleModel(model);
                     // now execute all rules that are meant to trigger at startup
                     scheduleStartupRules();
@@ -255,7 +251,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
             startupJob = scheduler.schedule(startupRunnable, 5, TimeUnit.SECONDS);
         }
     }
-    
+
     private void runStartupRules() {
         if (triggerManager != null) {
             Iterable<Rule> startupRules = triggerManager.getRules(STARTUP);
@@ -270,12 +266,13 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
                     script.execute(context);
                     executedRules.add(rule);
                 } catch (ScriptExecutionException e) {
-                    if(!e.getMessage().contains("cannot be resolved to an item or type")) {
-                        logger.error("Error during the execution of startup rule '{}': {}", new Object[] { rule.getName(),
-                                e.getCause().getMessage() });
+                    if (!e.getMessage().contains("cannot be resolved to an item or type")) {
+                        logger.error("Error during the execution of startup rule '{}': {}",
+                                new Object[] { rule.getName(), e.getCause().getMessage() });
                         executedRules.add(rule);
                     } else {
-                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing.", rule.getName());
+                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing.",
+                                rule.getName());
                     }
                 }
             }
@@ -326,7 +323,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
     /**
      * we need to be able to deactivate the rule execution, otherwise the openHAB designer
      * would also execute the rules.
-     * 
+     *
      * @return true, if rules should be executed, false otherwise
      */
     private boolean isEnabled() {
@@ -335,7 +332,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber implements ItemR
 
     @Override
     public void updated(Item oldItem, Item item) {
-    	removed(oldItem);
-    	added(item);
+        removed(oldItem);
+        added(item);
     }
 }

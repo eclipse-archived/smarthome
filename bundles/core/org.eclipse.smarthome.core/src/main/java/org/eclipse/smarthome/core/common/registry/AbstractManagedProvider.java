@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableList;
  * @param <PE>
  *            type of the persistable element
  */
-public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider<E> implements ManagedProvider<E, K> {
+public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider<E>implements ManagedProvider<E, K> {
 
     private Storage<PE> storage;
     protected final Logger logger = LoggerFactory.getLogger(AbstractManagedProvider.class);
@@ -53,8 +53,8 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
 
         String keyAsString = getKeyAsString(element);
         if (storage.get(keyAsString) != null) {
-            throw new IllegalArgumentException("Cannot add element, because an element with same UID (" + keyAsString
-                    + ") already exists.");
+            throw new IllegalArgumentException(
+                    "Cannot add element, because an element with same UID (" + keyAsString + ") already exists.");
         }
 
         storage.put(keyAsString, toPersistableElement(element));
@@ -135,8 +135,8 @@ public abstract class AbstractManagedProvider<E, K, PE> extends AbstractProvider
             logger.debug("Updated element {} in {}.", key, this.getClass().getSimpleName());
             return oldElement;
         } else {
-            logger.warn("Could not update element with key {} in {}, because it does not exists.", key, this.getClass()
-                    .getSimpleName());
+            logger.warn("Could not update element with key {} in {}, because it does not exists.", key,
+                    this.getClass().getSimpleName());
         }
 
         return null;

@@ -21,7 +21,7 @@ public interface UpnpIOService {
 
     /**
      * Invoke an UPNP Action
-     * 
+     *
      * @param participant - the participant to invoke the action for
      * @param serivceID - the UPNP service to invoke the action upon
      * @param actionID - the Action to invoke
@@ -32,7 +32,7 @@ public interface UpnpIOService {
 
     /**
      * Subscribe to a GENA subscription
-     * 
+     *
      * @param participant - the participant to the subscription is for
      * @param serviceID - the UPNP service we want to subscribe to
      * @param duration - the duration of the subscription
@@ -41,7 +41,7 @@ public interface UpnpIOService {
 
     /**
      * Unsubscribe from a GENA subscription
-     * 
+     *
      * @param participant - the participant of the subscription
      * @param serviceID - the UPNP service we want to unsubscribe from
      */
@@ -49,32 +49,32 @@ public interface UpnpIOService {
 
     /**
      * Verify if the a participant is registered
-     * 
+     *
      * @param participant - the participant whom's participation we want to verify
-     * 
+     *
      * @return true of the participant is registered with the UpnpIOService
      */
     public boolean isRegistered(UpnpIOParticipant participant);
 
     /**
      * Register a participant with the UPNP IO Service
-     * 
+     *
      * @param participant - the participant whose participation we want to register
      */
     public void registerParticipant(UpnpIOParticipant participant);
 
     /**
      * Unregister a participant with the UPNP IO Service
-     * 
+     *
      * @param participant - the participant whose participation we want to unregister
      */
     public void unregisterParticipant(UpnpIOParticipant participant);
 
     /**
      * Retrieves the descriptor url for the participant
-     * 
+     *
      * @param participant - the participant whom's descriptor url is requested
-     * 
+     *
      * @return the url of the descriptor as provided by the upnp device
      */
     public URL getDescriptorURL(UpnpIOParticipant participant);
@@ -83,7 +83,7 @@ public interface UpnpIOService {
      * Establish a polling mechanism to check the status of a specific UDN device. The polling mechanism
      * works by invoking the actionID on serviceID every interval. It is assumed that the actionID does
      * not take/have to take any {variable,value} input set
-     * 
+     *
      * @param participant - the participant for whom we want to set up a polling
      * @param serviceID - the service to use for polling
      * @param actionID - the action to call
@@ -93,7 +93,7 @@ public interface UpnpIOService {
 
     /**
      * Stops the polling mechanism to check the status of a specific UDN device.
-     * 
+     *
      * @param participant - the participant for whom we want to remove the polling
      */
     public void removeStatusListener(UpnpIOParticipant participant);

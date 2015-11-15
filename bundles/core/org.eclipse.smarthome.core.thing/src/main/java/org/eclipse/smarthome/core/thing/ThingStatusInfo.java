@@ -16,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
  * <li>detail of the status</il>
  * <li>and a description of the status</il>
  * </ul>
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  * @author Dennis Nobel - Added null checks
  */
@@ -30,11 +30,11 @@ public class ThingStatusInfo {
 
     /**
      * Constructs a status info.
-     * 
+     *
      * @param status the status (must not be null)
      * @param statusDetail the detail of the status (must not be null)
      * @param description the description of the status
-     * 
+     *
      * @throws IllegalArgumentException if thing status or thing status detail is null
      */
     public ThingStatusInfo(ThingStatus status, ThingStatusDetail statusDetail, String description)
@@ -52,7 +52,7 @@ public class ThingStatusInfo {
 
     /**
      * Gets the status itself.
-     * 
+     *
      * @return the status (not null)
      */
     public ThingStatus getStatus() {
@@ -61,7 +61,7 @@ public class ThingStatusInfo {
 
     /**
      * Gets the detail of the status.
-     * 
+     *
      * @return the status detail (not null)
      */
     public ThingStatusDetail getStatusDetail() {
@@ -70,7 +70,7 @@ public class ThingStatusInfo {
 
     /**
      * Gets the description of the status.
-     * 
+     *
      * @return the description
      */
     public String getDescription() {
@@ -79,8 +79,7 @@ public class ThingStatusInfo {
 
     @Override
     public String toString() {
-        return getStatus() 
-                + (getStatusDetail()==ThingStatusDetail.NONE ? "" : " (" + getStatusDetail() + ")") 
+        return getStatus() + (getStatusDetail() == ThingStatusDetail.NONE ? "" : " (" + getStatusDetail() + ")")
                 + (StringUtils.isBlank(getDescription()) ? "" : ": " + getDescription());
     }
 

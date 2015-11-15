@@ -107,7 +107,7 @@ public abstract class AbstractActiveService {
      * activated and used.
      * Note that the implementation will automatically start the active service if <code>true</code> is passed as a
      * parameter.
-     * 
+     *
      * @param properlyConfigured
      */
     public void setProperlyConfigured(boolean properlyConfigured) {
@@ -128,21 +128,21 @@ public abstract class AbstractActiveService {
     /**
      * Returns the refresh interval to be used by the RefreshThread between to
      * calls of the execute method.
-     * 
+     *
      * @return the refresh interval
      */
     protected abstract long getRefreshInterval();
 
     /**
      * Returns the name of the Refresh thread.
-     * 
+     *
      * @return the name of the refresh thread.
      */
     protected abstract String getName();
 
     /**
      * Worker thread which calls the execute method frequently.
-     * 
+     *
      * @author Thomas.Eichstaedt-Engelen
      */
     class RefreshThread extends Thread {
@@ -178,7 +178,7 @@ public abstract class AbstractActiveService {
         /**
          * Pause polling for the given <code>refreshInterval</code>. Possible {@link InterruptedException} is logged
          * with no further action.
-         * 
+         *
          * @param refreshInterval
          */
         protected void pause(long refreshInterval) {

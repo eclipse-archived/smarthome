@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Utils;
-import org.osgi.service.enocean.EnOceanRPC;
 
 /**
  * MessageSYS_EX: SYS_EX message implementation.

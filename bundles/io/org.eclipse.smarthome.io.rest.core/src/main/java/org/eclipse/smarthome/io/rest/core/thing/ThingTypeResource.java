@@ -7,12 +7,6 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -54,6 +48,12 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This is a java bean that is used with JAXB to serialize things to XML or
  * JSON.
@@ -71,7 +71,7 @@ public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_THINGS_TYPES = "thing-types";
-    
+
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -94,7 +94,7 @@ public class ThingTypeResource implements RESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available things types.", response = ThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK") )
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
         Set<ThingTypeDTO> thingTypeBeans = convertToThingTypeBeans(thingTypeRegistry.getThingTypes(locale), locale);
@@ -105,8 +105,7 @@ public class ThingTypeResource implements RESTResource {
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
             @ApiResponse(code = 204, message = "No content") })
     public Response getByUID(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
             @HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {

@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * {@link ThingUID} represents a unique identifier for things.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  */

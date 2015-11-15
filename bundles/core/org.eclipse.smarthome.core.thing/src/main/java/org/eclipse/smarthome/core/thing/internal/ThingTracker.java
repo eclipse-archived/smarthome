@@ -23,7 +23,12 @@ import org.eclipse.smarthome.core.thing.ThingRegistryChangeListener;
 public interface ThingTracker {
 
     public enum ThingTrackerEvent {
-        THING_ADDED, THING_REMOVING, THING_REMOVED, THING_UPDATED, TRACKER_ADDED, TRACKER_REMOVED
+        THING_ADDED,
+        THING_REMOVING,
+        THING_REMOVED,
+        THING_UPDATED,
+        TRACKER_ADDED,
+        TRACKER_REMOVED
     }
 
     /**
@@ -35,7 +40,8 @@ public interface ThingTracker {
     void thingAdded(Thing thing, ThingTrackerEvent thingTrackerEvent);
 
     /**
-     * This method is called for every thing that is going to be removed from the {@link ThingRegistryImpl}. Moreover the method is
+     * This method is called for every thing that is going to be removed from the {@link ThingRegistryImpl}. Moreover
+     * the method is
      * called for every thing,
      * that exists in the {@link ThingRegistryImpl}, when the tracker is
      * unregistered.

@@ -47,9 +47,8 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         super(ConfigDescriptionParameter.class);
 
         this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "name", "true" },
-                { "type", "true" }, { "min", "false" }, { "max", "false" }, { "step", "false" },
-                { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" },
-                { "groupName", "false" } });
+                { "type", "true" }, { "min", "false" }, { "max", "false" }, { "step", "false" }, { "pattern", "false" },
+                { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" }, { "groupName", "false" } });
     }
 
     private Type toType(String xmlType) {

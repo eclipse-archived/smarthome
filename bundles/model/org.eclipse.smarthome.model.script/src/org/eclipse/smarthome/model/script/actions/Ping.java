@@ -27,15 +27,15 @@ public class Ping {
      * is specified (which is the default when configuring just the host), a
      * regular ping is issued. If other ports are specified we try open a new
      * Socket with the given <code>timeout</code>.
-     * 
+     *
      * @param host
      * @param port
      * @param timeout
-     * 
+     *
      * @return <code>true</code> when <code>host</code> is reachable on <code>port</code> within the given
      *         <code>timeout</code> and <code>false</code> in all other
      *         cases.
-     * 
+     *
      * @throws IOException
      * @throws SocketTimeoutException
      */

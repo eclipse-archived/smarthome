@@ -101,7 +101,7 @@ public class MapDbStorage<T> implements Storage<T> {
      * of {@code value} while
      * deserializing it afterwards we prepend its qualified type name to the
      * JSON String.
-     * 
+     *
      * @param value the {@code value} to store
      * @return the JSON document prepended with the qualified type name of {@code value}
      */
@@ -124,7 +124,7 @@ public class MapDbStorage<T> implements Storage<T> {
      * given JSON String. A special classloader (other than the one of the
      * MapDB bundle) is used in order to load the classes in the context of
      * the calling bundle.
-     * 
+     *
      * @param json
      * @return
      */

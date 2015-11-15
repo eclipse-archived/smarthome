@@ -33,8 +33,8 @@ import com.google.common.collect.Lists;
  * @author Alex Tugarev - Added parsing of multiple Channel UIDs
  *
  */
-public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink> implements BindingConfigReader,
-        ItemChannelLinkProvider, ModelRepositoryChangeListener {
+public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannelLink>
+        implements BindingConfigReader, ItemChannelLinkProvider, ModelRepositoryChangeListener {
 
     /** caches binding configurations. maps itemNames to {@link BindingConfig}s */
     protected Map<String, Set<ItemChannelLink>> itemChannelLinkMap = new ConcurrentHashMap<>();
@@ -89,10 +89,10 @@ public class GenericItemChannelLinkProvider extends AbstractProvider<ItemChannel
             contextMap.put(context, itemNames);
         }
         itemNames.add(itemName);
-        if(previousItemNames != null ) {
+        if (previousItemNames != null) {
             previousItemNames.remove(itemName);
         }
-        
+
         Set<ItemChannelLink> links = itemChannelLinkMap.get(itemName);
         if (links == null) {
             itemChannelLinkMap.put(itemName, links = new HashSet<>());

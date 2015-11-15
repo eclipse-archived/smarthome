@@ -17,15 +17,7 @@ import java.util.Hashtable;
 import org.eclipse.smarthome.protocols.enocean.sample.client.shell.MiscCommand;
 import org.eclipse.smarthome.protocols.enocean.sample.client.utils.Logger;
 import org.eclipse.smarthome.protocols.enocean.sample.client.utils.Utils;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.device.Constants;
-import org.osgi.service.enocean.EnOceanDevice;
-import org.osgi.service.enocean.EnOceanEvent;
-import org.osgi.service.enocean.EnOceanMessage;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
@@ -47,8 +39,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
     private boolean alarmIsActive = false;
 
     public void start(BundleContext bundleContext) throws InvalidSyntaxException {
-        Logger.d(TAG, "IN: org.eclipse.smarthome.protocols.enocean.sample.client.Activator.start(bc: " + bundleContext
-                + ")");
+        Logger.d(TAG,
+                "IN: org.eclipse.smarthome.protocols.enocean.sample.client.Activator.start(bc: " + bundleContext + ")");
 
         this.bc = bundleContext;
 
@@ -86,10 +78,8 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
                 String[] pks = sr.getPropertyKeys();
                 int j = 0;
                 while (j < pks.length) {
-                    Logger.d(
-                            TAG,
-                            "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
-                                    + sr.getProperty(pks[j]));
+                    Logger.d(TAG, "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
+                            + sr.getProperty(pks[j]));
                     j = j + 1;
                 }
 
@@ -321,16 +311,14 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
             String displayId = Utils.printUid(Integer.parseInt(chipId));
             String profile = rorg + "/" + func + "/" + type;
             Logger.d(TAG, "> MSG_RECEIVED event : sender=" + displayId + ", profile = '" + profile + "'");
-            Logger.d(
-                    TAG,
+            Logger.d(TAG,
                     "Try to identify the device that has sent the just received event (e.g. is it an A5-02-05 device - a temperature sensor range 0°C to +40°C ?).");
             if ("165".equals(rorg)) {
                 // hex 0xa5 == int 165.
                 if ("2".equals(func)) {
                     if ("5".equals(type)) {
                         Logger.d(TAG, "This event has been sent by an A5-02-05 device.");
-                        Logger.d(
-                                TAG,
+                        Logger.d(TAG,
                                 "The end of page 12, and the beginning of page 13 of EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf specifies how to get the temp°C value starting from an EnOcean telegram.");
                         // propertyNames[4]: enocean.message,
                         // event.getProperty(propertyNames[4]):
@@ -346,11 +334,10 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
                         float rawTemperatureDB1InNumberAsADouble = rawTemperatureDB1InHexAsAByte;
                         Logger.d(TAG, "rawTemperatureDB1InNumberAsADouble: " + rawTemperatureDB1InNumberAsADouble);
                         if (rawTemperatureDB1InNumberAsADouble < 0) {
-                            Logger.d(
-                                    TAG,
+                            Logger.d(TAG,
                                     "rawTemperatureDB1InNumberAsADouble is negative, so let's convert rawTemperatureDB1InNumberAsADouble to unsigned 0..255 value instead of -127..128 one.");
-                            rawTemperatureDB1InNumberAsADouble = rawTemperatureDB1InNumberAsADouble * -1 + 2
-                                    * (128 + rawTemperatureDB1InNumberAsADouble);
+                            rawTemperatureDB1InNumberAsADouble = rawTemperatureDB1InNumberAsADouble * -1
+                                    + 2 * (128 + rawTemperatureDB1InNumberAsADouble);
                             Logger.d(TAG, "rawTemperatureDB1InNumberAsADouble: " + rawTemperatureDB1InNumberAsADouble);
                         } else {
                             Logger.d(TAG, "rawTemperatureDB1InNumberAsADouble is positive, everything is ok.");
@@ -372,8 +359,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
                 Logger.d(TAG, "This event has been sent by an F6-wx-yz device.");
                 Logger.d(TAG,
                         "FUNC, and TYPE are NOT sent by F6-wx-yz device. The system then assumes that the device is an F6-02-01.");
-                Logger.d(
-                        TAG,
+                Logger.d(TAG,
                         "In EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf, pages 13-14, F6-02-01 -> RPS Telegram, Rocker Switch, 2 Rocker, Light and Blind Control - Application Style 1");
 
                 // byte[] payload = data.getPayloadBytes(); using
@@ -493,8 +479,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
                 Logger.d(TAG, "This event has been sent by a D5-wx-yz device.");
                 Logger.d(TAG,
                         "FUNC, and TYPE are NOT sent by D5-wx-yz device. The system then assumes that the device is an D5-00-01.");
-                Logger.d(
-                        TAG,
+                Logger.d(TAG,
                         "In EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf, pages 24, D5-00-01 -> 1BS Telegram, Contacts and Switches, Single Input Contact.");
 
                 // Logger.d(TAG, "data.getBytes(): " + data.getBytes());
@@ -527,15 +512,12 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
                 } else if (0 == data.getPayloadBytes()[0]) {
                     Logger.d(TAG, "The LRN button has been pressed.");
                 } else {
-                    Logger.d(
-                            TAG,
-                            "The given 1BS's Data DB_0 value (data.getPayloadBytes()[0]: "
-                                    + data.getPayloadBytes()[0]
-                                    + " doesn't correspond to anything in EnOcean's specs. There is a pb. The system doesn't know how to handle this message.");
+                    Logger.d(TAG, "The given 1BS's Data DB_0 value (data.getPayloadBytes()[0]: "
+                            + data.getPayloadBytes()[0]
+                            + " doesn't correspond to anything in EnOcean's specs. There is a pb. The system doesn't know how to handle this message.");
                 }
             } else {
-                Logger.d(
-                        TAG,
+                Logger.d(TAG,
                         "This event has NOT been sent by an A5-02-05 device, nor by a F6-wx-yz device, nor by a D5-wx-yz device. "
                                 + "RORG is NOT equal to a5, nor f6,nor d5 (0xa5 is equal to int 165; 0xf6 -> 246, 0xd5 -> 213).");
             }
@@ -572,7 +554,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
 
     /**
      * Report fire situation on event admin.
-     * 
+     *
      * @param deviceSerial
      *            , i.e. the device EnOcean Id: 0x........
      */
@@ -598,7 +580,7 @@ public class Activator implements BundleActivator, ServiceTrackerCustomizer, Eve
 
     /**
      * Report water situation on event admin.
-     * 
+     *
      * @param deviceSerial
      *            , i.e. the device EnOcean Id: 0x........
      */

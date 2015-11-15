@@ -3,12 +3,6 @@ package org.eclipse.smarthome.protocols.enocean.sample.client.shell;
 import java.io.IOException;
 
 import org.eclipse.smarthome.protocols.enocean.sample.client.utils.Logger;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.enocean.EnOceanDevice;
-import org.osgi.service.enocean.EnOceanHandler;
-import org.osgi.service.enocean.EnOceanRPC;
 
 /**
  * Command shell for Apache Felix.
@@ -28,8 +22,8 @@ public class MiscCommand {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public void aa() {
         String result = "aa command";
         Logger.d(TAG, result);
@@ -67,10 +61,8 @@ public class MiscCommand {
                     String[] pks = sr.getPropertyKeys();
                     int j = 0;
                     while (j < pks.length) {
-                        Logger.d(
-                                TAG,
-                                "--pks[" + j + "]: " + pks[j] + ", sr.getProperty(" + pks[j] + "): "
-                                        + sr.getProperty(pks[j]));
+                        Logger.d(TAG, "--pks[" + j + "]: " + pks[j] + ", sr.getProperty(" + pks[j] + "): "
+                                + sr.getProperty(pks[j]));
                         Logger.d(TAG, "--sr.getProperty(" + pks[j] + ").getClass().getName()"
                                 + sr.getProperty(pks[j]).getClass().getName());
                         j = j + 1;
@@ -365,10 +357,8 @@ public class MiscCommand {
             ServiceReference[] srs = bc.getAllServiceReferences(EnOceanDevice.class.getName(), null);
             Logger.d(TAG, "srs: " + srs);
             if (srs == null) {
-                Logger.d(
-                        TAG,
-                        "There is NO service registered with the following class name: "
-                                + EnOceanDevice.class.getName());
+                Logger.d(TAG, "There is NO service registered with the following class name: "
+                        + EnOceanDevice.class.getName());
                 return null;
             } else {
                 Logger.d(TAG, "srs.length: " + srs.length);
@@ -380,10 +370,8 @@ public class MiscCommand {
                     String[] pks = sr.getPropertyKeys();
                     int j = 0;
                     while (j < pks.length) {
-                        Logger.d(
-                                TAG,
-                                "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
-                                        + sr.getProperty(pks[j]));
+                        Logger.d(TAG, "pks[" + j + "]: " + pks[j] + ", event.getProperty(" + pks[j] + "): "
+                                + sr.getProperty(pks[j]));
                         j = j + 1;
                     }
 

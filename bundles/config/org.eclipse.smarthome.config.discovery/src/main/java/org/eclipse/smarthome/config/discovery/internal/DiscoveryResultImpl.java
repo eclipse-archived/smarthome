@@ -66,8 +66,8 @@ public class DiscoveryResultImpl implements DiscoveryResult {
         this.thingUID = thingUID;
 
         this.bridgeUID = bridgeUID;
-        this.properties = Collections.unmodifiableMap((properties != null) ? new HashMap<>(properties)
-                : new HashMap<String, Object>());
+        this.properties = Collections
+                .unmodifiableMap((properties != null) ? new HashMap<>(properties) : new HashMap<String, Object>());
         this.representationProperty = representationProperty;
         this.label = label == null ? "" : label;
 
@@ -141,7 +141,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
      * identifiers are among others the <code>ipAddress</code>, the <code>macAddress</code> or the
      * <code>serialNumber</code> of the discovered thing.
-     * 
+     *
      * @return the representation property of this result object (could be null)
      */
     @Override

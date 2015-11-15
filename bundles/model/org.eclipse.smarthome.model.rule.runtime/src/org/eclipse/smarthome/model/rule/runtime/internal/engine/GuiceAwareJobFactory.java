@@ -19,7 +19,7 @@ import com.google.inject.Injector;
 /**
  * The {@link GuiceAwareJobFactory} instantiates {@link Job}s using the Guice injector. This said it's possible to use
  * Guice injection within the Quartz jobs.
- * 
+ *
  * @author Oliver Libutzki - Initial contribution
  *
  */

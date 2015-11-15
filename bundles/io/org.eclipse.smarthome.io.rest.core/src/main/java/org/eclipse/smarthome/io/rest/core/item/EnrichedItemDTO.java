@@ -13,7 +13,7 @@ import org.eclipse.smarthome.core.types.StateDescription;
 /**
  * This is an enriched data transfer object that is used to serialize items with dynamic data like the state, the state
  * description and the link.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  *
  */

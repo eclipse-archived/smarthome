@@ -12,8 +12,6 @@
 package org.eclipse.smarthome.protocols.enocean.basedriver.impl;
 
 import org.eclipse.smarthome.protocols.enocean.basedriver.impl.impl.EnOceanBaseDriver;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Activator.

@@ -52,7 +52,7 @@ public class Utils {
     /**
      * Computes the EnOcean ESP3 CRC8 of a byte array. See EnOcean ESP3
      * specification for details.
-     * 
+     *
      * @param data
      * @return the computed crc8.
      */
@@ -67,7 +67,7 @@ public class Utils {
 
     /**
      * Returns a byte[] collection from a single byte
-     * 
+     *
      * @param x
      * @return byteToBytes
      */
@@ -79,7 +79,7 @@ public class Utils {
 
     /**
      * Concatenates two byte arrays
-     * 
+     *
      * @param a
      * @param b
      * @return byteConcat
@@ -137,7 +137,7 @@ public class Utils {
 
     /**
      * Concatenates a byte array and an int, up to max bytes from the right
-     * 
+     *
      * @param a
      * @param x
      * @param max

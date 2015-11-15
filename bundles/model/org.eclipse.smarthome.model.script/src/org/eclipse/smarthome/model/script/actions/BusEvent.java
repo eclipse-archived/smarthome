@@ -38,7 +38,7 @@ public class BusEvent {
 
     /**
      * Sends a command for a specified item to the event bus.
-     * 
+     *
      * @param item the item to send the command to
      * @param commandString the command to send
      */
@@ -52,7 +52,7 @@ public class BusEvent {
 
     /**
      * Sends a number as a command for a specified item to the event bus.
-     * 
+     *
      * @param item the item to send the command to
      * @param number the number to send as a command
      */
@@ -66,7 +66,7 @@ public class BusEvent {
 
     /**
      * Sends a command for a specified item to the event bus.
-     * 
+     *
      * @param itemName the name of the item to send the command to
      * @param commandString the command to send
      */
@@ -87,7 +87,7 @@ public class BusEvent {
 
     /**
      * Sends a command for a specified item to the event bus.
-     * 
+     *
      * @param item the item to send the command to
      * @param command the command to send
      */
@@ -101,7 +101,7 @@ public class BusEvent {
 
     /**
      * Posts a status update for a specified item to the event bus.
-     * 
+     *
      * @param item the item to send the status update for
      * @param state the new state of the item as a number
      */
@@ -115,7 +115,7 @@ public class BusEvent {
 
     /**
      * Posts a status update for a specified item to the event bus.
-     * 
+     *
      * @param item the item to send the status update for
      * @param stateAsString the new state of the item
      */
@@ -129,7 +129,7 @@ public class BusEvent {
 
     /**
      * Posts a status update for a specified item to the event bus.
-     * 
+     *
      * @param itemName the name of the item to send the status update for
      * @param stateAsString the new state of the item
      */
@@ -151,7 +151,7 @@ public class BusEvent {
     /**
      * Posts a status update for a specified item to the event bus.
      * t
-     * 
+     *
      * @param item the item to send the status update for
      * @param state the new state of the item
      */
@@ -166,7 +166,7 @@ public class BusEvent {
     /**
      * Stores the current states for a list of items in a map.
      * A group item is not itself put into the map, but instead all its members.
-     * 
+     *
      * @param items the items for which the state should be stored
      * @return the map of items with their states
      */
@@ -192,7 +192,7 @@ public class BusEvent {
      * If the saved state can be interpreted as a command, a command is sent for the item
      * (and the physical device can send a status update if occurred). If it is no valid
      * command, the item state is directly updated to the saved value.
-     * 
+     *
      * @param statesMap a map with ({@link Item}, {@link State}) entries
      * @return null
      */

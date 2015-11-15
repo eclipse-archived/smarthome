@@ -15,33 +15,33 @@ import org.eclipse.smarthome.protocols.enocean.basedriver.impl.utils.Logger;
 
 /**
  * Message1BS: Prototype of a 1BS (EnOcean 1 Byte Communication) telegram.
- * 
+ *
  * EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf, page 10.
- * 
+ *
  * RORG - 1 byte - 0xD5
- * 
+ *
  * Data DB_0 - 1 byte
- * 
+ *
  * Sender ID - 4 bytes
- * 
+ *
  * Status - 1 byte
- * 
+ *
  * EnOcean_Equipment_Profiles_EEP_V2.61_public.pdf, page 24.
- * 
+ *
  * D5: 1BS Telegram
- * 
+ *
  * D5-00: Contacts and Switches
- * 
+ *
  * RORG D5 1BS Telegram
- * 
+ *
  * FUNC 00 Contacts and Switches
- * 
+ *
  * TYPE 01 Single Input Contact
- * 
+ *
  * Offset | Size | Bitrange | Data | ShortCut | Description | Valid Range
- * 
+ *
  * 4 | 1 | DB0.3 | Learn Button | LRN | ... | Enum: 0: pressed 1: not pressed
- * 
+ *
  * 7 | 1 | DB0.0 | Contact | CO | ... | Enum: 0: open 1: closed
  */
 public class Message1BS extends Message {

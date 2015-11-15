@@ -19,7 +19,7 @@ public interface EnOceanPacketListener {
     /**
      * Callback interface method to send complete received packets towards a
      * listener
-     * 
+     *
      * @param data
      *            the full packet that has been received.
      */

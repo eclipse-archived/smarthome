@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.config.dispatch.internal;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -120,7 +118,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#getSourcePath()
      */
@@ -136,7 +134,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#watchSubDirectories
      * ()
@@ -148,7 +146,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#registerDirecotry
      * (java.nio.file.Path)
@@ -160,7 +158,7 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.smarthome.core.service.AbstractWatchService#buildWatchQueueReader
      * (java.nio.file.WatchService, java.nio.file.Path)

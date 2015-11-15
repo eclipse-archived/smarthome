@@ -24,7 +24,7 @@ public interface StateChangeListener {
 
     /**
      * This method is called, if a state has changed.
-     * 
+     *
      * @param item the item whose state has changed
      * @param oldState the previous state
      * @param newState the new state
@@ -33,7 +33,7 @@ public interface StateChangeListener {
 
     /**
      * This method is called, if a state was updated, but has not changed
-     * 
+     *
      * @param item the item whose state was updated
      * @param state the current state, same before and after the update
      */

@@ -18,7 +18,7 @@ import com.google.gson.Gson;
  * must implement the abstract method {@link #createEventByType(String, String, String, String)} in order to create
  * event
  * instances based on the event type.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public abstract class AbstractEventFactory implements EventFactory {
@@ -29,7 +29,7 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     /**
      * Must be called in subclass constructor to define the supported event types.
-     * 
+     *
      * @param supportedEventTypes the supported event types
      */
     public AbstractEventFactory(Set<String> supportedEventTypes) {
@@ -63,14 +63,14 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     /**
      * Create a new event instance based on the event type.
-     * 
+     *
      * @param eventType the event type
      * @param topic the topic
      * @param payload the payload
      * @param source the source, can be null
-     * 
+     *
      * @return the created event instance
-     * 
+     *
      * @throws Exception if the creation of the event fails
      */
     protected abstract Event createEventByType(String eventType, String topic, String payload, String source)
@@ -78,9 +78,9 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     /**
      * Serializes the payload object into its equivalent Json representation.
-     * 
+     *
      * @param payloadObject the payload object to serialize
-     * 
+     *
      * @return a serialized Json representation
      */
     protected static String serializePayload(Object payloadObject) {
@@ -89,10 +89,10 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     /**
      * Deserializes the Json-payload into an object of the specified class.
-     * 
+     *
      * @param payload the payload from which the object is to be deserialized
      * @param classOfPayload the class T of the payload object
-     * 
+     *
      * @return an object of type T from the payload
      */
     protected static <T> T deserializePayload(String payload, Class<T> classOfPayload) {
@@ -101,9 +101,9 @@ public abstract class AbstractEventFactory implements EventFactory {
 
     /**
      * Gets the elements of the topic (splitted by '/').
-     * 
+     *
      * @param topic the topic
-     * 
+     *
      * @return the topic elements
      */
     protected String[] getTopicElements(String topic) {

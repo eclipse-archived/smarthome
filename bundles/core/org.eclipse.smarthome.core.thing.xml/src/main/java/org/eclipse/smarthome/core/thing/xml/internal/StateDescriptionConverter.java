@@ -54,8 +54,8 @@ public class StateDescriptionConverter extends GenericUnmarshaller<StateDescript
             try {
                 return new BigDecimal(attrValueText);
             } catch (NumberFormatException nfe) {
-                throw new ConversionException("The attribute '" + attribute
-                        + "' has not a valid decimal number format!", nfe);
+                throw new ConversionException(
+                        "The attribute '" + attribute + "' has not a valid decimal number format!", nfe);
             }
         }
 

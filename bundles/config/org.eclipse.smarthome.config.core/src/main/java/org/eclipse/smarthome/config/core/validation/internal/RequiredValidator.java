@@ -25,12 +25,11 @@ public final class RequiredValidator implements ConfigDescriptionParameterValida
      * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
      */
     @Override
-    public ConfigValidationMessage validate(ConfigDescriptionParameter configDescriptionParameter,
-            Object value) {
+    public ConfigValidationMessage validate(ConfigDescriptionParameter configDescriptionParameter, Object value) {
         if (configDescriptionParameter.isRequired() && value == null) {
             MessageKey messageKey = MessageKey.PARAMETER_REQUIRED;
-            return new ConfigValidationMessage(configDescriptionParameter.getName(),
-                    messageKey.defaultMessage, messageKey.key);
+            return new ConfigValidationMessage(configDescriptionParameter.getName(), messageKey.defaultMessage,
+                    messageKey.key);
         }
         return null;
     }

@@ -48,7 +48,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
     /**
      * This is the main method, which is called to produce the HTML code for a servlet request.
-     * 
+     *
      * @param id the id of the parent widget whose children are about to appear on this page
      * @param sitemap the sitemap to use
      * @param label the title of this page
@@ -96,7 +96,8 @@ public class PageRenderer extends AbstractWidgetRenderer {
         if (!children.isEmpty()) {
             EObject firstChild = children.get(0);
             EObject parent = firstChild.eContainer();
-            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap || parent instanceof List)) {
+            if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
+                    || parent instanceof List)) {
                 String frameSnippet = getSnippet("frame");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
 

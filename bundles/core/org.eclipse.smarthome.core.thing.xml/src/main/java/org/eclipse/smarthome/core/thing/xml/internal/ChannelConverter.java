@@ -26,7 +26,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * into a {@link ChannelXmlResult} object.
  * <p>
  * This converter converts {@code channel} XML tags.
- * 
+ *
  * @author Chris Jackson - Initial Contribution
  * @author Simon Kaufmann - Fixing wrong inheritance
  * @author Chris Jackson - Added label and description
@@ -38,8 +38,8 @@ public class ChannelConverter extends GenericUnmarshaller<ChannelXmlResult> {
     public ChannelConverter() {
         super(ChannelXmlResult.class);
 
-        attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "typeId", "false" } });
+        attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "typeId", "false" } });
     }
 
     @SuppressWarnings("unchecked")

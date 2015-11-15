@@ -15,14 +15,14 @@ import org.eclipse.smarthome.core.thing.Thing;
 
 /**
  * The {@link ThingDTOMapper} is an utility class to map things into data transfer objects (DTO).
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class ThingDTOMapper {
 
     /**
      * Maps thing into thing data transfer object (DTO).
-     * 
+     *
      * @param thing the thing
      * @return the thing DTO object
      */

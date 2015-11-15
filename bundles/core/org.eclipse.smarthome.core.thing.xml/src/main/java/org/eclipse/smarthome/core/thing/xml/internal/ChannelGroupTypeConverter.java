@@ -35,8 +35,8 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
     public ChannelGroupTypeConverter() {
         super(ChannelGroupTypeXmlResult.class, "channel-group-type");
 
-        super.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "advanced", "false" } });
+        super.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "advanced", "false" } });
     }
 
     private boolean isAdvanced(Map<String, String> attributes, boolean defaultValue) {
@@ -67,8 +67,8 @@ public class ChannelGroupTypeConverter extends AbstractDescriptionTypeConverter<
         String description = super.readDescription(nodeIterator);
         List<ChannelXmlResult> channelTypeDefinitions = readChannelTypeDefinitions(nodeIterator);
 
-        ChannelGroupTypeXmlResult groupChannelType = new ChannelGroupTypeXmlResult(channelGroupTypeUID, advanced,
-                label, description, channelTypeDefinitions);
+        ChannelGroupTypeXmlResult groupChannelType = new ChannelGroupTypeXmlResult(channelGroupTypeUID, advanced, label,
+                description, channelTypeDefinitions);
 
         return groupChannelType;
     }

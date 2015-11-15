@@ -26,7 +26,7 @@ public class VolatileStorageService implements StorageService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @return
      */
     @Override

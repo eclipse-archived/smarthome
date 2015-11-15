@@ -24,7 +24,7 @@ abstract public interface GroupFunction {
 
     /**
      * Determines the current state of a group based on a list of items
-     * 
+     *
      * @param items the items to calculate a group state for
      * @return the calculated group state
      */
@@ -32,7 +32,7 @@ abstract public interface GroupFunction {
 
     /**
      * Calculates the group state and returns it as a state of the requested type.
-     * 
+     *
      * @param items the items to calculate a group state for
      * @param stateClass the type in which the state should be returned
      * @return the calculated group state of the requested type or null, if type is not supported
@@ -42,7 +42,7 @@ abstract public interface GroupFunction {
     /**
      * This is the default group function that does nothing else than to check if all member items
      * have the same state. If this is the case, this state is returned, otherwise UNDEF is returned.
-     * 
+     *
      * @author Kai Kreuzer - Initial contribution and API
      *
      */

@@ -28,7 +28,7 @@ public final class ScriptError {
 
     /**
      * Creates new ScriptError.
-     * 
+     *
      * @param message Error Message
      * @param line Line number, or -1 if unknown
      * @param column Column number, or -1 if unknown
@@ -44,7 +44,7 @@ public final class ScriptError {
     /**
      * Returns a message containing the String passed to a constructor as well as line and column numbers if any of
      * these are known.
-     * 
+     *
      * @return The error message.
      */
     public String getMessage() {
@@ -66,7 +66,7 @@ public final class ScriptError {
 
     /**
      * Get the line number on which an error occurred.
-     * 
+     *
      * @return The line number. Returns -1 if a line number is unavailable.
      */
     public int getLineNumber() {
@@ -75,7 +75,7 @@ public final class ScriptError {
 
     /**
      * Get the column number on which an error occurred.
-     * 
+     *
      * @return The column number. Returns -1 if a column number is unavailable.
      */
     public int getColumnNumber() {
@@ -84,7 +84,7 @@ public final class ScriptError {
 
     /**
      * Get the number of columns affected by the error.
-     * 
+     *
      * @return The number of columns. Returns -1 if unavailable.
      */
     public int getLength() {

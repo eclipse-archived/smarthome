@@ -167,7 +167,7 @@ public class CorsFilter implements ContainerResponseFilter {
             this.isEnabled = "true".equalsIgnoreCase(corsPropertyValue);
         }
 
-        if(this.isEnabled) {
+        if (this.isEnabled) {
             logger.info("enabled CORS for REST API.");
         }
     }

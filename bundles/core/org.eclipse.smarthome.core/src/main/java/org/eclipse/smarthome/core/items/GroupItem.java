@@ -52,7 +52,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * Returns the base item of this {@link GroupItem}. This method is only
      * intended to allow instance checks of the underlying BaseItem. It must
      * not be changed in any way.
-     * 
+     *
      * @return the base item of this GroupItem
      */
     public GenericItem getBaseItem() {
@@ -62,7 +62,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
     /**
      * Returns the direct members of this {@link GroupItem} regardless if these
      * members are {@link GroupItem}s as well.
-     * 
+     *
      * @return the direct members of this {@link GroupItem}
      */
     public Set<Item> getMembers() {
@@ -73,7 +73,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * Returns the direct members of this {@link GroupItem} and recursively all
      * members of the potentially contained {@link GroupItem}s as well. The {@link GroupItem}s itself aren't contained.
      * The returned items are unique.
-     * 
+     *
      * @return all members of this and all contained {@link GroupItem}s
      */
     public Set<Item> getAllMembers() {
@@ -112,7 +112,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * The accepted data types of a group item is the same as of the underlying base item.
      * If none is defined, the intersection of all sets of accepted data types of all group
      * members is used instead.
-     * 
+     *
      * @return the accepted data types of this group item
      */
     @Override
@@ -130,8 +130,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
                     acceptedDataTypes.retainAll(item.getAcceptedDataTypes());
                 }
             }
-            return acceptedDataTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections
-                    .unmodifiableList(acceptedDataTypes);
+            return acceptedDataTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST)
+                    : Collections.unmodifiableList(acceptedDataTypes);
         }
     }
 
@@ -139,7 +139,7 @@ public class GroupItem extends GenericItem implements StateChangeListener {
      * The accepted command types of a group item is the same as of the underlying base item.
      * If none is defined, the intersection of all sets of accepted command types of all group
      * members is used instead.
-     * 
+     *
      * @return the accepted command types of this group item
      */
     @Override
@@ -157,8 +157,8 @@ public class GroupItem extends GenericItem implements StateChangeListener {
                     acceptedCommandTypes.retainAll(item.getAcceptedCommandTypes());
                 }
             }
-            return acceptedCommandTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST) : Collections
-                    .unmodifiableList(acceptedCommandTypes);
+            return acceptedCommandTypes == null ? Collections.unmodifiableList(Collections.EMPTY_LIST)
+                    : Collections.unmodifiableList(acceptedCommandTypes);
         }
     }
 

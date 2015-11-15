@@ -57,8 +57,7 @@ public class RuleTemplate implements Template {
      * @param configDescriptions - set of configuration properties of the {@link Rule}
      * @param visibility visibility of template. It can be public or private
      */
-    public RuleTemplate(String UID,
-            List<Trigger> triggers, //
+    public RuleTemplate(String UID, List<Trigger> triggers, //
             List<Condition> conditions, List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,
             Visibility visibility) {
 
@@ -82,7 +81,8 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
+     * Templates can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for getting the assign tags to this Template.
      *
      * @return tags of the template
@@ -93,7 +93,8 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
+     * Templates can have
+     * <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
      * used to filter the templates. This method is used for assigning tags to this Template.
      *
      * @param tags set of tags assign to the template.

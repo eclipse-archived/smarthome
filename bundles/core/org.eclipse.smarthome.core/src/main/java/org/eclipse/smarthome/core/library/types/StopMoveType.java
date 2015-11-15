@@ -10,8 +10,9 @@ package org.eclipse.smarthome.core.library.types;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 
-public enum StopMoveType implements PrimitiveType, Command {
-    STOP, MOVE;
+public enum StopMoveType implements PrimitiveType,Command {
+    STOP,
+    MOVE;
 
     @Override
     public String format(String pattern) {

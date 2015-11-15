@@ -61,15 +61,15 @@ public class ConfigDescriptionRegistry {
      *         description exists
      */
     public Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
-        Map<URI, ConfigDescription> configMap = new HashMap<URI, ConfigDescription>(); 
-        
+        Map<URI, ConfigDescription> configMap = new HashMap<URI, ConfigDescription>();
+
         // Loop over all providers
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
             // And for each provider, loop over all their config descriptions
-            for(ConfigDescription configDescription : configDescriptionProvider.getConfigDescriptions(locale)) {
+            for (ConfigDescription configDescription : configDescriptionProvider.getConfigDescriptions(locale)) {
                 // See if there already exists a configuration for this URI in the map
                 ConfigDescription configFromMap = configMap.get(configDescription.getURI());
-                if(configFromMap != null) {
+                if (configFromMap != null) {
                     // Yes - Merge the groups and parameters
                     List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
                     parameters.addAll(configFromMap.getParameters());
@@ -80,9 +80,9 @@ public class ConfigDescriptionRegistry {
                     parameterGroups.addAll(configDescription.getParameterGroups());
 
                     // And add the combined configuration to the map
-                    configMap.put(configDescription.getURI(), new ConfigDescription(configDescription.getURI(), parameters, parameterGroups));
-                }
-                else {
+                    configMap.put(configDescription.getURI(),
+                            new ConfigDescription(configDescription.getURI(), parameters, parameterGroups));
+                } else {
                     // No - Just add the new configuration to the map
                     configMap.put(configDescription.getURI(), configDescription);
                 }
@@ -94,7 +94,7 @@ public class ConfigDescriptionRegistry {
         for (ConfigDescription configDescription : configMap.values()) {
             configDescriptions.add(configDescription);
         }
-        
+
         return Collections.unmodifiableCollection(configDescriptions);
     }
 

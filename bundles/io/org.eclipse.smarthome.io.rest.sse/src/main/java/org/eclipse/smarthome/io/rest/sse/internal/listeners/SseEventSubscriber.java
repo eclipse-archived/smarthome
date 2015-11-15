@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  * The {@link SseEventSubscriber} is responsible for broadcasting Eclipse SmartHome events
  * to currently listening SSE clients.
- * 
+ *
  * @author Stefan Bußweiler - Initial contribution
  */
 public class SseEventSubscriber implements EventSubscriber {

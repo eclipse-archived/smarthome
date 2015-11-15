@@ -19,8 +19,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  * @author Dennis Nobel - Initial contribution
  *
  */
-public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String> implements
-        ItemChannelLinkProvider {
+public class ManagedItemChannelLinkProvider extends DefaultAbstractManagedProvider<ItemChannelLink, String>
+        implements ItemChannelLinkProvider {
 
     @Override
     protected String getStorageName() {

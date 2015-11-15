@@ -17,11 +17,11 @@ import org.eclipse.xtext.resource.XtextResourceSet;
  */
 public class GlobalResourceSet {
 
-	private static ResourceSet INSTANCE = null;
+    private static ResourceSet INSTANCE = null;
 
-	public static ResourceSet getINSTANCE() {
-		if (INSTANCE == null)
-			INSTANCE = new XtextResourceSet();
-		return INSTANCE;
-	}
+    public static ResourceSet getINSTANCE() {
+        if (INSTANCE == null)
+            INSTANCE = new XtextResourceSet();
+        return INSTANCE;
+    }
 }
