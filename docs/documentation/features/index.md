@@ -35,6 +35,14 @@ The list of extension types will grow over time and you are invited to discuss u
 
 Note that many "existing" extension types like rule actions, persistence services, TTS modules, etc. are not covered in this documentation as it is planned to address and heavily refactor them in future - the current version is still from the initial contribution which came from openHAB 1 and thus is tight to textual configuration and not usable in a wider context.
 
+#### Extension Service
+
+Eclipse SmartHome comes with an API that allows implementing a service that manages the installed extensions within a solution. All that needs to be done is to register an OSGi service that implements `org.eclipse.smarthome.core.extension.ExtensionService`. Such a service has to provide a list of available extensions and then can be called in order to install and uninstall them.
+
+What kind of implementation is chosen is completely up to the solution. Suitable mechanisms might be Eclipse p2, Apache Felix FileInstall, Apache Karaf FeatureInstaller, etc. For testing purposes, Eclipse SmartHome comes with a sample implementation in the bundle `org.eclipse.smarthome.core.extension.sample`.
+
+Installation and uninstallation requests are executed by a thread pool named "extensionService". If an implementation does not support concurrent execution of such operations, the thread pool size should be set to 1.
+
 ### Bindings
 
 A binding is an extension to the Eclipse SmartHome runtime that integrates an external system like a service, a protocol or a single device. Therefore the main purpose of a binding is to translate events from the Eclipse SmartHome event bus to the external system and vice versa. Learn about the internals of a binding in our [binding tutorial](../development/bindings/how-to.html).
