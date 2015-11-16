@@ -7,16 +7,38 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import org.eclipse.smarthome.core.library.items.LocationItem;
 import org.junit.Test;
 
 /**
  * @author Gaël L'hopital
  */
 public class PointTypeTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorEmpty() {
+        @SuppressWarnings("unused")
+        PointType errorGenerator = new PointType("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorBadlyFormated() {
+        @SuppressWarnings("unused")
+        PointType errorGenerator = new PointType("2");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorBadlyFormated2() {
+        @SuppressWarnings("unused")
+        PointType errorGenerator = new PointType("2,");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorBadlyFormated3() {
+        @SuppressWarnings("unused")
+        PointType errorGenerator = new PointType("2,3,4,5");
+    }
 
     @Test
     public void testDistance() {
@@ -25,24 +47,11 @@ public class PointTypeTest {
         assertEquals(0, midleOfTheOcean.getLongitude().doubleValue(), 0.0000001);
         assertEquals(0, midleOfTheOcean.getLatitude().doubleValue(), 0.0000001);
         assertEquals(0, midleOfTheOcean.getAltitude().doubleValue(), 0.0000001);
-        
+
         PointType pointParis = new PointType("48.8566140,2.3522219");
 
         assertEquals(2.3522219, pointParis.getLongitude().doubleValue(), 0.0000001);
         assertEquals(48.856614, pointParis.getLatitude().doubleValue(), 0.0000001);
-
-        PointType pointBerlin = new PointType("52.5200066,13.4049540");
-
-        LocationItem locationParis = new LocationItem("paris");
-        locationParis.setState(pointParis);
-        LocationItem locationBerlin = new LocationItem("berlin");
-        locationBerlin.setState(pointBerlin);
-
-        DecimalType distance = locationParis.distanceFrom(pointParis);
-        assertEquals(0, distance.intValue());
-
-        double parisBerlin = locationParis.distanceFrom(pointBerlin).doubleValue();
-        assertEquals(878400, 50, parisBerlin);
 
         double gravParis = pointParis.getGravity().doubleValue();
         assertEquals(gravParis, 9.809, 0.001);
