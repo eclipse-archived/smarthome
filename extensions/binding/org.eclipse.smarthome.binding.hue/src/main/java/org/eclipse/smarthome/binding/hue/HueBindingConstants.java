@@ -15,6 +15,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Jochen Hiller - Added OSRAM Classic A60 RGBW
+ * @author Markus Mazurczak - Added OSRAM PAR16 50
  */
 public class HueBindingConstants {
 
@@ -43,6 +44,7 @@ public class HueBindingConstants {
     public final static ThingTypeUID THING_TYPE_CLASSIC_A60_RGBW = new ThingTypeUID(BINDING_ID, "Classic_A60_RGBW");
     public final static ThingTypeUID THING_TYPE_SURFACE_LIGHT_TW = new ThingTypeUID(BINDING_ID, "Surface_Light_TW");
     public final static ThingTypeUID THING_TYPE_ZLL_LIGHT = new ThingTypeUID(BINDING_ID, "ZLL_Light");
+    public final static ThingTypeUID THING_TYPE_PAR16_50_TW = new ThingTypeUID(BINDING_ID, "PAR16_50_TW");
 
     // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";

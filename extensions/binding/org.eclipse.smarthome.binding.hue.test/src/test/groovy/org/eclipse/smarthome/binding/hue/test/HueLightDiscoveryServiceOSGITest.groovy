@@ -27,11 +27,11 @@ import org.eclipse.smarthome.core.thing.Bridge
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
-import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
@@ -49,15 +49,15 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
     HueThingHandlerFactory hueThingHandlerFactory
     DiscoveryListener discoveryListener
-	ManagedThingProvider managedThingProvider
-	Bridge hueBridge
+    ManagedThingProvider managedThingProvider
+    Bridge hueBridge
     HueBridgeHandler hueBridgeHandler
-	HueLightDiscoveryService discoveryService
+    HueLightDiscoveryService discoveryService
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-	final ThingUID BRIDGE_THING_UID = new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge")
+    final ThingUID BRIDGE_THING_UID = new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge")
 
-	
+
     @Before
     void setUp() {
         registerVolatileStorageService()
@@ -87,13 +87,13 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             assertThat hueBridgeHandler, is(notNullValue())
         }, 10000)
 
-		discoveryService = getService(DiscoveryService, HueLightDiscoveryService)
-		assertThat discoveryService, is(notNullValue())
+        discoveryService = getService(DiscoveryService, HueLightDiscoveryService)
+        assertThat discoveryService, is(notNullValue())
     }
 
     @After
     void cleanUp() {
-	managedThingProvider.remove(BRIDGE_THING_UID)
+        managedThingProvider.remove(BRIDGE_THING_UID)
     }
 
     private void registerDiscoveryListener(DiscoveryListener discoveryListener) {
@@ -107,13 +107,13 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             discoveryService.removeDiscoveryListener(this.discoveryListener)
         }
     }
-		
+
     @Test
     void 'assert hue light registration'() {
-		FullLight light = FullLight.class.newInstance()
-		light.id = "1"
-		light.modelid = "LCT001"
-		
+        FullLight light = FullLight.class.newInstance()
+        light.id = "1"
+        light.modelid = "LCT001"
+
         def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
         registerDiscoveryListener( [
             thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
@@ -138,7 +138,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             assertThat properties.get(LIGHT_ID), is (light.id)
         }
     }
-	
+
     @Test
     void 'assert startSearch is called'() {
         def searchHasBeenTriggered = false
