@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Sample Extension Service
+Bundle-SymbolicName: org.eclipse.smarthome.core.extension.sample
+Bundle-Version: 0.8.0.qualifier
+Import-Package: org.apache.commons.lang,
+ org.eclipse.smarthome.core.extension
+Bundle-Vendor: Eclipse.org/SmartHome
+Service-Component: OSGI-INF/*.xml
