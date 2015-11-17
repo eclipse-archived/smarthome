@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.extension.sample">
+   <implementation class="org.eclipse.smarthome.core.extension.sample.internal.SampleExtensionService"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.extension.ExtensionService"/>
+   </service>
+</scr:component>
