@@ -536,6 +536,80 @@ public class PersistenceExtensions implements ManagedService {
  	}
 
     /**
+     * Returns the previous state of a given <code>item</code>. 
+     * 
+     * @param item the item to get the previous state value for
+     * @return the previous state
+     */
+    static public HistoricItem previousState(Item item) {
+        return previousState(item, false);
+    }
+
+    /**
+     * Returns the previous state of a given <code>item</code>. 
+     * 
+     * @param item the item to get the previous state value for
+     * @param skipEqual if true, skips equal state values and searches the first state not equal the current state
+     * @return the previous state
+     */
+    static public HistoricItem previousState(Item item, boolean skipEqual) {
+        if (isDefaultServiceAvailable()) {
+            return previousState(item, skipEqual, defaultService);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the previous state of a given <code>item</code>. 
+     * The {@link PersistenceService} identified by the <code>serviceName</code> is used. 
+     * 
+     * @param item the item to get the previous state value for
+     * @param skipEqual if true, skips equal state values and searches the first state not equal the current state
+     * @param serviceName the name of the {@link PersistenceService} to use
+     * @return the previous state
+     */
+    static public HistoricItem previousState(Item item, boolean skipEqual, String serviceName) {
+        PersistenceService service = services.get(serviceName);
+        if (service instanceof QueryablePersistenceService) {
+            QueryablePersistenceService qService = (QueryablePersistenceService) service;
+            FilterCriteria filter = new FilterCriteria();
+            filter.setItemName(item.getName());
+            filter.setOrdering(Ordering.DESCENDING);
+
+            filter.setPageSize(skipEqual ? 1000 : 1);
+            int startPage = 0;
+            filter.setPageNumber(startPage);
+
+            Iterable<HistoricItem> items = qService.query(filter);
+            while (items != null) {
+                Iterator<HistoricItem> itemIterator = items.iterator();
+                int itemCount = 0;
+                while (itemIterator.hasNext()) {
+                    HistoricItem historicItem = itemIterator.next(); 
+                    itemCount++;
+                    if (!skipEqual || (skipEqual && !historicItem.getState().equals(item.getState()))) {
+                        return historicItem;
+                    }
+                }
+                if (itemCount == filter.getPageSize()) {
+                    filter.setPageNumber(++startPage);
+                    items = qService.query(filter);
+                }
+                else {
+                    items = null;
+                }
+            }
+            return null;
+
+        } else {
+            LoggerFactory.getLogger(PersistenceExtensions.class).warn(
+                "There is no queryable persistence service registered with the name '{}'", serviceName);
+            return null;
+        }
+    }
+    
+	/**
      * Returns <code>true</code>, if a default service is configured and returns <code>false</code> and logs a warning
      * otherwise.
      * 

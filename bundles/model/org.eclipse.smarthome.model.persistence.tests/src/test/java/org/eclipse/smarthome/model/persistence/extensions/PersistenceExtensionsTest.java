@@ -102,4 +102,26 @@ public class PersistenceExtensionsTest {
         DecimalType average = PersistenceExtensions.averageSince(item, new DateMidnight(2003, 1, 1), "test");
         assertEquals("2100", average.toString());
     }
+    
+    @Test
+    public void testPreviousStateNoSkip() {
+        item.setState(new DecimalType(4321));
+        HistoricItem prevStateItem = PersistenceExtensions.previousState(item, false, "test");
+        assertNotNull(prevStateItem);
+        assertEquals("2012", prevStateItem.getState().toString());
+
+        item.setState(new DecimalType(2012));
+        prevStateItem = PersistenceExtensions.previousState(item, false, "test");
+        assertNotNull(prevStateItem);
+        System.out.println("prevState: " + prevStateItem.toString());
+        assertEquals("2012", prevStateItem.getState().toString());
+    }
+
+    @Test
+    public void testPreviousStateSkip() {
+        item.setState(new DecimalType(2012));
+        HistoricItem prevStateItem = PersistenceExtensions.previousState(item, true, "test");
+        assertNotNull(prevStateItem);
+        assertEquals("2011", prevStateItem.getState().toString());
+    }
 }
