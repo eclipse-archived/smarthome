@@ -10,10 +10,10 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.binding.enocean.internal.EnOceanHandlerFactory">
 
-   <implementation class="org.eclipse.smarthome.binding.enocean.discovery.impl.EnOceanDiscoveryService"/>
+   <implementation class="org.eclipse.smarthome.binding.enocean.discovery.impl.EnOceanDiscoveryServiceImpl"/>
 
    <service>
-      <provide interface="org.eclipse.smarthome.binding.enocean.discovery.IEnOceanDiscoveryService"/>
+      <provide interface="org.eclipse.smarthome.binding.enocean.discovery.EnOceanDiscoveryService"/>
    </service>
    
    <reference name="enoceanDevice" cardinality="0..n" policy="dynamic"

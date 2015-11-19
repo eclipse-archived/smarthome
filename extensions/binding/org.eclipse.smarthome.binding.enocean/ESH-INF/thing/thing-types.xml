@@ -26,17 +26,17 @@
     <channel-type id="alarm">
         <item-type>Switch</item-type>
         <label>Alarm</label>
-        <description>alarm turned as on or off</description>
+        <description>alarm turned on or off</description>
         <category>Alarm</category>
         <state readOnly="true">
         </state>
     </channel-type>
     <channel-type id="onOff">
         <item-type>Switch</item-type>
-        <label>Alarm</label>
-        <description>alarm turned as on or off</description>
-        <category>Alarm</category>
-        <state readOnly="true">
+        <label>On off</label>
+        <description>Switch turned on or off</description>
+        <category>Switch</category>
+        <state readOnly="false">
         </state>
     </channel-type>
 </thing:thing-descriptions>

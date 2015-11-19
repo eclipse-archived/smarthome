@@ -73,6 +73,7 @@ public class EnOceanHandler extends BaseThingHandler implements EventHandler {
                         org.osgi.service.enocean.EnOceanHandler handlerTurnOnRpc = new org.osgi.service.enocean.EnOceanHandler() {
                             @Override
                             public void notifyResponse(EnOceanRPC enOceanRPC, byte[] payload) {
+                            	logger.debug("enOceanRPC: " + enOceanRPC + ", payload: " + payload);
                                 System.out.println("enOceanRPC: " + enOceanRPC + ", payload: " + payload);
                             }
                         };
@@ -102,7 +103,7 @@ public class EnOceanHandler extends BaseThingHandler implements EventHandler {
                         updateState(new ChannelUID(getThing().getUID(), CHANNEL_ELTAKO_SMOKE_DETECTOR), OnOffType.ON);
 
                     } else if (payload[1] == 0x00) {
-                        System.out.println("normal situation");
+                    	logger.debug("normal situation");
                         updateState(new ChannelUID(getThing().getUID(), CHANNEL_ELTAKO_SMOKE_DETECTOR), OnOffType.OFF);
 
                     }

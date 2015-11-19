@@ -17,7 +17,7 @@
    </service>
    
    <reference name="enoceanDiscoveryService" cardinality="0..1" policy="dynamic"
-   interface="org.eclipse.smarthome.binding.enocean.discovery.IEnOceanDiscoveryService"
+   interface="org.eclipse.smarthome.binding.enocean.discovery.EnOceanDiscoveryService"
    bind="setEnoceanDiscoveryService" unbind="unsetEnoceanDiscoveryService" />
    
 </scr:component>

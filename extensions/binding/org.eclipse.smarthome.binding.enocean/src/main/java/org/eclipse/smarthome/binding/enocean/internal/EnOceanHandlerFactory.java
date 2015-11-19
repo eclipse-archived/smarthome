@@ -11,7 +11,7 @@ import static org.eclipse.smarthome.binding.enocean.EnOceanBindingConstants.*;
 
 import java.util.Set;
 
-import org.eclipse.smarthome.binding.enocean.discovery.IEnOceanDiscoveryService;
+import org.eclipse.smarthome.binding.enocean.discovery.EnOceanDiscoveryService;
 import org.eclipse.smarthome.binding.enocean.handler.EnOceanHandler;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -32,7 +32,7 @@ public class EnOceanHandlerFactory extends BaseThingHandlerFactory {
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_ELTAKO_SMOKE_DETECTOR,
             THING_TYPE_ON_OFF_PLUG);
 
-    private IEnOceanDiscoveryService enoceanDiscoveryService;
+    private EnOceanDiscoveryService enoceanDiscoveryService;
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -54,11 +54,11 @@ public class EnOceanHandlerFactory extends BaseThingHandlerFactory {
         return null;
     }
 
-    public void setEnoceanDiscoveryService(IEnOceanDiscoveryService enoceanDiscoveryService) {
+    public void setEnoceanDiscoveryService(EnOceanDiscoveryService enoceanDiscoveryService) {
         this.enoceanDiscoveryService = enoceanDiscoveryService;
     }
 
-    public void unsetEnoceanDiscoveryService(IEnOceanDiscoveryService enoceanDiscoveryService) {
+    public void unsetEnoceanDiscoveryService(EnOceanDiscoveryService enoceanDiscoveryService) {
         this.enoceanDiscoveryService = null;
     }
 }
