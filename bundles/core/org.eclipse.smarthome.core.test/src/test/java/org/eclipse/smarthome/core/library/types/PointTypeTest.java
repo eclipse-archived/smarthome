@@ -7,7 +7,8 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -15,6 +16,12 @@ import org.junit.Test;
  * @author Gaël L'hopital
  */
 public class PointTypeTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorNull() {
+        @SuppressWarnings("unused")
+        PointType errorGenerator = new PointType(null);
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorEmpty() {
