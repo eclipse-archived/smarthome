@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.internal.i18n;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -23,6 +24,7 @@ import org.osgi.framework.BundleContext;
  * using one certain {@link LanguageResourceBundleManager} which is responsible for the translation.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Thomas Höfer - Added getText operation with arguments
  */
 public class I18nProviderImpl implements I18nProvider {
 
@@ -49,6 +51,17 @@ public class I18nProviderImpl implements I18nProvider {
         }
 
         return defaultText;
+    }
+
+    @Override
+    public String getText(Bundle bundle, String key, String defaultText, Locale locale, Object... arguments) {
+        String text = getText(bundle, key, defaultText, locale);
+
+        if (text != null) {
+            return MessageFormat.format(text, arguments);
+        }
+
+        return text;
     }
 
 }
