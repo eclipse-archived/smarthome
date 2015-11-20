@@ -11,7 +11,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -26,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.ui.chart.ChartProvider;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -50,13 +47,13 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class ChartServlet extends HttpServlet implements ManagedService {
+public class ChartServlet extends HttpServlet {
 
     private static final long serialVersionUID = 7700873790924746422L;
 
     private final Logger logger = LoggerFactory.getLogger(ChartServlet.class);
 
-    protected String providerName = "default";
+    private String providerName = "default";
 
     // The URI of this servlet
     public static final String SERVLET_NAME = "/chart";
@@ -117,7 +114,7 @@ public class ChartServlet extends HttpServlet implements ManagedService {
         return chartProviders;
     }
 
-    protected void activate() {
+    protected void activate(Map<String, Object> config) {
         try {
             logger.debug("Starting up chart servlet at " + SERVLET_NAME);
 
@@ -129,10 +126,32 @@ public class ChartServlet extends HttpServlet implements ManagedService {
         } catch (ServletException e) {
             logger.error("Error during chart servlet startup", e);
         }
+
+        applyConfig(config);
     }
 
     protected void deactivate() {
         httpService.unregister(SERVLET_NAME);
+    }
+
+    protected void modified(Map<String, Object> config) {
+        applyConfig(config);
+    }
+
+    /**
+     * Handle the initial or an changed configuration.
+     *
+     * @param config the configuration
+     */
+    private void applyConfig(Map<String, Object> config) {
+        if (config == null) {
+            return;
+        }
+
+        final Object value = config.get("provider");
+        if (value instanceof String) {
+            providerName = (String) value;
+        }
     }
 
     @Override
@@ -180,7 +199,7 @@ public class ChartServlet extends HttpServlet implements ManagedService {
 
     /**
      * Creates a {@link HttpContext}
-     * 
+     *
      * @return a {@link HttpContext}
      */
     protected HttpContext createHttpContext() {
@@ -216,20 +235,6 @@ public class ChartServlet extends HttpServlet implements ManagedService {
      */
     @Override
     public void destroy() {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updated(Dictionary<String, ?> properties) throws ConfigurationException {
-
-        if (properties == null)
-            return;
-
-        if (properties.get("provider") != null) {
-            providerName = (String) properties.get("provider");
-        }
     }
 
 }
