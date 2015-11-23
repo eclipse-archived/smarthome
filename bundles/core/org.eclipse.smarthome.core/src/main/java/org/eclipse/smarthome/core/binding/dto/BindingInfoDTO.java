@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.core.binding.dto;
 
-
 /**
  * This is a data transfer object that is used to serialize binding info objects.
  *
@@ -20,15 +19,17 @@ public class BindingInfoDTO {
     public String description;
     public String id;
     public String name;
+    public String configDescriptionURI;
 
     public BindingInfoDTO() {
     }
 
-    public BindingInfoDTO(String id, String name, String author, String description) {
+    public BindingInfoDTO(String id, String name, String author, String description, String configDescriptionURI) {
         this.id = id;
         this.name = name;
         this.author = author;
         this.description = description;
+        this.configDescriptionURI = configDescriptionURI;
     }
 
 }
