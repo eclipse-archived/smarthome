@@ -26,10 +26,9 @@ public abstract class UID {
     private String[] segments;
 
     /**
-     * Default constructor in package scope only. Will allow to instantiate this
-     * class by reflection. Not intended to be used for normal instantiation.
+     * Constructor must be public, otherwise it can not be called by subclasses from another package.
      */
-    UID() {
+    public UID() {
         this.segments = null;
     }
 
