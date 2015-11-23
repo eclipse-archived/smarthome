@@ -150,7 +150,7 @@ public class XmlBindingInfoProvider implements BindingInfoProvider {
                     bindingInfo.getDescription(), locale);
 
             return new BindingInfo(bindingInfo.getId(), name, description, bindingInfo.getAuthor(),
-                    bindingInfo.getConfigDescriptionURI());
+                    bindingInfo.getServiceId(), bindingInfo.getConfigDescriptionURI());
         } else {
             return bindingInfo;
         }

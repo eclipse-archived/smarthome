@@ -58,6 +58,7 @@ public class BindingInfoReader extends XmlDocumentReader<BindingInfoXmlResult> {
         xstream.alias("name", NodeValue.class);
         xstream.alias("description", NodeValue.class);
         xstream.alias("author", NodeValue.class);
+        xstream.alias("service-id", NodeValue.class);
         xstream.alias("config-description", ConfigDescription.class);
         xstream.alias("config-description-ref", NodeAttributes.class);
         xstream.alias("parameter", ConfigDescriptionParameter.class);
