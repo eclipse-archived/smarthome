@@ -18,7 +18,7 @@ public class Extension {
     private final String id;
     private final String label;
     private final String version;
-    private final boolean installed;
+    private boolean installed;
     private final String type;
 
     /**
@@ -71,6 +71,13 @@ public class Extension {
      */
     public boolean isInstalled() {
         return installed;
+    }
+
+    /**
+     * Sets the installed state
+     */
+    public void setInstalled(boolean installed) {
+        this.installed = installed;
     }
 
 }
