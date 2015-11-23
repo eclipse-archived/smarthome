@@ -35,7 +35,7 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         def configAdmin = [
-            getConfiguration: { pid ->
+            getConfiguration: { pid, location ->
                 [
                     getProperties: { properties },
                     update: { propertiesArg -> properties = propertiesArg },
