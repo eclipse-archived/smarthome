@@ -59,6 +59,8 @@ public class SampleExtensionService implements ExtensionService {
     public void install(String id) {
         try {
             Thread.sleep((long) (Math.random() * 10000));
+            Extension extension = getExtension(id, null);
+            extension.setInstalled(true);
         } catch (InterruptedException e) {
         }
     }
@@ -67,6 +69,8 @@ public class SampleExtensionService implements ExtensionService {
     public void uninstall(String id) {
         try {
             Thread.sleep((long) (Math.random() * 5000));
+            Extension extension = getExtension(id, null);
+            extension.setInstalled(false);
         } catch (InterruptedException e) {
         }
     }
