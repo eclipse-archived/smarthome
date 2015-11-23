@@ -186,6 +186,7 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
   <tr><td>name</td><td>A human readable name for the binding (mandatory).</td></tr>
   <tr><td>description</td><td>A human readable description for the binding (optional).</td></tr>
   <tr><td>author</td><td>The author of the binding (mandatory).</td></tr>
+  <tr><td>service-id</td><td>The ID (service.pid or component.name) of the binding main service, which can be configured through OSGi configuration admin service. Should only be used in combination with a config description definition. (optional)</td></tr>
   <tr><td>config-description</td><td>The configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the binding within the ConfigDescriptionRegistry (mandatory).</td></tr>
@@ -197,6 +198,7 @@ The full XML schema for binding definitions is specified in the [ESH binding XSD
 
 - The attribute `uri` in the section `config-description` is optional, it *should not* be specified in binding definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `binding:bindingID`, otherwise the given `uri` is used.
 - If a configuration description is already specified somewhere else and the binding wants to (re-)use it, a `config-description-ref` should be used instead.
+- Normally the service id must not be defined, because it is implicitly set to "binding.<binding.id>". A binding can register an OSGi service which implements the ManagedService interface and define the service.pid as e.g."binding.hue" to receive the configuration.
 
 
 ### Example

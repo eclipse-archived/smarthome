@@ -8,7 +8,7 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="${package}.internal.${bindingIdCamelCase}HandlerFactory">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="binding.${bindingId}">
 
    <implementation class="${package}.internal.${bindingIdCamelCase}HandlerFactory"/>
 

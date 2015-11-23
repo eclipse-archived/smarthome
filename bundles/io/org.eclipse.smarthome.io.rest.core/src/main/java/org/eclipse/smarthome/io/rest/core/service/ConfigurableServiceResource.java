@@ -9,14 +9,8 @@ package org.eclipse.smarthome.io.rest.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -30,13 +24,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigurableService;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
 import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +60,7 @@ public class ConfigurableServiceResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
 
-    private ConfigurationAdmin configurationAdmin;
+    private ConfigurationService configurationService;
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
@@ -101,10 +95,9 @@ public class ConfigurableServiceResource implements RESTResource {
     public Response getConfiguration(
             @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
         try {
-            Configuration servieConfiguration = configurationAdmin.getConfiguration(serviceId);
-            Dictionary<String, Object> properties = servieConfiguration.getProperties();
-            Map<String, Object> configuration = toMap(properties);
-            return configuration != null ? Response.ok(configuration).build() : Response.status(404).build();
+            Configuration configuration = configurationService.get(serviceId);
+            return configuration != null ? Response.ok(configuration.getProperties()).build()
+                    : Response.status(404).build();
         } catch (IOException ex) {
             logger.error("Cannot get configuration for service {}: " + ex.getMessage(), serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -123,15 +116,10 @@ public class ConfigurableServiceResource implements RESTResource {
             @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId,
             Map<String, Object> configuration) {
         try {
-            Configuration serviceConfiguration = configurationAdmin.getConfiguration(serviceId);
-            Map<String, Object> oldConfiguration = toMap(serviceConfiguration.getProperties());
-            Dictionary<String, Object> properties = getProperties(serviceConfiguration);
-            Set<Entry<String, Object>> configurationParameters = configuration.entrySet();
-            for (Entry<String, Object> configurationParameter : configurationParameters) {
-                properties.put(configurationParameter.getKey(), configurationParameter.getValue());
-            }
-            serviceConfiguration.update(properties);
-            return oldConfiguration != null ? Response.ok(oldConfiguration).build() : Response.noContent().build();
+            Configuration oldConfiguration = configurationService.get(serviceId);
+            configurationService.update(serviceId, new Configuration(configuration));
+            return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
+                    : Response.noContent().build();
         } catch (IOException ex) {
             logger.error("Cannot update configuration for service {}: " + ex.getMessage(), serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
@@ -148,9 +136,8 @@ public class ConfigurableServiceResource implements RESTResource {
     public Response deleteConfiguration(
             @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
         try {
-            Configuration serviceConfiguration = configurationAdmin.getConfiguration(serviceId);
-            Map<String, Object> oldConfiguration = toMap(serviceConfiguration.getProperties());
-            serviceConfiguration.delete();
+            Configuration oldConfiguration = configurationService.get(serviceId);
+            configurationService.delete(serviceId);
             return oldConfiguration != null ? Response.ok(oldConfiguration).build() : Response.noContent().build();
         } catch (IOException ex) {
             logger.error("Cannot delete configuration for service {}: " + ex.getMessage(), serviceId, ex);
@@ -180,11 +167,6 @@ public class ConfigurableServiceResource implements RESTResource {
         return services;
     }
 
-    private Dictionary<String, Object> getProperties(Configuration serviceConfiguration) {
-        Dictionary<String, Object> properties = serviceConfiguration.getProperties();
-        return properties != null ? properties : new Hashtable<String, Object>();
-    }
-
     private String getServiceId(ServiceReference<?> serviceReference) {
         Object pid = serviceReference.getProperty(Constants.SERVICE_PID);
         if (pid != null) {
@@ -194,27 +176,11 @@ public class ConfigurableServiceResource implements RESTResource {
         }
     }
 
-    private Map<String, Object> toMap(Dictionary<String, Object> dictionary) {
-        if (dictionary == null) {
-            return null;
-        }
-        Map<String, Object> map = new HashMap<>(dictionary.size());
-        Enumeration<String> keys = dictionary.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            if (!key.equals(Constants.SERVICE_PID)) {
-                map.put(key, dictionary.get(key));
-            }
-        }
-        return map;
+    protected void setConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
     }
 
-    protected void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    protected void unsetConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = null;
     }
-
-    protected void unsetConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = null;
-    }
-
 }

@@ -21,11 +21,16 @@ import java.net.URI;
  */
 public class BindingInfo {
 
+    /**
+     * The default service ID prefix.
+     */
+    public static final String DEFAULT_SERVICE_ID_PREFIX = "binding.";
     private String id;
     private String name;
     private String description;
     private String author;
     private URI configDescriptionURI;
+    private String serviceId;
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -34,12 +39,13 @@ public class BindingInfo {
      * @param name a human readable name for the binding (must neither be null, nor empty)
      * @param description a human readable description for the binding (could be null or empty)
      * @param author the author of the binding (must neither be null, nor empty)
+     * @param serviceId the service id of the main service of the binding (can be null)
      * @param configDescriptionURI the link to a concrete ConfigDescription (could be null)
      *
      * @throws IllegalArgumentException if the identifier, the name or the author is null or empty
      */
-    public BindingInfo(String id, String name, String description, String author, URI configDescriptionURI)
-            throws IllegalArgumentException {
+    public BindingInfo(String id, String name, String description, String author, String serviceId,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         if ((id == null) || (id.isEmpty())) {
             throw new IllegalArgumentException("The ID must neither be null nor empty!");
@@ -57,7 +63,7 @@ public class BindingInfo {
         this.name = name;
         this.description = description;
         this.author = author;
-
+        this.serviceId = serviceId != null ? serviceId : DEFAULT_SERVICE_ID_PREFIX + id;
         this.configDescriptionURI = configDescriptionURI;
     }
 
@@ -106,6 +112,15 @@ public class BindingInfo {
      */
     public boolean hasConfigDescriptionURI() {
         return (this.configDescriptionURI != null);
+    }
+
+    /**
+     * Returns the service ID of the bindings main service, that can be configured.
+     *
+     * @return service ID or null if no service is configured
+     */
+    public String getServiceId() {
+        return serviceId;
     }
 
     /**

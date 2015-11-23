@@ -39,8 +39,8 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
     public BindingInfoConverter() {
         super(BindingInfoXmlResult.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "id", "true" },
-                { "schemaLocation", "false" } });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "schemaLocation", "false" } });
     }
 
     private URI readConfigDescriptionURI(NodeIterator nodeIterator) throws ConversionException {
@@ -50,8 +50,8 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
             try {
                 return new URI(uriText);
             } catch (NullPointerException | URISyntaxException ex) {
-                throw new ConversionException("The URI '" + uriText + "' in node "
-                        + "'config-description-ref' is invalid!", ex);
+                throw new ConversionException(
+                        "The URI '" + uriText + "' in node " + "'config-description-ref' is invalid!", ex);
             }
         }
 
@@ -91,6 +91,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         String name = (String) nodeIterator.nextValue("name", true);
         String description = (String) nodeIterator.nextValue("description", false);
         String author = (String) nodeIterator.nextValue("author", true);
+        String serviceId = (String) nodeIterator.nextValue("service-id", false);
 
         URI configDescriptionURI = readConfigDescriptionURI(nodeIterator);
         ConfigDescription configDescription = null;
@@ -104,7 +105,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
         nodeIterator.assertEndOfType();
 
         // create object
-        bindingInfo = new BindingInfo(id, name, description, author, configDescriptionURI);
+        bindingInfo = new BindingInfo(id, name, description, author, serviceId, configDescriptionURI);
         bindingInfoXmlResult = new BindingInfoXmlResult(bindingInfo, configDescription);
 
         return bindingInfoXmlResult;
