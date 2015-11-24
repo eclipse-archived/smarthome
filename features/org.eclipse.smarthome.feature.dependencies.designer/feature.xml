@@ -15,7 +15,7 @@
       provider-name="Eclipse.org">
 
    <description>
-      This features defines all bundles that form the Eclipse SmartHome designer dependencies.
+      This feature defines all bundles that form the Eclipse SmartHome designer dependencies.
    </description>
 
    <copyright>

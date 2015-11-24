@@ -1,0 +1,18 @@
+{  
+   "triggers":[  
+      {  
+         "uid":"TimerTrigger",
+         "label":"Timer Trigger",
+         "description":"This triggers a rule based on a cron expression",
+         "configDescriptions":[  
+            {  
+               "name":"cronExpression",
+               "type":"TEXT",
+               "label":"cron expression",
+               "description":"the cron expression",
+               "required":true
+            }
+         ]
+      }
+   ]
+}

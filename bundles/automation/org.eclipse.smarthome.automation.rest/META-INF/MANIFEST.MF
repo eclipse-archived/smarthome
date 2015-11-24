@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation REST API
+Bundle-SymbolicName: org.eclipse.smarthome.automation.rest
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: io.swagger.annotations;resolution:=optional,
+ javax.ws.rs,
+ javax.ws.rs.core,
+ org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.template,
+ org.eclipse.smarthome.automation.type,
+ org.eclipse.smarthome.config.core,
+ org.eclipse.smarthome.core.common,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.io.rest,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
