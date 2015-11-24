@@ -24,6 +24,7 @@ public class WemoBindingConstants {
     public final static ThingTypeUID WEMO_INSIGHT_TYPE_UID = new ThingTypeUID(BINDING_ID, "insight");
     public final static ThingTypeUID WEMO_LIGHTSWITCH_TYPE_UID = new ThingTypeUID(BINDING_ID, "lightswitch");
     public final static ThingTypeUID WEMO_MOTION_TYPE_UID = new ThingTypeUID(BINDING_ID, "motion");
+    public final static ThingTypeUID WEMO_SENSOR_TYPE_UID = new ThingTypeUID(BINDING_ID, "sensor");
 
     // List of all Channel ids
     public final static String CHANNEL_STATE = "state";

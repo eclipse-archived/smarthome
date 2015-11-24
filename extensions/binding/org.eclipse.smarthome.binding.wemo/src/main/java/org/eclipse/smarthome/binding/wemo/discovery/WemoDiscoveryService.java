@@ -13,6 +13,8 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIG
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_MOTION_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SOCKET_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SENSOR_TYPE_UID;
+
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -66,7 +68,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 	 */
 	private static final String SSDP_IP = "239.255.255.250";
 
-    
+
     public InetAddress address;
 
 	/**
@@ -74,7 +76,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 	 */
 
 	static boolean discoveryRunning = false;
-	
+
 	/**
 	 * The refresh interval for discovering WeMo devices
 	 */
@@ -85,16 +87,17 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 			public void run() {
 				discoverWemo();		}
 	};
-			
+
 	public WemoDiscoveryService() {
 		super(WemoHandler.SUPPORTED_THING_TYPES, 15, true);
 	}
- 
+
     public Set<ThingTypeUID> getSupportedThingTypeUIDs() {
         return WemoHandler.SUPPORTED_THING_TYPES;
     }
- 
-	protected void startScan() {
+
+	@Override
+    protected void startScan() {
 		logger.debug("Starting WeMo Device discovery");
 		discoverWemo();
 	}
@@ -127,14 +130,14 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 		logger.trace("Done receiving WeMo broadcast discovery message");
 	}
 
-	
+
 	public void sendWemoDiscoveryMessage() {
 		logger.debug("wemoDiscovery() is called!");
 		try {
 
 			InetAddress localhost = InetAddress.getLocalHost();
 			InetSocketAddress srcAddress = new InetSocketAddress(localhost,	SSDP_SEARCH_PORT);
-			
+
 			InetSocketAddress dstAddress = new InetSocketAddress(InetAddress.getByName(SSDP_IP), SSDP_PORT);
 
 			// Request-Packet-Constructor
@@ -180,7 +183,7 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 						wemoReceiveSocket.receive(receivePacket);
 						final String message = new String(receivePacket.getData());
 						logger.trace("Received message: {}", message);
-				
+
 						new Thread(new Runnable() {
 							@Override
 							public void run() {
@@ -190,9 +193,11 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 								String wemoFriendlyName = null;
 								String wemoModelName = null;
 								ThingUID uid = null;
-								
+
 								if (message != null) {
-									if (message.contains("Socket-1_0") || message.contains("Insight-1_0") || message.contains("Motion-1_0") || message.contains("Lightswitch-1_0")) {
+                                    if (message.contains("Socket-1_0") || message.contains("Insight-1_0")
+                                            || message.contains("Motion-1_0") || message.contains("Lightswitch-1_0")
+                                            || message.contains("Sensor-1_0")) {
 										wemoUDN = StringUtils.substringBetween(message, "USN: uuid:", "::upnp:rootdevice");
 										logger.debug("Wemo device with UDN '{}' found", wemoUDN);
 										wemoLocation = StringUtils.substringBetween(message, "LOCATION: ", "/setup.xml");
@@ -205,12 +210,12 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 												wemoModelName = StringUtils.substringBetween(response, "<modelName>", "</modelName>");
 												logger.trace("Wemo device '{}' has model name '{}'", wemoFriendlyName, wemoModelName);
 												label = "Wemo" + wemoModelName;
-												
+
 												switch(wemoModelName) {
 												case "Socket":
 													logger.debug("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_SOCKET_TYPE_UID, wemoUDN);
-													
+
 													break;
 												case "Insight":
 													logger.trace("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
@@ -224,6 +229,12 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 													logger.trace("Creating ThingUID for device model '{}' with UDN '{}'", wemoModelName, wemoUDN);
 													uid = new ThingUID(WEMO_MOTION_TYPE_UID, wemoUDN);
 													break;
+                                                    case "Sensor":
+                                                        logger.trace(
+                                                                "Creating ThingUID for device model '{}' with UDN '{}'",
+                                                                wemoModelName, wemoUDN);
+                                                        uid = new ThingUID(WEMO_SENSOR_TYPE_UID, wemoUDN);
+                                                        break;
 												}
 									            Map<String, Object> properties = new HashMap<>(4);
 									            properties.put(UDN, wemoUDN);
@@ -253,10 +264,10 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
 					wemoReceiveSocket.close();
 				}
 			}
-			
+
 		} catch (Exception e) {
 			logger.error("Could not send Wemo device discovery", e);
 		}
-		
+
 	}
-}	
+}
