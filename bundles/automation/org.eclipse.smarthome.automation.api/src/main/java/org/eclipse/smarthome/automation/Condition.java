@@ -1,17 +1,14 @@
-/*******************************************************************************
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH
- * http://www.prosyst.com
+/**
+ * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    ProSyst Software GmbH - initial API and implementation
- *******************************************************************************/
-
+ */
 package org.eclipse.smarthome.automation;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.type.ConditionType;
@@ -27,22 +24,47 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  *
  * @author Yordan Mihaylov - Initial Contribution
  */
-public interface Condition extends Module {
+public class Condition extends Module {
+
+    private Map<String, String> inputs;
+
+    public Condition() {
+        super();
+    }
+
+    /**
+     * Constructor of {@link Condition} module object.
+     *
+     * @param id id of the module.
+     * @param typeUID unique module type id.
+     * @param configuration configuration values of the {@link Condition} module.
+     * @param inputs set of {@link Input}s used by this module.
+     */
+    public Condition(String id, String typeUID, Map<String, ?> configuration, Map<String, String> inputs) {
+        super(id, typeUID, configuration);
+        setInputs(inputs);
+    }
 
     /**
      * This method is used to get input connections of the Condition. The
      * connections are links between {@link Input}s of the current {@link Module} and {@link Output}s of other
      * {@link Module}s.
      *
-     * @return a {@link Set} of input {@link Connection}s.
+     * @return a {@link Map} of input connections.
      */
-    public Set<Connection> getConnections();
+    public Map<String, String> getInputs() {
+        return inputs != null ? inputs : Collections.<String, String> emptyMap();
+    }
 
     /**
      * This method is used to connect {@link Input}s of the Condition to {@link Output}s of other {@link Module}s.
      *
-     * @param connections a {@link Set} of input {@link Connection}s.
+     * @param connections a {@link Set} of input {@link Input}s.
      */
-    public void setConnections(Set<Connection> connections);
+    public void setInputs(Map<String, String> inputs) {
+        if (inputs != null) {
+            this.inputs = inputs;
+        }
+    }
 
 }

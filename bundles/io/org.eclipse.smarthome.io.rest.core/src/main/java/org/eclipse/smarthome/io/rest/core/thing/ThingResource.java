@@ -8,12 +8,9 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -54,6 +51,7 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.io.rest.ConfigUtil;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
@@ -274,7 +272,7 @@ public class ThingResource implements RESTResource {
 
         try {
             thingRegistry.updateConfiguration(new ThingUID(thingUID),
-                    convertDoublesToBigDecimal(configurationParameters));
+                    ConfigUtil.normalizeTypes(configurationParameters));
         } catch (ConfigValidationException ex) {
             logger.debug("Config description validation exception occured for thingUID " + thingUID,
                     ex.getValidationMessages());
@@ -397,20 +395,10 @@ public class ThingResource implements RESTResource {
     public static Configuration getConfiguration(ThingDTO thingBean) {
         Configuration configuration = new Configuration();
 
-        Map<String, Object> convertDoublesToBigDecimal = convertDoublesToBigDecimal(thingBean.configuration);
+        Map<String, Object> convertDoublesToBigDecimal = ConfigUtil.normalizeTypes(thingBean.configuration);
         configuration.setProperties(convertDoublesToBigDecimal);
 
         return configuration;
-    }
-
-    private static Map<String, Object> convertDoublesToBigDecimal(Map<String, Object> configuration) {
-        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
-        for (Entry<String, Object> parameter : configuration.entrySet()) {
-            String name = parameter.getKey();
-            Object value = parameter.getValue();
-            convertedConfiguration.put(name, value instanceof Double ? new BigDecimal((Double) value) : value);
-        }
-        return convertedConfiguration;
     }
 
     public static void updateConfiguration(Thing thing, Configuration configuration) {

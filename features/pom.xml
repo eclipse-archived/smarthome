@@ -20,6 +20,7 @@
     <module>org.eclipse.smarthome.feature.runtime.rest</module>
     <module>org.eclipse.smarthome.feature.runtime.model</module>
     <module>org.eclipse.smarthome.feature.runtime.ui</module>
+    <module>org.eclipse.smarthome.feature.runtime.automation</module>
     <module>org.eclipse.smarthome.feature.runtime.console.equinox</module>
     <module>org.eclipse.smarthome.feature.runtime.console.rfc147</module>
     <module>org.eclipse.smarthome.feature.runtime.binding</module>

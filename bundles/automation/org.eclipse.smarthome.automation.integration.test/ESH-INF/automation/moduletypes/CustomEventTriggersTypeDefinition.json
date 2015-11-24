@@ -1,0 +1,44 @@
+{  
+   "triggers":[  
+      {  
+         "uid":"GenericEventTrigger:Custom1",
+         "label":"Custom Event Trigger",
+         "description":"Triggers Rules on Events",
+         "configDescriptions":[  
+            {  
+               "name":"eventTopic",
+               "type":"TEXT",
+               "label":"Topic",
+               "description":"This is the topic, the trigger will listen to: >>smarthome/*<<",
+               "required":true,
+               "defaultValue":"smarthome/*"
+            },
+            {  
+               "name":"eventSource",
+               "type":"TEXT",
+               "label":"Source",
+               "description":"This is the source of the event (eg. item name)",
+               "required":true,
+               "defaultValue":""
+            },
+            {  
+               "name":"eventTypes",
+               "type":"TEXT",
+               "label":"Event Type",
+               "description":"the event type, the trigger should listen to. Multiple types can be specified comma-separated",
+               "required":true,
+               "defaultValue":""
+            }
+         ],
+         "outputs":[  
+            {  
+               "name":"customTriggerOutputEvent",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "label":"CustomTriggerOutput1 label",
+               "description":"Custom trigger output for the payload.",
+               "reference":"$event"
+            }
+         ]
+      }
+   ]
+}
