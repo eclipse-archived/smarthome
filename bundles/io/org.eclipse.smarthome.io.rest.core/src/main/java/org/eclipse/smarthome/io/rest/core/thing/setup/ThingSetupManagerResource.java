@@ -7,12 +7,6 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.setup;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +25,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -49,6 +43,12 @@ import org.eclipse.smarthome.io.rest.core.thing.EnrichedThingDTOMapper;
 import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * This class acts as a REST resource for the setup manager.
@@ -75,8 +75,9 @@ public class ThingSetupManagerResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean)
-            throws IOException {
+    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean,
+            @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels)
+                    throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -88,7 +89,7 @@ public class ThingSetupManagerResource implements RESTResource {
         Configuration configuration = ThingResource.getConfiguration(thingBean);
 
         thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label,
-                thingBean.item.groupNames);
+                thingBean.item.groupNames, enableChannels);
 
         return Response.ok().build();
     }
