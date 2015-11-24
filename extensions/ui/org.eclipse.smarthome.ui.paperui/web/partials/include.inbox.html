@@ -1,0 +1,29 @@
+<div class="fab-item"
+	ng-repeat="discoveryResult in data.discoveryResults | filter:filter | orderBy:flag"
+	ng-controller="InboxEntryController">
+	<md-button title="Add" class="md-fab md-icon-done green"
+		ng-click="approve(discoveryResult.thingUID, $event)" aria-label="Approve"></md-button>
+	<div class="item-content">
+		<h3>
+			{{thingTypes[getThingTypeUID(discoveryResult.thingUID)].label}} <small
+				ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+		</h3>
+		<p>{{discoveryResult.label}}</p>
+		<p>{{discoveryResult.thingUID}}</p>
+		<div class="actions">
+			<md-button ng-show="discoveryResult.flag === 'IGNORED'"
+				class="md-icon-visibility"
+				ng-click="unignore(discoveryResult.thingUID)" aria-label="Unignore"></md-button>
+			<md-button ng-show="discoveryResult.flag !== 'IGNORED'"
+				class="md-icon-visibility-off"
+				ng-click="ignore(discoveryResult.thingUID)" aria-label="Ignore"></md-button>
+			<md-button class="md-icon-delete"
+				ng-click="remove(discoveryResult.thingUID, $event)" aria-label="Delete"></md-button>
+		</div>
+	</div>
+	<hr class="border-line" ng-show="!$last" />
+</div>
+<p class="text-center">
+	<button class="md-button" ng-click="toggleShowIgnored()" aria-label="Toggle Show Ignored">{{showIgnored
+		? 'Hide Ignored' : 'Show Ignored'}}</button>
+</p>

@@ -17,6 +17,7 @@
 
   <modules>
     <module>iconset</module>
+    <module>org.eclipse.smarthome.ui.paperui</module>
   </modules>
 
 </project>
