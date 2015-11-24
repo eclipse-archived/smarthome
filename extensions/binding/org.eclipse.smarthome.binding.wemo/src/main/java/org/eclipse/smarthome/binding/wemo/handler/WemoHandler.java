@@ -18,6 +18,7 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIG
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_MOTION_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SOCKET_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SENSOR_TYPE_UID;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -60,8 +61,7 @@ public class WemoHandler extends BaseThingHandler {
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID,
-            WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID, WEMO_MOTION_TYPE_UID);
-
+            WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID, WEMO_MOTION_TYPE_UID, WEMO_SENSOR_TYPE_UID);
     private static String getInsightParamsXML;
     private static String getRequestXML;
     private static String setRequestXML;
