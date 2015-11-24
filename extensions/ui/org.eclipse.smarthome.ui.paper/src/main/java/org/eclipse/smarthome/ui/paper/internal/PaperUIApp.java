@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.ui.internal.servlet;
+package org.eclipse.smarthome.ui.paper.internal;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
