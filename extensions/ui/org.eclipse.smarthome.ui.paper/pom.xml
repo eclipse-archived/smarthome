@@ -12,11 +12,11 @@
 	</parent>
 
 	<properties>
-		<bundle.symbolicName>org.eclipse.smarthome.ui.paperui</bundle.symbolicName>
-		<bundle.namespace>org.eclipse.smarthome.ui.paperui</bundle.namespace>
+		<bundle.symbolicName>org.eclipse.smarthome.ui.paper</bundle.symbolicName>
+		<bundle.namespace>org.eclipse.smarthome.ui.paper</bundle.namespace>
 	</properties>
 
-	<artifactId>org.eclipse.smarthome.ui.paperui</artifactId>
+	<artifactId>org.eclipse.smarthome.ui.paper</artifactId>
 
 	<name>Eclipse SmartHome Paper UI</name>
 	<packaging>eclipse-plugin</packaging>
