@@ -13,7 +13,7 @@
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome</groupId>
+  <groupId>org.eclipse.smarthome.ui</groupId>
   <artifactId>org.eclipse.smarthome.ui</artifactId>
 
   <name>Eclipse SmartHome UI</name>
