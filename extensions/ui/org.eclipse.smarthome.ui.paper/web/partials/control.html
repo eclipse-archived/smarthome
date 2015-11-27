@@ -3,17 +3,18 @@
 		<md-button class="md-icon-refresh" ng-click="refresh()"
 			aria-label="Refresh"></md-button>
 	</div>
-
+    
+    <p class="text-center" ng-show="tabs.length == 0" style="margin-top: 20px;">
+        No groups defined yet.
+        <button class="md-button"
+            ng-click="$location.path('configuration/groups')">Add Group</button>
+    </p>
+    
 	<md-tabs md-stretch-tabs="always" class="section-tabs"
-		md-selected="selectedIndex"> <md-tab ng-repeat="tab in tabs"
+		md-selected="selectedIndex" ng-show="tabs.length > 0"> <md-tab ng-repeat="tab in tabs"
 		ng-disabled="tab.disabled" label="{{tab.label}}" layout-fill>
 	<md-tab-content layout-fill="">
 
-	<p class="text-center" ng-show="tabs.length == 0">
-		No groups defined yet.
-		<button class="md-button"
-			ng-click="$location.path('configuration/groups')">Add Group</button>
-	</p>
 	<p class="text-center"
 		ng-show="getItem(tabs[selectedIndex].name).members.length == 0">
 		Group is empty.

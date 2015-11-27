@@ -6,7 +6,7 @@
 	<md-tabs md-stretch-tabs="always" class="section-tabs"
 		md-selected="selectedIndex"> <md-tab
 		ng-repeat="extensionType in extensionTypes" ng-disabled="tab.disabled"
-		label="{{extensionTypeLabels[extensionType.typeId]}}" layout-fill>
+		label="{{extensionType.label}}" layout-fill>
 	<md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
 		<md-icon ng-style="{'font-size': '24px'}" class="md-icon-search"></md-icon>
