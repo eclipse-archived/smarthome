@@ -328,18 +328,26 @@ angular.module('PaperUI.controllers.configuration',
         });
     }
 	
-	$scope.enableChannel = function(thingUID, channelID) {
-		thingSetupService.enableChannel({channelUID: thingUID + ':' + channelID}, function() {
-			$scope.getThing(true);
-			toastService.showDefaultToast('Channel enabled');
-		});
+	$scope.enableChannel = function(thingUID, channelID, event) {
+	    if($scope.advancedMode) {
+	        $scope.linkChannel(channelID, event);
+	    } else {
+            thingSetupService.enableChannel({channelUID: thingUID + ':' + channelID}, function() {
+    		    $scope.getThing(true);
+    		    toastService.showDefaultToast('Channel enabled');
+    	    });
+	    }
 	};
 	
-	$scope.disableChannel = function(thingUID, channelID) {
-		thingSetupService.disableChannel({channelUID: thingUID + ':' + channelID}, function() {
-			$scope.getThing(true);
-			toastService.showDefaultToast('Channel disabled');
-		});
+	$scope.disableChannel = function(thingUID, channelID, event) {
+	    if($scope.advancedMode) {
+            $scope.unlinkChannel(channelID, event);
+        } else {
+    	    thingSetupService.disableChannel({channelUID: thingUID + ':' + channelID}, function() {
+    			$scope.getThing(true);
+    			toastService.showDefaultToast('Channel disabled');
+    		});
+        }
 	};
 	
 	$scope.linkChannel = function(channelID, event) {

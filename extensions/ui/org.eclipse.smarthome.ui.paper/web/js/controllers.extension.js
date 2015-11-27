@@ -1,27 +1,20 @@
 angular.module('PaperUI.controllers.extension', ['PaperUI.constants']).controller('ExtensionPageController', function($scope, 
-        extensionService, eventService, toastService) {
+        extensionService, bindingRepository, thingTypeRepository, eventService, toastService) {
 	$scope.navigateTo = function(path) {
 		$location.path('extensions/' + path);
     };
     $scope.extensionTypes = [];
-    $scope.extensionTypeLabels = {};
     $scope.refresh = function() {
-        extensionService.getAll(function(extensions) {
-            $scope.extensionTypes = [];
-        	angular.forEach(extensions, function(extension) {
-        	    var extensionType = $scope.getType(extension.type);
-        	    if(extensionType) {
-        	        extensionType.extensions.push(extension);
-        	    } else {
-        	        extensionType = {typeId: extension.type, extensions: [extension], inProgress: false};
-        	        $scope.extensionTypes.push(extensionType);
-        	    }
-        	});
-        });
         extensionService.getAllTypes(function(extensionTypes) {
-            $scope.extensionTypeLabels = {};
-            angular.forEach(extensionTypes, function(extensioType) {
-                $scope.extensionTypeLabels[extensioType.id] = extensioType.label;
+            $scope.extensionTypes = [];
+            angular.forEach(extensionTypes, function(extensionType) {
+                $scope.extensionTypes.push({typeId: extensionType.id, label: extensionType.label, extensions: [], inProgress: false});
+            });
+            extensionService.getAll(function(extensions) {
+                angular.forEach(extensions, function(extension) {
+                    var extensionType = $scope.getType(extension.type);
+                    extensionType.extensions.push(extension);
+                });
             });
         });
     }
@@ -51,11 +44,15 @@ angular.module('PaperUI.controllers.extension', ['PaperUI.constants']).controlle
         var extension = $scope.getExtension(extensionId);
         extension.inProgress = true;
         extensionService.install({id: extensionId});
+        bindingRepository.setDirty(true);
+        thingTypeRepository.setDirty(true);
     };
     $scope.uninstall = function(extensionId) {
         var extension = $scope.getExtension(extensionId);
         extension.inProgress = true;
         extensionService.uninstall({id: extensionId});
+        bindingRepository.setDirty(true);
+        thingTypeRepository.setDirty(true);
     };
     eventService.onEvent('smarthome/extensions/*', function(topic, extensionId) {
         var extension = $scope.getExtension(extensionId);
