@@ -12,7 +12,7 @@ angular.module('PaperUI', [
   'ngRoute',
   'ngResource',
   'ngMaterial'
-]).config(['$routeProvider', '$httpProvider', function($routeProvider) {
+]).config(['$routeProvider', '$httpProvider', 'globalConfig', function($routeProvider, httpProvider, globalConfig) {
   $routeProvider.
 	when('/control', {templateUrl: 'partials/control.html', controller: 'ControlPageController', title: 'Control', simpleHeader: true}).
 	when('/setup', {redirectTo: '/setup/search'}).
@@ -36,8 +36,12 @@ angular.module('PaperUI', [
 	when('/rules/new', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
 	when('/rules/view/:ruleUID', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
 	when('/rules/configure/:ruleUID', {templateUrl: 'partials/rules.html', controller: 'RulesPageController', title: 'Rules'}).
-	when('/preferences', {templateUrl: 'partials/preferences.html', controller: 'PreferencesPageController', title: 'Preferences'}).
-	otherwise({redirectTo: '/control'});
+	when('/preferences', {templateUrl: 'partials/preferences.html', controller: 'PreferencesPageController', title: 'Preferences'});
+    if(globalConfig.defaultRoute) {  
+        $routeProvider.otherwise({redirectTo: globalConfig.defaultRoute});
+    } else {
+        $routeProvider.otherwise({redirectTo: '/control'});
+    }
 }]).directive('editableitemstate', function(){
     return function($scope, $element) {
         $element.context.addEventListener('focusout', function(e){
