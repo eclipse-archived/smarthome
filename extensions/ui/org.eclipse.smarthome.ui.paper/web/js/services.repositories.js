@@ -28,7 +28,7 @@ var Repository = function($q, $rootScope, remoteService, dataType, staticData) {
                 return;
             }
         });
-		if(cacheEnabled && staticData && self.initialFetch && !refresh) {
+		if(cacheEnabled && staticData && self.initialFetch && !refresh && !self.dirty) {
 		    deferred.resolve($rootScope.data[dataType]);
 		} else {
     		remoteService.getAll(function(data) {

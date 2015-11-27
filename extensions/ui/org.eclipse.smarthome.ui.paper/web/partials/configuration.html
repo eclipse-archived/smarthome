@@ -1,4 +1,4 @@
-<section id="main" ng-controller="ConfigurationPageController">
+<section id="main">
 	<div class="bindings tab-panel content" ng-if="page === 'bindings'"
 		ng-controller="BindingController">
 		<div class="header-toolbar">
@@ -191,22 +191,14 @@
 					ng-repeat="channel in getChannels(false)">
 					<md-button ng-if="channel.linkedItems.length == 0"
 						class="md-fab md-icon-radio-button-off"
-						ng-click="enableChannel(thing.UID, channel.id)" aria-label="Off"></md-button>
+						ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"></md-button>
 					<md-button ng-if="channel.linkedItems.length > 0"
 						class="md-fab md-icon-radio-button-on"
-						ng-click="disableChannel(thing.UID, channel.id)" aria-label="On"></md-button>
+						ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"></md-button>
 					<div class="item-content">
 						<h3>{{getChannelTypeById(channel.id).label}}</h3>
 						<p>{{thing.UID + ':' + channel.id}}</p>
 						<p>{{getChannelTypeById(channel.id).description}}</p>
-						<div class="actions" ng-show="advancedMode">
-							<md-button ng-if="channel.linkedItems.length == 0"
-								class="md-raised md-icon-link"
-								ng-click="linkChannel(channel.id, $event)" aria-label="Link"></md-button>
-							<md-button ng-if="channel.linkedItems.length > 0"
-								class="md-raised md-icon-content-cut"
-								ng-click="unlinkChannel(channel.id)" aria-label="Unlink"></md-button>
-						</div>
 					</div>
 					<hr class="border-line" />
 				</div>
