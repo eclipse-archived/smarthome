@@ -357,7 +357,8 @@ angular.module('PaperUI.controllers.configuration',
             templateUrl : 'partials/dialog.linkchannel.html',
             targetEvent : event,
             hasBackdrop: true,
-            linkedItem: channel.linkedItems.length > 0 ? channel.linkedItems[0] : ''
+            linkedItem: channel.linkedItems.length > 0 ? channel.linkedItems[0] : '',
+            acceptedItemType: channel.itemType + 'Item'
         }).then(function(itemName) {
             linkService.link({itemName: itemName, channelUID: $scope.thing.UID + ':' + channelID}, function() {
                 $scope.getThing(true);
@@ -439,11 +440,12 @@ angular.module('PaperUI.controllers.configuration',
             $mdDialog.hide();
         });
     }
-}).controller('LinkChannelDialogController', function($scope, $mdDialog, toastService, itemRepository, linkedItem) {
+}).controller('LinkChannelDialogController', function($scope, $mdDialog, toastService, itemRepository, linkedItem, acceptedItemType) {
     itemRepository.getAll(function(items) {
         $scope.items = items;
     });
     $scope.itemName = linkedItem;
+    $scope.acceptedItemType = acceptedItemType;
     $scope.close = function() {
         $mdDialog.cancel();
     }
