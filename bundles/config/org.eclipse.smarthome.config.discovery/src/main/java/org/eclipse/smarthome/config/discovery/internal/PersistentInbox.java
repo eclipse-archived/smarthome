@@ -56,6 +56,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Added dynamic configuration updates
  * @author Dennis Nobel - Added persistence support
  * @author Andre Fuechsel - Added removeOlderResults
+ * @author Christoph Knauf - Added removeThingsForBridge
  *
  */
 public final class PersistentInbox implements Inbox, DiscoveryListener, ThingRegistryChangeListener {
@@ -206,12 +207,14 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
         if (thingUID != null) {
             DiscoveryResult discoveryResult = get(thingUID);
             if (discoveryResult != null) {
+                if (!isInRegistry(thingUID)) {
+                    removeResultsForBridge(thingUID);
+                }
                 this.discoveryResultStorage.remove(thingUID.toString());
                 notifyListeners(discoveryResult, EventType.removed);
                 return true;
             }
         }
-
         return false;
     }
 
@@ -328,7 +331,6 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 }
             }
         }
-
         return true;
     }
 
@@ -376,6 +378,33 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                 logger.error("Could not post event of type '" + eventType.name() + "'.", ex);
             }
         }
+    }
+
+    private boolean isInRegistry(ThingUID thingUID) {
+        if (thingRegistry.get(thingUID) == null) {
+            return false;
+        }
+        return true;
+    }
+
+    private void removeResultsForBridge(ThingUID bridgeUID) {
+        for (ThingUID thingUID : getResultsForBridge(bridgeUID)) {
+            DiscoveryResult discoveryResult = get(thingUID);
+            if (discoveryResult != null) {
+                this.discoveryResultStorage.remove(thingUID.toString());
+                notifyListeners(discoveryResult, EventType.removed);
+            }
+        }
+    }
+
+    private List<ThingUID> getResultsForBridge(ThingUID bridgeUID) {
+        List<ThingUID> thingsForBridge = new ArrayList<>();
+        for (DiscoveryResult result : discoveryResultStorage.getValues()) {
+            if (bridgeUID.equals(result.getBridgeUID())) {
+                thingsForBridge.add(result.getThingUID());
+            }
+        }
+        return thingsForBridge;
     }
 
     protected void activate(ComponentContext componentContext) {
