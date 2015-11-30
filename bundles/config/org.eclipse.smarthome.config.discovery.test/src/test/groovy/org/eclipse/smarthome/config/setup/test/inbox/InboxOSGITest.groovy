@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
@@ -23,6 +24,7 @@ import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
@@ -38,11 +40,19 @@ import com.google.common.collect.Sets
 class InboxOSGITest extends OSGiTest {
 
     def DEFAULT_TTL = 60
+    def BRIDGE_ID = new ThingUID("bindingId:bridge:bridgeId")
+    def BRIDGE = new DiscoveryResultImpl(BRIDGE_ID, null, null,"Bridge", "bridge", DEFAULT_TTL)
+    def THING1_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id1"), BRIDGE_ID, null,"Thing1", "thing1", DEFAULT_TTL)
+    def THING2_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id2"), BRIDGE_ID, null,"Thing2", "thing2", DEFAULT_TTL)
+    def THING_WITHOUT_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id3"), null, null,"Thing3", "thing3", DEFAULT_TTL)
+    def THING_WITH_OTHER_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id4"), new ThingUID("bindingId:thing:id5"),
+    null,"Thing4", "thing4", DEFAULT_TTL)
+
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
     ManagedThingProvider managedThingProvider
-
+    ThingRegistry registry
     Map<ThingUID, DiscoveryResult> discoveryResults = [:]
     List<InboxListener> inboxListeners = new ArrayList<>()
 
@@ -50,13 +60,13 @@ class InboxOSGITest extends OSGiTest {
     @Before
     void setUp() {
         registerVolatileStorageService()
-
         discoveryResults.clear()
         inboxListeners.clear()
 
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
         managedThingProvider = getService ManagedThingProvider
+        registry = getService ThingRegistry
     }
 
     @After
@@ -67,6 +77,7 @@ class InboxOSGITest extends OSGiTest {
         inboxListeners.each { inbox.removeInboxListener(it) }
         discoveryResults.clear()
         inboxListeners.clear()
+        registry.remove(BRIDGE_ID)
         managedThingProvider.all.each {
             managedThingProvider.remove(it.getUID())
         }
@@ -281,66 +292,35 @@ class InboxOSGITest extends OSGiTest {
         assertThat allDiscoveryResults.size(), is(4)
 
         List<DiscoveryResult> discoveryResults = inbox.get(null)
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult2,
-            discoveryResult3,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
 
         // Filter by nothing
         discoveryResults = inbox.get(new InboxFilterCriteria(null, null))
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult2,
-            discoveryResult3,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
 
         // Filter by thingType
         discoveryResults = inbox.get(new InboxFilterCriteria(thingTypeUID, null))
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult2,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult4], discoveryResults)
 
         // Filter by bindingId
         discoveryResults = inbox.get(new InboxFilterCriteria("dummyBindingId", null))
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult2,
-            discoveryResult3,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult2, discoveryResult3, discoveryResult4], discoveryResults)
 
         // Filter by DiscoveryResultFlag
         discoveryResults = inbox.get(new InboxFilterCriteria((String)null, DiscoveryResultFlag.NEW))
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult3,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult3, discoveryResult4], discoveryResults)
 
         // Filter by thingId
         discoveryResults = inbox.get(new InboxFilterCriteria(new ThingUID(thingTypeUID, "dummyThingId4"), null))
-        assertIncludesAll([
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult4], discoveryResults)
 
         // Filter by thingType and DiscoveryResultFlag
         discoveryResults = inbox.get(new InboxFilterCriteria(thingTypeUID, DiscoveryResultFlag.IGNORED))
-        assertIncludesAll([
-            discoveryResult2
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult2], discoveryResults)
 
         // Filter by bindingId and DiscoveryResultFlag
         discoveryResults = inbox.get(new InboxFilterCriteria("dummyBindingId", DiscoveryResultFlag.NEW))
-        assertIncludesAll([
-            discoveryResult1,
-            discoveryResult3,
-            discoveryResult4
-        ], discoveryResults)
+        assertIncludesAll([discoveryResult1, discoveryResult3, discoveryResult4], discoveryResults)
     }
 
     @Test
@@ -573,7 +553,7 @@ class InboxOSGITest extends OSGiTest {
             assertTrue actualList.contains(it)
         }
     }
-    
+
     @Test
     void 'assert that InboxEventSubscribers receive events about discovery result changes'() {
         def thingUID = new ThingUID("some:thing:uid")
@@ -603,5 +583,56 @@ class InboxOSGITest extends OSGiTest {
         removeDiscoveryResult(thingUID)
         waitForAssert {assertThat receivedEvent, not(null)}
         assertThat receivedEvent, is(instanceOf(InboxRemovedEvent))
+    }
+
+    @Test
+    void 'assert that remove removes associated DiscoveryResults from Inbox when Bridge is removed'() {
+        inbox.add(BRIDGE)
+        inbox.add(THING1_WITH_BRIDGE)
+        inbox.add(THING2_WITH_BRIDGE)
+        inbox.add(THING_WITHOUT_BRIDGE)
+        inbox.add(THING_WITH_OTHER_BRIDGE)
+        def receivedEvents = new ArrayList()
+        def inboxEventSubscriber = [
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: { Sets.newHashSet(InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService inboxEventSubscriber
+        assertTrue inbox.remove(BRIDGE.thingUID)
+        assertTrue inbox.get(new InboxFilterCriteria(BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+        assertTrue inbox.get(new InboxFilterCriteria(THING1_WITH_BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+        assertTrue inbox.get(new InboxFilterCriteria(THING2_WITH_BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+        assertThat inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)), hasItems(THING_WITHOUT_BRIDGE,THING_WITH_OTHER_BRIDGE)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(3)
+            receivedEvents.each{
+                assertThat it, is(instanceOf(InboxRemovedEvent))
+            }
+        }
+    }
+
+    @Test
+    void 'assert that remove leaves associated DiscoveryResults in Inbox when Bridge is added to ThingRegistry'() {
+        inbox.add(BRIDGE)
+        inbox.add(THING1_WITH_BRIDGE)
+        inbox.add(THING2_WITH_BRIDGE)
+        inbox.add(THING_WITHOUT_BRIDGE)
+        def receivedEvents = new ArrayList()
+        def inboxEventSubscriber = [
+            receive: { event -> receivedEvents.add(event) },
+            getSubscribedEventTypes: { Sets.newHashSet(InboxAddedEvent.TYPE, InboxRemovedEvent.TYPE, InboxUpdatedEvent.TYPE) },
+            getEventFilter: { null },
+        ] as EventSubscriber
+        registerService inboxEventSubscriber
+        registry.add(BridgeBuilder.create(BRIDGE.thingUID).build())
+        assertTrue inbox.get(new InboxFilterCriteria(BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
+        assertThat inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)), hasItems(THING1_WITH_BRIDGE,THING2_WITH_BRIDGE,THING_WITHOUT_BRIDGE)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(1)
+            receivedEvents.each{
+                assertThat it, is(instanceOf(InboxRemovedEvent))
+            }
+        }
     }
 }
