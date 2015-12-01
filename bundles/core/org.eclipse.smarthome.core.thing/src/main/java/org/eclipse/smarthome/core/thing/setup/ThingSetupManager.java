@@ -680,7 +680,7 @@ public class ThingSetupManager implements EventSubscriber {
     }
 
     private String getChannelGroupItemName(String itemName, String channelGroupId) {
-        return itemName + "_" + channelGroupId;
+        return itemName + "_" + toItemName(channelGroupId);
     }
 
     private ItemFactory getItemFactoryForItemType(String itemType) {
@@ -706,8 +706,12 @@ public class ThingSetupManager implements EventSubscriber {
         return null;
     }
 
-    private String toItemName(UID uid) {
-        String itemName = uid.getAsString().replaceAll("[^a-zA-Z0-9_]", "_");
+    private String toItemName(final UID uid) {
+        return toItemName(uid.getAsString());
+    }
+
+    private String toItemName(final String uid) {
+        String itemName = uid.replaceAll("[^a-zA-Z0-9_]", "_");
         return itemName;
     }
 
