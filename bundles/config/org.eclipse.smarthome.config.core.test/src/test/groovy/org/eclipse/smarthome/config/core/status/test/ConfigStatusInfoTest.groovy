@@ -16,6 +16,8 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage.Type
 import org.junit.Test
 
+import com.google.common.collect.ImmutableSet
+
 /**
  * Testing the {@link ConfigStatusInfo}.
  *
@@ -80,6 +82,18 @@ class ConfigStatusInfoTest {
         assertConfigStatusInfo(info)
     }
 
+    @Test(expected=NullPointerException)
+    void 'assert NPE is thrown if types are null'() {
+        ConfigStatusInfo info = new ConfigStatusInfo()
+        info.getConfigStatusMessages(null, new HashSet<>())
+    }
+
+    @Test(expected=NullPointerException)
+    void 'assert NPE is thrown if parameter names are null'() {
+        ConfigStatusInfo info = new ConfigStatusInfo()
+        info.getConfigStatusMessages(new HashSet<>(), null)
+    }
+
     private void assertConfigStatusInfo(ConfigStatusInfo info) {
         assertThat info.getConfigStatusMessages().size(), is(ALL.size())
         assertThat info.getConfigStatusMessages(), hasItems(MSG1, MSG2, MSG3, MSG4, MSG5, MSG6)
@@ -107,6 +121,11 @@ class ConfigStatusInfoTest {
 
         assertThat info.getConfigStatusMessages(PARAM3, PARAM4).size(), is(2)
         assertThat info.getConfigStatusMessages(PARAM3, PARAM4), hasItems(MSG3, MSG4)
+
+        assertThat info.getConfigStatusMessages(ImmutableSet.copyOf(Type.INFORMATION, Type.WARNING),
+                ImmutableSet.copyOf(PARAM1, PARAM6)).size(), is(5)
+        assertThat info.getConfigStatusMessages(ImmutableSet.copyOf(Type.INFORMATION, Type.WARNING),
+                ImmutableSet.copyOf(PARAM1, PARAM6)), hasItems(MSG1, MSG2, MSG3, MSG4, MSG6)
 
         assertThat info.getConfigStatusMessages("unknown").size(), is(0)
     }
