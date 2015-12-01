@@ -157,15 +157,15 @@ public class ConfigDescriptionParameter {
      *            can enter values other than those in the list
      * @param multipleLimit
      *            specifies the maximum number of options that can be selected
-     *            when multiple is true
+     *            when multiple is true (nullable)
      *
      * @throws IllegalArgumentException
      *             if the name is null or empty, or the type is null
      */
     public ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum,
-            BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
+            BigDecimal stepsize, String pattern, boolean required, boolean readOnly, boolean multiple, String context,
             String defaultValue, String label, String description, List<ParameterOption> options,
-            List<FilterCriteria> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
+            List<FilterCriteria> filterCriteria, String groupName, boolean advanced, boolean limitToOptions,
             Integer multipleLimit) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
@@ -258,7 +258,7 @@ public class ConfigDescriptionParameter {
     /**
      * @return true if the value is required, otherwise false.
      */
-    public Boolean isReadOnly() {
+    public boolean isReadOnly() {
         return readOnly;
     }
 
@@ -266,12 +266,12 @@ public class ConfigDescriptionParameter {
      * @return true if multiple selections of options are allowed, otherwise
      *         false.
      */
-    public Boolean isMultiple() {
+    public boolean isMultiple() {
         return multiple;
     }
 
     /**
-     * @return the maximum number of options that can be selected from the options list
+     * @return the maximum number of options that can be selected from the options list (could be null)
      */
     public Integer getMultipleLimit() {
         return multipleLimit;

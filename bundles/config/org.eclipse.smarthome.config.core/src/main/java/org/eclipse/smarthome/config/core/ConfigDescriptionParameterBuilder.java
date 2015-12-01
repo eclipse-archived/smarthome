@@ -108,7 +108,10 @@ public class ConfigDescriptionParameterBuilder {
      * @param readOnly
      */
     public ConfigDescriptionParameterBuilder withReadOnly(Boolean readOnly) {
-        this.readOnly = readOnly;
+        if (readOnly == null)
+            this.readOnly = false;
+        else
+            this.readOnly = readOnly;
         return this;
     }
 
@@ -118,7 +121,10 @@ public class ConfigDescriptionParameterBuilder {
      * @param multiple
      */
     public ConfigDescriptionParameterBuilder withMultiple(Boolean multiple) {
-        this.multiple = multiple;
+        if (multiple == null)
+            this.multiple = false;
+        else
+            this.multiple = multiple;
         return this;
     }
 
@@ -147,8 +153,11 @@ public class ConfigDescriptionParameterBuilder {
      *
      * @param required
      */
-    public ConfigDescriptionParameterBuilder withRequired(boolean required) {
-        this.required = required;
+    public ConfigDescriptionParameterBuilder withRequired(Boolean required) {
+        if (required == null)
+            this.required = false;
+        else
+            this.required = required;
         return this;
     }
 
@@ -198,7 +207,10 @@ public class ConfigDescriptionParameterBuilder {
      * @param options
      */
     public ConfigDescriptionParameterBuilder withAdvanced(Boolean advanced) {
-        this.advanced = advanced;
+        if (advanced == null)
+            this.advanced = false;
+        else
+            this.advanced = advanced;
         return this;
     }
 
@@ -208,7 +220,10 @@ public class ConfigDescriptionParameterBuilder {
      * @param options
      */
     public ConfigDescriptionParameterBuilder withLimitToOptions(Boolean limitToOptions) {
-        this.limitToOptions = limitToOptions;
+        if (limitToOptions == null)
+            this.limitToOptions = false;
+        else
+            this.limitToOptions = limitToOptions;
         return this;
     }
 
@@ -239,8 +254,8 @@ public class ConfigDescriptionParameterBuilder {
      */
     public ConfigDescriptionParameter build() throws IllegalArgumentException {
         return new ConfigDescriptionParameter(name, type, min, max, step, pattern, required, readOnly, multiple,
-                context, defaultValue, label, description, options, filterCriteria, groupName, advanced,
-                limitToOptions, multipleLimit);
+                context, defaultValue, label, description, options, filterCriteria, groupName, advanced, limitToOptions,
+                multipleLimit);
     }
 
 }
