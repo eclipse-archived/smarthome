@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiResponses;
  *
  */
 @Path(ConfigurableServiceResource.PATH_SERVICES)
-@Api
+@Api(value = ConfigurableServiceResource.PATH_SERVICES)
 public class ConfigurableServiceResource implements RESTResource {
 
     /** The URI path to this resource */

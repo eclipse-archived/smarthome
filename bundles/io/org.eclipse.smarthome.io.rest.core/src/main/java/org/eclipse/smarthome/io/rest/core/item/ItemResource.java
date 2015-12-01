@@ -7,11 +7,6 @@
  */
 package org.eclipse.smarthome.io.rest.core.item;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -57,6 +52,12 @@ import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * <p>
  * This class acts as a REST resource for items and provides different methods to interact with them, like retrieving
@@ -80,7 +81,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Path(ItemResource.PATH_ITEMS)
-@Api
+@Api(value = ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -132,8 +133,7 @@ public class ItemResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available items.", response = EnrichedItemDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getItems(
-            @QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
+    public Response getItems(@QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
             @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) String tags,
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
@@ -166,7 +166,8 @@ public class ItemResource implements RESTResource {
     @ApiOperation(value = "Gets a single item.", response = EnrichedItemDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found") })
-    public Response getItemData(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
+    public Response getItemData(
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         final Object responseObject = getItemDataBean(itemname);
@@ -178,9 +179,9 @@ public class ItemResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Updates the state of an item.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Item not found"), @ApiResponse(code = 400, message = "Item state null") })
-    public Response putItemState(
-            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+            @ApiResponse(code = 404, message = "Item not found"),
+            @ApiResponse(code = 400, message = "Item state null") })
+    public Response putItemState(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @ApiParam(value = "valid item state (e.g. ON, OFF)", required = true) String value) {
         Item item = getItem(itemname);
         if (item != null) {
@@ -286,8 +287,7 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item or member item not found or item is not of type group item."),
             @ApiResponse(code = 405, message = "Member item is not editable.") })
-    public Response removeMember(
-            @PathParam("itemName") @ApiParam(value = "item name", required = true) String itemName,
+    public Response removeMember(@PathParam("itemName") @ApiParam(value = "item name", required = true) String itemName,
             @PathParam("memberItemName") @ApiParam(value = "member item name", required = true) String memberItemName) {
         try {
             Item item = itemRegistry.getItem(itemName);
@@ -387,7 +387,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * Create or Update an item by supplying an item bean.
-     * 
+     *
      * @param itemname
      * @param item the item bean.
      * @return

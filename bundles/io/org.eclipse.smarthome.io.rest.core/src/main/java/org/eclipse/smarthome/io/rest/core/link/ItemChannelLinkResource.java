@@ -31,8 +31,6 @@ import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemThingLinkDTO;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 
@@ -48,14 +46,12 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Yordan Zhelev - Added Swagger annotations
  */
-@Path(ItemChannelLinkResource.PATH_LLINKS)
-@Api
+@Path(ItemChannelLinkResource.PATH_LINKS)
+@Api(value = ItemChannelLinkResource.PATH_LINKS)
 public class ItemChannelLinkResource implements RESTResource {
 
-    private final Logger logger = LoggerFactory.getLogger(ItemChannelLinkResource.class);
-
     /** The URI path to this resource */
-    public static final String PATH_LLINKS = "links";
+    public static final String PATH_LINKS = "links";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private ItemThingLinkRegistry itemThingLinkRegistry;

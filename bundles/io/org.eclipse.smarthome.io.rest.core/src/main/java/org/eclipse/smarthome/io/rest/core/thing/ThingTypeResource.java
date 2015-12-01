@@ -59,7 +59,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(ThingTypeResource.PATH_THINGS_TYPES)
-@Api
+@Api(value = ThingTypeResource.PATH_THINGS_TYPES)
 public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */

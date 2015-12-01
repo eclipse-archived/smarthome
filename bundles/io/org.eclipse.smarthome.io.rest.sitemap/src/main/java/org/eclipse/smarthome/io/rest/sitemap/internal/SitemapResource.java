@@ -75,7 +75,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(SitemapResource.PATH_SITEMAPS)
-@Api
+@Api(value = SitemapResource.PATH_SITEMAPS)
 public class SitemapResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapResource.class);
