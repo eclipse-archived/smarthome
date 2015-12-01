@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(BindingResource.PATH_BINDINGS)
-@Api
+@Api(value = BindingResource.PATH_BINDINGS)
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */

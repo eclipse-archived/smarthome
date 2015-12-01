@@ -53,7 +53,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(InboxResource.PATH_INBOX)
-@Api
+@Api(value = InboxResource.PATH_INBOX)
 public class InboxResource implements RESTResource {
 
     /** The URI path to this resource */
