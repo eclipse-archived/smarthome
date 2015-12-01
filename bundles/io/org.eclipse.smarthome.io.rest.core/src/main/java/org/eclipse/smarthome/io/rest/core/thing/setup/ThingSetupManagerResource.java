@@ -57,7 +57,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(ThingSetupManagerResource.PATH_SETUP)
-@Api
+@Api(value = ThingSetupManagerResource.PATH_SETUP, hidden = true)
 public class ThingSetupManagerResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingSetupManagerResource.class);
@@ -117,6 +117,7 @@ public class ThingSetupManagerResource implements RESTResource {
             String label = thingBean.item.label;
             List<String> groupNames = thingBean.item.groupNames;
 
+            @SuppressWarnings("deprecation")
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean labelChanged = false;
@@ -206,6 +207,7 @@ public class ThingSetupManagerResource implements RESTResource {
         Thing thing = thingSetupManager.getThing(new ThingUID(thingUID));
 
         if (thing != null) {
+            @SuppressWarnings("deprecation")
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean groupsChanged = setGroupNames(thingGroupItem, groupNames);

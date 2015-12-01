@@ -75,7 +75,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(ThingResource.PATH_THINGS)
-@Api
+@Api(value = ThingResource.PATH_THINGS)
 public class ThingResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingResource.class);

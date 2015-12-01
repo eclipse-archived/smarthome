@@ -7,12 +7,6 @@
  */
 package org.eclipse.smarthome.io.rest.sse;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,17 +31,25 @@ import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
 import org.glassfish.jersey.media.sse.SseFeature;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * SSE Resource for pushing events to currently listening clients.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
  * @author Yordan Zhelev - Added Swagger annotations
- * 
+ *
  */
-@Path("events")
+@Path(SseResource.PATH_EVENTS)
 @Singleton
-@Api
+@Api(value = SseResource.PATH_EVENTS, hidden = true)
 public class SseResource {
+
+    public final static String PATH_EVENTS = "events";
 
     private final SseBroadcaster broadcaster;
 
@@ -70,7 +72,7 @@ public class SseResource {
     /**
      * Subscribes the connecting client to the stream of events filtered by the
      * given eventFilter.
-     * 
+     *
      * @param eventFilter
      * @return {@link EventOutput} object associated with the incoming
      *         connection.
@@ -82,8 +84,8 @@ public class SseResource {
     @ApiOperation(value = "Get all events.", response = EventOutput.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 400, message = "Topic is empty or contains invalid characters") })
-    public Object getEvents(@QueryParam("topics") @ApiParam(value = "topics") String eventFilter) throws IOException,
-            InterruptedException {
+    public Object getEvents(@QueryParam("topics") @ApiParam(value = "topics") String eventFilter)
+            throws IOException, InterruptedException {
 
         if (!SseUtil.isValidTopicFilter(eventFilter)) {
             return Response.status(Status.BAD_REQUEST).build();
@@ -116,7 +118,7 @@ public class SseResource {
     /**
      * Broadcasts an event described by the given parameter to all currently
      * listening clients.
-     * 
+     *
      * @param sseEventType
      *            the SSE event type
      * @param event

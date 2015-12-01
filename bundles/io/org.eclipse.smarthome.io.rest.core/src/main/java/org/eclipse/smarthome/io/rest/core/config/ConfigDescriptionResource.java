@@ -42,7 +42,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  */
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
-@Api
+@Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 public class ConfigDescriptionResource implements RESTResource {
 
     /** The URI path to this resource */
