@@ -386,9 +386,32 @@ angular.module('PaperUI.controllers.configuration',
         if (!$scope.thingType) {
             return;
         }
-        return $.grep($scope.thingType.channels, function(channel, i) {
-            return channelId == channel.id;
-        })[0];
+        var cid_part = channelId.split('#', 2)
+        if (cid_part.length == 1) {
+            var c, c_i, c_l;
+            for (c_i = 0, c_l = $scope.thingType.channels.length; c_i < c_l; ++c_i) {
+                c = $scope.thingType.channels[c_i];
+                if (c.id == channelId) {
+                    return c;
+                }
+            }
+        } else if (cid_part.length == 2) {
+            var cg, cg_i, cg_l;
+            var c, c_i, c_l;
+            for (cg_i = 0, cg_l = $scope.thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
+                cg = $scope.thingType.channelGroups[cg_i];
+                if (cg.id == cid_part[0]) {
+                    for (c_i = 0, c_l = cg.length; cg_i < cg_l; ++cg_i) {
+                        c = cg.channels[c_i];
+                        if (c.id == cid_part[1]) {
+                            return c;
+                        }
+                    }
+                }
+            }
+        } else {
+            return;
+        }
     };
     
     $scope.getChannels = function(advanced) {
