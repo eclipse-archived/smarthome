@@ -16,56 +16,22 @@ The forum is used to discuss ideas and to answer general questions. It is organi
 
 * [Discussion Forum](http://eclipse.org/forums/eclipse.smarthome)
 
-## Bugtracker
+## Issue tracker
 
-Like all Eclipse projects, we use Eclipse Bugzilla as an issue tracking system.
+Like most Github hosted projects, we use Github Issues as an issue tracking system.
 
-* [Eclipse SmartHome Issues](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome)
+* [Eclipse SmartHome Issues](https://github.com/eclipse/smarthome/issues)
 
-If you have found a bug or if you would like to propose a new feature, please feel free to enter an issue. But before creating a new bug, please first check if the bug not already exists.
+If you have found a bug or if you would like to propose a new feature, please feel free to enter an issue. But before creating a new issue, please first check that it does not already exists.
 
 ### Issue Tracker Links
 
-* [Create a new Bug](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=SmartHome)
-* [All Issues](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome)
-* [Open Bugs](https://bugs.eclipse.org/bugs/buglist.cgi?bug_severity=blocker&bug_severity=critical&bug_severity=major&bug_severity=normal&bug_severity=minor&bug_severity=trivial&classification=IoT&list_id=11613387&product=SmartHome&query_format=advanced&resolution=---)
-* [Open Features](https://bugs.eclipse.org/bugs/buglist.cgi?bug_severity=enhancement&classification=IoT&list_id=11613436&product=SmartHome&query_format=advanced&resolution=---)
-* [New/Unconfirmed Issues](https://bugs.eclipse.org/bugs/buglist.cgi?bug_status=UNCONFIRMED&classification=IoT&list_id=11615992&product=SmartHome&query_format=advanced)
+* [Create a new Issue](https://github.com/eclipse/smarthome/issues/new)
+* [All Issues](https://github.com/eclipse/smarthome/issues?utf8=%E2%9C%93&q=is%3Aissue)
+* [Open Bugs](https://github.com/eclipse/smarthome/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+* [Open Features](https://github.com/eclipse/smarthome/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+label%3Aenhancement+)
+* [New/Unconfirmed Issues](https://github.com/eclipse/smarthome/issues?q=is%3Aopen+is%3Aissue+no%3Aassignee)
  
-### Issue Fields
-
-For each issue you need to provide the following fields:
-
-| Field       | Description |
-|-------------|-------------|
-| Summary     | Summary of the bug/feature
-| Description | Detailed description of the bug/feature
-| Component   | Affected component
-| Version     | For bugs choose affected version, for features use **unspecified** 
-| Severity    | Use the severity **enhancement** for feature requests and any other severity for bugs
-| Hardware/OS | Usually not relevant. Should be set to All/All.
-
-### Bug vs. Feature
-
-Yes, we know that it is a fundamental question, if something is considered as bug or feature. But you need to decide it when you create a bug. We consider something as a bug, if an already existing functionality is not working as expected. 
-
-Please use the severity **enhancement** for feature requests and any other severity for bugs.
-
-### Components
-
-When creating a new bug, please choose the affected component. The following components are defined:
-
-| Component      | Description |
-|----------------|-------------|
-| Automation	 | Bugs and Features related to Automation and Rule Engine
-| Binding	     | Bugs and features related to Bindings
-| Core	         | Bugs and Features related to the Core (Item API, Thing API, Config API)
-| Designer	     | Bugs and Features related to the Designer
-| DSL	         | Bugs and Features related to the Domain Specific Languages (Items, Things, Sitemaps, Rules)
-| Infrastructure | Bugs and Features related to the Infrastructure (Build server, Maven, Tooling)
-| REST/SSE	     | Bugs and Features related to the REST interface and SSE event mechanism
-| UI	         | Bugs and Features related to the User Interface (Classic UI, Charting, Servlets)
-
 # Code Contributions
 
 If you want to become a contributor to the project, please check our guidelines first:
