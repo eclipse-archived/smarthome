@@ -30,9 +30,9 @@ public class ConfigDescriptionParameterBuilder {
     private BigDecimal max;
     private BigDecimal step;
     private String pattern;
-    private boolean required;
-    private boolean readOnly;
-    private boolean multiple;
+    private Boolean required;
+    private Boolean readOnly;
+    private Boolean multiple;
     private Integer multipleLimit;
 
     private String context;
@@ -40,8 +40,8 @@ public class ConfigDescriptionParameterBuilder {
     private String label;
     private String description;
 
-    private boolean limitToOptions;
-    private boolean advanced;
+    private Boolean limitToOptions;
+    private Boolean advanced;
 
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
@@ -147,7 +147,7 @@ public class ConfigDescriptionParameterBuilder {
      *
      * @param required
      */
-    public ConfigDescriptionParameterBuilder withRequired(boolean required) {
+    public ConfigDescriptionParameterBuilder withRequired(Boolean required) {
         this.required = required;
         return this;
     }
