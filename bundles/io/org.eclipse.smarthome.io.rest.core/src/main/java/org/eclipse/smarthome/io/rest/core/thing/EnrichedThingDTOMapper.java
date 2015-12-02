@@ -14,6 +14,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedGroupItemDTO;
+import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 
 /**
@@ -34,9 +35,10 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
         GroupItem groupItem = thing.getLinkedItem();
-        EnrichedGroupItemDTO groupItemDTO = groupItem != null ? (EnrichedGroupItemDTO) EnrichedItemDTOMapper.map(
-                groupItem, true, uri) : null;
+        EnrichedItemDTO groupItemDTO = groupItem != null ? EnrichedItemDTOMapper.map(groupItem, true, uri) : null;
 
-        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), groupItemDTO);
+        String link = null != uri ? uri.toASCIIString() + ThingResource.PATH_THINGS + "/" + thingDTO.UID : null;
+
+        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), (EnrichedGroupItemDTO) groupItemDTO, link);
     }
 }

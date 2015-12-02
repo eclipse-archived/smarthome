@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Extension of the default OSGi bundle activator
@@ -17,26 +18,29 @@ import org.osgi.framework.BundleContext;
  */
 public class RESTCoreActivator implements BundleActivator {
 
-	private static BundleContext context;
+    private static BundleContext context;
+    private ServiceRegistration<JSONResponse.ExceptionMapper> mExcMapper;
 
     /**
      * Called whenever the OSGi framework starts our bundle
      */
-	@Override
-	public void start(BundleContext bc) throws Exception {
-		context = bc;
-	}
+    @Override
+    public void start(BundleContext bc) throws Exception {
+        context = bc;
+        mExcMapper = bc.registerService(JSONResponse.ExceptionMapper.class, new JSONResponse.ExceptionMapper(), null);
+    }
 
     /**
      * Called whenever the OSGi framework stops our bundle
      */
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		context = null;
-	}
-	
-	public static BundleContext getBundleContext() {
-		return context;
-	}
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        context = null;
+        mExcMapper.unregister();
+    }
+
+    public static BundleContext getBundleContext() {
+        return context;
+    }
 
 }
