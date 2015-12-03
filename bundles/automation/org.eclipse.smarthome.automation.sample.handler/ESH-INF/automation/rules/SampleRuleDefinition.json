@@ -43,17 +43,21 @@
             "sample",
             "rule"
         ],
-        "description":"Sample Rule definition2.",
+        "description":"Sample Rule definition2 with modules label and description.",
         "triggers":[
             {
                 "id":"CompositeSampleTriggerID",
-                "type":"CompositeSampleTrigger"
+                "type":"CompositeSampleTrigger",
+                "label":"CompositeSampleTrigger label",
+                "description":"CompositeSampleTrigger descr"
             }
         ],
         "conditions":[
             {
                 "id":"SampleConditionID2",
                 "type":"SampleCondition",
+                "label":"SampleCondition label",
+                "description":"SampleCondition descr",
                 "configuration":{
                     "operator":"!=",
                     "constraint":"dtag"
@@ -67,6 +71,8 @@
             {
                 "id":"SampleActionID2",
                 "type":"SampleAction",
+                "label":"SampleAction label",
+                "description":"SampleAction descr",
                 "configuration":{
                     "message":"<<< Hello World!!!"
                 }
