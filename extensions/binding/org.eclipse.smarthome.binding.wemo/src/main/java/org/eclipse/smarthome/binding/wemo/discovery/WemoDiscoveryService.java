@@ -156,8 +156,10 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
                 multicast.send(discoveryPacket);
             } finally {
                 logger.trace("Multicast ends. Close connection.");
-                multicast.disconnect();
-                multicast.close();
+                if (multicast != null) {
+                    multicast.disconnect();
+                    multicast.close();
+                }
             }
 
             // Response-Listener
