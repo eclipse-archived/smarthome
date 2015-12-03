@@ -10,12 +10,11 @@
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.core.thing.internal.ThingConfigDescriptionProvider">
    <implementation class="org.eclipse.smarthome.core.thing.internal.ThingConfigDescriptionProvider"/>
-   
+
    <service>
       <provide interface="org.eclipse.smarthome.config.core.ConfigDescriptionProvider"/>
    </service>
-   
-   <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
+
    <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
    <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
 </scr:component>
