@@ -34,7 +34,21 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.binding.yahooweather"
+         id="org.eclipse.smarthome.binding.lifx"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.binding.ntp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.binding.sonos"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -48,7 +62,7 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.binding.lifx"
+         id="org.eclipse.smarthome.binding.yahooweather"
          download-size="0"
          install-size="0"
          version="0.0.0"
