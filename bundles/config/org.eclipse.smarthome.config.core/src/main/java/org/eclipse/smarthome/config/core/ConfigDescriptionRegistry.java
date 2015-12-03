@@ -25,21 +25,32 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Dennis Nobel - Initial contribution, added locale support
  * @author Michael Grammling - Initial contribution
- * @author Chris Jackson - Added compatibility with multiple ConfigDescriptionProviders
+ * @author Chris Jackson - Added compatibility with multiple ConfigDescriptionProviders. Added Config OptionProvider.
  */
 public class ConfigDescriptionRegistry {
 
+    private final List<ConfigOptionProvider> configOptionProviders = new CopyOnWriteArrayList<>();
     private final List<ConfigDescriptionProvider> configDescriptionProviders = new CopyOnWriteArrayList<>();
 
-    protected void addConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
+    protected void addConfigOptionProvider(ConfigOptionProvider configOptionProvider) {
+        if (configOptionProvider != null) {
+            configOptionProviders.add(configOptionProvider);
+        }
+    }
 
+    protected void removeConfigOptionProvider(ConfigOptionProvider configOptionProvider) {
+        if (configOptionProvider != null) {
+            configOptionProviders.remove(configOptionProvider);
+        }
+    }
+
+    protected void addConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
         if (configDescriptionProvider != null) {
             configDescriptionProviders.add(configDescriptionProvider);
         }
     }
 
     protected void removeConfigDescriptionProvider(ConfigDescriptionProvider configDescriptionProvider) {
-
         if (configDescriptionProvider != null) {
             configDescriptionProviders.remove(configDescriptionProvider);
         }
@@ -61,15 +72,15 @@ public class ConfigDescriptionRegistry {
      *         description exists
      */
     public Collection<ConfigDescription> getConfigDescriptions(Locale locale) {
-        Map<URI, ConfigDescription> configMap = new HashMap<URI, ConfigDescription>(); 
-        
+        Map<URI, ConfigDescription> configMap = new HashMap<URI, ConfigDescription>();
+
         // Loop over all providers
         for (ConfigDescriptionProvider configDescriptionProvider : this.configDescriptionProviders) {
             // And for each provider, loop over all their config descriptions
-            for(ConfigDescription configDescription : configDescriptionProvider.getConfigDescriptions(locale)) {
+            for (ConfigDescription configDescription : configDescriptionProvider.getConfigDescriptions(locale)) {
                 // See if there already exists a configuration for this URI in the map
                 ConfigDescription configFromMap = configMap.get(configDescription.getURI());
-                if(configFromMap != null) {
+                if (configFromMap != null) {
                     // Yes - Merge the groups and parameters
                     List<ConfigDescriptionParameter> parameters = new ArrayList<ConfigDescriptionParameter>();
                     parameters.addAll(configFromMap.getParameters());
@@ -80,9 +91,9 @@ public class ConfigDescriptionRegistry {
                     parameterGroups.addAll(configDescription.getParameterGroups());
 
                     // And add the combined configuration to the map
-                    configMap.put(configDescription.getURI(), new ConfigDescription(configDescription.getURI(), parameters, parameterGroups));
-                }
-                else {
+                    configMap.put(configDescription.getURI(),
+                            new ConfigDescription(configDescription.getURI(), parameters, parameterGroups));
+                } else {
                     // No - Just add the new configuration to the map
                     configMap.put(configDescription.getURI(), configDescription);
                 }
@@ -94,7 +105,7 @@ public class ConfigDescriptionRegistry {
         for (ConfigDescription configDescription : configMap.values()) {
             configDescriptions.add(configDescription);
         }
-        
+
         return Collections.unmodifiableCollection(configDescriptions);
     }
 
@@ -144,8 +155,14 @@ public class ConfigDescriptionRegistry {
         }
 
         if (found) {
+            List<ConfigDescriptionParameter> parametersWithOptions = new ArrayList<ConfigDescriptionParameter>(
+                    parameters.size());
+            for (ConfigDescriptionParameter parameter : parameters) {
+                parametersWithOptions.add(getConfigOptions(uri, parameter, locale));
+            }
+
             // Return the new configuration description
-            return new ConfigDescription(uri, parameters, parameterGroups);
+            return new ConfigDescription(uri, parametersWithOptions, parameterGroups);
         } else {
             // Otherwise null
             return null;
@@ -165,4 +182,54 @@ public class ConfigDescriptionRegistry {
         return getConfigDescription(uri, null);
     }
 
+    /**
+     * Updates the config parameter options for a given URI and parameter
+     * <p>
+     * If more than one {@link ConfigOptionProvider} is registered for the requested URI, then the returned
+     * {@link ConfigDescriptionParameter} will contain the data from all providers.
+     * <p>
+     * No checking is performed to ensure that multiple providers don't provide the same options. It is up to
+     * the binding to ensure that multiple sources (eg static XML and dynamic binding data) do not contain overlapping
+     * information.
+     *
+     * @param uri
+     *            the URI to which the options to be returned (must not be null)
+     * @param parameter
+     *            the parameter requiring options to be updated
+     * @param locale
+     *            locale
+     * @return config description
+     */
+    private ConfigDescriptionParameter getConfigOptions(URI uri, ConfigDescriptionParameter parameter, Locale locale) {
+        List<ParameterOption> options = new ArrayList<ParameterOption>();
+
+        // Add all the existing options that may be provided by the initial config description provider
+        options.addAll(parameter.getOptions());
+
+        boolean found = false;
+        for (ConfigOptionProvider configOptionProvider : this.configOptionProviders) {
+            Collection<ParameterOption> newOptions = configOptionProvider.getParameterOptions(uri, parameter.getName(),
+                    locale);
+
+            if (newOptions != null) {
+                found = true;
+
+                // Simply merge the options
+                options.addAll(newOptions);
+            }
+        }
+
+        if (found) {
+            // Return the new parameter
+            return new ConfigDescriptionParameter(parameter.getName(), parameter.getType(), parameter.getMinimum(),
+                    parameter.getMaximum(), parameter.getStepSize(), parameter.getPattern(), parameter.isRequired(),
+                    parameter.isReadOnly(), parameter.isMultiple(), parameter.getContext(), parameter.getDefault(),
+                    parameter.getLabel(), parameter.getDescription(), options, parameter.getFilterCriteria(),
+                    parameter.getGroupName(), parameter.isAdvanced(), parameter.getLimitToOptions(),
+                    parameter.getMultipleLimit());
+        } else {
+            // Otherwise return the original parameter
+            return parameter;
+        }
+    }
 }
