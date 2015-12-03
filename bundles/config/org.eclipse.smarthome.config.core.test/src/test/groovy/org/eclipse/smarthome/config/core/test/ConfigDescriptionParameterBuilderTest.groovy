@@ -10,9 +10,7 @@ package org.eclipse.smarthome.config.core.test
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.regex.Pattern;
 
