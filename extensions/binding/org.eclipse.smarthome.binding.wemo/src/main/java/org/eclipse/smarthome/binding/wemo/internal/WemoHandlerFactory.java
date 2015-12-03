@@ -32,7 +32,6 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
 
     private Logger logger = LoggerFactory.getLogger(WemoHandlerFactory.class);
 
-
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WemoHandler.SUPPORTED_THING_TYPES);
 
     @Override
@@ -46,13 +45,12 @@ public class WemoHandlerFactory extends BaseThingHandlerFactory {
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (WemoHandler.SUPPORTED_THING_TYPES.contains(thingTypeUID)) {
-            logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(), thing
-                    .getConfiguration().get(UDN));
+            logger.debug("Creating a WemoHandler for thing '{}' with UDN '{}'", thing.getUID(),
+                    thing.getConfiguration().get(UDN));
             return new WemoHandler(thing);
         }
 
         return null;
     }
-
 
 }
