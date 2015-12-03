@@ -4,7 +4,13 @@ Bundle-Vendor: openHAB.org
 Bundle-Version: 0.8.0.qualifier
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.eclipse.smarthome.config.core,
+Import-Package: com.google.gson,
+ com.google.gson.annotations,
+ com.google.gson.internal,
+ com.google.gson.internal.bind,
+ com.google.gson.reflect,
+ com.google.gson.stream,
+ org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
  org.osgi.framework,
  org.osgi.service.cm,
@@ -16,4 +22,3 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/mapdb-1.0.2.jar
 Service-Component: OSGI-INF/*.xml
-Require-Bundle: com.google.gson;bundle-version="2.2.4"
