@@ -1,8 +1,8 @@
-<div class="row" ng-init="parameterMap = {}">
+<div class="row">
 	<div ng-show="!expertMode">
 		<div ng-repeat="parameter in parameters">
-			<div class="parameter col-sm-6 col-xs-12">
-				<div ng-if="parameter.element === 'input'">
+			<div class="parameter col-sm-6 col-xs-12" ng-switch="parameter.element">
+				<div ng-switch-when="input">
 					<md-input-container> <label>{{parameter.label}}</label>
 					<input ng-model="configuration[parameter.name]"
 						ng-required="parameter.required" type="{{parameter.inputType}}">
@@ -11,17 +11,16 @@
 					</p>
 					</md-input-container>
 				</div>
-				<div ng-if="parameter.element === 'switch'">
+				<div ng-switch-when="switch">
 					<md-switch ng-model="configuration[parameter.name]"
 						aria-label="parameter.label">{{parameter.label}}</md-switch>
 					<p class="hint">
 						<small>{{parameter.description}}</small>
 					</p>
 				</div>
-				<div ng-if="parameter.element === 'select'">
+				<div ng-switch-when="select">
 					<md-select ng-model="configuration[parameter.name]"
-						placeholder="Select
-                a value"> <md-option
+						placeholder="Select a value"> <md-option
 						ng-value="option.value" ng-repeat="option in parameter.options">{{
 					option.label }}</md-option> </md-select>
 					<p class="hint">
