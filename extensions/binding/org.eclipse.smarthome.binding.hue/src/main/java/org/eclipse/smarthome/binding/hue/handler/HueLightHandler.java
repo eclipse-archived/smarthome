@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.hue.handler;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.core.library.types.HSBType;
@@ -26,10 +27,6 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Sets;
 
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
@@ -87,8 +84,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (fullLight != null) {
                     updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
                     // Check for Osram PAR16 50 TW bulb
-                    String thingUID = HueBindingConstants.THING_TYPE_PAR16_50_TW.getId();
-                    if (thingUID.equals("PAR16_50_TW")) {
+                    String thingTypeId = HueBindingConstants.THING_TYPE_PAR16_50_TW.getId();
+                    if (thingTypeId.equals("PAR16_50_TW")) {
                         isOsramPar16 = true;
                     }
                 }
@@ -138,9 +135,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     lightState = LightStateConverter.toColorTemperatureLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
                     lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    /*
-                     * Call OSRAM PAR16 50 workaround code if bulb is of that type
-                     */
+                    // Call OSRAM PAR16 50 workaround code if bulb is of that type
                     if (isOsramPar16) {
                         lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
                     }
@@ -153,9 +148,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
                     lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    /*
-                     * Call OSRAM PAR16 50 workaround code if bulb is of that type
-                     */
+                    // Call OSRAM PAR16 50 workaround code if bulb is of that type
                     if (isOsramPar16) {
                         lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
                     }

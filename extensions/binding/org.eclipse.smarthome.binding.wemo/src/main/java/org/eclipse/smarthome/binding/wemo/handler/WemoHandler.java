@@ -18,6 +18,7 @@ import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_INSIG
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_LIGHTSWITCH_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_MOTION_TYPE_UID;
 import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SOCKET_TYPE_UID;
+import static org.eclipse.smarthome.binding.wemo.WemoBindingConstants.WEMO_SENSOR_TYPE_UID;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -52,7 +53,7 @@ import com.google.common.collect.Sets;
  *
  * @author Hans-Jörg Merk - Initial contribution; Added support for WeMo Insight energy measurement
  * @author Kai Kreuzer - some refactoring for performance and simplification
- * @author Stefan Bußweiler - Added new thing status handling 
+ * @author Stefan Bußweiler - Added new thing status handling
  */
 
 public class WemoHandler extends BaseThingHandler {
@@ -60,8 +61,7 @@ public class WemoHandler extends BaseThingHandler {
     private final Logger logger = LoggerFactory.getLogger(WemoHandler.class);
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(WEMO_SOCKET_TYPE_UID,
-            WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID, WEMO_MOTION_TYPE_UID);
-
+            WEMO_INSIGHT_TYPE_UID, WEMO_LIGHTSWITCH_TYPE_UID, WEMO_MOTION_TYPE_UID, WEMO_SENSOR_TYPE_UID);
     private static String getInsightParamsXML;
     private static String getRequestXML;
     private static String setRequestXML;
@@ -124,8 +124,8 @@ public class WemoHandler extends BaseThingHandler {
 
                     if (getThing().getThingTypeUID().getId().equals("insight")) {
                         String insightParams = getInsightParams(new ChannelUID(getThing().getUID(), CHANNEL_STATE));
-                        logger.debug("New insightParams '{}' for device '{}' received", insightParams, getThing()
-                                .getUID());
+                        logger.debug("New insightParams '{}' for device '{}' received", insightParams,
+                                getThing().getUID());
 
                         if (insightParams != null) {
 
@@ -208,8 +208,6 @@ public class WemoHandler extends BaseThingHandler {
         }
     }
 
- 
-
     /**
      * The {@link wemoCall} is responsible for communicating with the WeMo devices by sending SOAP messages
      * sent to one of the channels.
@@ -217,9 +215,9 @@ public class WemoHandler extends BaseThingHandler {
      */
     private String wemoCall(ChannelUID channelUID, String soapMethod, String content) {
 
-    	try {
+        try {
 
-    		Configuration configuration = getConfig();
+            Configuration configuration = getConfig();
             String wemoLocation = (String) configuration.get(LOCATION);
 
             String endpoint = "/upnp/control/basicevent1";
@@ -228,30 +226,29 @@ public class WemoHandler extends BaseThingHandler {
                 endpoint = "/upnp/control/insight1";
             }
 
-                if (wemoLocation != null && endpoint != null) {
-                    logger.debug("item '{}' is located at '{}'", getThing().getUID(), wemoLocation);
-                    URL url = new URL(wemoLocation + endpoint);
-                    try (Socket wemoSocket = new Socket()) {
-                        wemoSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 2000);
-                        OutputStream wemoOutputStream = wemoSocket.getOutputStream();
-                        StringBuffer wemoStringBuffer = new StringBuffer();
-                        wemoStringBuffer.append("POST " + url + " HTTP/1.1\r\n");
-                        wemoStringBuffer.append("Content-Type: text/xml; charset=utf-8\r\n");
-                        wemoStringBuffer.append("Content-Length: " + content.getBytes().length + "\r\n");
-                        wemoStringBuffer.append("SOAPACTION: \"" + soapMethod + "\"\r\n");
-                        wemoStringBuffer.append("\r\n");
-                        wemoOutputStream.write(wemoStringBuffer.toString().getBytes());
-                        wemoOutputStream.write(content.getBytes());
-                        wemoOutputStream.flush();
-                        String wemoCallResponse = IOUtils.toString(wemoSocket.getInputStream());
-                        updateStatus(ThingStatus.ONLINE);
-                        return wemoCallResponse;
-                    } catch (Exception e) {
-                        logger.debug("Could not send request to WeMo device '{}': {}", getThing().getUID(),
-                                e.getMessage());
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
-                    }
-                    return null;
+            if (wemoLocation != null && endpoint != null) {
+                logger.debug("item '{}' is located at '{}'", getThing().getUID(), wemoLocation);
+                URL url = new URL(wemoLocation + endpoint);
+                try (Socket wemoSocket = new Socket()) {
+                    wemoSocket.connect(new InetSocketAddress(url.getHost(), url.getPort()), 2000);
+                    OutputStream wemoOutputStream = wemoSocket.getOutputStream();
+                    StringBuffer wemoStringBuffer = new StringBuffer();
+                    wemoStringBuffer.append("POST " + url + " HTTP/1.1\r\n");
+                    wemoStringBuffer.append("Content-Type: text/xml; charset=utf-8\r\n");
+                    wemoStringBuffer.append("Content-Length: " + content.getBytes().length + "\r\n");
+                    wemoStringBuffer.append("SOAPACTION: \"" + soapMethod + "\"\r\n");
+                    wemoStringBuffer.append("\r\n");
+                    wemoOutputStream.write(wemoStringBuffer.toString().getBytes());
+                    wemoOutputStream.write(content.getBytes());
+                    wemoOutputStream.flush();
+                    String wemoCallResponse = IOUtils.toString(wemoSocket.getInputStream());
+                    updateStatus(ThingStatus.ONLINE);
+                    return wemoCallResponse;
+                } catch (Exception e) {
+                    logger.debug("Could not send request to WeMo device '{}': {}", getThing().getUID(), e.getMessage());
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
+                }
+                return null;
             } else {
                 updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR);
                 return null;
@@ -300,8 +297,8 @@ public class WemoHandler extends BaseThingHandler {
 
                 returnInsightParams = StringUtils.substringBetween(insightParamsRequest, "<InsightParams>",
                         "</InsightParams>");
-                logger.debug("New raw InsightParams '{}' for device '{}' received", returnInsightParams, getThing()
-                        .getUID());
+                logger.debug("New raw InsightParams '{}' for device '{}' received", returnInsightParams,
+                        getThing().getUID());
                 return returnInsightParams;
             }
         } catch (Exception e) {

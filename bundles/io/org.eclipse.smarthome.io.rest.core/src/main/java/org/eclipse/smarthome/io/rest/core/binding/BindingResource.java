@@ -7,30 +7,42 @@
  */
 package org.eclipse.smarthome.io.rest.core.binding;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
+import java.io.IOException;
+import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
 import org.eclipse.smarthome.core.binding.dto.BindingInfoDTO;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.config.ConfigurationService;
+import org.eclipse.smarthome.io.rest.core.service.ConfigurableServiceResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * This class acts as a REST resource for bindings and is registered with the
@@ -41,11 +53,15 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(BindingResource.PATH_BINDINGS)
-@Api
+@Api(value = BindingResource.PATH_BINDINGS)
 public class BindingResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_BINDINGS = "bindings";
+
+    private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
+
+    private ConfigurationService configurationService;
 
     private BindingInfoRegistry bindingInfoRegistry;
 
@@ -68,22 +84,93 @@ public class BindingResource implements RESTResource {
         Locale locale = LocaleUtil.getLocale(language);
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
-        Set<BindingInfoDTO> bindingInfoBeans = convertToListBean(bindingInfos, locale);
+        Set<BindingInfoDTO> bindingInfoBeans = map(bindingInfos, locale);
 
         return Response.ok(bindingInfoBeans).build();
     }
 
-    private BindingInfoDTO convertToBindingBean(BindingInfo bindingInfo, Locale locale) {
-        return new BindingInfoDTO(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
-                bindingInfo.getDescription());
+    @GET
+    @Path("/{bindingId}/config")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Get binding configuration for given binding ID.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Binding does not exist or config not found"),
+            @ApiResponse(code = 500, message = "Configuration can not be read due to internal error") })
+    public Response getConfiguration(
+            @PathParam("bindingId") @ApiParam(value = "service ID", required = true) String bindingId) {
+        try {
+            String configId = getConfigId(bindingId);
+            if (configId == null) {
+                logger.warn("Cannot get config id for binding id '{}', probably because binding does not exist.",
+                        bindingId);
+                return Response.status(404).build();
+            }
+            Configuration configuration = configurationService.get(configId);
+            return configuration != null ? Response.ok(configuration.getProperties()).build()
+                    : Response.status(404).build();
+        } catch (IOException ex) {
+            logger.error("Cannot get configuration for service {}: " + ex.getMessage(), bindingId, ex);
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-    private Set<BindingInfoDTO> convertToListBean(Set<BindingInfo> bindingInfos, Locale locale) {
+    @PUT
+    @Path("/{bindingId}/config")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces({ MediaType.APPLICATION_JSON })
+    @ApiOperation(value = "Updates a binding configuration for given binding ID and returns the old configuration.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "No old configuration"),
+            @ApiResponse(code = 404, message = "Binding does not exist"),
+            @ApiResponse(code = 500, message = "Configuration can not be updated due to internal error") })
+    public Response updateConfiguration(
+            @PathParam("bindingId") @ApiParam(value = "service ID", required = true) String bindingId,
+            Map<String, Object> configuration) {
+        try {
+            String configId = getConfigId(bindingId);
+            if (configId == null) {
+                logger.warn("Cannot get config id for binding id '{}', probably because binding does not exist.",
+                        bindingId);
+                return Response.status(404).build();
+            }
+            Configuration oldConfiguration = configurationService.get(configId);
+            configurationService.update(configId, new Configuration(configuration));
+            return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
+                    : Response.noContent().build();
+        } catch (IOException ex) {
+            logger.error("Cannot update configuration for service {}: " + ex.getMessage(), bindingId, ex);
+            return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private String getConfigId(String bindingId) {
+        BindingInfo bindingInfo = this.bindingInfoRegistry.getBindingInfo(bindingId);
+        if (bindingInfo != null) {
+            return bindingInfo.getServiceId();
+        } else {
+            return null;
+        }
+    }
+
+    private BindingInfoDTO map(BindingInfo bindingInfo, Locale locale) {
+        URI configDescriptionURI = bindingInfo.getConfigDescriptionURI();
+        return new BindingInfoDTO(bindingInfo.getId(), bindingInfo.getName(), bindingInfo.getAuthor(),
+                bindingInfo.getDescription(), configDescriptionURI != null ? configDescriptionURI.toString() : null);
+    }
+
+    private Set<BindingInfoDTO> map(Set<BindingInfo> bindingInfos, Locale locale) {
         Set<BindingInfoDTO> bindingInfoBeans = new LinkedHashSet<>();
         for (BindingInfo bindingInfo : bindingInfos) {
-            bindingInfoBeans.add(convertToBindingBean(bindingInfo, locale));
+            bindingInfoBeans.add(map(bindingInfo, locale));
         }
         return bindingInfoBeans;
     }
 
+    protected void setConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
+
+    protected void unsetConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = null;
+    }
 }

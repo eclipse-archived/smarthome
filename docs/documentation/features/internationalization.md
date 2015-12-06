@@ -153,7 +153,7 @@ bindingName = Yahoo Wetter Binding
 
 ## I18n Text Provider API
 
-To programmatically resolve texts for certain languages Eclipse SmartHome provides the OSGi service `I18nProvider`. The service parses every file inside the `ESH-INF/i18n` folder and caches all texts. A localized text can be retrieved via the method `getText(Bundle bundle, String key, String default, Locale locale)`, where bundle must be the reference to the bundle, in which the file is stored. The BundleContext from the Activator provides a method to get the bundle.
+To programmatically resolve texts for certain languages Eclipse SmartHome provides the OSGi service `I18nProvider`. The service parses every file inside the `ESH-INF/i18n` folder and caches all texts. A localized text can be retrieved via the method `getText(Bundle bundle, String key, String default, Locale locale)` (or via the method `getText(Bundle bundle, String key, String default, Locale locale, Object... arguments)` if additional arguments are to be injected into the localized text), where bundle must be the reference to the bundle, in which the file is stored. The BundleContext from the Activator provides a method to get the bundle.
 
 ```java
 String text = i18nProvider.getText(bundleContext.getBundle(), "my.key", "DefaultValue", Locale.GERMAN);

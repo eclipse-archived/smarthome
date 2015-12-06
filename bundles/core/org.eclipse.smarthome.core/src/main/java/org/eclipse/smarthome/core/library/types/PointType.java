@@ -22,6 +22,7 @@ import org.eclipse.smarthome.core.types.State;
  * location awareness functionality.
  *
  * @author Gaël L'hopital
+ * @author John Cocula
  *
  */
 public class PointType implements ComplexType, Command, State {
@@ -41,15 +42,16 @@ public class PointType implements ComplexType, Command, State {
     private static final BigDecimal circle = new BigDecimal(360);
     private static final BigDecimal flat = new BigDecimal(180);
     private static final BigDecimal right = new BigDecimal(90);
-    
+
     /**
      * Default constructor creates a point at sea level where the equator
-     * (0° latitude) and the prime meridian (0° longitude) intersect. 
+     * (0° latitude) and the prime meridian (0° longitude) intersect.
      * A nullary constructor is needed by
      * {@link org.eclipse.smarthome.core.internal.items.ItemUpdater#receiveUpdate})
      */
-    public PointType() {}
-    
+    public PointType() {
+    }
+
     public PointType(DecimalType latitude, DecimalType longitude) {
         canonicalize(latitude, longitude);
     }
@@ -64,19 +66,29 @@ public class PointType implements ComplexType, Command, State {
     }
 
     public PointType(StringType latitude, StringType longitude, StringType altitude) {
-        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()), new DecimalType(
-                altitude.toString()));
+        this(new DecimalType(latitude.toString()), new DecimalType(longitude.toString()),
+                new DecimalType(altitude.toString()));
     }
 
     public PointType(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Constructor argument must not be null");
+        }
         if (!value.isEmpty()) {
             String[] elements = value.split(",");
             if (elements.length >= 2) {
                 canonicalize(new DecimalType(elements[0]), new DecimalType(elements[1]));
                 if (elements.length == 3) {
                     setAltitude(new DecimalType(elements[2]));
+                } else if (elements.length > 3) {
+                    throw new IllegalArgumentException(value
+                            + " is not a valid PointType syntax. The syntax must not consist of more than 3 elements.");
                 }
+            } else {
+                throw new IllegalArgumentException(value + " is not a valid PointType syntax");
             }
+        } else {
+            throw new IllegalArgumentException("Constructor argument must not be blank");
         }
     }
 
@@ -107,6 +119,24 @@ public class PointType implements ComplexType, Command, State {
     }
 
     /**
+     * Return the distance in meters from otherPoint, ignoring altitude. This algorithm also
+     * ignores the oblate spheroid shape of Earth and assumes a perfect sphere, so results
+     * are inexact.
+     *
+     * @param otherPoint
+     * @return distance in meters
+     * @see <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine formula</a>
+     */
+    public DecimalType distanceFrom(PointType otherPoint) {
+        double dLat = Math.toRadians(otherPoint.latitude.doubleValue() - this.latitude.doubleValue());
+        double dLong = Math.toRadians(otherPoint.longitude.doubleValue() - this.longitude.doubleValue());
+        double a = Math.pow(Math.sin(dLat / 2D), 2D) + Math.cos(Math.toRadians(this.latitude.doubleValue()))
+                * Math.cos(Math.toRadians(otherPoint.latitude.doubleValue())) * Math.pow(Math.sin(dLong / 2D), 2D);
+        double c = 2D * Math.atan2(Math.sqrt(a), Math.sqrt(1D - a));
+        return new DecimalType(WGS84_a * c);
+    }
+
+    /**
      * <p>
      * Formats the value of this type according to a pattern (@see {@link Formatter}). One single value of this type can
      * be referenced by the pattern using an index. The item order is defined by the natural (alphabetical) order of
@@ -133,7 +163,8 @@ public class PointType implements ComplexType, Command, State {
         if (!altitude.equals(BigDecimal.ZERO)) {
             sb.append(',');
             sb.append(altitude.toPlainString());
-        };
+        }
+
         return sb.toString();
     }
 
@@ -173,6 +204,39 @@ public class PointType implements ComplexType, Command, State {
             longitude = longitude.add(circle);
         longitude = longitude.subtract(flat);
 
+    }
+
+    @Override
+    public int hashCode() {
+        int tmp = 10000 * (getLatitude() == null ? 0 : getLatitude().hashCode());
+        tmp += 100 * (getLongitude() == null ? 0 : getLongitude().hashCode());
+        tmp += (getAltitude() == null ? 0 : getAltitude().hashCode());
+        return tmp;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof PointType))
+            return false;
+        PointType other = (PointType) obj;
+        if ((getLatitude() != null && other.getLatitude() == null)
+                || (getLatitude() == null && other.getLatitude() != null)
+                || (getLongitude() != null && other.getLongitude() == null)
+                || (getLongitude() == null && other.getLongitude() != null)
+                || (getAltitude() != null && other.getAltitude() == null)
+                || (getAltitude() == null && other.getAltitude() != null)) {
+            return false;
+        }
+        if (!getLatitude().equals(other.getLatitude())
+                || !getLongitude().equals(other.getLongitude())
+                || !getAltitude().equals(other.getAltitude())) {
+            return false;
+        }
+        return true;
     }
 
 }

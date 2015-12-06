@@ -23,6 +23,8 @@ import java.util.List;
  *         attributes
  * @author Chris Jackson - Added groupId, limitToOptions, advanced,
  *         multipleLimit attributes
+ * @author Christoph Knauf - Added default constructor, changed Boolean
+ *         getter to return primitive types
  */
 public class ConfigDescriptionParameter {
 
@@ -67,9 +69,9 @@ public class ConfigDescriptionParameter {
     private BigDecimal max;
     private BigDecimal step;
     private String pattern;
-    private boolean required;
-    private boolean readOnly;
-    private boolean multiple;
+    private boolean required = false;
+    private boolean readOnly = false;
+    private boolean multiple = false;
     private Integer multipleLimit;
 
     private String context;
@@ -80,8 +82,15 @@ public class ConfigDescriptionParameter {
     private List<ParameterOption> options = new ArrayList<ParameterOption>();
     private List<FilterCriteria> filterCriteria = new ArrayList<FilterCriteria>();
 
-    private boolean limitToOptions;
-    private boolean advanced;
+    private boolean limitToOptions = false;
+    private boolean advanced = false;
+
+    /**
+     * Default constructor.
+     * 
+     */
+    public ConfigDescriptionParameter() {
+    }
 
     /**
      * Creates a new instance of this class with the specified parameters.
@@ -183,28 +192,38 @@ public class ConfigDescriptionParameter {
         this.max = maximum;
         this.step = stepsize;
         this.pattern = pattern;
-        this.readOnly = readOnly;
-        this.multiple = multiple;
-        this.advanced = advanced;
-
         this.context = context;
-        this.required = required;
         this.defaultValue = defaultValue;
         this.label = label;
         this.description = description;
-
-        if (options != null)
-            this.options = Collections.unmodifiableList(options);
-        else
-            this.options = Collections.unmodifiableList(new LinkedList<ParameterOption>());
-
-        this.limitToOptions = limitToOptions;
         this.multipleLimit = multipleLimit;
 
-        if (filterCriteria != null)
+        if (readOnly != null) {
+            this.readOnly = readOnly;
+        }
+        if (multiple != null) {
+            this.multiple = multiple;
+        }
+        if (advanced != null) {
+            this.advanced = advanced;
+        }
+        if (required != null) {
+            this.required = required;
+        }
+        if (limitToOptions != null) {
+            this.limitToOptions = limitToOptions;
+        }
+
+        if (options != null) {
+            this.options = Collections.unmodifiableList(options);
+        } else {
+            this.options = Collections.unmodifiableList(new LinkedList<ParameterOption>());
+        }
+        if (filterCriteria != null) {
             this.filterCriteria = Collections.unmodifiableList(filterCriteria);
-        else
+        } else {
             this.filterCriteria = Collections.unmodifiableList(new LinkedList<FilterCriteria>());
+        }
     }
 
     /**

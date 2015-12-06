@@ -18,7 +18,6 @@
   <modules>
     <module>org.eclipse.smarthome.ui</module>
     <module>org.eclipse.smarthome.ui.test</module>
-    <module>org.eclipse.smarthome.ui.classic</module>
     <module>org.eclipse.smarthome.ui.icon</module>
     <module>org.eclipse.smarthome.ui.icon.test</module>
   </modules>

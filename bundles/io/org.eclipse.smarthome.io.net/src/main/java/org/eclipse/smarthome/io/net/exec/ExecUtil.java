@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Some common methods to execute commands on command line.
  *
- * @author Pauli Anttila
+ * @author Pauli Anttila - Initial contribution
+ * @author Kai Kreuzer - added exception logging
  */
 public class ExecUtil {
 
@@ -41,7 +42,7 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @see http://www.peterfriese.de/running-applescript-from-java/
@@ -72,7 +73,7 @@ public class ExecUtil {
      * <p>
      * A possible {@link IOException} gets logged but no further processing is done.
      * </p>
-     * 
+     *
      * @param commandLine
      *            the command line to execute
      * @param timeout
@@ -123,8 +124,11 @@ public class ExecUtil {
             resultHandler.waitFor();
             int exitCode = resultHandler.getExitValue();
             retval = StringUtils.chomp(stdout.toString());
-            logger.debug("exit code '{}', result '{}'", exitCode, retval);
-
+            if (resultHandler.getException() != null) {
+                logger.warn(resultHandler.getException().getMessage());
+            } else {
+                logger.debug("exit code '{}', result '{}'", exitCode, retval);
+            }
         } catch (InterruptedException e) {
             logger.error("Timeout occured when executing commandLine '" + commandLine + "'", e);
         }

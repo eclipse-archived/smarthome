@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<!--
+
+    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<html lang="en" ng-app="PaperUI">
+<head>
+
+<meta charset="utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<title>Paper UI</title>
+
+<link type="text/css"
+	href="bower_components/bootstrap/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link type="text/css"
+	href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"
+	rel="stylesheet">
+<link type="text/css"
+	href="bower_components/angular-material/angular-material.min.css"
+	rel="stylesheet">
+
+<!-- custom css files -->
+<link type="text/css" href="css/components.css" rel="stylesheet">
+<link type="text/css" href="css/layout.css" rel="stylesheet">
+<link type="text/css" href="css/views.css" rel="stylesheet">
+<link type="text/css" href="css/theme.css" rel="stylesheet">
+
+<!-- Icons/Fonts -->
+<link type="text/css" href="fonts/md-icons/md-icons.css"
+	rel="stylesheet" media="all">
+<link type="text/css"
+	href="bower_components/roboto-fontface/css/roboto-fontface.css"
+	rel="stylesheet" media="all">
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+
+</head>
+
+<body ng-controller="BodyController">
+	<div id="authentication" data-access-token="{{ACCESS_TOKEN}}"></div>
+	<div ng-include="'partials/include.extension.html'"></div>
+	<nav class="menu slide-menu-left" ng-controller="NavController">
+		<div class="top clickable" ng-click="navigateToRoot()">
+			<img id="logo" alt="Eclipse SmartHome Logo" src="img/logo.png" />
+			<h1 class="title">SmartHome</h1>
+		</div>
+		<ul>
+			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}"><a href="#control"><span
+					class="icon md-icon-dashboard"></span> Control</a></li>
+			<li ng-class="{active: isActive('setup')}"><a
+				href="#setup/wizard" class="clickable"><span
+					class="icon md-icon-add-circle-outline"></span> Setup Wizard <span
+					ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span></a>
+			</li>
+			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}"><a
+				ng-click="open('configuration')" class="clickable"><span
+					class="icon md-icon-settings"></span> Configuration</a>
+				<ul ng-show="isActive('configuration')">
+					<li ng-class="{active: isSubActive('bindings')}"><a
+						href="#configuration/bindings">Bindings</a></li>
+					<li ng-class="{active: isSubActive('services')}"><a
+                        href="#configuration/services">Services</a></li>
+					<li ng-class="{active: isSubActive('groups')}"><a
+						href="#configuration/groups">Groups</a></li>
+					<li ng-class="{active: isSubActive('things')}"><a
+						href="#configuration/things">Things</a></li>
+				</ul></li>
+			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}"><a
+                href="#extensions"><span class="icon md-icon-extension"></span>
+                    Extensions</a></li>
+            <li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}"><a
+                href="#rules"><span class="icon md-icon-movie-creation"></span>
+                    Rules</a></li>
+			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}"><a
+				href="#preferences"><span class="icon md-icon-brightness-medium"></span>
+					Preferences</a></li>
+		</ul>
+		<div class="bottom">
+			<span>Paper UI</span>
+		</div>
+	</nav>
+
+	<div id="wrapper">
+		<header>
+			<a href="#" class="open-menu">&#x2261;</a>
+			<div class="title">
+				<h1>
+					{{title}} <span ng-repeat="subtitle in subtitles" class="subtitle"><span
+						class="chevron md-icon-chevron-right"></span> {{subtitle}}</span>
+				</h1>
+			</div>
+		</header>
+
+		<ng-view autoscroll="true"></ng-view>
+
+		<footer> </footer>
+	</div>
+
+	<!-- lib js files -->
+
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-route/angular-route.min.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="bower_components/angular-animate/angular-animate.min.js"></script>
+	<script src="bower_components/angular-aria/angular-aria.min.js"></script>
+	<script src="bower_components/angular-material/angular-material.min.js"></script>
+
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+	<!-- TODO: Create custom variant to save space -->
+	<script src="bower_components/tinycolor/tinycolor.js"></script>
+	<script src="bower_components/masonry/dist/masonry.pkgd.min.js"></script>
+
+	<!-- TODO: Use angularized version? -->
+	<script src="bower_components/sprintf/dist/sprintf.min.js"></script>
+
+	<!-- custom js files -->
+	<script src="js/app.js"></script>
+	<script src="js/constants.js"></script>
+	<script src="js/services.js"></script>
+	<script src="js/services.rest.js"></script>
+	<script src="js/services.repositories.js"></script>
+	<script src="js/controllers.js"></script>
+	<script src="js/controllers.control.js"></script>
+	<script src="js/controllers.setup.js"></script>
+	<script src="js/controllers.configuration.js"></script>
+	<script src="js/controllers.extension.js"></script>
+	<script src="js/controllers.rules.js"></script>
+	<script src="js/extensions.js"></script>
+	<script src="js/main.js"></script>
+</body>
+</html>

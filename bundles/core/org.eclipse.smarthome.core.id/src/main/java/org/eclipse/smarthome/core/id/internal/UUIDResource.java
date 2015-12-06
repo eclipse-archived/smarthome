@@ -7,11 +7,6 @@
  */
 package org.eclipse.smarthome.core.id.internal;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -21,13 +16,18 @@ import javax.ws.rs.core.Response;
 import org.eclipse.smarthome.core.id.InstanceUUID;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This class acts as a REST resource for accessing the UUID of the instance
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
 @Path(UUIDResource.PATH_UUID)
-@Api
+@Api(value = UUIDResource.PATH_UUID)
 public class UUIDResource implements RESTResource {
 
     public static final String PATH_UUID = "uuid";

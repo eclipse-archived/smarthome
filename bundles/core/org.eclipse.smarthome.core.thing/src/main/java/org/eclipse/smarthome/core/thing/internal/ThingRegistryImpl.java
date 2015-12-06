@@ -15,6 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -61,6 +63,16 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implemen
             if (thing.getUID().equals(uid)) {
                 return thing;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public Channel getChannel(ChannelUID channelUID) {
+        ThingUID thingUID = channelUID.getThingUID();
+        Thing thing = get(thingUID);
+        if (thing != null) {
+            return thing.getChannel(channelUID.getId());
         }
         return null;
     }

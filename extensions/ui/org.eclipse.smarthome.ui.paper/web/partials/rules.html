@@ -1,0 +1,128 @@
+<section id="main" class="white-bg">
+	<div class="rules white-bg" ng-if="!page"
+		ng-controller="RulesController">
+		<div class="header-toolbar">
+			<md-button class="md-icon-refresh" ng-click="refresh()"
+				aria-label="Refresh"></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button class="md-fab md-icon-add" ng-click="navigateTo('new')"
+						aria-label="Add"></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<p class="text-center" ng-show="data.rules.length == 0">
+				No rules defined yet.
+				<button class="md-button" ng-click="navigateTo('new')">New
+					Rule</button>
+			</p>
+			<div class="groups">
+				<div class="clickable" ng-repeat="rule in data.rules"
+					ng-click="navigateTo('view/' + rule.uid)">
+					<div class="rule fab-item text-left">
+						<div class="circle">{{rule.name.substring(0,1)}}</div>
+						<div class="item-content">
+							<h3>{{rule.name}}</h3>
+							<p>{{rule.uid}}</p>
+							<div class="actions">
+								<md-button class="md-raised md-icon-settings"
+									ng-click="configure(rule, $event)" aria-label="Configure"></md-button>
+								<md-button class="md-raised md-icon-delete"
+									ng-click="remove(rule, $event)" aria-label="Remove"></md-button>
+							</div>
+						</div>
+						<hr class="border-line" ng-show="!$last" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="rules white-bg" ng-if="page === 'view'"
+		ng-controller="ViewRuleController">
+		<div class="header-toolbar">
+			<md-button class="md-icon-close" ng-click="navigateTo('')"
+				aria-label="Refresh"></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button class="md-fab md-icon-chevron-left"
+						ng-click="navigateTo('')" aria-label="Back"></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<pre>{{rule | json}}</pre>
+		</div>
+	</div>
+	<div class="rules white-bg" ng-if="page === 'new'"
+		ng-controller="NewRuleController">
+		<div class="header-toolbar">
+			<md-button class="md-icon-close" ng-click="navigateTo('')"
+				aria-label="Refresh"></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button title="Save" ng-click="save()"
+						class="md-fab md-icon-check" aria-label="Save"></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<md-input-container> <label>Name</label> <input
+					ng-model="name" /> </md-input-container>
+
+				<div class="modules row">
+					<div class="col-md-4 col-xs-12">
+						<div class="card">
+							<h2>Trigger</h2>
+							<md-input-container> <label>Item</label> <md-select
+								ng-model="item"> <md-option
+								ng-repeat="item in data.items" value="{{item.name}}">
+							{{item.name}} </md-option> </md-select> </md-input-container>
+						</div>
+					</div>
+					<div class="col-md-4 col-xs-12">
+						<div class="card">
+							<h2>Condition</h2>
+							<md-input-container> <label>State</label> <input
+								ng-model="state" /> </md-input-container>
+						</div>
+					</div>
+					<div class="col-md-4 col-xs-12">
+						<div class="card">
+							<h2>Action</h2>
+							<md-input-container> <label>Script</label> <textarea
+								class="mono" name="script" ng-model="script"></textarea> </md-input-container>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div class="rules white-bg" ng-if="page === 'configure'"
+		ng-controller="RuleConfigureController">
+		<div class="header-toolbar">
+			<md-button class="md-icon-close" ng-click="navigateTo('')"
+				aria-label="Refresh"></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button title="Save" ng-click="save()"
+						class="md-fab md-icon-check" aria-label="Save"></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<md-input-container> <label>Script</label> <textarea
+				class="mono" name="script" ng-model="script"></textarea> </md-input-container>
+		</div>
+	</div>
+</section>

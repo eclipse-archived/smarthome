@@ -7,12 +7,6 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.setup;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +25,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -50,6 +44,12 @@ import org.eclipse.smarthome.io.rest.core.thing.ThingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This class acts as a REST resource for the setup manager.
  *
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(ThingSetupManagerResource.PATH_SETUP)
-@Api
+@Api(value = ThingSetupManagerResource.PATH_SETUP, hidden = true)
 public class ThingSetupManagerResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ThingSetupManagerResource.class);
@@ -75,8 +75,9 @@ public class ThingSetupManagerResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean)
-            throws IOException {
+    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean,
+            @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels)
+                    throws IOException {
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -88,7 +89,7 @@ public class ThingSetupManagerResource implements RESTResource {
         Configuration configuration = ThingResource.getConfiguration(thingBean);
 
         thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label,
-                thingBean.item.groupNames);
+                thingBean.item.groupNames, enableChannels);
 
         return Response.ok().build();
     }
@@ -116,6 +117,7 @@ public class ThingSetupManagerResource implements RESTResource {
             String label = thingBean.item.label;
             List<String> groupNames = thingBean.item.groupNames;
 
+            @SuppressWarnings("deprecation")
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean labelChanged = false;
@@ -205,6 +207,7 @@ public class ThingSetupManagerResource implements RESTResource {
         Thing thing = thingSetupManager.getThing(new ThingUID(thingUID));
 
         if (thing != null) {
+            @SuppressWarnings("deprecation")
             GroupItem thingGroupItem = thing.getLinkedItem();
             if (thingGroupItem != null) {
                 boolean groupsChanged = setGroupNames(thingGroupItem, groupNames);

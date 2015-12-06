@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-Name: Eclipse SmartHome Paper UI
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.8.0.qualifier
+Bundle-ManifestVersion: 2
+Bundle-License: http://www.eclipse.org/legal/epl-v10.html
+Import-Package: org.osgi.service.component,
+ org.osgi.service.http,
+ org.slf4j
+Bundle-SymbolicName: org.eclipse.smarthome.ui.paper;singleton:=true
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Service-Component: OSGI-INF/*
+Bundle-ClassPath: patch/,.

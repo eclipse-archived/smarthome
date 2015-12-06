@@ -13,6 +13,7 @@ import java.util.Collections;
 
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage.Type;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -87,6 +88,29 @@ public final class ConfigStatusInfo {
     }
 
     /**
+     * Retrieves all configuration status messages that have one of the given parameter names or types.
+     *
+     * @param types the types to be filtered for (must not be null)
+     * @param parameterNames the parameter names to be filtered for (must not be null)
+     *
+     * @return an unmodifiable collection of the corresponding configuration status messages
+     *
+     * @throws NullPointerException if one of types or parameter names collection is empty
+     */
+    public Collection<ConfigStatusMessage> getConfigStatusMessages(final Collection<Type> types,
+            final Collection<String> parameterNames) {
+        Preconditions.checkNotNull(types);
+        Preconditions.checkNotNull(parameterNames);
+        return filterConfigStatusMessages(getConfigStatusMessages(), new Predicate<ConfigStatusMessage>() {
+            @Override
+            public boolean apply(ConfigStatusMessage configStatusMessage) {
+                return types.contains(configStatusMessage.type)
+                        || parameterNames.contains(configStatusMessage.parameterName);
+            }
+        });
+    }
+
+    /**
      * Adds the given {@link ConfigStatusMessage}.
      *
      * @param configStatusMessage the configuration status message to be added
@@ -120,7 +144,12 @@ public final class ConfigStatusInfo {
         if (filter.isEmpty()) {
             return getConfigStatusMessages();
         }
-        return Collections.unmodifiableCollection(Collections2.filter(getConfigStatusMessages(), predicate));
+        return filterConfigStatusMessages(getConfigStatusMessages(), predicate);
+    }
+
+    private static Collection<ConfigStatusMessage> filterConfigStatusMessages(
+            Collection<ConfigStatusMessage> configStatusMessages, Predicate<ConfigStatusMessage> predicate) {
+        return Collections.unmodifiableCollection(Collections2.filter(configStatusMessages, predicate));
     }
 
     /*

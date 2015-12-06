@@ -266,7 +266,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			if (addedChannelIds.add(id)) {
 			    val channelType = TypeResolver.resolve(it.channelTypeUID)
 			    if(channelType != null) {
-				    channels += ChannelBuilder.create(new ChannelUID(thingUID, id), channelType.itemType).build
+				    channels += ChannelBuilder.create(new ChannelUID(thingUID, id), channelType.itemType).withType(it.channelTypeUID).build
 				} else {
 				    logger.warn(
                         "Could not create channel '{}' for thing '{}', because channel type '{}' could not be found.",

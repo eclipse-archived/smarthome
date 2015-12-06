@@ -8,12 +8,9 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.smarthome.ui.chart">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" modified="modified" name="org.eclipse.smarthome.ui.chart">
    <implementation class="org.eclipse.smarthome.ui.internal.chart.ChartServlet"/>
    
-   <service>
-      <provide interface="org.osgi.service.cm.ManagedService"/>
-   </service>
    <property name="service.pid" type="String" value="org.eclipse.smarthome.chart"/>
    
    <reference bind="setItemUIRegistry" cardinality="1..1" interface="org.eclipse.smarthome.ui.items.ItemUIRegistry" name="ItemUIRegistry" policy="dynamic" unbind="unsetItemUIRegistry"/>

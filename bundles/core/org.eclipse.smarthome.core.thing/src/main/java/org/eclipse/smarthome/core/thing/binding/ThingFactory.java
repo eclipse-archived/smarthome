@@ -110,15 +110,17 @@ public class ThingFactory {
 
         if (configDescriptionRegistry != null) {
             // Set default values to thing-configuration
-            ConfigDescription thingConfigDescription = configDescriptionRegistry
-                    .getConfigDescription(thingType.getConfigDescriptionURI());
-            if (thingConfigDescription != null) {
-                for (ConfigDescriptionParameter parameter : thingConfigDescription.getParameters()) {
-                    String defaultValue = parameter.getDefault();
-                    if (defaultValue != null && configuration.get(parameter.getName()) == null) {
-                        Object value = getDefaultValueAsCorrectType(parameter.getType(), defaultValue);
-                        if (value != null) {
-                            configuration.put(parameter.getName(), value);
+            if (thingType.hasConfigDescriptionURI()) {
+                ConfigDescription thingConfigDescription = configDescriptionRegistry
+                        .getConfigDescription(thingType.getConfigDescriptionURI());
+                if (thingConfigDescription != null) {
+                    for (ConfigDescriptionParameter parameter : thingConfigDescription.getParameters()) {
+                        String defaultValue = parameter.getDefault();
+                        if (defaultValue != null && configuration.get(parameter.getName()) == null) {
+                            Object value = getDefaultValueAsCorrectType(parameter.getType(), defaultValue);
+                            if (value != null) {
+                                configuration.put(parameter.getName(), value);
+                            }
                         }
                     }
                 }
@@ -197,7 +199,7 @@ public class ThingFactory {
 
         ChannelBuilder channelBuilder = ChannelBuilder
                 .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
-                .withDefaultTags(type.getTags());
+                .withType(type.getUID()).withDefaultTags(type.getTags());
 
         // If we want to override the label, add it...
         if (channelDefinition.getLabel() != null) {

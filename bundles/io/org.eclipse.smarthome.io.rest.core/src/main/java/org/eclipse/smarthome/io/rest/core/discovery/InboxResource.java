@@ -7,23 +7,20 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,6 +38,12 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 /**
  * This class acts as a REST resource for the inbox and is registered with the
  * Jersey servlet.
@@ -50,7 +53,7 @@ import org.eclipse.smarthome.io.rest.RESTResource;
  * @author Yordan Zhelev - Added Swagger annotations
  */
 @Path(InboxResource.PATH_INBOX)
-@Api
+@Api(value = InboxResource.PATH_INBOX)
 public class InboxResource implements RESTResource {
 
     /** The URI path to this resource */
@@ -85,7 +88,8 @@ public class InboxResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Thing not found in the inbox.") })
     public Response approve(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
-            @ApiParam(value = "thing label") String label) {
+            @ApiParam(value = "thing label") String label,
+            @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
         if (results.isEmpty()) {
@@ -94,7 +98,7 @@ public class InboxResource implements RESTResource {
         DiscoveryResult result = results.get(0);
         Configuration conf = new Configuration(result.getProperties());
         thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(),
-                label != null && !label.isEmpty() ? label : null);
+                label != null && !label.isEmpty() ? label : null, new ArrayList<String>(), enableChannels);
         return Response.ok().build();
     }
 

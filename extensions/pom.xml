@@ -8,7 +8,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.smarthome.extensions</groupId>
+  <groupId>org.eclipse.smarthome.extension</groupId>
   <artifactId>pom</artifactId>
 
   <name>Eclipse SmartHome Extensions</name>
