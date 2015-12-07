@@ -42,7 +42,9 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLink;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
@@ -67,6 +69,7 @@ public class ThingSetupManager implements EventSubscriber {
     public static final String TAG_HOME_GROUP = "home-group";
     public static final String TAG_THING = "thing";
 
+    private ChannelTypeRegistry channelTypeRegistry;
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
     private ItemRegistry itemRegistry;
@@ -538,6 +541,10 @@ public class ThingSetupManager implements EventSubscriber {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
+    protected void setChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = channelTypeRegistry;
+    }
+
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
@@ -556,6 +563,10 @@ public class ThingSetupManager implements EventSubscriber {
 
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = thingTypeRegistry;
+    }
+
+    protected void unsetChannelTypeRegistry(ChannelTypeRegistry channelTypeRegistry) {
+        this.channelTypeRegistry = null;
     }
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
@@ -614,10 +625,13 @@ public class ThingSetupManager implements EventSubscriber {
         if (thingType != null) {
             List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                GroupItem channelGroupItem = new GroupItem(
+                final ChannelGroupType channelGroupType = channelTypeRegistry
+                        .getChannelGroupType(channelGroupDefinition.getTypeUID());
+                final GroupItem channelGroupItem = new GroupItem(
                         getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
                 channelGroupItem.addTag(TAG_CHANNEL_GROUP);
                 channelGroupItem.addGroupName(itemName);
+                channelGroupItem.setLabel(channelGroupType.getLabel());
                 addItemSafely(channelGroupItem);
             }
         }
