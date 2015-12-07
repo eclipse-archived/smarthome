@@ -16,4 +16,6 @@
    </service>
    <reference bind="setInbox" cardinality="1..1" interface="org.eclipse.smarthome.config.discovery.inbox.Inbox" name="Inbox" policy="static" unbind="unsetInbox"/>
    <reference bind="setThingSetupManager" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.setup.ThingSetupManager" name="ThingSetupManager" policy="static" unbind="unsetThingSetupManager"/>
+   <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
 </scr:component>

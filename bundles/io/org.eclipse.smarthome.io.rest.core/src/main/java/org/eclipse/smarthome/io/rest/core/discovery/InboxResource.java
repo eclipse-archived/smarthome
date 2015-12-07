@@ -7,9 +7,13 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
@@ -27,6 +31,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
@@ -34,8 +41,11 @@ import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
@@ -60,6 +70,8 @@ public class InboxResource implements RESTResource {
     public static final String PATH_INBOX = "inbox";
 
     private ThingSetupManager thingSetupManager;
+    private ThingTypeRegistry thingTypeRegistry;
+    private ConfigDescriptionRegistry configDescRegistry;
     private Inbox inbox;
 
     protected void setInbox(Inbox inbox) {
@@ -68,6 +80,22 @@ public class InboxResource implements RESTResource {
 
     protected void unsetInbox(Inbox inbox) {
         this.inbox = null;
+    }
+
+    protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = thingTypeRegistry;
+    }
+
+    protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = null;
+    }
+
+    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = configDescriptionRegistry;
+    }
+
+    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = null;
     }
 
     protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
@@ -96,9 +124,20 @@ public class InboxResource implements RESTResource {
             return Response.status(Status.NOT_FOUND).build();
         }
         DiscoveryResult result = results.get(0);
-        Configuration conf = new Configuration(result.getProperties());
-        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(),
-                label != null && !label.isEmpty() ? label : null, new ArrayList<String>(), enableChannels);
+        Map<String, Object> discoveryProperties = result.getProperties();
+        Set<String> configDescParamNames = getConfigurationDescParamNames(result.getThingTypeUID());
+        Configuration config = new Configuration();
+        Map<String, String> properties = new HashMap<>();
+        for (String key : discoveryProperties.keySet()) {
+            Object value = discoveryProperties.get(key);
+            if (configDescParamNames.contains(key)) {
+                config.put(key, value);
+            } else {
+                properties.put(key, String.valueOf(value));
+            }
+        }
+        thingSetupManager.addThing(result.getThingUID(), config, result.getBridgeUID(),
+                label != null && !label.isEmpty() ? label : null, new ArrayList<String>(), enableChannels, properties);
         return Response.ok().build();
     }
 
@@ -150,6 +189,21 @@ public class InboxResource implements RESTResource {
             discoveryResultBeans.add(DiscoveryResultDTOMapper.map(discoveryResult));
         }
         return discoveryResultBeans;
+    }
+
+    private Set<String> getConfigurationDescParamNames(ThingTypeUID typeUID) {
+        Set<String> paramNames = new HashSet<>();
+        ThingType type = thingTypeRegistry.getThingType(typeUID);
+        if (type != null && type.hasConfigDescriptionURI()) {
+            URI descURI = type.getConfigDescriptionURI();
+            ConfigDescription desc = configDescRegistry.getConfigDescription(descURI);
+            if (desc != null) {
+                for (ConfigDescriptionParameter param : desc.getParameters()) {
+                    paramNames.add(param.getName());
+                }
+            }
+        }
+        return paramNames;
     }
 
 }
