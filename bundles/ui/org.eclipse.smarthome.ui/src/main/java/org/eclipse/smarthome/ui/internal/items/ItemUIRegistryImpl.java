@@ -43,6 +43,7 @@ import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationHelper;
 import org.eclipse.smarthome.core.transform.TransformationService;
 import org.eclipse.smarthome.core.types.State;
+import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.Type;
 import org.eclipse.smarthome.core.types.UnDefType;
 import org.eclipse.smarthome.model.sitemap.ColorArray;
@@ -271,10 +272,15 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             String formatPattern = null;
 
             try {
-                Item item = getItem(itemName);
-                if (getFormatPattern(label) == null && item.getStateDescription() != null
-                        && item.getStateDescription().getPattern() != null) {
-                    label = label + " [" + item.getStateDescription().getPattern() + "]";
+                final Item item = getItem(itemName);
+                if (getFormatPattern(label) == null) {
+                    final StateDescription stateDescription = item.getStateDescription();
+                    if (stateDescription != null) {
+                        final String pattern = stateDescription.getPattern();
+                        if (pattern != null) {
+                            label = label + " [" + pattern + "]";
+                        }
+                    }
                 }
 
                 String updatedPattern = getFormatPattern(label);
