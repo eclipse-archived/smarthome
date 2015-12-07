@@ -12,6 +12,8 @@ import java.util.List;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.DiscoveryService;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -119,5 +121,14 @@ public interface Inbox {
      * @param listener the listener to be removed (could be null)
      */
     void removeInboxListener(InboxListener listener);
+    
+    /**
+     * Creates new {@link Thing} and adds it to the {@link ThingRegistry}. 
+     * 
+     * @param thingUID the UID of the Thing 
+     * @param label the label of the Thing 
+     * @return the approved Thing
+     */
+    Thing approve(ThingUID thingUID, String label); 
 
 }

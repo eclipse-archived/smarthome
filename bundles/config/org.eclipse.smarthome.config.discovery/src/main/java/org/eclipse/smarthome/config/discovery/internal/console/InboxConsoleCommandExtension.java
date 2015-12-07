@@ -7,18 +7,18 @@
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
-import org.eclipse.smarthome.core.thing.ManagedThingProvider;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
@@ -33,7 +33,6 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_CLEAR = "clear";
 
     private Inbox inbox;
-    private ManagedThingProvider managedThingProvider;
     private ThingSetupManager thingSetupManager;
 
     public InboxConsoleCommandExtension() {
@@ -51,7 +50,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                         if (args.length > 2) {
                             fullSetup = Boolean.parseBoolean(args[2]);
                         }
-                        if (managedThingProvider != null && thingSetupManager != null) {
+                        if (thingSetupManager != null) {
                             try {
                                 ThingUID thingUID = new ThingUID(args[1]);
                                 List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
@@ -60,21 +59,21 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                                     return;
                                 }
                                 DiscoveryResult result = results.get(0);
-                                Configuration configuratiob = new Configuration(result.getProperties());
+                                Thing thing = inbox.approve(thingUID, null);
                                 if (fullSetup) {
-                                    thingSetupManager.addThing(thingUID, configuratiob, result.getBridgeUID());
-                                } else {
-                                    managedThingProvider.createThing(result.getThingTypeUID(), result.getThingUID(),
-                                            result.getBridgeUID(), configuratiob);
+                                    thingSetupManager.createGroupItems(null, new ArrayList<String>(), thing,
+                                            result.getThingTypeUID());
                                 }
                             } catch (Exception e) {
                                 console.println(e.getMessage());
                             }
                         } else {
-                            console.println("Cannot approve thing as managed thing provider or setup manager is missing.");
+                            console.println(
+                                    "Cannot approve thing as setup manager is missing.");
                         }
                     } else {
-                        console.println("Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
+                        console.println(
+                                "Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
                     }
                     break;
                 case SUBCMD_IGNORE:
@@ -117,10 +116,12 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             DiscoveryResultFlag flag = discoveryResult.getFlag();
             ThingUID bridgeId = discoveryResult.getBridgeUID();
             Map<String, Object> properties = discoveryResult.getProperties();
-            String timestamp = new Date(discoveryResult.getTimestamp()).toString(); 
-            String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED" : "" + discoveryResult.getTimeToLive(); 
-            console.println(String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]", 
-                    flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
+            String timestamp = new Date(discoveryResult.getTimestamp()).toString();
+            String timeToLive = discoveryResult.getTimeToLive() == DiscoveryResult.TTL_UNLIMITED ? "UNLIMITED"
+                    : "" + discoveryResult.getTimeToLive();
+            console.println(
+                    String.format("%s [%s]: %s [thingId=%s, bridgeId=%s, properties=%s, timestamp=%s, timeToLive=%s]",
+                            flag.name(), thingTypeUID, label, thingUID, bridgeId, properties, timestamp, timeToLive));
 
         }
     }
@@ -146,8 +147,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] {
-                buildCommandUsage("lists all current inbox entries"),
+        return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
                 buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <fullSetup - true|false>",
                         "creates a thing for an inbox entry"),
@@ -161,14 +161,6 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     protected void unsetInbox(Inbox inbox) {
         this.inbox = null;
-    }
-
-    protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = managedThingProvider;
-    }
-
-    protected void unsetManagedThingProvider(ManagedThingProvider managedThingProvider) {
-        this.managedThingProvider = null;
     }
 
     protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
