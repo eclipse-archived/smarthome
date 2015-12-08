@@ -44,6 +44,7 @@ import org.junit.Test
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - added test 'assert start search is called()'
+ * @author Markus Mazurczak - added and changed some tests to check for working generic thing types
  */
 class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
@@ -109,10 +110,11 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
     }
 
     @Test
-    void 'assert hue light registration'() {
+    void 'assert hue color light registration'() {
         FullLight light = FullLight.class.newInstance()
         light.id = "1"
         light.modelid = "LCT001"
+        light.type = "Color light"
 
         def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
         registerDiscoveryListener( [
@@ -132,8 +134,104 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
         resultWrapper.wrappedObject.with {
             assertThat flag, is (DiscoveryResultFlag.NEW)
-            assertThat thingUID.toString(), is("hue:LCT001:testBridge:" + light.id)
-            assertThat thingTypeUID, is (THING_TYPE_LCT001)
+            assertThat thingUID.toString(), is("hue:color_light:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_COLOR_LIGHT)
+            assertThat bridgeUID, is(hueBridge.getUID())
+            assertThat properties.get(LIGHT_ID), is (light.id)
+        }
+    }
+
+    @Test
+    void 'assert hue color temperature light registration'() {
+        FullLight light = FullLight.class.newInstance()
+        light.id = "2"
+        light.modelid = "LCT002"
+        light.type = "Color temperature light"
+
+        def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
+        registerDiscoveryListener( [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
+                resultWrapper.set(result)
+            },
+            thingRemoved: { DiscoveryService source, ThingUID thingId ->
+            },
+            discoveryFinished: { DiscoveryService source ->
+            },
+            discoveryErrorOccurred: { DiscoveryService source, Exception exception ->
+            }
+        ] as DiscoveryListener)
+
+        discoveryService.onLightAdded(null, light)
+        waitForAssert{assertTrue resultWrapper.isSet}
+
+        resultWrapper.wrappedObject.with {
+            assertThat flag, is (DiscoveryResultFlag.NEW)
+            assertThat thingUID.toString(), is("hue:color_temperature_light:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_COLOR_TEMPERATURE_LIGHT)
+            assertThat bridgeUID, is(hueBridge.getUID())
+            assertThat properties.get(LIGHT_ID), is (light.id)
+        }
+    }
+
+    @Test
+    void 'assert hue dimmable light registration'() {
+        FullLight light = FullLight.class.newInstance()
+        light.id = "3"
+        light.modelid = "LCT003"
+        light.type = "Dimmable light"
+
+        def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
+        registerDiscoveryListener( [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
+                resultWrapper.set(result)
+            },
+            thingRemoved: { DiscoveryService source, ThingUID thingId ->
+            },
+            discoveryFinished: { DiscoveryService source ->
+            },
+            discoveryErrorOccurred: { DiscoveryService source, Exception exception ->
+            }
+        ] as DiscoveryListener)
+
+        discoveryService.onLightAdded(null, light)
+        waitForAssert{assertTrue resultWrapper.isSet}
+
+        resultWrapper.wrappedObject.with {
+            assertThat flag, is (DiscoveryResultFlag.NEW)
+            assertThat thingUID.toString(), is("hue:dimmable_light:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_DIMMABLE_LIGHT)
+            assertThat bridgeUID, is(hueBridge.getUID())
+            assertThat properties.get(LIGHT_ID), is (light.id)
+        }
+    }
+
+    @Test
+    void 'assert hue extended color light registration'() {
+        FullLight light = FullLight.class.newInstance()
+        light.id = "4"
+        light.modelid = "LCT004"
+        light.type = "Extended Color light"
+
+        def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
+        registerDiscoveryListener( [
+            thingDiscovered: { DiscoveryService source, DiscoveryResult result ->
+                resultWrapper.set(result)
+            },
+            thingRemoved: { DiscoveryService source, ThingUID thingId ->
+            },
+            discoveryFinished: { DiscoveryService source ->
+            },
+            discoveryErrorOccurred: { DiscoveryService source, Exception exception ->
+            }
+        ] as DiscoveryListener)
+
+        discoveryService.onLightAdded(null, light)
+        waitForAssert{assertTrue resultWrapper.isSet}
+
+        resultWrapper.wrappedObject.with {
+            assertThat flag, is (DiscoveryResultFlag.NEW)
+            assertThat thingUID.toString(), is("hue:extended_color_light:testBridge:" + light.id)
+            assertThat thingTypeUID, is (THING_TYPE_EXTENDED_COLOR_LIGHT)
             assertThat bridgeUID, is(hueBridge.getUID())
             assertThat properties.get(LIGHT_ID), is (light.id)
         }

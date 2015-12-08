@@ -10,9 +10,7 @@ package org.eclipse.smarthome.binding.hue.handler;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Set;
-import java.util.logging.Logger;
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -27,6 +25,10 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
@@ -44,15 +46,12 @@ import nl.q42.jue.StateUpdate;
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50 bulbs
+ * @author Markus Mazurczak - Changed to generic thing types
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_LCT002,
-            THING_TYPE_LCT003, THING_TYPE_LCT007, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007,
-            THING_TYPE_LLC010, THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001,
-            THING_TYPE_LST001, THING_TYPE_LST002, THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_LWB006,
-            THING_TYPE_LWB007, THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW, THING_TYPE_ZLL_LIGHT,
-            THING_TYPE_LLC020, THING_TYPE_PAR16_50_TW);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COLOR_LIGHT,
+            THING_TYPE_COLOR_TEMPERATURE_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_EXTENDED_COLOR_LIGHT);
 
     private String lightId;
 
@@ -84,8 +83,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 if (fullLight != null) {
                     updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
                     // Check for Osram PAR16 50 TW bulb
-                    String thingTypeId = HueBindingConstants.THING_TYPE_PAR16_50_TW.getId();
-                    if (thingTypeId.equals("PAR16_50_TW")) {
+                    String thingUID = fullLight.getModelID();
+                    if (thingUID.equals(OSRAM_PAR16_MODELID)) {
                         isOsramPar16 = true;
                     }
                 }

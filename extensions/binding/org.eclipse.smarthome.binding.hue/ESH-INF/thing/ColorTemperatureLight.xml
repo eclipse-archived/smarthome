@@ -4,24 +4,19 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Hue Color Spot with GU10 socket (see http://www.developers.meethue.com/documentation/supported-lights) -->
-    <thing-type id="LCT003">
+    <!-- Generic thing for color temperature lights (ZigBee Device ID: 0x0220) -->
+    <thing-type id="color_temperature_light">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Hue Spot</label>
-        <description>This is a Philips hue spot with GU10 socket</description>
+        <label>Hue supported color temperature lights</label>
+        <description>Supports all color temperature lights</description>
 
         <channels>
-            <channel id="color" typeId="color" />
+            <channel id="brightness" typeId="brightness" />
             <channel id="color_temperature" typeId="color_temperature" />
         </channels>
-        
-        <properties>
-        	<property name="vendor">Philips</property>
-        	<property name="modelId">LCT003</property>
-        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">

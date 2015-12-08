@@ -48,13 +48,11 @@ import org.junit.Test
  * @author Oliver Libutzki - Initial contribution
  * @author Michael Grammling - Initial contribution
  * @author Markus Mazurczak - Added test for OSRAM Par16 50 TW bulbs
+ * @author Markus Mazurczak - added and changed some tests to check for working generic thing types
  */
 class HueLightHandlerOSGiTest extends OSGiTest {
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-    final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LCT001")
-    final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LWB004")
-    final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "PAR16_50_TW")
 
     ManagedThingProvider managedThingProvider
     VolatileStorageService volatileStorageService = new VolatileStorageService()
@@ -108,7 +106,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
         assertThat hueLightHandler, is(nullValue())
 
-        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
+        Thing hueLight = createLight(hueBridge, THING_TYPE_COLOR_LIGHT)
 
         // wait for HueLightHandler to be registered
         waitForAssert({
@@ -373,23 +371,23 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     }
 
     private void assertSendCommandForColorTempForPar16(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, THING_TYPE_COLOR_TEMPERATURE_LIGHT, currentState, expectedReply)
     }
 
     private void assertSendCommandForBrightnessForPar16(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_BRIGHTNESS, command, OSRAM_PAR16_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_BRIGHTNESS, command, THING_TYPE_COLOR_TEMPERATURE_LIGHT, currentState, expectedReply)
     }
 
     private void assertSendCommandForColor(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLOR, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_COLOR, command, THING_TYPE_COLOR_LIGHT, currentState, expectedReply)
     }
 
     private void assertSendCommandForColorTemp(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_COLORTEMPERATURE, command, THING_TYPE_COLOR_TEMPERATURE_LIGHT, currentState, expectedReply)
     }
 
     private void assertSendCommandForBrightness(Command command, HueLightState currentState, String expectedReply) {
-        assertSendCommand(CHANNEL_BRIGHTNESS, command, LUX_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+        assertSendCommand(CHANNEL_BRIGHTNESS, command, THING_TYPE_DIMMABLE_LIGHT, currentState, expectedReply)
     }
 
     private void assertSendCommand(String channel, Command command, ThingTypeUID hueLightUID, HueLightState currentState, String expectedReply) {
@@ -428,7 +426,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertBridgeOnline(hueLightHandler.getBridge())
             enableHueLightChannels(hueLight)
             //Run the initialize method in case of PAR16 50 TW bulb testcase
-            if(currentState.modelId == 'PAR16 50 TW') {
+            if(currentState.modelId.equals(OSRAM_PAR16_MODELID)) {
                 hueLightHandler.initialize()
             }
             postCommand(hueLight, channel, command)

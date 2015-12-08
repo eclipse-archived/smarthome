@@ -7,17 +7,13 @@
  */
 package org.eclipse.smarthome.binding.hue.internal.discovery;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.BINDING_ID;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.LIGHT_ID;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
 
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler;
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler;
@@ -30,6 +26,9 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.q42.jue.FullLight;
+import nl.q42.jue.HueBridge;
+
 /**
  * The {@link HueBridgeServiceTracker} tracks for hue lights which are connected
  * to a paired hue bridge. The default search time for hue is 60 seconds.
@@ -37,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - changed search timeout
  * @author Thomas Höfer - Added representation
+ * @author Markus Mazurczak - Changed to generic thing types
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
 
@@ -126,7 +126,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     private ThingUID getThingUID(FullLight light) {
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
-        ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, light.getModelID().replaceAll("[^a-zA-Z0-9_]", "_"));
+        String normalizedlightType = light.getType().replaceAll("[^a-zA-Z0-9_]", "_").toLowerCase();
+        ThingTypeUID thingTypeUID = new ThingTypeUID(BINDING_ID, normalizedlightType);
 
         if (getSupportedThingTypes().contains(thingTypeUID)) {
             String thingLightId = light.getId();
