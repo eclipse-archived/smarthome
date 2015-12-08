@@ -32,11 +32,11 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         configDescriptionRegistry = getService(ConfigDescriptionRegistry)
-        ConfigDescriptionParameter parm1 = new ConfigDescriptionParameter("Parm1", ConfigDescriptionParameter.Type.INTEGER)
+        ConfigDescriptionParameter param1 = new ConfigDescriptionParameter("param1", ConfigDescriptionParameter.Type.INTEGER)
         List<ConfigDescriptionParameter> pList1 = new ArrayList<ConfigDescriptionParameter>();
-        pList1.add(parm1);
+        pList1.add(param1);
         configDescription = new ConfigDescription(new URI("config:Dummy"), pList1)
-        
+
         configDescriptionProviderMock = [
             getConfigDescriptions: {p -> [configDescription]},
             getConfigDescription: {p1,p2 -> configDescription }
@@ -48,9 +48,9 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
             getConfigDescription: {p1,p2 -> configDescription1 }
         ] as ConfigDescriptionProvider
 
-        ConfigDescriptionParameter parm2 = new ConfigDescriptionParameter("Parm2", ConfigDescriptionParameter.Type.INTEGER)
+        ConfigDescriptionParameter param2 = new ConfigDescriptionParameter("param2", ConfigDescriptionParameter.Type.INTEGER)
         List<ConfigDescriptionParameter> pList2 = new ArrayList<ConfigDescriptionParameter>();
-        pList2.add(parm2);
+        pList2.add(param2);
         configDescription2 = new ConfigDescription(new URI("config:Dummy"), pList2)
         configDescriptionProviderMock2 = [
             getConfigDescriptions: {p -> [configDescription2]},
@@ -67,7 +67,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
         assertThat configDescription, is(not(null))
         assertThat configDescription.uri, is(equalTo(new URI("config:Dummy")))
     }
-    
+
     @Test
     void 'assert ConfigDescriptionRegistry tracks registered ConfigDescriptionProvider'() {
 
@@ -78,6 +78,8 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
 
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions[0].uri, is(equalTo(new URI("config:Dummy")))
+        assertThat configDescriptions[0].toParametersMap().size(), is(1)
+        assertThat configDescriptions[0].toParametersMap().get("param1"), not(null)
 
         configDescriptionRegistry.addConfigDescriptionProvider(configDescriptionProviderMock1)
         assertThat "Registery added second description", configDescriptionRegistry.getConfigDescriptions().size(), is(2)
@@ -88,7 +90,7 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
         configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock1)
         assertThat "Registery is empty to finish", configDescriptionRegistry.getConfigDescriptions().size(), is(0)
     }
-    
+
     @Test
     void 'assert ConfigDescriptionRegistry merges multiple providers'() {
 
@@ -104,12 +106,12 @@ class ConfigDescriptionRegistryOSGiTest extends OSGiTest {
         assertThat "Config is found", configDescriptions[0].uri, is(equalTo(new URI("config:Dummy")))
 
         assertThat "Config contains both parameters", configDescriptions[0].getParameters().size(), is(2)
-        assertThat "Config parameter 1 found", configDescriptions[0].getParameters().get(0).getName(), is(equalTo("Parm1"))
-        assertThat "Config parameter 2 found", configDescriptions[0].getParameters().get(1).getName(), is(equalTo("Parm2"))
+        assertThat "Config parameter 1 found", configDescriptions[0].getParameters().get(0).getName(), is(equalTo("param1"))
+        assertThat "Config parameter 2 found", configDescriptions[0].getParameters().get(1).getName(), is(equalTo("param2"))
 
         configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock)
         assertThat "First description removed ok", configDescriptionRegistry.getConfigDescriptions().size(), is(1)
-        
+
         configDescriptionRegistry.removeConfigDescriptionProvider(configDescriptionProviderMock2)
         assertThat "Registery is empty to finish", configDescriptionRegistry.getConfigDescriptions().size(), is(0)
     }
