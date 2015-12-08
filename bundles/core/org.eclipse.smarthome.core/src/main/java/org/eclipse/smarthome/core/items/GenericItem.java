@@ -174,7 +174,7 @@ abstract public class GenericItem implements ActiveItem {
     }
 
     /**
-     * Sets new state and notifies listeners.
+     * Sets new state, notifies listeners and sends events.
      *
      * @param state
      *            new state of this item
@@ -183,20 +183,29 @@ abstract public class GenericItem implements ActiveItem {
         State oldState = this.state;
         this.state = state;
         notifyListeners(oldState, state);
+        if (!oldState.equals(state)) {
+            sendStateChangedEvent(state, oldState);
+        }
+    }
+
+    private void sendStateChangedEvent(State newState, State oldState) {
+        if (eventPublisher != null) {
+            eventPublisher.post(ItemEventFactory.createStateChangedEvent(this.name, newState, oldState));
+        }
     }
 
     public void send(RefreshType command) {
         internalSend(command);
     }
 
-    private void notifyListeners(State oldState, State newState) {
+    protected void notifyListeners(State oldState, State newState) {
         // if nothing has changed, we send update notifications
         Set<StateChangeListener> clonedListeners = null;
         clonedListeners = new CopyOnWriteArraySet<StateChangeListener>(listeners);
         for (StateChangeListener listener : clonedListeners) {
             listener.stateUpdated(this, newState);
         }
-        if (newState!=null && !newState.equals(oldState)) {
+        if (newState != null && !newState.equals(oldState)) {
             for (StateChangeListener listener : clonedListeners) {
                 listener.stateChanged(this, oldState, newState);
             }
@@ -244,58 +253,56 @@ abstract public class GenericItem implements ActiveItem {
         }
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((category == null) ? 0 : category.hashCode());
+        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((tags == null) ? 0 : tags.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((category == null) ? 0 : category.hashCode());
-		result = prime * result + ((label == null) ? 0 : label.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((tags == null) ? 0 : tags.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        GenericItem other = (GenericItem) obj;
+        if (category == null) {
+            if (other.category != null)
+                return false;
+        } else if (!category.equals(other.category))
+            return false;
+        if (label == null) {
+            if (other.label != null)
+                return false;
+        } else if (!label.equals(other.label))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        if (tags == null) {
+            if (other.tags != null)
+                return false;
+        } else if (!tags.equals(other.tags))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
+            return false;
+        return true;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		GenericItem other = (GenericItem) obj;
-		if (category == null) {
-			if (other.category != null)
-				return false;
-		} else if (!category.equals(other.category))
-			return false;
-		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (tags == null) {
-			if (other.tags != null)
-				return false;
-		} else if (!tags.equals(other.tags))
-			return false;
-		if (type == null) {
-			if (other.type != null)
-				return false;
-		} else if (!type.equals(other.type))
-			return false;
-		return true;
-	}
-
-	@Override
+    @Override
     public Set<String> getTags() {
         return ImmutableSet.copyOf(tags);
     }
@@ -357,10 +364,10 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription(Locale locale) {
-        if(stateDescriptionProviders != null) {
+        if (stateDescriptionProviders != null) {
             for (StateDescriptionProvider stateDescriptionProvider : stateDescriptionProviders) {
                 StateDescription stateDescription = stateDescriptionProvider.getStateDescription(this.name, locale);
-                if(stateDescription != null) {
+                if (stateDescription != null) {
                     return stateDescription;
                 }
             }
