@@ -41,6 +41,8 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private static final String ITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/statechanged";
 
+    private static final String GROUPITEM_STATE_CHANGED_EVENT_TOPIC = "smarthome/items/{itemName}/{memberName}/statechanged";
+
     private static final String ITEM_ADDED_EVENT_TOPIC = "smarthome/items/{itemName}/added";
 
     private static final String ITEM_REMOVED_EVENT_TOPIC = "smarthome/items/{itemName}/removed";
@@ -52,7 +54,7 @@ public class ItemEventFactory extends AbstractEventFactory {
      */
     public ItemEventFactory() {
         super(Sets.newHashSet(ItemCommandEvent.TYPE, ItemStateEvent.TYPE, ItemStateChangedEvent.TYPE,
-                ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE));
+                ItemAddedEvent.TYPE, ItemUpdatedEvent.TYPE, ItemRemovedEvent.TYPE, GroupItemStateChangedEvent.TYPE));
     }
 
     @Override
@@ -70,8 +72,20 @@ public class ItemEventFactory extends AbstractEventFactory {
             event = createUpdatedEvent(topic, payload);
         } else if (eventType.equals(ItemRemovedEvent.TYPE)) {
             event = createRemovedEvent(topic, payload);
+        } else if (eventType.equals(GroupItemStateChangedEvent.TYPE)) {
+            event = createGroupStateChangedEvent(topic, payload);
         }
         return event;
+    }
+
+    private Event createGroupStateChangedEvent(String topic, String payload) {
+        String itemName = getItemName(topic);
+        String memberName = getMemberName(topic);
+        ItemStateChangedEventPayloadBean bean = deserializePayload(payload, ItemStateChangedEventPayloadBean.class);
+        State state = getState(bean.getType(), bean.getValue());
+        State oldState = getState(bean.getOldType(), bean.getOldValue());
+        return new GroupItemStateChangedEvent(topic, payload, itemName, memberName, state, oldState);
+
     }
 
     private Event createCommandEvent(String topic, String payload, String source) {
@@ -113,9 +127,16 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private String getItemName(String topic) {
         String[] topicElements = getTopicElements(topic);
-        if (topicElements.length != 4)
+        if (topicElements.length < 4)
             throw new IllegalArgumentException("Event creation failed, invalid topic: " + topic);
         return topicElements[2];
+    }
+
+    private String getMemberName(String topic) {
+        String[] topicElements = getTopicElements(topic);
+        if (topicElements.length < 5)
+            throw new IllegalArgumentException("Event creation failed, invalid topic: " + topic);
+        return topicElements[3];
     }
 
     private Object parse(String typeName, String valueToParse) throws Exception {
@@ -235,6 +256,17 @@ public class ItemEventFactory extends AbstractEventFactory {
         return new ItemStateChangedEvent(topic, payload, itemName, newState, oldState);
     }
 
+    public static GroupItemStateChangedEvent createGroupStateChangedEvent(String itemName, String memberName,
+            State newState, State oldState) {
+        assertValidArguments(itemName, memberName, newState, "state");
+        String topic = buildGroupTopic(GROUPITEM_STATE_CHANGED_EVENT_TOPIC, itemName, memberName);
+        ItemStateChangedEventPayloadBean bean = new ItemStateChangedEventPayloadBean(
+                newState.getClass().getSimpleName(), newState.toString(), oldState.getClass().getSimpleName(),
+                oldState.toString());
+        String payload = serializePayload(bean);
+        return new GroupItemStateChangedEvent(topic, payload, itemName, memberName, newState, oldState);
+    }
+
     /**
      * Creates an item added event.
      *
@@ -296,6 +328,10 @@ public class ItemEventFactory extends AbstractEventFactory {
         return topic.replace("{itemName}", itemName);
     }
 
+    private static String buildGroupTopic(String topic, String itemName, String memberName) {
+        return buildTopic(topic, itemName).replace("{memberName}", memberName);
+    }
+
     private static ItemDTO map(Item item) {
         return ItemDTOMapper.map(item, false);
     }
@@ -303,6 +339,14 @@ public class ItemEventFactory extends AbstractEventFactory {
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
         Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
                 "The argument 'itemName' must not be null or empty.");
+        Preconditions.checkArgument(type != null, "The argument '" + typeArgumentName + "' must not be null or empty.");
+    }
+
+    private static void assertValidArguments(String itemName, String memberName, Type type, String typeArgumentName) {
+        Preconditions.checkArgument(itemName != null && !itemName.isEmpty(),
+                "The argument 'itemName' must not be null or empty.");
+        Preconditions.checkArgument(memberName != null && !memberName.isEmpty(),
+                "The argument 'memberName' must not be null or empty.");
         Preconditions.checkArgument(type != null, "The argument '" + typeArgumentName + "' must not be null or empty.");
     }
 

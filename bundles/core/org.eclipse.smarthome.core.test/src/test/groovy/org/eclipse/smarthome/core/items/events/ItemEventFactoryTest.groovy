@@ -12,8 +12,10 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.dto.ItemDTOMapper
 import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemEventPayloadBean
+import org.eclipse.smarthome.core.items.events.ItemEventFactory.ItemStateChangedEventPayloadBean;
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.types.RefreshType
@@ -33,23 +35,30 @@ class ItemEventFactoryTest extends OSGiTest {
 
     def ITEM_NAME = "ItemA"
     def ITEM = new SwitchItem(ITEM_NAME)
+    def GROUP_NAME = "GroupA"
+    def GROUP = new GroupItem(GROUP_NAME)
     def SOURCE = "binding:type:id:channel"
 
     def ITEM_COMMAND_EVENT_TYPE = ItemCommandEvent.TYPE
     def ITEM_STATE_EVENT_TYPE = ItemStateEvent.TYPE
     def ITEM_ADDED_EVENT_TYPE = ItemAddedEvent.TYPE
+    def GROUPITEM_CHANGED_EVENT_TYPE = GroupItemStateChangedEvent.TYPE  
 
     def ITEM_COMMAND_EVENT_TOPIC = ItemEventFactory.ITEM_COMAND_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
     def ITEM_STATE_EVENT_TOPIC = ItemEventFactory.ITEM_STATE_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
     def ITEM_ADDED_EVENT_TOPIC = ItemEventFactory.ITEM_ADDED_EVENT_TOPIC.replace("{itemName}", ITEM_NAME)
-
+    def GROUPITEM_STATE_CHANGED_EVENT_TOPIC = ItemEventFactory.GROUPITEM_STATE_CHANGED_EVENT_TOPIC.replace("{itemName}", GROUP_NAME).replace("{memberName}", ITEM_NAME)
+    
+    
     def ITEM_COMMAND = OnOffType.ON
     def ITEM_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(ITEM_COMMAND.getClass().getSimpleName(), ITEM_COMMAND.toString()))
     def ITEM_REFRESH_COMMAND_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(RefreshType.REFRESH.getClass().getSimpleName(), RefreshType.REFRESH.toString()))
     def ITEM_UNDEF_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(UnDefType.UNDEF.getClass().getSimpleName(), UnDefType.UNDEF.toString()))
     def ITEM_STATE = OnOffType.OFF
+    def NEW_ITEM_STATE = OnOffType.ON
     def ITEM_STATE_EVENT_PAYLOAD = new Gson().toJson(new ItemEventPayloadBean(ITEM_STATE.getClass().getSimpleName(), ITEM_STATE.toString()))
     def ITEM_ADDED_EVENT_PAYLOAD = new Gson().toJson(ItemDTOMapper.map(ITEM, false))
+    def ITEM_STATE_CHANGED_EVENT_PAYLOAD = new Gson().toJson(new ItemStateChangedEventPayloadBean(NEW_ITEM_STATE.getClass().getSimpleName(),NEW_ITEM_STATE.toString(),ITEM_STATE.getClass().getSimpleName(),ITEM_STATE.toString())) 
 
     @Test
     void 'ItemEventFactory creates Event as ItemCommandEvent OnOffType correctly'() {
@@ -106,6 +115,24 @@ class ItemEventFactoryTest extends OSGiTest {
         assertThat itemStateEvent.getItemName(), is(ITEM_NAME)
         assertThat itemStateEvent.getSource(), is(SOURCE)
         assertThat itemStateEvent.getItemState(), is(UnDefType.UNDEF)
+    }
+    
+    @Test
+    void 'ItemEventFactory creates GroupItemStateChangedEvent correctly'() {
+        Event event = factory.createEvent(GROUPITEM_CHANGED_EVENT_TYPE, GROUPITEM_STATE_CHANGED_EVENT_TOPIC, ITEM_STATE_CHANGED_EVENT_PAYLOAD, SOURCE)
+
+        assertThat event, is(instanceOf(GroupItemStateChangedEvent))
+        GroupItemStateChangedEvent groupItemStateChangedEvent = event as GroupItemStateChangedEvent
+
+        assertThat groupItemStateChangedEvent.getType(), is(GROUPITEM_CHANGED_EVENT_TYPE)
+        assertThat groupItemStateChangedEvent.getTopic(), is(GROUPITEM_STATE_CHANGED_EVENT_TOPIC)
+        assertThat groupItemStateChangedEvent.getPayload(), is(ITEM_STATE_CHANGED_EVENT_PAYLOAD)
+        assertThat groupItemStateChangedEvent.getItemName(), is(GROUP_NAME)
+        assertThat groupItemStateChangedEvent.getMemberName(), is(ITEM_NAME)
+        assertThat groupItemStateChangedEvent.getSource(), is(null)
+        assertThat groupItemStateChangedEvent.getItemState(), is(NEW_ITEM_STATE)
+        assertThat groupItemStateChangedEvent.getOldItemState(), is(ITEM_STATE)
+        
     }
 
     @Test

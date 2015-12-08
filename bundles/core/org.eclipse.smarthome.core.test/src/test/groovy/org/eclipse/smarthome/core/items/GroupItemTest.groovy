@@ -9,14 +9,23 @@ package org.eclipse.smarthome.core.items
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
+import java.util.Set
+import javax.management.InstanceOfQueryExp
+import org.eclipse.smarthome.core.events.Event
+import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.events.EventSubscriber
+import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
+import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.library.types.RawType
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.RefreshType
 import org.eclipse.smarthome.core.types.State
+import org.eclipse.smarthome.core.types.UnDefType
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 
@@ -24,63 +33,91 @@ import org.junit.Test
  * The GroupItemTest tests functionality of the GroupItem.  
  * 
  * @author Dennis Nobel - Initial contribution
+ * @author Christoph Knauf - event tests  
  */
 class GroupItemTest {
-    
+
+    List<Event> events = []
+    EventPublisher publisher
+
+    @Before
+    void setUp(){
+        publisher = [
+            post : { event ->
+                events.add(event)
+            }
+        ] as EventPublisher
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     void 'assert accepted command types cannot be changed'() {
         new GroupItem("switch").acceptedCommandTypes.clear()
     }
-    
+
     @Test()
     void 'assert acceptedCommandTypes on GroupItems returns subset of command types supported by all members'() {
-        
+
         def switchItem = new SwitchItem("switch")
         def numberItem = new NumberItem("number")
-        
+
         GroupItem groupItem = new GroupItem("group")
         groupItem.addMember(switchItem)
         groupItem.addMember(numberItem)
-        
+
         assertThat groupItem.acceptedCommandTypes, hasItems(RefreshType)
     }
-	
 
     @Test
     public void testGetAllMembers() {
-        GroupItem rootGroupItem = new GroupItem("root");
-        rootGroupItem.addMember(new TestItem("member1"));
-        rootGroupItem.addMember(new TestItem("member2"));
-        rootGroupItem.addMember(new TestItem("member2"));
-        GroupItem subGroup = new GroupItem("subGroup1");
-        subGroup.addMember(new TestItem("subGroup member 1"));
-        subGroup.addMember(new TestItem("subGroup member 2"));
-        subGroup.addMember(new TestItem("subGroup member 3"));
-        subGroup.addMember(new TestItem("member1"));
-        rootGroupItem.addMember(subGroup);
-        int expectedAmountOfMembers = 5;
-        Assert.assertEquals(expectedAmountOfMembers, rootGroupItem.getAllMembers().size());
+        GroupItem rootGroupItem = new GroupItem("root")
+        rootGroupItem.addMember(new TestItem("member1"))
+        rootGroupItem.addMember(new TestItem("member2"))
+        rootGroupItem.addMember(new TestItem("member2"))
+        GroupItem subGroup = new GroupItem("subGroup1")
+        subGroup.addMember(new TestItem("subGroup member 1"))
+        subGroup.addMember(new TestItem("subGroup member 2"))
+        subGroup.addMember(new TestItem("subGroup member 3"))
+        subGroup.addMember(new TestItem("member1"))
+        rootGroupItem.addMember(subGroup)
+        int expectedAmountOfMembers = 5
+        Assert.assertEquals(expectedAmountOfMembers, rootGroupItem.getAllMembers().size())
         for (Item member : rootGroupItem.getAllMembers()) {
             if (member instanceof GroupItem) {
-                fail("There are no GroupItems allowed in this Collection");
+                fail("There are no GroupItems allowed in this Collection")
             }
         }
     }
 
-    class TestItem extends GenericItem {
+    @Test
+    void 'assert that group item posts events for changes correctly' (){
+        events.clear()
+        GroupItem groupItem = new GroupItem("root")
+        def member = new TestItem("member1")
+        groupItem.addMember(member)
+        groupItem.setEventPublisher(publisher)
+        def oldGroupState = groupItem.getState()
 
-        public TestItem(String name) {
-            super("Test", name);
-        }
+        //State changes -> one change event is fired
+        member.setState(new RawType())
 
-        @Override
-        public List<Class<? extends State>> getAcceptedDataTypes() {
-            return null;
-        }
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
 
-        @Override
-        public List<Class<? extends Command>> getAcceptedCommandTypes() {
-            return null;
-        }
+        assertThat events.size(), is(1)
+        assertThat changes.size(), is(1)
+
+        def change = changes.getAt(0) as GroupItemStateChangedEvent
+        assertTrue change.getItemName().equals(groupItem.getName())
+        assertTrue change.getMemberName().equals(member.getName())
+        assertTrue change.getTopic().equals(
+                ItemEventFactory.GROUPITEM_STATE_CHANGED_EVENT_TOPIC.replace("{memberName}", member.getName()).replace("{itemName}", groupItem.getName())
+                )
+        assertTrue change.getItemState().equals(groupItem.getState())
+        assertTrue change.getOldItemState().equals(oldGroupState)
+
+        events.clear()
+
+        //State doesn't change -> no events are fired
+        member.setState(member.getState())
+        assertThat events.size(), is(0)
     }
 }
