@@ -20,7 +20,6 @@ class HueLightState {
     def hue = 50000;
     def saturation = 0;
     def colorTemperature = 153;
-    def modelId = "LCT001";
     boolean isOn = true;
 
 
@@ -49,11 +48,6 @@ class HueLightState {
         return this
     }
 
-    public HueLightState setOsramPar16Model() {
-        this.modelId = "PAR16 50 TW"
-        return this
-    }
-
     public String toString(){
         def state = """
         {"lights":
@@ -76,7 +70,7 @@ class HueLightState {
               },
               "type": "Extended color light",
               "name": "Hue Light 1",
-              "modelid": "${modelId}",
+              "modelid": "LCT001",
               "swversion": "65003148",
               "pointsymbol": {
                 "1": "none",
