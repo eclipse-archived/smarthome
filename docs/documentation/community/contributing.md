@@ -63,6 +63,6 @@ The process to create a pull request is then the following:
 1. Fork the sources of Eclipse SmartHome on GitHub.
 1. Do the coding!
 1. Make sure your code applies to the [Coding Guidelines](../development/guidelines.html)
-1. Make sure there is a [Bugzilla issue](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome) for your contribution. If it does not exist yet, [create one](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=SmartHome).
-1. Add a "Signed-off-by" line and a ["Bug"](https://bugs.eclipse.org/bugs/buglist.cgi?list_id=11615800&product=SmartHome) line to every commit you do - see the [Eclipse wiki](https://wiki.eclipse.org/Development_Resources/Contributing_via_Git) for details.
-1. Create a pull request, referencing the Bugzilla issue number
+1. Make sure there is a [GitHub issue](https://github.com/eclipse/smarthome/issues?utf8=%E2%9C%93&q=is%3Aissue) for your contribution. If it does not exist yet, [create one](https://github.com/eclipse/smarthome/issues/new).
+1. Add a "Signed-off-by" line and a ["Bug"](https://github.com/eclipse/smarthome/issues?utf8=%E2%9C%93&q=is%3Aissue) line to every commit you do - see the [Eclipse wiki](https://wiki.eclipse.org/Development_Resources/Contributing_via_Git) for details.
+1. Create a pull request, referencing the GitHub issue number
