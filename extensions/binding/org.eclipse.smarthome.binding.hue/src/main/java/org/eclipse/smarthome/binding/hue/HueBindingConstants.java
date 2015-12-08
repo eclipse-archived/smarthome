@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Kai Kreuzer - Initial contribution
  * @author Jochen Hiller - Added OSRAM Classic A60 RGBW
  * @author Markus Mazurczak - Added OSRAM PAR16 50
+ * @author Markus Mazurczak - Deleted bulb specific thing types, added generic thing types
  */
 public class HueBindingConstants {
 
@@ -23,28 +24,12 @@ public class HueBindingConstants {
 
     // List all Thing Type UIDs, related to the Hue Binding
     public final static ThingTypeUID THING_TYPE_BRIDGE = new ThingTypeUID(BINDING_ID, "bridge");
-    public final static ThingTypeUID THING_TYPE_LCT001 = new ThingTypeUID(BINDING_ID, "LCT001");
-    public final static ThingTypeUID THING_TYPE_LCT002 = new ThingTypeUID(BINDING_ID, "LCT002");
-    public final static ThingTypeUID THING_TYPE_LCT003 = new ThingTypeUID(BINDING_ID, "LCT003");
-    public final static ThingTypeUID THING_TYPE_LCT007 = new ThingTypeUID(BINDING_ID, "LCT007");
-    public final static ThingTypeUID THING_TYPE_LLC001 = new ThingTypeUID(BINDING_ID, "LLC001");
-    public final static ThingTypeUID THING_TYPE_LLC006 = new ThingTypeUID(BINDING_ID, "LLC006");
-    public final static ThingTypeUID THING_TYPE_LLC007 = new ThingTypeUID(BINDING_ID, "LLC007");
-    public final static ThingTypeUID THING_TYPE_LLC010 = new ThingTypeUID(BINDING_ID, "LLC010");
-    public final static ThingTypeUID THING_TYPE_LLC011 = new ThingTypeUID(BINDING_ID, "LLC011");
-    public final static ThingTypeUID THING_TYPE_LLC012 = new ThingTypeUID(BINDING_ID, "LLC012");
-    public final static ThingTypeUID THING_TYPE_LLC013 = new ThingTypeUID(BINDING_ID, "LLC013");
-    public final static ThingTypeUID THING_TYPE_LLC020 = new ThingTypeUID(BINDING_ID, "LLC020");
-    public final static ThingTypeUID THING_TYPE_LST001 = new ThingTypeUID(BINDING_ID, "LST001");
-    public final static ThingTypeUID THING_TYPE_LST002 = new ThingTypeUID(BINDING_ID, "LST002");
-    public final static ThingTypeUID THING_TYPE_LWB004 = new ThingTypeUID(BINDING_ID, "LWB004");
-    public final static ThingTypeUID THING_TYPE_LWB006 = new ThingTypeUID(BINDING_ID, "LWB006");
-    public final static ThingTypeUID THING_TYPE_LWB007 = new ThingTypeUID(BINDING_ID, "LWB007");
-    public final static ThingTypeUID THING_TYPE_LWL001 = new ThingTypeUID(BINDING_ID, "LWL001");
-    public final static ThingTypeUID THING_TYPE_CLASSIC_A60_RGBW = new ThingTypeUID(BINDING_ID, "Classic_A60_RGBW");
-    public final static ThingTypeUID THING_TYPE_SURFACE_LIGHT_TW = new ThingTypeUID(BINDING_ID, "Surface_Light_TW");
-    public final static ThingTypeUID THING_TYPE_ZLL_LIGHT = new ThingTypeUID(BINDING_ID, "ZLL_Light");
-    public final static ThingTypeUID THING_TYPE_PAR16_50_TW = new ThingTypeUID(BINDING_ID, "PAR16_50_TW");
+    public final static ThingTypeUID THING_TYPE_COLOR_LIGHT = new ThingTypeUID(BINDING_ID, "color_light");
+    public final static ThingTypeUID THING_TYPE_COLOR_TEMPERATURE_LIGHT = new ThingTypeUID(BINDING_ID,
+            "color_temperature_light");
+    public final static ThingTypeUID THING_TYPE_DIMMABLE_LIGHT = new ThingTypeUID(BINDING_ID, "dimmable_light");
+    public final static ThingTypeUID THING_TYPE_EXTENDED_COLOR_LIGHT = new ThingTypeUID(BINDING_ID,
+            "extended_color_light");
 
     // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
@@ -58,5 +43,8 @@ public class HueBindingConstants {
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
+
+    // Model ID to identify OSRAM Par16 50 TW bulb
+    public static final String OSRAM_PAR16_MODELID = "PAR16 50 TW";
 
 }

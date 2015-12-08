@@ -4,23 +4,20 @@
     xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-    <!-- Philips Living Color Iris (see http://www.developers.meethue.com/documentation/supported-lights) -->
-    <thing-type id="LLC010">
+    <!-- Generic thing for extended color lights (ZigBee Device ID: 0x0210) -->
+    <thing-type id="extended_color_light">
         <supported-bridge-type-refs>
             <bridge-type-ref id="bridge" />
         </supported-bridge-type-refs>
 
-        <label>Philips Living Color Iris</label>
-        <description>This is a Philips Living Color Iris light</description>
+        <label>Hue supported extended color lights</label>
+        <description>Supports all extended color lights</description>
 
         <channels>
+            <channel id="brightness" typeId="brightness" />
             <channel id="color" typeId="color" />
+            <channel id="color_temperature" typeId="color_temperature" />
         </channels>
-        
-        <properties>
-        	<property name="vendor">Philips</property>
-        	<property name="modelId">LLC010</property>
-        </properties>
 
         <config-description>
             <parameter name="lightId" type="text">
