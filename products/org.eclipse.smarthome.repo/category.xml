@@ -42,6 +42,12 @@
    <feature url="features/org.eclipse.smarthome.feature.runtime.binding.source_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.binding.source" version="0.8.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.automation_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.automation" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
+   <feature url="features/org.eclipse.smarthome.feature.runtime.automation.source_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.automation.source" version="0.8.0.qualifier">
+      <category name="org.eclipse.smarthome"/>
+   </feature>
    <feature url="features/org.eclipse.smarthome.feature.runtime.console.equinox_0.8.0.qualifier.jar" id="org.eclipse.smarthome.feature.runtime.console.equinox" version="0.8.0.qualifier">
       <category name="org.eclipse.smarthome"/>
    </feature>

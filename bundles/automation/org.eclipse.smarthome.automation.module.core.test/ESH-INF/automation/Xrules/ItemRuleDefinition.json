@@ -1,0 +1,83 @@
+[  
+  {  
+    "name": "ItemSampleRule",
+    "tags": [  
+      "sample",
+	  "item",
+      "rule"
+    ],
+    "configuration": {},
+    "description": "Sample Rule for items definition.",
+    "on": [  
+      {  
+        "id": "ItemStateChangeTriggerID",
+        "type": "ItemStateChangeTrigger",
+		"configuration":{
+			"itemName":"myMotionItem"
+		}
+      }
+    ],
+    "if": [
+      {
+        "id": "ItemStateConditionID",
+        "type": "ItemStateCondition",
+        "configuration": {
+          "operator": "=",
+          "itemName": "myPresenceItem",
+		  "state":"ON"
+        }
+      },
+	  {
+		  "id": "ItemStateConditionID2",
+		  "type": "ItemStateCondition",
+		  "configuration":{
+			  "operator":"=",
+			  "itemName":"myMotionItem",
+			  "state":"ON"
+		  }
+	  }
+    ],
+    "then": [
+      {  
+        "id": "ItemPostCommandActionID",
+        "type": "ItemPostCommandAction",
+        "configuration": {  
+          "itemName": "myLampItem",
+		  "command": "ON"
+        }
+      }
+    ]
+  },
+  {  
+    "name": "SwitchOnLampOnMotion",
+    "tags": [  
+      "lamp",
+	  "item",
+	  "motion",
+      "rule"
+    ],
+    "configuration": {},
+    "description": "This rule switches on a lamp if a motion was detected.",
+    "on": [  
+      {  
+        "id": "CameraMotionDetectionTrigger",
+        "type": "ItemStateChangeTrigger",
+		"configuration":{
+			"itemName":"dlink_camera_DCS_2330L_b0c5540047bd_motion"
+		}
+      }
+    ],
+    "if": [
+    ],
+    "then": [
+      {  
+        "id": "SwitchOnLamp",
+        "type": "ItemPostCommandAction",
+        "configuration": {  
+          "itemName": "hue_LCT001_001788141b41_2_color",
+		  "command": "240,100,100"
+        }
+      }
+    ]
+  }
+]

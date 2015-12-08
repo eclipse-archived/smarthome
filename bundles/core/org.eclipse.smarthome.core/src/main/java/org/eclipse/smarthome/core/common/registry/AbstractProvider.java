@@ -25,11 +25,13 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractProvider<E> implements Provider<E> {
 
     private enum EventType {
-        ADDED, REMOVED, UPDATED;
+        ADDED,
+        REMOVED,
+        UPDATED;
     }
 
     protected final Logger logger = LoggerFactory.getLogger(AbstractProvider.class);
-    protected List<ProviderChangeListener<E>> listeners = new CopyOnWriteArrayList<>();
+    protected List<ProviderChangeListener<E>> listeners = new CopyOnWriteArrayList<ProviderChangeListener<E>>();
 
     @Override
     public void addProviderChangeListener(ProviderChangeListener<E> listener) {

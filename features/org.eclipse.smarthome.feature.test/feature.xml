@@ -15,7 +15,7 @@
       provider-name="Eclipse.org">
 
    <description>
-      This features defines all bundles that needed to do OSGi based Unit testing.
+      This feature defines all bundles that needed to do OSGi based Unit testing.
    </description>
 
    <copyright>

@@ -1,15 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH
- * http://www.prosyst.com
+/**
+ * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    ProSyst Software GmbH - initial API and implementation
- *******************************************************************************/
-
+ */
 package org.eclipse.smarthome.automation.handler;
 
 import java.util.Map;
@@ -35,12 +30,12 @@ public interface RuleEngineCallback {
      * @param trigger instance of trigger which was fired. When one TriggerHandler
      *            serve more then one {@link Trigger} instances, this parameter
      *            defines which trigger was fired.
-     * @param outputs is a {@link Map} of output values of the triggered {@link Trigger}. Each entry of the map
+     * @param context is a {@link Map} of output values of the triggered {@link Trigger}. Each entry of the map
      *            contains:
      *            <ul>
      *            <li><code>key</code> - the id of the {@link Output} ,
      *            <li><code>value</code> - represents output value of the {@link Trigger}'s {@link Output}
      *            </ul>
      */
-    public void triggered(Trigger trigger, Map<String, ?> outputs);
+    public void triggered(Trigger trigger, Map<String, ?> context);
 }
