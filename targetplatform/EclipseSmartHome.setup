@@ -2051,6 +2051,8 @@
           name="org.eclipse.pde.feature.group"/>
       <requirement
           name="org.eclipse.wst.jsdt.feature.feature.group"/>
+      <requirement
+          name="org.eclipse.wst.web_ui.feature.feature.group"/>
       <repository
           url="http://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-tycho/0.7.0/N/0.7.0.201309291400/"/>
       <repository
