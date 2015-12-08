@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.binding.hue.handler;
 
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.HOST;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.THING_TYPE_BRIDGE;
-import static org.eclipse.smarthome.binding.hue.HueBindingConstants.USER_NAME;
+import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,16 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import nl.q42.jue.Config;
-import nl.q42.jue.FullConfig;
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-import nl.q42.jue.exceptions.ApiException;
-import nl.q42.jue.exceptions.DeviceOffException;
-import nl.q42.jue.exceptions.UnauthorizedException;
-
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -44,6 +33,17 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import nl.q42.jue.Config;
+import nl.q42.jue.FullConfig;
+import nl.q42.jue.FullLight;
+import nl.q42.jue.HueBridge;
+import nl.q42.jue.State;
+import nl.q42.jue.StateUpdate;
+import nl.q42.jue.exceptions.ApiException;
+import nl.q42.jue.exceptions.DeviceOffException;
+import nl.q42.jue.exceptions.LinkButtonException;
+import nl.q42.jue.exceptions.UnauthorizedException;
 
 /**
  * {@link HueBridgeHandler} is the handler for a hue bridge and connects it to
@@ -63,7 +63,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     private static final int POLLING_FREQUENCY = 10; // in seconds
 
-    private static final String DEFAULT_USERNAME = "EclipseSmartHome";
+    private static final String DEVICE_TYPE = "EclipseSmartHome";
 
     private Logger logger = LoggerFactory.getLogger(HueBridgeHandler.class);
 
@@ -84,8 +84,15 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     FullConfig fullConfig = bridge.getFullConfig();
                     if (!lastBridgeConnectionState) {
                         logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
-                        lastBridgeConnectionState = true;
-                        onConnectionResumed(bridge);
+                        if (getConfig().get(USER_NAME) == null) {
+                            logger.warn("User name for Hue bridge authentication not available in configuration. "
+                                    + "Setting ThingStatus to offline.");
+                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                    "User name is not properly configured - please check log files");
+                        } else {
+                            lastBridgeConnectionState = true;
+                            onConnectionResumed(bridge);
+                        }
                     }
                     if (lastBridgeConnectionState) {
                         Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightStates);
@@ -232,10 +239,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     public void initialize() {
         logger.debug("Initializing hue bridge handler.");
 
-        if (getConfig().get(USER_NAME) == null) {
-            getConfig().put(USER_NAME, DEFAULT_USERNAME);
-        }
-
         if (getConfig().get(HOST) != null) {
             if (bridge == null) {
                 bridge = new HueBridge((String) getConfig().get(HOST));
@@ -244,7 +247,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             onUpdate();
         } else {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                    "Cannot connect to hue bridge. IP address or user name not set.");
+                    "Cannot connect to hue bridge. IP address not set.");
         }
     }
 
@@ -258,7 +261,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     /**
      * This method is called whenever the connection to the given {@link HueBridge} is lost.
-     * 
+     *
      * @param bridge the hue bridge the connection is lost to
      */
     public void onConnectionLost(HueBridge bridge) {
@@ -268,7 +271,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     /**
      * This method is called whenever the connection to the given {@link HueBridge} is resumed.
-     * 
+     *
      * @param bridge the hue bridge the connection is resumed to
      */
     public void onConnectionResumed(HueBridge bridge) {
@@ -291,22 +294,66 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onNotAuthenticated(HueBridge bridge) {
         String userName = (String) getConfig().get(USER_NAME);
-        if (userName != null) {
+        if (userName == null) {
+            createUser(bridge);
+        } else {
             try {
                 bridge.authenticate(userName);
             } catch (Exception e) {
-                logger.info("Hue bridge {} is not authenticated - please press the pairing button on the bridge.",
-                        getConfig().get(HOST));
-                try {
-                    bridge.link(userName, "gateway");
-                    logger.info("User '{}' has been successfully added to Hue bridge.", userName);
-                } catch (Exception ex) {
-                    logger.debug("Failed adding user '{}' to Hue bridge.", userName);
-                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
-                            "Not authenticated - press pairing button on the bridge or change username.");
-                }
+                handleAuthenticationFailure(e, userName);
             }
         }
+    }
+
+    private void createUser(HueBridge bridge) {
+        try {
+            String newUser = createUserOnPhysicalBridge(bridge);
+            updateBridgeThingConfiguration(newUser);
+        } catch (LinkButtonException ex) {
+            handleLinkButtonNotPressed(ex);
+        } catch (Exception ex) {
+            handleExceptionWhileCreatingUser(ex);
+        }
+    }
+
+    private String createUserOnPhysicalBridge(HueBridge bridge) throws IOException, ApiException {
+        logger.info("Creating new user on Hue bridge {} - please press the pairing button on the bridge.",
+                getConfig().get(HOST));
+        String userName = bridge.link(DEVICE_TYPE);
+        logger.info("User '{}' has been successfully added to Hue bridge.", userName);
+        return userName;
+    }
+
+    private void updateBridgeThingConfiguration(String userName) {
+        Configuration config = editConfiguration();
+        config.put(USER_NAME, userName);
+        try {
+            updateConfiguration(config);
+            logger.debug("Updated configuration parameter {} to '{}'", USER_NAME, userName);
+        } catch (IllegalStateException e) {
+            logger.trace("Configuration update failed.", e);
+            logger.warn("Unable to update configuration of Hue bridge.");
+            logger.warn("Please configure the following user name manually: {}", userName);
+        }
+    }
+
+    private void handleAuthenticationFailure(Exception ex, String userName) {
+        logger.warn("User {} is not authenticated on Hue bridge {}", userName, getConfig().get(HOST));
+        logger.warn("Please configure a valid user or remove user from configuration to generate a new one.");
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                "Authentication failed - remove user name from configuration to generate a new one.");
+    }
+
+    private void handleLinkButtonNotPressed(LinkButtonException ex) {
+        logger.debug("Failed creating new user on Hue bridge: {}", ex.getMessage());
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                "Not authenticated - press pairing button on the bridge.");
+    }
+
+    private void handleExceptionWhileCreatingUser(Exception ex) {
+        logger.warn("Failed creating new user on Hue bridge", ex);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                "Failed to create new user on bridge: " + ex.getMessage());
     }
 
     public boolean registerLightStatusListener(LightStatusListener lightStatusListener) {
@@ -377,12 +424,10 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private boolean isEqual(State state1, State state2) {
         try {
             return state1.getAlertMode().equals(state2.getAlertMode()) && state1.isOn() == state2.isOn()
-                    && state1.getEffect().equals(state2.getEffect())
-                    && state1.getBrightness() == state2.getBrightness()
+                    && state1.getEffect().equals(state2.getEffect()) && state1.getBrightness() == state2.getBrightness()
                     && state1.getColorMode().equals(state2.getColorMode())
                     && state1.getColorTemperature() == state2.getColorTemperature()
-                    && state1.getHue() == state2.getHue()
-                    && state1.getSaturation() == state2.getSaturation()
+                    && state1.getHue() == state2.getHue() && state1.getSaturation() == state2.getSaturation()
                     && state1.isReachable() == state2.isReachable();
         } catch (Exception e) {
             // if a device does not support color, the Jue library throws an NPE

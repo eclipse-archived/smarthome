@@ -22,10 +22,6 @@ Almost all available Hue devices are supported by this binding. This includes no
 
 The Hue bridge is discovered through UPnP in the local network. Once it is added as a Thing, its authentication button (in the middle) needs to be pressed in order to authorize the binding to access it. Once the binding is authorized, it automatically reads all devices that are set up on the Hue bridge and puts them in the Inbox.
 
-## Binding Configuration
-
-The binding uses a default secret to authenticate against the Hue bridge, unless a different secret is configured. The default value can be set in the file [hue.cfg](cfg/hue.cfg).
-
 ## Thing Configuration
 
 The Hue bridge requires the ip address as a configuration value in order for the binding to know where to access it.
@@ -33,6 +29,12 @@ In the thing file, this looks e.g. like
 ```
 Bridge hue:bridge:1 [ ipAddress="192.168.0.64" ]
 ```
+A user to authenticate against the Hue bridge is automatically generated. Please note that the generated user name cannot be written automatically to the .thing file, and has to be set manually. The generated user name can be found in the log files after pressing the authentication button on the bridge.
+The user name can be set using the `userName` configuration value, e.g.:
+```
+Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxcvbnm1234" ]
+```
+
 The bulbs are identified by the number that the Hue bridge assigns to them (also shown in the Hue app as an identifier).
 Thus, all if needs for manual configuration is this single value like
 ```
