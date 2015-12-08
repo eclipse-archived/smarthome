@@ -1974,6 +1974,18 @@
           key="/instance/org.eclipse.wst.jsdt.ui/sp_cleanup.use_this_for_non_static_method_access_only_if_necessary"
           value="true"/>
     </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="org.eclipse.wst.xml.core">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.wst.xml.core/indentationChar"
+          value="tab"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.wst.xml.core/lineWidth"
+          value="120"/>
+    </setupTask>
   </setupTask>
   <setupTask
       xsi:type="setup:VariableTask"
