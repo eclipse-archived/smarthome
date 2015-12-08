@@ -15,7 +15,7 @@
       provider-name="Eclipse.org/SmartHome">
 
    <description>
-      This features defines all bundles that form the Eclipse SmartHome Equinox Console.
+      This feature defines all bundles that form the Eclipse SmartHome Equinox Console.
    </description>
 
    <copyright>

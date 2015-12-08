@@ -16,7 +16,7 @@
       plugin="org.eclipse.smarthome.designer.core">
 
    <description>
-      This features defines all bundles that form the Eclipse SmartHome designer.
+      This feature defines all bundles that form the Eclipse SmartHome designer.
    </description>
 
    <copyright>

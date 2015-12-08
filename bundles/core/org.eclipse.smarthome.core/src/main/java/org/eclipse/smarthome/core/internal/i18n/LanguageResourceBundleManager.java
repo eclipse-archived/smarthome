@@ -92,7 +92,7 @@ public class LanguageResourceBundleManager {
     }
 
     private List<String> determineResourceNames() {
-        List<String> resourceNames = new ArrayList<>();
+        List<String> resourceNames = new ArrayList<String>();
 
         Enumeration<URL> resourceFiles = this.bundle.findEntries(RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN, true);
 

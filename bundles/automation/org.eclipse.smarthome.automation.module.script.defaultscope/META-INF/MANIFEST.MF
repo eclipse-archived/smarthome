@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Script Globals
+Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script.defaultscope
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.google.common.collect,
+ org.apache.commons.collections.keyvalue,
+ org.apache.commons.io,
+ org.apache.commons.lang,
+ org.eclipse.smarthome.automation.module.script,
+ org.eclipse.smarthome.core.common.registry,
+ org.eclipse.smarthome.core.events,
+ org.eclipse.smarthome.core.items,
+ org.eclipse.smarthome.core.items.events,
+ org.eclipse.smarthome.core.library.types,
+ org.eclipse.smarthome.core.thing,
+ org.eclipse.smarthome.core.types,
+ org.joda.time;resolution:=optional,
+ org.osgi.framework,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml

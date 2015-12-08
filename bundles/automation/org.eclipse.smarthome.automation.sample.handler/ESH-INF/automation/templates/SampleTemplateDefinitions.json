@@ -1,0 +1,53 @@
+[  
+  {  
+    "uid":"SampleRuleTemplate",
+    "description":"Sample Rule TEmplate.",
+    "tags":[  
+      "sample",
+      "rule",
+      "template"
+    ],
+    "configDescriptions":[  
+         {
+          "name":"condition_operator",              
+          "type": "TEXT",
+          "description": "Valid operators are =,>,<,!=",
+          "required": true
+        },
+         {
+          "name":"condition_constraint",              
+          "type": "TEXT",
+          "description": "Right operand which is compared with the input.",
+          "required": true
+        }
+    ],
+    "triggers": [  
+      {  
+        "id": "CompositeSampleTriggerTemplateID",
+        "type": "CompositeSampleTrigger"
+      }
+    ],
+    "conditions": [
+      {
+        "id": "SampleConditionTemplateID",
+        "type": "SampleCondition",
+        "configuration": {
+          "operator": "$condition_operator",
+          "constraint": "$condition_constraint"
+        },
+        "inputs": {
+          "conditionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
+        }
+      }
+    ],
+    "actions": [
+      {  
+        "id": "CompositeActionTemplateID",
+        "type": "CompositeSampleAction",
+        "inputs": {  
+          "compositeActionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
+        }
+      }
+    ]
+  }
+]

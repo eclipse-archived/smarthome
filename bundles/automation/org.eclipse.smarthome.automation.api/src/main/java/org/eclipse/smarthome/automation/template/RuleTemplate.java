@@ -1,17 +1,15 @@
-/*******************************************************************************
- * Copyright (c) 1997, 2015 by ProSyst Software GmbH
- * http://www.prosyst.com
+/**
+ * Copyright (c) 1997, 2015 by ProSyst Software GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    ProSyst Software GmbH - initial API and implementation
- *******************************************************************************/
-
+ */
 package org.eclipse.smarthome.automation.template;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +19,7 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
@@ -33,81 +32,112 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
  * <p>
  * Templates can have <code>tags</code> - non-hierarchical keywords or terms for describing them.
  *
- * @author Yordan Mihaylov, Ana Dimova, Vasil Ilchev - Initial Contribution
+ * @author Yordan Mihaylov - Initial Contribution
+ * @author Ana Dimova - Initial Contribution
+ * @author Vasil Ilchev - Initial Contribution
  */
 public class RuleTemplate implements Template {
 
-    private String UID;
+    /**
+     * This field holds an unique identifier of the {@link RuleTemplate} instance.
+     */
+    private String uid;
+
+    /**
+     * This field holds a list with the unique {@link Trigger}s participating in the {@link Rule} and starting its
+     * execution.
+     */
     private List<Trigger> triggers;
+
+    /**
+     * This field holds a list with the unique {@link Condition}s participating in the {@link Rule} and determine the
+     * completion of the execution.
+     */
     private List<Condition> conditions;
+
+    /**
+     * This field holds a list with the unique {@link Action}s participating in the {@link Rule} and are the real work
+     * that will be done by the rule.
+     */
     private List<Action> actions;
+
+    /**
+     * This field holds a set of non-hierarchical keywords or terms for describing the {@link RuleTemplate}.
+     */
     private Set<String> tags;
+
+    /**
+     * This field holds the short, user friendly name of the Template.
+     */
     private String label;
+
+    /**
+     * This field describes the usage of the {@link Rule} and its benefits.
+     */
     private String description;
+
+    /**
+     * This field determines {@link Visibility} of the template.
+     */
     private Visibility visibility;
-    private Set<ConfigDescriptionParameter> configDescriptions;
+
+    /**
+     * This field defines a set of configuration properties of the {@link Rule}.
+     */
+    private List<ConfigDescriptionParameter> configDescriptions;
 
     /**
      * This constructor creates a {@link RuleTemplate} instance.
      *
-     * @param UID unique identifier of the rule template
+     * @param UID is an unique identifier of the {@link RuleTemplate} instance.
      * @param triggers - list of unique {@link Trigger}s participating in the {@link Rule}
      * @param conditions - list of unique {@link Condition}s participating in the {@link Rule}
      * @param actions - list of unique {@link Action}s participating in the {@link Rule}
      * @param configDescriptions - set of configuration properties of the {@link Rule}
-     * @param visibility visibility of template. It can be public or private
+     * @param visibility defines if the template can be public or private.
      */
-    public RuleTemplate(String UID,
-            List<Trigger> triggers, //
-            List<Condition> conditions, List<Action> actions, Set<ConfigDescriptionParameter> configDescriptions,
+    public RuleTemplate(String UID, String label, String description, Set<String> tags, List<Trigger> triggers,
+            List<Condition> conditions, List<Action> actions, List<ConfigDescriptionParameter> configDescriptions,
             Visibility visibility) {
 
-        this.UID = UID;
+        this.uid = UID;
+        this.label = label;
+        this.description = description;
         this.triggers = triggers;
         this.conditions = conditions;
         this.actions = actions;
         this.configDescriptions = configDescriptions;
         this.visibility = visibility;
+        if (tags == null || tags.isEmpty())
+            return;
+        this.tags = new HashSet<String>(tags);
     }
 
     /**
-     * This method is used for getting the type of Template. It is unique in scope
-     * of RuleEngine.
+     * This method is used for getting the type of Template. It is unique in scope of RuleEngine.
      *
      * @return the unique id of Template.
      */
     @Override
     public String getUID() {
-        return UID;
+        return uid;
     }
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for getting the assign tags to this Template.
+     * This method is used for getting the assigned <code>tags</code> to this Template. The <code>tags</code> are
+     * non-hierarchical keywords or terms that are used for describing the template and to filter the templates.
      *
-     * @return tags of the template
+     * @return tags that is a set of non-hierarchical keywords or terms, describing the template.
      */
     @Override
     public Set<String> getTags() {
-        return new HashSet<String>(tags);
+        return tags != null ? tags : Collections.<String> emptySet();
     }
 
     /**
-     * Templates can have <li><code>tags</code> - non-hierarchical keywords or terms for describing them. The tags are
-     * used to filter the templates. This method is used for assigning tags to this Template.
+     * This method is used for getting the label of the Template.
      *
-     * @param tags set of tags assign to the template.
-     */
-    @Override
-    public void setTags(Set<String> tags) {
-        tags = new HashSet<String>(tags);
-    }
-
-    /**
-     * This method is used for getting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
-     *
-     * @return the label of the Template.
+     * @return the short, user friendly name of the Template.
      */
     @Override
     public String getLabel() {
@@ -115,20 +145,9 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * This method is used for setting the label of the Template. The label is a
-     * short, user friendly name of the Template defined by this descriptor.
-     *
-     * @param label of the Template.
-     */
-    @Override
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    /**
      * This method is used for getting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
+     * description is a long, user friendly description of the Rule defined by
+     * this Template.
      *
      * @return the description of the Template.
      */
@@ -138,36 +157,26 @@ public class RuleTemplate implements Template {
     }
 
     /**
-     * This method is used for setting the description of the Template. The
-     * description is a long, user friendly description of the Template defined by
-     * this descriptor.
-     *
-     * @param description of the Template.
-     */
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
      * This method is used to show visibility of the template
      *
      * @return visibility of template
      */
     @Override
     public Visibility getVisibility() {
+        if (visibility == null) {
+            return Visibility.VISIBLE;
+        }
         return visibility;
     }
 
     /**
      * This method is used for getting the Set with {@link ConfigDescriptionParameter}s defining meta info for
-     * configuration
-     * properties of the Rule.<br/>
+     * configuration properties of the Rule.
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
-    public Set<ConfigDescriptionParameter> getConfigurationDescription() {
-        return new HashSet<ConfigDescriptionParameter>(configDescriptions);
+    public List<ConfigDescriptionParameter> getConfigurationDescription() {
+        return configDescriptions != null ? configDescriptions : Collections.<ConfigDescriptionParameter> emptyList();
     }
 
     /**
@@ -189,15 +198,34 @@ public class RuleTemplate implements Template {
      *         specified.
      */
     @SuppressWarnings("unchecked")
-    public <T extends Module> List<T> getModules(Class<T> clazz) {
-        if (clazz == Trigger.class) {
-            return (List<T>) triggers;
-        } else if (clazz == Condition.class) {
-            return (List<T>) conditions;
-        } else if (clazz == Action.class) {
-            return (List<T>) actions;
+    @Deprecated
+    public <T extends Module> List<T> getModules(Class<T> moduleClazz) {
+        List<T> result = null;
+        if (moduleClazz == null) {
+            result = new ArrayList<T>();
+            result.addAll((Collection<? extends T>) triggers);
+            result.addAll((Collection<? extends T>) conditions);
+            result.addAll((Collection<? extends T>) actions);
+        } else if (Trigger.class == moduleClazz) {
+            result = (List<T>) triggers;
+        } else if (Condition.class == moduleClazz) {
+            result = (List<T>) conditions;
+        } else if (Action.class == moduleClazz) {
+            result = (List<T>) actions;
         }
-        return null;
+        return result != null ? result : Collections.<T> emptyList();
+    }
+
+    public List<Trigger> getTriggers() {
+        return triggers != null ? triggers : Collections.<Trigger> emptyList();
+    }
+
+    public List<Condition> getConditions() {
+        return conditions != null ? conditions : Collections.<Condition> emptyList();
+    }
+
+    public List<Action> getActions() {
+        return actions != null ? actions : Collections.<Action> emptyList();
     }
 
 }

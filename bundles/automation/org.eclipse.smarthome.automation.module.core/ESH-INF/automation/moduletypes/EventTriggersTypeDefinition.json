@@ -1,0 +1,79 @@
+{  
+   "triggers":[  
+      {  
+         "uid":"GenericEventTrigger",
+         "label":"Basic Event Trigger",
+         "description":"Triggers Rules on Events",
+         "configDescriptions":[  
+            {  
+               "name":"eventTopic",
+               "type":"TEXT",
+               "label":"Topic",
+               "description":"This is the topic, the trigger will listen to: >>smarthome/*<<",
+               "required":true,
+               "defaultValue":"smarthome/*"
+            },
+            {  
+               "name":"eventSource",
+               "type":"TEXT",
+               "label":"Source",
+               "description":"This is the source of the event (eg. item name)",
+               "required":true,
+               "defaultValue":""
+            },
+            {  
+               "name":"eventTypes",
+               "type":"TEXT",
+               "label":"Event Type",
+               "description":"the event type, the trigger should listen to. Multiple types can be specified comma-separated",
+               "required":true,
+               "defaultValue":""
+            }
+         ],
+         "outputs":[  
+            {  
+               "name":"event",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "label":"Event",
+               "description":"The events which was sent.",
+               "reference":"event"
+            }
+         ]
+      },
+      {  
+         "uid":"ItemStateChangeTrigger",
+         "label":"Item State Trigger",
+         "description":"This triggers a rule if an items state changed",
+         "configDescriptions":[  
+            {  
+               "name":"itemName",
+               "type":"TEXT",
+               "context":"item",
+               "label":"item name",
+               "description":"the name of the item which's state change should be observed",
+               "required":true
+            }
+         ],
+         "children":[  
+            {  
+               "id":"itemStateChangeTriggerID",
+               "type":"GenericEventTrigger",
+               "configuration":{  
+                  "eventSource":"$itemName",
+                  "eventTopic":"smarthome/items/*",
+                  "eventTypes":"ItemStateEvent"
+               }
+            }
+         ],
+         "outputs":[  
+            {  
+               "name":"event",
+               "type":"org.eclipse.smarthome.core.events.Event",
+               "description":"the event of the item state change",
+               "label":"event",
+               "reference":"itemStateChangeTriggerID.event"
+            }
+         ]
+      }
+   ]
+}
