@@ -11,7 +11,6 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Set;
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants;
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -86,11 +85,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 FullLight fullLight = getLight();
                 if (fullLight != null) {
                     updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                    // Check for Osram PAR16 50 TW bulb
-                    String thingTypeId = HueBindingConstants.THING_TYPE_PAR16_50_TW.getId();
-                    if (thingTypeId.equals("PAR16_50_TW")) {
-                        isOsramPar16 = true;
-                    }
+                    isOsramPar16 = THING_TYPE_PAR16_50_TW.equals(getThing().getThingTypeUID());
                 }
             }
         }
@@ -138,7 +133,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     lightState = LightStateConverter.toColorTemperatureLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
                     lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    // Call OSRAM PAR16 50 workaround code if bulb is of that type
                     if (isOsramPar16) {
                         lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
                     }
@@ -151,7 +145,6 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     lightState = LightStateConverter.toBrightnessLightState((PercentType) command);
                 } else if (command instanceof OnOffType) {
                     lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
-                    // Call OSRAM PAR16 50 workaround code if bulb is of that type
                     if (isOsramPar16) {
                         lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
                     }
@@ -183,11 +176,11 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
     }
 
+    /*
+     * Applies additional {@link StateUpdate} commands as a workaround for Osram Lightify PAR16 TW firmware bug.
+     * Also see http://www.everyhue.com/vanilla/discussion/1756/solved-lightify-turning-off
+     */
     private StateUpdate addOsramSpecificCommands(StateUpdate lightState, OnOffType actionType) {
-        /*
-         * If command is to turn on OSRAM Par16 50 bulb add brightness of 254.
-         * If command is to turn off OSRAM Par 16 50 bulb add TransitionTime of 0.
-         */
         if (actionType.equals(OnOffType.ON)) {
             lightState.setBrightness(254);
         } else {
