@@ -43,4 +43,29 @@
     <module>org.eclipse.smarthome.model.thing.tests</module>
   </modules>
 
+  <build>
+    <plugins>
+	  <plugin>
+		   <groupId>com.googlecode.maven-download-plugin</groupId>
+		   <artifactId>download-maven-plugin</artifactId>
+		   <version>1.2.1</version>
+		   <inherited>false</inherited>
+			  <executions>
+				  <execution>
+					  <id>install-antrl3</id>
+					  <phase>initialize</phase>
+					  <goals>
+						  <goal>wget</goal>
+					  </goals>
+					  <configuration>
+						  <url>http://download.itemis.com/antlr-generator-3.2.0-patch.jar</url>
+						  <unpack>false</unpack>
+						  <outputDirectory>/${basedir}</outputDirectory>
+					  </configuration>
+				  </execution>
+			  </executions>
+		  </plugin>
+     </plugins>  
+  </build>
+	  
 </project>
