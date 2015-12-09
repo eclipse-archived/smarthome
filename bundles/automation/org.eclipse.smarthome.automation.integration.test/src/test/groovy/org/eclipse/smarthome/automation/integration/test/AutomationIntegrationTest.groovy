@@ -372,9 +372,9 @@ class AutomationIntegrationTest extends OSGiTest{
     @Test
     public void 'test chain of composite Modules' () {
         def triggerConfig = [itemName:"myMotionItem4"]
-        def condition1Config = [itemName:"myPresenceItem4"]
+        def condition1Config = [itemName:"myMotionItem4"]
         def eventInputs = [event:"ItemStateChangeTrigger4.event"]
-        def condition2Config = [operator:"=", itemName:"myMotionItem4", state:"ON"]
+        def condition2Config = [operator:"=", itemName:"myPresenceItem4", state:"ON"]
         def actionConfig = [itemName:"myLampItem4", command:"ON"]
         def triggers = [
             new Trigger("ItemStateChangeTrigger4", "ItemStateChangeTrigger", triggerConfig)
@@ -403,8 +403,9 @@ class AutomationIntegrationTest extends OSGiTest{
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem4")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem4", commandObj))
+        SwitchItem myPresenceItem = itemRegistry.getItem("myPresenceItem4")
+        //prepare the presenceItems state to be on to match the second condition of the rule     
+        myPresenceItem.send(OnOffType.ON)
 
         Event itemEvent = null
 
@@ -425,8 +426,8 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem4").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem4", commandObj))
+        //causing the event to trigger the rule
+        myMotionItem.send(OnOffType.ON)
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem4/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
