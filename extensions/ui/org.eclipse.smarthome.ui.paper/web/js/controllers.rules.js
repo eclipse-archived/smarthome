@@ -32,26 +32,26 @@ angular.module('PaperUI.controllers.rules',
 	itemRepository.getAll();
 	$scope.save = function() {
 		var rule = {
-			"on" : [ {
+			"triggers" : [ {
 				"id" : "trigger",
-				"config" : {
+				"configuration" : {
 					"eventSource" : $scope.item,
 					"eventTopic" : "smarthome/items/MyTrigger/state",
 					"eventTypes" : "ItemStateEvent"
 				},
 				"type" : "GenericEventTrigger"
 			} ],
-			"if" : [ {
+			"conditions" : [ {
 				"id" : "condition",
-				"config" : {
+				"configuration" : {
 					"type" : "application/javascript",
 					"script" : "trigger_event.itemState==" + $scope.state
 				},
 				"type" : "ScriptCondition"
 			} ],
-			"then" : [ {
+			"actions" : [ {
 				"id" : "action",
-				"config" : {
+				"configuration" : {
 					"type" : "application/javascript",
 					"script" : $scope.script
 				},

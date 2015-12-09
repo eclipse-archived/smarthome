@@ -306,8 +306,8 @@ public class RuntimeRule extends Rule {
         if (conditions != null) {
             for (Condition c : conditions) {
                 Condition condition = new Condition(c.getId(), c.getTypeUID(), c.getConfiguration(), c.getInputs());
-                condition.setLabel(condition.getLabel());
-                condition.setDescription(condition.getDescription());
+                condition.setLabel(c.getLabel());
+                condition.setDescription(c.getDescription());
                 res.add(condition);
             }
         }
@@ -329,8 +329,8 @@ public class RuntimeRule extends Rule {
         if (triggers != null) {
             for (Trigger t : triggers) {
                 Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), t.getConfiguration());
-                trigger.setLabel(trigger.getLabel());
-                trigger.setDescription(trigger.getDescription());
+                trigger.setLabel(t.getLabel());
+                trigger.setDescription(t.getDescription());
                 res.add(trigger);
             }
         }
