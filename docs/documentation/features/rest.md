@@ -18,8 +18,7 @@ By default, the REST API is registered on the HTTP service under `rest`. This co
 
 ## REST Endpoints
 
-The documentation of available REST endpoints will follow soon, stay tuned.
-
+The details about available REST urls, their parameters, etc. can be found [here](../../rest/index.html).
 
 ## Server Sent Events (SSE)
 
