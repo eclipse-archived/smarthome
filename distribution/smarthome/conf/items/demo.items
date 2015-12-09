@@ -1,4 +1,4 @@
-Group:Switch:OR(ON,OFF) DemoSwitchGroup
+Group:Switch:OR(ON,OFF) DemoSwitchGroup [ "home-group" ]
 
 Switch DemoSwitch					(DemoSwitchGroup)
 Dimmer DemoDimmer					(DemoSwitchGroup)
