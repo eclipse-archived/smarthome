@@ -72,7 +72,7 @@
         "type": "ScriptAction",
         "configuration": {  
           "type": "application/javascript",
-          "script": '"ProSyst rules!"';
+          "script": "ProSyst rules!"
         }
       },
       {  
@@ -80,7 +80,7 @@
         "type": "ScriptAction",
         "configuration": {  
           "type": "application/javascript",
-          "script": 'print("action2.result: " + action2.result)';
+          "script": 'print("action2.result: " + action2.result)'
         }
       }
       

@@ -70,7 +70,7 @@ public class RuntimeRule extends Rule {
 
     @Override
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
-        this.config = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration)
+        this.configuration = ruleConfiguration != null ? new HashMap<String, Object>(ruleConfiguration)
                 : new HashMap<String, Object>(11);
     }
 
@@ -129,7 +129,7 @@ public class RuntimeRule extends Rule {
      *
      * @param configurations
      */
-    private void validateConfiguration(Map<String, Object> configurations) {
+    private void validateConfiguration0(Map<String, Object> configurations) {
         if (configurations == null || configurations.isEmpty()) {
             if (isOptionalConfig(configDescriptions)) {
                 return;
@@ -138,10 +138,7 @@ public class RuntimeRule extends Rule {
         } else {
             for (ConfigDescriptionParameter configParameter : configDescriptions) {
                 String configParameterName = configParameter.getName();
-                Object configValue = configurations.remove(configParameterName);
-                if (configValue != null) {
-                    processValue(configValue, configParameter);
-                }
+                processValue(configurations.remove(configParameterName), configParameter);
             }
             if (!configurations.isEmpty()) {
                 String msg = "\"";
@@ -242,17 +239,17 @@ public class RuntimeRule extends Rule {
         }
     }
 
-    void handleModuleConfigReferences() {
+    void validateConfiguration() {
         Map<String, ?> ruleConfiguration = getConfiguration();
         if (ruleConfiguration != null) {
-            validateConfiguration(new HashMap<String, Object>(ruleConfiguration));
-            handleModuleConfigReferences0(getTriggers(), ruleConfiguration);
-            handleModuleConfigReferences0(getConditions(), ruleConfiguration);
-            handleModuleConfigReferences0(getActions(), ruleConfiguration);
+            validateConfiguration0(new HashMap<String, Object>(ruleConfiguration));
+            handleModuleConfigReferences(getTriggers(), ruleConfiguration);
+            handleModuleConfigReferences(getConditions(), ruleConfiguration);
+            handleModuleConfigReferences(getActions(), ruleConfiguration);
         }
     }
 
-    private void handleModuleConfigReferences0(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
+    private void handleModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             for (Module module : modules) {
                 Map<String, Object> moduleConfiguration = module.getConfiguration();

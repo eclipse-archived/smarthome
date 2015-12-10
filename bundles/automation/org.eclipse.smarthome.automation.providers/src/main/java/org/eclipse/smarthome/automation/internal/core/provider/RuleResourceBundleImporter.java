@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.parser.Parser;
 import org.eclipse.smarthome.automation.parser.ParsingException;
+import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -82,11 +83,14 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
                     if (service instanceof RuleRegistry) {
                         ruleRegistry = (RuleRegistry) service;
                         queue.open();
-                    } else if (service instanceof RuleProvider) {
+                        return service;
+                    }
+                    if (service instanceof ManagedProvider) {
                         ruleProvider = (RuleProvider) service;
                         queue.open();
+                        return service;
                     }
-                    return service;
+                    return null;
                 }
 
                 @Override
