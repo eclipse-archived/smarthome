@@ -15,3 +15,7 @@ distribution/smarthome/runtime/etc/mapdb/storage.mapdb.t
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.p
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.t
+bundles/model/antlr-generator-3.2.0-patch.jar
+distribution/smarthome/userdata/mapdb/storage.mapdb
+distribution/smarthome/userdata/mapdb/storage.mapdb.p
+distribution/smarthome/userdata/mapdb/storage.mapdb.t
