@@ -153,7 +153,7 @@ public class ThingTypeRegistry {
     public ChannelType getChannelType(Channel channel, Locale locale) {
         ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
         if (channelTypeUID != null) {
-            return TypeResolver.resolve(channelTypeUID);
+            return TypeResolver.resolve(channelTypeUID, locale);
         }
         // fallback for lookup over the thing type
         ChannelUID channelUID = channel.getUID();
@@ -161,7 +161,7 @@ public class ThingTypeRegistry {
         if (thingType != null) {
             channelTypeUID = thingType.getChannelTypeUID(channelUID);
             if (channelTypeUID != null) {
-                return TypeResolver.resolve(channelTypeUID);
+                return TypeResolver.resolve(channelTypeUID, locale);
             }
         }
         return null;
