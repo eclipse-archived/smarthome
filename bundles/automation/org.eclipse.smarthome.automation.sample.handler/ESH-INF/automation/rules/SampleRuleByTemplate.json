@@ -2,7 +2,7 @@
   {  
     "uid": "sample.rulebytemplate",
     "name": "RuleByTemplate",
-    "template.uid": "SampleRuleTemplate",
+    "templateUID": "SampleRuleTemplate",
     "tags": [  
       "rule",
       "template"

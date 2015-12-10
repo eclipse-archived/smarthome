@@ -348,6 +348,7 @@ public class RuleEngine
             setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED));
         }
 
+        String errMsgs = null;
         RuntimeRule r = getRule0(rUID);
         String templateUID = r.getTemplateUID();
         if (templateUID != null) {
@@ -366,10 +367,20 @@ public class RuleEngine
                         new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR,
                                 "The template: " + templateUID + " is not available!"));
                 return;
+            } else {
+                rules.put(rUID, r);
+                try {
+                    r.validateConfiguration();
+                } catch (IllegalArgumentException e) {
+                    errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
+                    // change state to NOTINITIALIZED
+                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                            RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
+                    return;
+                }
             }
         }
 
-        String errMsgs = null;
         String errMessage;
         List<Condition> conditions = r.getConditions();
         if (conditions != null) {
@@ -445,7 +456,6 @@ public class RuleEngine
             return null;
         } else {
             RuntimeRule r1 = new RuntimeRule(rule.getUID(), template, rule.getConfiguration());
-            r1.handleModuleConfigReferences();
             return r1;
         }
     }

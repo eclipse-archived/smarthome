@@ -40,9 +40,9 @@ public class Rule {
     protected List<Condition> conditions;
     protected List<Action> actions;
     protected String scopeId;
-    protected Map<String, ?> config;
+    protected Map<String, ?> configuration;
     protected List<ConfigDescriptionParameter> configDescriptions;
-    protected String ruleTemplateUID;
+    protected String templateUID;
     protected String uid;
     protected String name;
     protected Set<String> tags;
@@ -118,7 +118,7 @@ public class Rule {
      */
     public Rule(String uid, String ruleTemplateUID, Map<String, ?> configurations) {
         this.uid = uid;
-        this.ruleTemplateUID = ruleTemplateUID;
+        this.templateUID = ruleTemplateUID;
         setConfiguration(configurations);
     }
 
@@ -141,7 +141,7 @@ public class Rule {
             List<Action> actions, List<ConfigDescriptionParameter> configDescriptions, //
             Map<String, ?> configurations, String templateUID, Visibility visibility) {
         this(uid, triggers, conditions, actions, configDescriptions, configurations, visibility);
-        this.ruleTemplateUID = templateUID;
+        this.templateUID = templateUID;
     }
 
     /**
@@ -161,7 +161,7 @@ public class Rule {
      * @return unique id of this {@link Rule}
      */
     public String getTemplateUID() {
-        return ruleTemplateUID;
+        return templateUID;
     }
 
     /**
@@ -265,10 +265,10 @@ public class Rule {
      * @return current configuration values
      */
     public Map<String, ?> getConfiguration() {
-        if (config == null) {
-            config = new HashMap<String, Object>(3);
+        if (configuration == null) {
+            configuration = new HashMap<String, Object>(3);
         }
-        return config;
+        return configuration;
     }
 
     /**
@@ -280,7 +280,7 @@ public class Rule {
      */
     public void setConfiguration(Map<String, ?> ruleConfiguration) {
         if (ruleConfiguration != null) {
-            config = ruleConfiguration;
+            configuration = ruleConfiguration;
         }
     }
 
@@ -382,7 +382,7 @@ public class Rule {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((ruleTemplateUID == null) ? 0 : ruleTemplateUID.hashCode());
+        result = prime * result + ((templateUID == null) ? 0 : templateUID.hashCode());
         result = prime * result + ((uid == null) ? 0 : uid.hashCode());
         return result;
     }
@@ -396,10 +396,10 @@ public class Rule {
         if (getClass() != obj.getClass())
             return false;
         Rule other = (Rule) obj;
-        if (ruleTemplateUID == null) {
-            if (other.ruleTemplateUID != null)
+        if (templateUID == null) {
+            if (other.templateUID != null)
                 return false;
-        } else if (!ruleTemplateUID.equals(other.ruleTemplateUID))
+        } else if (!templateUID.equals(other.templateUID))
             return false;
         if (uid == null) {
             if (other.uid != null)

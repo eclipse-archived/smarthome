@@ -14,7 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
+import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -73,17 +75,17 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     /**
      * This field holds a reference to an implementation of {@link TemplateProvider}.
      */
-    private TemplateResourceBundleProvider tProvider;
+    private AbstractResourceBundleProvider<Template> tProvider;
 
     /**
      * This field holds a reference to an implementation of {@link ModuleTypeProvider}.
      */
-    private ModuleTypeResourceBundleProvider mProvider;
+    private AbstractResourceBundleProvider<ModuleType> mProvider;
 
     /**
      * This field holds a reference to an importer for {@link Rule}s.
      */
-    private RuleResourceBundleImporter rImporter;
+    private AbstractResourceBundleProvider<Rule> rImporter;
 
     /**
      * This constructor is responsible for initializing the tracker for bundles providing automation resources and their
@@ -94,8 +96,8 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * @param mProvider is a reference to an implementation of {@link ModuleTypeProvider}.
      * @param rImporter is a reference to an importer for {@link Rule}s.
      */
-    public AutomationResourceBundlesEventQueue(BundleContext bc, TemplateResourceBundleProvider tProvider,
-            ModuleTypeResourceBundleProvider mProvider, RuleResourceBundleImporter rImporter) {
+    public AutomationResourceBundlesEventQueue(BundleContext bc, AbstractResourceBundleProvider<Template> tProvider,
+            AbstractResourceBundleProvider<ModuleType> mProvider, AbstractResourceBundleProvider<Rule> rImporter) {
         this.tProvider = tProvider;
         this.mProvider = mProvider;
         this.rImporter = rImporter;

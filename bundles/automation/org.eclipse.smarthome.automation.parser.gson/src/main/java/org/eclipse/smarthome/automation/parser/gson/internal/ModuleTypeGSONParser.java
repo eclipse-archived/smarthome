@@ -113,8 +113,8 @@ public class ModuleTypeGSONParser extends AbstractGSONParser<ModuleType> {
             }
         }
         map.put("triggers", triggers);
-        map.put("conditions", triggers);
-        map.put("actions", triggers);
+        map.put("conditions", conditions);
+        map.put("actions", actions);
         return map;
     }
 
