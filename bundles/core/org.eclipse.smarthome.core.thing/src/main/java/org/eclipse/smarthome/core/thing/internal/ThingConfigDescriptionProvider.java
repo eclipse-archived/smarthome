@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
  * method to get updated options.
  *
  * @author Chris Jackson - Initial Implementation
- *
+ * @author Thomas Höfer - Added not null check for given URI in getConfigDescription
  */
 public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider {
     private ThingTypeRegistry thingTypeRegistry;
@@ -51,8 +51,8 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
 
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
-        // If this is not a concrete thing, then return
-        if ("thing".equals(uri.getScheme()) == false) {
+        // If this is not a concrete thing or uri is null, then return
+        if (uri == null || "thing".equals(uri.getScheme()) == false) {
             return null;
         }
 
