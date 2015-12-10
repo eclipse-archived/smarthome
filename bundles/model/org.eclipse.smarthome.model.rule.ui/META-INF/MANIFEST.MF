@@ -19,7 +19,9 @@ Require-Bundle: org.eclipse.smarthome.model.rule;visibility:=reexport,
  org.eclipse.xtext.xbase.ui,
  org.eclipse.smarthome.model.item.ui,
  org.eclipse.smarthome.model.script.ui,
- org.eclipse.smarthome.core
+ org.eclipse.smarthome.core,
+ org.eclipse.xtext.xbase.lib,
+ org.eclipse.jdt.debug.ui
 Import-Package: com.google.common.base,
  com.google.common.collect,
  org.apache.commons.lang,
@@ -35,8 +37,8 @@ Import-Package: com.google.common.base,
  org.osgi.service.cm,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.rule.ui.contentassist,org.
- eclipse.smarthome.model.rule.ui.contentassist.antlr,org.eclipse.smart
- home.model.rule.ui.internal,org.eclipse.smarthome.model.rule.ui.quick
- fix
+Export-Package: org.eclipse.smarthome.model.rule.ui.contentassist,
+ org.eclipse.smarthome.model.rule.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.rule.ui.internal,
+ org.eclipse.smarthome.model.rule.ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.rule.ui.internal.RuleModelUIActivator

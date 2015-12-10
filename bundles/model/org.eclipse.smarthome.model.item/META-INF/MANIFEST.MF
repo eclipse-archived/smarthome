@@ -17,16 +17,22 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.common,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
- org.eclipse.smarthome.model.lazygen;resolution:=optional
+ org.eclipse.smarthome.model.lazygen;resolution:=optional,
+ org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model,org.eclipse.smarthome.mode
- l.formatting,org.eclipse.smarthome.model.generator,org.eclipse.smarth
- ome.model.item,org.eclipse.smarthome.model.items,org.eclipse.smarthom
- e.model.items.impl,org.eclipse.smarthome.model.items.util,org.eclipse
- .smarthome.model.parser.antlr,org.eclipse.smarthome.model.parser.antl
- r.internal,org.eclipse.smarthome.model.scoping,org.eclipse.smarthome.
- model.serializer,org.eclipse.smarthome.model.services,org.eclipse.sma
- rthome.model.validation
+Export-Package: org.eclipse.smarthome.model,
+ org.eclipse.smarthome.model.formatting,
+ org.eclipse.smarthome.model.generator,
+ org.eclipse.smarthome.model.item,
+ org.eclipse.smarthome.model.items,
+ org.eclipse.smarthome.model.items.impl,
+ org.eclipse.smarthome.model.items.util,
+ org.eclipse.smarthome.model.parser.antlr,
+ org.eclipse.smarthome.model.parser.antlr.internal,
+ org.eclipse.smarthome.model.scoping,
+ org.eclipse.smarthome.model.serializer,
+ org.eclipse.smarthome.model.services,
+ org.eclipse.smarthome.model.validation
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.smarthome.core.autoupdate,
