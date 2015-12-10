@@ -25,8 +25,8 @@ public class EnrichedRuleDTO extends Rule {
         this.actions = rule.getActions();
         this.conditions = rule.getConditions();
         this.configDescriptions = rule.getConfigurationDescriptions();
-        this.config = rule.getConfiguration();
-        this.ruleTemplateUID = rule.getTemplateUID();
+        this.configuration = rule.getConfiguration();
+        this.templateUID = rule.getTemplateUID();
         this.triggers = rule.getTriggers();
         this.uid = rule.getUID();
         this.name = rule.getName();

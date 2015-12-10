@@ -78,7 +78,7 @@ public class RuleResource implements RESTResource {
     }
 
     private Collection<EnrichedRuleDTO> enrich(Collection<Rule> rules) {
-        Collection<EnrichedRuleDTO> enrichedRules = new ArrayList<>(rules.size());
+        Collection<EnrichedRuleDTO> enrichedRules = new ArrayList<EnrichedRuleDTO>(rules.size());
         for (Rule rule : rules) {
             enrichedRules.add(enrich(rule));
         }
