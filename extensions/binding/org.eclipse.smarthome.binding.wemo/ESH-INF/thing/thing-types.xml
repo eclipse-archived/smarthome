@@ -16,7 +16,7 @@
             <parameter name="udn" type="text">
                 <label>Unique Device Name</label>
                 <description>The UDN identifies the WeMo Device</description>
-		<required>true</required>
+                <required>true</required>
             </parameter>
 
          </config-description>
@@ -28,18 +28,24 @@
 
         <channels>
             <channel id="state" typeId="state"/>
-            <channel id="currentPower" typeId="currentPower"/>
+            <channel id="lastChangedAt" typeId="lastChangedAt"/>
             <channel id="lastOnFor" typeId="lastOnFor"/>
             <channel id="onToday" typeId="onToday"/>
             <channel id="onTotal" typeId="onTotal"/>
+            <channel id="timespan" typeId="timespan"/>
+            <channel id="averagePower" typeId="averagePower"/>
+            <channel id="currentPower" typeId="currentPower"/>
+            <channel id="energyToday" typeId="energyToday"/>
+            <channel id="energyTotal" typeId="energyTotal"/>
+            <channel id="standByLimit" typeId="standByLimit"/>
         </channels>
 
         <config-description>
             <parameter name="udn" type="text">
                 <label>Unique Device Name</label>
                 <description>The UDN identifies the WeMo Device</description>
-				<required>true</required>
-        	</parameter>
+                <required>true</required>
+            </parameter>
          </config-description>
     </thing-type>
 
@@ -55,8 +61,8 @@
             <parameter name="udn" type="text">
                 <label>Unique Device Name</label>
                 <description>The UDN identifies the WeMo Device</description>
-				<required>true</required>
-        	</parameter>
+                <required>true</required>
+            </parameter>
          </config-description>
     </thing-type>
 
@@ -65,24 +71,53 @@
         <description>This is a WeMo MotionSensor</description>
 
         <channels>
-            <channel id="state" typeId="state"/>
+            <channel id="motionDetection" typeId="motionDetection"/>
         </channels>
 
         <config-description>
             <parameter name="udn" type="text">
                 <label>Unique Device Name</label>
                 <description>The UDN identifies the WeMo Device</description>
-				<required>true</required>
-        	</parameter>
+                <required>true</required>
+            </parameter>
          </config-description>
     </thing-type>
     
-     <thing-type id="sensor">
-        <label>WeMo Sensor</label>
-        <description>This is a WeMo MotionSensor</description>
+    <!-- Standard WeMo Bulb with E27 socket  -->
+    <thing-type id="MZ100">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>WeMo LED Light</label>
+        <description>This is a standard WeMo light bulb with E27 socket </description>
 
         <channels>
-            <channel id="state" typeId="state"/>
+            <channel id="state" typeId="state" />
+            <channel id="brightness" typeId="brightness" />
+        </channels>
+        
+        <properties>
+            <property name="vendor">MRVL</property>
+            <property name="modelId">MZ100</property>
+        </properties>
+
+        <config-description>
+            <parameter name="deviceID" type="text">
+                <label>Device ID</label>
+                <description>The device ID identifies one certain WeMo light.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
+    </thing-type>
+
+     <thing-type id="Maker">
+        <label>WeMo Maker</label>
+        <description>This is a WeMo Maker</description>
+
+        <channels>
+            <channel id="relay" typeId="relay"/>
+            <channel id="sensor" typeId="sensor"/>
         </channels>
 
         <config-description>
@@ -101,6 +136,57 @@
         <category>Switch</category>
     </channel-type>
 
+     <channel-type id="motionDetection">
+        <item-type>Switch</item-type>
+        <label>Motion Status</label>
+        <description>Indicates whether motion is detected or not</description>
+        <category>Switch</category>
+        <state readOnly="true"></state>
+    </channel-type>
+    
+     <channel-type id="lastChangedAt" advanced="true">
+        <item-type>DateTime</item-type>
+        <label>Last Activity (Date/Time)</label>
+        <description>Date/time when the state last changed</description>
+        <category>Date</category>
+    </channel-type>
+
+     <channel-type id="lastOnFor" advanced="true">
+        <item-type>Number</item-type>
+        <label>Last Activity (s)</label>
+        <description>Duration the device has been switched on for</description>        
+        <state pattern="%.1f s" />
+    </channel-type>
+
+     <channel-type id="onToday" advanced="true">
+        <item-type>Number</item-type>
+        <label>Today's Activity (s)</label>
+        <description>How long has the device been switched on today</description>
+        <state pattern="%.1f s" />
+    </channel-type>
+
+     <channel-type id="onTotal" advanced="true">
+        <item-type>Number</item-type>
+        <label>Total Activity (s)</label>
+        <description>How long has the device been switched on totally</description>
+        <state pattern="%.1f s" />
+    </channel-type>
+
+     <channel-type id="timespan" advanced="true">
+        <item-type>Number</item-type>
+        <label>Usage timespan (s)</label>
+        <description>Time used to measure average usage</description>        
+        <state pattern="%.1f s" />
+    </channel-type>
+
+    <channel-type id="averagePower" advanced="true">
+        <item-type>Number</item-type>
+        <label>Average Power</label>
+        <description>The average power consumption</description>
+        <category>Energy</category>
+        <state pattern="%.1f W" />
+    </channel-type>
+    
      <channel-type id="currentPower">
         <item-type>Number</item-type>
         <label>Power</label>
@@ -109,22 +195,52 @@
         <state pattern="%.1f W" />
     </channel-type>
 
-     <channel-type id="lastOnFor" advanced="true">
+     <channel-type id="energyToday" advanced="true">
         <item-type>Number</item-type>
-        <label>Last Activity (s)</label>
-        <description>Duration the device has been switched on for</description>        
+        <label>Energy Today</label>
+        <description>Todays power consumption</description>
+        <category>Energy</category>
+        <state pattern="%.1f Wh" />
     </channel-type>
 
-     <channel-type id="onToday" advanced="true">
+     <channel-type id="energyTotal" advanced="true">
         <item-type>Number</item-type>
-        <label>Today's Activity (s)</label>
-        <description>How long has the device been switched on today</description>
+        <label>Energy Total</label>
+        <description>Total power consumption</description>
+        <category>Energy</category>
+        <state pattern="%.1f Wh" />
     </channel-type>
 
-     <channel-type id="onTotal" advanced="true">
+    <channel-type id="standByLimit" advanced="true">
         <item-type>Number</item-type>
-        <label>Total Activity (s)</label>
-        <description>How long has the device been switched on totally</description>
+        <label>StandBy Limit</label>
+        <description>Total power consumption</description>
+        <category>Energy</category>
+        <state pattern="%.1f W" />
+    </channel-type>
+
+   <!-- Brightness Channel -->
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>The brightness channel allows to control the brightness of a light.
+            It is also possible to switch the light on and off.
+        </description>
+        <category>DimmableLight</category>
+    </channel-type>
+
+     <channel-type id="relay">
+        <item-type>Switch</item-type>
+        <label>Relay</label>
+        <description>Switches the integrated relay contact close/open</description>
+        <category>Switch</category>
+    </channel-type>
+
+     <channel-type id="sensor">
+        <item-type>Switch</item-type>
+        <label>Sensor</label>
+        <description>Shows the state of the integrated sensor</description>
+        <category>Switch</category>
     </channel-type>
  
 </thing:thing-descriptions>
