@@ -82,7 +82,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Jörg Plewe - refactoring, error handling
  */
 @Path(ItemResource.PATH_ITEMS)
-@Api
+@Api(value = ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
@@ -170,7 +170,7 @@ public class ItemResource implements RESTResource {
     }
 
     /**
-     * 
+     *
      * @param itemname
      * @return
      */
@@ -422,7 +422,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * Create or Update an item by supplying an item bean.
-     * 
+     *
      * @param itemname
      * @param item the item bean.
      * @return
@@ -495,7 +495,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * helper: Response to be sent to client if a Thing cannot be found
-     * 
+     *
      * @param thingUID
      * @return Response configured for 'item not found'
      */
@@ -506,7 +506,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * Prepare a response representing the Item depending in the status.
-     * 
+     *
      * @param status
      * @param item can be null
      * @param errormessage optional message in case of error
@@ -519,7 +519,7 @@ public class ItemResource implements RESTResource {
 
     /**
      * convenience shortcut
-     * 
+     *
      * @param itemname
      * @return Item addressed by itemname
      */
