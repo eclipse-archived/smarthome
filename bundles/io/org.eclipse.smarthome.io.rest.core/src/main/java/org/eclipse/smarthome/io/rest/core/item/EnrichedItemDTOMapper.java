@@ -27,8 +27,6 @@ import org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator;
  */
 public class EnrichedItemDTOMapper {
 
-    private static final String PATH_ITEMS = "items/";
-
     /**
      * Maps item into enriched item DTO object.
      *
@@ -46,11 +44,7 @@ public class EnrichedItemDTOMapper {
 
         String state = considerTransformation(item.getState().toString(), item.getStateDescription());
         StateDescription stateDescription = considerTransformation(item.getStateDescription());
-        String link = null;
-        if (uri != null) {
-            String fullPath = uri.toASCIIString() + PATH_ITEMS + itemDTO.name;
-            link = URI.create(fullPath).toASCIIString();
-        }
+        String link = null != uri ? uri.toASCIIString() + ItemResource.PATH_ITEMS + "/" + itemDTO.name : null;
 
         EnrichedItemDTO enrichedItemDTO = null;
 
