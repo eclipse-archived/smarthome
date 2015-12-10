@@ -25,7 +25,7 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
 
     /**
      * Maps thing into enriched thing data transfer object.
-     * 
+     *
      * @param thing the thing
      * @param uri the uri
      * @return the enriched thing DTO object
