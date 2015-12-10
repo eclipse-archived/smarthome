@@ -96,7 +96,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * create a new Thing
-     * 
+     *
      * @param thingBean
      * @return Response holding the newly created Thing or error information
      */
@@ -163,7 +163,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * link a Channel of a Thing to an Item
-     * 
+     *
      * @param thingUID
      * @param channelId
      * @param itemName
@@ -213,7 +213,7 @@ public class ThingResource implements RESTResource {
      * Delete a Thing, if possible.
      * Thing deletion might be impossible if the Thing is not managed, will return CONFLICT.
      * Thing deletion might happen delayed, will return ACCEPTED.
-     * 
+     *
      * @param thingUID
      * @param force
      * @return Response with status/error information
@@ -262,7 +262,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * Unlink a Channel of a Thing from an Item.
-     * 
+     *
      * @param thingUID
      * @param channelId
      * @param itemName
@@ -287,7 +287,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * Update Thing.
-     * 
+     *
      * @param thingUID
      * @param thingBean
      * @return Response with the updated Thing or error information
@@ -342,7 +342,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * Updates Thing configuration.
-     * 
+     *
      * @param thingUID
      * @param configurationParameters
      * @return Response with the updated Thing or error information
@@ -408,7 +408,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * helper: Response to be sent to client if a Thing cannot be found
-     * 
+     *
      * @param thingUID
      * @return Response configured for NOT_FOUND
      */
@@ -419,7 +419,7 @@ public class ThingResource implements RESTResource {
 
     /**
      * helper: create a Response holding a Thing and/or error information.
-     * 
+     *
      * @param status
      * @param thing
      * @param errormessage

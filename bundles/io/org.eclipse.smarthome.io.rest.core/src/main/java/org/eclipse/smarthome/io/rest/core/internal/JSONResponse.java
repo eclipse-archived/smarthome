@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 
 /**
  * Static helper methods to build up JSON-like Response objects and error handling.
- * 
+ *
  * @author Joerg Plewe
  */
 @Provider
@@ -42,7 +42,7 @@ public class JSONResponse {
 
     /**
      * basic configuration of a ResponseBuilder
-     * 
+     *
      * @param status
      * @return ResponseBuilder configured for "Content-Type" MediaType.APPLICATION_JSON
      */
@@ -52,7 +52,7 @@ public class JSONResponse {
 
     /**
      * setup JSON depending on the content
-     * 
+     *
      * @param message
      * @param status
      * @param entity
@@ -79,7 +79,7 @@ public class JSONResponse {
 
         // is there an exception?
         if (null != ex) {
-            
+
             // JSONify the Exception
             JsonObject exc = new JsonObject();
             err.add("exception", exc);
@@ -100,7 +100,7 @@ public class JSONResponse {
 
     /**
      * in case of error (404 and such)
-     * 
+     *
      * @param status
      * @param errormessage
      * @return Response containing a status and the errormessage in JSON format
@@ -112,7 +112,7 @@ public class JSONResponse {
     /**
      * Depending in the status, create a Response object containing either the entity alone or an error JSON
      * which might hold the entity as well.
-     * 
+     *
      * @param status
      * @param entity
      * @param errormessage
@@ -136,7 +136,7 @@ public class JSONResponse {
 
     /**
      * trap exceptions
-     * 
+     *
      * @author Joerg Plewe
      */
     @Provider
