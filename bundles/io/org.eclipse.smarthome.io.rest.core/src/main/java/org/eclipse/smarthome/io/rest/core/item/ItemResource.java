@@ -82,7 +82,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Jörg Plewe - refactoring, error handling
  */
 @Path(ItemResource.PATH_ITEMS)
-@Api
+@Api(value = ItemResource.PATH_ITEMS)
 public class ItemResource implements RESTResource {
 
     private final Logger logger = LoggerFactory.getLogger(ItemResource.class);
