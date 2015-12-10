@@ -14,15 +14,16 @@ Require-Bundle: org.eclipse.smarthome.model.sitemap;visibility:=reexport,
  org.antlr.runtime,
  org.eclipse.xtext.builder,
  org.eclipse.xtext.ui.codetemplates.ui,
- org.eclipse.compare
+ org.eclipse.compare,
+ org.eclipse.xtext.xbase.lib
 Import-Package: com.google.common.collect,
  org.apache.log4j,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.designer.core.config,
  org.eclipse.smarthome.designer.ui,
  org.eclipse.xtext.xbase.lib
-Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,org
- .eclipse.smarthome.model.ui.contentassist,org.eclipse.smarthome.model
- .ui.quickfix
+Export-Package: org.eclipse.smarthome.model.ui.contentassist.antlr,
+ org.eclipse.smarthome.model.ui.contentassist,
+ org.eclipse.smarthome.model.ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.ui.internal.SitemapActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
