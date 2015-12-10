@@ -336,8 +336,8 @@ class AutomationIntegrationTest extends OSGiTest{
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem3")
-        Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem3", commandObj))
+        SwitchItem myPresenceItem3 = itemRegistry.getItem("myPresenceItem3")
+        myPresenceItem3.send(OnOffType.ON)        
 
         Event itemEvent = null
 
@@ -358,8 +358,8 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        commandObj = TypeParser.parseCommand(itemRegistry.getItem("myMotionItem3").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("myMotionItem3", commandObj))
+        SwitchItem myMotionItem3 = itemRegistry.getItem("myMotionItem3")
+        myMotionItem3.send(OnOffType.ON)        
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem3/state"))
         assertThat (((ItemStateEvent)itemEvent).itemState, is(OnOffType.ON))
@@ -549,8 +549,9 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
 
         //bring the rule to execution:
-        def commandObj = TypeParser.parseCommand(itemRegistry.getItem("templ_MotionItem").getAcceptedCommandTypes(),"ON")
-        eventPublisher.post(ItemEventFactory.createCommandEvent("templ_MotionItem", commandObj))
+        def ItemRegistry itemRegistry = getService(ItemRegistry)
+        SwitchItem myMotionItem = itemRegistry.getItem("templ_MotionItem")
+        myMotionItem.send(OnOffType.ON)        
 
         waitForAssert({
             def lamp = itemRegistry.getItem("templ_LampItem") as SwitchItem
