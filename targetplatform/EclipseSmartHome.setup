@@ -2049,10 +2049,10 @@
           name="org.eclipse.m2e.logback.feature.feature.group"/>
       <requirement
           name="org.eclipse.xtend.sdk.feature.group"
-          versionRange="[2.8.4,2.8.4]"/>
+          versionRange="[2.8.0,2.8.4]"/>
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.8.4,2.8.4]"/>
+          versionRange="[2.8.0,2.8.4]"/>
       <requirement
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"
           versionRange="[2.8.0,2.9.0]"/>
