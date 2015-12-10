@@ -20,6 +20,7 @@ import org.eclipse.smarthome.config.discovery.UpnpDiscoveryParticipant;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.jupnp.UpnpService;
+import org.jupnp.model.message.header.RootDeviceHeader;
 import org.jupnp.model.meta.LocalDevice;
 import org.jupnp.model.meta.RemoteDevice;
 import org.jupnp.registry.Registry;
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a {@link DiscoveryService} implementation, which can find UPnP devices in the network.
  * Support for further devices can be added by implementing and registering a {@link UpnpDiscoveryParticipant}.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - Added call of removeOlderResults
  *
@@ -102,6 +103,8 @@ public class UpnpDiscoveryService extends AbstractDiscoveryService implements Re
         }
         upnpService.getRegistry().addListener(this);
         upnpService.getControlPoint().search();
+        upnpService.getControlPoint().search(new RootDeviceHeader());
+
     }
 
     @Override

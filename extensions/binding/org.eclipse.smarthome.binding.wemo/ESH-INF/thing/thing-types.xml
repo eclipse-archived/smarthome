@@ -18,7 +18,6 @@
                 <description>The UDN identifies the WeMo Device</description>
 		<required>true</required>
             </parameter>
-
          </config-description>
     </thing-type>
 
@@ -79,7 +78,7 @@
     
      <thing-type id="sensor">
         <label>WeMo Sensor</label>
-        <description>This is a WeMo MotionSensor</description>
+        <description>This is a WeMo MotionSensor with newer firmware</description>
 
         <channels>
             <channel id="state" typeId="state"/>
@@ -92,6 +91,34 @@
                 <required>true</required>
             </parameter>
          </config-description>
+    </thing-type>
+
+    <!-- Standard WeMo Bulb with E27 socket  -->
+    <thing-type id="MZ100">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge" />
+        </supported-bridge-type-refs>
+
+        <label>WeMo LED Light</label>
+        <description>This is a standard WeMo light bulb with E27 socket </description>
+
+        <channels>
+            <channel id="state" typeId="state" />
+            <channel id="brightness" typeId="brightness" />
+        </channels>
+        
+        <properties>
+            <property name="vendor">MRVL</property>
+            <property name="modelId">MZ100</property>
+        </properties>
+
+        <config-description>
+            <parameter name="deviceID" type="text">
+                <label>Device ID</label>
+                <description>The device ID identifies one certain WeMo light.</description>
+                <required>true</required>
+            </parameter>
+        </config-description>
     </thing-type>
 
      <channel-type id="state">
@@ -125,6 +152,26 @@
         <item-type>Number</item-type>
         <label>Total Activity (s)</label>
         <description>How long has the device been switched on totally</description>
+    </channel-type>
+
+    <!-- Brightness Channel -->
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>The brightness channel allows to control the brightness of a light.
+            It is also possible to switch the light on and off.
+        </description>
+        <category>DimmableLight</category>
+    </channel-type>
+
+    <!-- Color Channel -->
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>The color channel allows to control the color of a light.
+            It is also possible to dim values and switch the light on and off.
+        </description>
+        <category>ColorLight</category>
     </channel-type>
  
 </thing:thing-descriptions>
