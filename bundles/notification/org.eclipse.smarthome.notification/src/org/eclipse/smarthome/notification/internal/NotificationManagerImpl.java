@@ -49,8 +49,7 @@ public class NotificationManagerImpl implements NotificationManager {
             if (notificationResult == null) {
                 notificationStorage.put(notification.getUID(), notification);
                 postEvent(notification, null, EventType.added);
-                logger.info("Added new notification with ID '{}' of type '{}' to the notification manager.",
-                        notification.getUID(), notification.getType());
+                logger.info("Added new notification '{}'", notification.toString());
                 return true;
             } else {
                 if (notificationResult instanceof NotificationImpl) {
@@ -58,7 +57,7 @@ public class NotificationManagerImpl implements NotificationManager {
                     notificationImpl.synchronize(notification);
                     notificationStorage.put(notification.getUID(), notificationImpl);
                     postEvent(notificationImpl, notification, EventType.updated);
-                    logger.debug("Updated the nofification with ID '{}'.", notification.getUID());
+                    logger.debug("Updated a nofification '{}'.", notification.toString());
                     return true;
                 } else {
                     logger.warn("Cannot synchronize result with implementation class '{}'.",
@@ -76,7 +75,7 @@ public class NotificationManagerImpl implements NotificationManager {
         if (notificationUID != null) {
             Notification notification = get(notificationUID);
             if (notification != null) {
-                logger.info("Removing a notification with ID '{}' from the notification manager.", notificationUID);
+                logger.info("Removing a notification with ID '{}'", notificationUID);
                 this.notificationStorage.remove(notificationUID);
                 postEvent(notification, null, EventType.removed);
                 return true;
@@ -99,10 +98,12 @@ public class NotificationManagerImpl implements NotificationManager {
         Comparator<Notification> notificationComparator = new Comparator<Notification>() {
             @Override
             public int compare(Notification o1, Notification o2) {
-                if (o1.getTimestamp() < o2.getTimestamp())
+                if (o1.getTimestamp() < o2.getTimestamp()) {
                     return -1;
-                if (o1.getTimestamp() == o2.getTimestamp())
+                }
+                if (o1.getTimestamp() == o2.getTimestamp()) {
                     return 0;
+                }
                 return 1;
             }
         };
@@ -140,14 +141,16 @@ public class NotificationManagerImpl implements NotificationManager {
             try {
                 switch (eventType) {
                     case added:
-                        eventPublisher.post(NotificationManagerEventFactory.createAddedEvent(notification));
+                        eventPublisher.post(NotificationManagerEventFactory.createAddedEvent(notification,
+                                this.getClass().getSimpleName()));
                         break;
                     case removed:
-                        eventPublisher.post(NotificationManagerEventFactory.createRemovedEvent(notification));
+                        eventPublisher.post(NotificationManagerEventFactory.createRemovedEvent(notification,
+                                this.getClass().getSimpleName()));
                         break;
                     case updated:
-                        eventPublisher.post(
-                                NotificationManagerEventFactory.createUpdatedEvent(notification, oldNotification));
+                        eventPublisher.post(NotificationManagerEventFactory.createUpdatedEvent(notification,
+                                oldNotification, this.getClass().getSimpleName()));
                         break;
                     default:
                         break;

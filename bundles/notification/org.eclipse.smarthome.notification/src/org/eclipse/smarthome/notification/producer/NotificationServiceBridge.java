@@ -60,6 +60,8 @@ public class NotificationServiceBridge implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
+        logger.debug("Received an event from '{}' of type '{}' with topic '{}' and payload '{}'",
+                new Object[] { event.getSource(), event.getType(), event.getTopic(), event.getPayload() });
         if (event instanceof AbstractNotificationManagerEvent) {
             // Events containing Notification should not trigger new Notifications, but it is an interesting way to feed
             // back what happened
@@ -68,12 +70,12 @@ public class NotificationServiceBridge implements EventSubscriber {
 
                 if (firstRegularEventReceived && notification.getSource()
                         .equals(NotificationServiceBridge.class.getSimpleName() + ":" + serviceID)) {
-                    logger.debug("The notification with ID '{}' was delivered in {} ms", notification.getUID(),
+                    logger.trace("The notification with ID '{}' was delivered in {} ms", notification.getUID(),
                             new Date().getTime() - notification.getTimestamp());
                 }
             }
         } else {
-            logger.debug("Received an event Type {} Topic {}", event.getType(), event.getTopic());
+
             firstRegularEventReceived = true;
             synchronized (eventConfigurations) {
                 for (EventConfiguration config : eventConfigurations) {
@@ -105,8 +107,9 @@ public class NotificationServiceBridge implements EventSubscriber {
         boolean actionMatch = false;
 
         String[] topicElements = event.getTopic().split("/");
-        if (topicElements.length != 4)
+        if (topicElements.length != 4) {
             throw new IllegalArgumentException("Invalid topic: " + event.getTopic());
+        }
 
         if (config.getNamespacedetail() instanceof AllNamespaces) {
             namespaceMatch = true;

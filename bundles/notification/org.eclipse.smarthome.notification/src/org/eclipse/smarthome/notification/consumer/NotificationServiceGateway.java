@@ -156,9 +156,11 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
                 String source = StringUtils.split(notification.getType(), ":")[0];
                 String serviceID = StringUtils.split(notification.getType(), ":")[1];
                 String target = StringUtils.split(notification.getType(), ":")[2];
-                if (source.equals(NotificationServiceBridge.class.getSimpleName()) && serviceID != null
-                        && target != null) {
-                    logger.debug("Received a notification for Service {} Target {}", serviceID, target);
+                // if (source.equals(NotificationServiceBridge.class.getSimpleName()) && serviceID != null
+                // && target != null) {
+                if (serviceID != null && target != null) {
+                    logger.trace("Received a notification from '{}' for service '{}' with target '{}'",
+                            new Object[] { source, serviceID, target });
 
                     if (modelRepository != null) {
                         NotificationModel model = (NotificationModel) modelRepository.getModel(serviceID + ".notify");
@@ -180,7 +182,7 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
                                 }
                             }
 
-                            logger.debug("Removing the notification with ID '{}' after delivery",
+                            logger.trace("Removing the notification with ID '{}' after delivery",
                                     notification.getUID());
                             notificationManager.remove(notification.getUID());
 
@@ -245,8 +247,9 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
      */
     private void stopEventHandling(String modelName) {
         NotificationServiceBridge bridge = notificationServiceBridges.remove(modelName);
-        if (bridge != null)
+        if (bridge != null) {
             bridge.deactivate();
+        }
     }
 
     @Override

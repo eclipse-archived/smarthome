@@ -16,8 +16,8 @@ public class NotificationAddedEvent extends AbstractNotificationManagerEvent {
      * @param payload the payload
      * @param notification the notification data transfer object
      */
-    protected NotificationAddedEvent(String topic, String payload, NotificationDTO notification) {
-        super(topic, payload, null, notification);
+    protected NotificationAddedEvent(String topic, String payload, String source, NotificationDTO notification) {
+        super(topic, payload, source, notification);
     }
 
     @Override

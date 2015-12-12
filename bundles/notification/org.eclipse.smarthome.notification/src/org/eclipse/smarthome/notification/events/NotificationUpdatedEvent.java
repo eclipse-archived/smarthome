@@ -19,9 +19,9 @@ public class NotificationUpdatedEvent extends AbstractNotificationManagerEvent {
      * @param notification the notification data transfer object
      * @param oldNotification the old notification data transfer object
      */
-    protected NotificationUpdatedEvent(String topic, String payload, NotificationDTO notification,
+    protected NotificationUpdatedEvent(String topic, String payload, String source, NotificationDTO notification,
             NotificationDTO oldNotification) {
-        super(topic, payload, null, notification);
+        super(topic, payload, source, notification);
         this.oldNotification = oldNotification;
     }
 

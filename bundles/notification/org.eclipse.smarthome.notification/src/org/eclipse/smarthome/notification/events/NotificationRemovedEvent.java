@@ -16,8 +16,8 @@ public class NotificationRemovedEvent extends AbstractNotificationManagerEvent {
      * @param payload the payload
      * @param notification the notification data transfer object
      */
-    protected NotificationRemovedEvent(String topic, String payload, NotificationDTO notification) {
-        super(topic, payload, null, notification);
+    protected NotificationRemovedEvent(String topic, String payload, String source, NotificationDTO notification) {
+        super(topic, payload, source, notification);
     }
 
     @Override

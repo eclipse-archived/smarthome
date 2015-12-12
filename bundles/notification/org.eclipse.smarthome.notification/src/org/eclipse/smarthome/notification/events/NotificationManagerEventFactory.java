@@ -38,30 +38,31 @@ public class NotificationManagerEventFactory extends AbstractEventFactory {
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
         Event event = null;
         if (eventType.equals(NotificationAddedEvent.TYPE)) {
-            event = createAddedEvent(topic, payload);
+            event = createAddedEvent(topic, payload, source);
         } else if (eventType.equals(NotificationRemovedEvent.TYPE)) {
-            event = createRemovedEvent(topic, payload);
+            event = createRemovedEvent(topic, payload, source);
         } else if (eventType.equals(NotificationUpdatedEvent.TYPE)) {
-            event = createUpdatedEvent(topic, payload);
+            event = createUpdatedEvent(topic, payload, source);
         }
         return event;
     }
 
-    private Event createAddedEvent(String topic, String payload) throws Exception {
+    private Event createAddedEvent(String topic, String payload, String source) throws Exception {
         NotificationDTO notificationDTO = deserializePayload(payload, NotificationDTO.class);
-        return new NotificationAddedEvent(topic, payload, notificationDTO);
+        return new NotificationAddedEvent(topic, payload, source, notificationDTO);
     }
 
-    private Event createRemovedEvent(String topic, String payload) throws Exception {
+    private Event createRemovedEvent(String topic, String payload, String source) throws Exception {
         NotificationDTO notificationDTO = deserializePayload(payload, NotificationDTO.class);
-        return new NotificationRemovedEvent(topic, payload, notificationDTO);
+        return new NotificationRemovedEvent(topic, payload, source, notificationDTO);
     }
 
-    private Event createUpdatedEvent(String topic, String payload) throws Exception {
+    private Event createUpdatedEvent(String topic, String payload, String source) throws Exception {
         NotificationDTO[] notificationDTO = deserializePayload(payload, NotificationDTO[].class);
-        if (notificationDTO.length != 2)
+        if (notificationDTO.length != 2) {
             throw new IllegalArgumentException("NotificationUpdateEvent creation failed, invalid payload: " + payload);
-        return new NotificationUpdatedEvent(topic, payload, notificationDTO[0], notificationDTO[1]);
+        }
+        return new NotificationUpdatedEvent(topic, payload, source, notificationDTO[0], notificationDTO[1]);
     }
 
     /**
@@ -73,12 +74,12 @@ public class NotificationManagerEventFactory extends AbstractEventFactory {
      *
      * @throws IllegalArgumentException if notification is null
      */
-    public static NotificationAddedEvent createAddedEvent(Notification notification) {
+    public static NotificationAddedEvent createAddedEvent(Notification notification, String source) {
         assertValidArgument(notification);
         String topic = buildTopic(NOTIFICATION_ADDED_EVENT_TOPIC, notification.getUID());
         NotificationDTO notificationDTO = map(notification);
         String payload = serializePayload(notificationDTO);
-        return new NotificationAddedEvent(topic, payload, notificationDTO);
+        return new NotificationAddedEvent(topic, payload, source, notificationDTO);
     }
 
     /**
@@ -90,12 +91,12 @@ public class NotificationManagerEventFactory extends AbstractEventFactory {
      *
      * @throws IllegalArgumentException if notification is null
      */
-    public static NotificationRemovedEvent createRemovedEvent(Notification notification) {
+    public static NotificationRemovedEvent createRemovedEvent(Notification notification, String source) {
         assertValidArgument(notification);
         String topic = buildTopic(NOTIFICATION_REMOVED_EVENT_TOPIC, notification.getUID());
         NotificationDTO notificationDTO = map(notification);
         String payload = serializePayload(notificationDTO);
-        return new NotificationRemovedEvent(topic, payload, notificationDTO);
+        return new NotificationRemovedEvent(topic, payload, source, notificationDTO);
     }
 
     /**
@@ -108,7 +109,8 @@ public class NotificationManagerEventFactory extends AbstractEventFactory {
      *
      * @throws IllegalArgumentException if notification or oldNotification is null
      */
-    public static NotificationUpdatedEvent createUpdatedEvent(Notification notification, Notification oldNotification) {
+    public static NotificationUpdatedEvent createUpdatedEvent(Notification notification, Notification oldNotification,
+            String source) {
         assertValidArgument(notification);
         assertValidArgument(oldNotification);
         String topic = buildTopic(NOTIFICATION_UPDATED_EVENT_TOPIC, notification.getUID());
@@ -118,7 +120,7 @@ public class NotificationManagerEventFactory extends AbstractEventFactory {
         notificationDTOs.add(notificationDTO);
         notificationDTOs.add(oldNotificationDTO);
         String payload = serializePayload(notificationDTOs);
-        return new NotificationUpdatedEvent(topic, payload, notificationDTO, oldNotificationDTO);
+        return new NotificationUpdatedEvent(topic, payload, source, notificationDTO, oldNotificationDTO);
     }
 
     private static void assertValidArgument(Notification notification) {
