@@ -49,7 +49,7 @@ public class NotificationManagerImpl implements NotificationManager {
             if (notificationResult == null) {
                 notificationStorage.put(notification.getUID(), notification);
                 postEvent(notification, null, EventType.added);
-                logger.info("Added new notification '{}'", notification.toString());
+                logger.debug("Added new notification '{}'", notification.toString());
                 return true;
             } else {
                 if (notificationResult instanceof NotificationImpl) {
@@ -57,7 +57,7 @@ public class NotificationManagerImpl implements NotificationManager {
                     notificationImpl.synchronize(notification);
                     notificationStorage.put(notification.getUID(), notificationImpl);
                     postEvent(notificationImpl, notification, EventType.updated);
-                    logger.debug("Updated a nofification '{}'.", notification.toString());
+                    logger.trace("Updated a nofification '{}'.", notification.toString());
                     return true;
                 } else {
                     logger.warn("Cannot synchronize result with implementation class '{}'.",
@@ -75,7 +75,7 @@ public class NotificationManagerImpl implements NotificationManager {
         if (notificationUID != null) {
             Notification notification = get(notificationUID);
             if (notification != null) {
-                logger.info("Removing a notification with ID '{}'", notificationUID);
+                logger.trace("Removing a notification with ID '{}'", notificationUID);
                 this.notificationStorage.remove(notificationUID);
                 postEvent(notification, null, EventType.removed);
                 return true;
@@ -141,16 +141,16 @@ public class NotificationManagerImpl implements NotificationManager {
             try {
                 switch (eventType) {
                     case added:
-                        eventPublisher.post(NotificationManagerEventFactory.createAddedEvent(notification,
-                                this.getClass().getSimpleName()));
+                        eventPublisher.post(
+                                NotificationManagerEventFactory.createAddedEvent(notification, "NotificationManager"));
                         break;
                     case removed:
                         eventPublisher.post(NotificationManagerEventFactory.createRemovedEvent(notification,
-                                this.getClass().getSimpleName()));
+                                "NotificationManager"));
                         break;
                     case updated:
                         eventPublisher.post(NotificationManagerEventFactory.createUpdatedEvent(notification,
-                                oldNotification, this.getClass().getSimpleName()));
+                                oldNotification, "NotificationManager"));
                         break;
                     default:
                         break;

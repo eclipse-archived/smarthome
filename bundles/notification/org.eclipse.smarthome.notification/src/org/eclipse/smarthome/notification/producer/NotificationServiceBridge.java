@@ -60,7 +60,7 @@ public class NotificationServiceBridge implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
-        logger.debug("Received an event from '{}' of type '{}' with topic '{}' and payload '{}'",
+        logger.trace("Received an event from '{}' of type '{}' with topic '{}' and payload '{}'",
                 new Object[] { event.getSource(), event.getType(), event.getTopic(), event.getPayload() });
         if (event instanceof AbstractNotificationManagerEvent) {
             // Events containing Notification should not trigger new Notifications, but it is an interesting way to feed
@@ -86,11 +86,12 @@ public class NotificationServiceBridge implements EventSubscriber {
                                 idCounter++;
                                 NotificationBuilder builder = NotificationBuilder.create(serviceID + ":" + idCounter);
                                 notificationManager.add(builder.withText(event.toString())
-                                        .withType(NotificationServiceBridge.class.getSimpleName() + ":" + serviceID
-                                                + ":" + target.getName())
-                                        .withPriority(0)
-                                        .withSource(NotificationServiceBridge.class.getSimpleName() + ":" + serviceID)
-                                        .build());
+                                        // .withType(NotificationServiceBridge.class.getSimpleName() + ":" + serviceID
+                                        // + ":" + target.getName())
+                                        .withType(serviceID + ":" + target.getName()).withPriority(0)
+                                        // .withSource(NotificationServiceBridge.class.getSimpleName() + ":" +
+                                        // serviceID)
+                                        .withSource("NotificationServiceBridge").build());
                             }
                         }
                     }
