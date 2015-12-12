@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.events.Event;
 import org.eclipse.smarthome.core.events.EventFilter;
@@ -60,7 +61,7 @@ public class EventNotificationBridge implements EventSubscriber {
 
     @Override
     public void receive(Event event) {
-        logger.trace("Received an event from '{}' of type '{}' with topic '{}' and payload '{}'",
+        logger.debug("Received an event from '{}' of type '{}' with topic '{}' and payload '{}'",
                 new Object[] { event.getSource(), event.getType(), event.getTopic(), event.getPayload() });
         if (event instanceof AbstractNotificationManagerEvent) {
             // Events containing Notification should not trigger new Notifications, but it is an interesting way to feed
@@ -116,7 +117,7 @@ public class EventNotificationBridge implements EventSubscriber {
         }
         if (config.getNamespacedetail() instanceof NamespaceID) {
             NamespaceID namespaceDetail = (NamespaceID) config.getNamespacedetail();
-            if (topicElements[0].equals(namespaceDetail.getNamespace())) {
+            if (StringUtils.contains(topicElements[0], namespaceDetail.getNamespace())) {
                 namespaceMatch = true;
             }
         }
@@ -126,7 +127,7 @@ public class EventNotificationBridge implements EventSubscriber {
         }
         if (config.getEntitydetail() instanceof EntityTypeID) {
             EntityTypeID entityTypeDetail = (EntityTypeID) config.getEntitydetail();
-            if (topicElements[1].equals(entityTypeDetail.getEntity())) {
+            if (StringUtils.contains(topicElements[1], entityTypeDetail.getEntity())) {
                 entityTypeMatch = true;
             }
         }
@@ -136,7 +137,7 @@ public class EventNotificationBridge implements EventSubscriber {
         }
         if (config.getTargetdetail() instanceof TargetID) {
             TargetID targetDetail = (TargetID) config.getTargetdetail();
-            if (topicElements[2].equals(targetDetail.getTarget())) {
+            if (StringUtils.contains(topicElements[2], targetDetail.getTarget())) {
                 targetMatch = true;
             }
         }
@@ -146,7 +147,7 @@ public class EventNotificationBridge implements EventSubscriber {
         }
         if (config.getActiondetail() instanceof ActionID) {
             ActionID actionDetail = (ActionID) config.getActiondetail();
-            if (topicElements[3].equals(actionDetail.getAction())) {
+            if (StringUtils.contains(topicElements[3], actionDetail.getAction())) {
                 actionMatch = true;
             }
         }
