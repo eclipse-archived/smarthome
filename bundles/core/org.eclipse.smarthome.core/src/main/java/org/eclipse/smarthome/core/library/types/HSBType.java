@@ -21,6 +21,7 @@ import org.eclipse.smarthome.core.types.State;
  * brightness and can be used for color items.
  *
  * @author Kai Kreuzer - Initial contribution and API
+ * @author Chris Jackson - Added fromRGB
  *
  */
 public class HSBType extends PercentType implements ComplexType, State, Command {
@@ -65,6 +66,48 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
 
     public static HSBType valueOf(String value) {
         return new HSBType(value);
+    }
+
+    /**
+     * Create HSB from RGB
+     *
+     * @param r red 0-255
+     * @param g green 0-255
+     * @param b blue 0-255
+     */
+    public static HSBType fromRGB(int r, int g, int b) {
+        float tmpHue, tmpSaturation, tmpBrightness;
+        int max = (r > g) ? r : g;
+        if (b > max) {
+            max = b;
+        }
+        int min = (r < g) ? r : g;
+        if (b < min) {
+            min = b;
+        }
+        tmpBrightness = max / 2.55f;
+        tmpSaturation = (max != 0 ? ((float) (max - min)) / ((float) max) : 0) * 100;
+        if (tmpSaturation == 0) {
+            tmpHue = 0;
+        } else {
+            float red = ((float) (max - r)) / ((float) (max - min));
+            float green = ((float) (max - g)) / ((float) (max - min));
+            float blue = ((float) (max - b)) / ((float) (max - min));
+            if (r == max) {
+                tmpHue = blue - green;
+            } else if (g == max) {
+                tmpHue = 2.0f + red - blue;
+            } else {
+                tmpHue = 4.0f + green - red;
+            }
+            tmpHue = tmpHue / 6.0f * 360;
+            if (tmpHue < 0) {
+                tmpHue = tmpHue + 360.0f;
+            }
+        }
+
+        return new HSBType(new DecimalType((int) tmpHue), new PercentType((int) tmpSaturation),
+                new PercentType((int) tmpBrightness));
     }
 
     @Override
@@ -199,5 +242,4 @@ public class HSBType extends PercentType implements ComplexType, State, Command 
         return percent.value.multiply(BigDecimal.valueOf(255))
                 .divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP).intValue();
     }
-
 }
