@@ -7,18 +7,21 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
 import org.junit.Test;
 
+/**
+ *
+ * @author Chris Jackson - added fromRGB() test
+ *
+ */
 public class HSBTypeTest {
 
     @Test
     public void testEquals() {
-
         HSBType hsb1 = new HSBType("53,86,1");
         HSBType hsb2 = new HSBType("53,86,1");
         assertTrue(hsb1.equals(hsb2));
@@ -26,23 +29,20 @@ public class HSBTypeTest {
         hsb1 = new HSBType("0,0,0");
         hsb2 = new HSBType("0,0,0");
         assertTrue(hsb1.equals(hsb2));
-
     }
 
     @Test
     public void testHsbToRgbConversion() {
-
-        compareValues("0,100,100", 255, 0, 0); // red
-        compareValues("360,100,100", 255, 0, 0); // red
-        compareValues("0,0,0", 0, 0, 0); // black
-        compareValues("0,0,100", 255, 255, 255); // white
-        compareValues("120,100,100", 0, 255, 0); // green
-        compareValues("240,100,100", 0, 0, 255); // blue
-        compareValues("229,37,62", 99, 110, 158); // blueish
-        compareValues("316,69,47", 119, 37, 97); // purple
-        compareValues("60,60,60", 153, 153, 61); // green
-        compareValues("300,100,40", 102, 0, 102);
-
+        compareHsbToRgbValues("0,100,100", 255, 0, 0); // red
+        compareHsbToRgbValues("360,100,100", 255, 0, 0); // red
+        compareHsbToRgbValues("0,0,0", 0, 0, 0); // black
+        compareHsbToRgbValues("0,0,100", 255, 255, 255); // white
+        compareHsbToRgbValues("120,100,100", 0, 255, 0); // green
+        compareHsbToRgbValues("240,100,100", 0, 0, 255); // blue
+        compareHsbToRgbValues("229,37,62", 99, 110, 158); // blueish
+        compareHsbToRgbValues("316,69,47", 119, 37, 97); // purple
+        compareHsbToRgbValues("60,60,60", 153, 153, 61); // green
+        compareHsbToRgbValues("300,100,40", 102, 0, 102);
     }
 
     private int convertPercentToByte(PercentType percent) {
@@ -50,8 +50,7 @@ public class HSBTypeTest {
                 .divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP).intValue();
     }
 
-    private void compareValues(String hsbValues, int red, int green, int blue) {
-
+    private void compareHsbToRgbValues(String hsbValues, int red, int green, int blue) {
         HSBType hsb = new HSBType(hsbValues);
 
         System.out.println("HSB INPUT: " + hsbValues);
@@ -63,6 +62,31 @@ public class HSBTypeTest {
         assertEquals(red, convertPercentToByte(hsb.getRed()));
         assertEquals(green, convertPercentToByte(hsb.getGreen()));
         assertEquals(blue, convertPercentToByte(hsb.getBlue()));
+    }
 
+    @Test
+    public void testRgbToHsbConversion() {
+        compareRgbToHsbValues("0,100,100", 255, 0, 0); // red
+        compareRgbToHsbValues("0,0,0", 0, 0, 0); // black
+        compareRgbToHsbValues("0,0,100", 255, 255, 255); // white
+        compareRgbToHsbValues("120,100,100", 0, 255, 0); // green
+        compareRgbToHsbValues("240,100,100", 0, 0, 255); // blue
+        compareRgbToHsbValues("60,60,60", 153, 153, 61); // green
+        compareRgbToHsbValues("300,100,40", 102, 0, 102);
+        compareRgbToHsbValues("228,37,61", 99, 110, 158); // blueish
+        compareRgbToHsbValues("316,68,46", 119, 37, 97); // purple
+    }
+
+    private void compareRgbToHsbValues(String hsbValues, int red, int green, int blue) {
+        HSBType hsb = new HSBType(hsbValues);
+        HSBType hsbRgb = HSBType.fromRGB(red, green, blue);
+
+        System.out.println("HSB EXPECTED: " + hsbValues);
+        System.out.println(
+                "HSB ACTUAL  : " + hsbRgb.getHue() + "," + hsbRgb.getSaturation() + "," + hsbRgb.getBrightness());
+
+        assertEquals(hsb.getHue(), hsbRgb.getHue());
+        assertEquals(hsb.getSaturation(), hsbRgb.getSaturation());
+        assertEquals(hsb.getBrightness(), hsbRgb.getBrightness());
     }
 }
