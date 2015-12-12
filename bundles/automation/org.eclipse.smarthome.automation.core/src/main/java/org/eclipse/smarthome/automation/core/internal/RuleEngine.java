@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -53,6 +54,7 @@ import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
@@ -278,6 +280,7 @@ public class RuleEngine
                 throw new IllegalArgumentException("Invalid module uid: " + mId != null ? mId
                         : "null" + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
             }
+            setDefaultConfigurationValues(m);
         }
     }
 
@@ -326,8 +329,9 @@ public class RuleEngine
         rules.put(rUID, r);
         logger.debug("Updated rule '{}'.", rUID);
 
-        if (!RuleStatus.DISABLED.equals(getRuleStatus(rUID)))
+        if (!RuleStatus.DISABLED.equals(getRuleStatus(rUID))) {
             setRule(rUID);
+        }
     }
 
     /**
@@ -340,8 +344,9 @@ public class RuleEngine
      * @param rUID a UID of rule which tries to be initialized.
      */
     protected synchronized void setRule(String rUID) {
-        if (isDisposed)
+        if (isDisposed) {
             return;
+        }
 
         RuleStatusInfo ruleStatus = statusMap.get(rUID);
         if (ruleStatus != null && RuleStatus.NOT_INITIALIZED != ruleStatus.getStatus()) {
@@ -361,7 +366,7 @@ public class RuleEngine
                 }
                 rules.add(notInitializedRule.getUID());
                 mapTemplateToRules.put(templateUID, rules);
-                logger.error(
+                logger.warn(
                         "The rule: " + rUID + " is not created! The template: " + templateUID + " is not available!");
                 setRuleStatusInfo(rUID,
                         new RuleStatusInfo(RuleStatus.NOT_INITIALIZED, RuleStatusDetail.TEMPLATE_MISSING_ERROR,
@@ -402,6 +407,7 @@ public class RuleEngine
 
         if (errMsgs == null) {
             try {
+                validateModules(r.getModules(null));
                 ConnectionValidator.validateConnections(r);
             } catch (IllegalArgumentException e) {
                 unregister(r);
@@ -1134,8 +1140,9 @@ public class RuleEngine
     public synchronized RuleStatus getRuleStatus(String rUID) {
         RuleStatusInfo info = getRuleStatusInfo(rUID);
         RuleStatus status = null;
-        if (info != null)
+        if (info != null) {
             status = info.getStatus();
+        }
         return status;
     }
 
@@ -1343,6 +1350,66 @@ public class RuleEngine
         } else {
             scheduleReinitializationDelay = DEFAULT_REINITIALIZATION_DELAY;
         }
+    }
+
+    /**
+     * The method sets default configuration values for these configuration properties which are not specified in the
+     * rule definition but have default values defined in module type definition.
+     *
+     * @param module checked module
+     * @throws IllegalArgumentException when passed module has a required configuration property and it is not specified
+     *             in rule definition nor in the module's module type definition.
+     */
+    private void setDefaultConfigurationValues(Module module) {
+        String type = module.getTypeUID();
+        if (mtManager != null) {
+            Map<String, Object> mConfig = module.getConfiguration();
+            if (mConfig == null) {
+                mConfig = new HashMap<>(11);
+            }
+            ModuleType mt = mtManager.get(type);
+            if (mt != null) {
+                List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescription();
+                for (ConfigDescriptionParameter cftDesc : configDescriptions) {
+                    String parameterName = cftDesc.getName();
+                    if (mConfig.get(parameterName) == null) {
+                        String strValue = cftDesc.getDefault();
+                        if (strValue != null) {
+                            Type t = cftDesc.getType();
+                            Object defValue = t != Type.TEXT ? getDefaultValue(t, strValue) : strValue;
+                            mConfig.put(parameterName, defValue);
+                        } else {
+                            if (cftDesc.isRequired()) {
+                                throw new IllegalArgumentException(
+                                        "Missing required parameter: " + parameterName + " of type " + type);
+                            }
+                        }
+                    }
+                }
+            }
+            module.setConfiguration(mConfig);
+        } else {
+            logger.warn("Can't get module type definition for:" + type + ". Missing ModuleTypeManager");
+        }
+    }
+
+    /**
+     * The method parses string presentation of default value
+     *
+     * @param type type of default object
+     * @param value string presentation of default object
+     * @return default value
+     */
+    private Object getDefaultValue(Type type, String value) {
+        switch (type) {
+            case BOOLEAN:
+                return Boolean.valueOf(value);
+            case INTEGER:
+                return Integer.valueOf(value);
+            case DECIMAL:
+                return new BigDecimal(value);
+        }
+        return null;
     }
 
 }
