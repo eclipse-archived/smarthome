@@ -31,7 +31,7 @@ import org.eclipse.smarthome.notification.events.NotificationAddedEvent;
 import org.eclipse.smarthome.notification.events.NotificationRemovedEvent;
 import org.eclipse.smarthome.notification.events.NotificationUpdatedEvent;
 import org.eclipse.smarthome.notification.manager.NotificationManager;
-import org.eclipse.smarthome.notification.producer.NotificationServiceBridge;
+import org.eclipse.smarthome.notification.producer.EventNotificationBridge;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
 
     private Map<String, EventFilterFactory> typedEventFilterFactories = new ConcurrentHashMap<String, EventFilterFactory>();
     private Map<String, NotificationService> notificationServices = new HashMap<String, NotificationService>();
-    private Map<String, NotificationServiceBridge> notificationServiceBridges = new HashMap<String, NotificationServiceBridge>();
+    private Map<String, EventNotificationBridge> notificationServiceBridges = new HashMap<String, EventNotificationBridge>();
     private Map<String, Target> serviceTargets = new HashMap<String, Target>();
     private NotificationManager notificationManager;
 
@@ -152,15 +152,15 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
         if (event instanceof NotificationAddedEvent) {
             // logger.debug("Received an event Type {} Topic {}", event.getType(), event.getTopic());
             Notification notification = ((NotificationAddedEvent) event).getNotification();
-            if (StringUtils.split(notification.getType(), ":").length == 3) {
-                String source = StringUtils.split(notification.getType(), ":")[0];
-                String serviceID = StringUtils.split(notification.getType(), ":")[1];
-                String target = StringUtils.split(notification.getType(), ":")[2];
+            if (StringUtils.split(notification.getType(), ":").length == 2) {
+                // String source = StringUtils.split(notification.getType(), ":")[0];
+                String serviceID = StringUtils.split(notification.getType(), ":")[0];
+                String target = StringUtils.split(notification.getType(), ":")[1];
                 // if (source.equals(NotificationServiceBridge.class.getSimpleName()) && serviceID != null
                 // && target != null) {
                 if (serviceID != null && target != null) {
                     logger.trace("Received a notification from '{}' for service '{}' with target '{}'",
-                            new Object[] { source, serviceID, target });
+                            new Object[] { notification.getSource(), serviceID, target });
 
                     if (modelRepository != null) {
                         NotificationModel model = (NotificationModel) modelRepository.getModel(serviceID + ".notify");
@@ -231,7 +231,7 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
                     eventConfigurations.add(configuration);
                 }
 
-                NotificationServiceBridge bridge = new NotificationServiceBridge(modelName, eventFilters,
+                EventNotificationBridge bridge = new EventNotificationBridge(modelName, eventFilters,
                         eventConfigurations, bundleContext);
                 notificationServiceBridges.put(modelName, bridge);
                 bridge.activate();
@@ -246,7 +246,7 @@ public class NotificationServiceGateway implements ModelRepositoryChangeListener
      * @param modelName the name of the notification model without file extension
      */
     private void stopEventHandling(String modelName) {
-        NotificationServiceBridge bridge = notificationServiceBridges.remove(modelName);
+        EventNotificationBridge bridge = notificationServiceBridges.remove(modelName);
         if (bridge != null) {
             bridge.deactivate();
         }

@@ -35,9 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 
-public class NotificationServiceBridge implements EventSubscriber {
+public class EventNotificationBridge implements EventSubscriber {
 
-    private final Logger logger = LoggerFactory.getLogger(NotificationServiceBridge.class);
+    private final Logger logger = LoggerFactory.getLogger(EventNotificationBridge.class);
 
     private List<EventConfiguration> eventConfigurations;
     private Map<String, EventFilter> eventFilters;
@@ -50,7 +50,7 @@ public class NotificationServiceBridge implements EventSubscriber {
     private BundleContext bundleContext;
     private ServiceRegistration<?> eventSubscriberReg;
 
-    public NotificationServiceBridge(String serviceID, Map<String, EventFilter> eventFilters,
+    public EventNotificationBridge(String serviceID, Map<String, EventFilter> eventFilters,
             List<EventConfiguration> eventConfigurations, BundleContext bundleContext) {
         this.serviceID = serviceID;
         this.eventFilters = eventFilters;
@@ -69,13 +69,12 @@ public class NotificationServiceBridge implements EventSubscriber {
                 Notification notification = ((AbstractNotificationManagerEvent) event).getNotification();
 
                 if (firstRegularEventReceived && notification.getSource()
-                        .equals(NotificationServiceBridge.class.getSimpleName() + ":" + serviceID)) {
+                        .equals(EventNotificationBridge.class.getSimpleName() + ":" + serviceID)) {
                     logger.trace("The notification with ID '{}' was delivered in {} ms", notification.getUID(),
                             new Date().getTime() - notification.getTimestamp());
                 }
             }
         } else {
-
             firstRegularEventReceived = true;
             synchronized (eventConfigurations) {
                 for (EventConfiguration config : eventConfigurations) {
@@ -91,7 +90,7 @@ public class NotificationServiceBridge implements EventSubscriber {
                                         .withType(serviceID + ":" + target.getName()).withPriority(0)
                                         // .withSource(NotificationServiceBridge.class.getSimpleName() + ":" +
                                         // serviceID)
-                                        .withSource("NotificationServiceBridge").build());
+                                        .withSource("EventNotificationBridge").build());
                             }
                         }
                     }
@@ -181,7 +180,7 @@ public class NotificationServiceBridge implements EventSubscriber {
     }
 
     public void activate() {
-        logger.debug("Activating the Notification Service Bridge for service '{}'", serviceID);
+        logger.debug("Activating the Event Notification Bridge for service '{}'", serviceID);
         ServiceReference<?> reference = bundleContext.getServiceReference(NotificationManager.class.getName());
         notificationManager = (NotificationManager) bundleContext.getService(reference);
         eventSubscriberReg = bundleContext.registerService(EventSubscriber.class.getName(), this,
@@ -190,7 +189,7 @@ public class NotificationServiceBridge implements EventSubscriber {
         // prune all old notifications
 
         NotificationManagerFilterCriteria filter = new NotificationManagerFilterCriteria(0,
-                NotificationServiceBridge.class.getSimpleName() + ":" + serviceID);
+                EventNotificationBridge.class.getSimpleName() + ":" + serviceID);
 
         List<Notification> obsoleteNotifications = notificationManager.get(filter);
 
@@ -201,7 +200,7 @@ public class NotificationServiceBridge implements EventSubscriber {
     }
 
     public void deactivate() {
-        logger.debug("Deactivating the Notification Service Bridge for service '{}'", serviceID);
+        logger.debug("Deactivating the Event Notification Bridge for service '{}'", serviceID);
         if (eventSubscriberReg != null) {
             eventSubscriberReg.unregister();
         }
