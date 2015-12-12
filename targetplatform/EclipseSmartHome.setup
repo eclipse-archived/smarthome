@@ -2283,16 +2283,16 @@
           versionRange="[2.8.0,2.8.4]"/>
       <requirement
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"
-          versionRange="[2.8.0,2.9.0]"/>
+          versionRange="[2.8.0,2.9.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.runtime.sdk.feature.group"
-          versionRange="[2.8.0,2.9.0]"/>
+          versionRange="[2.8.0,2.9.0)"/>
       <requirement
           name="org.eclipse.emf.mwe.core.feature.group"
-          versionRange="[1.3.2,1.3.3]"/>
+          versionRange="[1.3.2,1.4.0)"/>
       <requirement
           name="org.eclipse.emf.mwe.sdk.feature.group"
-          versionRange="[1.3.2,1.3.3]"/>
+          versionRange="[1.3.2,1.4.0)"/>
       <requirement
           name="org.codehaus.groovy.eclipse.feature.feature.group"/>
       <requirement
