@@ -13,7 +13,9 @@ angular.module('PaperUI.controllers.extension', ['PaperUI.constants']).controlle
             extensionService.getAll(function(extensions) {
                 angular.forEach(extensions, function(extension) {
                     var extensionType = $scope.getType(extension.type);
-                    extensionType.extensions.push(extension);
+                    if (extensionType !== undefined) {
+                        extensionType.extensions.push(extension);
+                    }
                 });
             });
         });
