@@ -18,8 +18,7 @@ Require-Bundle: org.eclipse.xtext;visibility:=reexport,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
  org.objectweb.asm;bundle-version="[5.0.1,6.0.0)";resolution:=optional,
- org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: org.apache.log4j,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
@@ -36,16 +35,12 @@ Import-Package: org.apache.log4j,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.thing,
- org.eclipse.smarthome.model.thing.services,
- org.eclipse.smarthome.model.thing.thing,
- org.eclipse.smarthome.model.thing.thing.impl,
- org.eclipse.smarthome.model.thing.thing.util,
- org.eclipse.smarthome.model.thing.serializer,
- org.eclipse.smarthome.model.thing.parser.antlr,
- org.eclipse.smarthome.model.thing.parser.antlr.internal,
- org.eclipse.smarthome.model.thing.validation,
- org.eclipse.smarthome.model.thing.scoping,
- org.eclipse.smarthome.model.thing.generator,
- org.eclipse.smarthome.model.thing.formatting
+Export-Package: org.eclipse.smarthome.model.thing,org.eclipse.smarthom
+ e.model.thing.services,org.eclipse.smarthome.model.thing.thing,org.ec
+ lipse.smarthome.model.thing.thing.impl,org.eclipse.smarthome.model.th
+ ing.thing.util,org.eclipse.smarthome.model.thing.serializer,org.eclip
+ se.smarthome.model.thing.parser.antlr,org.eclipse.smarthome.model.thi
+ ng.parser.antlr.internal,org.eclipse.smarthome.model.thing.validation
+ ,org.eclipse.smarthome.model.thing.scoping,org.eclipse.smarthome.mode
+ l.thing.generator,org.eclipse.smarthome.model.thing.formatting
 

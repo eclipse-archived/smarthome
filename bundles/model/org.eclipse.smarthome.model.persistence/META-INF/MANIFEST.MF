@@ -17,8 +17,7 @@ Require-Bundle: org.eclipse.xtext;bundle-version="2.1.0";visibility:=reexport,
  org.eclipse.emf.common,
  org.antlr.runtime,
  org.eclipse.xtext.common.types,
- org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: com.google.common.base,
  com.google.common.collect,
  org.apache.commons.logging,
@@ -41,25 +40,19 @@ Import-Package: com.google.common.base,
  org.quartz.utils,
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.persistence,
- org.eclipse.smarthome.model.persistence.extensions,
- org.eclipse.smarthome.model.persistence.formatting,
- org.eclipse.smarthome.model.persistence.generator,
- org.eclipse.smarthome.model.persistence.parser.antlr,
- org.eclipse.smarthome.model.persistence.parser.antlr.internal,
- org.eclipse.smarthome.model.persistence.persistence,
- org.eclipse.smarthome.model.persistence.persistence.impl,
- org.eclipse.smarthome.model.persistence.persistence.util,
- org.eclipse.smarthome.model.persistence.scoping,
- org.eclipse.smarthome.model.persistence.serializer,
- org.eclipse.smarthome.model.persistence.services,
- org.eclipse.smarthome.model.persistence.validation,
- org.joda.time,
- org.joda.time.base,
- org.joda.time.chrono,
- org.joda.time.convert,
- org.joda.time.field,
- org.joda.time.format,
- org.joda.time.tz
-Service-Component: OSGI-INF/persistencemanager.xml,OSGI-INF/persistenceextension.xml
-Bundle-ClassPath: lib/joda-time-2.3.jar,.
+Export-Package: org.eclipse.smarthome.model.persistence,org.eclipse.sm
+ arthome.model.persistence.extensions,org.eclipse.smarthome.model.pers
+ istence.formatting,org.eclipse.smarthome.model.persistence.generator,
+ org.eclipse.smarthome.model.persistence.parser.antlr,org.eclipse.smar
+ thome.model.persistence.parser.antlr.internal,org.eclipse.smarthome.m
+ odel.persistence.persistence,org.eclipse.smarthome.model.persistence.
+ persistence.impl,org.eclipse.smarthome.model.persistence.persistence.
+ util,org.eclipse.smarthome.model.persistence.scoping,org.eclipse.smar
+ thome.model.persistence.serializer,org.eclipse.smarthome.model.persis
+ tence.services,org.eclipse.smarthome.model.persistence.validation,org
+ .joda.time,org.joda.time.base,org.joda.time.chrono,org.joda.time.conv
+ ert,org.joda.time.field,org.joda.time.format,org.joda.time.tz
+Service-Component: OSGI-INF/persistencemanager.xml,
+ OSGI-INF/persistenceextension.xml
+Bundle-ClassPath: lib/joda-time-2.3.jar,
+ .
