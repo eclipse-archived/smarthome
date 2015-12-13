@@ -57,7 +57,7 @@ public class ScriptEngineImpl implements ScriptEngine {
     private XtextResourceSet getResourceSet() {
         if (resourceSet == null) {
             resourceSet = ScriptRuntimeStandaloneSetup.getInjector().getInstance(XtextResourceSet.class);
-            resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.FALSE);
+            resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
         }
         return resourceSet;
     }

@@ -13,8 +13,7 @@ Require-Bundle: org.eclipse.xtext,
  org.eclipse.emf.ecore,
  org.eclipse.emf.common,
  org.antlr.runtime,
- org.eclipse.smarthome.model.lazygen;resolution:=optional,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.smarthome.model.lazygen;resolution:=optional
 Import-Package: org.apache.commons.lang,
  org.apache.log4j,
  org.eclipse.smarthome.core.items.dto,
