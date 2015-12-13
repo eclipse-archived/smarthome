@@ -15,8 +15,7 @@ Require-Bundle: org.eclipse.smarthome.model.persistence;visibility:=reexport,
  org.antlr.runtime,
  org.eclipse.xtext.common.types.ui,
  org.eclipse.xtext.ui.codetemplates.ui,
- org.eclipse.compare,
- org.eclipse.xtext.xbase.lib
+ org.eclipse.compare
 Import-Package: com.google.common.collect,
  org.apache.commons.logging,
  org.apache.log4j,
@@ -24,8 +23,8 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.designer.ui,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Export-Package: org.eclipse.smarthome.model.persistence.ui.contentassist,
- org.eclipse.smarthome.model.persistence.ui.contentassist.antlr,
- org.eclipse.smarthome.model.persistence.ui.internal,
- org.eclipse.smarthome.model.persistence.ui.quickfix
+Export-Package: org.eclipse.smarthome.model.persistence.ui.contentassi
+ st,org.eclipse.smarthome.model.persistence.ui.contentassist.antlr,org
+ .eclipse.smarthome.model.persistence.ui.internal,org.eclipse.smarthom
+ e.model.persistence.ui.quickfix
 Bundle-Activator: org.eclipse.smarthome.model.persistence.ui.internal.PersistenceActivator
