@@ -280,27 +280,6 @@
 	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
         </page>
     </extension>
-    <extension point="org.eclipse.ui.menus">
-		<menuContribution locationURI="popup:#TextEditorContext?after=xtext.ui.openDeclaration">
-			<command
-				commandId="org.eclipse.xtext.ui.OpenGeneratedFileCommand"
-				id="org.eclipse.smarthome.model.script.Script.OpenGeneratedCode"
-				style="push">
-					<visibleWhen checkEnabled="false">
-						<reference definitionId="org.eclipse.smarthome.model.script.Script.Editor.opened" />
-					</visibleWhen>
-			</command>
-		</menuContribution>
-	</extension>
-	<extension point="org.eclipse.ui.handlers">
-		<handler
-			class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.xtext.ui.generator.trace.OpenGeneratedFileHandler"
-			commandId="org.eclipse.xtext.ui.OpenGeneratedFileCommand">
-				<activeWhen>
-					<reference definitionId="org.eclipse.smarthome.model.script.Script.Editor.opened" />
-				</activeWhen>
-		</handler>
-	</extension>
 
 	<!-- Quick Outline -->
 	<extension
@@ -477,7 +456,7 @@
    </extension>
    <extension point="org.eclipse.ui.editorActions">
       <editorContribution targetID="org.eclipse.smarthome.model.script.Script" 
-                          id="org.eclipse.smarthome.model.script.Script.rulerActions">
+                          id="org.eclipse.smarthome.model.script.Script.ide.rulerActions">
 	     <action
 	             label="Not Used"
 	             class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
@@ -488,29 +467,17 @@
    </extension>
    <extension point="org.eclipse.ui.popupMenus">
       <viewerContribution
-         targetID="org.eclipse.smarthome.model.script.Script.RulerContext"
-         id="org.eclipse.smarthome.model.script.Script.RulerPopupActions">
+         targetID="example.rulerContextMenuId"
+         id="org.eclipse.smarthome.model.script.Script.ide.RulerPopupActions">
          <action
             label="Toggle Breakpoint"
             class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
-            menubarPath="debug"
-            id="org.eclipse.smarthome.model.script.Script.rulerContextMenu.toggleBreakpointAction">
-         </action>
-         <action
-            label="Not used"
-            class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.debug.ui.actions.RulerEnableDisableBreakpointActionDelegate"
-            menubarPath="debug"
-            id="org.eclipse.smarthome.model.script.Script.rulerContextMenu.enableDisableBreakpointAction">
-         </action>
-         <action
-           label="Breakpoint Properties"
-           helpContextId="breakpoint_properties_action_context"
-           class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.jdt.debug.ui.actions.JavaBreakpointPropertiesRulerActionDelegate"
-           menubarPath="group.properties"
-           id="org.eclipse.smarthome.model.script.Script.rulerContextMenu.openBreapointPropertiesAction">
+            menubarPath="additions"
+            id="org.eclipse.smarthome.model.script.Script.ide.rulerContextMenu.toggleBreakpointAction">
          </action>
       </viewerContribution>
    </extension>
+   
     <!-- Introduce Local Variable Refactoring -->
 	<extension point="org.eclipse.ui.handlers">
 		<handler 
@@ -578,12 +545,6 @@
             class="org.eclipse.smarthome.model.script.ui.ScriptExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
             extensions="script">
     </provider>
-  </extension>
-  <extension point="org.eclipse.team.core.fileTypes">
-    <fileTypes
-            extension="script"
-            type="text">
-    </fileTypes>
   </extension>
 
 </plugin>

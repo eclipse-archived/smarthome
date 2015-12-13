@@ -28,7 +28,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
+        <version>1.2.1</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -38,11 +38,9 @@
           </execution>
         </executions>
         <configuration>
-          <includeProjectDependencies>true</includeProjectDependencies>
+          <includeProjectDependencies>false</includeProjectDependencies>
           <includePluginDependencies>true</includePluginDependencies>
-          <classpathScope>compile</classpathScope>
           <mainClass>org.eclipse.emf.mwe2.launch.runtime.Mwe2Launcher</mainClass>
-          <cleanupDaemonThreads>false</cleanupDaemonThreads>
           <arguments>
             <argument>file://${project.basedir}/src/org/eclipse/smarthome/model/thing/GenerateThing.mwe2</argument>
             <argument>
@@ -52,22 +50,30 @@
               runtimeProject=/${project.basedir}
             </argument>
           </arguments>
-          <additionalClasspathElements>
-            <additionalClasspathElement>/${basedir}/../antlr-generator-3.2.0-patch.jar</additionalClasspathElement>
-          </additionalClasspathElements>        
         </configuration>
-      <dependencies> 
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.2</version>
-         </dependency>
-         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.4</version>
-         </dependency>
-      </dependencies>
+        <dependencies>
+          <dependency>
+            <groupId>org.eclipse.xtext</groupId>
+            <artifactId>org.eclipse.xtext.xtext</artifactId>
+            <version>${xtext-version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.eclipse.xtext</groupId>
+            <artifactId>org.eclipse.xtext.xbase</artifactId>
+            <version>${xtext-version}</version>
+          </dependency>
+          <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>org.eclipse.smarthome.model.lazygen</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+              <exclusion>
+                <groupId>p2.eclipse-plugin</groupId>
+                <artifactId>*</artifactId>
+              </exclusion>
+            </exclusions>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
