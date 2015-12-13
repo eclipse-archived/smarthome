@@ -2277,16 +2277,16 @@
           name="org.eclipse.m2e.logback.feature.feature.group"/>
       <requirement
           name="org.eclipse.xtend.sdk.feature.group"
-          versionRange="[2.6.0,2.7.0]"/>
+          versionRange="[2.6.0,2.7.0)"/>
       <requirement
           name="org.eclipse.xtext.sdk.feature.group"
-          versionRange="[2.6.0,2.7.0]"/>
+          versionRange="[2.6.0,2.7.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.language.sdk.feature.group"
-          versionRange="[2.6.0,2.7.0]"/>
+          versionRange="[2.6.0,2.7.0)"/>
       <requirement
           name="org.eclipse.emf.mwe2.runtime.sdk.feature.group"
-          versionRange="[2.6.0,2.7.0]"/>
+          versionRange="[2.6.0,2.7.0)"/>
       <requirement
           name="org.eclipse.emf.mwe.core.feature.group"
           versionRange="[1.3.2,1.4.0)"/>
