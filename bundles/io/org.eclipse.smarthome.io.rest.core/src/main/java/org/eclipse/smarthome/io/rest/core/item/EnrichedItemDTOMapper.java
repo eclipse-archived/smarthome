@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.core.item;
 import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
@@ -35,15 +36,15 @@ public class EnrichedItemDTOMapper {
      * @param uri the uri
      * @return item DTO object
      */
-    public static EnrichedItemDTO map(Item item, boolean drillDown, URI uri) {
+    public static EnrichedItemDTO map(Item item, boolean drillDown, URI uri, Locale locale) {
         ItemDTO itemDTO = ItemDTOMapper.map(item, drillDown);
-        return map(item, itemDTO, uri, drillDown);
+        return map(item, itemDTO, uri, drillDown, locale);
     }
 
-    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown) {
+    private static EnrichedItemDTO map(Item item, ItemDTO itemDTO, URI uri, boolean drillDown, Locale locale) {
 
-        String state = considerTransformation(item.getState().toString(), item.getStateDescription());
-        StateDescription stateDescription = considerTransformation(item.getStateDescription());
+        String state = considerTransformation(item.getState().toString(), item.getStateDescription(locale));
+        StateDescription stateDescription = considerTransformation(item.getStateDescription(locale));
         String link = null != uri ? uri.toASCIIString() + ItemResource.PATH_ITEMS + "/" + itemDTO.name : null;
 
         EnrichedItemDTO enrichedItemDTO = null;
@@ -54,7 +55,7 @@ public class EnrichedItemDTOMapper {
             if (drillDown) {
                 Collection<EnrichedItemDTO> members = new LinkedHashSet<>();
                 for (Item member : groupItem.getMembers()) {
-                    members.add(map(member, drillDown, uri));
+                    members.add(map(member, drillDown, uri, locale));
                 }
                 memberDTOs = members.toArray(new EnrichedItemDTO[members.size()]);
             } else {
