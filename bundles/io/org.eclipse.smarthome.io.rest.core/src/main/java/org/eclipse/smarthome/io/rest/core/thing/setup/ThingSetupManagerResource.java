@@ -79,9 +79,11 @@ public class ThingSetupManagerResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response addThing(@ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean,
+    public Response addThing(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @ApiParam(value = "thing data", required = true) EnrichedThingDTO thingBean,
             @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels)
                     throws IOException {
+        final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
@@ -93,7 +95,7 @@ public class ThingSetupManagerResource implements RESTResource {
         Configuration configuration = ThingResource.getConfiguration(thingBean);
 
         thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.item.label,
-                thingBean.item.groupNames, enableChannels);
+                thingBean.item.groupNames, enableChannels, locale);
 
         return Response.ok().build();
     }
@@ -170,8 +172,11 @@ public class ThingSetupManagerResource implements RESTResource {
     @Path("/things/channels/{channelUID}")
     @ApiOperation(value = "Adds corresponding item and the link for the channel.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response enableChannel(@PathParam("channelUID") @ApiParam(value = "channelUID") String channelUID) {
-        thingSetupManager.enableChannel(new ChannelUID(channelUID));
+    public Response enableChannel(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUID) {
+        final Locale locale = LocaleUtil.getLocale(language);
+        thingSetupManager.enableChannel(new ChannelUID(channelUID), locale);
         return Response.ok().build();
     }
 
