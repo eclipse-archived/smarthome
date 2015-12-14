@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.net.URI;
+import java.util.Locale;
 
 import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -30,12 +31,13 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param uri the uri
      * @return the enriched thing DTO object
      */
-    public static EnrichedThingDTO map(Thing thing, URI uri) {
+    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale) {
 
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
         GroupItem groupItem = thing.getLinkedItem();
-        EnrichedItemDTO groupItemDTO = groupItem != null ? EnrichedItemDTOMapper.map(groupItem, true, uri) : null;
+        EnrichedItemDTO groupItemDTO = groupItem != null ? EnrichedItemDTOMapper.map(groupItem, true, uri, locale)
+                : null;
 
         String link = null != uri ? uri.toASCIIString() + ThingResource.PATH_THINGS + "/" + thingDTO.UID : null;
 
