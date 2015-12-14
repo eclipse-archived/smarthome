@@ -22,6 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -80,8 +81,8 @@ public class BindingResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all bindings.", response = BindingInfoDTO.class, responseContainer = "Set")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "language") String language) {
-        Locale locale = LocaleUtil.getLocale(language);
+    public Response getAll(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
+        final Locale locale = LocaleUtil.getLocale(language);
 
         Set<BindingInfo> bindingInfos = bindingInfoRegistry.getBindingInfos(locale);
         Set<BindingInfoDTO> bindingInfoBeans = map(bindingInfos, locale);

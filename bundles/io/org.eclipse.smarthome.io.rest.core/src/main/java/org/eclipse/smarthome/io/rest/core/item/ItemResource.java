@@ -11,12 +11,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -25,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -48,6 +51,7 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.internal.JSONResponse;
 import org.slf4j.Logger;
@@ -137,12 +141,14 @@ public class ItemResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Get all available items.", response = EnrichedItemDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getItems(@QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
+    public Response getItems(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @QueryParam("type") @ApiParam(value = "item type filter", required = false) String type,
             @QueryParam("tags") @ApiParam(value = "item tag filter", required = false) String tags,
             @DefaultValue("false") @QueryParam("recursive") @ApiParam(value = "get member items recursivly", required = false) boolean recursive) {
+        final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
-        Object responseObject = getItemBeans(type, tags, recursive);
+        Object responseObject = getItemBeans(type, tags, recursive, locale);
         return Response.ok(responseObject).build();
     }
 
@@ -152,8 +158,9 @@ public class ItemResource implements RESTResource {
     @ApiOperation(value = "Gets a single item.", response = EnrichedItemDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found") })
-    public Response getItemData(
+    public Response getItemData(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname) {
+        final Locale locale = LocaleUtil.getLocale(language);
         logger.debug("Received HTTP GET request at '{}'", uriInfo.getPath());
 
         // get item
@@ -162,7 +169,7 @@ public class ItemResource implements RESTResource {
         // if it exists
         if (item != null) {
             logger.debug("Received HTTP GET request at '{}'.", uriInfo.getPath());
-            return getItemResponse(Status.OK, item, null);
+            return getItemResponse(Status.OK, item, locale, null);
         } else {
             logger.info("Received HTTP GET request at '{}' for the unknown item '{}'.", uriInfo.getPath(), itemname);
             return getItemNotFoundResponse(itemname);
@@ -206,8 +213,11 @@ public class ItemResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found"),
             @ApiResponse(code = 400, message = "Item state null") })
-    public Response putItemState(@PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
+    public Response putItemState(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @ApiParam(value = "valid item state (e.g. ON, OFF)", required = true) String value) {
+        final Locale locale = LocaleUtil.getLocale(language);
 
         // get Item
         Item item = getItem(itemname);
@@ -223,7 +233,7 @@ public class ItemResource implements RESTResource {
                 // set State and report OK
                 logger.debug("Received HTTP PUT request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createStateEvent(itemname, state));
-                return getItemResponse(Status.ACCEPTED, null, null);
+                return getItemResponse(Status.ACCEPTED, null, locale, null);
 
             } else {
 
@@ -253,14 +263,18 @@ public class ItemResource implements RESTResource {
         Command command = null;
         if (item != null) {
             if ("toggle".equalsIgnoreCase(value) && (item instanceof SwitchItem || item instanceof RollershutterItem)) {
-                if (OnOffType.ON.equals(item.getStateAs(OnOffType.class)))
+                if (OnOffType.ON.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.OFF;
-                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class)))
+                }
+                if (OnOffType.OFF.equals(item.getStateAs(OnOffType.class))) {
                     command = OnOffType.ON;
-                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class)))
+                }
+                if (UpDownType.UP.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.DOWN;
-                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class)))
+                }
+                if (UpDownType.DOWN.equals(item.getStateAs(UpDownType.class))) {
                     command = UpDownType.UP;
+                }
             } else {
                 command = TypeParser.parseCommand(item.getAcceptedCommandTypes(), value);
             }
@@ -435,8 +449,10 @@ public class ItemResource implements RESTResource {
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response createOrUpdateItem(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
             @ApiParam(value = "item data", required = true) ItemDTO item) {
+        final Locale locale = LocaleUtil.getLocale(language);
 
         // If we didn't get an item bean, then return!
         if (item == null) {
@@ -476,12 +492,12 @@ public class ItemResource implements RESTResource {
         if (existingItem == null) {
             // item does not yet exist, create it
             managedItemProvider.add(newItem);
-            return getItemResponse(Status.CREATED, newItem, null);
+            return getItemResponse(Status.CREATED, newItem, locale, null);
 
         } else if (managedItemProvider.get(itemname) != null) {
             // item already exists as a managed item, update it
             managedItemProvider.update(newItem);
-            return getItemResponse(Status.OK, newItem, null);
+            return getItemResponse(Status.OK, newItem, locale, null);
         } else {
             // Item exists but cannot be updated
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
@@ -505,11 +521,12 @@ public class ItemResource implements RESTResource {
      *
      * @param status
      * @param item can be null
+     * @param locale the locale
      * @param errormessage optional message in case of error
      * @return Response configured to represent the Item in depending on the status
      */
-    private Response getItemResponse(Status status, Item item, String errormessage) {
-        Object entity = null != item ? EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri()) : null;
+    private Response getItemResponse(Status status, Item item, Locale locale, String errormessage) {
+        Object entity = null != item ? EnrichedItemDTOMapper.map(item, true, uriInfo.getBaseUri(), locale) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -524,7 +541,7 @@ public class ItemResource implements RESTResource {
         return item;
     }
 
-    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive) {
+    private List<EnrichedItemDTO> getItemBeans(String type, String tags, boolean recursive, Locale locale) {
         List<EnrichedItemDTO> beans = new LinkedList<>();
         Collection<Item> items;
         if (tags == null) {
@@ -543,7 +560,7 @@ public class ItemResource implements RESTResource {
         }
         if (items != null) {
             for (Item item : items) {
-                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri()));
+                beans.add(EnrichedItemDTOMapper.map(item, recursive, uriInfo.getBaseUri(), locale));
             }
         }
         return beans;

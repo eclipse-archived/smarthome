@@ -20,7 +20,7 @@ import com.google.common.base.Preconditions;
 
 /**
  * The {@link ItemDTOMapper} is an utility class to map items into item data transfer objects (DTOs).
- * 
+ *
  * @author Kai Kreuzer - Initial contribution
  * @author Stefan Bußweiler - Moved to core and renamed class to DTO mapper
  * @author Dennis Nobel - Removed dynamic data
@@ -63,7 +63,7 @@ public class ItemDTOMapper {
 
     /**
      * Maps item into item DTO object.
-     * 
+     *
      * @param item the item
      * @param drillDown the drill down
      * @param uri the uri
