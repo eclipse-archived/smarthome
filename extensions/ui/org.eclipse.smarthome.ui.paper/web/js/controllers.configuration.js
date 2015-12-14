@@ -401,7 +401,7 @@ angular.module('PaperUI.controllers.configuration',
             for (cg_i = 0, cg_l = $scope.thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
                 cg = $scope.thingType.channelGroups[cg_i];
                 if (cg.id == cid_part[0]) {
-                    for (c_i = 0, c_l = cg.length; cg_i < cg_l; ++cg_i) {
+                    for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
                         c = cg.channels[c_i];
                         if (c.id == cid_part[1]) {
                             return c;
