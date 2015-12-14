@@ -422,7 +422,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         ThingSetupManager thingSetupManager = getService(ThingSetupManager)
 
         hueLight.getChannels().each {
-            thingSetupManager.enableChannel(it.UID)
+            thingSetupManager.enableChannel(it.UID, null)
         }
     }
 

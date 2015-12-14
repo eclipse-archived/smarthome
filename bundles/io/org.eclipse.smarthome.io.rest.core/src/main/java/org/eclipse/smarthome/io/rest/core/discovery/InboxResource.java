@@ -10,18 +10,21 @@ package org.eclipse.smarthome.io.rest.core.discovery;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -35,6 +38,7 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
@@ -86,20 +90,23 @@ public class InboxResource implements RESTResource {
     @ApiOperation(value = "Approves the discovery result by adding the thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Thing not found in the inbox.") })
-    public Response approve(@PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
+    public Response approve(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
+            @PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
             @ApiParam(value = "thing label") String label,
             @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels) {
+        final Locale locale = LocaleUtil.getLocale(language);
         ThingUID thingUIDObject = new ThingUID(thingUID);
         String notEmptyLabel = label != null && !label.isEmpty() ? label : null;
-        Thing thing = null; 
-        try {            
+        Thing thing = null;
+        try {
             thing = inbox.approve(thingUIDObject, notEmptyLabel);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        thingSetupManager.createGroupItems(notEmptyLabel, new ArrayList<String>(), thing, thing.getThingTypeUID());
+        thingSetupManager.createGroupItems(notEmptyLabel, new ArrayList<String>(), thing, thing.getThingTypeUID(),
+                locale);
         if (enableChannels) {
-            thingSetupManager.enableChannels(thing, thing.getThingTypeUID());
+            thingSetupManager.enableChannels(thing, thing.getThingTypeUID(), locale);
         }
         return Response.ok().build();
     }

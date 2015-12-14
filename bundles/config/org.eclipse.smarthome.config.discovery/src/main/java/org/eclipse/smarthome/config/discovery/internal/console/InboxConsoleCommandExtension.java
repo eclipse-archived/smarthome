@@ -62,14 +62,13 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
                                 Thing thing = inbox.approve(thingUID, null);
                                 if (fullSetup) {
                                     thingSetupManager.createGroupItems(null, new ArrayList<String>(), thing,
-                                            result.getThingTypeUID());
+                                            result.getThingTypeUID(), null);
                                 }
                             } catch (Exception e) {
                                 console.println(e.getMessage());
                             }
                         } else {
-                            console.println(
-                                    "Cannot approve thing as setup manager is missing.");
+                            console.println("Cannot approve thing as setup manager is missing.");
                         }
                     } else {
                         console.println(
