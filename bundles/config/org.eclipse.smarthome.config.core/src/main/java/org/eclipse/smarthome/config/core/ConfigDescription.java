@@ -10,7 +10,9 @@ package org.eclipse.smarthome.config.core;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link ConfigDescription} class contains a description for a concrete
@@ -32,6 +34,7 @@ import java.util.List;
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
  * @author Chris Jackson - Added parameter groups
+ * @author Thomas Höfer - Added convenient operation to get config description parameters in a map
  */
 public class ConfigDescription {
 
@@ -55,7 +58,7 @@ public class ConfigDescription {
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry} (must neither be null nor
      *            empty)
      *
-     * @param parameters the description of a concrete configuration parameter
+     * @param parameters the list of configuration parameters that belong to the given URI
      *            (could be null or empty)
      *
      * @throws IllegalArgumentException if the URI is null or invalid
@@ -70,9 +73,9 @@ public class ConfigDescription {
      * @param uri the URI of this description within the {@link ConfigDescriptionRegistry} (must neither be null nor
      *            empty)
      *
-     * @param parameters the description of a concrete configuration parameter
+     * @param parameters the list of configuration parameters that belong to the given URI
      *            (could be null or empty)
-     *            
+     *
      * @param groups the list of groups associated with the parameters
      *
      * @throws IllegalArgumentException if the URI is null or invalid
@@ -107,7 +110,7 @@ public class ConfigDescription {
     /**
      * Returns the URI of this description within the {@link ConfigDescriptionRegistry}.
      * The URI follows the syntax {@code '<scheme>:<token>[:<token>]'} (e.g. {@code "binding:hue:bridge"}).
-     * 
+     *
      * @return the URI of this description (not null)
      */
     public URI getURI() {
@@ -115,14 +118,29 @@ public class ConfigDescription {
     }
 
     /**
-     * Returns the description of a concrete configuration parameter.
+     * Returns the corresponding {@link ConfigDescriptionParameter}s.
      * <p>
      * The returned list is immutable.
      *
-     * @return the description of a concrete configuration parameter (not null, could be empty)
+     * @return the corresponding configuration description parameters (not null, could be empty)
      */
     public List<ConfigDescriptionParameter> getParameters() {
         return this.parameters;
+    }
+
+    /**
+     * Returns a map representation of the {@link ConfigDescriptionParameter}s. The map will use the name of the
+     * parameter as key and the parameter as value.
+     *
+     * @return the unmodifiable map of configuration description parameters which uses the name as key and the parameter
+     *         as value (not null, could be empty)
+     */
+    public Map<String, ConfigDescriptionParameter> toParametersMap() {
+        Map<String, ConfigDescriptionParameter> map = new HashMap<>();
+        for (ConfigDescriptionParameter parameter : parameters) {
+            map.put(parameter.getName(), parameter);
+        }
+        return Collections.unmodifiableMap(map);
     }
 
     /**
