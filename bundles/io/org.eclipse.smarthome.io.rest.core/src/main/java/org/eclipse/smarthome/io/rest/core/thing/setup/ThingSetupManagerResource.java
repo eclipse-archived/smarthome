@@ -11,11 +11,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -23,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -35,6 +38,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
+import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
 import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
@@ -176,11 +180,13 @@ public class ThingSetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available things.", response = EnrichedThingDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getThings() {
+    public Response getThings(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
+        final Locale locale = LocaleUtil.getLocale(language);
+
         List<EnrichedThingDTO> thingBeans = new ArrayList<>();
         Collection<Thing> things = thingSetupManager.getThings();
         for (Thing thing : things) {
-            EnrichedThingDTO thingItemBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri());
+            EnrichedThingDTO thingItemBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale);
             thingBeans.add(thingItemBean);
         }
         return Response.ok(thingBeans).build();
@@ -225,11 +231,14 @@ public class ThingSetupManagerResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available group items with tag \'home-group\'.", response = EnrichedItemDTO.class, responseContainer = "List")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
-    public Response getHomeGroups() {
+    public Response getHomeGroups(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language) {
+        final Locale locale = LocaleUtil.getLocale(language);
+
         List<EnrichedItemDTO> itemBeans = new ArrayList<>();
         Collection<GroupItem> homeGroups = thingSetupManager.getHomeGroups();
         for (GroupItem homeGroupItem : homeGroups) {
-            EnrichedItemDTO itemBean = EnrichedItemDTOMapper.map(homeGroupItem, true, uriInfo.getBaseUri());
+            EnrichedItemDTO itemBean = EnrichedItemDTOMapper.map(homeGroupItem, true, uriInfo.getBaseUri(), locale);
             itemBeans.add(itemBean);
         }
         return Response.ok(itemBeans).build();

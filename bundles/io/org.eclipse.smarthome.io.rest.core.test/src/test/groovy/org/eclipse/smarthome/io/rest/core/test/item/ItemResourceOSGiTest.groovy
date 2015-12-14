@@ -27,8 +27,8 @@ import org.junit.Test
 
 
 /**
- * ItemResourceOSGiTest tests the ItemResource REST resource on the OSGi level. 
- * 
+ * ItemResourceOSGiTest tests the ItemResource REST resource on the OSGi level.
+ *
  * @author Dennis Nobel - Initial contribution
  */
 class ItemResourceOSGiTest extends OSGiTest {
@@ -57,16 +57,16 @@ class ItemResourceOSGiTest extends OSGiTest {
 
     @Test
     void 'assert getItems with tag filter works'() {
-        
+
         def item1 = new SwitchItem("Item1")
         def item2 = new SwitchItem("Item2")
         def item3 = new SwitchItem("Item3")
-        
+
         item1.addTag("Tag1")
         item2.addTag("Tag2")
         item2.addTag("Tag1")
         item3.addTag("Tag2")
-        
+
         def itemProvider = [
             getAll: {
                 return [item1, item2, item3]
@@ -76,18 +76,18 @@ class ItemResourceOSGiTest extends OSGiTest {
         ] as ItemProvider
         registerService itemProvider
 
-        assertThat containsItems(itemResource.getItems(null, "Tag1", false).getEntity(), ["Item1", "Item2"]), is(true)
-        assertThat containsItems(itemResource.getItems(null, "Tag2", false).getEntity(), ["Item2", "Item3"]), is(true)
-        assertThat itemResource.getItems(null, "NotExistingTag", false).getEntity().size(), is(0)
+        assertThat containsItems(itemResource.getItems(null, null, "Tag1", false).getEntity(), ["Item1", "Item2"]), is(true)
+        assertThat containsItems(itemResource.getItems(null, null, "Tag2", false).getEntity(), ["Item2", "Item3"]), is(true)
+        assertThat itemResource.getItems(null, null, "NotExistingTag", false).getEntity().size(), is(0)
     }
-    
+
     @Test
     void 'assert getItems with type filter works'() {
-        
+
         def item1 = new SwitchItem("Item1")
         def item2 = new SwitchItem("Item2")
-        def item3 = new DimmerItem("Item3")   
-        
+        def item3 = new DimmerItem("Item3")
+
         def itemProvider = [
             getAll: {
                 return [item1, item2, item3]
@@ -96,43 +96,45 @@ class ItemResourceOSGiTest extends OSGiTest {
             removeProviderChangeListener: {},
         ] as ItemProvider
         registerService itemProvider
-        
-        assertThat containsItems(itemResource.getItems("Switch", null, false).getEntity(), ["Item1", "Item2"]), is(true)
-        assertThat containsItems(itemResource.getItems("Dimmer", null, false).getEntity(), ["Item3"]), is(true)
-        assertThat itemResource.getItems(null, "Color", false).getEntity().size(), is(0)
+
+        assertThat containsItems(itemResource.getItems(null, "Switch", null, false).getEntity(), ["Item1", "Item2"]), is(true)
+        assertThat containsItems(itemResource.getItems(null, "Dimmer", null, false).getEntity(), ["Item3"]), is(true)
+        assertThat itemResource.getItems(null, null, "Color", false).getEntity().size(), is(0)
     }
-    
+
     @Test
     void 'assert addTag and removeTag works'() {
         managedItemProvider.add(new SwitchItem("Switch"))
-        assertThat itemResource.getItems(null, "MyTag", false).getEntity().size(), is(0)
+        assertThat itemResource.getItems(null, null, "MyTag", false).getEntity().size(), is(0)
         itemResource.addTag("Switch", "MyTag")
-        assertThat itemResource.getItems(null, "MyTag", false).getEntity().size(), is(1)
+        assertThat itemResource.getItems(null, null, "MyTag", false).getEntity().size(), is(1)
         itemResource.removeTag("Switch", "MyTag")
-        assertThat itemResource.getItems(null, "MyTag", false).getEntity().size(), is(0)
+        assertThat itemResource.getItems(null, null, "MyTag", false).getEntity().size(), is(0)
     }
-    
+
     @Test
     void 'assert expected status codes for addTag and removeTag are returned'() {
         Response response = itemResource.addTag("Switch", "MyTag")
         assertThat response.status, is(Status.NOT_FOUND.code)
-        
+
         response = itemResource.removeTag("Switch", "MyTag")
         assertThat response.status, is(Status.NOT_FOUND.code)
-        
+
         def itemProvider = [
             getAll: {
-                return [new SwitchItem("UnmanagedItem")]
+                return [
+                    new SwitchItem("UnmanagedItem")
+                ]
             },
             addProviderChangeListener: {},
             removeProviderChangeListener: {},
         ] as ItemProvider
         registerService itemProvider
-        
+
         response = itemResource.addTag("UnmanagedItem", "MyTag")
         assertThat response.status, is(Status.METHOD_NOT_ALLOWED.code)
     }
-    
+
     private containsItems(Object entity, List<String> itemNames) {
         def allFound = true
         itemNames.each { itemName ->

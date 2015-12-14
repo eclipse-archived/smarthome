@@ -96,7 +96,7 @@ class ItemResourceOSGiTestWithTransformTest extends OSGiTest {
         // set after adding to ItemProvider. Why?
         item1.setStateDescriptionProviders(stateDescriptionProviders)
 
-        def enrichedDTOResult = itemResource.getItems(null, null, false).getEntity()
+        def enrichedDTOResult = itemResource.getItems(null, null, null, false).getEntity()
         def EnrichedItemDTO enrichedDTO = enrichedDTOResult.find() { itemBean ->
             itemBean.name == "Item1"
         }
