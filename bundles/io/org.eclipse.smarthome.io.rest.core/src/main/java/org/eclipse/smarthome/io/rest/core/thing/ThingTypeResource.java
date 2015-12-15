@@ -18,6 +18,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -88,7 +89,8 @@ public class ThingTypeResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available things types.", response = ThingTypeDTO.class, responseContainer = "Set")
     @ApiResponses(value = @ApiResponse(code = 200, message = "OK") )
-    public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
+    public Response getAll(
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
         Set<ThingTypeDTO> thingTypeDTOs = convertToThingTypeDTOs(thingTypeRegistry.getThingTypes(locale), locale);
         return Response.ok(thingTypeDTOs).build();
@@ -99,9 +101,9 @@ public class ThingTypeResource implements RESTResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Thing type with provided thingTypeUID does not exist."),
-            @ApiResponse(code = 204, message = "No content") })
+            @ApiResponse(code = 404, message = "No content") })
     public Response getByUID(@PathParam("thingTypeUID") @ApiParam(value = "thingTypeUID") String thingTypeUID,
-            @HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
+            @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
         ThingType thingType = thingTypeRegistry.getThingType(new ThingTypeUID(thingTypeUID), locale);
         if (thingType != null) {
