@@ -30,6 +30,7 @@ import org.eclipse.smarthome.model.sitemap.LinkableWidget;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
 import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
+import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.internal.render.PageRenderer;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.osgi.service.http.NamespaceException;
@@ -59,7 +60,7 @@ public class WebAppServlet extends BaseServlet {
     private PageRenderer renderer;
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
 
-    private String defaultSitemap = "default";
+    private WebAppConfig config = new WebAppConfig();
 
     public void addSitemapProvider(SitemapProvider sitemapProvider) {
         this.sitemapProviders.add(sitemapProvider);
@@ -70,14 +71,12 @@ public class WebAppServlet extends BaseServlet {
     }
 
     public void setPageRenderer(PageRenderer renderer) {
+        renderer.setConfig(config);
         this.renderer = renderer;
     }
 
     protected void activate(Map<String, Object> configProps) {
-        String value = (String) configProps.get("defaultSitemap");
-        if (value != null) {
-            this.defaultSitemap = value;
-        }
+        config.applyConfig(configProps);
         try {
             Hashtable<String, String> props = new Hashtable<String, String>();
             httpService.registerServlet(WEBAPP_ALIAS + "/" + SERVLET_NAME, this, props, createHttpContext());
@@ -91,10 +90,7 @@ public class WebAppServlet extends BaseServlet {
     }
 
     protected void modified(Map<String, Object> configProps) {
-        String value = (String) configProps.get("defaultSitemap");
-        if (value != null) {
-            this.defaultSitemap = value;
-        }
+        config.applyConfig(configProps);
     }
 
     protected void deactivate() {
@@ -118,15 +114,16 @@ public class WebAppServlet extends BaseServlet {
 
         // if there are no parameters, display the "default" sitemap
         if (sitemapName == null) {
-            sitemapName = defaultSitemap;
+            sitemapName = config.getDefaultSitemap();
         }
         StringBuilder result = new StringBuilder();
 
         Sitemap sitemap = null;
         for (SitemapProvider sitemapProvider : sitemapProviders) {
             sitemap = sitemapProvider.getSitemap(sitemapName);
-            if (sitemap != null)
+            if (sitemap != null) {
                 break;
+            }
         }
         try {
             if (sitemap == null) {
@@ -148,8 +145,9 @@ public class WebAppServlet extends BaseServlet {
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
                 if (w != null) {
                     String label = renderer.getItemUIRegistry().getLabel(w);
-                    if (label == null)
+                    if (label == null) {
                         label = "undefined";
+                    }
                     if (!(w instanceof LinkableWidget)) {
                         throw new RenderException("Widget '" + w + "' can not have any content");
                     }
