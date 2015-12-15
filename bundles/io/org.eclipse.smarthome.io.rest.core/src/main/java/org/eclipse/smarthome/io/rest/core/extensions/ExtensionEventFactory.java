@@ -23,11 +23,15 @@ import com.google.common.collect.Sets;
  */
 public class ExtensionEventFactory extends AbstractEventFactory {
 
-    static final String EXTENSION_INSTALLED_EVENT_TOPIC = "smarthome/extensions/{id}/installed";
+    static final String TOPIC_PREFIX = "smarthome/extensions/{id}";
 
-    static final String EXTENSION_UNINSTALLED_EVENT_TOPIC = "smarthome/extensions/{id}/uninstalled";
+    static final String EXTENSION_INSTALLED_EVENT_TOPIC_POSTFIX = "/installed";
+    static final String EXTENSION_UNINSTALLED_EVENT_TOPIC_POSTFIX = "/uninstalled";
+    static final String EXTENSION_FAILURE_EVENT_TOPIC_POSTFIX = "/failed";
 
-    static final String EXTENSION_FAILURE_EVENT_TOPIC = "smarthome/extensions/{id}/failed";
+    static final String EXTENSION_INSTALLED_EVENT_TOPIC = TOPIC_PREFIX + EXTENSION_INSTALLED_EVENT_TOPIC_POSTFIX;
+    static final String EXTENSION_UNINSTALLED_EVENT_TOPIC = TOPIC_PREFIX + EXTENSION_UNINSTALLED_EVENT_TOPIC_POSTFIX;
+    static final String EXTENSION_FAILURE_EVENT_TOPIC = TOPIC_PREFIX + EXTENSION_FAILURE_EVENT_TOPIC_POSTFIX;
 
     /**
      * Constructs a new ExtensionEventFactory.
@@ -38,7 +42,7 @@ public class ExtensionEventFactory extends AbstractEventFactory {
 
     @Override
     protected Event createEventByType(String eventType, String topic, String payload, String source) throws Exception {
-        if (topic.equals(ExtensionEventFactory.EXTENSION_FAILURE_EVENT_TOPIC)) {
+        if (topic.endsWith(EXTENSION_FAILURE_EVENT_TOPIC_POSTFIX)) {
             String[] properties = deserializePayload(payload, String[].class);
             Event event = new ExtensionEvent(topic, payload, properties[0], properties[1]);
             return event;
