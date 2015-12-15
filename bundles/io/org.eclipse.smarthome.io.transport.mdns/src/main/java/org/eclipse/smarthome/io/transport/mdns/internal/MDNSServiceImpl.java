@@ -87,8 +87,9 @@ public class MDNSServiceImpl implements MDNSService {
                         mdnsClient.getClient().registerService(serviceInfo);
                     } catch (IOException e) {
                         logger.error(e.getMessage());
+                    } catch (IllegalStateException e) {
+                        logger.debug("Not registering service, because service is already deactivated!");
                     }
-
                 }
             };
             Executors.newSingleThreadExecutor().execute(runnable);
@@ -100,8 +101,9 @@ public class MDNSServiceImpl implements MDNSService {
      */
     @Override
     public void unregisterService(ServiceDescription description) {
-        if (mdnsClient == null)
+        if (mdnsClient == null) {
             return;
+        }
         ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName,
                 description.servicePort, 0, 0, description.serviceProperties);
         logger.debug("Unregistering service " + description.serviceType + " at port "
@@ -113,8 +115,9 @@ public class MDNSServiceImpl implements MDNSService {
      * This method unregisters all services from Bonjour/MDNS
      */
     protected void unregisterAllServices() {
-        if (mdnsClient != null)
+        if (mdnsClient != null) {
             mdnsClient.getClient().unregisterAllServices();
+        }
     }
 
     public void activate() {
