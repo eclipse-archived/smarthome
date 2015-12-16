@@ -40,6 +40,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         String snippet = getSnippet("selection");
 
         snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(w)));
+        snippet = StringUtils.replace(snippet, "%format%", getFormat());
         snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w));
 
         String state = itemUIRegistry.getState(w).toString();
@@ -50,8 +51,8 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             String rowSnippet = getSnippet("selection_row");
             rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
             rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", mapping.getCmd() != null ? mapping.getCmd() : "");
-            rowSnippet = StringUtils.replace(rowSnippet, "%label%", mapping.getLabel() != null ? mapping.getLabel()
-                    : "");
+            rowSnippet = StringUtils.replace(rowSnippet, "%label%",
+                    mapping.getLabel() != null ? mapping.getLabel() : "");
             if (state.equals(mapping.getCmd())) {
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
             } else {

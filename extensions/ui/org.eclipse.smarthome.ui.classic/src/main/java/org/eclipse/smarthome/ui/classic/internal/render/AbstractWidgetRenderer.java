@@ -19,9 +19,11 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.PercentType;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.classic.internal.WebAppActivator;
+import org.eclipse.smarthome.ui.classic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.classic.render.RenderException;
 import org.eclipse.smarthome.ui.classic.render.WidgetRenderer;
 import org.eclipse.smarthome.ui.items.ItemUIRegistry;
@@ -41,8 +43,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractWidgetRenderer.class);
 
-    /* the file extension of the images */
-    protected static final String IMAGE_EXT = ".png";
+    protected WebAppConfig config;
 
     protected ItemUIRegistry itemUIRegistry;
 
@@ -152,21 +153,23 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     protected String processColor(Widget w, String snippet) {
         String style = "";
         String color = itemUIRegistry.getLabelColor(w);
-        if (color != null)
+        if (color != null) {
             style = "color:" + color;
+        }
         snippet = StringUtils.replace(snippet, "%labelstyle%", style);
 
         style = "";
         color = itemUIRegistry.getValueColor(w);
-        if (color != null)
+        if (color != null) {
             style = "color:" + color;
+        }
         snippet = StringUtils.replace(snippet, "%valuestyle%", style);
 
         return snippet;
     }
 
     protected String getFormat() {
-        return "svg";
+        return config.getIconType();
     }
 
     protected String getState(Widget w) {
@@ -183,7 +186,11 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         if (itemName != null) {
             try {
                 Item item = itemUIRegistry.getItem(itemName);
-                return escapeURLPath(item.getStateAs(DecimalType.class).toString());
+                if (item.getAcceptedDataTypes().contains(PercentType.class)) {
+                    return escapeURLPath(item.getStateAs(PercentType.class).toString());
+                } else {
+                    return escapeURLPath(item.getStateAs(DecimalType.class).toString());
+                }
             } catch (ItemNotFoundException e) {
                 logger.error("Cannot retrieve item '{}' for widget {}",
                         new Object[] { itemName, w.eClass().getInstanceTypeName() });
@@ -195,6 +202,11 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     protected String getCategory(Widget w) {
         String icon = escapeURLPath(itemUIRegistry.getCategory(w));
         return icon;
+    }
+
+    @Override
+    public void setConfig(WebAppConfig config) {
+        this.config = config;
     }
 
 }
