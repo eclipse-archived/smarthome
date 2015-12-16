@@ -42,6 +42,7 @@ public class TextRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
         snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(w)));
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+        snippet = StringUtils.replace(snippet, "%format%", getFormat());
 
         // Process the color tags
         snippet = processColor(w, snippet);

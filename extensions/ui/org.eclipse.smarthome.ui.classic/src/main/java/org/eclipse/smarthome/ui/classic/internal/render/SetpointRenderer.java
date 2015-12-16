@@ -86,6 +86,7 @@ public class SetpointRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%newlowerstate%", newLowerState);
         snippet = StringUtils.replace(snippet, "%newhigherstate%", newHigherState);
         snippet = StringUtils.replace(snippet, "%label%", getLabel(w));
+        snippet = StringUtils.replace(snippet, "%format%", getFormat());
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%minValue%", minValue.toString());
         snippet = StringUtils.replace(snippet, "%maxValue%", maxValue.toString());
