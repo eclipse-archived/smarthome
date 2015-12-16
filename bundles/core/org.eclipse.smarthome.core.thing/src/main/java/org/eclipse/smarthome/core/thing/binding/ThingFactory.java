@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.binding;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -131,6 +132,22 @@ public class ThingFactory {
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
                 .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
+    }
+    
+    public static Thing createThing(ThingUID thingUID, Configuration configuration, Map<String, String> properties,
+            ThingUID bridgeUID, ThingTypeUID thingTypeUID, List<ThingHandlerFactory> thingHandlerFactories) {
+        for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
+            if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+                if (properties != null) {
+                    for (String key : properties.keySet()) {
+                        thing.setProperty(key, properties.get(key));
+                    }
+                }
+                return thing;
+            }
+        }
+        return null;
     }
 
     /**
@@ -255,6 +272,6 @@ public class ThingFactory {
                     + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
             return null;
         }
-    }
+    }    
 
 }

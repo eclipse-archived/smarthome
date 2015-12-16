@@ -9,9 +9,20 @@ package org.eclipse.smarthome.config.setup.test.inbox
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
+import java.net.URI;
+import java.util.List
+import java.util.Map;
+
+import javax.xml.ws.Response
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
+import org.eclipse.smarthome.core.thing.binding.ThingFactory;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
+import org.eclipse.smarthome.config.core.ConfigDescription
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag
 import org.eclipse.smarthome.config.discovery.DiscoveryServiceRegistry
@@ -22,17 +33,24 @@ import org.eclipse.smarthome.config.discovery.inbox.events.InboxAddedEvent
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxRemovedEvent
 import org.eclipse.smarthome.config.discovery.inbox.events.InboxUpdatedEvent
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
+import org.eclipse.smarthome.config.discovery.DiscoveryResultBuilder
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
+import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.component.ComponentContext;
 
 import com.google.common.collect.Sets
 
@@ -45,28 +63,54 @@ class InboxOSGITest extends OSGiTest {
     def THING1_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id1"), BRIDGE_ID, null,"Thing1", "thing1", DEFAULT_TTL)
     def THING2_WITH_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id2"), BRIDGE_ID, null,"Thing2", "thing2", DEFAULT_TTL)
     def THING_WITHOUT_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id3"), null, null,"Thing3", "thing3", DEFAULT_TTL)
-    def THING_WITH_OTHER_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id4"), new ThingUID("bindingId:thing:id5"),
-    null,"Thing4", "thing4", DEFAULT_TTL)
+    def THING_WITH_OTHER_BRIDGE = new DiscoveryResultImpl(new ThingUID("bindingId:thing:id4"), new ThingUID("bindingId:thing:id5"),null,"Thing4", "thing4", DEFAULT_TTL)
 
+    final List<DiscoveryResult> inboxContent = []
+    final URI testURI = new URI("http:dummy")
+    final String testThingLabel = "dummy_thing"
+    final ThingUID testUID = new ThingUID("binding:type:id")
+    final ThingTypeUID testTypeUID = new ThingTypeUID("binding:type")
+    final Thing testThing = ThingBuilder.create(testUID).build()
+    final Map<String, Object> discoveryResultProperties =
+    ["ip":"192.168.3.99",
+        "pnr": 1234455,
+        "snr":12345,
+        "manufacturer":"huawei",
+        "manufactured":new Date(12344)
+    ]
+    final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).build()
+    final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
+    final ConfigDescriptionParameter[] configDescriptionParameter = [[discoveryResultProperties.keySet().getAt(0), Type.TEXT], [discoveryResultProperties.keySet().getAt(1), Type.INTEGER]]
+    final ConfigDescription testConfigDescription  = new ConfigDescription(testURI, Arrays.asList(configDescriptionParameter))
+    final String[] keysInConfigDescription = [discoveryResultProperties.keySet().getAt(0), discoveryResultProperties.keySet().getAt(1)]
+    final String[] keysNotInConfigDescription = [discoveryResultProperties.keySet().getAt(2), discoveryResultProperties.keySet().getAt(3), discoveryResultProperties.keySet().getAt(4)]
+    final Map<ThingUID, DiscoveryResult> discoveryResults = [:]
+    final List<InboxListener> inboxListeners = new ArrayList<>()
 
     Inbox inbox
     DiscoveryServiceRegistry discoveryServiceRegistry
     ManagedThingProvider managedThingProvider
     ThingRegistry registry
-    Map<ThingUID, DiscoveryResult> discoveryResults = [:]
-    List<InboxListener> inboxListeners = new ArrayList<>()
-
+    ThingTypeRegistry typeRegistry;
+    ConfigDescriptionRegistry descriptionRegistry;
+    ThingTypeRegistry thingTypeRegistry = new ThingTypeRegistry()
+    ConfigDescriptionRegistry configDescRegistry
 
     @Before
     void setUp() {
         registerVolatileStorageService()
         discoveryResults.clear()
         inboxListeners.clear()
-
         inbox = getService Inbox
         discoveryServiceRegistry = getService DiscoveryServiceRegistry
         managedThingProvider = getService ManagedThingProvider
         registry = getService ThingRegistry
+        typeRegistry = getService ThingTypeRegistry
+        descriptionRegistry = getService ConfigDescriptionRegistry
+        def componentContextMock = [
+            getBundleContext: {getBundleContext()}
+        ] as ComponentContext
+        ((PersistentInbox)inbox).addThingHandlerFactory(new DummyThingHandlerFactory(componentContextMock))
     }
 
     @After
@@ -635,4 +679,93 @@ class InboxOSGITest extends OSGiTest {
             }
         }
     }
+
+    @Test(expected=IllegalArgumentException.class)
+    void 'assert that approve throw IllegalArgumentException if thingUID is null'(){
+        inbox.approve(null, "label")
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    void 'assert that approve throw IllegalArgumentException if no DiscoveryResult for given thingUID is available'(){
+        inbox.approve(new ThingUID("1234"), "label")
+    }
+
+    @Test
+    void 'assert that approve adds all properties of DiscoveryResult to Thing properties if no ConfigDescriptionParameters for the ThingType are available' () {
+        inbox.add(testDiscoveryResult)
+        Thing approvedThing = inbox.approve(testThing.getUID(), testThingLabel)
+        Thing addedThing = registry.get(testThing.getUID())
+
+        assertFalse addedThing == null
+        assertFalse approvedThing == null
+        assertTrue approvedThing.equals(addedThing)
+        discoveryResultProperties.keySet().each{
+            String thingProperty = addedThing.getProperties().get(it)
+            String descResultParam = String.valueOf(discoveryResultProperties.get(it))
+            assertFalse thingProperty == null
+            assertFalse descResultParam == null
+            assertTrue thingProperty.equals(descResultParam)
+        }
+    }
+
+    @Test
+    void 'assert that approve adds properties of DiscoveryResult which are ConfigDescriptionParameters as Thing Configuration properties and properties which are no ConfigDescriptionParameters as Thing properties'() {
+        inbox.add(testDiscoveryResult)
+        thingTypeRegistry = new ThingTypeRegistry() {
+                    @Override
+                    public ThingType getThingType(ThingTypeUID thingTypeUID) {
+                        return testThingType
+                    }
+                }
+        ((PersistentInbox)inbox).setThingTypeRegistry(thingTypeRegistry)
+        configDescRegistry = new ConfigDescriptionRegistry() {
+                    @Override
+                    public ConfigDescription getConfigDescription(URI uri) {
+                        return testConfigDescription
+                    }
+                }
+        ((PersistentInbox)inbox).setConfigDescriptionRegistry(configDescRegistry)
+        Thing approvedThing = inbox.approve(testThing.getUID(), testThingLabel)
+        Thing addedThing = registry.get(testThing.getUID())
+        assertTrue approvedThing.equals(addedThing)
+        assertFalse addedThing == null
+        keysInConfigDescription.each {
+            Object thingConfItem = addedThing.getConfiguration().get(it)
+            Object descResultParam = discoveryResultProperties.get(it)
+            assertFalse thingConfItem == null
+            assertFalse descResultParam == null
+            assertTrue thingConfItem.equals(descResultParam)
+        }
+        keysNotInConfigDescription.each {
+            String thingProperty = addedThing.getProperties().get(it)
+            String descResultParam = String.valueOf(discoveryResultProperties.get(it))
+            assertFalse thingProperty == null
+            assertFalse descResultParam == null
+            assertTrue thingProperty.equals(descResultParam)
+        }
+    }
+
+    class DummyThingHandlerFactory extends BaseThingHandlerFactory {
+
+        public DummyThingHandlerFactory(ComponentContext context) {
+            super.activate(context);
+        }
+
+        @Override
+        public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+            return true;
+        }
+
+        @Override
+        protected ThingHandler createHandler(Thing thing) {
+            return null;
+        }
+
+        @Override
+        public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID) {
+            return ThingBuilder.create(thingUID).withBridge(bridgeUID).withConfiguration(configuration).build()
+        }
+    }
+
+
 }

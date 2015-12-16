@@ -27,13 +27,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTO;
 import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
-import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
+import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.RESTResource;
@@ -91,14 +90,17 @@ public class InboxResource implements RESTResource {
             @ApiParam(value = "thing label") String label,
             @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
-        List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUIDObject, null));
-        if (results.isEmpty()) {
+        String notEmptyLabel = label != null && !label.isEmpty() ? label : null;
+        Thing thing = null; 
+        try {            
+            thing = inbox.approve(thingUIDObject, notEmptyLabel);
+        } catch (IllegalArgumentException e){
             return Response.status(Status.NOT_FOUND).build();
         }
-        DiscoveryResult result = results.get(0);
-        Configuration conf = new Configuration(result.getProperties());
-        thingSetupManager.addThing(result.getThingUID(), conf, result.getBridgeUID(),
-                label != null && !label.isEmpty() ? label : null, new ArrayList<String>(), enableChannels);
+        thingSetupManager.createGroupItems(notEmptyLabel, new ArrayList<String>(), thing, thing.getThingTypeUID());
+        if (enableChannels) {
+            thingSetupManager.enableChannels(thing, thing.getThingTypeUID());
+        }
         return Response.ok().build();
     }
 
