@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.internal;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -159,24 +160,24 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             setThingStatus(thing, thingStatus);
 
             if (thing instanceof Bridge) {
-            	Bridge bridge = (Bridge) thing;
-            	for (Thing bridgeChildThing : bridge.getThings()) {
-            		ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
-            		if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
-            				|| bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
+                Bridge bridge = (Bridge) thing;
+                for (Thing bridgeChildThing : bridge.getThings()) {
+                    ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
+                    if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
+                            || bridgeChildThingStatus.getStatus() == ThingStatus.OFFLINE) {
 
-            			if (thingStatus.getStatus() == ThingStatus.ONLINE
-            					&& bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
+                        if (thingStatus.getStatus() == ThingStatus.ONLINE
+                                && bridgeChildThingStatus.getStatusDetail() == ThingStatusDetail.BRIDGE_OFFLINE) {
             				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
             						ThingStatusDetail.NONE).build();
-            				setThingStatus(bridgeChildThing, statusInfo);
-            			} else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
+                            setThingStatus(bridgeChildThing, statusInfo);
+                        } else if (thingStatus.getStatus() == ThingStatus.OFFLINE) {
             				ThingStatusInfo statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE,
             						ThingStatusDetail.BRIDGE_OFFLINE).build();
-            				setThingStatus(bridgeChildThing, statusInfo);
-            			}
-            		}
-            	}
+                            setThingStatus(bridgeChildThing, statusInfo);
+                        }
+                    }
+                }
             }
 
             if (ThingStatus.REMOVING.equals(thing.getStatus())) {
@@ -219,16 +220,20 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         @Override
         public void thingUpdated(final Thing thing) {
             thingUpdatedLock.add(thing.getUID());
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+            Thing ret = AccessController.doPrivileged(new PrivilegedAction<Thing>() {
 
                 @Override
-                public Void run() {
-                    managedThingProvider.update(thing);
-                    return null;
+                public Thing run() {
+                    return managedThingProvider.update(thing);
                 }
 
             });
             thingUpdatedLock.remove(thing.getUID());
+            if (ret == null) {
+                throw new IllegalStateException(
+                        MessageFormat.format("Could not update thing {0}. Most likely because it is read-only.",
+                                thing.getUID().getAsString()));
+            }
         }
 
     };
