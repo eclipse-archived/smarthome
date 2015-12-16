@@ -35,7 +35,7 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * This class is implementation of {@link TemplateProvider}. It extends functionality of {@link AbstractCommandProvider}
  * <p>
- * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link RuleTemplate}s:
+ * It is responsible for execution of {@link AutomationCommandsPluggable}, corresponding to the {@link RuleTemplate}s:
  * <ul>
  * <li>imports the {@link RuleTemplate}s from local files or from URL resources
  * <li>provides functionality for persistence of the {@link RuleTemplate}s
@@ -89,8 +89,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      *             for some reasons.
      * @see AutomationCommandsPluggable#exportTemplates(String, Set, File)
      */
-    public void exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
-        super.exportData(parserType, set, file);
+    public String exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
+        return super.exportData(parserType, set, file);
     }
 
     /**
@@ -103,11 +103,14 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * @see AutomationCommandsPluggable#importTemplates(String, URL)
      */
     public Set<RuleTemplate> importTemplates(String parserType, URL url) throws IOException, ParsingException {
-        InputStreamReader inputStreamReader = null;
         Parser<RuleTemplate> parser = parsers.get(parserType);
-        if (parser == null) {
-            inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
-            return importData(url, parser, inputStreamReader);
+        if (parser != null) {
+            InputStreamReader inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
+            try {
+                return importData(url, parser, inputStreamReader);
+            } finally {
+                inputStreamReader.close();
+            }
         } else {
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.TEMPLATE, null,
                     new Exception("Parser " + parserType + " not available")));
@@ -136,9 +139,9 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
      * @param providerType specifies the provider responsible for removing the objects loaded from a specified file or
      *            URL resource.
      * @param url is a specified file or URL resource.
-     * @return <b>true</b> if succeeds and <b>false</b> if fails.
+     * @return the string <b>SUCCESS</b>.
      */
-    public boolean remove(URL url) {
+    public String remove(URL url) {
         List<String> portfolio = null;
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(url);
@@ -149,9 +152,8 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                     providedObjectsHolder.remove(uid);
                 }
             }
-            return true;
         }
-        return false;
+        return AutomationCommand.SUCCESS;
     }
 
     @Override
@@ -183,15 +185,16 @@ public class CommandlineTemplateProvider extends AbstractCommandProvider<RuleTem
                     synchronized (providedObjectsHolder) {
                         providedObjectsHolder.put(uid, ruleT);
                     }
-                } else
+                } else {
                     importDataExceptions.addAll(exceptions);
+                }
             }
             if (importDataExceptions.isEmpty()) {
                 Dictionary<String, Object> properties = new Hashtable<String, Object>();
                 properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-                if (tpReg == null)
+                if (tpReg == null) {
                     tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-                else {
+                } else {
                     tpReg.setProperties(properties);
                 }
             } else {

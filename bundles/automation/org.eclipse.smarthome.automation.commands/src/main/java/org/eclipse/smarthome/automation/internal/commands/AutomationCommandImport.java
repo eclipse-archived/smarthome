@@ -84,16 +84,7 @@ public class AutomationCommandImport extends AutomationCommand {
                     break;
             }
         } catch (Exception e) {
-            StringBuilder writer = new StringBuilder();
-            if (st) {
-                StackTraceElement[] ste = e.getStackTrace();
-                for (int i = 0; i < ste.length; i++) {
-                    writer.append(String.format("FAIL : %s", ste[i].toString() + "\n"));
-                }
-            } else {
-                writer.append(String.format("FAIL : %s", e.getMessage() + "\n"));
-            }
-            return writer.toString();
+            return getStackTrace(e);
         }
         return SUCCESS + "\n";
     }
