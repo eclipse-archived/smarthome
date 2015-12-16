@@ -216,7 +216,8 @@ public abstract class AutomationCommands {
     /**
      * This method is used for getting the rule corresponding to the specified UID from the RuleEngine.
      *
-     * @param uid specifies the wanted {@link Rule} uniquely.
+     * @param uid
+     *            specifies the wanted {@link Rule} uniquely.
      * @return a {@link Rule}, corresponding to the specified UID.
      */
     public abstract Rule getRule(String uid);
@@ -228,16 +229,28 @@ public abstract class AutomationCommands {
      */
     public abstract Collection<Rule> getRules();
 
+    /**
+     *
+     * @param uid
+     * @return
+     */
     public abstract RuleStatus getRuleStatus(String uid);
 
+    /**
+     *
+     * @param uid
+     * @param isEnabled
+     */
     public abstract void setEnabled(String uid, boolean isEnabled);
 
     /**
      * This method is used for getting the {@link RuleTemplate} corresponding to the specified UID from the manager of
      * the {@link Template}s.
      *
-     * @param templateUID specifies the wanted {@link RuleTemplate} uniquely.
-     * @param locale a {@link Locale} that specifies the variant of the {@link RuleTemplate} that the user wants to see.
+     * @param templateUID
+     *            specifies the wanted {@link RuleTemplate} uniquely.
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link RuleTemplate} that the user wants to see.
      *            Can be <code>null</code> and then the default locale will be used.
      * @return a {@link RuleTemplate}, corresponding to the specified UID and locale.
      */
@@ -247,8 +260,8 @@ public abstract class AutomationCommands {
      * This method is used for getting the collection of {@link RuleTemplate}s corresponding to the specified locale
      * from the manager of the {@link Template}s.
      *
-     * @param locale a {@link Locale} that specifies the variant of the {@link RuleTemplate}s that the user wants to
-     *            see.
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link RuleTemplate}s that the user wants to see.
      *            Can be <code>null</code> and then the default locale will be used.
      * @return a collection of {@link RuleTemplate}s, corresponding to the specified locale.
      */
@@ -258,9 +271,11 @@ public abstract class AutomationCommands {
      * This method is used for getting the {@link ModuleType} corresponding to the specified UID from the manager of the
      * {@link ModuleType}s.
      *
-     * @param typeUID specifies the wanted {@link ModuleType} uniquely.
-     * @param locale a {@link Locale} that specifies the variant of the {@link ModuleType} that the user wants to see.
-     *            Can be <code>null</code> and then the default locale will be used.
+     * @param typeUID
+     *            specifies the wanted {@link ModuleType} uniquely.
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link ModuleType} that the user wants to see. Can
+     *            be <code>null</code> and then the default locale will be used.
      * @return a {@link ModuleType}, corresponding to the specified UID and locale.
      */
     public abstract ModuleType getModuleType(String typeUID, Locale locale);
@@ -269,9 +284,11 @@ public abstract class AutomationCommands {
      * This method is used for getting the collection of {@link ModuleType}s corresponding to the specified class and
      * locale from the manager of the {@link ModuleType}s.
      *
-     * @param clazz can be {@link TriggerType}, {@link ConditionType} or {@link ActionType} class.
-     * @param locale a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see.
-     *            Can be <code>null</code> and then the default locale will be used.
+     * @param clazz
+     *            can be {@link TriggerType}, {@link ConditionType} or {@link ActionType} class.
+     * @param locale
+     *            a {@link Locale} that specifies the variant of the {@link ModuleType}s that the user wants to see. Can
+     *            be <code>null</code> and then the default locale will be used.
      * @return a collection of {@link ModuleType}s from given class and locale.
      */
     public abstract <T extends ModuleType> Collection<T> getModuleTypes(Class<T> clazz, Locale locale);
@@ -279,26 +296,30 @@ public abstract class AutomationCommands {
     /**
      * This method is used for removing a rule corresponding to the specified UID from the RuleEngine.
      *
-     * @param uid specifies the wanted {@link Rule} uniquely.
-     * @return <b>true</b> if succeeds and <b>false</b> if fails.
+     * @param uid
+     *            specifies the wanted {@link Rule} uniquely.
+     * @return a string representing the result of the command.
      */
-    public abstract boolean removeRule(String uid);
+    public abstract String removeRule(String uid);
 
     /**
      * This method is used for removing the rules from the RuleEngine, corresponding to the specified filter.
      *
-     * @param ruleFilter specifies the wanted {@link Rule}s.
-     * @return <b>true</b> if succeeds and <b>false</b> if fails.
+     * @param ruleFilter
+     *            specifies the wanted {@link Rule}s.
+     * @return a string representing the result of the command.
      */
-    public abstract boolean removeRules(String ruleFilter);
+    public abstract String removeRules(String ruleFilter);
 
     /**
      * This method is responsible for choosing a particular class of commands and creates an instance of this class on
      * the basis of the identifier of the command.
      *
-     * @param command is the identifier of the command.
-     * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
-     *            command. The order for their description is a random.
+     * @param command
+     *            is the identifier of the command.
+     * @param parameterValues
+     *            is an array of strings which are basis for initializing the options and parameters of the command. The
+     *            order for their description is a random.
      * @return an instance of the class corresponding to the identifier of the command.
      */
     protected abstract AutomationCommand parseCommand(String command, String[] parameterValues);
@@ -306,114 +327,119 @@ public abstract class AutomationCommands {
     /**
      * This method is responsible for exporting a set of {@link ModuleType}s in a specified file.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link ModuleType}s in text.
-     * @param set a set of {@link ModuleType}s to export.
-     * @param file a specified file for export.
-     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
-     *             for some reasons.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link ModuleType}s in text.
+     * @param set
+     *            a set of {@link ModuleType}s to export.
+     * @param file
+     *            a specified file for export.
+     * @throws Exception
+     *             when I/O operation has failed or has been interrupted or generating of the text fails for some
+     *             reasons.
+     * @return a string representing the result of the command.
      */
-    public void exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
-        if (moduleTypeProvider != null) {
-            moduleTypeProvider.exportModuleTypes(parserType, set, file);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+    public String exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
+        return moduleTypeProvider.exportModuleTypes(parserType, set, file);
     }
 
     /**
      * This method is responsible for exporting a set of {@link Template}s in a specified file.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link Template}s in text.
-     * @param set a set of {@link Template}s to export.
-     * @param file a specified file for export.
-     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
-     *             for some reasons.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link Template}s in text.
+     * @param set
+     *            a set of {@link Template}s to export.
+     * @param file
+     *            a specified file for export.
+     * @throws Exception
+     *             when I/O operation has failed or has been interrupted or generating of the text fails for some
+     *             reasons.
+     * @return a string representing the result of the command.
      */
-    public void exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
-        if (templateProvider != null) {
-            templateProvider.exportTemplates(parserType, set, file);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+    public String exportTemplates(String parserType, Set<RuleTemplate> set, File file) throws Exception {
+        return templateProvider.exportTemplates(parserType, set, file);
     }
 
     /**
      * This method is responsible for exporting a set of {@link Rule}s in a specified file.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link Rule}s in text.
-     * @param set a set of {@link Rule}s to export.
-     * @param file a specified file for export.
-     * @throws Exception when I/O operation has failed or has been interrupted or generating of the text fails
-     *             for some reasons.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link Rule}s in text.
+     * @param set
+     *            a set of {@link Rule}s to export.
+     * @param file
+     *            a specified file for export.
+     * @throws Exception
+     *             when I/O operation has failed or has been interrupted or generating of the text fails for some
+     *             reasons.
+     * @return a string representing the result of the command.
      */
-    public void exportRules(String parserType, Set<Rule> set, File file) throws Exception {
-        if (ruleImporter != null) {
-            ruleImporter.exportRules(parserType, set, file);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+    public String exportRules(String parserType, Set<Rule> set, File file) throws Exception {
+        return ruleImporter.exportRules(parserType, set, file);
     }
 
     /**
      * This method is responsible for importing a set of {@link ModuleType}s from a specified file or URL resource.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link ModuleType}s from text.
-     * @param url is a specified file or URL resource.
-     * @return a set of {@link Status} objects, representing understandable for the user message containing information
-     *         on the outcome of the import per each {@link ModuleType}.
-     * @throws ParsingException when parsing of the text fails for some reasons.
-     * @throws IOException when I/O operation has failed or has been interrupted.
-     * @throws Exception when Pluggable Commands Service not available.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link ModuleType}s from text.
+     * @param url
+     *            is a specified file or URL resource.
+     * @throws ParsingException
+     *             when parsing of the text fails for some reasons.
+     * @throws IOException
+     *             when I/O operation has failed or has been interrupted.
+     * @return a set of module types, representing the result of the command.
      */
     public Set<ModuleType> importModuleTypes(String parserType, URL url) throws Exception {
-        if (moduleTypeProvider != null) {
-            return moduleTypeProvider.importModuleTypes(parserType, url);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+        return moduleTypeProvider.importModuleTypes(parserType, url);
     }
 
     /**
      * This method is responsible for importing a set of {@link Template}s from a specified file or URL resource.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link Template}s from text.
-     * @param url is a specified file or URL resource.
-     * @return a set of {@link Status} objects, representing understandable for the user message containing information
-     *         on the outcome of the import per each {@link Template}.
-     * @throws ParsingException is thrown when parsing of the text fails for some reasons.
-     * @throws IOException is thrown when I/O operation has failed or has been interrupted.
-     * @throws Exception is thrown when Pluggable Commands Service not available.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link Template}s from text.
+     * @param url
+     *            is a specified file or URL resource.
+     * @throws ParsingException
+     *             is thrown when parsing of the text fails for some reasons.
+     * @throws IOException
+     *             is thrown when I/O operation has failed or has been interrupted.
+     * @return a set of templates, representing the result of the command.
      */
     public Set<RuleTemplate> importTemplates(String parserType, URL url) throws Exception {
-        if (templateProvider != null) {
-            return templateProvider.importTemplates(parserType, url);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+        return templateProvider.importTemplates(parserType, url);
     }
 
     /**
      * This method is responsible for importing a set of {@link Rule}s from a specified file or URL resource.
      *
-     * @param parserType is relevant to the format that you need for conversion of the {@link Rule}s from text.
-     * @param url is a specified file or URL resource.
-     * @return a set of {@link Status} objects, representing understandable for the user message containing information
-     *         on the outcome of the import per each {@link Rule}.
-     * @throws ParsingException is thrown when parsing of the text fails for some reasons.
-     * @throws IOException is thrown when I/O operation has failed or has been interrupted.
-     * @throws Exception is thrown when Pluggable Commands Service not available.
+     * @param parserType
+     *            is relevant to the format that you need for conversion of the {@link Rule}s from text.
+     * @param url
+     *            is a specified file or URL resource.
+     * @throws ParsingException
+     *             is thrown when parsing of the text fails for some reasons.
+     * @throws IOException
+     *             is thrown when I/O operation has failed or has been interrupted.
+     * @return a set of rules, representing the result of the command.
      */
     public Set<Rule> importRules(String parserType, URL url) throws Exception {
-        if (ruleImporter != null) {
-            return ruleImporter.importRules(parserType, url);
-        }
-        throw new Exception("Pluggable Commands Service not available.");
+        return ruleImporter.importRules(parserType, url);
     }
 
     /**
      * This method is responsible for removing a set of objects loaded from a specified file or URL resource.
      *
-     * @param providerType specifies the provider responsible for removing the objects loaded from a specified file or
-     *            URL resource.
-     * @param url is a specified file or URL resource.
-     * @return <b>true</b> if succeeds and <b>false</b> if fails.
+     * @param providerType
+     *            specifies the provider responsible for removing the objects loaded from a specified file or URL
+     *            resource.
+     * @param url
+     *            is a specified file or URL resource.
+     * @return a string representing the result of the command.
      */
-    public boolean remove(int providerType, URL url) {
+    public String remove(int providerType, URL url) {
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 if (moduleTypeProvider != null) {
@@ -426,16 +452,17 @@ public abstract class AutomationCommands {
                 }
                 break;
         }
-        return false;
+        return AutomationCommand.FAIL;
     }
 
     /**
      * This method is responsible for execution of every particular command and to return the result of the execution.
      *
-     * @param command is an identifier of the command.
-     * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
-     *            command.
-     *            The order for their description is a random.
+     * @param command
+     *            is an identifier of the command.
+     * @param parameterValues
+     *            is an array of strings which are basis for initializing the options and parameters of the command. The
+     *            order for their description is a random.
      * @return understandable for the user message containing information on the outcome of the command.
      */
     public String executeCommand(String command, String[] parameterValues) {

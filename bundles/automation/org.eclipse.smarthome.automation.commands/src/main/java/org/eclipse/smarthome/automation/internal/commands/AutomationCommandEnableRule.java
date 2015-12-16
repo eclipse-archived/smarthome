@@ -47,8 +47,9 @@ public class AutomationCommandEnableRule extends AutomationCommand {
             return SUCCESS;
         } else {
             RuleStatus status = autoCommands.getRuleStatus(uid);
-            if (status != null)
+            if (status != null) {
                 return Printer.printRuleStatus(uid, status);
+            }
         }
         return FAIL;
     }
@@ -71,10 +72,12 @@ public class AutomationCommandEnableRule extends AutomationCommand {
                 continue;
             }
             getEnable(parameterValues[i]);
-            if (hasEnable)
+            if (hasEnable) {
                 continue;
-            if (uid == null)
+            }
+            if (uid == null) {
                 return "Missing required parameter: Rule UID";
+            }
             return String.format("Unsupported parameter: %s", parameterValues[i]);
         }
         return SUCCESS;

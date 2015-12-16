@@ -36,7 +36,7 @@ import org.osgi.framework.ServiceRegistration;
  * This class is implementation of {@link ModuleTypeProvider}. It extends functionality of
  * {@link AbstractCommandProvider}.
  * <p>
- * It is responsible for execution of Automation {@link PluggableCommands}, corresponding to the {@link ModuleType}s:
+ * It is responsible for execution of {@link AutomationCommandsPluggable}, corresponding to the {@link ModuleType}s:
  * <ul>
  * <li>imports the {@link ModuleType}s from local files or from URL resources
  * <li>provides functionality for persistence of the {@link ModuleType}s
@@ -93,8 +93,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      *             for some reasons.
      * @see AutomationCommandsPluggable#exportModuleTypes(String, Set, File)
      */
-    public void exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
-        super.exportData(parserType, set, file);
+    public String exportModuleTypes(String parserType, Set<ModuleType> set, File file) throws Exception {
+        return super.exportData(parserType, set, file);
     }
 
     /**
@@ -107,13 +107,16 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @see AutomationCommandsPluggable#importModuleTypes(String, URL)
      */
     public Set<ModuleType> importModuleTypes(String parserType, URL url) throws IOException, ParsingException {
-        InputStreamReader inputStreamReader = null;
         Parser<ModuleType> parser = parsers.get(parserType);
         if (parser != null) {
             InputStream is = url.openStream();
             BufferedInputStream bis = new BufferedInputStream(is);
-            inputStreamReader = new InputStreamReader(bis);
-            return importData(url, parser, inputStreamReader);
+            InputStreamReader inputStreamReader = new InputStreamReader(bis);
+            try {
+                return importData(url, parser, inputStreamReader);
+            } finally {
+                inputStreamReader.close();
+            }
         } else {
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.MODULE_TYPE, null,
                     new Exception("Parser " + parserType + " not available")));
@@ -143,9 +146,9 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
      * @param providerType specifies the provider responsible for removing the objects loaded from a specified file or
      *            URL resource.
      * @param url is a specified file or URL resource.
-     * @return <b>true</b> if succeeds and <b>false</b> if fails.
+     * @return the string <b>SUCCESS</b>.
      */
-    public boolean remove(URL url) {
+    public String remove(URL url) {
         List<String> portfolio = null;
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(url);
@@ -156,9 +159,8 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
                     providedObjectsHolder.remove(uid);
                 }
             }
-            return true;
         }
-        return false;
+        return AutomationCommand.SUCCESS;
     }
 
     @Override
@@ -191,15 +193,16 @@ public class CommandlineModuleTypeProvider extends AbstractCommandProvider<Modul
                     synchronized (providedObjectsHolder) {
                         providedObjectsHolder.put(uid, providedObject);
                     }
-                } else
+                } else {
                     importDataExceptions.addAll(exceptions);
+                }
             }
             if (importDataExceptions.isEmpty()) {
                 Dictionary<String, Object> properties = new Hashtable<String, Object>();
                 properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
-                if (mtpReg == null)
+                if (mtpReg == null) {
                     mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-                else {
+                } else {
                     mtpReg.setProperties(properties);
                 }
             } else {

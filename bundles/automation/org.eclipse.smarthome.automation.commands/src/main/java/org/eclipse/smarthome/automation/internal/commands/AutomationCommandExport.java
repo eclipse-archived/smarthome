@@ -86,58 +86,54 @@ public class AutomationCommandExport extends AutomationCommand {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
                 @SuppressWarnings("rawtypes")
                 Collection collection = autoCommands.getModuleTypes(TriggerType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 collection = autoCommands.getModuleTypes(CompositeTriggerType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 collection = autoCommands.getModuleTypes(ConditionType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 collection = autoCommands.getModuleTypes(CompositeConditionType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 collection = autoCommands.getModuleTypes(ActionType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 collection = autoCommands.getModuleTypes(CompositeActionType.class, locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 try {
-                    autoCommands.exportModuleTypes(parserType, set, file);
+                    return autoCommands.exportModuleTypes(parserType, set, file);
                 } catch (Exception e) {
-                    return e.getMessage();
+                    return getStackTrace(e);
                 }
-                if (set.isEmpty()) {
-                    return "There are no ModuleTypes available!";
-                }
-                return SUCCESS;
             case AutomationCommands.TEMPLATE_PROVIDER:
                 collection = autoCommands.getTemplates(locale);
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 try {
-                    autoCommands.exportTemplates(parserType, set, file);
+                    return autoCommands.exportTemplates(parserType, set, file);
                 } catch (Exception e) {
-                    return e.getMessage();
+                    return getStackTrace(e);
                 }
-                if (set.isEmpty()) {
-                    return "There are no Templates available!";
-                }
-                return SUCCESS;
             case AutomationCommands.RULE_PROVIDER:
                 collection = autoCommands.getRules();
-                if (collection != null)
+                if (collection != null) {
                     set.addAll(collection);
+                }
                 try {
-                    autoCommands.exportRules(parserType, set, file);
+                    return autoCommands.exportRules(parserType, set, file);
                 } catch (Exception e) {
-                    return e.getMessage();
+                    return getStackTrace(e);
                 }
-                if (set.isEmpty()) {
-                    return "There are no Rules available!";
-                }
-                return SUCCESS;
         }
         return String.format("%s : Unsupported provider type!", FAIL);
     }

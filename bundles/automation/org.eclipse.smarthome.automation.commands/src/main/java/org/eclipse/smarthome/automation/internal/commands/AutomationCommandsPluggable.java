@@ -278,23 +278,28 @@ public class AutomationCommandsPluggable extends AutomationCommands
     }
 
     @Override
-    public boolean removeRule(String uid) {
+    public String removeRule(String uid) {
         if (ruleRegistry != null) {
             if (ruleRegistry.remove(uid) != null) {
-                return true;
+                return AutomationCommand.SUCCESS;
+            } else {
+                return String.format("Rule with id '%s' does not exist.", uid);
             }
-            return false;
         }
-        return false;
+        return String.format("%s! RuleRegistry not available!", AutomationCommand.FAIL);
     }
 
     @Override
-    public boolean removeRules(String ruleFilter) {
-        boolean res = false;
+    public String removeRules(String ruleFilter) {
         if (ruleRegistry != null) {
-            ruleRegistry.remove(ruleFilter);
+            for (Rule r : ruleRegistry.getAll()) {
+                if (r.getUID().contains(ruleFilter)) {
+                    ruleRegistry.remove(r.getUID());
+                }
+            }
+            return AutomationCommand.SUCCESS;
         }
-        return res;
+        return String.format("%s! RuleRegistry not available!", AutomationCommand.FAIL);
     }
 
     @Override
