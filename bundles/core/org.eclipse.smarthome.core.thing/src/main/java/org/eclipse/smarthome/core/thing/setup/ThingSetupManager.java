@@ -33,6 +33,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
+import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
@@ -107,6 +108,7 @@ public class ThingSetupManager implements EventSubscriber {
      *
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID) {
         return addThing(thingUID, configuration, bridgeUID, null);
     }
@@ -118,6 +120,7 @@ public class ThingSetupManager implements EventSubscriber {
      *
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label) {
         return addThing(thingUID, configuration, bridgeUID, label, new ArrayList<String>());
     }
@@ -129,6 +132,7 @@ public class ThingSetupManager implements EventSubscriber {
      *
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames) {
         return addThing(thingUID, configuration, bridgeUID, label, groupNames, true);
@@ -153,6 +157,7 @@ public class ThingSetupManager implements EventSubscriber {
      *            directly
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels) {
 
@@ -168,40 +173,6 @@ public class ThingSetupManager implements EventSubscriber {
     /**
      * Adds a new thing to the system and creates the according items and links.
      *
-     * @param thingUID
-     *            UID of the thing (must not be null)
-     * @param configuration
-     *            configuration (must not be null)
-     * @param bridgeUID
-     *            bridge UID (can be null)
-     * @param label
-     *            label (can be null)
-     * @param groupNames
-     *            list of group names, in which the thing should be added as
-     *            member (must not be null)
-     * @param enableChannels
-     *            defines if all not 'advanced' channels should be enabled
-     *            directly
-     * @param properties
-     *            map of properties to be added to the thing (can be null)
-     * @return created {@link Thing} instance (can be null)
-     */
-    public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
-            List<String> groupNames, boolean enableChannels, Map<String, String> properties) {
-
-        if (thingUID == null) {
-            throw new IllegalArgumentException("Thing UID must not be null");
-        }
-
-        ThingTypeUID thingTypeUID = thingUID.getThingTypeUID();
-
-        return addThing(thingTypeUID, thingUID, configuration, bridgeUID, label, groupNames, enableChannels,
-                properties);
-    }
-
-    /**
-     * Adds a new thing to the system and creates the according items and links.
-     *
      * @param thingTypeUID
      *            UID of the thing type (must not be null)
      * @param configuration
@@ -218,36 +189,13 @@ public class ThingSetupManager implements EventSubscriber {
      *            directly
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels) {
         return addThing(thingTypeUID, null, configuration, bridgeUID, label, groupNames, enableChannels);
     }
 
-    /**
-     * Adds a new thing to the system and creates the according items and links.
-     *
-     * @param thingTypeUID
-     *            UID of the thing type (must not be null)
-     * @param configuration
-     *            configuration (must not be null)
-     * @param bridgeUID
-     *            bridge UID (can be null)
-     * @param label
-     *            label (can be null)
-     * @param groupNames
-     *            list of group names, in which the thing should be added as
-     *            member (must not be null)
-     * @param enableChannels
-     *            defines if all not 'advanced' channels should be enabled
-     *            directly
-     * @param properties
-     *            map of properties to be added to the thing (can be null)
-     * @return created {@link Thing} instance (can be null)
-     */
-    public Thing addThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID bridgeUID, String label,
-            List<String> groupNames, boolean enableChannels, Map<String, String> properties) {
-        return addThing(thingTypeUID, null, configuration, bridgeUID, label, groupNames, enableChannels, properties);
-    }
+
 
     /**
      * Adds the given item to the given group.
@@ -257,6 +205,7 @@ public class ThingSetupManager implements EventSubscriber {
      * @param groupItemName
      *            group item name (must not be null)
      */
+    @Deprecated
     public void addToHomeGroup(String itemName, String groupItemName) {
         ActiveItem item = (ActiveItem) this.itemRegistry.get(itemName);
         if (item != null) {
@@ -529,12 +478,12 @@ public class ThingSetupManager implements EventSubscriber {
         this.itemFactories.add(itemFactory);
     }
 
-    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-        this.thingHandlerFactories.add(thingHandlerFactory);
-    }
-
     protected void removeItemFactory(ItemFactory itemFactory) {
         this.itemFactories.remove(itemFactory);
+    }
+
+    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+        this.thingHandlerFactories.add(thingHandlerFactory);
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
@@ -598,7 +547,7 @@ public class ThingSetupManager implements EventSubscriber {
             ThingUID bridgeUID, String label, List<String> groupNames, boolean enableChannels,
             Map<String, String> properties) {
 
-        Thing thing = createThing(thingUID, configuration, bridgeUID, thingTypeUID);
+        Thing thing = ThingFactory.createThing(thingUID, configuration, properties,  bridgeUID, thingTypeUID, this.thingHandlerFactories);
 
         if (thing == null) {
             logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
@@ -611,46 +560,11 @@ public class ThingSetupManager implements EventSubscriber {
                 thing.setProperty(key, properties.get(key));
             }
         }
-
-        String itemName = toItemName(thing.getUID());
-        GroupItem groupItem = new GroupItem(itemName);
-        groupItem.addTag(TAG_THING);
-        groupItem.setLabel(label);
-        groupItem.addGroupNames(groupNames);
         addThingSafely(thing);
-        addItemSafely(groupItem);
-        addItemThingLinkSafely(new ItemThingLink(itemName, thing.getUID()));
-
-        ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
-        if (thingType != null) {
-            List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-                final ChannelGroupType channelGroupType = channelTypeRegistry
-                        .getChannelGroupType(channelGroupDefinition.getTypeUID());
-                final GroupItem channelGroupItem = new GroupItem(
-                        getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
-                channelGroupItem.addTag(TAG_CHANNEL_GROUP);
-                channelGroupItem.addGroupName(itemName);
-                channelGroupItem.setLabel(channelGroupType.getLabel());
-                addItemSafely(channelGroupItem);
-            }
+        createGroupItems(label, groupNames, thing, thingTypeUID);
+        if (enableChannels) {
+            enableChannels(thing, thingTypeUID);
         }
-
-        if (thingType != null && enableChannels) {
-            List<Channel> channels = thing.getChannels();
-            for (Channel channel : channels) {
-                ChannelType channelType = TypeResolver.resolve(thingType.getChannelTypeUID(channel.getUID()));
-                if (channelType != null && !channelType.isAdvanced()) {
-                    // Enable the channel.
-                    // Pass the channel label. This will be null if it's not set, and the enableChannel method will use
-                    // the label from the channelType
-                    enableChannel(channel.getUID());
-                } else if (channelType == null) {
-                    logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
-                }
-            }
-        }
-
         return thing;
     }
 
@@ -680,17 +594,6 @@ public class ThingSetupManager implements EventSubscriber {
         if (this.itemChannelLinkRegistry.get(itemChannelLink.getID()) == null) {
             this.itemChannelLinkRegistry.add(itemChannelLink);
         }
-    }
-
-    private Thing createThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID,
-            ThingTypeUID thingTypeUID) {
-        for (ThingHandlerFactory thingHandlerFactory : this.thingHandlerFactories) {
-            if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
-                return thing;
-            }
-        }
-        return null;
     }
 
     private String getChannelGroupItemName(String itemName, String channelGroupId) {
@@ -736,6 +639,59 @@ public class ThingSetupManager implements EventSubscriber {
             }
         }
         return null;
+    }
+
+    /**
+     * Enables channels for given {@link Thing}
+     * 
+     * @param thing the Thing
+     * @param thingTypeUID the type UID of the thing
+     */
+    public void enableChannels(Thing thing, ThingTypeUID thingTypeUID) {
+        ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        if (thingType != null) {
+            List<Channel> channels = thing.getChannels();
+            for (Channel channel : channels) {
+                ChannelType channelType = TypeResolver.resolve(thingType.getChannelTypeUID(channel.getUID()));
+                if (channelType != null && !channelType.isAdvanced()) {
+                    // Enable the channel.
+                    // Pass the channel label. This will be null if it's not set, and the enableChannel method will use
+                    // the label from the channelType
+                    enableChannel(channel.getUID());
+                } else if (channelType == null) {
+                    logger.warn("Could not enable channel '{}', because no channel type was found.", channel.getUID());
+                }
+            }
+        }
+    }
+
+    /**
+     * Add items for given Thing
+     * 
+     * @param label the thing label
+     * @param groupNames the item group names
+     * @param thing the thing
+     * @param typeUID the thing type UID
+     */
+    public void createGroupItems(String label, List<String> groupNames, Thing thing, ThingTypeUID typeUID) {
+        ThingType thingType = thingTypeRegistry.getThingType(typeUID);
+        String itemName = toItemName(thing.getUID());
+        GroupItem groupItem = new GroupItem(itemName);
+        groupItem.addTag(TAG_THING);
+        groupItem.setLabel(label);
+        groupItem.addGroupNames(groupNames);
+        addItemSafely(groupItem);
+        addItemThingLinkSafely(new ItemThingLink(itemName, thing.getUID()));
+        if (thingType != null) {
+            List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
+            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                GroupItem channelGroupItem = new GroupItem(
+                        getChannelGroupItemName(itemName, channelGroupDefinition.getId()));
+                channelGroupItem.addTag(TAG_CHANNEL_GROUP);
+                channelGroupItem.addGroupName(itemName);
+                addItemSafely(channelGroupItem);
+            }
+        }
     }
 
     @Override
