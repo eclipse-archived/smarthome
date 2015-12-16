@@ -7,14 +7,15 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.ui.internal.UIActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: javax.servlet,
+Import-Package: javax.imageio,
+ javax.servlet,
  javax.servlet.http,
- org.apache.commons.lang,
  org.apache.commons.httpclient,
  org.apache.commons.httpclient.auth,
  org.apache.commons.httpclient.methods,
  org.apache.commons.httpclient.params,
  org.apache.commons.io,
+ org.apache.commons.lang,
  org.eclipse.emf.common.util,
  org.eclipse.emf.ecore,
  org.eclipse.smarthome.core.common.registry,
