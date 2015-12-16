@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+-->
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.io.rest.core.thing.ChannelTypeResource">
+   <implementation class="org.eclipse.smarthome.io.rest.core.channel.ChannelTypeResource"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.io.rest.core.channel.ChannelTypeResource"/>
+      <provide interface="org.eclipse.smarthome.io.rest.RESTResource"/>
+   </service>
+   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setChannelTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ChannelTypeRegistry" name="ChannelTypeRegistry" policy="static" unbind="unsetChannelTypeRegistry"/>
+</scr:component>
