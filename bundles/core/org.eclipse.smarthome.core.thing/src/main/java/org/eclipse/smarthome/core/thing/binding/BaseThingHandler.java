@@ -34,6 +34,8 @@ import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link BaseThingHandler} provides a base implementation for the {@link ThingHandler} interface.
@@ -50,6 +52,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public abstract class BaseThingHandler implements ThingHandler {
 
     private static final String THING_HANDLER_THREADPOOL_NAME = "thingHandler";
+    private final Logger logger = LoggerFactory.getLogger(BaseThingHandler.class);
 
     protected final ScheduledExecutorService scheduler = ThreadPoolManager
             .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
@@ -423,13 +426,22 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateConfiguration(Configuration configuration) {
-        this.thing.getConfiguration().setProperties(configuration.getProperties());
-        synchronized (this) {
-            if (this.callback != null) {
-                this.callback.thingUpdated(thing);
-            } else {
-                throw new IllegalStateException("Could not update configuration, because callback is missing");
+        Map<String, Object> old = this.thing.getConfiguration().getProperties();
+        try {
+            this.thing.getConfiguration().setProperties(configuration.getProperties());
+            synchronized (this) {
+                if (this.callback != null) {
+                    this.callback.thingUpdated(thing);
+                } else {
+                    throw new IllegalStateException("Could not update configuration, because callback is missing");
+                }
             }
+        } catch (RuntimeException e) {
+            logger.warn(
+                    "Error while applying configuration changes: '{}: {}' - reverting configuration changes on thing '{}'.",
+                    e.getClass().getSimpleName(), e.getMessage(), this.thing.getUID().getAsString());
+            this.thing.getConfiguration().setProperties(old);
+            throw e;
         }
     }
 
