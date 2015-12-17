@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -133,8 +134,9 @@ public class RuntimeRule extends Rule {
         if (configurations == null || configurations.isEmpty()) {
             if (isOptionalConfig(configDescriptions)) {
                 return;
-            } else
+            } else {
                 throw new IllegalArgumentException("Missing required configuration properties!");
+            }
         } else {
             for (ConfigDescriptionParameter configParameter : configDescriptions) {
                 String configParameterName = configParameter.getName();
@@ -145,10 +147,11 @@ public class RuntimeRule extends Rule {
                 Iterator<ConfigDescriptionParameter> i = configDescriptions.iterator();
                 while (i.hasNext()) {
                     ConfigDescriptionParameter configParameter = i.next();
-                    if (i.hasNext())
+                    if (i.hasNext()) {
                         msg = msg + configParameter.getName() + "\", ";
-                    else
+                    } else {
                         msg = msg + configParameter.getName();
+                    }
                 }
                 throw new IllegalArgumentException("Extra configuration properties : " + msg + "\"!");
             }
@@ -183,37 +186,14 @@ public class RuntimeRule extends Rule {
         }
     }
 
-    /**
-     * @param configValue
-     * @param configParameter
-     * @throws Exception
-     */
     @SuppressWarnings("rawtypes")
     private void checkType(Object configValue, ConfigDescriptionParameter configParameter) {
         Type type = configParameter.getType();
         if (configParameter.isMultiple()) {
             if (configValue instanceof List) {
-                int size = ((List) configValue).size();
-                for (int index = 0; index < size; index++) {
-                    boolean error = false;
-                    if (Type.TEXT.equals(type)) {
-                        if (((List) configValue).get(index) instanceof String) {
-                            error = true;
-                        }
-                    } else if (Type.BOOLEAN.equals(type)) {
-                        if (((List) configValue).get(index) instanceof Boolean) {
-                            error = true;
-                        }
-                    } else if (Type.INTEGER.equals(type)) {
-                        if (((List) configValue).get(index) instanceof Integer) {
-                            error = true;
-                        }
-                    } else if (Type.DECIMAL.equals(type)) {
-                        if (((List) configValue).get(index) instanceof Double) {
-                            error = true;
-                        }
-                    }
-                    if (error) {
+                List lConfigValues = (List) configValue;
+                for (Object value : lConfigValues) {
+                    if (!checkType(type, value)) {
                         throw new IllegalArgumentException("Unexpected value for configuration property \""
                                 + configParameter.getName() + "\". Expected type: " + type);
                     }
@@ -223,20 +203,25 @@ public class RuntimeRule extends Rule {
                     "Unexpected value for configuration property \"" + configParameter.getName()
                             + "\". Expected is Array with type for elements : " + type.toString() + "!");
         } else {
-            if (Type.TEXT.equals(type) && configValue instanceof String)
-                return;
-            else if (Type.BOOLEAN.equals(type) && configValue instanceof Boolean)
-                return;
-            else if (Type.INTEGER.equals(type) && (configValue instanceof Short || configValue instanceof Byte
-                    || configValue instanceof Integer || configValue instanceof Long))
-                return;
-            else if (Type.DECIMAL.equals(type) && (configValue instanceof Float || configValue instanceof Double))
-                return;
-            else {
+            if (!checkType(type, configValue)) {
                 throw new IllegalArgumentException("Unexpected value for configuration property \""
                         + configParameter.getName() + "\". Expected is " + type.toString() + "!");
             }
         }
+    }
+
+    private boolean checkType(Type type, Object configValue) {
+        switch (type) {
+            case TEXT:
+                return configValue instanceof String;
+            case BOOLEAN:
+                return configValue instanceof Boolean;
+            case INTEGER:
+                return configValue instanceof BigDecimal || configValue instanceof Integer;
+            case DECIMAL:
+                return configValue instanceof BigDecimal || configValue instanceof Double;
+        }
+        return false;
     }
 
     void validateConfiguration() {
