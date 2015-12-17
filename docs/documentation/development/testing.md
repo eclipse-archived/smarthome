@@ -98,7 +98,7 @@ In the `setUp` method the `ItemRegistry` OSGi service is retrieved through the m
 
 In Eclipse the tests can be executed by right-clicking the test file and clicking on `Run As => JUnit Plug-In Test`. The launch config must be adapted, by selecting the bundle to test under the `Plug-Ins` tab and by clicking on `Add Required Plug-Ins`. Moreover you have to set the Auto-Start option to `true`. If the bundle that should be tested makes use of declarative services (has xml files in OSGI-INF folder), the bundle `org.eclipse.equinox.ds` must also be selected and also the required Plug-Ins of it. The `Validate Plug-Ins` button can be used to check if the launch config is valid. To avoid the manual selection of bundles, one can also choose `all workspace and enabled target plug-ins` with default `Default Auto-Start` set to `true`. The disadvantage is, that this will start all bundles, which makes the test execution really slow and will prodcue a lot of errors on the OSGi console. It is a good practice to store a launch configuration file, that launches all test cases for a test fragment.
 
-From maven the test can be executed by calling `mvn integration-test`. For executing the test in maven, tycho calculates the list of depended bundles automatically from package imports. Only if there is no dependency to a bundle, the bundle must be added manually to the test execution environment. For example Eclipse SmartHome makes use of OSGi declarative services. That allows to define service components through XML files. In order to support declarative services in the test environment the according bundle must be added in the pom file within the `tycho-surefire-plugin` configuration section as followed:
+From maven the test can be executed by calling `mvn integration-test`. For executing the test in maven, tycho calculates the list of depended bundles automatically from package imports. Only if there is no dependency to a bundle, the bundle must be added manually to the test execution environment. For example Eclipse SmartHome makes use of OSGi declarative services. That allows to define service components through XML files. In order to support declarative services in the test environment the according bundle `org.eclipse.equinox.ds` must be added in the pom file within the `tycho-surefire-plugin` configuration section as dependency and furthermore the startlevel has to be defined as shown below. The snippet also shows how to enable `logging` during the test-execution with maven. Therefor you have to add the bundles `ch.qos.logback.classic, ch.qos.logback.core ch.qos.logback.slf4j` as dependency to your tycho-surefire configuration.
 
 	...
 	<build>
@@ -112,6 +112,22 @@ From maven the test can be executed by calling `mvn integration-test`. For execu
                      <dependency>
                          <type>eclipse-plugin</type>
                          <artifactId>org.eclipse.equinox.ds</artifactId>
+                         <version>0.0.0</version>
+                     </dependency>
+                     <!-- Required Bundles to enable LOGGING -->
+                     <dependency>
+                         <type>eclipse-plugin</type>
+                         <artifactId>ch.qos.logback.classic</artifactId>
+                         <version>0.0.0</version>
+                     </dependency>
+                     <dependency>
+                         <type>eclipse-plugin</type>
+                         <artifactId>ch.qos.logback.core</artifactId>
+                         <version>0.0.0</version>
+                     </dependency>
+                     <dependency>
+                         <type>eclipse-plugin</type>
+                         <artifactId>ch.qos.logback.slf4j</artifactId>
                          <version>0.0.0</version>
                      </dependency>
                  </dependencies>
