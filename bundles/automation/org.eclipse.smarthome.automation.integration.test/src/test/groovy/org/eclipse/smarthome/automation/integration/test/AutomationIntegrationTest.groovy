@@ -305,9 +305,9 @@ class AutomationIntegrationTest extends OSGiTest{
     @Test
     public void 'assert that a rule based on a composite modules is initialized and executed correctly' () {
         def triggerConfig = [itemName:"myMotionItem3"]
-        def condition1Config = [itemName:"myPresenceItem3", state:"ON"]
+        def condition1Config = [itemName:"myMotionItem3", state:"ON"]
         def eventInputs = [event:"ItemStateChangeTrigger3.event"]
-        def condition2Config = [operator:"=", itemName:"myMotionItem3", state:"ON"]
+        def condition2Config = [operator:"=", itemName:"myPresenceItem3", state:"ON"]
         def actionConfig = [itemName:"myLampItem3", command:"ON"]
         def triggers = [
             new Trigger("ItemStateChangeTrigger3", "ItemStateChangeTrigger", triggerConfig)
@@ -335,7 +335,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
         def EventPublisher eventPublisher = getService(EventPublisher)
         def ItemRegistry itemRegistry = getService(ItemRegistry)
-        SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem3")
+        SwitchItem myMotionItem3 = itemRegistry.getItem("myMotionItem3")
         SwitchItem myPresenceItem3 = itemRegistry.getItem("myPresenceItem3")
         myPresenceItem3.send(OnOffType.ON)        
 
@@ -358,7 +358,6 @@ class AutomationIntegrationTest extends OSGiTest{
         ] as EventSubscriber
 
         registerService(itemEventHandler)
-        SwitchItem myMotionItem3 = itemRegistry.getItem("myMotionItem3")
         myMotionItem3.send(OnOffType.ON)        
         waitForAssert ({ assertThat itemEvent, is(notNullValue())} , 3000, 100)
         assertThat itemEvent.topic, is(equalTo("smarthome/items/myLampItem3/state"))
