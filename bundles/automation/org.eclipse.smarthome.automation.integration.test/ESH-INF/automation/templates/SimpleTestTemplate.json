@@ -48,12 +48,15 @@
       "conditions":[  
          {  
             "id":"ItemStateConditionID_1",
-            "type":"ItemStateCondition",
+            "type":"ItemStateEventCondition",
             "configuration":{  
                "operator":"=",
                "itemName":"$onItem",
                "state":"$ifState"
-            }
+            },
+			"inputs":{
+				"event":"ItemUpdateTrigger_1.event"
+			}
          }
       ],
       "actions":[  
