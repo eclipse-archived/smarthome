@@ -528,6 +528,39 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         thingRegistry.updateConfiguration(thingUID, [parameter: null] as Map)
     }
 
+    @Test
+    void 'assert configuration is rolled-back on error'() {
+        def componentContext = [getBundleContext: {bundleContext}] as ComponentContext
+        def thingHandlerFactory = new SimpleThingHandlerFactory()
+        thingHandlerFactory.activate(componentContext)
+        registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+
+        registerThingTypeAndConfigDescription()
+
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+
+        def thingUID = new ThingUID("bindingId:type:thingId")
+        def thing = ThingBuilder.create(thingUID).build()
+
+        managedThingProvider.add(thing)
+
+        // set the config to an initial value
+        thingRegistry.updateConfiguration(thingUID, [parameter: "before"] as Map)
+        assert thing.getConfiguration().get("parameter"), is("before")
+
+        // let it fail next time...
+        thing.getHandler().callback = [thingUpdated: {updatedThing -> throw new IllegalStateException()}] as ThingHandlerCallback
+        try {
+            thingRegistry.updateConfiguration(thingUID, [parameter: "after"] as Map)
+            fail("There should have been an exception!")
+        } catch (IllegalStateException e) {
+            // all good, we want that
+        }
+
+        // now check if the thing's configuration has been rolled back
+        assert thing.getConfiguration().get("parameter"), is("before")
+    }
+
     private void registerThingTypeAndConfigDescription() {
         def URI configDescriptionUri = new URI("test:test");
         def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)
