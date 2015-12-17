@@ -332,7 +332,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         @Override
         protected void updateConfiguration(Configuration configuration) {
             super.updateConfiguration(configuration);
-            if(ConfigStatusCallback != null) {
+            if (configStatusCallback != null) {
                 configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().asString))
             }
         }
