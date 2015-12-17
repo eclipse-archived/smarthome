@@ -118,7 +118,7 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
     }
 
     private void enableChannel(Console console, String channelUID) {
-        thingSetupManager.enableChannel(new ChannelUID(channelUID));
+        thingSetupManager.enableChannel(new ChannelUID(channelUID), null);
         console.println("The channel \"" + channelUID + "\" was enabled.");
     }
 
