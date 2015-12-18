@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.rest.core.internal;
+package org.eclipse.smarthome.io.rest.core;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -129,8 +129,9 @@ public class JSONResponse {
 
         // configure response
         ResponseBuilder rp = response(status);
-        if (null != ret)
+        if (null != ret) {
             rp = rp.entity(GSON.toJson(ret));
+        }
         return rp.build();
     }
 
@@ -140,7 +141,7 @@ public class JSONResponse {
      * @author Joerg Plewe
      */
     @Provider
-    static class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exception> {
+    public static class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exception> {
         /**
          * create JSON Response
          */
