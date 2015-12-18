@@ -328,7 +328,7 @@ public class BluezBluetoothGatt extends BluetoothGatt implements DBusSigHandler 
                     callback.onReadRemoteRssi(gatt, remoteRssi, GATT_SUCCESS);
                 }
             } catch (DBusExecutionException e) {
-                e.printStackTrace();
+                logger.debug("Error reading RSSI: {}", e.getMessage());
                 callback.onReadRemoteRssi(gatt, 0, GATT_FAILURE);
             }
         }
