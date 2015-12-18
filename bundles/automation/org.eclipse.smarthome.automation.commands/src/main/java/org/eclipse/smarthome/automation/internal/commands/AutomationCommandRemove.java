@@ -63,28 +63,15 @@ public class AutomationCommandRemove extends AutomationCommand {
         }
         switch (providerType) {
             case AutomationCommands.MODULE_TYPE_PROVIDER:
-                if (autoCommands.remove(AutomationCommands.MODULE_TYPE_PROVIDER, url)) {
-                    return SUCCESS;
-                }
-                return String.format("%s! ModuleTypeProvider not available!", FAIL);
+                return autoCommands.remove(AutomationCommands.MODULE_TYPE_PROVIDER, url);
             case AutomationCommands.TEMPLATE_PROVIDER:
-                if (autoCommands.remove(AutomationCommands.TEMPLATE_PROVIDER, url)) {
-                    return SUCCESS;
-                }
-                return String.format("%s! TemplateProvider not available!", FAIL);
+                return autoCommands.remove(AutomationCommands.TEMPLATE_PROVIDER, url);
             case AutomationCommands.RULE_PROVIDER:
                 if (command == AutomationCommands.REMOVE_RULE) {
-                    if (autoCommands.removeRule(id)) {
-                        return SUCCESS;
-                    }
-                } else {
-                    if (autoCommands.removeRules(id)) {
-                        return SUCCESS;
-                    } else {
-                        return String.format("Rule with id '%s' does not exist.", id);
-                    }
+                    return autoCommands.removeRule(id);
+                } else if (command == AutomationCommands.REMOVE_RULES) {
+                    return autoCommands.removeRules(id);
                 }
-                return String.format("%s! RuleRegistry not available!", FAIL);
         }
         return FAIL;
     }
