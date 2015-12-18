@@ -8,4 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.persistence
-Bundle-Activator: org.eclipse.smarthome.model.persistence.runtime.internal.PersistenceRuntimeActivator
+Service-Component: OSGI-INF/runtime.xml
