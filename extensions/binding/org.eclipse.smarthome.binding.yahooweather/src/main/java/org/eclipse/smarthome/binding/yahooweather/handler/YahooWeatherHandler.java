@@ -67,7 +67,10 @@ public class YahooWeatherHandler extends BaseThingHandler {
         try {
             refresh = (BigDecimal) config.get("refresh");
         } catch (Exception e) {
-            // let's ignore it and go for the default
+        }
+
+        if (refresh == null) {
+            // let's go for the default
             refresh = new BigDecimal(60);
         }
 
@@ -80,7 +83,6 @@ public class YahooWeatherHandler extends BaseThingHandler {
     }
 
     private void startAutomaticRefresh() {
-
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
