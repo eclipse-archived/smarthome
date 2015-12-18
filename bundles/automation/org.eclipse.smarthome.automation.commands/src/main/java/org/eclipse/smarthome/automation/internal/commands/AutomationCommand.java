@@ -11,9 +11,9 @@ package org.eclipse.smarthome.automation.internal.commands;
  * This class is base for all automation commands. It defines common functionality for an automation command. Each class
  * of commands is responsible for a group of commands, that are equivalent but each of them is related to a different
  * provider.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
- * 
+ *
  */
 public abstract class AutomationCommand {
 
@@ -64,7 +64,7 @@ public abstract class AutomationCommand {
 
     /**
      * This constructor is responsible for initializing the common properties for each automation command.
-     * 
+     *
      * @param command is the identifier of the command.
      * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
      *            command. The order for their description is a random.
@@ -82,17 +82,40 @@ public abstract class AutomationCommand {
     /**
      * This method is common for all automation commands and it is responsible for execution of every particular
      * command.
-     * 
+     *
      * @return a string representing understandable for the user message containing information on the outcome of the
      *         command.
      */
     public abstract String execute();
 
     /**
+     * This method is responsible for processing the <tt>st</tt> option of the command.
+     *
+     * @param e is the exception appeared during the command's execution.
+     * @return a string representing the exception, corresponding to availability of the <tt>st</tt> option.
+     */
+    protected String getStackTrace(Exception e) {
+        StringBuilder writer = new StringBuilder();
+        if (st) {
+            StackTraceElement[] ste = e.getStackTrace();
+            for (int i = 0; i < ste.length; i++) {
+                if (i == 0) {
+                    writer.append(String.format("FAIL : %s", ste[i].toString() + "\n"));
+                } else {
+                    writer.append(String.format("%s", ste[i].toString() + "\n"));
+                }
+            }
+        } else {
+            writer.append(String.format("FAIL : %s", e.getMessage() + "\n"));
+        }
+        return writer.toString();
+    }
+
+    /**
      * This method is used to determine the options and parameters for every particular command. If there are redundant
      * options and parameters or the required are missing the execution of the command will be ended and the parsing
      * result will be returned as a result of the command.
-     * 
+     *
      * @param parameterValues is an array of strings which are basis for initializing the options and parameters of the
      *            command. The order for their description is a random.
      * @return a string representing understandable for the user message containing information on the outcome of the

@@ -74,8 +74,8 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
      *             for some reasons.
      * @see AutomationCommandsPluggable#exportRules(String, Set, File)
      */
-    public void exportRules(String parserType, Set<Rule> set, File file) throws Exception {
-        super.exportData(parserType, set, file);
+    public String exportRules(String parserType, Set<Rule> set, File file) throws Exception {
+        return super.exportData(parserType, set, file);
     }
 
     /**
@@ -88,11 +88,14 @@ public class CommandlineRuleImporter extends AbstractCommandProvider<Rule> {
      * @see AutomationCommandsPluggable#importRules(String, URL)
      */
     public Set<Rule> importRules(String parserType, URL url) throws IOException, ParsingException {
-        InputStreamReader inputStreamReader = null;
         Parser<Rule> parser = parsers.get(parserType);
         if (parser != null) {
-            inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
-            return importData(url, parser, inputStreamReader);
+            InputStreamReader inputStreamReader = new InputStreamReader(new BufferedInputStream(url.openStream()));
+            try {
+                return importData(url, parser, inputStreamReader);
+            } finally {
+                inputStreamReader.close();
+            }
         } else {
             throw new ParsingException(new ParsingNestedException(ParsingNestedException.RULE, null,
                     new Exception("Parser " + parserType + " not available")));

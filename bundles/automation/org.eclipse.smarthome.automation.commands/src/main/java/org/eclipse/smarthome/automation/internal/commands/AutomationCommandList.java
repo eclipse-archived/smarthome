@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleStatus;
@@ -52,18 +53,14 @@ public class AutomationCommandList extends AutomationCommand {
     private Locale locale;
 
     /**
-     * Distance of status column form previous column.
-     */
-    private static final int STATUS_COLUMN_DISTANCE = 83;
-
-    /**
      * @see AutomationCommand#AutomationCommand(String, String[], int, AutomationCommandsPluggable)
      */
     public AutomationCommandList(String command, String[] params, int adminType,
             AutomationCommandsPluggable autoCommands) {
         super(command, params, adminType, autoCommands);
-        if (locale == null)
+        if (locale == null) {
             locale = Locale.getDefault();
+        }
     }
 
     /**
@@ -135,8 +132,9 @@ public class AutomationCommandList extends AutomationCommand {
                 locale = new Locale(l);
                 getLocale = false;
             }
-            if (getId && getLocale)
+            if (getId && getLocale) {
                 return String.format("Unsupported parameter: %s", parameterValues[i]);
+            }
         }
         return SUCCESS;
     }
@@ -149,11 +147,15 @@ public class AutomationCommandList extends AutomationCommand {
      */
     private String listRules() {
         Collection<Rule> collection = autoCommands.getRules();
-        Hashtable<String, Rule> rules = new Hashtable<String, Rule>();
-        Hashtable<String, String> listRules = null;
+        Map<String, Rule> rules = new Hashtable<String, Rule>();
+        Map<String, String> listRules = null;
         if (collection != null && !collection.isEmpty()) {
             addCollection(collection, rules);
-            listRules = Utils.sortList(rules);
+            String[] uids = new String[rules.size()];
+            Utils.quickSort(rules.keySet().toArray(uids), 0, rules.size());
+            listRules = Utils.putInHastable(uids);
+        }
+        if (listRules != null && !listRules.isEmpty()) {
             if (id != null) {
                 collection = getRuleByFilter(listRules);
                 if (collection.size() == 1) {
@@ -167,44 +169,16 @@ public class AutomationCommandList extends AutomationCommand {
                 } else if (collection.isEmpty()) {
                     return String.format("Nonexistent ID: %s", id);
                 } else {
-                    if (!rules.isEmpty())
+                    if (!rules.isEmpty()) {
                         rules.clear();
+                    }
                     addCollection(collection, rules);
                     listRules = Utils.filterList(rules, listRules);
                 }
             }
-            if (listRules != null && !listRules.isEmpty()) {
-                collectRuleStatuses(listRules);
-                return Printer.printRules(listRules);
-            }
+            return Printer.printRules(autoCommands, listRules);
         }
         return "There are no Rules available!";
-    }
-
-    /**
-     * Utility method for execution of command {@link AutomationCommands#LIST_RULES}.
-     * Concatenates the rule status plus separator to the rule UID.
-     */
-    private void collectRuleStatuses(Hashtable<String, String> listRules) {
-        Hashtable<String, String> newList = new Hashtable<String, String>();
-        for (String uid : listRules.values()) {
-            StringBuilder res = new StringBuilder();
-            res.append(uid);
-            int count = STATUS_COLUMN_DISTANCE - uid.length();
-            RuleStatus status = autoCommands.getRuleStatus(uid);
-            if (status != null) {
-                Printer.printChars(res, ' ', count, false);
-                res.append(status.toString());
-                newList.put(uid, res.toString());
-            }
-        }
-        for (String id : listRules.keySet()) {
-            String uid = listRules.get(id);
-            String ruleDisp = newList.get(uid);
-            if (ruleDisp != null) {
-                listRules.put(id, ruleDisp);
-            }
-        }
     }
 
     /**
@@ -215,11 +189,15 @@ public class AutomationCommandList extends AutomationCommand {
      */
     private String listTemplates() {
         Collection<Template> collection = autoCommands.getTemplates(locale);
-        Hashtable<String, Template> templates = new Hashtable<String, Template>();
-        Hashtable<String, String> listTemplates = null;
+        Map<String, Template> templates = new Hashtable<String, Template>();
+        Map<String, String> listTemplates = null;
         if (collection != null && !collection.isEmpty()) {
             addCollection(collection, templates);
-            listTemplates = Utils.sortList(templates);
+            String[] uids = new String[templates.size()];
+            Utils.quickSort(templates.keySet().toArray(uids), 0, templates.size());
+            listTemplates = Utils.putInHastable(uids);
+        }
+        if (listTemplates != null && !listTemplates.isEmpty()) {
             if (id != null) {
                 collection = getTemplateByFilter(listTemplates);
                 if (collection.size() == 1) {
@@ -232,14 +210,15 @@ public class AutomationCommandList extends AutomationCommand {
                 } else if (collection.isEmpty()) {
                     return String.format("Nonexistent ID: %s", id);
                 } else {
-                    if (!templates.isEmpty())
+                    if (!templates.isEmpty()) {
                         templates.clear();
+                    }
                     addCollection(collection, templates);
                     listTemplates = Utils.filterList(templates, listTemplates);
                 }
             }
             if (listTemplates != null && !listTemplates.isEmpty()) {
-                return Printer.print(listTemplates);
+                return Printer.printTemplates(listTemplates);
             }
         }
         return "There are no Templates available!";
@@ -252,10 +231,8 @@ public class AutomationCommandList extends AutomationCommand {
      *         command {@link AutomationCommands#LIST_MODULE_TYPES}.
      */
     private String listModuleTypes() {
-        Collection<? extends ModuleType> collection = null;
-        Hashtable<String, ModuleType> moduleTypes = new Hashtable<String, ModuleType>();
-        Hashtable<String, String> listModuleTypes = null;
-        collection = autoCommands.getModuleTypes(TriggerType.class, locale);
+        Map<String, ModuleType> moduleTypes = new Hashtable<String, ModuleType>();
+        Collection<? extends ModuleType> collection = autoCommands.getModuleTypes(TriggerType.class, locale);
         addCollection(collection, moduleTypes);
         collection = autoCommands.getModuleTypes(ConditionType.class, locale);
         addCollection(collection, moduleTypes);
@@ -267,27 +244,33 @@ public class AutomationCommandList extends AutomationCommand {
         addCollection(collection, moduleTypes);
         collection = autoCommands.getModuleTypes(CompositeActionType.class, locale);
         addCollection(collection, moduleTypes);
-        listModuleTypes = Utils.sortList(moduleTypes);
-        if (id != null) {
-            collection = getModuleTypeByFilter(listModuleTypes);
-            if (collection.size() == 1) {
-                ModuleType mt = (ModuleType) collection.toArray()[0];
-                if (mt != null) {
-                    return Printer.printModuleType(mt);
-                } else {
-                    return String.format("Nonexistent ID: %s", id);
-                }
-            } else if (collection.isEmpty()) {
-                return String.format("Nonexistent ID: %s", id);
-            } else {
-                if (!moduleTypes.isEmpty())
-                    moduleTypes.clear();
-                addCollection(collection, moduleTypes);
-                listModuleTypes = Utils.filterList(moduleTypes, listModuleTypes);
-            }
+        Map<String, String> listModuleTypes = null;
+        if (!moduleTypes.isEmpty()) {
+            String[] uids = new String[moduleTypes.size()];
+            Utils.quickSort(moduleTypes.keySet().toArray(uids), 0, moduleTypes.size());
+            listModuleTypes = Utils.putInHastable(uids);
         }
         if (listModuleTypes != null && !listModuleTypes.isEmpty()) {
-            return Printer.print(listModuleTypes);
+            if (id != null) {
+                collection = getModuleTypeByFilter(listModuleTypes);
+                if (collection.size() == 1) {
+                    ModuleType mt = (ModuleType) collection.toArray()[0];
+                    if (mt != null) {
+                        return Printer.printModuleType(mt);
+                    } else {
+                        return String.format("Nonexistent ID: %s", id);
+                    }
+                } else if (collection.isEmpty()) {
+                    return String.format("Nonexistent ID: %s", id);
+                } else {
+                    if (!moduleTypes.isEmpty()) {
+                        moduleTypes.clear();
+                    }
+                    addCollection(collection, moduleTypes);
+                    listModuleTypes = Utils.filterList(moduleTypes, listModuleTypes);
+                }
+            }
+            return Printer.printModuleTypes(listModuleTypes);
         }
         return "There are no Module Types available!";
     }
@@ -300,7 +283,7 @@ public class AutomationCommandList extends AutomationCommand {
      * @param list is the list of {@link Rule}s for reducing.
      * @return a collection of {@link Rule}s that match the filter.
      */
-    private Collection<Rule> getRuleByFilter(Hashtable<String, String> list) {
+    private Collection<Rule> getRuleByFilter(Map<String, String> list) {
         Collection<Rule> rules = new ArrayList<Rule>();
         if (!list.isEmpty()) {
             Rule r = null;
@@ -336,27 +319,25 @@ public class AutomationCommandList extends AutomationCommand {
      * @param list is the list of {@link Template}s for reducing.
      * @return a collection of {@link Template}s that match the filter.
      */
-    private Collection<Template> getTemplateByFilter(Hashtable<String, String> list) {
+    private Collection<Template> getTemplateByFilter(Map<String, String> list) {
         Collection<Template> templates = new ArrayList<Template>();
-        if (!list.isEmpty()) {
-            Template t = null;
-            String uid = list.get(id);
-            if (uid != null) {
-                t = autoCommands.getTemplate(uid, locale);
-                if (t != null) {
-                    templates.add(t);
-                    return templates;
-                }
+        Template t = null;
+        String uid = list.get(id);
+        if (uid != null) {
+            t = autoCommands.getTemplate(uid, locale);
+            if (t != null) {
+                templates.add(t);
+                return templates;
+            }
+        } else {
+            t = autoCommands.getTemplate(id, locale);
+            if (t != null) {
+                templates.add(t);
+                return templates;
             } else {
-                t = autoCommands.getTemplate(id, locale);
-                if (t != null) {
-                    templates.add(t);
-                    return templates;
-                } else {
-                    for (String templateUID : list.keySet()) {
-                        if (templateUID.indexOf(id) != -1) {
-                            templates.add(autoCommands.getTemplate(templateUID, locale));
-                        }
+                for (String templateUID : list.keySet()) {
+                    if (templateUID.indexOf(id) != -1) {
+                        templates.add(autoCommands.getTemplate(templateUID, locale));
                     }
                 }
             }
@@ -372,7 +353,7 @@ public class AutomationCommandList extends AutomationCommand {
      * @param list is the list of {@link ModuleType}s for reducing.
      * @return a collection of {@link ModuleType}s that match the filter.
      */
-    private Collection<ModuleType> getModuleTypeByFilter(Hashtable<String, String> list) {
+    private Collection<ModuleType> getModuleTypeByFilter(Map<String, String> list) {
         Collection<ModuleType> moduleTypes = new ArrayList<ModuleType>();
         if (!list.isEmpty()) {
             ModuleType mt = null;
@@ -406,11 +387,11 @@ public class AutomationCommandList extends AutomationCommand {
      *
      * @param collection is the {@link Collection} of {@link Rule}s, {@link Template}s or {@link ModuleType}s which
      *            must be converted.
-     * @param list is the {@link Hashtable} with keys - the UID of the object and values - the object, which must be
+     * @param list is the map with keys - the UID of the object and values - the object, which must be
      *            filled with the objects from <tt>collection</tt>.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void addCollection(Collection collection, Hashtable list) {
+    private void addCollection(Collection collection, Map list) {
         if (collection != null && !collection.isEmpty()) {
             Iterator i = collection.iterator();
             while (i.hasNext()) {
@@ -426,15 +407,6 @@ public class AutomationCommandList extends AutomationCommand {
                 }
             }
         }
-    }
-
-    public String getRuleStatus(RuleStatus status) {
-        if (status != null) {
-            StringBuffer writer = new StringBuffer();
-            writer.append(" [ ").append(status).append(" ] ");
-            return writer.toString();
-        }
-        return null;
     }
 
 }
