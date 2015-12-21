@@ -79,14 +79,7 @@ public class ItemUpdater extends AbstractItemEventSubscriber {
                     }
                 }
                 if (isAccepted) {
-                    State oldState = item.getState();
                     item.setState(newState);
-                    if (!oldState.equals(newState)) {
-                        EventPublisher eventPublisher = this.eventPublisher;
-                        if (eventPublisher != null) {
-                            eventPublisher.post(ItemEventFactory.createStateChangedEvent(itemName, newState, oldState));
-                        }
-                    }
                 } else {
                     logger.debug("Received update of a not accepted type (" + newState.getClass().getSimpleName()
                             + ") for item " + itemName);
