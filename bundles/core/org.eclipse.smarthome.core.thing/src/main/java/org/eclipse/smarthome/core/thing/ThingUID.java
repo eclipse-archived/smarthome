@@ -12,11 +12,13 @@ import java.util.List;
 
 /**
  * {@link ThingUID} represents a unique identifier for things.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  */
 public class ThingUID extends UID {
+
+    private static final String NO_THING_TYPE = "";
 
     /**
      * Default constructor in package scope only. Will allow to instantiate this
@@ -63,6 +65,18 @@ public class ThingUID extends UID {
      */
     public ThingUID(ThingTypeUID thingTypeUID, String id, String... bridgeIds) {
         super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), id, bridgeIds));
+    }
+
+    /**
+     * Instantiates a new thing UID.
+     *
+     * @param binding
+     *            the thing type
+     * @param id
+     *            the id
+     */
+    public ThingUID(String bindingId, String id) {
+        super(bindingId, NO_THING_TYPE, id);
     }
 
     private static String[] getArray(String bindingId, String thingTypeId, String id, String... bridgeIds) {
@@ -125,18 +139,32 @@ public class ThingUID extends UID {
      * Returns the thing type id.
      *
      * @return thing type id
+     * @deprecated use {@link Thing#getThingTypeUID()} instead.
      */
+    @Deprecated
     public String getThingTypeId() {
-        return getSegment(1);
+        String thingType = getSegment(1);
+        if (NO_THING_TYPE.equals(thingType)) {
+            return null;
+        } else {
+            return thingType;
+        }
     }
 
     /**
      * Returns the thing type uid.
      *
      * @return thing type uid
+     * @deprecated use {@link Thing#getThingTypeUID()} instead.
      */
+    @Deprecated
     public ThingTypeUID getThingTypeUID() {
-        return new ThingTypeUID(getSegment(0), getSegment(1));
+        String thingType = getSegment(1);
+        if (NO_THING_TYPE.equals(thingType)) {
+            return null;
+        } else {
+            return new ThingTypeUID(getSegment(0), getSegment(1));
+        }
     }
 
     /**

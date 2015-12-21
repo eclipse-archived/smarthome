@@ -7,37 +7,22 @@
  */
 package org.eclipse.smarthome.core.thing.binding;
 
-import java.math.BigDecimal;
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.smarthome.config.core.ConfigDescription;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
-import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.GenericThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.internal.ThingFactoryHelper;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * {@link ThingFactory} helps to create thing based on a given {@link ThingType} .
@@ -49,8 +34,6 @@ import com.google.common.collect.Lists;
  * @author Chris Jackson - Added properties, label, description
  */
 public class ThingFactory {
-
-    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
 
     /**
      * Generates a random Thing UID for the given thingType
@@ -109,31 +92,14 @@ public class ThingFactory {
             throw new IllegalArgumentException("The thingUID should not be null.");
         }
 
-        if (configDescriptionRegistry != null) {
-            // Set default values to thing-configuration
-            if (thingType.hasConfigDescriptionURI()) {
-                ConfigDescription thingConfigDescription = configDescriptionRegistry
-                        .getConfigDescription(thingType.getConfigDescriptionURI());
-                if (thingConfigDescription != null) {
-                    for (ConfigDescriptionParameter parameter : thingConfigDescription.getParameters()) {
-                        String defaultValue = parameter.getDefault();
-                        if (defaultValue != null && configuration.get(parameter.getName()) == null) {
-                            Object value = getDefaultValueAsCorrectType(parameter.getType(), defaultValue);
-                            if (value != null) {
-                                configuration.put(parameter.getName(), value);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
 
-        List<Channel> channels = createChannels(thingType, thingUID, configDescriptionRegistry);
+        List<Channel> channels = ThingFactoryHelper.createChannels(thingType, thingUID, configDescriptionRegistry);
 
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
                 .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
     }
-    
+
     public static Thing createThing(ThingUID thingUID, Configuration configuration, Map<String, String> properties,
             ThingUID bridgeUID, ThingTypeUID thingTypeUID, List<ThingHandlerFactory> thingHandlerFactories) {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
@@ -168,110 +134,9 @@ public class ThingFactory {
 
     private static GenericThingBuilder<?> createThingBuilder(ThingType thingType, ThingUID thingUID) {
         if (thingType instanceof BridgeType) {
-            return BridgeBuilder.create(thingUID);
+            return BridgeBuilder.create(thingType.getUID(), thingUID);
         }
-        return ThingBuilder.create(thingUID);
+        return ThingBuilder.create(thingType.getUID(), thingUID);
     }
-
-    private static List<Channel> createChannels(ThingType thingType, ThingUID thingUID,
-            ConfigDescriptionRegistry configDescriptionRegistry) {
-        List<Channel> channels = Lists.newArrayList();
-        List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
-        for (ChannelDefinition channelDefinition : channelDefinitions) {
-            Channel channel = createChannel(channelDefinition, thingUID, null, configDescriptionRegistry);
-            if (channel != null) {
-                channels.add(channel);
-            }
-        }
-        List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-        for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
-            ChannelGroupType channelGroupType = TypeResolver.resolve(channelGroupDefinition.getTypeUID());
-            if (channelGroupType != null) {
-                List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
-                for (ChannelDefinition channelDefinition : channelGroupChannelDefinitions) {
-                    Channel channel = createChannel(channelDefinition, thingUID, channelGroupDefinition.getId(),
-                            configDescriptionRegistry);
-                    if (channel != null) {
-                        channels.add(channel);
-                    }
-                }
-            } else {
-                logger.warn(
-                        "Could not create channels for channel group '{}' for thing type '{}', because channel group type '{}' could not be found.",
-                        channelGroupDefinition.getId(), thingUID, channelGroupDefinition.getTypeUID());
-            }
-        }
-        return channels;
-    }
-
-    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID, String groupId,
-            ConfigDescriptionRegistry configDescriptionRegistry) {
-        ChannelType type = TypeResolver.resolve(channelDefinition.getChannelTypeUID());
-        if (type == null) {
-            logger.warn(
-                    "Could not create channel '{}' for thing type '{}', because channel type '{}' could not be found.",
-                    channelDefinition.getId(), thingUID, channelDefinition.getChannelTypeUID());
-            return null;
-        }
-
-        ChannelBuilder channelBuilder = ChannelBuilder
-                .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
-                .withType(type.getUID()).withDefaultTags(type.getTags());
-
-        // If we want to override the label, add it...
-        if (channelDefinition.getLabel() != null) {
-            channelBuilder = channelBuilder.withLabel(channelDefinition.getLabel());
-        }
-
-        // If we want to override the description, add it...
-        if (channelDefinition.getDescription() != null) {
-            channelBuilder = channelBuilder.withDescription(channelDefinition.getDescription());
-        }
-
-        // Initialize channel configuration with default-values
-        URI channelConfigDescriptionURI = type.getConfigDescriptionURI();
-        if (configDescriptionRegistry != null && channelConfigDescriptionURI != null) {
-            ConfigDescription cd = configDescriptionRegistry.getConfigDescription(channelConfigDescriptionURI);
-            if (cd != null) {
-                Configuration config = new Configuration();
-                for (ConfigDescriptionParameter param : cd.getParameters()) {
-                    String defaultValue = param.getDefault();
-                    if (defaultValue != null) {
-                        Object value = getDefaultValueAsCorrectType(param.getType(), defaultValue);
-                        if (value != null) {
-                            config.put(param.getName(), value);
-                        }
-                    }
-                }
-                channelBuilder = channelBuilder.withConfiguration(config);
-            }
-        }
-
-        channelBuilder = channelBuilder.withProperties(channelDefinition.getProperties());
-
-        Channel channel = channelBuilder.build();
-        return channel;
-    }
-
-    private static Object getDefaultValueAsCorrectType(Type parameterType, String defaultValue) {
-        try {
-            switch (parameterType) {
-                case TEXT:
-                    return defaultValue;
-                case BOOLEAN:
-                    return Boolean.parseBoolean(defaultValue);
-                case INTEGER:
-                    return new BigDecimal(defaultValue);
-                case DECIMAL:
-                    return new BigDecimal(defaultValue);
-                default:
-                    return null;
-            }
-        } catch (NumberFormatException ex) {
-            LoggerFactory.getLogger(ThingFactory.class).warn("Could not parse default value '" + defaultValue
-                    + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
-            return null;
-        }
-    }    
 
 }

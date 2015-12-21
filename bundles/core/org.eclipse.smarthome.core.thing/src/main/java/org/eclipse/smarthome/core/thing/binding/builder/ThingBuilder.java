@@ -22,8 +22,14 @@ public class ThingBuilder extends GenericThingBuilder<ThingBuilder> {
         return new ThingBuilder(thing);
     }
 
+    @Deprecated
     public static ThingBuilder create(ThingUID thingUID) {
         ThingImpl thing = new ThingImpl(thingUID);
+        return new ThingBuilder(thing);
+    }
+
+    public static ThingBuilder create(ThingTypeUID thingTypeUID, ThingUID thingUID) {
+        ThingImpl thing = new ThingImpl(thingTypeUID, thingUID);
         return new ThingBuilder(thing);
     }
 

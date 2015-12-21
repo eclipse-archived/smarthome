@@ -1,15 +1,8 @@
-function getThingTypeUID(thingUID) {
-    var segments = thingUID.split(':');
-    return segments[0] + ':' + segments[1];
-};
 
 angular.module('PaperUI.controllers.setup', 
 []).controller('SetupPageController', function($scope, $location, thingTypeRepository, bindingRepository) {
     $scope.navigateTo = function(path) {
         $location.path('inbox/' + path);
-    }
-    $scope.getThingTypeUID = function(thingUID) {
-        return getThingTypeUID(thingUID);
     }
     $scope.thingTypes = [];
     thingTypeRepository.getAll(function(thingTypes) {
@@ -34,7 +27,7 @@ angular.module('PaperUI.controllers.setup',
     };
 }).controller('InboxEntryController', function($scope, $mdDialog, $q, inboxService, discoveryResultRepository, 
         thingTypeRepository, thingSetupService, toastService, thingRepository) {
-    $scope.approve = function(thingUID, event) {
+    $scope.approve = function(thingUID, thingTypeUID, event) {
         $mdDialog.show({
             controller : 'ApproveInboxEntryDialogController',
             templateUrl : 'partials/dialog.approveinboxentry.html',
@@ -49,7 +42,6 @@ angular.module('PaperUI.controllers.setup',
                 thingRepository.setDirty(true);
 
                 toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
-                var thingTypeUID = $scope.getThingTypeUID(thingUID);
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
                 });
@@ -140,9 +132,9 @@ angular.module('PaperUI.controllers.setup',
 	$scope.homeGroups = [];
     $scope.groupNames = [];
     $scope.thingType = null;
-    var thingTypeUID = getThingTypeUID(discoveryResult.thingUID);
+    $scope.thingTypeUID = discoveryResult.thingTypeUID;
     thingTypeRepository.getOne(function(thingType) {
-        return thingType.UID === thingTypeUID;
+        return thingType.UID === $scope.thingTypeUID;
     }, function(thingType) {
         $scope.thingType = thingType;
     });
@@ -235,7 +227,7 @@ angular.module('PaperUI.controllers.setup',
                 var thing = things[i];
                 for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
                     var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
-                    if(getThingTypeUID(thing.UID) === supportedBridgeTypeUID) {
+                    if(thing.thingTypeUID === supportedBridgeTypeUID) {
                         $scope.bridges.push(thing);
                     }   
                 }

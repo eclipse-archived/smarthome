@@ -29,13 +29,15 @@ public class ThingDTO {
     public Map<String, Object> configuration;
     public Map<String, String> properties;
     public String UID;
+    public String thingTypeUID;
     public List<ChannelDTO> channels;
 
     public ThingDTO() {
     }
 
-    public ThingDTO(String UID, String label, String bridgeUID, List<ChannelDTO> channels, Configuration configuration,
-            Map<String, String> properties) {
+    public ThingDTO(String thingTypeUID, String UID, String label, String bridgeUID, List<ChannelDTO> channels,
+            Configuration configuration, Map<String, String> properties) {
+        this.thingTypeUID = thingTypeUID;
         this.UID = UID;
         this.label = label;
         this.bridgeUID = bridgeUID;

@@ -40,8 +40,14 @@ public class ChannelUID extends UID {
      * @param id
      *            the channel's id
      */
+    @Deprecated
     public ChannelUID(ThingUID thingUID, String id) {
         super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), null, id,
+                thingUID.getBridgeIds()));
+    }
+
+    public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String id) {
+        super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingUID.getId(), null, id,
                 thingUID.getBridgeIds()));
     }
 
@@ -52,8 +58,14 @@ public class ChannelUID extends UID {
      * @param id
      *            the channel's id
      */
+    @Deprecated
     public ChannelUID(ThingUID thingUID, String groupId, String id) {
         super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), groupId, id,
+                thingUID.getBridgeIds()));
+    }
+
+    public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String groupId, String id) {
+        super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingUID.getId(), groupId, id,
                 thingUID.getBridgeIds()));
     }
 
@@ -155,7 +167,7 @@ public class ChannelUID extends UID {
 
     /**
      * Returns the id without the group id.
-     * 
+     *
      * @return id id without group id
      */
     public String getIdWithoutGroup() {
@@ -193,10 +205,8 @@ public class ChannelUID extends UID {
             super.validateSegment(segment, index, length);
         } else {
             if (!segment.matches("[A-Za-z0-9_#-]*")) {
-                throw new IllegalArgumentException(
-                        "UID segment '"
-                                + segment
-                                + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
+                throw new IllegalArgumentException("UID segment '" + segment
+                        + "' contains invalid characters. The last segment of the channel UID must match the pattern [A-Za-z0-9_-#]*.");
             }
         }
     }
