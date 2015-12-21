@@ -309,7 +309,7 @@ md-slider.md-default-theme.hue .md-thumb:after {
 	min-height: 60px;
 }
 
-.fab-item .item-content .actions, .list-item .actions {
+.fab-item .item-content .actions, .list-item .actions,.item-content .actions {
 	position: absolute;
 	top: 7px;
 	right: 0px;
@@ -508,4 +508,33 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle {
 .search md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused .md-input {
 	border-color: #FFF;
 }
+
+
+.vcard
+{
+min-height: 0!important;	
+}
+
+.rules-dialog{
+	min-width:40%;
+}
+
+.md-custom-plus
+{
+	min-height:33px!important;
+	width:33px!important;
+	font-size:22px!important;
+	font-weight:300!important;
+	height:33px!important;
+	line-height:normal!important;
+}
+.md-custom-plus > span
+{
+	padding-left:1px;
+}
+.md-title-nospace{
+	margin:0px!important;
+}
+
+
 
