@@ -1,11 +1,8 @@
 #!/bin/bash
 
-MY_CMD="${0}"
-MY_CMD_ABS="$(readlink -e "${MY_CMD}")"
-MY_DIRNAME_ABS="$(dirname "${MY_CMD_ABS}")"
-
-REMOTE=origin
-unset COMMIT_ID_WC
+#
+# Define some functions first
+#
 
 log() {
   echo "${@}"
@@ -30,6 +27,38 @@ die() {
   exit 1
 }
 
+get_abs() {
+  local ARG_PATH="${1}"; shift
+
+  if [ ! -e "${ARG_PATH}" ]; then
+    log_err "Cannot resolve path (${ARG_PATH})"
+    return 1
+  fi
+
+  if [ -d "${ARG_PATH}" ]; then
+    cd "${ARG_PATH}"
+    echo "${PWD}"
+    cd "${OLDPWD}"
+  else
+    local DIRNAME="$(dirname "${ARG_PATH}")"
+    local BASENAME="$(basename "${ARG_PATH}")"
+    cd "${DIRNAME}"
+    echo "${PWD}/${BASENAME}"
+    cd "${OLDPWD}"
+  fi
+}
+
+#
+# Begin
+#
+
+MY_CMD="${0}"
+MY_CMD_ABS="$(get_abs "${MY_CMD}")" || die "Cannot resolve path"
+MY_DIRNAME_ABS="$(dirname "${MY_CMD_ABS}")"
+
+REMOTE=origin
+unset COMMIT_ID_WC
+
 #
 # Parse command line arguments
 #
@@ -49,7 +78,7 @@ fi
 #
 
 log "version postfix: ${VERSION_POSTFIX}"
-log "commid id: ${COMMIT_ID}"
+log "commit id: ${COMMIT_ID}"
 
 log "Enter 'Y' to proceed"
 read PROCEED
