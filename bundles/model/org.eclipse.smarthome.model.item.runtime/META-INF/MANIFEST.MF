@@ -8,4 +8,4 @@ Bundle-Vendor: Eclipse.org/SmartHome
 Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.item
-Bundle-Activator: org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeActivator
+Service-Component: OSGI-INF/runtime.xml

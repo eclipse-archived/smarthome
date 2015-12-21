@@ -8,4 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.sitemap
-Bundle-Activator: org.eclipse.smarthome.model.sitemap.runtime.internal.SitemapRuntimeActivator
+Service-Component: OSGI-INF/runtime.xml
