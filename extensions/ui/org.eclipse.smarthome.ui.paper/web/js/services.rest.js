@@ -480,6 +480,92 @@ angular.module('PaperUI.services.rest', ['PaperUI.constants'])
             headers : {
                 'Content-Type' : 'text/plain'
             }
+        },
+        update:{
+        	method: 'PUT', 
+        	params : {
+            	ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID',
+            headers : {
+                'Content-Type' : 'application/json'
+            }
+        },
+        setEnabled : {
+            method : 'POST',
+            params : {
+            	ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/enable',
+            headers : {
+            	'Content-Type' : 'text/plain'
+            }
+        }
+    });
+}).factory('moduleTypeService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/module-types', {}, {
+        getAll: {
+            method : 'GET',
+            isArray : true
+        },
+        getByType : {
+            method : 'GET',
+            params : {
+                mtype : '@mtype'
+            },
+            url : restConfig.restPath + '/module-types?type=:mtype',
+            isArray:true
+        },
+        getByUid : {
+            method : 'GET',
+            params : {
+                ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID'
+        },
+        getModuleConfigByUid : {
+            method : 'GET',
+            params : {
+                ruleUID : '@ruleUID',
+                moduleCategory: '@moduleCategory',
+                id: '@id'
+                
+            },
+            url : restConfig.restPath +'/rules/:ruleUID/:moduleCategory/:id/config'
+        }
+        ,
+        add : {
+            method : 'POST',
+            headers : {
+                'Content-Type' : 'application/json'
+            }
+        },
+        remove : {
+            method : 'DELETE',
+            params : {
+                ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID'
+        },
+        getModuleConfigParameter : {
+            method : 'GET',
+            params : {
+            	ruleUID : '@ruleUID'
+            },
+            transformResponse: function(data, headersGetter, status) {
+                return {content: data};
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/actions/action/config/script'
+        },
+        setModuleConfigParameter : {
+            method : 'PUT',
+            params : {
+            	ruleUID : '@ruleUID'
+            },
+            url : restConfig.restPath + '/rules/:ruleUID/actions/action/config/script',
+            headers : {
+                'Content-Type' : 'text/plain'
+            }
         }
     });
 });
