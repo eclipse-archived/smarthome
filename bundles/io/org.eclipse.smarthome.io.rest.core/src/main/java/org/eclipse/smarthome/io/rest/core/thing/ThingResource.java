@@ -46,6 +46,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -110,6 +111,7 @@ public class ThingResource implements RESTResource {
             @ApiParam(value = "thing data", required = true) ThingDTO thingBean) {
         final Locale locale = LocaleUtil.getLocale(language);
 
+        ThingTypeUID thingTypeUID = new ThingTypeUID(thingBean.thingTypeUID);
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
 
@@ -126,8 +128,8 @@ public class ThingResource implements RESTResource {
         // does the Thing already exist?
         if (null == thing) {
             // if not, create new Thing
-            thing = managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID,
-                    thingBean.label, configuration);
+            thing = managedThingProvider.createThing(thingTypeUID, thingUIDObject, bridgeUID, thingBean.label,
+                    configuration);
             status = Status.CREATED;
         } else {
             // if so, report a conflict
@@ -208,7 +210,7 @@ public class ThingResource implements RESTResource {
             managedItemProvider.add(item);
         }
 
-        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
+        ChannelUID channelUID = new ChannelUID(thing.getThingTypeUID(), thing.getUID(), channelId);
 
         unlinkChannelIfAlreadyLinked(channelUID);
 
@@ -286,7 +288,13 @@ public class ThingResource implements RESTResource {
             @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
             @ApiParam(value = "channelId") String itemName) {
 
-        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
+        if (thing == null) {
+            logger.warn("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
+        ChannelUID channelUID = new ChannelUID(thing.getThingTypeUID(), new ThingUID(thingUID), channelId);
 
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
             managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());

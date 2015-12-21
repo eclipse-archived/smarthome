@@ -25,13 +25,15 @@ public class DiscoveryResultDTO {
     public Map<String, Object> properties;
     public String representationProperty;
     public String thingUID;
+    public String thingTypeUID;
 
     public DiscoveryResultDTO() {
     }
 
-    public DiscoveryResultDTO(String thingUID, String bridgeUID, String label, DiscoveryResultFlag flag,
-            Map<String, Object> properties, String representationProperty) {
+    public DiscoveryResultDTO(String thingUID, String bridgeUID, String thingTypeUID, String label,
+            DiscoveryResultFlag flag, Map<String, Object> properties, String representationProperty) {
         this.thingUID = thingUID;
+        this.thingTypeUID = thingTypeUID;
         this.bridgeUID = bridgeUID;
         this.label = label;
         this.flag = flag;

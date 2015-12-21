@@ -290,8 +290,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
-            ThingUID thingUID = discoveryResult.getThingUID();
-            if (thingTypeUIDs.contains(thingUID.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp) {
+            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
+                    && discoveryResult.getTimestamp() < timestamp) {
+                ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);
                 logger.debug("Removed {} from inbox because it was older than {}", thingUID, new Date(timestamp));
