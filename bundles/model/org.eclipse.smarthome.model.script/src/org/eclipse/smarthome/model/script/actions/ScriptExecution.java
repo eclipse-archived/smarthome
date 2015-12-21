@@ -41,10 +41,10 @@ public class ScriptExecution {
 
     /**
      * Calls a script which must be located in the configurations/scripts folder.
-     * 
+     *
      * @param scriptName the name of the script (if the name does not end with
      *            the .script file extension it is added)
-     * 
+     *
      * @return the return value of the script
      * @throws ScriptExecutionException if an error occurs during the execution
      */
@@ -74,10 +74,10 @@ public class ScriptExecution {
 
     /**
      * Schedules a block of code for later execution.
-     * 
+     *
      * @param instant the point in time when the code should be executed
      * @param closure the code block to execute
-     * 
+     *
      * @return a handle to the created timer, so that it can be canceled or rescheduled
      * @throws ScriptExecutionException if an error occurs during the execution
      */
@@ -91,6 +91,10 @@ public class ScriptExecution {
             dataMap.put("procedure", closure);
             dataMap.put("timer", timer);
             JobDetail job = newJob(TimerExecutionJob.class).withIdentity(jobKey).usingJobData(dataMap).build();
+            if (TimerImpl.scheduler.checkExists(job.getKey())) {
+                TimerImpl.scheduler.deleteJob(job.getKey());
+                logger.debug("Deleted existing Job {}", job.getKey().toString());
+            }
             TimerImpl.scheduler.scheduleJob(job, trigger);
             logger.debug("Scheduled code for execution at {}", instant.toString());
             return timer;
