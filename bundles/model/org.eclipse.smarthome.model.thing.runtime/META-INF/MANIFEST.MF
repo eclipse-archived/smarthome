@@ -8,5 +8,5 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.thing
-Bundle-Activator: org.eclipse.smarthome.model.thing.runtime.internal.ThingRuntimeActivator
+Service-Component: OSGI-INF/runtime.xml
 

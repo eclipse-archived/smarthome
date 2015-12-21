@@ -8,23 +8,19 @@
 package org.eclipse.smarthome.model.sitemap.runtime.internal;
 
 import org.eclipse.smarthome.model.SitemapStandaloneSetup;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SitemapRuntimeActivator implements BundleActivator {
+public class SitemapRuntimeActivator {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapRuntimeActivator.class);
 
-    @Override
-    public void start(BundleContext context) throws Exception {
+    public void activate() throws Exception {
         SitemapStandaloneSetup.doSetup();
         logger.debug("Registered 'sitemap' configuration parser");
     }
 
-    @Override
-    public void stop(BundleContext context) throws Exception {
+    public void deactivate() throws Exception {
     }
 
 }

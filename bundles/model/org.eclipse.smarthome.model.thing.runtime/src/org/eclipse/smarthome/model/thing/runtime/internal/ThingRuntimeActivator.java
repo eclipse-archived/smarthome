@@ -8,23 +8,19 @@
 package org.eclipse.smarthome.model.thing.runtime.internal;
 
 import org.eclipse.smarthome.model.thing.ThingStandaloneSetup;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ThingRuntimeActivator implements BundleActivator {
+public class ThingRuntimeActivator {
 
     private final Logger logger = LoggerFactory.getLogger(ThingRuntimeActivator.class);
 
-    @Override
-    public void start(BundleContext context) throws Exception {
+    public void activate() throws Exception {
         ThingStandaloneSetup.doSetup();
         logger.debug("Registered 'thing' configuration parser");
     }
 
-    @Override
-    public void stop(BundleContext context) throws Exception {
+    public void deactivate() throws Exception {
     }
 
 }

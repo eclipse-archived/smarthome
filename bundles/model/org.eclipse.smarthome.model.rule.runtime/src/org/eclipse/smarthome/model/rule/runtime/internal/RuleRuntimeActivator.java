@@ -10,7 +10,6 @@ package org.eclipse.smarthome.model.rule.runtime.internal;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.rule.RulesStandaloneSetup;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -21,15 +20,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class RuleRuntimeActivator implements BundleActivator {
+public class RuleRuntimeActivator {
 
     private final Logger logger = LoggerFactory.getLogger(RuleRuntimeActivator.class);
 
     public static ServiceTracker<ModelRepository, ModelRepository> modelRepositoryTracker;
     public static ServiceTracker<ScriptEngine, ScriptEngine> scriptEngineTracker;
 
-    @Override
-    public void start(BundleContext bc) throws Exception {
+    public void activate(BundleContext bc) throws Exception {
 
         RulesStandaloneSetup.doSetup();
         logger.debug("Registered 'rule' configuration parser");
@@ -41,8 +39,7 @@ public class RuleRuntimeActivator implements BundleActivator {
 
     }
 
-    @Override
-    public void stop(BundleContext context) throws Exception {
+    public void deactivate() throws Exception {
         modelRepositoryTracker.close();
         scriptEngineTracker.close();
     }
