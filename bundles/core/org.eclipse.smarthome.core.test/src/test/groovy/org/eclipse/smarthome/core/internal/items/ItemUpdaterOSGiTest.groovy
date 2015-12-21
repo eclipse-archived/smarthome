@@ -11,8 +11,6 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import java.util.concurrent.ConcurrentLinkedQueue
-
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -36,9 +34,10 @@ import com.google.common.collect.Sets
  */
 class ItemUpdaterOSGiTest extends OSGiTest {
 
+
     EventPublisher eventPublisher
     ItemRegistry itemRegistry
-    ConcurrentLinkedQueue<Event> receivedEvents
+    Event lastReceivedEvent
 
     @Before
     void setUp() {
@@ -46,13 +45,12 @@ class ItemUpdaterOSGiTest extends OSGiTest {
         eventPublisher = getService(EventPublisher)
         itemRegistry = getService(ItemRegistry)
         itemRegistry.add(new SwitchItem("switch"))
-        receivedEvents = new ConcurrentLinkedQueue<Event>()
         def eventSubscriber = [
             getSubscribedEventTypes: {
                 Sets.newHashSet(ItemStateChangedEvent.TYPE)
             },
             getEventFilter: { null },
-            receive: { event -> receivedEvents.add(event) }
+            receive: { event -> lastReceivedEvent = event }
         ] as EventSubscriber
         registerService(eventSubscriber)
     }
@@ -60,48 +58,26 @@ class ItemUpdaterOSGiTest extends OSGiTest {
     @Test
     void 'assert ItemUpdater sets item state'() {
         eventPublisher.post(ItemEventFactory.createStateEvent("switch", OnOffType.ON))
+
         SwitchItem switchItem = itemRegistry.get("switch")
-        waitForAssert {
-            assertThat switchItem.state, is(OnOffType.ON)
-        }
+        waitForAssert { assertThat switchItem.state, is(OnOffType.ON) }
     }
 
     @Test
     void 'assert ItemUpdater sends state changed event'() {
-        ItemStateChangedEvent changedEvent
-
         eventPublisher.post(ItemEventFactory.createStateEvent("switch", OnOffType.ON))
 
         SwitchItem switchItem = itemRegistry.get("switch")
-        waitForAssert {
-            assertThat switchItem.state, is(OnOffType.ON)
-        }
+        waitForAssert { assertThat switchItem.state, is(OnOffType.ON) }
 
         // change state
         eventPublisher.post(ItemEventFactory.createStateEvent("switch", OnOffType.OFF))
+        waitFor { lastReceivedEvent != null }
+        assertThat lastReceivedEvent.itemState, is(OnOffType.OFF)
+        assertThat lastReceivedEvent.oldItemState, is(OnOffType.ON)
 
-        // wait for an event that change the state from OFF to ON
-        // there could be one remaining event from the 'ItemUpdater sets item state' test
-        waitFor ({
-            if (receivedEvents.isEmpty()) {
-                return false;
-            }
-
-            changedEvent = (ItemStateChangedEvent)receivedEvents.poll();
-            if (changedEvent == null) {
-                return false;
-            }
-
-            if (changedEvent.oldItemState != OnOffType.ON) {
-                return false;
-            }
-
-            if (changedEvent.itemState != OnOffType.OFF) {
-                return false;
-            }
-
-            return true;
-        }, 10000)
+        lastReceivedEvent = null
+        
 
         // send update for same state
         eventPublisher.post(ItemEventFactory.createStateEvent("switch", OnOffType.OFF))
@@ -110,6 +86,6 @@ class ItemUpdaterOSGiTest extends OSGiTest {
         Thread.sleep(100)
 
         // make sure no state changed event has been sent
-        assertTrue(receivedEvents.isEmpty())
+        assertThat lastReceivedEvent, is(null)
     }
 }

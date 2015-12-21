@@ -24,11 +24,11 @@ public class ItemStateChangedEvent extends AbstractEvent {
      */
     public final static String TYPE = ItemStateChangedEvent.class.getSimpleName();
 
-    private final String itemName;
+    protected final String itemName;
 
-    private final State itemState;
+    protected final State itemState;
 
-    private final State oldItemState;
+    protected final State oldItemState;
 
     /**
      * Constructs a new item state changed event.
