@@ -50,7 +50,9 @@ Import-Package: com.google.common.base,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
-Export-Package: org.eclipse.smarthome.io.rest.core.item,
+Export-Package: org.eclipse.smarthome.io.rest.core,
+ org.eclipse.smarthome.io.rest.core.internal,
+ org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy

@@ -35,6 +35,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
 import org.eclipse.smarthome.io.rest.ConfigUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.eclipse.smarthome.io.rest.core.JSONResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,9 @@ public class RuleResource implements RESTResource {
             ruleRegistry.add(rule);
             return Response.status(Status.CREATED).build();
         } catch (IllegalArgumentException e) {
-            return Response.status(Status.CONFLICT).build();
+            String errMessage = "Creation of the rule is refused: " + e.getMessage();
+            logger.warn(errMessage);
+            return JSONResponse.createErrorResponse(Status.CONFLICT, errMessage);
         }
     }
 
