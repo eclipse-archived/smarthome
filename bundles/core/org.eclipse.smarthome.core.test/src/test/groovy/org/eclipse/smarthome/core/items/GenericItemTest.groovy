@@ -10,35 +10,19 @@ package org.eclipse.smarthome.core.items
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.List
-import java.util.Set
-import javax.management.InstanceOfQueryExp
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.events.EventSubscriber
-import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.items.events.ItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemStateEvent
-import org.eclipse.smarthome.core.library.items.NumberItem
-import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.RawType
-import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.RefreshType
-import org.eclipse.smarthome.core.types.State
-import org.eclipse.smarthome.core.types.UnDefType
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.eclipse.smarthome.core.events.Event
-import org.eclipse.smarthome.core.items.TestItem
-import org.eclipse.smarthome.core.events.EventPublisher
-import org.junit.Before
 
 /**
  * The GenericItemTest tests functionality of the GenericItem.
  *
- * @author Christoph Knauf - Initial contribution, event tests 
+ * @author Christoph Knauf - Initial contribution, event tests
  */
 class GenericItemTest {
 
@@ -86,6 +70,21 @@ class GenericItemTest {
         assertThat events.size(), is(0)
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    void 'assert that null as group name is not allowed for addGroupName'() {
+        def item = new TestItem("member1")
+        item.addGroupName(null)
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    void 'assert that null as group name is not allowed for addGroupNames'() {
+        def item = new TestItem("member1")
+        item.addGroupNames(["group-a", null, "group-b"])
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    void 'assert that null as group name is not allowed for removeGroupName'() {
+        def item = new TestItem("member1")
+        item.removeGroupName(null)
+    }
 }

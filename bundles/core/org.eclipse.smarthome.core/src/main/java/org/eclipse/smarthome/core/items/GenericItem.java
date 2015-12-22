@@ -35,7 +35,7 @@ import com.google.common.collect.ImmutableSet;
  * The abstract base class for all items. It provides all relevant logic
  * for the infrastructure, such as publishing updates to the event bus
  * or notifying listeners.
- * 
+ *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Andre Fuechsel - Added tags
  * @author Stefan Bußweiler - Migration to new ESH event concept
@@ -125,9 +125,14 @@ abstract public class GenericItem implements ActiveItem {
      *
      * @param groupItemName
      *            group item name to add
+     *
+     * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
     public void addGroupName(String groupItemName) {
+        if (groupItemName == null) {
+            throw new IllegalArgumentException("Group item name must not be null!");
+        }
         if (!groupNames.contains(groupItemName)) {
             groupNames.add(groupItemName);
         }
@@ -152,9 +157,14 @@ abstract public class GenericItem implements ActiveItem {
      *
      * @param groupItemName
      *            group item name to remove
+     *
+     * @throws IllegalArgumentException if groupItemName is {@code null}
      */
     @Override
     public void removeGroupName(String groupItemName) {
+        if (groupItemName == null) {
+            throw new IllegalArgumentException("Group item name must not be null!");
+        }
         groupNames.remove(groupItemName);
     }
 
