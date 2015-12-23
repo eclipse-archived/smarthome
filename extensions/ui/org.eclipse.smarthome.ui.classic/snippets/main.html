@@ -23,12 +23,17 @@
 		<script src="jquery.miniColors.js"></script>
 
 		<script>
+
+			// Create ESH Namespace
+			var ESH = {};
+
 			WA.AddEventListener("endasync", function(evt) {				
 				hash = document.location.hash.substring(2);
 				if(evt.context[0].indexOf(hash)>=0 || hash=="Home") {
 					if (evt.target.responseXML) {
 						if(evt.context[0].indexOf("poll=true")>=0) {
-							WA.Request(evt.context[0], null, -1, true, null);
+							ESH.pollURL = evt.context[0];
+							ESH.pollingRequest = WA.Request(evt.context[0], null, -1, true, null);
 						}
 					}
 				}
@@ -43,14 +48,35 @@
 					search = "?";
 				}
 				search = search + "sitemap=%sitemap%&w=" + hash.substring(2) + "&poll=true";
-				url = path + search; 
-				WA.Request(url, null, -1, true, null);
+				url = path + search;
+				ESH.pollURL = url;
+				ESH.pollingRequest = WA.Request(url, null, -1, true, null);
 				imageRefresh = imagesToRefreshOnPage;
 				imagesToRefreshOnPage = 0;
 			});
 
+			WA.AddEventListener("sliderchange", function (ev) {
+				var data = ev.context;
+				var request = 'CMD?' + data.item + '=' + data.value;
+
+				switch (data.type) {
+					case 'start':
+						WA.CancelRequest(ESH.pollingRequest);
+						break;
+					case 'end':
+						ESH.pollingRequest = WA.Request(ESH.pollURL, null, -1, true, null);
+						break;
+				}
+
+				WA.Request(request, null, null, true, null);
+			});
+
 			WA.AddEventListener("load", function() {
-				setTimeout("WA.Request('%servletname%?sitemap=%sitemap%&poll=true', null, -1, true, null)", 1500);
+				var url = '%servletname%?sitemap=%sitemap%&poll=true';
+				ESH.pollURL = url;
+				setTimeout(function () {
+					ESH.pollingRequest = WA.Request(url , null, -1, true, null)
+				}, 1500);
 			});
 			
 	        function ChangeState(request) {
