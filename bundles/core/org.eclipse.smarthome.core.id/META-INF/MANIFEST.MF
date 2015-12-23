@@ -7,7 +7,7 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.id
 Export-Package: org.eclipse.smarthome.core.id
-Import-Package: io.swagger.annotations,
+Import-Package: io.swagger.annotations;resolution:=optional,
  javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
  org.apache.commons.io,

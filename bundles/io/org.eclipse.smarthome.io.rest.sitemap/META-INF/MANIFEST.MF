@@ -5,7 +5,7 @@ Bundle-SymbolicName: org.eclipse.smarthome.io.rest.sitemap
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: io.swagger.annotations,
+Import-Package: io.swagger.annotations;resolution:=optional,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
