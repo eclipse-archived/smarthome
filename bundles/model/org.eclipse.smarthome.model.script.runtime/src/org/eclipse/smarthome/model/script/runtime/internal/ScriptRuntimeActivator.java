@@ -7,10 +7,11 @@
  */
 package org.eclipse.smarthome.model.script.runtime.internal;
 
+import org.eclipse.smarthome.model.script.runtime.ScriptRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ScriptRuntimeActivator {
+public class ScriptRuntimeActivator implements ScriptRuntime {
 
     private final Logger logger = LoggerFactory.getLogger(ScriptRuntimeActivator.class);
 

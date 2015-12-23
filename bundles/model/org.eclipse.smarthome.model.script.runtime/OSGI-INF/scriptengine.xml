@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.model.script.engine.ScriptEngine"/>
    </service>
+   <reference bind="setScriptRuntime" cardinality="1..1" interface="org.eclipse.smarthome.model.script.runtime.ScriptRuntime" name="ScriptRuntime" policy="static" unbind="unsetScriptRuntime"/>
 </scr:component>
