@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.script.runtime">
    <implementation class="org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeActivator"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeActivator"/>
+      <provide interface="org.eclipse.smarthome.model.script.runtime.ScriptRuntime"/>
    </service>
 </scr:component>
