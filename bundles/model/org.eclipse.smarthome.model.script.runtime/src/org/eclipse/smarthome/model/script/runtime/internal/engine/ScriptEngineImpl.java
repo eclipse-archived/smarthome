@@ -22,6 +22,7 @@ import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
 import org.eclipse.smarthome.model.script.engine.ScriptParsingException;
+import org.eclipse.smarthome.model.script.runtime.ScriptRuntime;
 import org.eclipse.smarthome.model.script.runtime.internal.ScriptRuntimeStandaloneSetup;
 import org.eclipse.xtext.diagnostics.Severity;
 import org.eclipse.xtext.resource.XtextResource;
@@ -46,6 +47,7 @@ import com.google.common.base.Predicate;
 public class ScriptEngineImpl implements ScriptEngine {
 
     protected XtextResourceSet resourceSet;
+    private ScriptRuntime scriptRuntime;
 
     public ScriptEngineImpl() {
     }
@@ -64,6 +66,14 @@ public class ScriptEngineImpl implements ScriptEngine {
 
     public void deactivate() {
         this.resourceSet = null;
+    }
+
+    protected void setScriptRuntime(final ScriptRuntime scriptRuntime) {
+        this.scriptRuntime = scriptRuntime;
+    }
+
+    protected void unsetScriptRuntime(final ScriptRuntime scriptRuntime) {
+        this.scriptRuntime = null;
     }
 
     /**
@@ -130,8 +140,9 @@ public class ScriptEngineImpl implements ScriptEngine {
         for (int i = 0; i < MAX_TRIES; i++) {
             // NOTE: The "filename extension" (".script") must match the file.extensions in the *.mwe2
             URI syntheticUri = URI.createURI(name + Math.random() + "." + Script.SCRIPT_FILEEXT);
-            if (resourceSet.getResource(syntheticUri, false) == null)
+            if (resourceSet.getResource(syntheticUri, false) == null) {
                 return syntheticUri;
+            }
         }
         throw new IllegalStateException();
     }
