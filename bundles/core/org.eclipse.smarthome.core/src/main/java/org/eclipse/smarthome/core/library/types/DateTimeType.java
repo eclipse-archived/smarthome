@@ -19,10 +19,12 @@ import org.eclipse.smarthome.core.types.State;
 
 public class DateTimeType implements PrimitiveType, State, Command {
 
-    public final static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ssz";
 
     protected Calendar calendar;
 
+    
     public DateTimeType() {
         this(Calendar.getInstance());
     }
@@ -35,7 +37,12 @@ public class DateTimeType implements PrimitiveType, State, Command {
         Date date = null;
 
         try {
-            date = DATE_FORMATTER.parse(calendarValue);
+            try {
+                date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ).parse(calendarValue);
+            }
+            catch (ParseException fpe2) {
+                date = new SimpleDateFormat(DATE_PATTERN).parse(calendarValue);
+            }
         } catch (ParseException fpe) {
             throw new IllegalArgumentException(calendarValue + " is not in a valid format.", fpe);
         }
@@ -59,7 +66,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
         try {
             return String.format(pattern, calendar);
         } catch (NullPointerException npe) {
-            return DATE_FORMATTER.format(calendar.getTime());
+            return new SimpleDateFormat(DATE_PATTERN).format(calendar.getTime());
         }
     }
 
@@ -69,7 +76,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public String toString() {
-        return DATE_FORMATTER.format(calendar.getTime());
+        return new SimpleDateFormat(DATE_PATTERN).format(calendar.getTime());
     }
 
     @Override
