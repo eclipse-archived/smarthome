@@ -90,7 +90,9 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
             if (entry != null) {
                 try {
                     snippet = IOUtils.toString(entry.openStream());
-                    snippetCache.put(elementType, snippet);
+                    if (!config.isHtmlCacheDisabled()) {
+                        snippetCache.put(elementType, snippet);
+                    }
                 } catch (IOException e) {
                     logger.warn("Cannot load snippet for element type '{}'", elementType, e);
                 }
