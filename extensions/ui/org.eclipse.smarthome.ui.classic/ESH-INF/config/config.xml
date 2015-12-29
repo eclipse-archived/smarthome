@@ -18,6 +18,15 @@
 			<label>Default Sitemap</label>
 			<description>The sitemap to show if no parameter is passed.</description>
 		</parameter>
+		<parameter name="disableHtmlCache" type="text" required="false">
+			<label>Disable HTML cache</label>
+			<description>Disable in-memory caching of html fragments.
+				If this is true, on every request the html files are loaded from disk.</description>
+			<options>
+				<option value="true">Yes</option>
+				<option value="false">No</option>
+			</options>
+		</parameter>
 	</config-description>
 
 </config-description:config-descriptions>
