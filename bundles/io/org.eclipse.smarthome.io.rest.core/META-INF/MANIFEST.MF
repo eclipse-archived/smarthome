@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
- io.swagger.annotations,
+ io.swagger.annotations;resolution:=optional,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
