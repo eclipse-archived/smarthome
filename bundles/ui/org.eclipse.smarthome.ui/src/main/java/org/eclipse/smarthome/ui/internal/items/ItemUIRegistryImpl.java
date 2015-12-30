@@ -431,6 +431,8 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
         // if an icon is defined for the widget, use it
         if (w.getIcon() != null) {
             category = w.getIcon();
+            // Unwrap quotes
+            category = category.replaceAll("^\"(.*)\"$", "$1");
         } else {
             // otherwise check if any item ui provider provides an icon for this item
             String itemName = w.getItem();
