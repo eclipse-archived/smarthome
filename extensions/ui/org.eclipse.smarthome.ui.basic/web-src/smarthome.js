@@ -543,9 +543,11 @@
 		_t.step = parseFloat(_t.parentNode.getAttribute("data-step"));
 
 		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.setpoint.value);
 
 		_t.setValuePrivate = function(value) {
 			_t.value = value * 1;
+			_t.valueNode.innerHTML = value;
 		};
 
 		function onMouseDown(up) {
@@ -1507,7 +1509,8 @@
 	},
 	setpoint: {
 		up: ".mdl-form__setpoint--up",
-		down: ".mdl-form__setpoint--down"
+		down: ".mdl-form__setpoint--down",
+		value: ".mdl-form__setpoint-value"
 	},
 	colorpicker: {
 		up: ".mdl-form__colorpicker--up",
