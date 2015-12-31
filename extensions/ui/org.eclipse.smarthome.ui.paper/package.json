@@ -3,7 +3,12 @@
   "version": "0.8.0",
   "private": true,
   "dependencies": {
-    "bower": "^1.4.1"
+    "bower": "^1.4.1",
+    "gulp": "^3.9.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.1.1",
+    "gulp-uglify": "^1.5.1",
+    "gulp-concat": "^2.6.0"
   },
   "engines": {
     "node": ">=0.12.3"

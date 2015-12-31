@@ -1,0 +1,20 @@
+{
+  "name": "tinycolor",
+  "repository": "bgrins/TinyColor",
+  "version": "1.1.2",
+  "main": "tinycolor.js",
+  "scripts": [
+    "tinycolor.js"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/bgrins/TinyColor",
+  "_release": "1.1.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.1.2",
+    "commit": "e2b8def9e1c19b2a9bceffdace348026e97f0ee6"
+  },
+  "_source": "git://github.com/bgrins/TinyColor.git",
+  "_target": "~1.1.2",
+  "_originalSource": "tinycolor"
+}

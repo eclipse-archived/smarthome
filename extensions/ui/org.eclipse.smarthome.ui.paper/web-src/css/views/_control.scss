@@ -1,0 +1,128 @@
+// Control
+section#main.header-tabs {
+	margin-top: 0px;
+	padding-top: 0px;
+    height: 100%;
+}
+
+.items {
+	min-height: 350px;
+	.item {
+		padding: 20px;
+		&[class^="md-icon-"], &[class*=" md-icon-"] {
+			font-family: inherit;
+			font-weight: inherit;
+			color: inherit;
+			font-size: inherit;
+			-webkit-font-smoothing: inherit;
+		  	-moz-osx-font-smoothing: inherit;
+		}
+		h1 {
+			.state {
+				&:last-child {
+
+				}
+			}
+		}
+		h2 {
+			.state {
+				margin: 5px 0px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+		}
+		h3 {
+			margin: 5px 0px;
+		}
+		p {
+			margin: 0px;
+			text-align: left;
+			white-space: nowrap;
+			/*
+			overflow: hidden;
+			text-overflow: ellipsis;*/
+			line-height: 38px;
+			&[class^="icon-"]:before, &[class*=" icon-"]:before, &[class^="md-icon-"]:before, &[class*=" md-icon-"]:before, &[class^="home-icon-"]:before, &[class*=" home-icon-"]:before {
+				margin-right: 10px;
+				border-radius: 50%;
+				width: 32px;
+				height: 32px;
+				background-color: #4CAF50;
+				color: white;
+				text-align: center;
+				font-size: 16px;
+				line-height: 32px;
+				padding: 10px;
+				font-family: 'md-icons';
+			}
+		}
+		hr {
+			margin: 10px 0px;
+		}
+		button {
+			&[class*=" md-icon-"] {
+				font-family: 'md-icons';
+			}
+		}
+		md-input-container {
+			padding: 0px;
+			input {
+				text-align: right;
+			}
+		}
+		md-radio-button {
+			display: inline;
+		}
+		md-slider {
+			width: 100%;
+		}
+		.icontrol {
+			> div {
+				> div {
+					height: 40px;
+				}
+			}
+			md-switch {
+				margin: 0px;
+			}
+		}
+		.map-container {
+			height: 200px !important;
+		}
+	}
+}
+
+.items .item
+
+.dimmer-widget {
+	md-slider {
+		margin: 0px 10px;
+	}
+	.md-button.active {
+		color: #01324D;
+	}
+}
+
+/* This is a a utility class for image items so the !important is for the exceptional rule*/
+.image-widget{
+	height:auto !important;
+	margin-top: 5px;
+}
+
+.image-scaled {
+	width:100%;
+	position:relative;
+}
+
+.number-control-widget {
+	/* background: #EEE;
+	box-shadow: 0px 2px 2px 0 rgba(0, 0, 0, 0.26); */
+	padding: 5px;
+	border-radius: 2px;
+	margin-top: 10px;
+}
+
+.number-control-widget md-slider {
+	margin: 0px;
+}

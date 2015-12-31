@@ -1,0 +1,31 @@
+// Switch
+md-switch {
+    &.md-default {
+        .md-switch-thumb  {
+            .md-off {
+                border-color: #CCC;
+            }
+            .md-on {
+                background-color: #01324D;
+            }
+            &.md-checked {
+                .md-off {
+                    border-color: #CCC;
+                }
+                .md-ink-ripple {
+                    color: #01324D;
+                }
+            }
+        }
+    }
+    &.md-default-theme {
+        &.md-checked {
+            .md-thumb {
+                background-color: #01324D;
+            }
+            .md-bar {
+                background-color: rgb(158,158,158);
+            }
+        }
+    }
+}
