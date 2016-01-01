@@ -1,3 +1,4 @@
 node/
 node_modules/
 web/bower_components/
+web-src/bower_components/
