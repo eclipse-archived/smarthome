@@ -356,14 +356,14 @@
 			});
 		};
 
-		_t.onclick = function(event) {
+		_t.onclick = function() {
+			/* HTMLButtonElement this */
 			var
-				target = event.target,
-				value = target.getAttribute("data-value") + "";
+				value = this.getAttribute("data-value") + "";
 
 			if (_t.count !== 1) {
 				_t.reset();
-				target.classList.add(o.buttonActiveClass);
+				this.classList.add(o.buttonActiveClass);
 			}
 
 			_t.parentNode.dispatchEvent(createEvent(
@@ -471,7 +471,8 @@
 			_t = this,
 			longpressTimeout = 300,
 			longPress,
-			timeout;
+			timeout,
+			pressed = false;
 
 		_t.buttonUp = _t.parentNode.querySelector(o.rollerblind.up);
 		_t.buttonDown = _t.parentNode.querySelector(o.rollerblind.down);
@@ -487,6 +488,7 @@
 
 		function onMouseDown(command) {
 			longPress = false;
+			pressed = true;
 
 			timeout = setTimeout(function() {
 				longPress = true;
@@ -496,6 +498,11 @@
 
 		function onMouseUp(command) {
 			clearTimeout(timeout);
+			if (!pressed) {
+				return;
+			}
+			pressed = false;
+
 			if (longPress) {
 				emitEvent("STOP");
 			} else {
@@ -520,6 +527,7 @@
 
 		_t.buttonUp.addEventListener("touchend", upButtonMouseUp);
 		_t.buttonUp.addEventListener("mouseup", upButtonMouseUp);
+		_t.buttonUp.addEventListener("mouseleave", upButtonMouseUp);
 
 		// Down button
 		_t.buttonDown.addEventListener("touchstart", downButtonMouseDown);
@@ -527,6 +535,7 @@
 
 		_t.buttonDown.addEventListener("touchend", downButtonMouseUp);
 		_t.buttonDown.addEventListener("mouseup", downButtonMouseUp);
+		_t.buttonDown.addEventListener("mouseleave", downButtonMouseUp);
 
 		// Stop button
 		_t.buttonStop.addEventListener("mousedown", onStop);
@@ -556,7 +565,7 @@
 			_t.valueNode.innerHTML = value;
 		};
 
-		function onMouseDown(up) {
+		function onMouseDown(up, event) {
 			var
 				value = _t.value + ((up === true) ? _t.step : -_t.step );
 
@@ -570,6 +579,9 @@
 			}));
 
 			_t.value = value;
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
 		var
@@ -974,6 +986,7 @@
 		// Up button
 		_t.buttonUp.addEventListener("touchstart", upButtonMouseDown);
 		_t.buttonUp.addEventListener("mousedown", upButtonMouseDown);
+		_t.buttonUp.addEventListener("mouseleave", onMouseUp);
 
 		_t.buttonUp.addEventListener("touchend", onMouseUp);
 		_t.buttonUp.addEventListener("mouseup", onMouseUp);
@@ -984,6 +997,7 @@
 
 		_t.buttonDown.addEventListener("touchend", onMouseUp);
 		_t.buttonDown.addEventListener("mouseup", onMouseUp);
+		_t.buttonDown.addEventListener("mouseleave", onMouseUp);
 
 		// Stop button
 		_t.buttonPick.addEventListener("click", onPick);
