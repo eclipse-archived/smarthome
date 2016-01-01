@@ -17,11 +17,16 @@
 
 	<title>openHAB2 | Paper UI</title>
 
-	<link type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <link type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+	 <link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
+
+	<!-- Can be removed as does not appear to be in use -->
 	<!-- <link type="text/css"
 	href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"
 	rel="stylesheet"> -->
-	<link type="text/css" href="bower_components/angular-material/angular-material.min.css" rel="stylesheet">
+
+	<!-- <link type="text/css" href="bower_components/angular-material/angular-material.min.css" rel="stylesheet"> -->
+	<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
 
 	<!-- custom css files -->
 	<!-- <link type="text/css" href="css/components.css" rel="stylesheet">
@@ -31,8 +36,10 @@
 	<link type="text/css" href="css/style.min.css" rel="stylesheet">
 
 	<!-- Icons/Fonts -->
+	<!-- @TODO Figure out where this files lives -->
 	<link type="text/css" href="fonts/md-icons/md-icons.css" rel="stylesheet" media="all">
-	<link type="text/css" href="bower_components/roboto-fontface/css/roboto-fontface.css" rel="stylesheet" media="all">
+	<!-- <link type="text/css" href="bower_components/roboto-fontface/css/roboto-fontface.css" rel="stylesheet" media="all"> -->
+	<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
 
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 
@@ -114,19 +121,24 @@
 	<script src="bower_components/angular-aria/angular-aria.min.js"></script>
 	<script src="bower_components/angular-material/angular-material.min.js"></script> -->
 
-	<script src="bower_components/jquery/dist/jquery.min.js"></script>
-	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!-- <script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script> -->
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
 
 	<!-- TODO: Create custom variant to save space -->
-	<script src="bower_components/tinycolor/tinycolor.js"></script>
-	<script src="bower_components/masonry/dist/masonry.pkgd.min.js"></script>
+	<!-- <script src="bower_components/tinycolor/tinycolor.js"></script>
+	<script src="bower_components/masonry/dist/masonry.pkgd.min.js"></script> -->
+	<script src="js/tinycolor.js"></script>
+	<script src="js/masonry.pkgd.min.js"></script>
 
 	<!-- TODO: Use angularized version? -->
-	<script src="bower_components/sprintf/dist/sprintf.min.js"></script>
+	<!-- <script src="bower_components/sprintf/dist/sprintf.min.js"></script> -->
+	<script src="js/sprintf.min.js"></script>
 
 	<!-- custom js files -->
-	<script src="js/app.js"></script>
-	<script src="js/constants.js"></script>
+	<script src="js/app.min.js"></script>
+	<script src="js/constants.min.js"></script>
 	<script src="js/services.min.js"></script>
 	<script src="js/controllers.min.js"></script>
 	<!-- <script src="js/services.js"></script>
@@ -139,9 +151,9 @@
 	<script src="js/controllers.extension.js"></script>
 	<script src="js/controllers.rules.js"></script>
 	<script src="js/controllers.module.js"></script> -->
-	<script src="js/extensions.js"></script>
-	<script src="js/main.js"></script>
-	<script src="js/shared.properties.js"></script>
+	<script src="js/extensions.min.js"></script>
+	<script src="js/main.min.js"></script>
+	<script src="js/shared.properties.min.js"></script>
 </body>
 
 </html>
