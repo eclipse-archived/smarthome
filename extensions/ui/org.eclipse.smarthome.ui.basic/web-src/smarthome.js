@@ -408,6 +408,12 @@
 		_t.value = null;
 
 		function onRadioChange(event) {
+			event.stopPropagation();
+
+			if (event.target.tagName.toLowerCase() !== "input") {
+				return;
+			}
+
 			var
 				value = event.target.getAttribute("value");
 
@@ -446,7 +452,7 @@
 
 			controls.forEach(function(control) {
 				componentHandler.upgradeElement(control, "MaterialRadio");
-				control.addEventListener("change", onRadioChange);
+				control.addEventListener("click", onRadioChange);
 			});
 		};
 
@@ -1497,6 +1503,7 @@
 	selectionRows: ".mdl-form__selection-rows",
 	formControls: ".mdl-form__control",
 	formRadio: ".mdl-radio",
+	formRadioControl: ".mdl-radio__button",
 	formIcon: ".mdl-form__icon img",
 	uiLoadingBar: ".ui__loading",
 	layoutTitle: ".mdl-layout-title",
