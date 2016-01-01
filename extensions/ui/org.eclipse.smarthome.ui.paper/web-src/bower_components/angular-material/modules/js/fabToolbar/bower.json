@@ -1,9 +1,0 @@
-{
-  "name": "angular-material-fabToolbar",
-  "version": "0.10.1",
-  "dependencies": {
-    "angular-material-core": "0.10.1",
-    "angular-material-fabTrigger": "0.10.1",
-    "angular-material-fabActions": "0.10.1"
-  }
-}

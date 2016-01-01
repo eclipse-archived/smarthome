@@ -1,6 +1,0 @@
-/*!
- * Angular Material Design
- * https://github.com/angular/material
- * @license MIT
- * v0.10.1
- */md-backdrop{z-index:50;opacity:1;transition:background-color 450ms cubic-bezier(.55,0,.55,.2);position:absolute;top:0;bottom:0;left:0;right:0}md-backdrop.md-menu-backdrop{z-index:98}md-backdrop.md-select-backdrop{z-index:81}md-backdrop.md-dialog-backdrop{z-index:79}md-backdrop.md-bottom-sheet-backdrop{z-index:69}md-backdrop.md-sidenav-backdrop{z-index:59}md-backdrop.md-click-catcher{position:absolute}md-backdrop.md-opaque.ng-leave{transition:background-color 400ms linear}
