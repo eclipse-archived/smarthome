@@ -1,0 +1,44 @@
+<section id="main" class="white-bg extensions header-tabs">
+	<div class="header-toolbar">
+		<md-button class="md-icon-refresh" ng-click="refresh()"
+			aria-label="Refresh"></md-button>
+	</div>
+	<md-tabs md-stretch-tabs="always" class="section-tabs"
+		md-selected="selectedIndex"> <md-tab
+		ng-repeat="extensionType in extensionTypes" ng-disabled="tab.disabled"
+		label="{{extensionType.label}}" layout-fill>
+	<md-tab-content layout-fill="">
+	<div class="search" layout="row" layout-align="center center">
+		<md-icon ng-style="{'font-size': '24px'}" class="md-icon-search"></md-icon>
+		<md-input-container flex="auto" md-no-float class="md-block">
+		<input ng-model="searchText" type="text" placeholder="Search">
+		</md-input-container>
+		<md-icon ng-click="searchText = undefined"
+			ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}"
+			class="md-icon-close"></md-icon>
+	</div>
+	<div class="container">
+
+		<div class="extension fab-item text-left"
+			ng-repeat="extension in extensionType.extensions | filter:searchText">
+			<div class="circle" ng-class="{'green': extension.installed}">{{extension.label.substring(0,1).toUpperCase()}}</div>
+			<div class="cbody item-content">
+				<h3>{{extension.label}}</h3>
+				<p>{{extension.id}} - {{extension.version}}</p>
+				<div class="actions">
+					<md-button class="md-raised" aria-label="Install"
+						ng-show="!extension.installed && !extension.inProgress"
+						ng-click="install(extension.id)">Install</md-button>
+					<md-button class="md-raised" aria-label="Uninstall"
+						ng-show="extension.installed && !extension.inProgress"
+						ng-click="uninstall(extension.id)">Uninstall</md-button>
+					<md-progress-circular md-mode="indeterminate"
+						ng-show="extension.inProgress" style="margin-right: 25px;"></md-progress-circular>
+				</div>
+			</div>
+			<hr class="border-line" ng-show="!$last" aria-hidden="false">
+		</div>
+	</div>
+
+	</md-tab-content></md-tab>
+</section>

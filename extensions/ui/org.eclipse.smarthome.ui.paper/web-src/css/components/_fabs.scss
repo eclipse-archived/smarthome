@@ -1,0 +1,10 @@
+// Fab
+.md-fab {
+	font-size: 24px;
+    &.md-fab {
+        &:active, &:focus, &:hover {
+            background-color: #4CAF50 !important;
+        	color: white !important;
+        }
+    }
+}

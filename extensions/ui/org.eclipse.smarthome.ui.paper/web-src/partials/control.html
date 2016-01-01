@@ -1,0 +1,51 @@
+<section id="main" class="control header-tabs">
+	<div class="header-toolbar">
+		<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+	</div>
+
+	<p class="text-center" ng-show="tabs.length == 0" style="margin-top: 20px;">
+		No groups defined yet.
+		<button class="md-button" ng-click="$location.path('configuration/groups')">Add Group</button>
+	</p>
+
+	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex" ng-show="tabs.length > 0">
+	<md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.label}}" layout-fill> <md-tab-content
+		layout-fill="">
+
+	<p class="text-center" ng-show="getItem(tabs[selectedIndex].name).members.length == 0">
+		Group is empty.
+		<button class="md-button" ng-click="$location.path('setup/wizard')">Add Thing</button>
+	</p>
+	<div ng-controller="ControlController" class="items row" md-swipe-left="next()" md-swipe-right="prev()"
+		ng-if="tabs[selectedIndex] === tab" ng-attr-id="{{'items-' + tabs.indexOf(tab)}}">
+		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper"
+			ng-repeat="groupMemberItem in getItem(tabs[selectedIndex].name).members" on-finish-render="ngRepeatFinished">
+			<div class="card item {{groupMemberItem.type}}" data-item-name="{{groupMemberItem.name}}">
+				<div class="ibadge">
+					<span class="icon-x">
+				</div>
+				<div class="clabel" ng-if="groupMemberItem.type === 'GroupItem'">
+					<h3>{{groupMemberItem.label}}</h3>
+				</div>
+				<div class="" ng-repeat="itemMember in groupMemberItem.members" ng-if="groupMemberItem.type === 'GroupItem'">
+					<div ng-if="itemMember.type === 'GroupItem'">
+						<h2>{{itemMember.label}}</h2>
+						<hr />
+					</div>
+					<div class="" ng-repeat="item in itemMember.members" ng-if="itemMember.type === 'GroupItem'">
+						<div ng-include="'partials/include.itemcontrol.html'"></div>
+						<hr ng-if="!$last" />
+					</div>
+					<div ng-init="item = itemMember" ng-if="itemMember.type !== 'GroupItem'">
+						<div ng-include="'partials/include.itemcontrol.html'"></div>
+					</div>
+					<hr ng-if="!$last" />
+				</div>
+				<div ng-init="item = groupMemberItem" ng-if="groupMemberItem.type !== 'GroupItem'">
+					<div ng-include="'partials/include.itemcontrol.html'"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</md-tab-content> </md-tab> </md-tabs>
+</section>
