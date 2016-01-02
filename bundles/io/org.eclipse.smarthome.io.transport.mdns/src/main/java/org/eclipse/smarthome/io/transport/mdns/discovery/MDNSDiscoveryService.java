@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a {@link DiscoveryService} implementation, which can find mDNS services in the network.
  * Support for further devices can be added by implementing and registering a {@link MDNSDiscoveryParticipant}.
- * 
+ *
  * @author Tobias Bräutigam - Initial contribution
  * @author Kai Kreuzer - Improved startup behavior and background discovery
  *
@@ -63,6 +63,7 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     @Override
     protected void startBackgroundDiscovery() {
         scheduler.schedule(new Runnable() {
+            @Override
             public void run() {
                 startScan();
             }
@@ -118,7 +119,9 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     protected void removeMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.remove(participant);
-        mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+        if (mdnsClient != null) {
+            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+        }
     }
 
     @Override
