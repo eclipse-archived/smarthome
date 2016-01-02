@@ -40,6 +40,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
     List<WidgetRenderer> widgetRenderers = new ArrayList<WidgetRenderer>();
 
     public void addWidgetRenderer(WidgetRenderer widgetRenderer) {
+        widgetRenderer.setConfig(config);
         widgetRenderers.add(widgetRenderer);
     }
 
