@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.module.script.ScriptScopeProvider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.ItemRegistry;
@@ -57,6 +58,16 @@ public class DefaultScriptScopeProvider implements ScriptScopeProvider {
     private EventPublisher eventPublisher;
 
     private ScriptBusEvent busEvent;
+
+    private RuleRegistry ruleRegistry;
+
+    protected void setRuleRegistry(RuleRegistry ruleRegistry) {
+        this.ruleRegistry = ruleRegistry;
+    }
+
+    protected void unsetRuleRegistry(RuleRegistry ruleRegistry) {
+        this.ruleRegistry = null;
+    }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
@@ -141,6 +152,7 @@ public class DefaultScriptScopeProvider implements ScriptScopeProvider {
             elements.put("items", new ItemRegistryDelegate(itemRegistry));
             elements.put("things", thingRegistry);
             elements.put("events", busEvent);
+            elements.put("rules", ruleRegistry);
         }
         return elements;
     }
