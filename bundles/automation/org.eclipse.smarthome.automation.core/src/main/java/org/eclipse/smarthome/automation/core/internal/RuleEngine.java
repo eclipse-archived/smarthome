@@ -828,6 +828,11 @@ public class RuleEngine
         @SuppressWarnings("unchecked")
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
+        addNewModuleTypes(mhf, moduleTypes);
+        return mhf;
+    }
+
+    private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
@@ -850,7 +855,6 @@ public class RuleEngine
                 scheduleRuleInitialization(rUID);
             }
         }
-        return mhf;
     }
 
     private synchronized void scheduleRuleInitialization(final String rUID) {
@@ -868,6 +872,8 @@ public class RuleEngine
     }
 
     /**
+     * This method tracks for modification of {@link ModuleHandlerFactory} service.
+     * This is used if the factory can dynamically change its supported ModuleHandlers.
      *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
@@ -875,6 +881,20 @@ public class RuleEngine
     @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
             /* ModuleHandlerFactory */Object service) {
+        logger.debug("ModuleHandlerFactory modified, updating handlers");
+        ModuleHandlerFactory moduleHandlerFactory = ((ModuleHandlerFactory) service);
+        @SuppressWarnings("unchecked")
+        Collection<String> removed_handlers = (Collection<String>) reference.getProperty("removed_handlers");
+        @SuppressWarnings("unchecked")
+        Collection<String> added_handlers = (Collection<String>) reference.getProperty("added_handlers");
+
+        if (removed_handlers != null && removed_handlers.size() > 0) {
+            removeMissingModuleTypes(removed_handlers);
+        }
+
+        if (added_handlers != null && added_handlers.size() > 0) {
+            addNewModuleTypes(moduleHandlerFactory, added_handlers);
+        }
     }
 
     /**
@@ -889,6 +909,10 @@ public class RuleEngine
             ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
+        removeMissingModuleTypes(moduleTypes);
+    }
+
+    private void removeMissingModuleTypes(Collection<String> moduleTypes) {
         Map<String, List<String>> mapMissingHandlers = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
