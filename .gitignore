@@ -16,3 +16,4 @@ bundles/core/org.eclipse.smarthome.core.id.test/userdata/
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.p
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.t
+features/karaf/src/main/history
