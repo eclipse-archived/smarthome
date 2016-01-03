@@ -11,6 +11,8 @@
   <artifactId>karaf</artifactId>
   <packaging>feature</packaging>
 
+  <name>Eclipse SmartHome Karaf Feature</name>
+
   <build>
     <plugins>
       <plugin>
