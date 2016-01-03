@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.3.0">
+
+  <feature name="esh-base" description="ESH" version="${project.version}">
+    <details>ESH base bundles</details>
+
+    <feature>esh-tp-base</feature>
+
+    <feature dependency="true">esh-tp-commons</feature>
+
+    <feature dependency="true">esh-tp-xtext</feature>
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.6.2)(!(version&gt;=2.6.3)))"</requirement>
+
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.xml/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.autoupdate/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.binding.xml/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.id/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.persistence/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.scheduler/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.thing.xml/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.core/org.eclipse.smarthome.core.transform/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.monitor/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.multimedia/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.net/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.core/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sse/${project.version}</bundle>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.core/${project.version}</bundle>
+  </feature>
+
+  <!-- optional ESH bundles -->
+
+  <feature name="esh-automation-api" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.api/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-commands" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-core</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.commands/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-core" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.core/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-module-core" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.core/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-module-script" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.script/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-module-script-defaultscope" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-module-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.script.defaultscope/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-module-timer" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.module.timer/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-parser-gson" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.parser.gson/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-providers" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <feature dependency="true">esh-automation-core</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.providers/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-automation-rest" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-automation-api</feature>
+    <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.rest/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-hue" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.hue/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-lifx" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.lifx/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-ntp" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.ntp/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-sonos" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.sonos/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-wemo" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.wemo/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-binding-yahooweather" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.yahooweather/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-console-karaf" description="Karaf Console support for SmartHome stuff" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>shell</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.console.karaf/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-rest-sitemap" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-ui</feature>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.rest.sitemap/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-mdns" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-tp-jmdns</feature>
+    <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mdns/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-mqtt" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-tp-paho</feature>
+    <requirement>esh.tp;filter:="(feature=paho)"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mqtt/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-io-transport-upnp" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature dependency="true">esh-tp-jupnp</feature>
+    <requirement>esh.tp;filter:="(feature=jupnp)"</requirement>
+    <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.upnp/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-item" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-item-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-item</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.item.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-persistence" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-item</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-persistence-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-persistence</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.persistence.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-rule" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-item</feature>
+    <feature>esh-model-persistence</feature>
+    <feature>esh-model-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-rule-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-rule</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.rule.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-script" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-persistence</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-script-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-script</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.script.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-sitemap" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-sitemap-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-sitemap</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.sitemap.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-thing" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-item</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-model-thing-runtime" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-thing</feature>
+    <bundle>mvn:org.eclipse.smarthome.model/org.eclipse.smarthome.model.thing.runtime/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-storage-mapdb" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.storage/org.eclipse.smarthome.storage.mapdb/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-exec" description="Exec Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.exec/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-javascript" description="Javascript Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.javascript/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-jsonpath" description="JSONPath Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.jsonpath/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-map" description="Map Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.map/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-regex" description="RegEx Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.regex/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-scale" description="Scale Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.scale/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-xpath" description="XPath Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xpath/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-transform-xslt" description="XSLT Transformation" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.xslt/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-model-item</feature>
+    <feature>esh-model-sitemap</feature>
+    <bundle>mvn:org.eclipse.smarthome.ui/org.eclipse.smarthome.ui/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui-basic" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-ui</feature>
+    <bundle>mvn:org.eclipse.smarthome.extension.ui/org.eclipse.smarthome.ui.basic/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui-classic" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-ui</feature>
+    <bundle>mvn:org.eclipse.smarthome.extension.ui/org.eclipse.smarthome.ui.classic/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui-paper" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.extension.ui/org.eclipse.smarthome.ui.paper/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui-icon" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.ui/org.eclipse.smarthome.ui.icon/${project.version}</bundle>
+  </feature>
+
+  <feature name="esh-ui-iconset-classic" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-ui-icon</feature>
+    <bundle>mvn:org.eclipse.smarthome.extension.ui.iconset/org.eclipse.smarthome.ui.iconset.classic/${project.version}</bundle>
+  </feature>
+
+</features>
