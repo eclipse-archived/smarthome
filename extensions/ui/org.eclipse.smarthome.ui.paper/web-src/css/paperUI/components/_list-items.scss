@@ -1,0 +1,65 @@
+/* Fab Item / List Item */
+
+.fab-item, .list-item {
+	position: relative;
+}
+
+.fab-item h3, .list-item h3 {
+	font-size: 18px;
+	font-weight: 500;
+	margin: 15px 0px 5px;
+}
+
+.fab-item p, .list-item p {
+	margin-bottom: 5px;
+}
+
+.fab-item hr, .list-item hr {
+	margin: 15px 0px;
+}
+
+
+.fab-item button.md-fab {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+
+.fab-item .item-content {
+	margin-left: 75px;
+	min-height: 60px;
+}
+
+.fab-item .item-content .actions, .list-item .actions,.item-content .actions {
+	position: absolute;
+	top: 7px;
+	right: 0px;
+	background: white;
+}
+
+.fab-item .circle {
+	border-radius: 50%;
+	width: 56px;
+	height: 56px;
+	background-color: #CCC;
+	position: absolute;
+	text-align: center;
+	font-size: 30px;
+	line-height: 54px;
+}
+
+.fab-item .circle.green {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.fab-item .circle.small {
+	width: 28px;
+	height: 28px;
+	line-height: 28px;
+	font-size: 15px;
+}
+
+.fab-item hr.border-line {
+	margin: 10px 0px;
+}

@@ -1,0 +1,14 @@
+/* Progress Indicator */
+
+md-progress-circular.md-default-theme .md-inner .md-right .md-half-circle {
+	border-right-color: #4CAF50;
+}
+
+md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle,
+md-progress-circular.md-default-theme .md-inner .md-right .md-half-circle {
+	border-top-color: #4CAF50;
+}
+
+md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle {
+	border-left-color: #4CAF50;
+}
