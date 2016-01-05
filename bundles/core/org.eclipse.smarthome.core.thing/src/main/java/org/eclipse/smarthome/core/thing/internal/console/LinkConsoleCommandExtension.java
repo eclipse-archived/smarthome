@@ -100,10 +100,11 @@ public class LinkConsoleCommandExtension extends AbstractConsoleCommandExtension
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all links"),
+        return Arrays
+                .asList(new String[] { buildCommandUsage(SUBCMD_LIST, "lists all links"),
                 buildCommandUsage(SUBCMD_CL_ADD + " <itemName> <channelUID>", "links an item with a channel"),
-                buildCommandUsage(SUBCMD_CL_REMOVE + " <itemName> <thingUID>", "links an item with a thing"),
-                buildCommandUsage(SUBCMD_TL_ADD + " <itemName> <channelUID>", "unlinks an item with a channel"),
+                buildCommandUsage(SUBCMD_CL_REMOVE + " <itemName> <thingUID>", "unlinks an item with a channel"),
+                buildCommandUsage(SUBCMD_TL_ADD + " <itemName> <channelUID>", "links an item with a thing"),
                 buildCommandUsage(SUBCMD_TL_REMOVE + " <itemName> <thingUID>", "unlinks an item with a thing"),
                 buildCommandUsage(SUBCMD_CLEAR, "removes all managed links") });
     }
