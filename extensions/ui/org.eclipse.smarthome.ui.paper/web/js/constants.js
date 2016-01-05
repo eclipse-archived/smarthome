@@ -13,5 +13,6 @@ angular.module('PaperUI.constants', [])
   'configuration': true,
   'extensions': true,
   'rules': true,
-  'preferences': true
+  'preferences': true,
+  'groups': true
 });
