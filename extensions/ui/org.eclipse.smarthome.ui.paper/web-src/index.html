@@ -17,19 +17,24 @@
 
 	<title>Paper UI</title>
 
-	<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
-	<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
-	<!-- @TODO Figure out why this file is included -->
-	<!-- <link type="text/css" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" rel="stylesheet"> -->
+	<!-- build:css(web-src) css/vendor.css -->
+	<!-- bower:css -->
+	<!-- run `gulp inject` to automatically populate bower styles dependencies -->
+	<!-- endbower -->
+	<link type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- endbuild -->
 
 	<!-- custom css files -->
+	<!-- build:css(web-tmp) css/app.css -->
 	<link type="text/css" href="css/style.min.css" rel="stylesheet">
+	<!-- endbuild -->
+
+	<!-- can be created in fragment to inject custom theme -->
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 
 	<!-- Icons/Fonts -->
-	<!-- @TODO Figure out where this files lives -->
+	<!-- can be created in fragment to inject icons -->
 	<link type="text/css" href="fonts/md-icons/md-icons.css" rel="stylesheet" media="all">
-	<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
 
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 
@@ -102,27 +107,16 @@
 		<footer> </footer>
 	</div>
 
-	<!-- lib js files -->
-	<script src="js/angular.min.js"></script>
-
-	<script src="js/jquery.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-
-	<!-- TODO: Create custom variant to save space -->
-	<script src="js/tinycolor.js"></script>
-	<script src="js/masonry.pkgd.min.js"></script>
-
-	<!-- TODO: Use angularized version? -->
-	<script src="js/sprintf.min.js"></script>
-
-	<!-- custom js files -->
-	<script src="js/app.min.js"></script>
-	<script src="js/constants.min.js"></script>
-	<script src="js/services.min.js"></script>
-	<script src="js/controllers.min.js"></script>
-	<script src="js/extensions.min.js"></script>
-	<script src="js/main.min.js"></script>
-	<script src="js/shared.properties.min.js"></script>
+	<!-- build:js(web-src) js/vendor.js -->
+	<!-- bower:js -->
+	<!-- run `gulp inject` to automatically populate bower script dependencies -->
+	<!-- endbower -->
+	<!-- endbuild -->
+	<!-- build:js(web-src) js/app.js -->
+	<!-- inject:js -->
+	<!-- js files will be automatically insert here -->
+	<!-- endinject -->
+	<!-- endbuild -->
 </body>
 
 </html>

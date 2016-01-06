@@ -1,52 +1,27 @@
 'use strict';
 
 var gulp = require('gulp'),
+    del = require('del'),
     sass = require('gulp-sass'),
     uglify = require('gulp-uglify'),
-    concat = require('gulp-concat'),
-    rename = require("gulp-rename");
+    uglifySaveLicense = require('uglify-save-license'),
+    size = require('gulp-size'),
+    filter = require('gulp-filter'),
+    ngAnnotate = require('gulp-ng-annotate'),
+    rename = require("gulp-rename"),
+    inject = require('gulp-inject'),
+    useref = require('gulp-useref'),
+    minifyHtml = require('gulp-minify-html'),
+    rev = require('gulp-rev'),
+    revReplace = require('gulp-rev-replace'),
+    angularFilesort = require('gulp-angular-filesort'),
+    wiredep = require('wiredep').stream;;
 
 var paths = {
-    scripts: [
-        './web-src/js/app.js',
-        './web-src/js/constants.js',
-        './web-src/js/extensions.js',
-        './web-src/js/main.js',
-        './web-src/js/shared.properties.js',
-        './web-src/js/controllers.module.js'
-    ],
+    scripts: './web-src/js/**/*.js',
     styles: ['./web-src/css/style.scss'],
     images: ['./web-src/img/*'],
-    concat: [{
-        'src': './web-src/js/services*.js',
-        'name': 'services.js'
-    }, {
-        'src': './web-src/js/controllers*.js',
-        'name': 'controllers.js'
-    }, {
-        'src': [
-            './web-src/bower_components/angular/angular.min.js',
-            './web-src/bower_components/angular-route/angular-route.min.js',
-            './web-src/bower_components/angular-resource/angular-resource.min.js',
-            './web-src/bower_components/angular-animate/angular-animate.min.js',
-            './web-src/bower_components/angular-aria/angular-aria.min.js',
-            './web-src/bower_components/angular-material/angular-material.min.js'
-        ],
-        'name': 'angular.js'
-    }],
     partials: ['./web-src/partials/*.html'],
-    JSLibs: [
-        './web-src/bower_components/jquery/dist/jquery.min.js',
-        './web-src/bower_components/bootstrap/dist/js/bootstrap.min.js',
-        './web-src/bower_components/tinycolor/tinycolor.js',
-        './web-src/bower_components/masonry/dist/masonry.pkgd.min.js',
-        './web-src/bower_components/sprintf/dist/sprintf.min.js'
-    ],
-    CSSLibs: [
-        './web-src/bower_components/bootstrap/dist/css/bootstrap.min.css',
-        './web-src/bower_components/angular-material/angular-material.min.css',
-        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css'
-    ],
     FontLibs: [
         './web-src/bower_components/roboto-fontface/fonts/*',
         '!./web-src/bower_components/roboto-fontface/fonts/*.svg'
@@ -54,7 +29,11 @@ var paths = {
 };
 
 gulp.task('default', ['build']);
-gulp.task('build', ['styles', 'uglify', 'copyScripts', 'copyImgs', 'copyFonts', 'copyJSLibs', 'copyCSSLibs', 'copyFontLibs', 'concat', 'copyIndex', 'copyPartials']);
+gulp.task('build', ['build-main', 'copyImgs', 'copyFonts', 'copyFontLibs', 'copyPartials']);
+
+gulp.task('clean', function () {
+    return del(['./web-tmp','./web']);
+})
 
 gulp.task('styles', function () {
     return gulp.src(paths.styles)
@@ -65,22 +44,59 @@ gulp.task('styles', function () {
             path.basename += '.min';
             return path;
         }))
-        .pipe(gulp.dest('./web/css/'));
+        .pipe(gulp.dest('./web-tmp/css/'));
 });
 
-gulp.task('uglify', function () {
-    return gulp.src(paths.scripts)
-        .pipe(uglify())
-        .pipe(rename(function (path) {
-            path.basename += '.min';
-            return path;
+gulp.task('inject', function () {
+    var injectScripts = gulp.src(paths.scripts).pipe(angularFilesort());
+
+    var injectOptions = {
+        ignorePath: ['web-src'],
+        addRootSlash: false
+    };
+
+    var wiredepConf = {
+        directory: './web-src/bower_components'
+    };
+
+    return gulp.src('./web-src/index.html')
+        .pipe(inject(injectScripts, injectOptions))
+        .pipe(wiredep(wiredepConf))
+        .pipe(gulp.dest('./web-tmp/'));
+});
+
+gulp.task('build-main', ['inject', 'styles'], function () {
+    var htmlFilter = filter('*.html');
+    var jsFilter = filter('**/*.js');
+    var cssFilter = filter('**/*.css');
+    var assets;
+
+    return gulp.src('./web-tmp/index.html')
+        .pipe(assets = useref.assets())
+        .pipe(rev()) // create dynamic file name
+        // concat and minify JavaScript files
+        .pipe(jsFilter)
+        .pipe(ngAnnotate())
+        .pipe(uglify({ preserveComments: uglifySaveLicense }))
+        .pipe(jsFilter.restore())
+        // minify CSS
+        //.pipe(cssFilter)
+        //.pipe(csso(true))
+        //.pipe(cssFilter.restore())
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(revReplace())
+        // minify HTML files
+        .pipe(htmlFilter)
+        .pipe(minifyHtml({
+            empty: true,
+            spare: true,
+            quotes: true,
+            conditionals: true
         }))
-        .pipe(gulp.dest('./web/js/'));
-});
-
-gulp.task('copyScripts', function () {
-    return gulp.src('./js/*.min.js')
-        .pipe(gulp.dest('./web/js'));
+        .pipe(htmlFilter.restore())
+        .pipe(gulp.dest('./web/'))
+        .pipe(size({ title: 'web/', showFiles: true }));
 });
 
 gulp.task('copyImgs', function () {
@@ -93,39 +109,12 @@ gulp.task('copyFonts', function () {
         .pipe(gulp.dest('./web/fonts'));
 });
 
-gulp.task('copyIndex', function () {
-    return gulp.src('./web-src/index.html')
-        .pipe(gulp.dest('./web/'));
-});
-
 gulp.task('copyPartials', function () {
     return gulp.src(paths.partials)
         .pipe(gulp.dest('./web/partials'));
 });
 
-gulp.task('copyJSLibs', function () {
-    return gulp.src(paths.JSLibs)
-        .pipe(gulp.dest('./web/js'));
-});
-
-gulp.task('copyCSSLibs', function () {
-    return gulp.src(paths.CSSLibs)
-        .pipe(gulp.dest('./web/css'));
-});
-
 gulp.task('copyFontLibs', function () {
     return gulp.src(paths.FontLibs)
         .pipe(gulp.dest('./web/fonts'));
-});
-
-gulp.task('concat', function () {
-    return paths.concat.forEach(function (obj) {
-        return gulp.src(obj.src)
-            .pipe(concat(obj.name))
-            .pipe(rename(function (path) {
-                path.basename += '.min';
-                return path;
-            }))
-            .pipe(gulp.dest('./web/js'));
-    });
 });

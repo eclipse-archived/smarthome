@@ -61,6 +61,15 @@
 					</execution>
 
 					<execution>
+						<id>gulp clean</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<configuration>
+							<arguments>clean</arguments>
+						</configuration>
+					</execution>
+					<execution>
 						<id>gulp build</id>
 						<goals>
 							<goal>gulp</goal>

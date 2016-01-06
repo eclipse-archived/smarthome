@@ -2,3 +2,6 @@ node/
 node_modules/
 web-src/bower_components/
 web/
+web-tmp/
+.idea/
+*.iml
