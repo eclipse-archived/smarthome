@@ -17,6 +17,7 @@ angular.module('PaperUI.controllers.rules').controller(
 			$scope.module = '';
 			$scope.step = 1;
             $scope.editMode = false;
+            $scope.configuration = {};
 
 			function setConfigurations() {
 
@@ -29,8 +30,7 @@ angular.module('PaperUI.controllers.rules').controller(
 					});
 				});
 
-                $scope.configuration = null;
-
+                
 				var index = sharedProperties.searchArray(sharedProperties
 						.getModuleArray(type), $scope.id);
 				if (index != -1) {
@@ -38,20 +38,6 @@ angular.module('PaperUI.controllers.rules').controller(
 							.getModuleArray(type)[index].configuration;
 					$scope.configArray = configService
 							.getConfigAsArray($scope.configuration);
-				}
-
-				if (!$scope.configuration && ruleID) {
-					moduleTypeService.getModuleConfigByUid({
-						ruleUID : ruleID,
-						moduleCategory : type,
-						id : $scope.id
-					}).$promise.then(function(config) {
-						if (config) {
-							$scope.configuration = config;
-							$scope.configArray = configService
-									.getConfigAsArray($scope.configuration);
-						}
-					});
 				}
 			}
 

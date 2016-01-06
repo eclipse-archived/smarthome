@@ -500,6 +500,11 @@ angular.module('PaperUI.services.rest', ['PaperUI.constants'])
             headers : {
             	'Content-Type' : 'text/plain'
             }
+        },
+        getRuleTemplates: {
+        	method : 'GET',
+            url : restConfig.restPath + '/templates',
+            isArray:true
         }
     });
 }).factory('moduleTypeService', function($resource, restConfig) {
