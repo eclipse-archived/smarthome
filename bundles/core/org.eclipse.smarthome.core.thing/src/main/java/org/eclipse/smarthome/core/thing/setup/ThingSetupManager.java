@@ -187,6 +187,7 @@ public class ThingSetupManager implements EventSubscriber {
      *            map of properties to be added to the thing (can be null)
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels, Map<String, String> properties) {
 
@@ -221,6 +222,7 @@ public class ThingSetupManager implements EventSubscriber {
      *            map of properties to be added to the thing (can be null)
      * @return created {@link Thing} instance (can be null)
      */
+    @Deprecated
     public Thing addThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels, Map<String, String> properties) {
         return addThing(thingTypeUID, null, configuration, bridgeUID, label, groupNames, enableChannels, properties,
