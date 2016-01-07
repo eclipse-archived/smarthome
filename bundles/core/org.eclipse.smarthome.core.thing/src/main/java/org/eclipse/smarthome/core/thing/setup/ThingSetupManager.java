@@ -162,8 +162,7 @@ public class ThingSetupManager implements EventSubscriber {
     @Deprecated
     public Thing addThing(ThingUID thingUID, Configuration configuration, ThingUID bridgeUID, String label,
             List<String> groupNames, boolean enableChannels) {
-        Map<String, String> emptyMap = Collections.emptyMap();
-        return addThing(thingUID, configuration, bridgeUID, label, groupNames, enableChannels, emptyMap);
+        return addThing(thingUID, configuration, bridgeUID, label, groupNames, enableChannels, Collections.<String,String>emptyMap());
     }
 
     /**
