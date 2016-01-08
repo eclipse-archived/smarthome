@@ -106,6 +106,7 @@
 
   <feature name="esh-binding-fsinternetradio" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.fsinternetradio/${project.version}</bundle>
   </feature>
 
