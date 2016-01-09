@@ -15,9 +15,14 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     revReplace = require('gulp-rev-replace'),
     angularFilesort = require('gulp-angular-filesort'),
-    wiredep = require('wiredep').stream;;
+    wiredep = require('wiredep').stream,
+    browserSync = require('browser-sync'),
+    browserSyncSpa = require('browser-sync-spa'),
+    proxyMiddleware = require('http-proxy-middleware');
 
 var paths = {
+    indexFile: './web-src/index.html',
+    indexTmpFile: './web-tmp/index.html',
     scripts: './web-src/js/**/*.js',
     styles: ['./web-src/css/style.scss'],
     images: ['./web-src/img/*'],
@@ -28,12 +33,57 @@ var paths = {
     ]
 };
 
-gulp.task('default', ['build']);
-gulp.task('build', ['build-main', 'copyImgs', 'copyFonts', 'copyFontLibs', 'copyPartials']);
+gulp.task('watch', ['inject'], function () {
+    gulp.watch([paths.indexFile, 'bower.json'], ['inject']);
 
-gulp.task('clean', function () {
-    return del(['./web-tmp','./web']);
-})
+    gulp.watch(paths.styles, function(event) {
+        if(event.type === 'changed') {
+            gulp.start('styles');
+        } else {
+            gulp.start('inject');
+        }
+    });
+
+    gulp.watch(paths.scripts, function(event) {
+        if(event.type === 'changed') {
+            gulp.start('scripts');
+        } else {
+            gulp.start('inject');
+        }
+    });
+
+    gulp.watch(paths.partials, function(event) {
+        browserSync.reload(event.path);
+    });
+    gulp.watch(paths.indexTmpFile, function(event) {
+        browserSync.reload(event.path);
+    });
+});
+
+
+function browserSyncInit(baseDir) {
+    var server = {
+        baseDir: baseDir
+    };
+
+    server.middleware = proxyMiddleware(['/rest'], {target: 'http://localhost:8080'});
+
+    browserSync.instance = browserSync.init({
+        startPath: '/',
+        server: server,
+        browser: 'default'
+    });
+}
+
+browserSync.use(browserSyncSpa({
+    selector: '[ng-app]'// Only needed for angular apps
+}));
+
+gulp.task('scripts', function () {
+    return gulp.src(paths.scripts)
+        .pipe(browserSync.reload({ stream: true }))
+        .pipe(size())
+});
 
 gulp.task('styles', function () {
     return gulp.src(paths.styles)
@@ -44,10 +94,11 @@ gulp.task('styles', function () {
             path.basename += '.min';
             return path;
         }))
-        .pipe(gulp.dest('./web-tmp/css/'));
+        .pipe(gulp.dest('./web-tmp/css/'))
+        .pipe(browserSync.reload({ stream: true }));
 });
 
-gulp.task('inject', function () {
+gulp.task('inject', ['scripts', 'styles'], function () {
     var injectScripts = gulp.src(paths.scripts).pipe(angularFilesort());
 
     var injectOptions = {
@@ -59,19 +110,19 @@ gulp.task('inject', function () {
         directory: './web-src/bower_components'
     };
 
-    return gulp.src('./web-src/index.html')
+    return gulp.src(paths.indexFile)
         .pipe(inject(injectScripts, injectOptions))
         .pipe(wiredep(wiredepConf))
         .pipe(gulp.dest('./web-tmp/'));
 });
 
-gulp.task('build-main', ['inject', 'styles'], function () {
+gulp.task('build-main', ['inject'], function () {
     var htmlFilter = filter('*.html');
     var jsFilter = filter('**/*.js');
     var cssFilter = filter('**/*.css');
     var assets;
 
-    return gulp.src('./web-tmp/index.html')
+    return gulp.src(paths.indexTmpFile)
         .pipe(assets = useref.assets())
         .pipe(rev()) // create dynamic file name
         // concat and minify JavaScript files
@@ -117,4 +168,22 @@ gulp.task('copyPartials', function () {
 gulp.task('copyFontLibs', function () {
     return gulp.src(paths.FontLibs)
         .pipe(gulp.dest('./web/fonts'));
+});
+
+// These are the task you run from the CLI or via script
+
+gulp.task('default', ['build']);
+
+gulp.task('build', ['build-main', 'copyImgs', 'copyFonts', 'copyFontLibs', 'copyPartials']);
+
+gulp.task('serve', ['watch'], function () {
+    browserSyncInit(['./web-tmp', './web-src']);
+});
+
+gulp.task('serve:dist', ['build'], function () {
+    browserSyncInit('./web');
+});
+
+gulp.task('clean', function () {
+    return del(['./web-tmp','./web']);
 });
