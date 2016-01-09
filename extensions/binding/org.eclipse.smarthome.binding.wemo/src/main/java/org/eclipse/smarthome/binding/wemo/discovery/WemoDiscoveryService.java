@@ -245,14 +245,16 @@ public class WemoDiscoveryService extends AbstractDiscoveryService {
                                                         uid = new ThingUID(WEMO_SENSOR_TYPE_UID, wemoUDN);
                                                         break;
                                                 }
-                                                Map<String, Object> properties = new HashMap<>(4);
-                                                properties.put(UDN, wemoUDN);
-                                                properties.put(LOCATION, wemoLocation);
 
-                                                DiscoveryResult result = DiscoveryResultBuilder.create(uid)
-                                                        .withProperties(properties).withLabel(label).build();
-                                                thingDiscovered(result);
+                                                if (uid != null) {
+                                                    Map<String, Object> properties = new HashMap<>(4);
+                                                    properties.put(UDN, wemoUDN);
+                                                    properties.put(LOCATION, wemoLocation);
 
+                                                    DiscoveryResult result = DiscoveryResultBuilder.create(uid)
+                                                            .withProperties(properties).withLabel(label).build();
+                                                    thingDiscovered(result);
+                                                }
                                             } catch (Exception te) {
                                                 logger.error("Could not discover WeMo device", te);
                                             }

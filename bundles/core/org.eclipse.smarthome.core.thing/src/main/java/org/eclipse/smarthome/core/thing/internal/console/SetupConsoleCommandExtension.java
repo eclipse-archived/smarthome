@@ -57,7 +57,8 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 if (numberOfArguments > 2) {
                     addHomeGroup(console, args[1], args[2]);
                 } else {
-                    console.println("Specify name and label of a home group to add: addHomeGroup <groupItemName> <label>");
+                    console.println(
+                            "Specify name and label of a home group to add: addHomeGroup <groupItemName> <label>");
                 }
                 break;
             case SUBCMD_HG_REMOVE:
@@ -71,14 +72,16 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 if (numberOfArguments > 2) {
                     addItemToHomeGroup(console, args[1], args[2]);
                 } else {
-                    console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
+                    console.println(
+                            "Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
                 }
                 break;
             case SUBCMD_HG_ITEM_REMOVE:
                 if (numberOfArguments > 2) {
                     removeItemFromHomeGroup(console, args[1], args[2]);
                 } else {
-                    console.println("Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
+                    console.println(
+                            "Specify the names of item and home group: removeItemFromHomeGroup <itemName> <groupItemName>");
                 }
                 break;
             case SUBCMD_CHANNEL_ENABLE:
@@ -99,7 +102,8 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 if (numberOfArguments > 2) {
                     setLabel(console, args[1], args[2]);
                 } else {
-                    console.println("Specify the new label for the item linked to the thing: setLabel <thingUID> <label>");
+                    console.println(
+                            "Specify the new label for the item linked to the thing: setLabel <thingUID> <label>");
                 }
                 break;
             default:
@@ -157,8 +161,9 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
                 sb.append(" [");
                 do {
                     sb.append(members.next().getName());
-                    if (members.hasNext())
+                    if (members.hasNext()) {
                         sb.append(", ");
+                    }
                 } while (members.hasNext());
                 sb.append("]");
             }
@@ -168,17 +173,17 @@ public class SetupConsoleCommandExtension extends AbstractConsoleCommandExtensio
 
     @Override
     public List<String> getUsages() {
-        return Arrays.asList(new String[] {
-                buildCommandUsage(SUBCMD_HG_LIST, "lists all home groups"),
+        return Arrays
+                .asList(new String[] { buildCommandUsage(SUBCMD_HG_LIST, "lists all home groups"),
                 buildCommandUsage(SUBCMD_HG_ADD + " <groupItemName> <label>", "creates a new home group"),
-                buildCommandUsage(SUBCMD_HG_REMOVE + " <groupItemName>", "creates a new home group"),
+                buildCommandUsage(SUBCMD_HG_REMOVE + " <groupItemName>", "removes a home group"),
                 buildCommandUsage(SUBCMD_HG_ITEM_ADD + " <itemName> <groupItemName>", "adds an item to a home group"),
                 buildCommandUsage(SUBCMD_HG_ITEM_REMOVE + " <itemName> <groupItemName>",
                         "removes an item from a home group"),
                 buildCommandUsage(SUBCMD_CHANNEL_ENABLE + " <channelUID>",
-                        "removes all links and linked items of a channel"),
-                buildCommandUsage(SUBCMD_CHANNEL_DISABLE + " <channelUID>",
                         "creates all links and linked items for a channel"),
+                buildCommandUsage(SUBCMD_CHANNEL_DISABLE + " <channelUID>",
+                        "removes all links and linked items of a channel"),
                 buildCommandUsage(SUBCMD_LABEL_SET + " <thingUID> <label>",
                         "sets a new label of the item linked to the thing") });
     }

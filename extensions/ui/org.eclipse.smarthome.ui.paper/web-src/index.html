@@ -65,7 +65,7 @@
 				<ul ng-show="isActive('configuration')">
 					<li ng-class="{active: isSubActive('bindings')}"><a href="#configuration/bindings">Bindings</a></li>
 					<li ng-class="{active: isSubActive('services')}"><a href="#configuration/services">Services</a></li>
-					<li ng-class="{active: isSubActive('groups')}"><a href="#configuration/groups">Groups</a></li>
+					<li ng-class="{active: isSubActive('groups'), hidden: isHidden('groups')}"><a href="#configuration/groups">Groups</a></li>
 					<li ng-class="{active: isSubActive('things')}"><a href="#configuration/things">Things</a></li>
 				</ul>
 			</li>

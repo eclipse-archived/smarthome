@@ -27,6 +27,7 @@
     <module>org.eclipse.smarthome.feature.dependencies.designer</module>
     <module>org.eclipse.smarthome.feature.designer</module>
     <module>org.eclipse.smarthome.feature.test</module>
+    <module>karaf</module>
   </modules>
 
 </project>
