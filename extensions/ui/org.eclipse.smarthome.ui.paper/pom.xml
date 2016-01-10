@@ -20,7 +20,7 @@
 
 	<name>Eclipse SmartHome Paper UI</name>
 	<packaging>eclipse-plugin</packaging>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -37,8 +37,8 @@
                         <!-- optional: default phase is "generate-resources" -->
                         <phase>generate-resources</phase>
                         <configuration>
-                            <nodeVersion>v4.2.4</nodeVersion>
-                            <npmVersion>2.14.12</npmVersion>
+                            <nodeVersion>v5.4.0</nodeVersion>
+                            <npmVersion>3.3.12</npmVersion>
                             <!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
                             <!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot>-->
                         </configuration>
@@ -59,7 +59,7 @@
 							<goal>bower</goal>
 						</goals>
 					</execution>
-					
+
 				</executions>
 			</plugin>
 		</plugins>
