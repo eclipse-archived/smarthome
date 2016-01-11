@@ -97,16 +97,22 @@ public class RuleResource implements RESTResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a rule.")
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created"),
-            @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists.") })
+            @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists."),
+            @ApiResponse(code = 400, message = "Creation of the rule is refused. Missing required parameter.") })
     public Response create(@ApiParam(value = "rule data", required = true) Rule rule) throws IOException {
-
         try {
             ruleRegistry.add(rule);
             return Response.status(Status.CREATED).build();
+
         } catch (IllegalArgumentException e) {
             String errMessage = "Creation of the rule is refused: " + e.getMessage();
             logger.warn(errMessage);
             return JSONResponse.createErrorResponse(Status.CONFLICT, errMessage);
+
+        } catch (RuntimeException e) {
+            String errMessage = "Creation of the rule is refused: " + e.getMessage();
+            logger.warn(errMessage);
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, errMessage);
         }
     }
 
