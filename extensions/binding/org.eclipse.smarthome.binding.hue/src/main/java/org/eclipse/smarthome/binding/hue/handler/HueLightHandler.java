@@ -10,11 +10,19 @@ package org.eclipse.smarthome.binding.hue.handler;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import nl.q42.jue.FullLight;
+import nl.q42.jue.HueBridge;
+import nl.q42.jue.State;
+import nl.q42.jue.StateUpdate;
 
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.library.types.PercentType;
+import org.eclipse.smarthome.core.library.types.StringType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -30,11 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-
 /**
  * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueBridgeHandler} to execute the actual
  * command.
@@ -45,7 +48,10 @@ import nl.q42.jue.StateUpdate;
  * @author Andre Fuechsel - implemented switch off when brightness == 0
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
- * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50 bulbs
+ * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
+ *         bulbs
+ * @author Yordan Zhelev - added alert and effect functions
+ *
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
@@ -68,6 +74,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     private HueBridgeHandler bridgeHandler;
 
+    ScheduledFuture<?> scheduledFuture;
+
     public HueLightHandler(Thing hueLight) {
         super(hueLight);
     }
@@ -78,7 +86,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         final String configLightId = (String) getConfig().get(LIGHT_ID);
         if (configLightId != null) {
             lightId = configLightId;
-            // note: this call implicitly registers our handler as a listener on the bridge
+            // note: this call implicitly registers our handler as a listener on
+            // the bridge
             if (getHueBridgeHandler() != null) {
                 ThingStatusInfo statusInfo = getBridge().getStatusInfo();
                 updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
@@ -168,6 +177,26 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
                 }
                 break;
+            case CHANNEL_ALERT:
+                if (command instanceof StringType) {
+                    lightState = LightStateConverter.toAlertState((StringType) command);
+                    if (lightState == null) {
+                        // Unsupported StringType is passed. Log a warning
+                        // message and return.
+                        logger.warn("Unsupported String command: {}. Supported commands are: {}, {}, {} ", command,
+                                LightStateConverter.ALERT_MODE_NONE, LightStateConverter.ALERT_MODE_SELECT,
+                                LightStateConverter.ALERT_MODE_LONG_SELECT);
+                        return;
+                    } else {
+                        scheduleAlertStateRestore(command);
+                    }
+                }
+                break;
+            case CHANNEL_EFFECT:
+                if (command instanceof OnOffType) {
+                    lightState = LightStateConverter.toOnOffEffectState((OnOffType) command);
+                }
+                break;
         }
         if (lightState != null) {
             hueBridge.updateLightState(light, lightState);
@@ -177,8 +206,10 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     /*
-     * Applies additional {@link StateUpdate} commands as a workaround for Osram Lightify PAR16 TW firmware bug.
-     * Also see http://www.everyhue.com/vanilla/discussion/1756/solved-lightify-turning-off
+     * Applies additional {@link StateUpdate} commands as a workaround for Osram
+     * Lightify PAR16 TW firmware bug. Also see
+     * http://www.everyhue.com/vanilla/discussion
+     * /1756/solved-lightify-turning-off
      */
     private StateUpdate addOsramSpecificCommands(StateUpdate lightState, OnOffType actionType) {
         if (actionType.equals(OnOffType.ON)) {
@@ -290,6 +321,12 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                 percentType = new PercentType(0);
             }
             updateState(new ChannelUID(getThing().getUID(), CHANNEL_BRIGHTNESS), percentType);
+
+            StringType stringType = LightStateConverter.toAlertStringType(fullLight.getState());
+            if (!stringType.toString().equals("NULL")) {
+                updateState(new ChannelUID(getThing().getUID(), CHANNEL_ALERT), stringType);
+                scheduleAlertStateRestore(stringType);
+            }
         }
 
     }
@@ -309,4 +346,73 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
     }
 
+    /**
+     * Schedules restoration of the alert item state to {@link LightStateConverter#ALERT_MODE_NONE} after a given time.<br>
+     * Based on the initial command:
+     * <ul>
+     * <li>For {@link LightStateConverter#ALERT_MODE_SELECT} restoration will be triggered after <strong>2
+     * seconds</strong>.
+     * <li>For {@link LightStateConverter#ALERT_MODE_LONG_SELECT} restoration will be triggered after <strong>15
+     * seconds</strong>.
+     * </ul>
+     * This method also cancels any previously scheduled restoration.
+     * 
+     * @param command
+     *            The {@link Command} sent to the item
+     */
+    private void scheduleAlertStateRestore(Command command) {
+        cancelScheduledFuture();
+        int delay = getAlertDuration(command);
+
+        if (delay > 0) {
+            scheduledFuture = scheduler.schedule(new Runnable() {
+
+                @Override
+                public void run() {
+                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_ALERT), new StringType(
+                            LightStateConverter.ALERT_MODE_NONE));
+                }
+            }, delay, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    /**
+     * This method will cancel previously scheduled alert item state
+     * restoration.
+     */
+    private void cancelScheduledFuture() {
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+        }
+    }
+
+    /**
+     * This method returns the time in <strong>milliseconds</strong> after
+     * which, the state of the alert item has to be restored to {@link LightStateConverter#ALERT_MODE_NONE}.
+     * 
+     * @param command
+     *            The initial command sent to the alert item.
+     * @return Based on the initial command will return:
+     *         <ul>
+     *         <li><strong>2000</strong> for {@link LightStateConverter#ALERT_MODE_SELECT}.
+     *         <li><strong>15000</strong> for {@link LightStateConverter#ALERT_MODE_LONG_SELECT}.
+     *         <li><strong>-1</strong> for any command different from the previous two.
+     *         </ul>
+     */
+    private int getAlertDuration(Command command) {
+        int delay;
+        switch (command.toString()) {
+            case LightStateConverter.ALERT_MODE_LONG_SELECT:
+                delay = 15000;
+                break;
+            case LightStateConverter.ALERT_MODE_SELECT:
+                delay = 2000;
+                break;
+            default:
+                delay = -1;
+                break;
+        }
+
+        return delay;
+    }
 }
