@@ -20,7 +20,7 @@
 
 	<name>Eclipse SmartHome Paper UI</name>
 	<packaging>eclipse-plugin</packaging>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -59,7 +59,26 @@
 							<goal>bower</goal>
 						</goals>
 					</execution>
-					
+
+					<execution>
+						<id>gulp clean</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<configuration>
+							<arguments>clean</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>gulp build</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<configuration>
+							<arguments>build</arguments>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>

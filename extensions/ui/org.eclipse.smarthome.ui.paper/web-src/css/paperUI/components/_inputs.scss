@@ -1,0 +1,75 @@
+/* Input */
+
+md-input-group.md-default-theme input, md-input-group.md-default-theme textarea {
+	display: block;
+	width: 100%;
+	color: inherit;
+	font-size: 18px;
+	line-height: 40px;
+}
+
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused .md-input {
+	border-color: #4CAF50;
+}
+
+md-input-group.md-default-theme.md-input-focused input, md-input-group.md-default-theme.md-input-focused textarea {
+	border-color: #4CAF50;
+}
+
+md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused label {
+	color: #4CAF50;
+}
+
+
+md-input-container textarea.mono {
+    font-family: monospace;
+    line-height: 150%;
+}
+
+md-select.md-default-theme:not([disabled]):focus .md-select-label {
+  border-bottom-color: #4CAF50;
+}
+
+p.hint {
+	color: #777;
+	-webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    -webkit-order: 3;
+    -ms-flex-order: 3;
+  	order: 3;
+  	margin-top: 5px;
+}
+
+.form-group label {
+	font-weight: normal;
+	font-size: 18px;
+	margin-bottom: 0px;
+	text-transform: uppercase;
+	color: #AAA;
+}
+
+.form-group label.control-label {
+	transform: translate3d(-6px,4px,0) scale(0.75);
+	color: #999;
+}
+
+.md-input-group label, md-input-group label {
+	-webkit-transform: translate3d(0,36px,0);
+	transform: translate3d(0,36px,0);
+}
+
+.form-group .md-input-focused label, .form-group .md-input-has-value label {
+	color: #999 !important;
+}
+
+select.form-control {
+	border-width: 1px;
+	border-radius: 0px;
+	-webkit-appearance: none;
+	margin: 5px 0px 10px;
+}
+
+md-input-container:not(.md-input-invalid).md-input-focused md-icon {
+	color: #4CAF50;
+}
