@@ -50,6 +50,8 @@ public class HueBindingConstants {
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
     public static final String CHANNEL_COLOR = "color";
     public static final String CHANNEL_BRIGHTNESS = "brightness";
+    public static final String CHANNEL_ALERT = "alert";
+    public static final String CHANNEL_EFFECT = "effect";
 
     // Bridge config properties
     public static final String HOST = "ipAddress";
