@@ -53,6 +53,7 @@ Import-Package: com.google.common.base,
  org.osgi.service.event,
  org.osgi.service.log,
  org.osgi.util.tracker,
+ javax.xml.bind,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core
 Bundle-Activator: org.eclipse.smarthome.core.internal.CoreActivator
