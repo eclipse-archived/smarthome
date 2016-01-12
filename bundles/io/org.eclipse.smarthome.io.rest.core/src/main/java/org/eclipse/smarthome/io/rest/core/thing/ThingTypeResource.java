@@ -42,6 +42,8 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -65,6 +67,8 @@ public class ThingTypeResource implements RESTResource {
 
     /** The URI path to this resource */
     public static final String PATH_THINGS_TYPES = "thing-types";
+
+    private final Logger logger = LoggerFactory.getLogger(ThingTypeResource.class);
 
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
@@ -142,8 +146,14 @@ public class ThingTypeResource implements RESTResource {
             parameterGroups = new ArrayList<>(0);
         }
 
+        final List<ChannelDefinitionDTO> channelDefinitions = convertToChannelDefinitionDTOs(
+                thingType.getChannelDefinitions(), locale);
+        if (channelDefinitions == null) {
+            return null;
+        }
+
         return new ThingTypeDTO(thingType.getUID().toString(), thingType.getLabel(), thingType.getDescription(),
-                parameters, convertToChannelDefinitionDTOs(thingType.getChannelDefinitions(), locale),
+                parameters, channelDefinitions,
                 convertToChannelGroupDefinitionDTOs(thingType.getChannelGroupDefinitions(), locale),
                 thingType.getSupportedBridgeTypeUIDs(), thingType.getProperties(), thingType instanceof BridgeType,
                 parameterGroups);
@@ -173,6 +183,10 @@ public class ThingTypeResource implements RESTResource {
         List<ChannelDefinitionDTO> channelDefinitionDTOs = new ArrayList<>();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
             ChannelType channelType = TypeResolver.resolve(channelDefinition.getChannelTypeUID(), locale);
+            if (channelType == null) {
+                logger.warn("Cannot find channel type: {}", channelDefinition.getChannelTypeUID());
+                return null;
+            }
 
             // Default to the channelDefinition label to override the
             // channelType
@@ -201,7 +215,12 @@ public class ThingTypeResource implements RESTResource {
         Set<ThingTypeDTO> thingTypeDTOs = new HashSet<>();
 
         for (ThingType thingType : thingTypes) {
-            thingTypeDTOs.add(convertToThingTypeDTO(thingType, locale));
+            final ThingTypeDTO thingTypeDTO = convertToThingTypeDTO(thingType, locale);
+            if (thingTypeDTO != null) {
+                thingTypeDTOs.add(thingTypeDTO);
+            } else {
+                logger.warn("Cannot create DTO for thingType '{}'. Skip it.", thingType);
+            }
         }
 
         return thingTypeDTOs;
