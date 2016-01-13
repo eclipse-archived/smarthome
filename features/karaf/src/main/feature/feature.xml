@@ -128,6 +128,7 @@
 
   <feature name="esh-binding-wemo" version="${project.version}">
     <feature>esh-base</feature>
+    <feature>esh-io-transport-upnp</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.wemo/${project.version}</bundle>
   </feature>
 
