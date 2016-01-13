@@ -290,7 +290,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     @Override
-    public void onValueReceived(String variable, String value, String service) {
+    public synchronized void onValueReceived(String variable, String value, String service) {
 
         if (getThing().getStatus() == ThingStatus.ONLINE) {
 
@@ -450,7 +450,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
             }
         }
-
     }
 
     private synchronized void onSubscription() {
