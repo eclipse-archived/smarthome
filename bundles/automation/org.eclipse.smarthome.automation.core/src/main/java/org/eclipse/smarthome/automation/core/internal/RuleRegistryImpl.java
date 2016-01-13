@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * This is the main implementation of the {@link RuleRegistry}, which is registered as a service.
  *
  * @author Yordan Mihaylov - Initial Contribution
- * @author Ana Dimova - Persistence implementation
+ * @author Ana Dimova - Persistence implementation & updating rules from providers
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  */
@@ -127,15 +127,20 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         if (element != null) {
             old = super.update(element); // update storage with new rule and return old rule
             if (old != null) {
-                postEvent(RuleEventFactory.createRuleUpdatedEvent(element, old, SOURCE));
-                String rUID = element.getUID();
-                if (disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
-                    ruleEngine.setRuleEnabled(rUID, false);
-                }
-                ruleEngine.updateRule(element); // update memory map
+                onUpdateElement(old, element); // update memory map
             }
         }
         return old;
+    }
+
+    @Override
+    protected void onUpdateElement(Rule oldElement, Rule element) throws IllegalArgumentException {
+        postEvent(RuleEventFactory.createRuleUpdatedEvent(element, oldElement, SOURCE));
+        String rUID = element.getUID();
+        if (disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
+            ruleEngine.setRuleEnabled(rUID, false);
+        }
+        ruleEngine.updateRule(element);
     }
 
     @Override
@@ -156,12 +161,13 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     @Override
     public synchronized void setEnabled(String uid, boolean isEnabled) {
         ruleEngine.setRuleEnabled(uid, isEnabled);
-        if (disabledRulesStorage != null)
+        if (disabledRulesStorage != null) {
             if (isEnabled) {
                 disabledRulesStorage.remove(uid);
             } else {
                 disabledRulesStorage.put(uid, isEnabled);
             }
+        }
     }
 
     @Override
@@ -204,5 +210,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return ruleEngine.hasRule(ruleUID) ? !ruleEngine.getRuleStatus(ruleUID).equals(RuleStatus.DISABLED) : null;
     }
 
-    public void dispose() {}
+    public void dispose() {
+    }
 }

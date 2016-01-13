@@ -246,12 +246,17 @@ public class RuleEngine
 
         if (rUID == null) {
             rUID = getRuleUID(rUID);
-            ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
-                    rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
-                    rule.getVisibility());
-            ruleWithUID.setName(rule.getName());
-            ruleWithUID.setTags(rule.getTags());
-            ruleWithUID.setDescription(rule.getDescription());
+            String templateUID = rule.getTemplateUID();
+            if (templateUID != null) {
+                ruleWithUID = new Rule(rUID, templateUID, rule.getConfiguration());
+            } else {
+                ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
+                        rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
+                        rule.getVisibility());
+                ruleWithUID.setName(rule.getName());
+                ruleWithUID.setTags(rule.getTags());
+                ruleWithUID.setDescription(rule.getDescription());
+            }
         } else {
             ruleWithUID = rule;
         }
@@ -1365,7 +1370,7 @@ public class RuleEngine
         if (mtManager != null) {
             Map<String, Object> mConfig = module.getConfiguration();
             if (mConfig == null) {
-                mConfig = new HashMap<>(11);
+                mConfig = new HashMap<String, Object>(11);
             }
             ModuleType mt = mtManager.get(type);
             if (mt != null) {
@@ -1380,7 +1385,7 @@ public class RuleEngine
                             mConfig.put(parameterName, defValue);
                         } else {
                             if (cftDesc.isRequired()) {
-                                throw new RuntimeException(
+                                throw new IllegalArgumentException(
                                         "Missing required parameter: " + parameterName + " of type " + type);
                             }
                         }
