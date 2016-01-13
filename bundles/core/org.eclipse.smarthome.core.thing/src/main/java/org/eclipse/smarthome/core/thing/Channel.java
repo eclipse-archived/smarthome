@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
@@ -197,7 +198,8 @@ public class Channel {
      * Returns a set of items, which are linked to the channel.
      *
      * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link ItemChannelLinkRegistry} instead.
+     *             {@link BaseThingHandler#isLinked} instead or alternatively
+     *             {@link ItemChannelLinkRegistry} if you are not within a handler implementation.
      *
      * @return Set of items, which are linked to the channel
      */
@@ -210,7 +212,8 @@ public class Channel {
      * Returns whether at least one item is linked to the channel.
      *
      * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link ItemChannelLinkRegistry} instead.
+     *             {@link BaseThingHandler#isLinked} instead or alternatively
+     *             {@link ItemChannelLinkRegistry} if you are not within a handler implementation.
      *
      * @return true if at least one item is linked to the channel, false
      *         otherwise
