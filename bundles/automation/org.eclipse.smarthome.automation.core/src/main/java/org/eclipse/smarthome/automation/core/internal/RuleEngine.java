@@ -1385,7 +1385,7 @@ public class RuleEngine
                             mConfig.put(parameterName, defValue);
                         } else {
                             if (cftDesc.isRequired()) {
-                                throw new IllegalArgumentException(
+                                throw new RuntimeException(
                                         "Missing required parameter: " + parameterName + " of type " + type);
                             }
                         }
