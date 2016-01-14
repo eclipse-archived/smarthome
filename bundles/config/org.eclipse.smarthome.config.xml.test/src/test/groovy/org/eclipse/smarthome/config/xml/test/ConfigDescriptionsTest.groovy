@@ -16,7 +16,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterGroup
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
-import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.After
@@ -33,44 +32,48 @@ import org.osgi.framework.Bundle
 class ConfigDescriptionsTest extends OSGiTest {
 
     static final String TEST_BUNDLE_NAME = "ConfigDescriptionsTest.bundle"
-	
-	ConfigDescriptionRegistry configDescriptionRegistry
+    static final String FRAGMENT_TEST_HOST_NAME = "ConfigDescriptionsFragmentTest.host"
+    static final String FRAGMENT_TEST_FRAGMENT_NAME = "ConfigDescriptionsFragmentTest.fragment"
 
-	@Before
-	void setUp() {
-		configDescriptionRegistry = getService(ConfigDescriptionRegistry)
-		assertThat configDescriptionRegistry, is(notNullValue())
-	}
-    
+    ConfigDescriptionRegistry configDescriptionRegistry
+
+    @Before
+    void setUp() {
+        configDescriptionRegistry = getService(ConfigDescriptionRegistry)
+        assertThat configDescriptionRegistry, is(notNullValue())
+    }
+
     @After
     void tearDown() {
         SyntheticBundleInstaller.uninstall(getBundleContext(), TEST_BUNDLE_NAME)
+        SyntheticBundleInstaller.uninstall(getBundleContext(), FRAGMENT_TEST_FRAGMENT_NAME)
+        SyntheticBundleInstaller.uninstall(getBundleContext(), FRAGMENT_TEST_HOST_NAME)
     }
-	
-	@Test
-	void 'assert that ConfigDescriptions were loaded properly'() {
-		def bundleContext = getBundleContext()
+
+    @Test
+    void 'assert that ConfigDescriptions were loaded properly'() {
+        def bundleContext = getBundleContext()
         def initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size()
-		
+
         // install test bundle
-		Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
-		assertThat bundle, is(notNullValue())
-		
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, TEST_BUNDLE_NAME)
+        assertThat bundle, is(notNullValue())
+
         def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
         assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
-        
+
         ConfigDescription dummyConfigDescription = configDescriptions.find {
-                it.uri.equals(new URI("config:dummyConfig")) }
+            it.uri.equals(new URI("config:dummyConfig")) }
         assertThat dummyConfigDescription, is(notNullValue())
 
         def parameters = dummyConfigDescription.parameters
         assertThat parameters.size(), is(6)
-        
+
         ConfigDescriptionParameter ipParameter = parameters.find { it.name.equals("ip") }
         assertThat ipParameter, is(notNullValue())
         assertThat ipParameter.type, is(Type.TEXT)
         ipParameter.with {
-	        assertThat groupName, is(null)
+            assertThat groupName, is(null)
             assertThat context, is("network-address")
             assertThat label, is("Network Address")
             assertThat description, is("Network address of the hue bridge.")
@@ -79,12 +82,12 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat multiple, is(false)
             assertThat readOnly, is(true)
         }
-        
+
         ConfigDescriptionParameter usernameParameter = parameters.find { it.name.equals("username") }
         assertThat usernameParameter, is(notNullValue())
         assertThat usernameParameter.type, is(Type.TEXT)
         usernameParameter.with {
-	        assertThat groupName, is("user")
+            assertThat groupName, is("user")
             assertThat context, is("password")
             assertThat label, is("Username")
             assertThat required, is(false)
@@ -92,7 +95,7 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat readOnly, is(false)
             assertThat description, is("Name of a registered hue bridge user, that allows to access the API.")
         }
-        
+
         ConfigDescriptionParameter userPassParameter = parameters.find { it.name.equals("user-pass") }
         assertThat userPassParameter, is(notNullValue())
         assertThat userPassParameter.type, is(Type.TEXT)
@@ -132,7 +135,7 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat multipleLimit, is(null)
             assertThat options.join(", "), is("ParameterOption [value=\"key1\", label=\"label1\"], ParameterOption [value=\"key2\", label=\"label2\"]")
         }
-        
+
         ConfigDescriptionParameter listParameter2 = parameters.find { it.name.equals("list2") }
         assertThat listParameter2, is(notNullValue())
         assertThat listParameter2.type, is(Type.TEXT)
@@ -145,7 +148,7 @@ class ConfigDescriptionsTest extends OSGiTest {
             assertThat limitToOptions, is(false)
             assertThat multipleLimit, is(4)
         }
-        
+
         def groups = dummyConfigDescription.parameterGroups
         assertThat groups.size(), is(2)
 
@@ -170,5 +173,44 @@ class ConfigDescriptionsTest extends OSGiTest {
         // uninstall test bundle
         bundle.uninstall();
         assertThat bundle.state, is(Bundle.UNINSTALLED)
-	}
+    }
+
+    @Test
+    void 'assert that ConfigDescriptions of fragment host were loaded properly'() {
+        def bundleContext = getBundleContext()
+        def initialNumberOfConfigDescriptions = configDescriptionRegistry.getConfigDescriptions().size()
+
+        // install test bundle
+        Bundle fragment = SyntheticBundleInstaller.installFragment(bundleContext, FRAGMENT_TEST_FRAGMENT_NAME)
+        Bundle bundle = SyntheticBundleInstaller.install(bundleContext, FRAGMENT_TEST_HOST_NAME)
+        assertThat bundle, is(notNullValue())
+
+        def configDescriptions = configDescriptionRegistry.getConfigDescriptions()
+        assertThat configDescriptions.size(), is(initialNumberOfConfigDescriptions + 1)
+
+        ConfigDescription dummyConfigDescription = configDescriptions.find {
+            it.uri.equals(new URI("config:fragmentConfig")) }
+        assertThat dummyConfigDescription, is(notNullValue())
+
+        def parameters = dummyConfigDescription.parameters
+        assertThat parameters.size(), is(1)
+
+        ConfigDescriptionParameter usernameParameter = parameters.find { it.name.equals("testParam") }
+        assertThat usernameParameter, is(notNullValue())
+        assertThat usernameParameter.type, is(Type.TEXT)
+        usernameParameter.with {
+            assertThat label, is("Test")
+            assertThat required, is(false)
+            assertThat multiple, is(false)
+            assertThat readOnly, is(false)
+            assertThat description, is("Test Parameter.")
+        }
+
+        fragment.uninstall();
+        assertThat fragment.state, is(Bundle.UNINSTALLED)
+        bundle.uninstall();
+        assertThat bundle.state, is(Bundle.UNINSTALLED)
+    }
+
+
 }
