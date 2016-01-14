@@ -39,6 +39,8 @@
                         <configuration>
                             <nodeVersion>v5.4.0</nodeVersion>
                             <npmVersion>3.3.12</npmVersion>
+							<nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+							<npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
                             <!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
                             <!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot>-->
                         </configuration>
