@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
@@ -25,24 +24,26 @@
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.27</version>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>0.0.27</version>
 
-                <executions>
-                    <execution>
-                        <id>Install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <!-- optional: default phase is "generate-resources" -->
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <nodeVersion>v5.4.0</nodeVersion>
-                            <npmVersion>3.3.12</npmVersion>
-                            <!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
-                            <!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot>-->
-                        </configuration>
-                    </execution>
+				<executions>
+					<execution>
+						<id>Install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<!-- optional: default phase is "generate-resources" -->
+						<phase>generate-resources</phase>
+						<configuration>
+							<nodeVersion>v5.4.0</nodeVersion>
+							<npmVersion>3.3.12</npmVersion>
+							<nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+							<npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+							<!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
+							<!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot> -->
+						</configuration>
+					</execution>
 
 					<!-- Default execution argument is 'install' -->
 
