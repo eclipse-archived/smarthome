@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  * @author Thomas.Eichstaedt-Engelen
  */
-public class GenericItemProvider extends AbstractProvider<Item> implements ModelRepositoryChangeListener, ItemProvider, StateDescriptionProvider {
+public class GenericItemProvider extends AbstractProvider<Item>
+        implements ModelRepositoryChangeListener, ItemProvider, StateDescriptionProvider {
 
     private final Logger logger = LoggerFactory.getLogger(GenericItemProvider.class);
 
@@ -61,9 +62,8 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
     private ModelRepository modelRepository = null;
 
     private Collection<ItemFactory> itemFactorys = new ArrayList<ItemFactory>();
-    
+
     private Map<String, StateDescription> stateDescriptions = new ConcurrentHashMap<>();
-    
 
     public GenericItemProvider() {
     }
@@ -80,7 +80,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 
     /**
      * Add another instance of an {@link ItemFactory}. Used by Declarative Services.
-     * 
+     *
      * @param factory The {@link ItemFactory} to add.
      */
     public void addItemFactory(ItemFactory factory) {
@@ -90,7 +90,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 
     /**
      * Removes the given {@link ItemFactory}. Used by Declarative Services.
-     * 
+     *
      * @param factory The {@link ItemFactory} to remove.
      */
     public void removeItemFactory(ItemFactory factory) {
@@ -199,7 +199,7 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
         }
         String label = modelItem.getLabel();
         String format = StringUtils.substringBetween(label, "[", "]");
-        if(format != null) {
+        if (format != null) {
             label = StringUtils.substringBefore(label, "[").trim();
             stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
         }
@@ -222,8 +222,8 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
         for (String arg : modelGroupItem.getArgs()) {
             State state = TypeParser.parseState(baseItem.getAcceptedDataTypes(), arg);
             if (state == null) {
-                logger.warn("State '{}' is not valid for group item '{}' with base type '{}'", new Object[] { arg,
-                        modelGroupItem.getName(), modelGroupItem.getType() });
+                logger.warn("State '{}' is not valid for group item '{}' with base type '{}'",
+                        new Object[] { arg, modelGroupItem.getName(), modelGroupItem.getType() });
                 args.clear();
                 break;
             } else {
@@ -263,12 +263,12 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                     logger.error("Group function 'NOT OR' requires two arguments. Using Equality instead.");
                 }
             case COUNT:
-            	if (args.size() == 1) {
-            		groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
-            		break;
-            	} else {
-            		logger.error("Group function 'COUNT' requires one argument. Using Equality instead.");
-            	}
+                if (args.size() == 1) {
+                    groupFunction = new ArithmeticGroupFunction.Count(args.get(0));
+                    break;
+                } else {
+                    logger.error("Group function 'COUNT' requires one argument. Using Equality instead.");
+                }
             case AVG:
                 groupFunction = new ArithmeticGroupFunction.Avg();
                 break;
@@ -369,12 +369,12 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
                     localReader.validateItemType(item.getType(), config);
                     localReader.processBindingConfiguration(modelName, item.getType(), item.getName(), config);
                 } catch (BindingConfigParseException e) {
-                    logger.error("Binding configuration of type '" + bindingType + "' of item ‘" + item.getName()
-                            + "‘ could not be parsed correctly.", e);
+                    logger.error("Binding configuration of type '" + bindingType + "' of item '" + item.getName()
+                            + "' could not be parsed correctly.", e);
                 } catch (Exception e) {
                     // Catch badly behaving binding exceptions and continue processing
-                    logger.error("Binding configuration of type '" + bindingType + "' of item ‘" + item.getName()
-                            + "‘ could not be parsed correctly.", e);
+                    logger.error("Binding configuration of type '" + bindingType + "' of item '" + item.getName()
+                            + "' could not be parsed correctly.", e);
                 }
             } else {
                 logger.trace("Couldn't find config reader for binding type '{}' > "
@@ -421,10 +421,10 @@ public class GenericItemProvider extends AbstractProvider<Item> implements Model
 
     /**
      * Creates a new item of type {@code itemType} by utilizing an appropriate {@link ItemFactory}.
-     * 
+     *
      * @param itemType The type to find the appropriate {@link ItemFactory} for.
      * @param itemName The name of the {@link Item} to create.
-     * 
+     *
      * @return An Item instance of type {@code itemType}.
      */
     private GenericItem createItemOfType(String itemType, String itemName) {
