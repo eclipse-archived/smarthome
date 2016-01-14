@@ -52,11 +52,11 @@ public class HttpUtil {
      * Executes the given <code>url</code> with the given <code>httpMethod</code>.
      * Furthermore the <code>http.proxyXXX</code> System variables are read and
      * set into the {@link HttpClient}.
-     * 
+     *
      * @param httpMethod the HTTP method to use
      * @param url the url to execute (in milliseconds)
      * @param timeout the socket timeout to wait for data
-     * 
+     *
      * @return the response body or <code>NULL</code> when the request went wrong
      */
     public static String executeUrl(String httpMethod, String url, int timeout) {
@@ -67,17 +67,18 @@ public class HttpUtil {
      * Executes the given <code>url</code> with the given <code>httpMethod</code>.
      * Furthermore the <code>http.proxyXXX</code> System variables are read and
      * set into the {@link HttpClient}.
-     * 
+     *
      * @param httpMethod the HTTP method to use
      * @param url the url to execute (in milliseconds)
      * @param content the content to be send to the given <code>url</code> or <code>null</code> if no content should be
      *            send.
      * @param contentType the content type of the given <code>content</code>
      * @param timeout the socket timeout to wait for data
-     * 
+     *
      * @return the response body or <code>NULL</code> when the request went wrong
      */
-    public static String executeUrl(String httpMethod, String url, InputStream content, String contentType, int timeout) {
+    public static String executeUrl(String httpMethod, String url, InputStream content, String contentType,
+            int timeout) {
 
         return executeUrl(httpMethod, url, null, content, contentType, timeout);
     }
@@ -86,7 +87,7 @@ public class HttpUtil {
      * Executes the given <code>url</code> with the given <code>httpMethod</code>.
      * Furthermore the <code>http.proxyXXX</code> System variables are read and
      * set into the {@link HttpClient}.
-     * 
+     *
      * @param httpMethod the HTTP method to use
      * @param url the url to execute (in milliseconds)
      * @param httpHeaders optional http request headers which has to be sent within request
@@ -94,7 +95,7 @@ public class HttpUtil {
      *            send.
      * @param contentType the content type of the given <code>content</code>
      * @param timeout the socket timeout to wait for data
-     * 
+     *
      * @return the response body or <code>NULL</code> when the request went wrong
      */
     public static String executeUrl(String httpMethod, String url, Properties httpHeaders, InputStream content,
@@ -114,8 +115,8 @@ public class HttpUtil {
                 try {
                     proxyPort = Integer.valueOf(proxyPortString);
                 } catch (NumberFormatException e) {
-                    LoggerFactory.getLogger(HttpUtil.class).warn(
-                            "'{}' is not a valid proxy port - using port 80 instead");
+                    LoggerFactory.getLogger(HttpUtil.class)
+                            .warn("'{}' is not a valid proxy port - using port 80 instead");
                 }
             }
             proxyUser = System.getProperty("http.proxyUser");
@@ -130,7 +131,7 @@ public class HttpUtil {
 
     /**
      * Executes the given <code>url</code> with the given <code>httpMethod</code>
-     * 
+     *
      * @param httpMethod the HTTP method to use
      * @param url the url to execute (in milliseconds)
      * @param httpHeaders optional HTTP headers which has to be set on request
@@ -192,8 +193,8 @@ public class HttpUtil {
         try {
 
             int statusCode = client.executeMethod(method);
-            if (statusCode != HttpStatus.SC_OK) {
-                logger.warn("Method failed: " + method.getStatusLine());
+            if (statusCode >= HttpStatus.SC_BAD_REQUEST) {
+                logger.debug("Method failed: " + method.getStatusLine());
             }
 
             String responseBody = IOUtils.toString(method.getResponseBodyAsStream());
@@ -216,10 +217,10 @@ public class HttpUtil {
     /**
      * Determines whether the list of <code>nonProxyHosts</code> contains the
      * host (which is part of the given <code>urlString</code> or not.
-     * 
+     *
      * @param urlString
      * @param nonProxyHosts
-     * 
+     *
      * @return <code>false</code> if the host of the given <code>urlString</code> is contained in
      *         <code>nonProxyHosts</code>-list and <code>true</code> otherwise
      */
@@ -259,13 +260,13 @@ public class HttpUtil {
     /**
      * Extracts username and password from the given <code>url</code>. A valid
      * url to extract {@link Credentials} from looks like:
-     * 
+     *
      * <pre>
      * http://username:password@www.domain.org
      * </pre>
-     * 
+     *
      * @param url the URL to extract {@link Credentials} from
-     * 
+     *
      * @return the exracted Credentials or <code>null</code> if the given <code>url</code> does not contain credentials
      */
     protected static Credentials extractCredentials(String url) {
@@ -293,11 +294,11 @@ public class HttpUtil {
 
     /**
      * Factory method to create a {@link HttpMethod}-object according to the
-     * given String <code>httpMethod</codde>
-     * 
+     * given String <code>httpMethod</code>
+     *
      * @param httpMethodString the name of the {@link HttpMethod} to create
      * @param url
-     * 
+     *
      * @return an object of type {@link GetMethod}, {@link PutMethod}, {@link PostMethod} or {@link DeleteMethod}
      * @throws IllegalArgumentException if <code>httpMethod</code> is none of <code>GET</code>, <code>PUT</code>,
      *             <code>POST</POST> or <code>DELETE</code>
