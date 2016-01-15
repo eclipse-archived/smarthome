@@ -42,6 +42,16 @@ public class SyntheticBundleInstaller {
         return syntheticBundle;
     }
 
+    public static Bundle installFragment(BundleContext bundleContext, String testBundleName) throws Exception {
+        String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
+        byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName);
+
+        Bundle syntheticBundle = bundleContext.installBundle(testBundleName,
+                new ByteArrayInputStream(syntheticBundleBytes));
+        waitUntilLoadingFinished(syntheticBundle);
+        return syntheticBundle;
+    }
+
     public static void waitUntilLoadingFinished(Bundle bundle) {
         while (!AbstractAsyncBundleProcessor.isBundleFinishedLoading(bundle)) {
             try {
