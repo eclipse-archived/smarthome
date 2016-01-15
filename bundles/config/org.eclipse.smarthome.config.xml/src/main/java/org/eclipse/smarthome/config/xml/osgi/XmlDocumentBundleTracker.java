@@ -99,7 +99,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
             @Override
             protected boolean isBundleRelevant(Bundle bundle) {
-                return isDirectoryPresent(bundle, XmlDocumentBundleTracker.this.xmlDirectory);
+                return isResourcePresent(bundle, XmlDocumentBundleTracker.this.xmlDirectory);
             }
 
             @Override

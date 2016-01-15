@@ -107,16 +107,18 @@ public abstract class AbstractAsyncBundleProcessor {
     }
 
     /**
-     * Checks for the existence of a given directors inside the bundle.
+     * Checks for the existence of a given resource inside the bundle and its attached fragments.
+     * The bundle must be in ACTIVE state, otherwise this call might change the bundle's state
+     * to ACTIVE.
      *
      * Helper method which can be used in {@link #isBundleRelevant(Bundle)}.
      * 
      * @param bundle
      * @param path the directory name to look for
-     * @return <code>true</code> id the bundle contains the given directory
+     * @return <code>true</code> if the bundle or one of its attached fragments contain the given directory
      */
-    protected final boolean isDirectoryPresent(Bundle bundle, String path) {
-        return bundle.getEntry(path) != null;
+    protected final boolean isResourcePresent(Bundle bundle, String path) {
+        return bundle.getResource(path) != null;
     }
 
     /**
