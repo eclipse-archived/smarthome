@@ -34,11 +34,11 @@
     </channel-type>
 
     <!-- Alert Channel -->
-    <channel-type id="alert">
+    <channel-type id="alert" advanced="true">
         <item-type>String</item-type>
         <label>Alert</label>
         <description>The alert channel allows a temporary change to the bulb’s state.</description>
-        <state readOnly="true">
+        <state>
             <options>
                 <option value="NONE">None</option>
                 <option value="SELECT">Alert</option>
@@ -48,7 +48,7 @@
     </channel-type>
 
     <!-- Effect Channel -->
-    <channel-type id="effect">
+    <channel-type id="effect" advanced="true">
         <item-type>Switch</item-type>
         <label>Color Loop</label>
         <description>The effect channel allows putting the bulb in a color looping mode.</description>
