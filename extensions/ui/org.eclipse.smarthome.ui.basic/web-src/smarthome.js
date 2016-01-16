@@ -403,9 +403,17 @@
 		Control.call(this, parentNode);
 
 		var
-			_t = this;
+			_t = this,
+			valueMapString = parentNode.getAttribute("data-value-map");
 
 		_t.value = null;
+		_t.valueNode = parentNode.parentNode.querySelector(o.formValue);
+
+		if (valueMapString !== null) {
+			_t.valueMap = JSON.parse(valueMapString);
+		} else {
+			_t.valueMap = {};
+		}
 
 		function onRadioChange(event) {
 			event.stopPropagation();
@@ -458,6 +466,11 @@
 
 		_t.setValuePrivate = function(value) {
 			_t.value = "" + value;
+			if (_t.valueMap[value] !== undefined) {
+				_t.valueNode.innerHTML = _t.valueMap[value];
+			} else {
+				_t.valueNode.innerHTML = "";
+			}
 		};
 
 		_t.parentNode.parentNode.addEventListener("click", _t.showModal);
@@ -558,7 +571,7 @@
 		_t.step = parseFloat(_t.parentNode.getAttribute("data-step"));
 
 		_t.value = isNaN(parseFloat(_t.value)) ? 0 : parseFloat(_t.value);
-		_t.valueNode = _t.parentNode.parentNode.querySelector(o.setpoint.value);
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
 
 		_t.setValuePrivate = function(value) {
 			_t.value = value * 1;
@@ -1120,7 +1133,7 @@
 			_t = this;
 
 		_t.target = parentNode.getAttribute("data-target");
-		_t.container = parentNode.parentNode.querySelector(o.textLink.value);
+		_t.container = parentNode.parentNode.querySelector(o.formValue);
 
 		_t.setValuePrivate = function(value) {
 			if (_t.container !== null) {
@@ -1516,6 +1529,7 @@
 	modalContainer: ".mdl-modal__content",
 	selectionRows: ".mdl-form__selection-rows",
 	formControls: ".mdl-form__control",
+	formValue: ".mdl-form__value",
 	formRadio: ".mdl-radio",
 	formRadioControl: ".mdl-radio__button",
 	formIcon: ".mdl-form__icon img",
@@ -1530,8 +1544,7 @@
 	},
 	setpoint: {
 		up: ".mdl-form__setpoint--up",
-		down: ".mdl-form__setpoint--down",
-		value: ".mdl-form__setpoint-value"
+		down: ".mdl-form__setpoint--down"
 	},
 	colorpicker: {
 		up: ".mdl-form__colorpicker--up",
@@ -1544,8 +1557,5 @@
 		background: ".colorpicker__background",
 		colorpicker: ".colorpicker",
 		button: ".colorpicker__buttons > button"
-	},
-	textLink: {
-		value: ".mdl-form__text-link-value"
 	}
 });
