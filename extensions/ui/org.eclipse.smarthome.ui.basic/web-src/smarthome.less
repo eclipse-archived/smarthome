@@ -261,9 +261,6 @@
 			padding-top: 6px;
 		}
 	}
-	&__setpoint-value {
-		padding: 0 10px 0 5px;
-	}
 	&__group {
 		padding-top: 4px;
 	}
@@ -273,6 +270,8 @@
 		}
 	}
 	&__selection {
+		padding-top: 3px;
+		padding-left: 6px;
 		&-rows {
 			display: none;
 		}
@@ -289,9 +288,12 @@
 			padding-left: @form-row-mobile-padding + @mdl-grid-spacing;
 		}
 	}
-	&__text-link-value, &__setpoint-value {
+	&__value {
 		font-weight: 700;
 		text-transform: uppercase;
+		&--setpoint {
+			padding: 0 10px 0 5px;
+		}
 	}
 	&--no-label {
 		.mdl-form__title {

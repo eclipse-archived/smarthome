@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.ui.basic.internal.render;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.model.sitemap.Mapping;
@@ -14,6 +15,8 @@ import org.eclipse.smarthome.model.sitemap.Selection;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.render.RenderException;
 import org.eclipse.smarthome.ui.basic.render.WidgetRenderer;
+
+import com.google.gson.JsonObject;
 
 /**
  * This is an implementation of the {@link WidgetRenderer} interface, which
@@ -34,6 +37,21 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
     }
 
     /**
+     * Get command-label map for a Selection widget
+     *
+     * @return String representing JSON object
+     */
+    private String getMappingsJSON(Selection w) {
+        JsonObject resultObject = new JsonObject();
+        for (Mapping mapping : w.getMappings()) {
+            resultObject.addProperty(mapping.getCmd(), mapping.getLabel());
+        }
+        String result = resultObject.toString();
+        result = StringEscapeUtils.escapeHtml(result);
+        return result;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -43,12 +61,13 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%category%", getCategory(w));
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
         snippet = StringUtils.replace(snippet, "%state%", getState(w));
+        snippet = StringUtils.replace(snippet, "%value_map%", getMappingsJSON((Selection) w));
         snippet = StringUtils.replace(snippet, "%label_header%", getLabel(w));
-        snippet = StringUtils.replace(snippet, "%value%", getValue(w));
         snippet = StringUtils.replace(snippet, "%item%", w.getItem() != null ? w.getItem() : "");
 
         String state = itemUIRegistry.getState(w).toString();
         Selection selection = (Selection) w;
+        String mappingLabel = null;
 
         StringBuilder rowSB = new StringBuilder();
         for (Mapping mapping : selection.getMappings()) {
@@ -58,6 +77,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             rowSnippet = StringUtils.replace(rowSnippet, "%label%",
                     mapping.getLabel() != null ? mapping.getLabel() : "");
             if (state.equals(mapping.getCmd())) {
+                mappingLabel = mapping.getLabel();
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "checked=\"true\"");
             } else {
                 rowSnippet = StringUtils.replace(rowSnippet, "%checked%", "");
@@ -65,6 +85,7 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
             rowSB.append(rowSnippet);
         }
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
+        snippet = StringUtils.replace(snippet, "%value%", mappingLabel != null ? mappingLabel : "");
 
         // Process the color tags
         snippet = processColor(w, snippet);
