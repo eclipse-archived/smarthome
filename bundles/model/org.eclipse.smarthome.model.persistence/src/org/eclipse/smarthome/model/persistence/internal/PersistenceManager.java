@@ -66,8 +66,8 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-public class PersistenceManager implements ModelRepositoryChangeListener,
-        ItemRegistryChangeListener, StateChangeListener {
+public class PersistenceManager
+        implements ModelRepositoryChangeListener, ItemRegistryChangeListener, StateChangeListener {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
@@ -167,7 +167,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Registers a persistence model file with the persistence manager, so that it becomes active.
-     * 
+     *
      * @param modelName the name of the persistence model without file extension
      */
     private void startEventHandling(String modelName) {
@@ -176,10 +176,12 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
             if (model != null) {
                 persistenceConfigurations.put(modelName, model.getConfigs());
                 defaultStrategies.put(modelName, model.getDefaults());
-                for (PersistenceConfiguration config : model.getConfigs()) {
-                    if (hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
-                        for (Item item : getAllItems(config)) {
-                            initialize(item);
+                if (itemRegistry != null) {
+                    for (PersistenceConfiguration config : model.getConfigs()) {
+                        if (hasStrategy(modelName, config, GlobalStrategies.RESTORE)) {
+                            for (Item item : getAllItems(config)) {
+                                initialize(item);
+                            }
                         }
                     }
                 }
@@ -190,7 +192,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Unregisters a persistence model file from the persistence manager, so that it is not further regarded.
-     * 
+     *
      * @param modelName the name of the persistence model without file extension
      */
     private void stopEventHandling(String modelName) {
@@ -211,7 +213,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Calls all persistence services which use change or update policy for the given item
-     * 
+     *
      * @param item the item to persist
      * @param onlyChanges true, if it has the change strategy, false otherwise
      */
@@ -221,8 +223,8 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
                 String serviceName = entry.getKey();
                 if (persistenceServices.containsKey(serviceName)) {
                     for (PersistenceConfiguration config : entry.getValue()) {
-                        if (hasStrategy(serviceName, config, onlyChanges ? GlobalStrategies.CHANGE
-                                : GlobalStrategies.UPDATE)) {
+                        if (hasStrategy(serviceName, config,
+                                onlyChanges ? GlobalStrategies.CHANGE : GlobalStrategies.UPDATE)) {
                             if (appliesToItem(config, item)) {
                                 persistenceServices.get(serviceName).store(item, config.getAlias());
                             }
@@ -235,7 +237,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Checks if a given persistence configuration entry has a certain strategy for the given service
-     * 
+     *
      * @param serviceName the service to check the configuration for
      * @param config the persistence configuration entry
      * @param strategy the strategy to check for
@@ -256,7 +258,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Checks if a given persistence configuration entry is relevant for an item
-     * 
+     *
      * @param config the persistence configuration entry
      * @param item to check if the configuration applies to
      * @return true, if the configuration applies to the item
@@ -292,7 +294,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Retrieves all items for which the persistence configuration applies to.
-     * 
+     *
      * @param config the persistence configuration entry
      * @return all items that this configuration applies to
      */
@@ -354,7 +356,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
      * If the item state is still undefined when entering this method, all persistence configurations are checked,
      * if they have the "restoreOnStartup" strategy configured for the item. If so, the item state will be set
      * to its last persisted value.
-     * 
+     *
      * @param item the item to restore the state for
      */
     protected void initialize(Item item) {
@@ -377,12 +379,11 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
                                     genericItem.removeStateChangeListener(this);
                                     genericItem.setState(historicItem.getState());
                                     genericItem.addStateChangeListener(this);
-                                    logger.debug(
-                                            "Restored item state from '{}' for item '{}' -> '{}'",
+                                    logger.debug("Restored item state from '{}' for item '{}' -> '{}'",
                                             new Object[] {
                                                     DateFormat.getDateTimeInstance()
-                                                            .format(historicItem.getTimestamp()), item.getName(),
-                                                    historicItem.getState().toString() });
+                                                            .format(historicItem.getTimestamp()),
+                                                    item.getName(), historicItem.getState().toString() });
                                     return;
                                 }
                             } else if (service != null) {
@@ -407,10 +408,10 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Creates and schedules a new quartz-job and trigger with model and rule name as jobData.
-     * 
+     *
      * @param rule the rule to schedule
      * @param trigger the defined trigger
-     * 
+     *
      * @throws SchedulerException if there is an internal Scheduler error.
      */
     private void createTimers(String modelName) {
@@ -428,16 +429,16 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
                                 .usingJobData(PersistItemsJob.JOB_DATA_STRATEGYNAME, cronStrategy.getName())
                                 .withIdentity(jobKey).build();
 
-                        Trigger quartzTrigger = newTrigger().withSchedule(
-                                CronScheduleBuilder.cronSchedule(cronExpression)).build();
+                        Trigger quartzTrigger = newTrigger()
+                                .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression)).build();
 
                         scheduler.scheduleJob(job, quartzTrigger);
 
-                        logger.debug("Scheduled strategy {} with cron expression {}", new Object[] { jobKey.toString(),
-                                cronExpression });
+                        logger.debug("Scheduled strategy {} with cron expression {}",
+                                new Object[] { jobKey.toString(), cronExpression });
                     } catch (SchedulerException e) {
-                        logger.error("Failed to schedule job for strategy {} with cron expression {}", new String[] {
-                                jobKey.toString(), cronExpression }, e);
+                        logger.error("Failed to schedule job for strategy {} with cron expression {}",
+                                new String[] { jobKey.toString(), cronExpression }, e);
                     }
                 }
             }
@@ -446,7 +447,7 @@ public class PersistenceManager implements ModelRepositoryChangeListener,
 
     /**
      * Delete all {@link Job}s of the group <code>persistModelName</code>
-     * 
+     *
      * @throws SchedulerException if there is an internal Scheduler error.
      */
     private void removeTimers(String persistModelName) {
