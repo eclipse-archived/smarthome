@@ -7,7 +7,11 @@
  */
 package org.eclipse.smarthome.core.common;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
@@ -15,6 +19,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
@@ -257,6 +262,10 @@ public class ThreadPoolManager {
 
     public static class ExpressionThreadPoolExecutor extends ScheduledThreadPoolExecutor {
 
+        private List<Runnable> running = Collections.synchronizedList(new ArrayList<Runnable>());
+        private Map<Runnable, Runnable> scheduled = Collections.synchronizedMap(new HashMap<Runnable, Runnable>());
+        private Map<Runnable, Future<?>> futures = Collections.synchronizedMap(new HashMap<Runnable, Future<?>>());
+
         public ExpressionThreadPoolExecutor(final String poolName, int corePoolSize) {
             this(poolName, corePoolSize, new NamedThreadFactory(poolName), new ThreadPoolExecutor.DiscardPolicy() {
                 // The pool is bounded and rejections will happen during shutdown
@@ -276,8 +285,17 @@ public class ThreadPoolManager {
         }
 
         @Override
+        protected void beforeExecute(Thread thread, Runnable runnable) {
+            super.beforeExecute(thread, runnable);
+            running.add(runnable);
+        }
+
+        @Override
         protected void afterExecute(Runnable runnable, Throwable throwable) {
             super.afterExecute(runnable, throwable);
+            running.remove(runnable);
+            futures.remove(runnable);
+            scheduled.remove(runnable);
             if (throwable != null) {
                 Throwable cause = throwable.getCause();
                 if (cause instanceof InterruptedException) {
@@ -304,8 +322,9 @@ public class ThreadPoolManager {
 
                     try {
                         while (time != null) {
-                            ExpressionThreadPoolExecutor.this.schedule(task, time.getTime() - now.getTime(),
-                                    TimeUnit.MILLISECONDS);
+                            futures.put(task, ExpressionThreadPoolExecutor.this.schedule(task,
+                                    time.getTime() - now.getTime(), TimeUnit.MILLISECONDS));
+                            scheduled.put(task, this);
 
                             while (now.before(time)) {
                                 Thread.sleep(time.getTime() - now.getTime());
@@ -325,7 +344,20 @@ public class ThreadPoolManager {
                 }
             };
 
-            this.execute(scheduleTask);
+            futures.put(scheduleTask, this.submit(scheduleTask));
+        }
+
+        @Override
+        public boolean remove(Runnable task) {
+            Runnable scheduledTask = scheduled.get(task);
+            if (futures.get(task) != null && futures.get(task).cancel(false)) {
+                running.remove(task);
+            }
+            if (futures.get(scheduledTask) != null && futures.get(scheduledTask).cancel(true)) {
+                running.remove(scheduledTask);
+            }
+            scheduled.remove(task);
+            return super.remove(task);
         }
     }
 
