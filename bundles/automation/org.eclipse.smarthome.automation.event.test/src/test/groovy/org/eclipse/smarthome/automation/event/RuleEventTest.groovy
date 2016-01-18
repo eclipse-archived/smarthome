@@ -170,9 +170,26 @@ class RuleEventTest extends OSGiTest{
         assertThat stateEvents, is(notNullValue())
         def runningEvent = stateEvents.find{it.statusInfo.status==RuleStatus.RUNNING}
         assertThat runningEvent, is(notNullValue())
+
+        Event ruleRemovedEvent = null
+        def ruleRemovedEventHandler = [
+            receive: {  Event e ->
+                logger.info("RuleRemovedEvent: " + e.topic)
+                ruleRemovedEvent = e
+            },
+
+            getSubscribedEventTypes: {
+                Sets.newHashSet(RuleRemovedEvent.TYPE)
+            },
+
+            getEventFilter:{ null }
+        ] as EventSubscriber
+        registerService(ruleRemovedEventHandler)
+
         ruleRegistry.remove("myRule21")
         waitForAssert({
-            assertThat ruleEvents.find{it.topic=="smarthome/rules/myRule21/removed"}, is(notNullValue())
-        })
+            assertThat ruleRemovedEvent, is(notNullValue())
+            assertThat ruleRemovedEvent.topic, is(equalTo("smarthome/rules/myRule21/removed"))
+        })		
     }
 }
