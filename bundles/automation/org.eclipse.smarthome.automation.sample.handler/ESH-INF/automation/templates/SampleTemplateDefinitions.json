@@ -1,7 +1,7 @@
 [  
   {  
     "uid":"SampleRuleTemplate",
-    "description":"Sample Rule TEmplate.",
+    "description":"Sample Rule Template",
     "tags":[  
       "sample",
       "rule",
@@ -24,13 +24,17 @@
     "triggers": [  
       {  
         "id": "CompositeSampleTriggerTemplateID",
-        "type": "CompositeSampleTrigger"
+        "type": "CompositeSampleTrigger",
+        "label": "Sample Trigger",
+        "description": "This is a sample composite trigger"
       }
     ],
     "conditions": [
       {
         "id": "SampleConditionTemplateID",
         "type": "SampleCondition",
+        "label": "Sample Condition",
+        "description": "This is a sample condition",
         "configuration": {
           "operator": "$condition_operator",
           "constraint": "$condition_constraint"
@@ -44,6 +48,8 @@
       {  
         "id": "CompositeActionTemplateID",
         "type": "CompositeSampleAction",
+        "label": "Sample Action",
+        "description": "This is a sample action",
         "inputs": {  
           "compositeActionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }
