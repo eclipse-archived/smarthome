@@ -8,16 +8,16 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="navigateTo('new')"
-						aria-label="Add"></md-button>
+					<md-menu md-offset="60 -25"> <md-button class="md-fab md-icon-add" ng-click="$mdOpenMenu(ev);"
+						aria-label="Add"></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']">
+					<md-menu-item ng-repeat="item in ruleOptions"> <md-button
+						ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
 			</div>
 		</div>
 		<div class="container">
 			<p class="text-center" ng-show="data.rules.length == 0">
 				No rules defined yet.
-				<button class="md-button" ng-click="navigateTo('new')">New
-					Rule</button>
 			</p>
 			<div class="groups">
 				<div class="clickable" ng-repeat="rule in data.rules | orderBy:'uid'"
@@ -100,7 +100,7 @@
                     <div ng-repeat="val in aTriggers">
                          <div class="vcard card col-md-12">
                              <div class="row">
-                                <h5 class="col-md-10">{{val.label}}</h5>
+                                <h5>{{val.label?val.label:'Trigger '+($index+1)}}</h5>
                                 <div class="col-md-2">
                                 
                                  <md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised md-icon-settings"></md-button>
@@ -123,7 +123,7 @@
                     <div ng-repeat="val in aActions track by $index">
                         <div class="vcard card col-md-12">
                          <div class="row">
-                         <h5 class="col-md-10">{{val.label}}</h5>
+                        <h5>{{val.label?val.label:'Action '+($index+1)}}</h5>
                             <div class="col-md-2">
                             <md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised md-icon-settings"></md-button>
                             </div>
@@ -149,7 +149,8 @@
                     <div ng-repeat="val in aConditions track by $index">
                          <div class="vcard card col-md-10">
                              <div class="row">
-                                <h5 class="col-md-11">{{val.label}}</h5><div class="col-md-1">
+                                <h5>{{val.label?val.label:'Condition '+($index+1)}}</h5>
+                                <div class="col-md-1">
                                 <md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised md-icon-settings"></md-button>
                              
                                 </div>

@@ -86,8 +86,18 @@ angular
 														.showDefaultToast('Rule enabled.');
 											}
 										});
-					};
-				})
+			};
+
+			$scope.ruleOptionSelected = function(event, value) {
+				if (value == 0) {
+					$scope.navigateTo('new');
+				} else {
+					$scope.openDialog('RuleTemplateController', 'partials/dialog.ruletemplate.html', {
+						event : event
+					});
+				}
+			};
+		})
 		.controller('ViewRuleController', function($scope, ruleRepository) {
 			var ruleUID = $scope.path[3];
 			ruleRepository.getOne(function(rule) {
@@ -114,17 +124,24 @@ angular
 								function(data) {
 									$scope.name = data.name;
 									$scope.description = data.description;
-
-									sharedProperties.addArray('trigger',
-											data.triggers);
-									sharedProperties.addArray('action',
-											data.actions);
-									sharedProperties.addArray('condition',
-											data.conditions);
-
+									setModuleArrays(data);
 								});
 						$scope.setSubtitle(['Configure']);
 						$scope.editing = true;
+					}
+					else if(sharedProperties.getParams().length>0 && sharedProperties.getParams()[0]){
+						$scope.name=sharedProperties.getParams()[0].label;
+						$scope.description=sharedProperties.getParams()[0].description;
+						setModuleArrays(sharedProperties.getParams()[0]);
+						}
+					
+					function setModuleArrays(data) {
+						sharedProperties.addArray('trigger',
+								data.triggers);
+						sharedProperties.addArray('action',
+								data.actions);
+						sharedProperties.addArray('condition',
+								data.conditions);
 					}
 
 					$scope.saveUserRule = function() {
@@ -205,4 +222,42 @@ angular
 											$scope.navigateTo('');
 										});
 					};
-				});
+				})
+				.controller(
+						'RuleTemplateController',
+						function($scope, $location, ruleService, configService, toastService, $mdDialog, sharedProperties) {
+							$scope.templateData = ruleService.getRuleTemplates();
+							$scope.templateStep = 1;
+
+							$scope.selectTemplate = function() {
+								var res = configService
+										.getRenderingModel($scope.templateData[$scope.templateIndex].configDescriptions);
+								$scope.name=$scope.templateData[$scope.templateIndex].label;
+								$scope.description=$scope.templateData[$scope.templateIndex].description;
+								angular.forEach(res, function(value) {
+									sharedProperties.updateParams(value);
+								});
+								$scope.templateStep = 2;
+								$scope.configuration = {};
+								$scope.parameters = sharedProperties.getParams();
+							};
+
+							$scope.saveRule = function() {
+								sharedProperties.resetParams();
+								var rule = {
+									templateUID : $scope.templateData[$scope.templateIndex].uid,
+									name:$scope.name,
+									description:$scope.description,
+									configuration : $scope.configuration
+								};
+								ruleService.add(rule);
+								toastService.showDefaultToast('Rule added.');
+								$mdDialog.hide();
+								$location.path('rules/');
+							};
+
+							$scope.close = function() {
+								sharedProperties.resetParams();
+								$mdDialog.hide();
+							};
+						});
