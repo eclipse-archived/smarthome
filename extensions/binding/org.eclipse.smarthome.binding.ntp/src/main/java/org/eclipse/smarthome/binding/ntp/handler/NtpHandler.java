@@ -200,4 +200,9 @@ public class NtpHandler extends BaseThingHandler {
         return System.currentTimeMillis();
     }
 
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        refreshTimeDate();
+    }
+
 }
