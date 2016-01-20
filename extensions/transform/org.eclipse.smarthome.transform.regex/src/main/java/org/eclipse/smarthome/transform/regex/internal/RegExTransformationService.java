@@ -21,12 +21,14 @@ import org.slf4j.LoggerFactory;
  * </p>
  * <p>
  * <b>Note:</b> the given Regular Expression must contain exactly one group!
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public class RegExTransformationService implements TransformationService {
 
     private final Logger logger = LoggerFactory.getLogger(RegExTransformationService.class);
+
+    private static final Pattern substPattern = Pattern.compile("^s/(.*?[^\\\\])/(.*?[^\\\\])/(.*)$");
 
     /**
      * @{inheritDoc
@@ -40,6 +42,24 @@ public class RegExTransformationService implements TransformationService {
 
         logger.debug("about to transform '{}' by the function '{}'", source, regExpression);
 
+        String result = "";
+
+        Matcher substMatcher = substPattern.matcher(regExpression);
+        if (substMatcher.matches()) {
+            logger.debug("Using substitution form of regex transformation");
+            String regex = substMatcher.group(1);
+            String substitution = substMatcher.group(2);
+            String options = substMatcher.group(3);
+            if (options.equals("g")) {
+                result = source.trim().replaceAll(regex, substitution);
+            } else {
+                result = source.trim().replaceFirst(regex, substitution);
+            }
+            if (result != null) {
+                return result;
+            }
+        }
+
         Matcher matcher = Pattern.compile("^" + regExpression + "$", Pattern.DOTALL).matcher(source.trim());
         if (!matcher.matches()) {
             logger.debug(
@@ -49,7 +69,6 @@ public class RegExTransformationService implements TransformationService {
         }
         matcher.reset();
 
-        String result = "";
         while (matcher.find()) {
 
             if (matcher.groupCount() == 0) {
