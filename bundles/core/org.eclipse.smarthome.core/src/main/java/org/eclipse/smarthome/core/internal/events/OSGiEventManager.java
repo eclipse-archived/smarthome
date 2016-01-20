@@ -65,8 +65,12 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         @Override
         public Object addingService(ServiceReference reference) {
             EventSubscriber eventSubscriber = (EventSubscriber) this.context.getService(reference);
-            addEventSubscriber(eventSubscriber);
-            return eventSubscriber;
+            if (eventSubscriber != null) {
+                addEventSubscriber(eventSubscriber);
+                return eventSubscriber;
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -205,10 +209,12 @@ public class OSGiEventManager implements EventHandler, EventPublisher {
         Set<EventSubscriber> allEventTypeSubscribers = typedEventSubscribers.get(EventSubscriber.ALL_EVENT_TYPES);
 
         Set<EventSubscriber> subscribers = new HashSet<EventSubscriber>();
-        if (eventTypeSubscribers != null)
+        if (eventTypeSubscribers != null) {
             subscribers.addAll(eventTypeSubscribers);
-        if (allEventTypeSubscribers != null)
+        }
+        if (allEventTypeSubscribers != null) {
             subscribers.addAll(allEventTypeSubscribers);
+        }
         return subscribers;
     }
 
