@@ -104,7 +104,7 @@ public class ExecUtil {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         PumpStreamHandler streamHandler = new PumpStreamHandler(stdout);
 
-        executor.setExitValue(1);
+        executor.setExitValues(null);
         executor.setStreamHandler(streamHandler);
         executor.setWatchdog(watchdog);
 
@@ -113,9 +113,9 @@ public class ExecUtil {
             executor.execute(cmdLine, resultHandler);
             logger.debug("executed commandLine '{}'", commandLine);
         } catch (ExecuteException e) {
-            logger.error("couldn't execute commandLine '" + commandLine + "'", e);
+            logger.warn("couldn't execute commandLine '" + commandLine + "'", e);
         } catch (IOException e) {
-            logger.error("couldn't execute commandLine '" + commandLine + "'", e);
+            logger.warn("couldn't execute commandLine '" + commandLine + "'", e);
         }
 
         // some time later the result handler callback was invoked so we
@@ -130,7 +130,7 @@ public class ExecUtil {
                 logger.debug("exit code '{}', result '{}'", exitCode, retval);
             }
         } catch (InterruptedException e) {
-            logger.error("Timeout occured when executing commandLine '" + commandLine + "'", e);
+            logger.warn("Timeout occured when executing commandLine '" + commandLine + "'", e);
         }
 
         return retval;
