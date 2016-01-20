@@ -10,7 +10,6 @@ package org.eclipse.smarthome.transform.regex.internal;
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
-import org.eclipse.smarthome.transform.regex.internal.RegExTransformationService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,11 +49,28 @@ public class RegExTransformationServiceTest extends AbstractTransformationServic
     public void testTransformByRegex_moreThanOneGroup() throws TransformationException {
 
         // method under test
-        String transformedResponse = processor
-                .transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\"(.*)", source);
+        String transformedResponse = processor.transform(".*?<current_conditions>.*?<temp_c data=\"(.*?)\"(.*)",
+                source);
 
         // Asserts
         assertEquals("8", transformedResponse);
     }
 
+    @Test
+    public void testTransformByRegex_substituteFirst() throws TransformationException {
+        // method under test
+        String transformedResponse = processor.transform("s/^OP:(.*?),ARG:(.*)$/$1($2)/", "OP:SetMode,ARG:42");
+
+        // Asserts
+        assertEquals("SetMode(42)", transformedResponse);
+    }
+
+    @Test
+    public void testTransformByRegex_substituteAll() throws TransformationException {
+        // method under test
+        String transformedResponse = processor.transform("s/([A-Z]+)([0-9]+),*/var$1=$2 /g", "X12,Y54");
+
+        // Asserts
+        assertEquals("varX=12 varY=54 ", transformedResponse);
+    }
 }
