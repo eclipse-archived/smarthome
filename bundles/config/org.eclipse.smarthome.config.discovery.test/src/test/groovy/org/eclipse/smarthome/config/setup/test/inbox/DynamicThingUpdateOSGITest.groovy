@@ -19,12 +19,15 @@ import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingStatus
+import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerCallback
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
@@ -62,6 +65,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     ManagedThingProvider managedThingProvider
 
     ThingHandler thingHandler
+    ThingHandlerCallback callback
 
     boolean thingUpdated
     Thing updatedThing
@@ -99,8 +103,9 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
             },
-            'setCallback': {
-            }
+            setCallback: {callbackArg -> 
+                callback = callbackArg 
+            },
         ] as ThingHandler )
 
         return thingHandler
@@ -139,8 +144,10 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
         ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
-        managedThingProvider.add ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
-
+        Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+        managedThingProvider.add thing
+        callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
+        
         Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
         DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "ipAddress", "DummyLabel1", DEFAULT_TTL)
 

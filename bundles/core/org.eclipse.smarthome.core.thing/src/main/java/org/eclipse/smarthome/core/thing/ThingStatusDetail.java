@@ -9,19 +9,21 @@ package org.eclipse.smarthome.core.thing;
 
 /**
  * {@link ThingStatusDetail} defines possible status details of a {@link ThingStatusInfo}.
- * 
- * @author Stefan Bußweiler - Initial contribution
+ *
+ * @author Stefan Bußweiler - Initial contribution, added new status details
  */
 public enum ThingStatusDetail {
     NONE(0),
     HANDLER_MISSING_ERROR(1),
-    HANDLER_INITIALIZING_ERROR(2),
-    CONFIGURATION_PENDING(3),
-    COMMUNICATION_ERROR(4),
-    CONFIGURATION_ERROR(5),
-    BRIDGE_OFFLINE(6),
-    FIRMWARE_UPDATING(7),
-    DUTY_CYCLE(8);
+    HANDLER_REGISTERING_ERROR(2),
+    HANDLER_INITIALIZING_ERROR(3),
+    HANDLER_CONFIGURATION_PENDING(4),
+    CONFIGURATION_PENDING(5),
+    COMMUNICATION_ERROR(6),
+    CONFIGURATION_ERROR(7),
+    BRIDGE_OFFLINE(8),
+    FIRMWARE_UPDATING(9),
+    DUTY_CYCLE(10);
 
     private final int value;
 
@@ -31,35 +33,27 @@ public enum ThingStatusDetail {
 
     /**
      * Gets the value of a thing status detail.
-     * 
+     *
      * @return the value
      */
     public int getValue() {
         return value;
     }
-    
-    public static UninitializedStatus UNINITIALIZED = new UninitializedStatus();
 
     public static OnlineStatus ONLINE = new OnlineStatus();
 
     public static OfflineStatus OFFLINE = new OfflineStatus();
-    
-
-    public static final class UninitializedStatus {
-        private UninitializedStatus() {}
-        
-        public ThingStatusDetail HANDLER_MISSING_ERROR = ThingStatusDetail.HANDLER_MISSING_ERROR;
-        public ThingStatusDetail HANDLER_INITIALIZING_ERROR = ThingStatusDetail.HANDLER_INITIALIZING_ERROR;
-    };
 
     public static final class OnlineStatus {
-        private OnlineStatus() {}
+        private OnlineStatus() {
+        }
 
         public ThingStatusDetail CONFIGURATION_PENDING = ThingStatusDetail.CONFIGURATION_PENDING;
     };
-    
+
     public static final class OfflineStatus {
-        private OfflineStatus() {}
+        private OfflineStatus() {
+        }
 
         public ThingStatusDetail COMMUNICATION_ERROR = ThingStatusDetail.COMMUNICATION_ERROR;
         public ThingStatusDetail CONFIGURATION_ERROR = ThingStatusDetail.CONFIGURATION_ERROR;
