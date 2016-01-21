@@ -1,12 +1,14 @@
 'use strict';
 
-var gulp = require('gulp'),
-    uglify = require('gulp-uglify'),
+var angularFilesort = require('gulp-angular-filesort'),
+    browserSync = require('browser-sync'),
     concat = require('gulp-concat'),
-    ngAnnotate = require('gulp-ng-annotate'),
-    angularFilesort = require('gulp-angular-filesort'),
     del = require('del'),
-    rename = require("gulp-rename");
+    gulp = require('gulp'),
+    ngAnnotate = require('gulp-ng-annotate'),
+    proxyMiddleware = require('http-proxy-middleware'),
+    rename = require("gulp-rename"),
+    uglify = require('gulp-uglify');
 
 var paths = {
     scripts: [
@@ -18,8 +20,11 @@ var paths = {
         './web-src/js/controllers.module.js',
         './web-src/bower_components/angular/angular.js'
     ],
-    styles: ['./web-src/css/*.css'],
-    images: ['./web-src/img/*'],
+    static: [
+        './web-src/css/*.css',
+        './web-src/img/*',
+        './web-src/index.html'
+    ],
     concat: [{
         'src': './web-src/js/services*.js',
         'name': 'services.js'
@@ -59,7 +64,7 @@ var paths = {
 };
 
 gulp.task('default', ['build']);
-gulp.task('build', ['uglify', 'copyCSS', 'copyImgs', 'copyJSLibs', 'copyCSSLibs', 'copyFontLibs', 'concat', 'copyIndex', 'copyPartials']);
+gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
@@ -72,19 +77,9 @@ gulp.task('uglify', function () {
         .pipe(gulp.dest('./web/js/'));
 });
 
-gulp.task('copyCSS', function () {
-    return gulp.src(paths.styles)
-        .pipe(gulp.dest('./web/css'));
-});
-
-gulp.task('copyImgs', function () {
-    return gulp.src(paths.images)
-        .pipe(gulp.dest('./web/img'));
-});
-
-gulp.task('copyIndex', function () {
-    return gulp.src('./web-src/index.html')
-        .pipe(gulp.dest('./web/'));
+gulp.task('copyStatic', function () {
+    return gulp.src(paths.static, {base: 'web-src'})
+        .pipe(gulp.dest('./web'));
 });
 
 gulp.task('copyPartials', function () {
@@ -124,4 +119,23 @@ gulp.task('clean', function () {
     return del([
         './web/'
       ]);
+});
+
+// Gulp Serve
+function browserSyncInit(baseDir) {
+    var server = {
+        baseDir: baseDir
+    };
+
+    server.middleware = proxyMiddleware(['/rest'], {target: 'http://localhost:8080'});
+
+    browserSync.instance = browserSync.init({
+        startPath: '/',
+        server: server,
+        browser: 'default'
+    });
+}
+
+gulp.task('serve', ['build'], function () {
+    browserSyncInit(['./web-src', './web']);
 });
