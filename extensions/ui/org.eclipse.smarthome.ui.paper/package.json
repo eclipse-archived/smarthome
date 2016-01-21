@@ -3,7 +3,14 @@
   "version": "0.8.0",
   "private": true,
   "dependencies": {
-    "bower": "^1.4.1"
+    "bower": "^1.4.1",
+    "del": "^2.0.0",
+    "gulp": "^3.9.0",
+    "gulp-angular-filesort": "~1.1.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-ng-annotate": "~1.0.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^1.5.1"
   },
   "engines": {
     "node": ">=0.12.3"
