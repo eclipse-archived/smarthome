@@ -22,7 +22,9 @@
 	</div>
 	<div ng-show="step==2">
 		<h3 class="md-title-nospace">Configurations</h3>
-		<div ng-include="'partials/include.config.html'"></div>
+		<div ng-init="form={}">
+			<div ng-include="'partials/include.config.html'"></div>
+		</div>
 	</div>
 </div>
 </md-dialog-content>
@@ -32,7 +34,7 @@
 	<md-button ng-if="editMode" ng-click="deleteModule(type)">Delete</md-button>
 	<span flex="auto"></span>
 	<md-button ng-click="close()">Cancel</md-button>
-	<md-button ng-show="step==2" ng-click="saveModule()">OK</md-button>
+	<md-button ng-disabled="form.configForm.$invalid" ng-show="step==2" ng-click="saveModule()">OK</md-button>
 	<md-button ng-disabled="myForm.$invalid" ng-show="step==1" ng-click="secondStep()">Next</md-button>
 </div>
 

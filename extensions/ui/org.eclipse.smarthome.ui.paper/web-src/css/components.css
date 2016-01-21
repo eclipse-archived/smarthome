@@ -535,6 +535,9 @@ min-height: 0!important;
 .md-title-nospace{
 	margin:0px!important;
 }
+.border-invalid{
+    border-bottom:1px solid rgb(244,67,54);
+}
 
 
 
