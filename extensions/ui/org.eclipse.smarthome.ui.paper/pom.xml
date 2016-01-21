@@ -62,6 +62,16 @@
 						</goals>
 					</execution>
 
+					<execution>
+						<id>gulp build</id>
+						<goals>
+							<goal>gulp</goal>
+						</goals>
+						<configuration>
+							<arguments>build</arguments>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 		</plugins>
