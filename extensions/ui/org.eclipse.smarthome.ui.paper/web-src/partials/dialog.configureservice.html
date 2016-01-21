@@ -1,17 +1,13 @@
-<md-dialog aria-label="Configure Service">
-<md-dialog-content>
+<md-dialog aria-label="Configure Service"> <md-dialog-content>
 <h1 ng-show="!newConfig">
 	Configure {{service.label}} <small>{{service.id}}</small>
 </h1>
-<h1 ng-show="newConfig">
-    New Configuration
-</h1>
-<md-input-container ng-show="newConfig"> <label>Service ID</label>
-                <input ng-model="serviceId" type="text"> </md-input-container>
+<h1 ng-show="newConfig">New Configuration</h1>
+<md-input-container ng-show="newConfig"> <label>Service ID</label> <input ng-model="serviceId"
+	type="text"> </md-input-container>
 <div ng-include="'partials/include.config.html'"></div>
 <div ng-show="expertMode" layout="row" layout-align="center">
-	<button class="md-raised md-button"
-		ng-click="addParameter()" aria-label="Add Parameter">Add Parameter</button>
+	<button class="md-raised md-button" ng-click="addParameter()" aria-label="Add Parameter">Add Parameter</button>
 </div>
 </md-dialog-content>
 <div class="md-actions" layout="row">

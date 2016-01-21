@@ -1,12 +1,10 @@
-<md-dialog aria-label="Configure Service">
-<md-dialog-content>
+<md-dialog aria-label="Configure Service"> <md-dialog-content>
 <h1>
 	Configure {{binding.name}} <small>{{binding.id}}</small>
 </h1>
 <div ng-include="'partials/include.config.html'"></div>
 <div ng-show="expertMode" layout="row" layout-align="center">
-	<button class="md-raised md-button"
-		ng-click="addParameter()" aria-label="Add Parameter">Add Parameter</button>
+	<button class="md-raised md-button" ng-click="addParameter()" aria-label="Add Parameter">Add Parameter</button>
 </div>
 </md-dialog-content>
 <div class="md-actions" layout="row">
