@@ -182,6 +182,8 @@ public class RuleEngine
 
     private ScheduledExecutorService executor;
 
+    private ManagedRuleProvider managedRuleProvider;
+
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -264,7 +266,7 @@ public class RuleEngine
 
         setRuleEnabled(rUID, isEnabled);
 
-        return ruleWithUID;
+        return rules.get(rUID).getRuleCopy();
     }
 
     /**
@@ -358,7 +360,16 @@ public class RuleEngine
         String templateUID = r.getTemplateUID();
         if (templateUID != null) {
             Rule notInitializedRule = r;
-            r = getRuleByTemplate(r);
+            try {
+                r = getRuleByTemplate(r);
+            } catch (IllegalArgumentException e) {
+                errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
+                // change state to NOTINITIALIZED
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                        RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
+                r = null;
+                return;
+            }
             if (r == null) {
                 Set<String> rules = mapTemplateToRules.get(templateUID);
                 if (rules == null) {
@@ -374,15 +385,12 @@ public class RuleEngine
                 return;
             } else {
                 rules.put(rUID, r);
-                try {
-                    r.validateConfiguration();
-                } catch (IllegalArgumentException e) {
-                    errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
-                    // change state to NOTINITIALIZED
-                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                            RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
-                    return;
+                if (managedRuleProvider.get(rUID) != null) {
+                    // managed provider has to be updated only already stored rules,
+                    // when a rule is added it will be added by the registry.
+                    managedRuleProvider.update(r.getRuleCopy());
                 }
+
             }
         }
 
@@ -461,7 +469,7 @@ public class RuleEngine
             logger.debug("Rule template '" + ruleTemplateUID + "' does not exist.");
             return null;
         } else {
-            RuntimeRule r1 = new RuntimeRule(rule.getUID(), template, rule.getConfiguration());
+            RuntimeRule r1 = new RuntimeRule(rule, template);
             return r1;
         }
     }
@@ -1365,7 +1373,7 @@ public class RuleEngine
         if (mtManager != null) {
             Map<String, Object> mConfig = module.getConfiguration();
             if (mConfig == null) {
-                mConfig = new HashMap<>(11);
+                mConfig = new HashMap<String, Object>(11);
             }
             ModuleType mt = mtManager.get(type);
             if (mt != null) {
@@ -1410,6 +1418,10 @@ public class RuleEngine
                 return new BigDecimal(value);
         }
         return null;
+    }
+
+    protected void setManagedRuleProvider(ManagedRuleProvider rp) {
+        this.managedRuleProvider = rp;
     }
 
 }
