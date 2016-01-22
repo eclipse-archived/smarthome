@@ -494,6 +494,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle {
 	.search {
 	    padding: 10px;
 	}
+	md-select.config-select {
+        margin-bottom:0px;
+        margin-top:0px;
+    }
 }
 
 .search md-input-container {
@@ -539,5 +543,9 @@ min-height: 0!important;
     border-bottom:1px solid rgb(244,67,54);
 }
 
+.config-select{
+	margin-bottom:0px;
+	margin-top:27px;
+}
 
 
