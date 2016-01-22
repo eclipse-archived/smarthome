@@ -59,10 +59,13 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
     /**
      * Returns a set of bound things for the given item name.
      *
+     * @deprecated Will be removed soon. Use {@link ItemThingLinkRegistry#getLinkedThings(String)} instead.
+     *
      * @param itemName
      *            item name
      * @return set of bound things for the given item name
      */
+    @Deprecated
     public Set<Thing> getBoundThings(String itemName) {
 
         Set<Thing> things = new HashSet<>();
