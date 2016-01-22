@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
@@ -61,10 +62,17 @@ import com.google.common.collect.ImmutableSet;
  * Items and Links automatically and removes it, when the according thing is
  * removed.
  *
+ * @deprecated This class is not considered to be an official API and will be removed soon.</p>
+ *             You can use the {@link ThingBuilder} to create a Thing by yourself or you can use the
+ *             {@link ThingFactory} to delegate the creation to {@link ThingHandlerFactory}s. Created
+ *             Things can be added to the {@link ThingRegistry} (if required). To create links you can
+ *             make use of {@link ItemChannelLinkRegistry} or {@link ItemThingLinkRegistry}.
+ *
  * @author Dennis Nobel - Initial contribution, changed way of receiving channel types
  * @author Alex Tugarev - addThing operation returns created Thing instance
  * @author Chris Jackson - Remove children when deleted bridge. Add label/description.
  */
+@Deprecated
 public class ThingSetupManager implements EventSubscriber {
 
     public static final String TAG_CHANNEL_GROUP = "channel-group";
