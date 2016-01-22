@@ -31,8 +31,8 @@ public class ConfigDescriptionParameterDTO {
     public String name;
     public boolean required;
     public Type type;
-    public BigDecimal minimum;
-    public BigDecimal maximum;
+    public BigDecimal min;
+    public BigDecimal max;
     public BigDecimal stepsize;
     public String pattern;
     public Boolean readOnly;
@@ -55,8 +55,8 @@ public class ConfigDescriptionParameterDTO {
             Integer multipleLimit) {
         this.name = name;
         this.type = type;
-        this.minimum = minimum;
-        this.maximum = maximum;
+        this.min = minimum;
+        this.max = maximum;
         this.stepsize = stepsize;
         this.pattern = pattern;
         this.readOnly = readOnly;
