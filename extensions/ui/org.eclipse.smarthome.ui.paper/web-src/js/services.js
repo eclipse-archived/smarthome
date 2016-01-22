@@ -71,17 +71,23 @@ angular.module('PaperUI.services', ['PaperUI.constants']).config(function($httpP
 	    	self.showToast('success', text, actionText, actionUrl);
 	    }
 	};
-}).factory('configService', function() {
+}).factory('configService', function(itemService) {
     return {
         getRenderingModel: function(configParameters) {
             var parameters = [];
             if(!configParameters) {
                 return parameters;
             }
+            var itemsList;
             for (var i = 0; i < configParameters.length; i++) {
                 var parameter = configParameters[i];
               
-                if(parameter.type === 'TEXT') {
+                if(parameter.context==='item'){
+                	parameter.element = 'select';
+                	itemsList = itemsList === undefined ? itemService.getAll() : itemsList;
+                	parameter.options = itemsList;
+                }
+                else if(parameter.type === 'TEXT') {
                     if(parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
                         parameter.options = parameter.options;
