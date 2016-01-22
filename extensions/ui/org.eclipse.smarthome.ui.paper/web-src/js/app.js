@@ -11,7 +11,8 @@ angular.module('PaperUI', [
   'PaperUI.extensions',
   'ngRoute',
   'ngResource',
-  'ngMaterial'
+  'ngMaterial',
+  'ngMessages'
 ]).config(['$routeProvider', '$httpProvider', 'globalConfig', function($routeProvider, httpProvider, globalConfig) {
   $routeProvider.
 	when('/control', {templateUrl: 'partials/control.html', controller: 'ControlPageController', title: 'Control', simpleHeader: true}).
@@ -59,6 +60,23 @@ angular.module('PaperUI', [
             }
         }
     }
+}).directive('isrequired', function(){
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs,ngModel){
+        	
+        	
+        	 element[0].addEventListener('click', function(){
+        		 scope.$watch(attrs.ngModel, function(value) {
+         			if((value===undefined || value=="") && attrs.isrequired)
+         			element.addClass('border-invalid');
+         			else
+         				element.removeClass('border-invalid');
+         	});             });
+
+        }
+    };
 }).run(['$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {
 	var original = $location.path;
 	$rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
