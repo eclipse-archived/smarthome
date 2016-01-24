@@ -31,6 +31,9 @@
     <module>org.eclipse.smarthome.io.rest.sse</module>
     <module>org.eclipse.smarthome.io.rest.sse.test</module>
     <module>org.eclipse.smarthome.io.rest.sitemap</module>
+    <module>org.eclipse.smarthome.io.transport.bluetooth</module>
+    <module>org.eclipse.smarthome.io.transport.bluetooth.bluez</module>
+    <module>org.eclipse.smarthome.io.transport.dbus</module>
     <module>org.eclipse.smarthome.io.transport.mdns</module>
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>

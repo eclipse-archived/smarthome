@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="ble"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- RSSI Channel -->
+    <channel-type id="rssi">
+        <item-type>Number</item-type>
+        <label>RSSI</label>
+        <description>The RSSI channel provides the current receive signal strength of the device
+        </description>
+        <category>QualityOfService</category>
+    </channel-type>
+
+    <!-- Color Channel -->
+    <channel-type id="color">
+        <item-type>Color</item-type>
+        <label>Color</label>
+        <description>The color channel allows to control the color of a light.
+            It is also possible to dim values and switch the light on and off.
+        </description>
+        <category>ColorLight</category>
+    </channel-type>
+        
+    <!-- Brightness Channel -->
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>The brightness channel allows to control the brightness of a light.
+            It is also possible to switch the light on and off.
+        </description>
+        <category>DimmableLight</category>
+    </channel-type>
+    
+    <!-- Switch Channel -->
+    <channel-type id="switch">
+        <item-type>Switch</item-type>
+        <label>Switch</label>
+        <description>Switch the light on and off</description>
+        <category>Light</category>
+    </channel-type>
+    
+    <!-- Temperature Channel -->
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>Indicates the current temperature</description>
+        <category>Temperature</category>
+        <state pattern="%.1f" readOnly="true">
+        </state>
+    </channel-type>
+
+    <!-- Luminance Channel -->
+    <channel-type id="luminance">
+        <item-type>Number</item-type>
+        <label>Luminance</label>
+        <description>Indicates the current light reading</description>
+        <category>Temperature</category>
+        <state pattern="%.1f" readOnly="true">
+        </state>
+    </channel-type>
+    
+</thing:thing-descriptions>
