@@ -16,6 +16,7 @@ import org.eclipse.smarthome.io.transport.bluetooth.BluetoothGattCallback;
 import org.eclipse.smarthome.io.transport.bluetooth.BluetoothGattCharacteristic;
 import org.eclipse.smarthome.io.transport.bluetooth.BluetoothGattDescriptor;
 import org.eclipse.smarthome.io.transport.bluetooth.BluetoothGattService;
+import org.eclipse.smarthome.io.transport.bluetooth.bluez.internal.dbus.Adapter1;
 import org.eclipse.smarthome.io.transport.bluetooth.bluez.internal.dbus.ObjectManager;
 import org.eclipse.smarthome.io.transport.bluetooth.bluez.internal.dbus.ObjectManager.InterfacesAdded;
 import org.eclipse.smarthome.io.transport.bluetooth.bluez.internal.dbus.ObjectManager.InterfacesRemoved;
@@ -43,6 +44,7 @@ public class BluezBluetoothGatt extends BluetoothGatt implements DBusSigHandler 
 
     private DBusConnection connection;
     private BluezBluetoothDevice device;
+    private Adapter1 adapter1;
     private String dbusPath;
 
     private DBus.Properties propertyReader;
@@ -97,6 +99,16 @@ public class BluezBluetoothGatt extends BluetoothGatt implements DBusSigHandler 
             if (properties != null) {
                 updateDeviceProperties(properties);
             }
+
+            // Open an adapter and set a discovery filter
+            // This allows us to get around the 8dB RSSI delta issue
+            // ie without this we'd only see RSSI values when they change by 8dB
+            // adapter1 = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, "/org/bluez/hci0",
+            // Adapter1.class);
+            // Map<String, Variant> scanProperties = new HashMap<String, Variant>(1);
+            // scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_RSSI,
+            // new Variant(new Short((short) -100)));
+            // adapter1.SetDiscoveryFilter(scanProperties);
 
             // Restore the callback!
             // Do this last to avoid any callbacks while we're initialising
@@ -411,8 +423,16 @@ public class BluezBluetoothGatt extends BluetoothGatt implements DBusSigHandler 
             try {
                 // TODO: Find out why this is required, or at least how long it needs to be!
                 // 50ms is too short!
-                sleep(100);
-                setConnectedState(true);
+                sleep(75);
+
+                // Double check we're still connected!
+                Boolean connectedProperty = propertyReader.Get(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_DEVICE1,
+                        BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_CONNECTED);
+                if (connectedProperty == null || connectedProperty == false) {
+                    setConnectedState(false);
+                } else {
+                    setConnectedState(true);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

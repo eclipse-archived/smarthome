@@ -302,7 +302,7 @@ public abstract class BluetoothGatt implements BluetoothProfile {
 
         if (uuid.equals(sentMessage.getUuid())) {
             transmitMonitor.setFreeToSend(true);
-            logger.debug("Message received from {} - queue is now {}", uuid, sendQueue.size());
+            logger.debug("Queue updated with {} - queue is now {}", uuid, sendQueue.size());
         } else {
             logger.debug("Message didn't correlate with lastSent - queue is now {}", sendQueue.size());
 

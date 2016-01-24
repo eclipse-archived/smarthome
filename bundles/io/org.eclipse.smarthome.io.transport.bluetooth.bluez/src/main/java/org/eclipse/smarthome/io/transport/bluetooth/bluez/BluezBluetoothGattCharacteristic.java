@@ -205,18 +205,18 @@ public class BluezBluetoothGattCharacteristic extends BluetoothGattCharacteristi
 
             if (success == false) {
                 callback.onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_FAILURE);
-                return;
+            } else {
+                byte[] newValue = new byte[value.size()];
+                int cnt = 0;
+                for (byte b : value) {
+                    newValue[cnt++] = b;
+                }
+                characteristic.setValue(newValue);
+                callback.onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_SUCCESS);
             }
 
-            byte[] newValue = new byte[value.size()];
-            int cnt = 0;
-            for (byte b : value) {
-                newValue[cnt++] = b;
-            }
-            characteristic.setValue(newValue);
-
+            // Update the transmit queue
             gatt.processQueueResponse(characteristic.getUuid());
-            callback.onCharacteristicRead(gatt, characteristic, BluetoothGatt.GATT_SUCCESS);
         }
     }
 

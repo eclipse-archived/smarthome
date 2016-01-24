@@ -51,7 +51,7 @@ public abstract class BleBaseThingHandler extends BaseThingHandler {
     protected BluetoothGattCallback gattCallback;
 
     private boolean servicesDiscoveryRequested = false;
-    private boolean characteristicDiscoveryRequested = true;
+    private boolean characteristicDiscoveryRequested = false;
     private boolean initialisationCalled = false;
 
     private ScheduledFuture<?> rssiPollingJob;

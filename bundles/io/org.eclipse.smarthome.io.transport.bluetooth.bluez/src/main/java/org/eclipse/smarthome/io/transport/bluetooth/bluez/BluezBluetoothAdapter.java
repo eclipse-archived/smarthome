@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.io.transport.bluetooth.bluez;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,11 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
             connection.addSigHandler(InterfacesRemoved.class, this);
 
             adapter1 = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath, Adapter1.class);
+
+            Map<String, Variant> scanProperties = new HashMap<String, Variant>(1);
+            scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_RSSI,
+                    new Variant(new Short((short) -125)));
+            adapter1.SetDiscoveryFilter(scanProperties);
         } catch (DBusException e) {
             e.printStackTrace();
         } catch (DBusExecutionException e) {

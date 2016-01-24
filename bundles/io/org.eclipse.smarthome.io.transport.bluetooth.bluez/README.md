@@ -47,7 +47,7 @@ and the following three lines **below** this line...
 
     <auth>ANONYMOUS</auth>
     <allow_anonymous/>
-    <apparmor mode="disabled?/>
+    <apparmor mode="disabled"/>
     
 Edit the file `/lib/systemd/system/dbus.socket` and add `ListenStream=6666` to the `[Socket]` section.
 

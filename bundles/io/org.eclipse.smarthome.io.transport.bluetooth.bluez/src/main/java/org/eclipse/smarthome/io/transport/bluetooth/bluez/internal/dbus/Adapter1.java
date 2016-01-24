@@ -7,8 +7,11 @@
  */
 package org.eclipse.smarthome.io.transport.bluetooth.bluez.internal.dbus;
 
+import java.util.Map;
+
 import org.freedesktop.dbus.DBusInterface;
 import org.freedesktop.dbus.DBusInterfaceName;
+import org.freedesktop.dbus.Variant;
 
 @DBusInterfaceName("org.bluez.Adapter1")
 public interface Adapter1 extends DBusInterface {
@@ -18,5 +21,7 @@ public interface Adapter1 extends DBusInterface {
     public void StopDiscovery();
 
     public void RemoveDevice(DBusInterface device);
+
+    public void SetDiscoveryFilter(Map<String, Variant> properties);
 
 }
