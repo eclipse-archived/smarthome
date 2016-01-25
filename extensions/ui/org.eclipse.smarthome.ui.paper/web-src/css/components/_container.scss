@@ -1,0 +1,11 @@
+/* Override option list on item control */
+.container.options {
+   padding: 0;
+}
+
+.container .md-select-value {
+   text-align: center;
+   padding: 16px 2px 1px;
+   border-bottom-style: none;
+   font-size: 18px;
+}

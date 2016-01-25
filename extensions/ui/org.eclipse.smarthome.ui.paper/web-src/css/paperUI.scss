@@ -1,0 +1,33 @@
+// Layout
+@import "layout";
+
+// Components
+@import "components/buttons";
+@import "components/card";
+@import "components/checkbox";
+@import "components/container";
+@import "components/dialog";
+@import "components/fabs";
+@import "components/inputs";
+@import "components/list-items";
+@import "components/lists";
+@import "components/misc";
+@import "components/progress-indicators";
+@import "components/search";
+@import "components/selection-list";
+@import "components/slider";
+@import "components/switch";
+@import "components/tabs";
+
+// Views
+@import "views/control";
+@import "views/extensions";
+@import "views/home-groups";
+@import "views/inbox";
+@import "views/rules";
+@import "views/setup";
+@import "views/things";
+
+// Themes
+// If you are building the PaperUI from source and would like to include a custom theme do so here
+@import "theme";
