@@ -8,7 +8,7 @@ layout: documentation
 
 ## Source Code
 
-The source code of Eclipse SmartHome is available in our [Github repository](https://github.com/eclipse/smarthome).
+The source code of Eclipse SmartHome is available in our [GitHub repository](https://github.com/eclipse/smarthome).
 
 ## p2 Repositories
 
