@@ -20,7 +20,6 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.TriggerHandler;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,45 +46,15 @@ public class SampleHandlerFactory extends BaseModuleHandlerFactory {
         types = Collections.unmodifiableCollection(temp);
     }
 
-    public SampleHandlerFactory(BundleContext bc) throws InvalidSyntaxException {
-        super(bc);
+    @Override
+    public void activate(BundleContext bc) {
+        super.activate(bc);
     }
 
     @Override
     public Collection<String> getTypes() {
         return types;
     }
-
-    // @Override
-    // @SuppressWarnings("unchecked")
-    // public <T extends ModuleHandler> T create(Module module) {
-    // ModuleHandler moduleHandler = null;
-    // if (moduleTypeRegistry != null) {
-    // String typeUID = module.getTypeUID();
-    // String handlerId = getHandlerUID(typeUID);
-    // ModuleType moduleType = moduleTypeRegistry.get(handlerId);
-    // if (moduleType != null) {
-    // // create needed handler
-    // if (SUPPORTED_TRIGGER.equals(handlerId)) {
-    // moduleHandler = new SampleTriggerHandler(this, moduleTypeRegistry, (Trigger) module,
-    // (TriggerType) moduleType, logger);
-    // createdTriggerHandler.add((SampleTriggerHandler) moduleHandler);
-    // } else if (SUPPORTED_CONDITION.equals(handlerId)) {
-    // moduleHandler = new SampleConditionHandler(moduleTypeRegistry, (Condition) module);
-    // } else if (SUPPORTED_ACTION.equals(handlerId)) {
-    // moduleHandler = new SampleActionHandler(moduleTypeRegistry, (Action) module,
-    // (ActionType) moduleType);
-    // } else {
-    // logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleHandler: " + handlerId);
-    // }
-    // } else {
-    // logger.error(MODULE_HANDLER_FACTORY_NAME + "Not supported moduleType: " + typeUID);
-    // }
-    // } else {
-    // logger.error(MODULE_HANDLER_FACTORY_NAME + "ModuleTypeRegistry service is not available");
-    // }
-    // return (T) moduleHandler;
-    // }
 
     /**
      * Retrieves created TriggerHandlers from this HandlerFactory.

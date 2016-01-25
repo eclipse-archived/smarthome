@@ -59,9 +59,9 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * @param re is a rule engine
      */
     public CompositeModuleHandlerFactory(BundleContext bc, ModuleTypeManager mtManager, RuleEngine re) {
-        super(bc);
         this.mtManager = mtManager;
         this.ruleEngine = re;
+        activate(bc);
     }
 
     /**
