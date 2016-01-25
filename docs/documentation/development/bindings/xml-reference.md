@@ -8,7 +8,7 @@ layout: documentation
 
 Specific services and bindings have to provide meta information which are used for visualization, validation or internal service mapping. Meta information can be provided by registering specific services at the *OSGi* service registry or by specifying them in a declarative way, which is described in this chapter.
 
-<b>Three kinds of descriptions/definitions exist:</b>
+**Three kinds of descriptions/definitions exist:**
 
 - Configuration descriptions: Used for visualization and validation of configuration properties (optional)
 - Binding definitions: Required to declare a binding (mandatory)
@@ -83,10 +83,8 @@ The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4
   <tr><td>parameter.required</td><td>Specifies whether the value is required (optional).</td></tr>
   <tr><td>parameter.readOnly</td><td>Specifies whether the value is read-only (optional).</td></tr>
   <tr><td>parameter.multiple</td><td>Specifies whether multiple selections of options are allowed (optional).</td></tr>
-(optional).</td></tr>
   <tr><td>parameter.groupName</td><td>Sets a group name for this parameter (optional).</td></tr>
   <tr><td>advanced</td><td>Specifies that this is an advanced parameter. Advanced parameters may be hidden by a UI (optional).</td></tr>
-(optional).</td></tr>
   <tr><td>context</td><td>The context of the configuration parameter (optional).</td></tr>
   <tr><td>required</td><td>The flag indicating if the configuration parameter has to be set or not (deprecated, optional, default: false).</td></tr>
   <tr><td>default</td><td>The default value of the configuration parameter (optional).</td></tr>
@@ -113,7 +111,7 @@ Groups allow parameters to be grouped together into logical blocks so that the u
 
 The full XML schema for configuration descriptions is specified in the [ESH config description XSD](http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd) file.
 
-<b>Hints:</b>
+**Hints:**
 
 - Although the attribute `uri` is optional, it *must* be specified in configuration description files. Only for embedded configuration descriptions in documents for binding definitions and `Thing` type descriptions, the attribute is optional.
 
@@ -194,11 +192,11 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
 
 The full XML schema for binding definitions is specified in the [ESH binding XSD](http://eclipse.org/smarthome/schemas/binding-1.0.0.xsd) file.
 
-<b>Hints:</b>
+**Hints:**
 
 - The attribute `uri` in the section `config-description` is optional, it *should not* be specified in binding definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `binding:bindingID`, otherwise the given `uri` is used.
 - If a configuration description is already specified somewhere else and the binding wants to (re-)use it, a `config-description-ref` should be used instead.
-- Normally the service id must not be defined, because it is implicitly set to "binding.<binding.id>". A binding can register an OSGi service which implements the ManagedService interface and define the service.pid as e.g."binding.hue" to receive the configuration.
+- Normally the service id must not be defined, because it is implicitly set to "binding.&lt;binding.id&gt;". A binding can register an OSGi service which implements the ManagedService interface and define the service.pid as e.g."binding.hue" to receive the configuration.
 
 
 ### Example
@@ -337,8 +335,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>thing-descriptions.bindingId</td><td>The identifier of the binding this types belong to (mandatory).</td></tr>
 </table>
-<p>
-<b>Bridges and Things:</b>
+
+**Bridges and Things:**
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>bridge-type.id | thing-type.id</td><td>An identifier for the bridge/<i>Thing</i> type (mandatory).</td></tr>
@@ -356,8 +354,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the bridge/<i>Thing</i> within the ConfigDescriptionRegistry (mandatory).</td></tr>
 </table>
-<p>
-<b>Channels:</b>
+
+**Channels:**
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>channel-type.id</td><td>An identifier for the channel type (mandatory).</td></tr>
@@ -381,8 +379,8 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the channel within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref.uri</td><td>The URI of the configuration description for the channel within the ConfigDescriptionRegistry (mandatory).</td></tr>
 </table>
-<p>
-<b>Channel Groups:</b>
+
+**Channel Groups:**
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>channel-group-type.id</td><td>An identifier for the channel group type (mandatory).</td></tr>
@@ -395,15 +393,12 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 </table>
 
 The full XML schema for Thing type descriptions is specified in the <a href="https://www.eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">ESH thing description XSD</a> file.
-<br />
-<br />
-Hints:
-<br />
-<ul>
-<li> Any identifiers of the types are automatically mapped to unique identifiers: `bindingID:id`.</li>
-<li> The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `bridge-type:bindingID:id`, `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.</li>
-<li> If a configuration description is already specified somewhere else and the bridge/*Thing*/channel type wants to (re-)use it, a `config-description-ref` should be used instead.</li>
-</ul>
+
+**Hints:**
+
+-  Any identifiers of the types are automatically mapped to unique identifiers: `bindingID:id`.
+-  The attribute `uri` in the section `config-description` is optional, it *should not* be specified in bridge/*Thing*/channel type definition files because it's an embedded configuration. If the `uri` is *not* specified, the configuration description is registered as `bridge-type:bindingID:id`, `thing-type:bindingID:id` or `channel-type:bindingID:id` otherwise the given `uri` is used.
+-  If a configuration description is already specified somewhere else and the bridge/*Thing*/channel type wants to (re-)use it, a `config-description-ref` should be used instead.
 
 ## Config Status Provider
 Each entity that has a configuration can provide its current configuration status for UIs or specific services to point to issues or to provide further general information of the current configuration. For this purpose the handler of the entity has to implement the interface `org.eclipse.smarthome.config.core.status.ConfigStatusProvider` that has to be registered as OSGi service. The `org.eclipse.smarthome.config.core.status.ConfigStatusService` tracks each configuration status provider and delivers the corresponding `org.eclipse.smarthome.config.core.status.ConfigStatusInfo` by the operation `getConfigStatus(String, Locale)`.
