@@ -71,40 +71,40 @@ angular.module('PaperUI.services', ['PaperUI.constants']).config(function($httpP
 	    	self.showToast('success', text, actionText, actionUrl);
 	    }
 	};
-}).factory('configService', function() {
+}).factory('configService', function(itemService) {
     return {
         getRenderingModel: function(configParameters) {
             var parameters = [];
             if(!configParameters) {
                 return parameters;
             }
+            var itemsList;
             for (var i = 0; i < configParameters.length; i++) {
                 var parameter = configParameters[i];
-                var parameterModel = {
-                    name : parameter.name,
-                    type : parameter.type,
-                    label : parameter.label,
-                    description : parameter.description,
-                    defaultValue : parameter.defaultValue
-                };
-                if(parameter.type === 'TEXT') {
+              
+                if(parameter.context==='item'){
+                	parameter.element = 'select';
+                	itemsList = itemsList === undefined ? itemService.getAll() : itemsList;
+                	parameter.options = itemsList;
+                }
+                else if(parameter.type === 'TEXT') {
                     if(parameter.options && parameter.options.length > 0) {
-                        parameterModel.element = 'select';
-                        parameterModel.options = parameter.options;
+                        parameter.element = 'select';
+                        parameter.options = parameter.options;
                     } else {
-                        parameterModel.element = 'input';
-                        parameterModel.inputType = parameter.context === 'password' ? 'password' : 'text';
+                        parameter.element = 'input';
+                        parameter.inputType = parameter.context === 'password' ? 'password' : 'text';
                     }
                 } else if(parameter.type === 'BOOLEAN') {
-                    parameterModel.element = 'switch';
+                    parameter.element = 'switch';
                 } else if(parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
-                    parameterModel.element = 'input';
-                    parameterModel.inputType = 'number';
+                    parameter.element = 'input';
+                    parameter.inputType = 'number';
                 } else {
-                    parameterModel.element = 'input';
-                    parameterModel.inputType = 'text';
+                    parameter.element = 'input';
+                    parameter.inputType = 'text';
                 }
-                parameters.push(parameterModel);
+                parameters.push(parameter);
             }
             return parameters;
         },

@@ -42,6 +42,7 @@ var paths = {
             './web-src/bower_components/angular-aria/angular-aria.min.js',
             './web-src/bower_components/angular-aria/angular-aria.min.js',
             './web-src/bower_components/angular-material/angular-material.min.js',
+            './web-src/bower_components/angular-messages/angular-messages.min.js'
         ],
         'name': 'angular-bundle.js'
     }],
@@ -49,7 +50,7 @@ var paths = {
     JSLibs: [
         './web-src/bower_components/jquery/dist/jquery.min.js',
         './web-src/bower_components/masonry/dist/masonry.pkgd.min.js',
-        './web-src/bower_components/sprintf-js/dist/sprintf.min.js',
+        './web-src/bower_components/sprintf/dist/sprintf.min.js',
         './web-src/bower_components/bootstrap/dist/js/bootstrap.min.js',
         './web-src/bower_components/tinycolor/tinycolor.js',
     ],

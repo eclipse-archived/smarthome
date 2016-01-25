@@ -48,10 +48,14 @@ public class RuntimeRule extends Rule {
         super(ruleTemplateUID, configurations);
     }
 
-    public RuntimeRule(String ruleUID, RuleTemplate template, Map<String, ?> configuration) {
-        super(ruleUID, getRuntimeTriggersCopy(template.getTriggers()),
-                getRuntimeConditionsCopy(template.getConditions()), getRuntimeActionsCopy(template.getActions()),
-                template.getConfigurationDescription(), configuration, template.getVisibility());
+    public RuntimeRule(Rule rule, RuleTemplate template) {
+        super(rule.getUID(), getRuntimeTriggersCopy(template.getTriggers()),
+                getRuntimeConditionsCopy(template.getConditions()), getRuntimeActionsCopy(template.getActions()), null,
+                null, template.getVisibility());
+        validateConfiguration(template.getConfigurationDescription(), rule.getConfiguration());
+        setName(rule.getName());
+        setTags(template.getTags());
+        setDescription(template.getDescription());
     }
 
     /**
@@ -130,7 +134,8 @@ public class RuntimeRule extends Rule {
      *
      * @param configurations
      */
-    private void validateConfiguration0(Map<String, Object> configurations) {
+    private void validateConfiguration0(List<ConfigDescriptionParameter> configDescriptions,
+            Map<String, Object> configurations) {
         if (configurations == null || configurations.isEmpty()) {
             if (isOptionalConfig(configDescriptions)) {
                 return;
@@ -224,10 +229,11 @@ public class RuntimeRule extends Rule {
         return false;
     }
 
-    void validateConfiguration() {
-        Map<String, ?> ruleConfiguration = getConfiguration();
+    private void validateConfiguration(List<ConfigDescriptionParameter> configDescriptions,
+            Map<String, ?> ruleConfiguration) {
+        // Map<String, ?> ruleConfiguration = getConfiguration();
         if (ruleConfiguration != null) {
-            validateConfiguration0(new HashMap<String, Object>(ruleConfiguration));
+            validateConfiguration0(configDescriptions, new HashMap<String, Object>(ruleConfiguration));
             handleModuleConfigReferences(getTriggers(), ruleConfiguration);
             handleModuleConfigReferences(getConditions(), ruleConfiguration);
             handleModuleConfigReferences(getActions(), ruleConfiguration);
