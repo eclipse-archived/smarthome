@@ -11,5 +11,5 @@ If a single file is not enough, additional resources (e.g. further md-files, ima
 
 Neither the ```README.md``` file nor the ```doc``` folder must be added to ```build.properties```, i.e. they only exist in the source repo, but should not be packaged within the binary bundles.
 
-It is planned to generate parts of the documentation based on the files that are available with the ```ESH-INF``` folder of the binding. As this documentation generation is not (yet) in place, the documentation currently needs to maintained fully manual.
+It is planned to generate parts of the documentation based on the files that are available with the ```ESH-INF``` folder of the binding. As this documentation generation is not (yet) in place, the documentation currently needs to be maintained fully manually.
 The Maven archetype creates a [template for the binding documentation](https://github.com/eclipse/smarthome/blob/master/tools/archetype/binding/src/main/resources/archetype-resources/README.md).
