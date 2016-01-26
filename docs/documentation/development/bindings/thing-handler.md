@@ -16,20 +16,37 @@ The communication between the framework and the ThingHandler is bidirectional. I
 
 ## Lifecycle
 
-The `ThingHandler` has a well defined lifecycle. The most two important lifecycle methods are: `initialize` and `dispose`. The `initialize` method is called when the handler is started and `dispose` just before the handler is stopped. Therefore the methods can be used to allocate and deallocate resources. If the BaseThingHandlerFactory is used for creating and maintaining the handler instances, the detailed lifecycle looks as followed:
+The `ThingHandler` has a well defined lifecycle. The two most important lifecycle methods are: `initialize` and `dispose`. The `initialize` method is called, when the handler is started and `dispose` is called just before the handler is stopped. Therefore the methods can be used to allocate and deallocate resources.
 
 ### Startup
 
-* Handler will be created: Constructor is called
-* Handler will be initialized: `initialize` method is called
-* Handler will be registered as an OSGi service: It is visible to the framework and ready to work 
+The startup of a handler is divided in two essential steps: 
 
-After the handler is registered as an OSGi service, the *ThingHandler* should be ready to handle method calls like `handleCommand` and `handleUpdate`, as well as `thingUpdated`. 
+1. Handler is registered: `ThingHandler` instance created and registered as an OSGi service. Handler is visible to the framework.
+ 
+2. Handler is initialized: `initialize` method is called, if all 'required' configuration parameters of the Thing are present. Handler is ready to work (methods like `handleCommand`, `handleUpdate` or `thingUpdated` can be called).
+
+The diagram below illustrates the startup of a handler in more detail. The life cycle is controlled by the `ThingManager`. 
+
+![thing_life_cycle_startup](diagrams/thing_life_cycle_startup.png)
+
+The `ThingManager` tracks all Things and mediates the communication between the `Thing` and the `ThingHandler` from the binding. Therefore it tracks `ThingHandlerFactory`s and calls `ThingHandlerFactory.registerHandler(Thing)` for each thing, that was added. A `ThingHandlerFactory` has to create a new `ThingHandler` instance and and must register the instance as an OSGi service. 
+
+The `ThingHandlerTracker` notifies the `ThingManager` about the registered `ThingHandler` instance and determines if the `Thing` is initializable or not. A `Thing` is considered as *initializable* if all 'required' configuration parameters (cf. property *parameter.required* in [Configuration Description](xml-reference.html)) are available. If so, the method `ThingHandler.initialize()` is called in order to initialize the `Thing`. In this method the handler has to set the status to `ONLINE` resp. `OFFLINE` (cf. [Thing Status](../../concepts/things.html#thing-status)). Only Things in status `ONLINE` or `OFFLINE` are considered as *initialized*.
+
+If the `Thing` is not initializable the configuration can be updated via `ThingHandler.handleConfigurationUpdate(Map)`. The binding has to notify the `ThingManager` about the updated configuration. The `ThingManager` tries to initialize the `ThingHandler` resp. `Thing` again.
+
+After the handler is initialized (`initialize()` has been called, Thing has status `ONLINE` / `OFFLINE`), the handler must be ready to handle methods calls like `handleCommand` and `handleUpdate`, as well as `thingUpdated`. 
 
 ### Shutdown
 
-* Handler will be unregistered as an OSGi service: It is not visible anymore to the framework
-* Handler will be disposed: `disposed` method is called
+The shutdown of a handler is also divided in two essential steps:
+
+1. Handler is unregistered: Unregistering handler as OSGi service. Handler is not visible anymore to the framework.
+
+2. Handler is disposed: `disposed` method is called.
+
+![thing_life_cycle_shutdown](diagrams/thing_life_cycle_shutdown.png)
 
 After the handler is disposed, the framework will not call the handler anymore. 
 
@@ -132,7 +149,7 @@ The `channelLinked` method is called, even if the link existed before the handle
 
 ## Handling Thing Updates
 
-If the structure or the configuration of a thing was changed during runtime (after the thing was created), the binding is informed about this change in the ThingHandler within the `thingUpdated` method. The `BaseThingHandler` has a default implementation for this method:
+If the structure of a thing has been changed during runtime (after the thing was created), the binding is informed about this change in the ThingHandler within the `thingUpdated` method. The `BaseThingHandler` has a default implementation for this method:
 
 ```java
 @Override
