@@ -11,15 +11,11 @@ package org.eclipse.smarthome.config.core.test
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.List;
-import java.util.regex.Pattern;
-
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
-import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
-import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.config.core.FilterCriteria;
-import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.config.core.FilterCriteria
+import org.eclipse.smarthome.config.core.ParameterOption
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
 import org.junit.Test
 
 class ConfigDescriptionParameterBuilderTest {
@@ -27,7 +23,7 @@ class ConfigDescriptionParameterBuilderTest {
     @Test
     void 'assert that created ConfigDescriptionParameter return expected values'() {
         def name = "Dummy"
-        def type = Type.BOOLEAN
+        def type = Type.INTEGER
         def min = new BigDecimal(2.0);
         def max = new BigDecimal(4.0);
         def stepSize = new BigDecimal(1.0);
@@ -39,8 +35,14 @@ class ConfigDescriptionParameterBuilderTest {
         def defaultVal = "default"
         def label = "label"
         def description = "description"
-        def ParameterOption[] options = [new ParameterOption("val", "label")]
-        def FilterCriteria[] criterias = [new FilterCriteria("name", "value")]
+        def unit = "m"
+        def unitLabel = "unitLabel"
+        def ParameterOption[] options = [
+            new ParameterOption("val", "label")
+        ]
+        def FilterCriteria[] criterias = [
+            new FilterCriteria("name", "value")
+        ]
         def groupName = "groupName"
         def advanced = false
         def limitToOptions = true
@@ -63,6 +65,8 @@ class ConfigDescriptionParameterBuilderTest {
                 .withAdvanced(advanced)
                 .withLimitToOptions(limitToOptions)
                 .withMultipleLimit(multipleLimit)
+                .withUnit(unit)
+                .withUnitLabel(unitLabel)
                 .build();
         assertThat param.getMinimum(), is(min)
         assertThat param.getMaximum(), is(max)
@@ -76,11 +80,16 @@ class ConfigDescriptionParameterBuilderTest {
         assertThat param.getMultipleLimit(), is(multipleLimit)
         assertThat param.getFilterCriteria(), hasItems(criterias)
         assertThat param.getOptions(), hasItems(options)
+        assertThat param.getUnit(), is(unit)
+        assertThat param.getUnitLabel(), is(unitLabel)
         assertFalse param.isRequired()
         assertTrue param.isReadOnly()
         assertFalse param.isMultiple()
         assertFalse param.isAdvanced()
         assertTrue param.getLimitToOptions()
+
+        param = ConfigDescriptionParameterBuilder.create(name, type).withUnitLabel(unitLabel).build()
+        assertThat param.getUnitLabel(), is(unitLabel)
     }
 
     @Test
@@ -103,6 +112,8 @@ class ConfigDescriptionParameterBuilderTest {
                 .withAdvanced(null)
                 .withLimitToOptions(null)
                 .withMultipleLimit(null)
+                .withUnit(null)
+                .withUnitLabel(null)
                 .build();
         //nullable attributes
         assertThat param.getMinimum(), is(null)
@@ -115,6 +126,8 @@ class ConfigDescriptionParameterBuilderTest {
         assertThat param.getDescription(), is(null)
         assertThat param.getGroupName(), is(null)
         assertThat param.getMultipleLimit(), is(null)
+        assertThat param.getUnit(), is(null)
+        assertThat param.getUnitLabel(), is(null)
         //list attributes
         assertTrue param.getFilterCriteria().isEmpty()
         assertTrue param.getOptions().isEmpty()
@@ -128,7 +141,7 @@ class ConfigDescriptionParameterBuilderTest {
                 null, null, null, null, null, null,
                 null, null, null, null,
                 null, null, null,null,
-                null)
+                null, null, null)
         assertFalse param2.isRequired()
         assertFalse param2.isReadOnly()
         assertFalse param2.isMultiple()
@@ -151,5 +164,30 @@ class ConfigDescriptionParameterBuilderTest {
     @Test(expected=IllegalArgumentException)
     void 'assert that type must not be null'() {
         ConfigDescriptionParameterBuilder.create("Dummy", null).build()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that unit for text parameter is not allowed'() {
+        ConfigDescriptionParameterBuilder.create("Dummy", Type.TEXT).withUnit("m").build()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that unit for boolean parameter is not allowed'() {
+        ConfigDescriptionParameterBuilder.create("Dummy", Type.BOOLEAN).withUnit("m").build()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that unit label  for text parameter is not allowed'() {
+        ConfigDescriptionParameterBuilder.create("Dummy", Type.TEXT).withUnitLabel("Runs").build()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that unit label for boolean parameter is not allowed'() {
+        ConfigDescriptionParameterBuilder.create("Dummy", Type.BOOLEAN).withUnitLabel("Runs").build()
+    }
+
+    @Test(expected=IllegalArgumentException)
+    void 'assert that a parameter with an invalid unit cannot be created'() {
+        ConfigDescriptionParameterBuilder.create("Dummy", Type.BOOLEAN).withUnit("invalid").build()
     }
 }

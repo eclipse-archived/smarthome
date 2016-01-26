@@ -18,6 +18,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  * class.
  *
  * @author Chris Jackson - Initial Contribution
+ * @author Thomas Höfer - Added unit
  *
  */
 public class ConfigDescriptionParameterBuilder {
@@ -34,6 +35,8 @@ public class ConfigDescriptionParameterBuilder {
     private Boolean readOnly;
     private Boolean multiple;
     private Integer multipleLimit;
+    private String unit;
+    private String unitLabel;
 
     private String context;
     private String defaultValue;
@@ -233,14 +236,38 @@ public class ConfigDescriptionParameterBuilder {
     }
 
     /**
+     * Sets the unit of the configuration parameter.
+     *
+     * @param unit the unit to be set
+     *
+     * @return the updated builder instance
+     */
+    public ConfigDescriptionParameterBuilder withUnit(String unit) {
+        this.unit = unit;
+        return this;
+    }
+
+    /**
+     * Sets the unit label of the configuration parameter.
+     *
+     * @param unitLabel the unit label to be set
+     *
+     * @return the updated builder instance
+     */
+    public ConfigDescriptionParameterBuilder withUnitLabel(String unitLabel) {
+        this.unitLabel = unitLabel;
+        return this;
+    }
+
+    /**
      * Builds a result with the settings of this builder.
      *
      * @return the desired result
      */
     public ConfigDescriptionParameter build() throws IllegalArgumentException {
         return new ConfigDescriptionParameter(name, type, min, max, step, pattern, required, readOnly, multiple,
-                context, defaultValue, label, description, options, filterCriteria, groupName, advanced,
-                limitToOptions, multipleLimit);
+                context, defaultValue, label, description, options, filterCriteria, groupName, advanced, limitToOptions,
+                multipleLimit, unit, unitLabel);
     }
 
 }

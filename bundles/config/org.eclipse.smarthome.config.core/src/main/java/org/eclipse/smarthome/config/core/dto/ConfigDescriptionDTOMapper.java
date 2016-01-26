@@ -41,9 +41,9 @@ public class ConfigDescriptionDTOMapper {
 
     /**
      * Maps config description parameters into DTO objects.
-     * 
+     *
      * @param parameters the config description parameters (not null)
-     * 
+     *
      * @return the parameter DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterDTO> mapParameters(List<ConfigDescriptionParameter> parameters) {
@@ -60,7 +60,8 @@ public class ConfigDescriptionDTOMapper {
                     configDescriptionParameter.getDescription(), mapOptions(configDescriptionParameter.getOptions()),
                     mapFilterCriteria(configDescriptionParameter.getFilterCriteria()),
                     configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
-                    configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit());
+                    configDescriptionParameter.getLimitToOptions(), configDescriptionParameter.getMultipleLimit(),
+                    configDescriptionParameter.getUnit(), configDescriptionParameter.getUnitLabel());
             configDescriptionParameterBeans.add(configDescriptionParameterBean);
         }
         return configDescriptionParameterBeans;
@@ -69,9 +70,9 @@ public class ConfigDescriptionDTOMapper {
 
     /**
      * Maps config description parameter groups into DTO objects.
-     * 
+     *
      * @param parameterGroups the config description parameter groups (not null)
-     * 
+     *
      * @return the parameter group DTO objects (not null)
      */
     public static List<ConfigDescriptionParameterGroupDTO> mapParameterGroups(
@@ -89,8 +90,9 @@ public class ConfigDescriptionDTOMapper {
     }
 
     private static List<FilterCriteriaDTO> mapFilterCriteria(List<FilterCriteria> filterCriteria) {
-        if (filterCriteria == null)
+        if (filterCriteria == null) {
             return null;
+        }
         List<FilterCriteriaDTO> result = new LinkedList<FilterCriteriaDTO>();
         for (FilterCriteria criteria : filterCriteria) {
             result.add(new FilterCriteriaDTO(criteria.getName(), criteria.getValue()));
@@ -99,8 +101,9 @@ public class ConfigDescriptionDTOMapper {
     }
 
     private static List<ParameterOptionDTO> mapOptions(List<ParameterOption> options) {
-        if (options == null)
+        if (options == null) {
             return null;
+        }
         List<ParameterOptionDTO> result = new LinkedList<ParameterOptionDTO>();
         for (ParameterOption option : options) {
             result.add(new ParameterOptionDTO(option.getValue(), option.getLabel()));

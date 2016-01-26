@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import org.eclipse.smarthome.config.core.internal.Activator;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
 import org.osgi.framework.Bundle;
@@ -22,6 +23,7 @@ import org.osgi.framework.Bundle;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Alex Tugarev - Extended for pattern and option label
+ * @author Thomas Höfer - Extended for unit label
  */
 public class ConfigDescriptionI18nUtil {
 
@@ -35,34 +37,48 @@ public class ConfigDescriptionI18nUtil {
 
     public String getParameterPattern(Bundle bundle, URI configDescriptionURI, String parameterName,
             String defaultPattern, Locale locale) {
-        String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern) : inferKey(
-                configDescriptionURI, parameterName, "pattern");
+        String key = I18nUtil.isConstant(defaultPattern) ? I18nUtil.stripConstant(defaultPattern)
+                : inferKey(configDescriptionURI, parameterName, "pattern");
         return i18nProvider.getText(bundle, key, defaultPattern, locale);
     }
 
     public String getParameterDescription(Bundle bundle, URI configDescriptionURI, String parameterName,
             String defaultDescription, Locale locale) {
-        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription) : inferKey(
-                configDescriptionURI, parameterName, "description");
+        String key = I18nUtil.isConstant(defaultDescription) ? I18nUtil.stripConstant(defaultDescription)
+                : inferKey(configDescriptionURI, parameterName, "description");
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
     public String getParameterLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String defaultLabel,
             Locale locale) {
-        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel) : inferKey(
-                configDescriptionURI, parameterName, "label");
+        String key = I18nUtil.isConstant(defaultLabel) ? I18nUtil.stripConstant(defaultLabel)
+                : inferKey(configDescriptionURI, parameterName, "label");
         return i18nProvider.getText(bundle, key, defaultLabel, locale);
     }
 
     public String getParameterOptionLabel(Bundle bundle, URI configDescriptionURI, String parameterName,
             String optionValue, String defaultOptionLabel, Locale locale) {
-        if (!isValidPropertyKey(optionValue))
+        if (!isValidPropertyKey(optionValue)) {
             return defaultOptionLabel;
+        }
 
-        String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel) : inferKey(
-                configDescriptionURI, parameterName, "option." + optionValue);
+        String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel)
+                : inferKey(configDescriptionURI, parameterName, "option." + optionValue);
 
         return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
+    }
+
+    public String getParameterUnitLabel(Bundle bundle, URI configDescriptionURI, String parameterName, String unit,
+            String defaultUnitLabel, Locale locale) {
+        if (unit != null && defaultUnitLabel == null) {
+            String label = i18nProvider.getText(Activator.getBundle(), "unit." + unit, null, locale);
+            if (label != null) {
+                return label;
+            }
+        }
+        String key = I18nUtil.isConstant(defaultUnitLabel) ? I18nUtil.stripConstant(defaultUnitLabel)
+                : inferKey(configDescriptionURI, parameterName, "unitLabel");
+        return i18nProvider.getText(bundle, key, defaultUnitLabel, locale);
     }
 
     private String inferKey(URI configDescriptionURI, String parameterName, String lastSegment) {

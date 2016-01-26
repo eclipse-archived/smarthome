@@ -38,6 +38,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @author Alex Tugarev - Extended for options and filter criteria
  * @author Chris Jackson - Modified to use config parameter builder. Added
  *         parameters.
+ * @author Thomas Höfer - Added unit
  */
 public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<ConfigDescriptionParameter> {
 
@@ -46,10 +47,10 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
     public ConfigDescriptionParameterConverter() {
         super(ConfigDescriptionParameter.class);
 
-        this.attributeMapValidator = new ConverterAttributeMapValidator(new String[][] { { "name", "true" },
-                { "type", "true" }, { "min", "false" }, { "max", "false" }, { "step", "false" },
-                { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" }, { "multiple", "false" },
-                { "groupName", "false" } });
+        this.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "name", "true" }, { "type", "true" }, { "min", "false" }, { "max", "false" },
+                        { "step", "false" }, { "pattern", "false" }, { "required", "false" }, { "readOnly", "false" },
+                        { "multiple", "false" }, { "groupName", "false" }, { "unit", "false" } });
     }
 
     private Type toType(String xmlType) {
@@ -62,8 +63,9 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
 
     private BigDecimal toNumber(String value) {
         try {
-            if (value != null)
+            if (value != null) {
                 return new BigDecimal(value);
+            }
         } catch (NumberFormatException e) {
             throw new ConversionException("The value '" + value + "' could not be converted to a decimal number.", e);
         }
@@ -71,8 +73,9 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
     }
 
     private Boolean toBoolean(String val) {
-        if (val == null)
+        if (val == null) {
             return null;
+        }
         return new Boolean(val);
     }
 
@@ -96,6 +99,7 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         Boolean readOnly = falseIfNull(toBoolean(attributes.get("readOnly")));
         Boolean multiple = falseIfNull(toBoolean(attributes.get("multiple")));
         String groupName = attributes.get("groupName");
+        String unit = attributes.get("unit");
 
         // read values
         ConverterValueMap valueMap = new ConverterValueMap(reader, context);
@@ -111,6 +115,10 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
         Boolean advanced = valueMap.getBoolean("advanced", false);
         Boolean limitToOptions = valueMap.getBoolean("limitToOptions", true);
         Integer multipleLimit = valueMap.getInteger("multipleLimit");
+        String unitLabel = null;
+        if (unit == null) {
+            unitLabel = valueMap.getString("unitLabel");
+        }
 
         // read options and filter criteria
         List<ParameterOption> options = readParameterOptions(valueMap.getObject("options"));
@@ -123,7 +131,7 @@ public class ConfigDescriptionParameterConverter extends GenericUnmarshaller<Con
                 .withMultiple(multiple).withContext(parameterContext).withDefault(defaultValue).withLabel(label)
                 .withDescription(description).withOptions(options).withFilterCriteria(filterCriteria)
                 .withGroupName(groupName).withAdvanced(advanced).withLimitToOptions(limitToOptions)
-                .withMultipleLimit(multipleLimit).build();
+                .withMultipleLimit(multipleLimit).withUnit(unit).withUnitLabel(unitLabel).build();
 
         return configDescriptionParam;
     }
