@@ -13,10 +13,10 @@ There are the following categories of bundles:
 
  - `config`: everything that is concerned with general configuration of the system like config files, xml parsing, discovery, etc.	
  - `core`: the main bundles for the logical operation of the system - based on the abstract item and event concepts.
- - `io`: all kinds of optional functionality that have to do with i/o like console commands, audio support or http/rest communication
- - `model`: support for domain specific languages (DSLs) 
- - `designer`: Eclipse RCP support for DSLs and other configuration files
- - `ui`: user interface related bundles that provide services that can be used by different UIs, such as charting or icons
+ - `io`: all kinds of optional functionality that have to do with I/O like console commands, audio support or HTTP/REST communication.
+ - `model`: support for domain specific languages (DSLs). 
+ - `designer`: Eclipse RCP support for DSLs and other configuration files.
+ - `ui`: user interface related bundles that provide services that can be used by different UIs, such as charting or icons.
 
 ## Runtime Services
 

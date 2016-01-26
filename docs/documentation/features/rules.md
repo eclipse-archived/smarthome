@@ -16,27 +16,27 @@ In general this rule engine aims to support rules defined with syntax similar to
 ON item_id state changed IF item_id.state == desired_value THEN item_id2.state = desired_value2 
 ```
 
-Each rule can have some basic information like name,tags,description and three module sections (**triggers,conditions,actions**)
+Each rule can have some basic information like name, tags, description and three module sections (**triggers,conditions,actions**)
 
 
 - The **'triggers'** section is the trigger (eventing) part. 
 
 
-- The **'conditions'** section lists the conditions which act as a filter for the events - actions of the rule will be executed only if the conditions evaluating the event data are satisfied and return 'true'. In case there are multiple conditions in the 'if' section then all of them must be satisfied - logical AND is used 
+- The **'conditions'** section lists the conditions which act as a filter for the events - actions of the rule will be executed only if the conditions evaluating the event data are satisfied and return 'true'. In case there are multiple conditions in the 'if' section then all of them must be satisfied - logical AND is used.
 
 - The **'actions'** section contains the actions which specify what should be executed when the event is received.
 
 
-One rule can invoke one and the same operation upon receiving each trigger event, or the operation can be dynamic using input parameters from the event itself or from the system objects
+One rule can invoke one and the same operation upon receiving each trigger event, or the operation can be dynamic using input parameters from the event itself or from the system objects.
 
 Main building blocks of the rules are modules and each rule consists of one or more instances of each of the following modules:
 
     trigger - which specifies when to execute the rule, usually it is an event;
     condition - which acts like a filter depending on the defined condition type and its input and configuration. For example evaluation of trigger outputs or the state of the system / items;
-    action - which specifies the operation of the rule which will be executed if the condition is statisfied. If more than one actions are specified in a rule they will be executed sequentially where the output of the previous action can be used as an input for the next action - like a processor modifying the data of the trigger output (e.g. converting temperature values from Celsius to Fahrenheit)
+    action - which specifies the operation of the rule which will be executed if the condition is satisfied. If more than one actions are specified in a rule they will be executed sequentially where the output of the previous action can be used as an input for the next action - like a processor modifying the data of the trigger output (e.g. converting temperature values from Celsius to Fahrenheit);
 
-Each module is created from a template called "module type" and can specify configuration parameters for the template, like "eventTopic" for the "GenericEventTrigger" or "operator" for the "GenericCompareCondition"
-There are system module types which are provided by the system and there could be added composite module types which are extensions of the system module types with predefined configurations and/or modified module input/output objects like "ItemStateChangeTrigger" which is based on the GenericEventTrigger but specifies in its configuration that it is triggered only on item's state change events
+Each module is created from a template called "module type" and can specify configuration parameters for the template, like "eventTopic" for the "GenericEventTrigger" or "operator" for the "GenericCompareCondition".
+There are system module types which are provided by the system and there could be added composite module types which are extensions of the system module types with predefined configurations and/or modified module input/output objects like "ItemStateChangeTrigger" which is based on the GenericEventTrigger but specifies in its configuration that it is triggered only on item's state change events.
 
 **Module type** has the following elements:
 
@@ -53,7 +53,7 @@ There are system module types which are provided by the system and there could b
     type - one of the following "text", "integer", "decimal", "boolean"
     label - localizable text
     description - localizable text
-    required - boolean flag indicating if this configuration property can be optional and thus it can be ommited in the rule, by default required is false
+    required - boolean flag indicating if this configuration property can be optional and thus it can be omitted in the rule, by default required is false
     defaultValue - default value for the configuration property when not specified in the rule
 
 **Input property** has the following metadata
@@ -606,6 +606,6 @@ Another way to extend the supported module types is by defining composite module
          ]
       }
 
-This example demonstrates new module type ItemStateChangeTrigger which wraps the system module type GenericEventTrigger and defines new configuration property 'itemName' which is used as the 'eventSource' property of the GenericEventTrigger, the other config paramters eventTopic and eventTypes are fixed.
+This example demonstrates new module type ItemStateChangeTrigger which wraps the system module type GenericEventTrigger and defines new configuration property 'itemName' which is used as the 'eventSource' property of the GenericEventTrigger, the other config parameters eventTopic and eventTypes are fixed.
 The composite module type can have also inputs and outputs and can use a reference to map them to inputs and outputs of the nested system module type(s) 
 

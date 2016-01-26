@@ -16,7 +16,7 @@ The goals of the Eclipse SmartHome project can be summarized as:
 * Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.
 * Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.
 * Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.
-* Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulates future contributions to the project.
+* Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulate future contributions to the project.
 * Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.
 Description
 * The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.
@@ -30,7 +30,7 @@ The project focuses on services and APIs for the following topics:
 1. _Declarative User Interfaces_: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.
 1. _Persistence Management_: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.
 
-Besides the runtime framework and implementation, the Eclipse SmartHome projects also provides different kinds of tools and samples:
+Besides the runtime framework and implementation, the Eclipse SmartHome project also provides different kinds of tools and samples:
 
 * Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.
 * Maven archetypes to easily create skeletons for extensions

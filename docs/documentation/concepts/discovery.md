@@ -29,12 +29,12 @@ The following table gives an overview about the main parts of a `DiscoveryResult
 
 | Field | Description |
 |-------|-------------|
-| `thingUID` | The `thingUID` is the unique identifier of the specific discovered thing (e.g. a device's serial number). It  *must not* be constructed out of properties, that can change like IP addresses. A typical `thingUID` could look like this: `hue:bridge:001788141f1a` 
+| `thingUID` | The `thingUID` is the unique identifier of the specific discovered thing (e.g. a device's serial number). It  *must not* be constructed out of properties, that can change (e.g. IP addresses). A typical `thingUID` could look like this: `hue:bridge:001788141f1a` 
 | `thingTypeUID` | Contrary to the `thingUID` is the `thingTypeUID` that specifies the type the discovered thing belongs to. It could be constructed from e.g. a product number. A typical `thingTypeUID` could be the following: `hue:bridge`. 
 | `bridgeUID` | If the discovered thing belongs to a bridge, the `bridgeUID` contains the UID of that bridge. 
 | `properties` | The `properties` of a `DiscoveryResult` contain the configuration for the newly created thing. 
 
-Discovery results can either be ignored or approved, which means that a thing is created for them and they become available in the application. The configuration of that created thing contains the values from the `properties`of the approved `DiscoveryResult`. If an entry is ignored, it will be hidden in the inbox without creating a thing for it. 
+Discovery results can either be ignored or approved, where in the latter case a thing is created for them and they become available in the application. The configuration of that created thing contains the values from the `properties`of the approved `DiscoveryResult`. If an entry is ignored, it will be hidden in the inbox without creating a thing for it. 
 
 ### Active Scan vs. Background Discovery
 
