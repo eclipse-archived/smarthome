@@ -24,6 +24,7 @@ import org.osgi.framework.Bundle;
  *
  * @author Ana Dimova - Initial Contribution
  * @author Yordan Mihaylov - updates related to api changes
+ * @author Thomas Höfer - Added config description parameter unit
  */
 public class ConfigDescriptionParameterI18nUtil {
 
@@ -43,12 +44,14 @@ public class ConfigDescriptionParameterI18nUtil {
                         prefix, locale);
                 List<ParameterOption> loptions = getLocalizedOptions(i18nProvider, parameter.getOptions(), bundle, uid,
                         parameterName, prefix, locale);
+                String lunitLabel = getUnitLabel(i18nProvider, bundle, uid, parameterName, parameter.getUnitLabel(),
+                        prefix, locale);
                 configDescriptions.add(new ConfigDescriptionParameter(parameterName, parameter.getType(),
                         parameter.getMinimum(), parameter.getMaximum(), parameter.getStepSize(), lpattern,
                         parameter.isMultiple(), parameter.isReadOnly(), parameter.isMultiple(), parameter.getContext(),
                         parameter.getDefault(), llabel, ldescription, loptions, parameter.getFilterCriteria(),
                         parameter.getGroupName(), parameter.isAdvanced(), parameter.getLimitToOptions(),
-                        parameter.getMultipleLimit()));
+                        parameter.getMultipleLimit(), parameter.getUnit(), lunitLabel));
             }
         }
         return configDescriptions;
@@ -75,11 +78,19 @@ public class ConfigDescriptionParameterI18nUtil {
         return i18nProvider.getText(bundle, key, defaultDescription, locale);
     }
 
+    private static String getUnitLabel(I18nProvider i18nProvider, Bundle bundle, String uid, String parameterName,
+            String defaultUnitLabel, String prefix, Locale locale) {
+        String key = I18nUtil.isConstant(defaultUnitLabel) ? I18nUtil.stripConstant(defaultUnitLabel)
+                : inferKey(prefix, uid, parameterName, "unitLabel");
+        return i18nProvider.getText(bundle, key, defaultUnitLabel, locale);
+    }
+
     private static List<ParameterOption> getLocalizedOptions(I18nProvider i18nProvider,
             List<ParameterOption> originalOptions, Bundle bundle, String uid, String parameterName, String prefix,
             Locale locale) {
-        if (originalOptions == null || originalOptions.isEmpty())
+        if (originalOptions == null || originalOptions.isEmpty()) {
             return originalOptions;
+        }
         List<ParameterOption> localizedOptions = new ArrayList<ParameterOption>();
         for (ParameterOption option : originalOptions) {
             String localizedLabel = getParameterOptionLabel(i18nProvider, bundle, uid, parameterName, option.getValue(),
@@ -92,8 +103,9 @@ public class ConfigDescriptionParameterI18nUtil {
 
     private static String getParameterOptionLabel(I18nProvider i18nProvider, Bundle bundle, String uid,
             String parameterName, String optionValue, String defaultOptionLabel, String prefix, Locale locale) {
-        if (!isValidPropertyKey(optionValue))
+        if (!isValidPropertyKey(optionValue)) {
             return defaultOptionLabel;
+        }
         String key = I18nUtil.isConstant(defaultOptionLabel) ? I18nUtil.stripConstant(defaultOptionLabel)
                 : inferKey(prefix, uid, parameterName, "option." + optionValue);
         return i18nProvider.getText(bundle, key, defaultOptionLabel, locale);
