@@ -57,7 +57,8 @@ var paths = {
     CSSLibs: [
         './web-src/bower_components/bootstrap/dist/css/bootstrap.min.css',
         './web-src/bower_components/angular-material/angular-material.min.css',
-        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css'
+        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css',
+        './web-src/css/theme.css'
     ],
     FontLibs: [
         './web-src/bower_components/roboto-fontface/fonts/*',
