@@ -34,20 +34,14 @@ public class ScriptModuleHandlerFactory extends BaseModuleHandlerFactory {
     private static final Collection<String> types = Arrays
             .asList(new String[] { ScriptActionHandler.SCRIPT_ACTION_ID, ScriptConditionHandler.SCRIPT_CONDITION });
 
-    public ScriptModuleHandlerFactory(BundleContext bundleContext) {
-        super(bundleContext);
-    }
-
-    public void activate() {
+    @Override
+    public void activate(BundleContext bundleContext) {
+        super.activate(bundleContext);
     }
 
     @Override
     public Collection<String> getTypes() {
         return types;
-    }
-
-    protected void deactivate() {
-        super.dispose();
     }
 
     @Override
