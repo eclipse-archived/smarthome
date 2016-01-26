@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * Test adding, retrieving and updating rules from the RuleEngine
  *
  * @author Marin Mitev - initial version
+ * @author Thomas Höfer - Added config description parameter unit
  */
 public class RuleEngineTest {
 
@@ -307,7 +308,7 @@ public class RuleEngineTest {
 
         ConfigDescriptionParameter cfgDP = new ConfigDescriptionParameter(configPropertyName, Type.valueOf(typeStr),
                 max, min, step, pattern, required, readOnly, multiple, context, defValue, label, description, options,
-                filter, groupName, advanced, limitToOptions, multipleLimit);
+                filter, groupName, advanced, limitToOptions, multipleLimit, null, null);
         configDescriptions.add(cfgDP);
         return configDescriptions;
     }

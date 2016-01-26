@@ -20,7 +20,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  * @author Alex Tugarev - Extended for options and filter criteria
  * @author Chris Jackson - Added group, advanced, limitToOptions, multipleLimit
  *         attributes
- *
+ * @author Thomas Höfer - Added unit
  */
 public class ConfigDescriptionParameterDTO {
 
@@ -41,6 +41,8 @@ public class ConfigDescriptionParameterDTO {
     public String groupName;
     public Boolean advanced;
     public Boolean limitToOptions;
+    public String unit;
+    public String unitLabel;
 
     public List<ParameterOptionDTO> options;
     public List<FilterCriteriaDTO> filterCriteria;
@@ -52,7 +54,7 @@ public class ConfigDescriptionParameterDTO {
             BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
             String defaultValue, String label, String description, List<ParameterOptionDTO> options,
             List<FilterCriteriaDTO> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
-            Integer multipleLimit) {
+            Integer multipleLimit, String unit, String unitLabel) {
         this.name = name;
         this.type = type;
         this.min = minimum;
@@ -72,6 +74,8 @@ public class ConfigDescriptionParameterDTO {
         this.advanced = advanced;
         this.limitToOptions = limitToOptions;
         this.multipleLimit = multipleLimit;
+        this.unit = unit;
+        this.unitLabel = unitLabel;
     }
 
 }

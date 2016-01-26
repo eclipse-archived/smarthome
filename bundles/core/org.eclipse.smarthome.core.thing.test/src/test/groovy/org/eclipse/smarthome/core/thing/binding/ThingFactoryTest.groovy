@@ -103,7 +103,7 @@ class ThingFactoryTest extends OSGiTest{
                     ConfigDescription getConfigDescription( URI uri) {
                         def parameters = [
                             new ConfigDescriptionParameter("testProperty",
-                            ConfigDescriptionParameter.Type.TEXT, null, null, null, null, false, false, false, "context", "default", "label", "description", null, null, null, false, true, null)
+                            ConfigDescriptionParameter.Type.TEXT, null, null, null, null, false, false, false, "context", "default", "label", "description", null, null, null, false, true, null, null, null)
                         ]
                         return new ConfigDescription(uri, parameters)
                     }
@@ -128,13 +128,13 @@ class ThingFactoryTest extends OSGiTest{
                     ConfigDescription getConfigDescription( URI uri) {
                         def parameters = [
                             new ConfigDescriptionParameter("p1",
-                            ConfigDescriptionParameter.Type.BOOLEAN, null, null, null, null, false, false, false, "context", "true", "label", "description", null, null, null, false, true, null),
+                            ConfigDescriptionParameter.Type.BOOLEAN, null, null, null, null, false, false, false, "context", "true", "label", "description", null, null, null, false, true, null, null, null),
                             new ConfigDescriptionParameter("p2",
-                            ConfigDescriptionParameter.Type.INTEGER, null, null, null, null, false, false, false, "context", "5", "label", "description", null, null, null, false, true, null),
+                            ConfigDescriptionParameter.Type.INTEGER, null, null, null, null, false, false, false, "context", "5", "label", "description", null, null, null, false, true, null, null, null),
                             new ConfigDescriptionParameter("p3",
-                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "2.3", "label", "description", null, null, null, false, true, null),
+                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "2.3", "label", "description", null, null, null, false, true, null, null, null),
                             new ConfigDescriptionParameter("p4",
-                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "invalid", "label", "description", null, null, null, false, true, null)
+                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "invalid", "label", "description", null, null, null, false, true, null, null, null)
                         ]
                         return new ConfigDescription(uri, parameters)
                     }
