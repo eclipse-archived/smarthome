@@ -28,7 +28,8 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         bc = context;
-        sampleHandlerFactory = new SampleHandlerFactory(bc);
+        sampleHandlerFactory = new SampleHandlerFactory();
+        sampleHandlerFactory.activate(context);
         this.factoryRegistration = bc.registerService(ModuleHandlerFactory.class.getName(), sampleHandlerFactory, null);
         commands = new SampleHandlerFactoryCommands(sampleHandlerFactory, bc);
     }

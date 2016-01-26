@@ -24,12 +24,16 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
     protected Map<String, ModuleHandler> handlers;
     protected BundleContext bundleContext;
 
-    public BaseModuleHandlerFactory(BundleContext bundleContext) {
+    public void activate(BundleContext bundleContext) {
         if (bundleContext == null) {
             throw new IllegalArgumentException("BundleContext must not be null.");
         }
         this.bundleContext = bundleContext;
         handlers = new HashMap<String, ModuleHandler>();
+    }
+
+    public void deactivate() {
+        dispose();
     }
 
     @Override
@@ -51,7 +55,7 @@ abstract public class BaseModuleHandlerFactory implements ModuleHandlerFactory {
         }
         handlers.clear();
     }
-    
+
     @Override
     public void ungetHandler(Module module, String ruleUID, ModuleHandler hdlr) {
         ModuleHandler handler = handlers.get(ruleUID + module.getId());
