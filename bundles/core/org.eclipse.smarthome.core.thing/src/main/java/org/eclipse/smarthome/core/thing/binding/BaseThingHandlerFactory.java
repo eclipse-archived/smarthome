@@ -104,10 +104,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         removeHandler(thingHandler);
         serviceRegistration.unregister();
         if (thingHandler instanceof BaseThingHandler) {
-            ((BaseThingHandler) thingHandler).preDispose();
-        }
-        thingHandler.dispose();
-        if (thingHandler instanceof BaseThingHandler) {
             ((BaseThingHandler) thingHandler).unsetBundleContext(bundleContext);
         }
     }
@@ -119,7 +115,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             throw new IllegalStateException(this.getClass().getSimpleName()
                     + " could not create a handler for the thing '" + thing.getUID() + "'.");
         }
-        thingHandler.setCallback(thingHandlerListener);
         if (thingHandler instanceof BaseThingHandler) {
             if (bundleContext == null) {
                 throw new IllegalStateException(
@@ -127,11 +122,6 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
             }
             ((BaseThingHandler) thingHandler).setBundleContext(bundleContext);
         }
-        thingHandler.initialize();
-        if (thingHandler instanceof BaseThingHandler) {
-            ((BaseThingHandler) thingHandler).postInitialize();
-        }
-
         ServiceRegistration<ThingHandler> thingHandlderServiceRegistration = registerThingHandlerAsService(thing,
                 thingHandler);
         thingHandlers.put(thing.getUID().toString(), thingHandlderServiceRegistration);
