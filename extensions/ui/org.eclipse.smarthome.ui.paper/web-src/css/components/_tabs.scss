@@ -1,0 +1,39 @@
+// Tabs
+md-tabs {
+	border-radius: 0px;
+    section {
+    	padding: 0px;
+    }
+    md-tab {
+    	background-color: #01324D;
+        color: #DDD;
+        outline: 0;
+        &.md-active {
+            color: white;
+        }
+    }
+    md-tabs-wrapper {
+    	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+    	background-color: #01324D;
+    }
+    &.md-default-theme {
+        md-tab {
+            &[disabled] {
+                color: rgba(0, 0, 0, 0.12);
+            }
+            &:focus {
+                border-color: transparent;
+            }
+            .md-ripple-container {
+            	color: white;
+            }
+        }
+        .md-header {
+        	background-color: #01324D;
+        }
+        md-ink-bar {
+            color: #ffff85;
+            background: white;
+        }
+    }
+}

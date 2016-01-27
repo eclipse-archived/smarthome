@@ -1,0 +1,24 @@
+/* Search */
+.search {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    & md-input-container {
+        padding: 0;
+        margin: 0 20px;
+        & input {
+            border-bottom: 1px solid #FFF;
+        }
+    }
+}
+@media only screen and (max-width: 1120px) {
+    .search {
+        padding: 10px;
+    }
+    md-select.config-select {
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+}
+.search md-input-container .search md-input-container.md-default-theme:not(.md-input-invalid).md-input-focused .md-input {
+    border-color: #FFF;
+}

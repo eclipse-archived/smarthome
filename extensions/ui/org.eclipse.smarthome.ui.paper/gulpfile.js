@@ -8,6 +8,7 @@ var angularFilesort = require('gulp-angular-filesort'),
     ngAnnotate = require('gulp-ng-annotate'),
     proxyMiddleware = require('http-proxy-middleware'),
     rename = require("gulp-rename"),
+    sass = require('gulp-sass'),
     uglify = require('gulp-uglify');
 
 var paths = {
@@ -21,10 +22,10 @@ var paths = {
         './web-src/bower_components/angular/angular.js'
     ],
     static: [
-        './web-src/css/*.css',
         './web-src/img/*',
         './web-src/index.html'
     ],
+    styles: ['./web-src/css/paperUI.scss'],
     concat: [{
         'src': './web-src/js/services*.js',
         'name': 'services.js'
@@ -56,7 +57,8 @@ var paths = {
     CSSLibs: [
         './web-src/bower_components/bootstrap/dist/css/bootstrap.min.css',
         './web-src/bower_components/angular-material/angular-material.min.css',
-        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css'
+        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css',
+        './web-src/css/theme.css'
     ],
     FontLibs: [
         './web-src/bower_components/roboto-fontface/fonts/*',
@@ -65,7 +67,7 @@ var paths = {
 };
 
 gulp.task('default', ['build']);
-gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyStatic', 'copyPartials']);
+gulp.task('build', ['uglify', 'styles', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
@@ -76,6 +78,18 @@ gulp.task('uglify', function () {
             return path;
         }))
         .pipe(gulp.dest('./web/js/'));
+});
+
+gulp.task('styles', function () {
+    return gulp.src(paths.styles)
+        .pipe(sass({
+            outputStyle: 'compressed'
+        })).on('error', sass.logError)
+        .pipe(rename(function (path) {
+            path.basename += '.min';
+            return path;
+        }))
+        .pipe(gulp.dest('./web/css/'));
 });
 
 gulp.task('copyStatic', function () {
