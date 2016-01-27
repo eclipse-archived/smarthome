@@ -100,7 +100,7 @@
                     <div ng-repeat="val in aTriggers">
                          <div class="vcard card col-md-12">
                              <div class="row">
-                                <h5>{{val.label?val.label:'Trigger '+($index+1)}}</h5>
+                                <h5 class="col-md-10">{{val.label?val.label:'Trigger '+($index+1)}}</h5>
                                 <div class="col-md-2">
                                 
                                  <md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised md-icon-settings"></md-button>
@@ -123,7 +123,7 @@
                     <div ng-repeat="val in aActions track by $index">
                         <div class="vcard card col-md-12">
                          <div class="row">
-                        <h5>{{val.label?val.label:'Action '+($index+1)}}</h5>
+                        <h5 class="col-md-10">{{val.label?val.label:'Action '+($index+1)}}</h5>
                             <div class="col-md-2">
                             <md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised md-icon-settings"></md-button>
                             </div>
@@ -149,7 +149,7 @@
                     <div ng-repeat="val in aConditions track by $index">
                          <div class="vcard card col-md-10">
                              <div class="row">
-                                <h5>{{val.label?val.label:'Condition '+($index+1)}}</h5>
+                                <h5 class="col-md-10">{{val.label?val.label:'Condition '+($index+1)}}</h5>
                                 <div class="col-md-1">
                                 <md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised md-icon-settings"></md-button>
                              
