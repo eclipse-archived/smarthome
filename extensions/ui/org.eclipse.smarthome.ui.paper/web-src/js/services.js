@@ -82,12 +82,12 @@ angular.module('PaperUI.services', ['PaperUI.constants']).config(function($httpP
             for (var i = 0; i < configParameters.length; i++) {
                 var parameter = configParameters[i];
               
-                if(parameter.context==='item'){
+                if(parameter.context && parameter.context.toUpperCase()==='ITEM'){
                 	parameter.element = 'select';
                 	itemsList = itemsList === undefined ? itemService.getAll() : itemsList;
                 	parameter.options = itemsList;
                 }
-                else if(parameter.type === 'TEXT') {
+                else if(parameter.type.toUpperCase() === 'TEXT' ) {
                     if(parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
                         parameter.options = parameter.options;
@@ -95,11 +95,16 @@ angular.module('PaperUI.services', ['PaperUI.constants']).config(function($httpP
                         parameter.element = 'input';
                         parameter.inputType = parameter.context === 'password' ? 'password' : 'text';
                     }
-                } else if(parameter.type === 'BOOLEAN') {
+                } else if(parameter.type.toUpperCase() === 'BOOLEAN') {
                     parameter.element = 'switch';
-                } else if(parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
-                    parameter.element = 'input';
-                    parameter.inputType = 'number';
+                } else if(parameter.type.toUpperCase() === 'INTEGER' || parameter.type.toUpperCase() === 'DECIMAL') {
+                	 if(parameter.options && parameter.options.length > 0) {
+                         parameter.element = 'select';
+                         parameter.options = parameter.options;
+                     } else	{
+                    	 parameter.element = 'input';
+                    	 parameter.inputType = 'number';
+                     }
                 } else {
                     parameter.element = 'input';
                     parameter.inputType = 'text';
