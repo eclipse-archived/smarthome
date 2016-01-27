@@ -9,10 +9,13 @@ package org.eclipse.smarthome.core.internal.items;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
@@ -29,6 +32,11 @@ import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +54,12 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
 
     private final Logger logger = LoggerFactory.getLogger(ItemRegistryImpl.class);
 
-    protected List<StateDescriptionProvider> stateDescriptionProviders = new CopyOnWriteArrayList<>();
+    private StateDescriptionProviderTracker stateDescriptionProviderTracker;
+
+    private List<StateDescriptionProvider> stateDescriptionProviders = Collections
+            .synchronizedList(new ArrayList<StateDescriptionProvider>());
+
+    private Map<String, Integer> stateDescriptionProviderRanking = new ConcurrentHashMap<>();
 
     @Override
     public void allItemsChanged(ItemProvider provider, Collection<String> oldItemNames) {
@@ -314,20 +327,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
         }
     }
 
-    protected void addStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProviders.add(stateDescriptionProvider);
-        for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
-        }
-    }
-
-    protected void removeStateDescriptionProvider(StateDescriptionProvider stateDescriptionProvider) {
-        this.stateDescriptionProviders.remove(stateDescriptionProvider);
-        for (Item item : getItems()) {
-            ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
-        }
-    }
-
     @Override
     public Collection<Item> getItemsByTag(String... tags) {
         List<Item> filteredItems = new ArrayList<Item>();
@@ -398,6 +397,64 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
     protected void notifyListenersAboutUpdatedElement(Item oldElement, Item element) {
         super.notifyListenersAboutUpdatedElement(oldElement, element);
         postEvent(ItemEventFactory.createUpdateEvent(element, oldElement));
+    }
+
+    protected void activate(ComponentContext componentContext) {
+        stateDescriptionProviderTracker = new StateDescriptionProviderTracker(componentContext.getBundleContext());
+        stateDescriptionProviderTracker.open();
+    }
+
+    protected void deactivate(ComponentContext componentContext) {
+        stateDescriptionProviderTracker.close();
+        stateDescriptionProviderTracker = null;
+    }
+
+    private final class StateDescriptionProviderTracker
+            extends ServiceTracker<StateDescriptionProvider, StateDescriptionProvider> {
+
+        public StateDescriptionProviderTracker(BundleContext context) {
+            super(context, StateDescriptionProvider.class.getName(), null);
+        }
+
+        @Override
+        public StateDescriptionProvider addingService(ServiceReference<StateDescriptionProvider> reference) {
+            StateDescriptionProvider provider = context.getService(reference);
+
+            Object serviceRanking = reference.getProperty(Constants.SERVICE_RANKING);
+            if (serviceRanking instanceof Integer) {
+                stateDescriptionProviderRanking.put(provider.getClass().getName(), (Integer) serviceRanking);
+            } else {
+                stateDescriptionProviderRanking.put(provider.getClass().getName(), 0);
+            }
+
+            synchronized (stateDescriptionProviders) {
+                stateDescriptionProviders.add(provider);
+
+                Collections.sort(stateDescriptionProviders, new Comparator<StateDescriptionProvider>() {
+                    // sort providers by service ranking in a descending order
+                    @Override
+                    public int compare(StateDescriptionProvider provider1, StateDescriptionProvider provider2) {
+                        return stateDescriptionProviderRanking.get(provider2.getClass().getName())
+                                .compareTo(stateDescriptionProviderRanking.get(provider1.getClass().getName()));
+                    }
+                });
+
+                for (Item item : getItems()) {
+                    ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
+                }
+            }
+            return provider;
+        }
+
+        @Override
+        public void removedService(ServiceReference<StateDescriptionProvider> reference,
+                StateDescriptionProvider service) {
+            stateDescriptionProviders.remove(service);
+            stateDescriptionProviderRanking.remove(service.getClass().getName());
+            for (Item item : getItems()) {
+                ((GenericItem) item).setStateDescriptionProviders(stateDescriptionProviders);
+            }
+        }
     }
 
 }
