@@ -52,7 +52,6 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final String ACCESS_CONTROL_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
     private static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
-
     private static final String ORIGIN_HEADER = "Origin";
     private static final String VARY_HEADER = "Vary";
 
