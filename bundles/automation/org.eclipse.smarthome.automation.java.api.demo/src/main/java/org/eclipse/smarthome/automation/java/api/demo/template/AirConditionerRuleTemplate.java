@@ -26,6 +26,7 @@ import org.eclipse.smarthome.automation.java.api.demo.type.WelcomeHomeActionType
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 
 /**
  * The purpose of this class is to illustrate how to create {@link RuleTemplate}
@@ -90,18 +91,20 @@ public class AirConditionerRuleTemplate extends RuleTemplate {
 
         // initialize configDescriptions
         List<ConfigDescriptionParameter> configDescriptions = new ArrayList<ConfigDescriptionParameter>();
-        ConfigDescriptionParameter device = new ConfigDescriptionParameter(WelcomeHomeRulesProvider.CONFIG_UNIT,
-                Type.TEXT, null, null, null, null, true, true, false, null, null, "Device", "Device description", null,
-                null, null, null, null, null);
-        ConfigDescriptionParameter result = new ConfigDescriptionParameter(
-                WelcomeHomeRulesProvider.CONFIG_EXPECTED_RESULT, Type.TEXT, null, null, null, null, true, true, false,
-                null, null, "Result", "Result description", null, null, null, null, null, null);
-        ConfigDescriptionParameter temperature = new ConfigDescriptionParameter(CONFIG_TARGET_TEMPERATURE, Type.INTEGER,
-                null, null, null, null, true, true, false, null, null, "Target temperature",
-                "Indicates the target temperature.", null, null, null, null, null, null);
-        ConfigDescriptionParameter operation = new ConfigDescriptionParameter(CONFIG_OPERATION, Type.TEXT, null, null,
-                null, null, true, true, false, null, null, "Heating/Cooling", "Indicates Heating or Cooling is set.",
-                null, null, null, null, null, null);
+        final ConfigDescriptionParameter device = ConfigDescriptionParameterBuilder
+                .create(WelcomeHomeRulesProvider.CONFIG_UNIT, Type.TEXT).withRequired(true).withReadOnly(true)
+                .withMultiple(false).withLabel("Device").withDescription("Device description").build();
+        final ConfigDescriptionParameter result = ConfigDescriptionParameterBuilder
+                .create(WelcomeHomeRulesProvider.CONFIG_EXPECTED_RESULT, Type.TEXT).withRequired(true)
+                .withReadOnly(true).withMultiple(false).withLabel("Result").withDescription("Result description")
+                .build();
+        final ConfigDescriptionParameter temperature = ConfigDescriptionParameterBuilder
+                .create(CONFIG_TARGET_TEMPERATURE, Type.INTEGER).withRequired(true).withReadOnly(true)
+                .withMultiple(false).withLabel("Target temperature")
+                .withDescription("Indicates the target temperature.").build();
+        final ConfigDescriptionParameter operation = ConfigDescriptionParameterBuilder
+                .create(CONFIG_OPERATION, Type.TEXT).withRequired(true).withReadOnly(true).withMultiple(false)
+                .withLabel("Heating/Cooling").withDescription("Indicates Heating or Cooling is set.").build();
         configDescriptions.add(device);
         configDescriptions.add(result);
         configDescriptions.add(temperature);

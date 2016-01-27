@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 
 /**
  * The purpose of this class is to illustrate how to create {@link ConditionType}
@@ -33,15 +34,15 @@ public class TemperatureConditionType extends ConditionType {
     public static final String INPUT_CURRENT_TEMPERATURE = "currentTemperatute";
 
     public static TemperatureConditionType initialize() {
-        ConfigDescriptionParameter temperature = new ConfigDescriptionParameter(CONFIG_TEMPERATURE, Type.INTEGER, null,
-                null, null, null, true, true, false, null, null, "Temperature", "Targeted room temperature", null, null,
-                null, null, null, null);
-        List<ConfigDescriptionParameter> config = new ArrayList<ConfigDescriptionParameter>();
-        config.add(temperature);
+        final ConfigDescriptionParameter temperature = ConfigDescriptionParameterBuilder
+                .create(CONFIG_TEMPERATURE, Type.INTEGER).withRequired(true).withReadOnly(true).withMultiple(false)
+                .withLabel("Temperature").withDescription("Targeted room temperature").build();
+        final ConfigDescriptionParameter operator = ConfigDescriptionParameterBuilder.create(CONFIG_OPERATOR, Type.TEXT)
+                .withRequired(true).withReadOnly(true).withMultiple(false).withLabel("Mode")
+                .withDescription("Heating/Cooling mode").build();
 
-        ConfigDescriptionParameter operator = new ConfigDescriptionParameter(CONFIG_OPERATOR, Type.TEXT, null, null,
-                null, null, true, true, false, null, null, "Mode", "Heating/Cooling mode", null, null, null, null, null,
-                null);
+        final List<ConfigDescriptionParameter> config = new ArrayList<ConfigDescriptionParameter>();
+        config.add(temperature);
         config.add(operator);
 
         Input currentTemperature = new Input(INPUT_CURRENT_TEMPERATURE, Integer.class.getName(), "Current Temperature",
