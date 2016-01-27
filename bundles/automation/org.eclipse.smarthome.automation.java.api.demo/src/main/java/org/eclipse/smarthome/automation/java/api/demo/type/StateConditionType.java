@@ -15,6 +15,7 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 
 /**
  * The purpose of this class is to illustrate how to create {@link ConditionType}
@@ -30,10 +31,13 @@ public class StateConditionType extends ConditionType {
     public static final String INPUT_CURRENT_STATE = "currentState";
 
     public static StateConditionType initialize() {
-        ConfigDescriptionParameter state = new ConfigDescriptionParameter(CONFIG_STATE, Type.TEXT, null, null, null,
-                null, true, true, false, null, null, "State", "State of the unit", null, null, null, null, null, null);
-        List<ConfigDescriptionParameter> config = new ArrayList<ConfigDescriptionParameter>();
+        final ConfigDescriptionParameter state = ConfigDescriptionParameterBuilder.create(CONFIG_STATE, Type.TEXT)
+                .withRequired(true).withReadOnly(true).withMultiple(false).withLabel("State")
+                .withDescription("State of the unit").build();
+
+        final List<ConfigDescriptionParameter> config = new ArrayList<ConfigDescriptionParameter>();
         config.add(state);
+
         Input leftOperand = new Input(INPUT_CURRENT_STATE, String.class.getName(), "Current State",
                 "Current state of the unit", null, true, null, null);
         List<Input> input = new ArrayList<Input>();

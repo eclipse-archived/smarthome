@@ -14,6 +14,7 @@ import org.eclipse.smarthome.automation.Visibility;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 
 /**
  * The purpose of this class is to illustrate how to create {@link ActionType}
@@ -29,12 +30,12 @@ public class WelcomeHomeActionType extends ActionType {
     public static final String CONFIG_RESULT = "result";
 
     public static WelcomeHomeActionType initialize() {
-        ConfigDescriptionParameter device = new ConfigDescriptionParameter(CONFIG_DEVICE, Type.TEXT, null, null, null,
-                null, true, true, false, null, null, "Device", "Device description", null, null, null, null, null,
-                null);
-        ConfigDescriptionParameter result = new ConfigDescriptionParameter(CONFIG_RESULT, Type.TEXT, null, null, null,
-                null, true, true, false, null, null, "Result", "Result description", null, null, null, null, null,
-                null);
+        final ConfigDescriptionParameter device = ConfigDescriptionParameterBuilder.create(CONFIG_DEVICE, Type.TEXT)
+                .withRequired(true).withReadOnly(true).withMultiple(false).withLabel("Device")
+                .withDescription("Device description").build();
+        final ConfigDescriptionParameter result = ConfigDescriptionParameterBuilder.create(CONFIG_RESULT, Type.TEXT)
+                .withRequired(true).withReadOnly(true).withMultiple(false).withLabel("Result")
+                .withDescription("Result description").build();
         List<ConfigDescriptionParameter> config = new ArrayList<ConfigDescriptionParameter>();
         config.add(device);
         config.add(result);

@@ -22,8 +22,8 @@ import org.eclipse.smarthome.automation.handler.BaseModuleHandlerFactory;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandlerFactory;
 import org.eclipse.smarthome.automation.java.api.demo.type.AirConditionerTriggerType;
-import org.eclipse.smarthome.automation.java.api.demo.type.StateConditionType;
 import org.eclipse.smarthome.automation.java.api.demo.type.LightsTriggerType;
+import org.eclipse.smarthome.automation.java.api.demo.type.StateConditionType;
 import org.eclipse.smarthome.automation.java.api.demo.type.TemperatureConditionType;
 import org.eclipse.smarthome.automation.java.api.demo.type.WelcomeHomeActionType;
 import org.osgi.framework.BundleContext;
@@ -58,8 +58,8 @@ public class WelcomeHomeHandlerFactory extends BaseModuleHandlerFactory {
     private Logger logger = LoggerFactory.getLogger(WelcomeHomeHandlerFactory.class);
 
     public WelcomeHomeHandlerFactory(BundleContext bc) {
-        super(bc);
         triggerHandlers = new HashMap<String, WelcomeHomeTriggerHandler>();
+        activate(bc);
     }
 
     @Override
