@@ -18,7 +18,6 @@ var paths = {
         './web-src/js/main.js',
         './web-src/js/shared.properties.js',
         './web-src/js/controllers.module.js',
-        './web-src/bower_components/angular/angular.js'
     ],
     static: [
         './web-src/css/*.css',
@@ -35,32 +34,32 @@ var paths = {
         'src': [
             // @TODO Figure out why including angular in concat breaks stuff
             //'./web-src/bower_components/angular/angular.min.js',
-            './web-src/bower_components/angular-route/angular-route.min.js',
-            './web-src/bower_components/angular-resource/angular-resource.min.js',
-            './web-src/bower_components/angular-animate/angular-animate.min.js',
-            './web-src/bower_components/angular-aria/angular-aria.min.js',
-            './web-src/bower_components/angular-aria/angular-aria.min.js',
-            './web-src/bower_components/angular-material/angular-material.min.js',
-            './web-src/bower_components/angular-messages/angular-messages.min.js'
+            './node_modules/angular-route/angular-route.min.js',
+            './node_modules/angular-resource/angular-resource.min.js',
+            './node_modules/angular-animate/angular-animate.min.js',
+            './node_modules/angular-aria/angular-aria.min.js',
+            './node_modules/angular-material/angular-material.min.js',
+            './node_modules/angular-messages/angular-messages.min.js'
         ],
         'name': 'angular-bundle.js'
     }],
     partials: ['./web-src/partials/*.html'],
     JSLibs: [
-        './web-src/bower_components/jquery/dist/jquery.min.js',
-        './web-src/bower_components/masonry/dist/masonry.pkgd.min.js',
-        './web-src/bower_components/sprintf/dist/sprintf.min.js',
-        './web-src/bower_components/bootstrap/dist/js/bootstrap.min.js',
-        './web-src/bower_components/tinycolor/tinycolor.js',
+        './node_modules/angular/angular.min.js',
+        './node_modules/jquery/dist/jquery.min.js',
+        './node_modules/masonry-layout/dist/masonry.pkgd.min.js',
+        './node_modules/sprintf-js/dist/sprintf.min.js',
+        './node_modules/bootstrap/dist/js/bootstrap.min.js',
+        './node_modules/tinycolor/tinycolor.js',
     ],
     CSSLibs: [
-        './web-src/bower_components/bootstrap/dist/css/bootstrap.min.css',
-        './web-src/bower_components/angular-material/angular-material.min.css',
-        './web-src/bower_components/roboto-fontface/css/roboto-fontface.css'
+        './node_modules/bootstrap/dist/css/bootstrap.min.css',
+        './node_modules/angular-material/angular-material.min.css',
+        './node_modules/roboto-fontface/css/roboto-fontface.css'
     ],
     FontLibs: [
-        './web-src/bower_components/roboto-fontface/fonts/*',
-        '!./web-src/bower_components/roboto-fontface/fonts/*.svg'
+        './node_modules/roboto-fontface/fonts/*',
+        '!./node_modules/roboto-fontface/fonts/*.svg'
     ]
 };
 
