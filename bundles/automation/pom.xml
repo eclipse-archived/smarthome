@@ -32,6 +32,7 @@
     <module>org.eclipse.smarthome.automation.module.script.test</module>
     <module>org.eclipse.smarthome.automation.event.test</module>
     <module>org.eclipse.smarthome.automation.integration.test</module>
+    <module>org.eclipse.smarthome.automation.java.api.demo</module>
     <module>org.eclipse.smarthome.automation.rest</module>
   </modules>
 
