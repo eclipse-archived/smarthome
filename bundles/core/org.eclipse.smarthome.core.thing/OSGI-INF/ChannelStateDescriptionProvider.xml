@@ -9,6 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.thing.internal.ChannelStateDescriptionProvider">
+   <property name="service.ranking" type="Integer" value="-1"/>
    <implementation class="org.eclipse.smarthome.core.thing.internal.ChannelStateDescriptionProvider"/>
    <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
    <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>

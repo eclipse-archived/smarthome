@@ -15,5 +15,4 @@
       <provide interface="org.eclipse.smarthome.core.items.ItemRegistry"/>
    </service>
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
-   <reference bind="addStateDescriptionProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.types.StateDescriptionProvider" name="StateDescriptionProvider" policy="dynamic" unbind="removeStateDescriptionProvider"/>
 </scr:component>
