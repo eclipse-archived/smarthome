@@ -109,7 +109,7 @@ public class Activator implements BundleActivator {
                         ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
                         final ManagedRuleProvider managedRuleProvider = new ManagedRuleProvider(storage);
                         ruleEngine.setManagedRuleProvider(managedRuleProvider);
-                        managedRuleProviderReg = bc.registerService(RuleProvider.class, managedRuleProvider, null);
+                        managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), managedRuleProvider, null);
                         return storage;
                     }
                 } else if (service instanceof RuleProvider) {
