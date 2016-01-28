@@ -151,10 +151,44 @@ public class SafeMethodCaller {
         return null;
     }
 
-    private static <V> V callAsynchronous(Callable<V> callable, int timeout)
+    private static class CallableWrapper<V> implements Callable<V> {
+
+        private final Callable<V> callable;
+        private Thread thread;
+
+        public CallableWrapper(final Callable<V> callable) {
+            this.callable = callable;
+        }
+
+        public Thread getThread() {
+            return thread;
+        }
+
+        @Override
+        public V call() throws Exception {
+            thread = Thread.currentThread();
+            return callable.call();
+        }
+    }
+
+    private static <V> V callAsynchronous(final Callable<V> callable, int timeout)
             throws InterruptedException, ExecutionException, TimeoutException {
-        Future<V> future = ThreadPoolManager.getPool("safeCall").submit(callable);
-        return future.get(timeout, TimeUnit.MILLISECONDS);
+        CallableWrapper<V> wrapper = new CallableWrapper<>(callable);
+        try {
+            Future<V> future = ThreadPoolManager.getPool("safeCall").submit(wrapper);
+            return future.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            if (wrapper.getThread() != null) {
+                Thread thread = wrapper.getThread();
+                StackTraceElement element = thread.getStackTrace()[0];
+                getLogger().debug("Timeout of {}ms exceeded, thread {} ({}) in state {} is at {}.{}({}:{}).", timeout,
+                        thread.getName(), thread.getId(), thread.getState().toString(), element.getClassName(),
+                        element.getMethodName(), element.getFileName(), element.getLineNumber());
+            } else {
+                getLogger().debug("Timeout of {}ms exceeded with no thread info available.", timeout);
+            }
+            throw e;
+        }
     }
 
     private static Logger getLogger() {
