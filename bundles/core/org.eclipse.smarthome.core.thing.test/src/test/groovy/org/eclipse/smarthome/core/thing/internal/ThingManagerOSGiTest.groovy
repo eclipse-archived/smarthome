@@ -426,7 +426,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE).build()
         for(Thing bridgeThing : bridge.getThings()) {
-            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+            waitForAssert { assertThat bridgeThing.statusInfo, is(thingStatusInfo) }
         }
 
         bridgeStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
@@ -435,7 +435,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
         for(Thing bridgeThing : bridge.getThings()) {
-            assertThat bridgeThing.statusInfo, is(thingStatusInfo)
+            waitForAssert { assertThat bridgeThing.statusInfo, is(thingStatusInfo) }
         }
 
         thingStatusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
