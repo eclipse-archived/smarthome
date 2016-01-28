@@ -29,6 +29,7 @@
     <module>org.eclipse.smarthome.automation.module.timer.test</module>
     <module>org.eclipse.smarthome.automation.module.script</module>
     <module>org.eclipse.smarthome.automation.module.script.defaultscope</module>
+    <module>org.eclipse.smarthome.automation.module.script.loader</module>
     <module>org.eclipse.smarthome.automation.module.script.test</module>
     <module>org.eclipse.smarthome.automation.event.test</module>
     <module>org.eclipse.smarthome.automation.integration.test</module>
@@ -49,7 +50,7 @@
       </plugins>
     </pluginManagement>
   </build>
-  
+
 <dependencies>
 	<dependency>
 		<groupId>de.twentyeleven.skysail</groupId>
@@ -63,6 +64,6 @@
 	<version>20141113</version>
 	</dependency>
 -->
-</dependencies>   
-  
+</dependencies>
+
 </project>
