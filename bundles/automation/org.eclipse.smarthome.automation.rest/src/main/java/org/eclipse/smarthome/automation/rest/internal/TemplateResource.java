@@ -25,6 +25,7 @@ import org.eclipse.smarthome.automation.template.TemplateRegistry;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +37,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Kai Kreuzer - Initial contribution
  */
 @Path("templates")
+@Api("templates")
 public class TemplateResource implements RESTResource {
 
     private TemplateRegistry templateRegistry;
