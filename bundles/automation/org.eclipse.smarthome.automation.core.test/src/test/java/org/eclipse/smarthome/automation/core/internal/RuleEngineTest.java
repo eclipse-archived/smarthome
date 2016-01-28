@@ -23,6 +23,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.junit.Assert;
@@ -306,9 +307,12 @@ public class RuleEngineTest {
 
         String configPropertyName = "config1";
 
-        ConfigDescriptionParameter cfgDP = new ConfigDescriptionParameter(configPropertyName, Type.valueOf(typeStr),
-                max, min, step, pattern, required, readOnly, multiple, context, defValue, label, description, options,
-                filter, groupName, advanced, limitToOptions, multipleLimit, null, null);
+        ConfigDescriptionParameter cfgDP = ConfigDescriptionParameterBuilder
+                .create(configPropertyName, Type.valueOf(typeStr)).withMaximum(max).withMinimum(min).withStepSize(step)
+                .withPattern(pattern).withRequired(required).withReadOnly(readOnly).withMultiple(multiple)
+                .withContext(context).withDefault(defValue).withLabel(label).withDescription(description)
+                .withOptions(options).withFilterCriteria(filter).withGroupName(groupName).withAdvanced(advanced)
+                .withLimitToOptions(limitToOptions).withMultipleLimit(multipleLimit).build();
         configDescriptions.add(cfgDP);
         return configDescriptions;
     }

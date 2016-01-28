@@ -192,11 +192,11 @@ public class ConfigDescriptionParameter {
      *             of valid units)</li>
      *             </ul>
      */
-    public ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum,
-            BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
-            String defaultValue, String label, String description, List<ParameterOption> options,
-            List<FilterCriteria> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
-            Integer multipleLimit, String unit, String unitLabel) throws IllegalArgumentException {
+    ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum, BigDecimal stepsize,
+            String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context, String defaultValue,
+            String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
+            String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
+            String unitLabel) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");

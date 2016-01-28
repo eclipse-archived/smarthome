@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.i18n.I18nUtil;
@@ -46,12 +47,18 @@ public class ConfigDescriptionParameterI18nUtil {
                         parameterName, prefix, locale);
                 String lunitLabel = getUnitLabel(i18nProvider, bundle, uid, parameterName, parameter.getUnitLabel(),
                         prefix, locale);
-                configDescriptions.add(new ConfigDescriptionParameter(parameterName, parameter.getType(),
-                        parameter.getMinimum(), parameter.getMaximum(), parameter.getStepSize(), lpattern,
-                        parameter.isMultiple(), parameter.isReadOnly(), parameter.isMultiple(), parameter.getContext(),
-                        parameter.getDefault(), llabel, ldescription, loptions, parameter.getFilterCriteria(),
-                        parameter.getGroupName(), parameter.isAdvanced(), parameter.getLimitToOptions(),
-                        parameter.getMultipleLimit(), parameter.getUnit(), lunitLabel));
+
+                configDescriptions.add(ConfigDescriptionParameterBuilder.create(parameterName, parameter.getType())
+                        .withMinimum(parameter.getMinimum()).withMaximum(parameter.getMaximum())
+                        .withStepSize(parameter.getStepSize()).withPattern(lpattern)
+                        .withRequired(parameter.isRequired()).withMultiple(parameter.isMultiple())
+                        .withReadOnly(parameter.isReadOnly()).withContext(parameter.getContext())
+                        .withDefault(parameter.getDefault()).withLabel(llabel).withDescription(ldescription)
+                        .withFilterCriteria(parameter.getFilterCriteria()).withGroupName(parameter.getGroupName())
+                        .withAdvanced(parameter.isAdvanced()).withOptions(loptions)
+                        .withLimitToOptions(parameter.getLimitToOptions())
+                        .withMultipleLimit(parameter.getMultipleLimit()).withUnit(parameter.getUnit())
+                        .withUnitLabel(lunitLabel).build());
             }
         }
         return configDescriptions;
