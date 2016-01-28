@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.model.script.runtime.ScriptRuntime"/>
    </service>
+   <reference bind="setServiceFactory" cardinality="1..1" interface="org.eclipse.smarthome.model.script.IServiceFactory" name="ServiceFactory" policy="static" unbind="unsetServiceFactory"/>
 </scr:component>

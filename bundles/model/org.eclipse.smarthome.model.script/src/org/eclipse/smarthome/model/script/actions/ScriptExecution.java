@@ -15,7 +15,7 @@ import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
+import org.eclipse.smarthome.model.script.internal.ServiceFactory;
 import org.eclipse.smarthome.model.script.internal.actions.TimerExecutionJob;
 import org.eclipse.smarthome.model.script.internal.actions.TimerImpl;
 import org.eclipse.xtext.xbase.XExpression;
@@ -49,7 +49,7 @@ public class ScriptExecution {
      * @throws ScriptExecutionException if an error occurs during the execution
      */
     public static Object callScript(String scriptName) throws ScriptExecutionException {
-        ModelRepository repo = ScriptActivator.modelRepositoryTracker.getService();
+        ModelRepository repo = ServiceFactory.getModelRepository();
         if (repo != null) {
             String scriptNameWithExt = scriptName;
             if (!StringUtils.endsWith(scriptName, Script.SCRIPT_FILEEXT)) {
@@ -57,7 +57,7 @@ public class ScriptExecution {
             }
             XExpression expr = (XExpression) repo.getModel(scriptNameWithExt);
             if (expr != null) {
-                ScriptEngine scriptEngine = ScriptActivator.scriptEngineTracker.getService();
+                ScriptEngine scriptEngine = ServiceFactory.getScriptEngine();
                 if (scriptEngine != null) {
                     Script script = scriptEngine.newScriptFromXExpression(expr);
                     return script.execute();

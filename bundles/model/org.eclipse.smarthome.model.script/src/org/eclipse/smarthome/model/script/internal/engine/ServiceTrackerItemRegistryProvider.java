@@ -9,7 +9,7 @@ package org.eclipse.smarthome.model.script.internal.engine;
 
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.model.script.engine.IItemRegistryProvider;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
+import org.eclipse.smarthome.model.script.internal.ServiceFactory;
 
 import com.google.inject.Singleton;
 
@@ -26,7 +26,7 @@ import com.google.inject.Singleton;
 public class ServiceTrackerItemRegistryProvider implements IItemRegistryProvider {
     @Override
     public ItemRegistry get() {
-        ItemRegistry itemRegistry = ScriptActivator.itemRegistryTracker.getService();
+        ItemRegistry itemRegistry = ServiceFactory.getItemRegistry();
         return itemRegistry;
     }
 }

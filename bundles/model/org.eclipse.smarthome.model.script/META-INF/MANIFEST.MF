@@ -38,6 +38,7 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.io.net.http,
  org.eclipse.smarthome.model.core,
  org.eclipse.smarthome.model.persistence.extensions,
+ org.eclipse.smarthome.model.script.engine.action,
  org.eclipse.xtext.xbase.lib,
  org.joda.time,
  org.joda.time.base,
@@ -70,5 +71,4 @@ Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.serializer,
  org.eclipse.smarthome.model.script.services,
  org.eclipse.smarthome.model.script.validation
-Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .
