@@ -58,8 +58,7 @@ var paths = {
         './node_modules/roboto-fontface/css/roboto-fontface.css'
     ],
     FontLibs: [
-        './node_modules/roboto-fontface/fonts/*',
-        '!./node_modules/roboto-fontface/fonts/*.svg'
+        './node_modules/roboto-fontface/fonts/*.woff'
     ]
 };
 
@@ -70,10 +69,6 @@ gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
         .pipe(ngAnnotate())
         .pipe(uglify())
-        .pipe(rename(function (path) {
-            path.basename += '.min';
-            return path;
-        }))
         .pipe(gulp.dest('./web/js/'));
 });
 
