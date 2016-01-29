@@ -17,8 +17,8 @@
 
   <modules>
     <module>binding</module>
-	<module>transform</module>
-	<module>ui</module>
+    <module>transform</module>
+    <module>ui</module>
   </modules>
 
   <build>
