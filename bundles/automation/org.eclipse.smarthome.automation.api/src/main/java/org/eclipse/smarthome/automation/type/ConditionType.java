@@ -31,6 +31,12 @@ public class ConditionType extends ModuleType {
     private List<Input> inputs;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ConditionType() {
+    }
+
+    /**
      * This constructor is responsible to create an instance of {@link ConditionType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Input} descriptions.
      *
