@@ -304,8 +304,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                             }
                         } else {
-                            logger.info("Not delegating command '{}' for item '{}' to handler for channel '{}', "
-                                    + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                            logger.info(
+                                    "Not delegating command '{}' for item '{}' to handler for channel '{}', "
+                                            + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
                                     command, itemName, channelUID);
                         }
                     } else {
@@ -353,8 +354,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                                 logger.error("Exception occured while calling handler: " + ex.getMessage(), ex);
                             }
                         } else {
-                            logger.info("Not delegating update '{}' for item '{}' to handler for channel '{}', "
-                                    + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
+                            logger.info(
+                                    "Not delegating update '{}' for item '{}' to handler for channel '{}', "
+                                            + "because thing is not initialized (must be in status ONLINE or OFFLINE).",
                                     newState, itemName, channelUID);
                         }
                     } else {
@@ -442,7 +444,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                     // prevent infinite loops by not informing handler about self-initiated update
                     if (!thingUpdatedLock.contains(thingUID)) {
                         SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                            
+
                             @Override
                             public Void call() throws Exception {
                                 thingHandler.thingUpdated(thing);
@@ -559,8 +561,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private ConfigDescription resolve(URI configDescriptionURI, Locale locale) {
-        if (configDescriptionURI == null)
+        if (configDescriptionURI == null) {
             return null;
+        }
 
         return configDescriptionRegistry != null
                 ? configDescriptionRegistry.getConfigDescription(configDescriptionURI, locale) : null;
@@ -619,8 +622,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void notifyThingAboutBridgeInitialization(final Bridge bridge, final Thing childThing) {
-        if (childThing.getHandler() == null)
+        if (childThing.getHandler() == null) {
             return;
+        }
 
         ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
             @Override
@@ -680,8 +684,9 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void notifyThingAboutBridgeDisposal(final Bridge bridge, final Thing childThing) {
-        if (childThing.getHandler() == null)
+        if (childThing.getHandler() == null) {
             return;
+        }
 
         ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
             @Override
@@ -733,8 +738,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             @Override
             public void run() {
                 try {
-                    thing.getHandler().handleRemoval();
-                    logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
+                    ThingHandler handler = thing.getHandler();
+                    if (handler != null) {
+                        handler.handleRemoval();
+                        logger.trace("Handler of thing '{}' returned from handling its removal.", thing.getUID());
+                    } else {
+                        logger.trace("No handler of thing '{}' available, so deferring the removal call.",
+                                thing.getUID());
+                    }
                 } catch (Exception ex) {
                     logger.error("The ThingHandler caused an exception while handling the removal of its thing", ex);
                 }
