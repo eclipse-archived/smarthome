@@ -31,6 +31,12 @@ public class CompositeActionType extends ActionType {
     private List<Action> children;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected CompositeActionType() {
+    }
+
+    /**
      * This constructor is responsible for creation of a {@code CompositeActionType} with ordered set of {@link Action}
      * s.
      * It initialize only base properties of the {@code CompositeActionType}.

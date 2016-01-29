@@ -30,6 +30,12 @@ public class CompositeTriggerType extends TriggerType {
     private List<Trigger> children;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected CompositeTriggerType() {
+    }
+
+    /**
      * This constructor is responsible for creation of a {@code CompositeTriggerType} with ordered set of
      * {@link Trigger}s.
      * It initialize only base properties of the {@code CompositeTriggerType}.

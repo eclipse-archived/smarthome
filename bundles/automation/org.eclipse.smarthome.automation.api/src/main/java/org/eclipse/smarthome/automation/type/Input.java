@@ -62,6 +62,12 @@ public class Input {
     private Object defaultValue;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected Input() {
+    }
+
+    /**
      * Constructor of the {@code Input} object. Creates Input base on type of accepted data and {@code Input}'s name.
      *
      * @param type data type accepted by this Input. The accepted types are any java types defined by fully qualified
@@ -95,8 +101,9 @@ public class Input {
      */
     public Input(String name, String type, String label, String description, Set<String> tags, boolean required,
             String reference, Object defaultValue) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name of the input must not be NULL!");
+        }
         this.name = name;
         setType(type);
         this.label = label;

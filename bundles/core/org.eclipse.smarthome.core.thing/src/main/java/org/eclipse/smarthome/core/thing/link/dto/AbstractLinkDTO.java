@@ -16,6 +16,12 @@ public abstract class AbstractLinkDTO {
 
     public String itemName;
 
+    /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected AbstractLinkDTO() {
+    }
+
     public AbstractLinkDTO(String itemName) {
         this.itemName = itemName;
     }
