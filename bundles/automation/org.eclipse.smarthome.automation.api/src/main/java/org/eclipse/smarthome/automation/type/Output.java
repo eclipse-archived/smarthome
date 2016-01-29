@@ -81,6 +81,12 @@ public class Output {
     private Object defaultValue;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected Output() {
+    }
+
+    /**
      * Constructor of {@code Output} objects. It is based on the type of data and {@code Output}'s name.
      *
      * @param name is an unique name of the {@code Output}.
@@ -115,8 +121,9 @@ public class Output {
      */
     public Output(String name, String type, String label, String description, Set<String> tags, String reference,
             Object defaultValue) {
-        if (name == null)
+        if (name == null) {
             throw new IllegalArgumentException("The name of the input must not be NULL!");
+        }
         this.name = name;
         setType(type);
         this.label = label;
