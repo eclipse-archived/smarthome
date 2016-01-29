@@ -19,5 +19,5 @@
     <module>org.eclipse.smarthome.storage.mapdb</module>
     <module>org.eclipse.smarthome.storage.mapdb.test</module>
   </modules>
-  
+
 </project>
