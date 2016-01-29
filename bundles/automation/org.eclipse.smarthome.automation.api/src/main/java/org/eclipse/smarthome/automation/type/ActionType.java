@@ -42,6 +42,12 @@ public class ActionType extends ModuleType {
     private List<Output> outputs;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ActionType() {
+    }
+
+    /**
      * This constructor is responsible to create an instance of {@link ActionType} with base properties - UID, a
      * {@link List} of configuration descriptions and a {@link List} of {@link Input} definitions.
      *
