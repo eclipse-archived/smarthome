@@ -24,12 +24,7 @@
           "type":"TEXT",
           "description":"the compare operator, allowed are <, >, =, matches",
           "required":true,
-          "defaultValue":"=",
-          "options":{
-          "=":"=",
-          "<":"<",
-          ">":">"
-          }
+          "defaultValue":"="
         }
       ],
       "inputs": [
