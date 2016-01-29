@@ -53,7 +53,7 @@
               <level>1</level>
               <autoStart>true</autoStart>
             </bundle>
-             <bundle>
+            <bundle>
               <id>org.eclipse.equinox.event</id>
               <level>2</level>
               <autoStart>true</autoStart>
