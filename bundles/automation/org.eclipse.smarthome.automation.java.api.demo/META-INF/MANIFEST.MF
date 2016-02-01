@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Java API Demo - Welcome Home Application
 Bundle-SymbolicName: org.eclipse.smarthome.automation.java.api.demo
 Bundle-Activator: org.eclipse.smarthome.automation.java.api.demo.Activator
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b3
 Bundle-Vendor: Eclipse.org/SmartHome
 Import-Package: 
  org.apache.commons.lang,
