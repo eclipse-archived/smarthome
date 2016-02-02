@@ -547,5 +547,39 @@ min-height: 0!important;
 	margin-bottom:0px;
 	margin-top:27px;
 }
+.parameter > div{
+    min-height:80px;
+}
+.parameter md-input-container{
+    padding-bottom:5px;
+}
+
+.includeConfig legend {
+    display: initial;
+    width: initial;
+    padding: initial;
+    margin-bottom: initial;
+    font-size: small;
+    line-height: initial;
+    color: initial;
+    border: initial;
+    border-bottom: initial;
+    margin-left:12px;
+    color: #757575;
+}
+
+.includeConfig fieldset{
+    border: 1px solid #e5e5e5;
+    margin:5px;
+}
+.includeConfig .legendSub{
+    margin-left:12px;
+     color: #757575;
+     font-weight:400;
+}
+
+.includeConfig .borderhidden{
+    border: 0px;
+}
 
 
