@@ -128,8 +128,8 @@ ItemRef:
 GroupItemRef:
 	ID;
 
-Icon:
-	STRING;
+Icon returns ecore::EString:
+	STRING | ID;
 
 ColorArray:
 	((item=ID)? (condition=("==" | ">" | "<" | ">=" | "<=" | "!="))? (sign=('-'|'+'))? (state=XState) '=')? (arg=STRING);

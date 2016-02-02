@@ -7,20 +7,46 @@
  */
 package org.eclipse.smarthome.model.valueconverter;
 
-import org.eclipse.xtext.common.services.DefaultTerminalConverters;
 import org.eclipse.xtext.conversion.IValueConverter;
 import org.eclipse.xtext.conversion.ValueConverter;
-import org.eclipse.xtext.conversion.impl.STRINGValueConverter;
+import org.eclipse.xtext.conversion.ValueConverterException;
+import org.eclipse.xtext.conversion.impl.AbstractDeclarativeValueConverterService;
+import org.eclipse.xtext.nodemodel.INode;
 
-import com.google.inject.Inject;
-
-public class SitemapConverters extends DefaultTerminalConverters {
-
-    @Inject
-    private STRINGValueConverter stringValueConverter;
+public class SitemapConverters extends AbstractDeclarativeValueConverterService {
 
     @ValueConverter(rule = "Icon")
-    public IValueConverter<String> BIG_DECIMAL() {
-        return stringValueConverter;
+    public IValueConverter<String> Icon() {
+
+        return new IValueConverter<String>() {
+
+            @Override
+            public String toValue(String string, INode node) throws ValueConverterException {
+                if (string != null && string.startsWith("\"")) {
+                    return string.substring(1, string.length() - 1);
+                }
+                return string;
+            }
+
+            @Override
+            public String toString(String value) throws ValueConverterException {
+                if (containsWhiteSpace(value)) {
+                    return "\"" + value + "\"";
+                }
+                return value;
+            }
+
+        };
+    }
+
+    public static boolean containsWhiteSpace(final String string) {
+        if (string != null) {
+            for (int i = 0; i < string.length(); i++) {
+                if (Character.isWhitespace(string.charAt(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
