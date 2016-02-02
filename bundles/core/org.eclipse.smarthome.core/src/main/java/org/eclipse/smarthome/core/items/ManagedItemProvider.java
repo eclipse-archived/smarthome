@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.items;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,6 +57,57 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
+    private final Set<ItemInfo> failedToCreate = new HashSet<>();
+
+    private static class ItemInfo {
+        private final String itemType;
+        private final String itemName;
+
+        public ItemInfo(String itemType, String itemName) {
+            this.itemType = itemType;
+            this.itemName = itemName;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((itemName == null) ? 0 : itemName.hashCode());
+            result = prime * result + ((itemType == null) ? 0 : itemType.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            ItemInfo other = (ItemInfo) obj;
+            if (itemName == null) {
+                if (other.itemName != null) {
+                    return false;
+                }
+            } else if (!itemName.equals(other.itemName)) {
+                return false;
+            }
+            if (itemType == null) {
+                if (other.itemType != null) {
+                    return false;
+                }
+            } else if (!itemType.equals(other.itemType)) {
+                return false;
+            }
+            return true;
+        }
+
+    }
+
     /**
      * Removes an item and it´s member if recursive flag is set to true.
      *
@@ -96,7 +148,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     }
 
     private GenericItem createItem(String itemType, String itemName) {
-
         for (ItemFactory factory : this.itemFactories) {
             GenericItem item = factory.createItem(itemType, itemName);
             if (item != null) {
@@ -104,6 +155,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             }
         }
 
+        failedToCreate.add(new ItemInfo(itemType, itemName));
         logger.debug("Couldn't find ItemFactory for item '{}' of type '{}'", itemName, itemType);
 
         return null;
@@ -123,6 +175,26 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     protected void addItemFactory(ItemFactory itemFactory) {
         itemFactories.add(itemFactory);
+
+        if (failedToCreate.size() > 0) {
+            // retry failed creation attempts
+            Iterator<ItemInfo> iterator = failedToCreate.iterator();
+            while (iterator.hasNext()) {
+                ItemInfo itemInfo = iterator.next();
+                Item item = itemFactory.createItem(itemInfo.itemType, itemInfo.itemName);
+                if (item != null) {
+                    iterator.remove();
+                    notifyListenersAboutAddedElement(item);
+                } else {
+                    logger.debug("The added item factory '{}' still could not instantiate item '{}'.", itemFactory,
+                            itemInfo.itemName);
+                }
+            }
+
+            if (failedToCreate.isEmpty()) {
+                logger.info("Finished loading the items which could not have been created before.");
+            }
+        }
     }
 
     @Override
