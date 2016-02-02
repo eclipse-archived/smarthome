@@ -9,13 +9,20 @@ package org.eclipse.smarthome.core.storage
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.GroupItem
+import org.eclipse.smarthome.core.items.Item
+import org.eclipse.smarthome.core.items.ItemFactory
+import org.eclipse.smarthome.core.items.ItemNotFoundException
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.ManagedItemProvider
+import org.eclipse.smarthome.core.items.ManagedItemProvider.PersistedItem
 import org.eclipse.smarthome.core.library.items.StringItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
+import org.eclipse.smarthome.core.library.types.StringType
+import org.eclipse.smarthome.core.types.Command
+import org.eclipse.smarthome.core.types.State
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -28,6 +35,7 @@ import org.junit.Test
  * @author Thomas Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added tests for repeated addition and removal
  * @author Andre Fuechsel - added tests for tags
+ * @author Simon Kaufmann - added test for late registration of item factory
  */
 class ManagedItemProviderOSGiTest extends OSGiTest {
 
@@ -47,6 +55,36 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
             itemProvider.remove(it.name)
         }
         unregisterService(itemProvider)
+    }
+
+    private static class StrangeItem extends GenericItem {
+        static final String STRANGE_TEST_TYPE = "StrangeTestType"
+
+        public StrangeItem(String name) {
+            super(STRANGE_TEST_TYPE, name)
+        }
+
+        @Override
+        public List<Class<? extends State>> getAcceptedDataTypes() {
+            return Collections.unmodifiableList(StringType.class);
+        }
+
+        @Override
+        public List<Class<? extends Command>> getAcceptedCommandTypes() {
+            return Collections.unmodifiableList(StringType.class);
+        }
+    }
+
+    private static class StrangeItemFactory implements ItemFactory {
+        @Override
+        public GenericItem createItem(String itemTypeName, String itemName) {
+            return new StrangeItem(itemName)
+        }
+
+        @Override
+        public String[] getSupportedItemTypes() {
+            return StrangeItem.STRANGE_TEST_TYPE;
+        }
     }
 
     @Test
@@ -165,4 +203,42 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         assertThat oldItem, is(group)
         assertThat itemProvider.getAll().size(), is(0)
     }
+
+    @Test
+    void 'assert items are there once the factory gets added'() {
+        StorageService storageService = getService(StorageService)
+        assertThat storageService, is(notNullValue())
+
+        Storage storage = storageService.getStorage(Item.class.getName())
+        StrangeItem item = new StrangeItem('SomeStrangeItem')
+        String key = itemProvider.keyToString(itemProvider.getKey(item))
+
+        // put an item into the storage that cannot be handled (yet)
+        PersistedItem persistableElement = storage.put(key, itemProvider.toPersistableElement(item))
+
+        // start without the appropriate item factory - it's going to fail silently, leaving a debug log
+
+        assertThat itemProvider.getAll().size(), is(0)
+        assertThat itemRegistry.getItems().size(), is(0)
+        assertThat itemProvider.get("SomeStrangeItem"), is(nullValue())
+        try {
+            assertThat itemRegistry.getItem("SomeStrangeItem"), is(nullValue())
+            fail("the item is not (yet) expected to be there")
+        } catch (ItemNotFoundException e) {
+            // all good
+        }
+
+        // now register the item factory. The item should be there...
+        StrangeItemFactory factory = new StrangeItemFactory()
+        registerService(factory)
+        try {
+            assertThat itemProvider.getAll().size(), is(1)
+            assertThat itemRegistry.getItems().size(), is(1)
+            assertThat itemProvider.get("SomeStrangeItem"), is(notNullValue())
+            assertThat itemRegistry.getItem("SomeStrangeItem"), is(notNullValue())
+        } finally {
+            unregisterService(factory)
+        }
+    }
+
 }
