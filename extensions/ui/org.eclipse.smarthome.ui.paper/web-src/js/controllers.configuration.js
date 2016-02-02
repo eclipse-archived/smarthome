@@ -476,7 +476,7 @@ angular.module('PaperUI.controllers.configuration',
         $mdDialog.hide(itemName);
     }
 }).controller('EditThingController', function($scope, $mdDialog, toastService, 
-		thingTypeRepository, thingRepository, thingSetupService, homeGroupRepository, configService) {
+		thingTypeRepository, thingRepository, thingSetupService, homeGroupRepository, configService, thingService) {
 	
 	$scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 	
@@ -505,8 +505,10 @@ angular.module('PaperUI.controllers.configuration',
 		} else {
 		    thing.item = {};
         }
-		thingSetupService.update(thing, function() {
-	        thingRepository.update(thing);
+		thingService.updateConfig({
+			thingUID : thing.UID
+		}, thing.configuration, function() {
+			thingRepository.update(thing);
 			toastService.showDefaultToast('Thing updated');
 			$scope.navigateTo('things/view/' + thing.UID);
 		});
