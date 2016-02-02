@@ -281,7 +281,7 @@ public class ItemResource implements RESTResource {
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
-                return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
+                return Response.ok().build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
