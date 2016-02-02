@@ -179,12 +179,17 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button title="Add" ng-click="addThing(thing)"
+					<md-button title="Add" ng-click="addThing(thing)" ng-disabled="form.configForm.$invalid"
 						class="md-fab md-icon-check" aria-label="Add">
 				</div>
 			</div>
 		</div>
 
 		<div ng-include="'partials/include.thingconfig.html'"></div>
+		<div class="container">
+        <h3>Configuration Parameters</h3>
+            <p>Configure parameters for the thing.</p>
+        <div ng-init="form={}" ng-include="'partials/include.config.html'"></div>
+        </div>
 	</div>
 </section>
