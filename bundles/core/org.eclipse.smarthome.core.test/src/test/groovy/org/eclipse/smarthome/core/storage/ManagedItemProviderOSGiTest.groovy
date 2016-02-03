@@ -241,4 +241,52 @@ class ManagedItemProviderOSGiTest extends OSGiTest {
         }
     }
 
+    @Test
+    void 'assert items are added as group members on deferred creation'() {
+        StorageService storageService = getService(StorageService)
+        assertThat storageService, is(notNullValue())
+
+        Storage storage = storageService.getStorage(Item.class.getName())
+        StrangeItem item = new StrangeItem('SomeStrangeItem')
+        GroupItem groupItem = new GroupItem('SomeGroupItem')
+        item.addGroupName(groupItem.getName())
+        groupItem.addMember(item)
+        String itemKey = itemProvider.keyToString(itemProvider.getKey(item))
+        String groupKey = itemProvider.keyToString(itemProvider.getKey(groupItem))
+
+        // put items into the storage that cannot be handled (yet)
+        PersistedItem persistableElement1 = storage.put(itemKey, itemProvider.toPersistableElement(item))
+        PersistedItem persistableElement2 = storage.put(groupKey, itemProvider.toPersistableElement(groupItem))
+        itemProvider.notifyListenersAboutAddedElement(groupItem)
+
+        // start without the appropriate item factory - it only creates the group item
+
+        assertThat itemProvider.getAll().size(), is(1)
+        assertThat itemRegistry.getItems().size(), is(1)
+        assertThat itemProvider.get("SomeStrangeItem"), is(nullValue())
+        assertThat itemProvider.get("SomeGroupItem"), is(notNullValue())
+        assertThat itemRegistry.getItem("SomeGroupItem"), is(notNullValue())
+        try {
+            assertThat itemRegistry.getItem("SomeStrangeItem"), is(nullValue())
+            fail("the item is not (yet) expected to be there")
+        } catch (ItemNotFoundException e) {
+            // all good
+        }
+
+        // now register the item factory. Both items should be there...
+        StrangeItemFactory factory = new StrangeItemFactory()
+        registerService(factory)
+        try {
+            assertThat itemProvider.getAll().size(), is(2)
+            assertThat itemRegistry.getItems().size(), is(2)
+            Item item1 = itemRegistry.get("SomeStrangeItem")
+            GroupItem item2 = itemRegistry.get("SomeGroupItem")
+            assertThat itemRegistry.get("SomeStrangeItem"), is(notNullValue())
+            assertThat item1, is(notNullValue())
+            assertThat item1.getGroupNames().size(), is(1)
+            assertThat item2.getMembers().size(), is(1)
+        } finally {
+            unregisterService(factory)
+        }
+    }
 }
