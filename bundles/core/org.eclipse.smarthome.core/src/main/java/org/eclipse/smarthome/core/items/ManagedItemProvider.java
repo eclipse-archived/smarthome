@@ -12,7 +12,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractManagedProvider;
@@ -57,56 +60,7 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
-    private final Set<ItemInfo> failedToCreate = new HashSet<>();
-
-    private static class ItemInfo {
-        private final String itemType;
-        private final String itemName;
-
-        public ItemInfo(String itemType, String itemName) {
-            this.itemType = itemType;
-            this.itemName = itemName;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((itemName == null) ? 0 : itemName.hashCode());
-            result = prime * result + ((itemType == null) ? 0 : itemType.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            ItemInfo other = (ItemInfo) obj;
-            if (itemName == null) {
-                if (other.itemName != null) {
-                    return false;
-                }
-            } else if (!itemName.equals(other.itemName)) {
-                return false;
-            }
-            if (itemType == null) {
-                if (other.itemType != null) {
-                    return false;
-                }
-            } else if (!itemType.equals(other.itemType)) {
-                return false;
-            }
-            return true;
-        }
-
-    }
+    private final Map<String, PersistedItem> failedToCreate = new ConcurrentHashMap<>();
 
     /**
      * Removes an item and it´s member if recursive flag is set to true.
@@ -155,7 +109,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             }
         }
 
-        failedToCreate.add(new ItemInfo(itemType, itemName));
         logger.debug("Couldn't find ItemFactory for item '{}' of type '{}'", itemName, itemType);
 
         return null;
@@ -178,16 +131,19 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
         if (failedToCreate.size() > 0) {
             // retry failed creation attempts
-            Iterator<ItemInfo> iterator = failedToCreate.iterator();
+            Iterator<Entry<String, PersistedItem>> iterator = failedToCreate.entrySet().iterator();
             while (iterator.hasNext()) {
-                ItemInfo itemInfo = iterator.next();
-                Item item = itemFactory.createItem(itemInfo.itemType, itemInfo.itemName);
+                Entry<String, PersistedItem> entry = iterator.next();
+                String itemName = entry.getKey();
+                PersistedItem persistedItem = entry.getValue();
+                ActiveItem item = itemFactory.createItem(persistedItem.itemType, itemName);
                 if (item != null) {
                     iterator.remove();
+                    configureItem(persistedItem, item);
                     notifyListenersAboutAddedElement(item);
                 } else {
                     logger.debug("The added item factory '{}' still could not instantiate item '{}'.", itemFactory,
-                            itemInfo.itemName);
+                            itemName);
                 }
             }
 
@@ -231,6 +187,18 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             item = createItem(persistedItem.itemType, itemName);
         }
 
+        configureItem(persistedItem, item);
+
+        if (item == null) {
+            failedToCreate.put(itemName, persistedItem);
+            logger.debug("Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
+                    itemName, persistedItem.itemType);
+        }
+
+        return item;
+    }
+
+    private void configureItem(PersistedItem persistedItem, ActiveItem item) {
         if (item != null) {
             List<String> groupNames = persistedItem.groupNames;
             if (groupNames != null) {
@@ -249,13 +217,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             item.setLabel(persistedItem.label);
             item.setCategory(persistedItem.category);
         }
-
-        if (item == null) {
-            logger.debug("Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
-                    itemName, persistedItem.itemType);
-        }
-
-        return item;
     }
 
     @Override
