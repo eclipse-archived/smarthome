@@ -10,7 +10,7 @@ This binding integrates internet radios based on the [Frontier Silicon chipset](
 
 ## Supported Things
 
-Successfully tested are internet radios [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110), [Medion MD87180](http://internetradio.medion.com/), and [MEDION MD86988](http://internetradio.medion.com/).
+Successfully tested are internet radios [Hama IR100](https://de.hama.com/00054823/hama-internetradio-ir110), [Medion MD87180](http://internetradio.medion.com/), and [MEDION MD86988](http://internetradio.medion.com/). Further radios have been successfully tested with the [frontiersiliconradio binding for openhab 1.x](https://github.com/openhab/openhab/wiki/Frontier-Silicon-Radio-Binding).
 
 But in principle, all internet radios based on the [Frontier Silicon chipset](http://www.frontier-silicon.com/) should be supported because they share the same API.
 
