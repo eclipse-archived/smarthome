@@ -16,15 +16,16 @@ angular.module('PaperUI', [
 ]).config(['$routeProvider', '$httpProvider', 'globalConfig', function($routeProvider, httpProvider, globalConfig) {
   $routeProvider.
 	when('/control', {templateUrl: 'partials/control.html', controller: 'ControlPageController', title: 'Control', simpleHeader: true}).
-	when('/setup', {redirectTo: '/setup/search'}).
-	when('/setup/search', {templateUrl: 'partials/setup.html', controller: 'InboxController', title: 'Setup Wizard'}).
-	when('/setup/manual-setup/choose', {templateUrl: 'partials/setup.html', controller: 'ManualSetupChooseController', title: 'Setup Wizard'}).
-	when('/setup/manual-setup/configure/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'ManualSetupConfigureController', title: 'Setup Wizard'}).
-	when('/setup/wizard', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
-	when('/setup/wizard/bindings', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
-	when('/setup/wizard/search/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
-	when('/setup/wizard/thing-types/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
-	when('/setup/wizard/add/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Setup Wizard'}).
+	when('/setup', {redirectTo: '/inbox/search'}).
+	when('/inbox', {redirectTo: '/inbox/search'}).
+	when('/inbox/search', {templateUrl: 'partials/setup.html', controller: 'InboxController', title: 'Inbox'}).
+	when('/inbox/manual-setup/choose', {templateUrl: 'partials/setup.html', controller: 'ManualSetupChooseController', title: 'Inbox'}).
+	when('/inbox/manual-setup/configure/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'ManualSetupConfigureController', title: 'Inbox'}).
+	when('/inbox/setup', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
+	when('/inbox/setup/bindings', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
+	when('/inbox/setup/search/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
+	when('/inbox/setup/thing-types/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
+	when('/inbox/setup/add/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
 	when('/configuration', {redirectTo: '/configuration/bindings'}).
 	when('/configuration/bindings', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
 	when('/configuration/services', {templateUrl: 'partials/configuration.html', controller: 'ConfigurationPageController', title: 'Configuration'}).
