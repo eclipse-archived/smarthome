@@ -74,6 +74,8 @@ public class CmdServlet extends BaseServlet {
      */
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        res.setContentType("text/plain");
+
         for (Object key : req.getParameterMap().keySet()) {
             String itemName = key.toString();
 
