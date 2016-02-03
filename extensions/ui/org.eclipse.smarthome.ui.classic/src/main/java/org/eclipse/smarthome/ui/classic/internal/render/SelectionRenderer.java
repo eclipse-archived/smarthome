@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.model.sitemap.Mapping;
@@ -49,8 +50,9 @@ public class SelectionRenderer extends AbstractWidgetRenderer {
         StringBuilder rowSB = new StringBuilder();
         for (Mapping mapping : selection.getMappings()) {
             String rowSnippet = getSnippet("selection_row");
+            String command = mapping.getCmd() != null ? mapping.getCmd() : "";
             rowSnippet = StringUtils.replace(rowSnippet, "%item%", w.getItem() != null ? w.getItem() : "");
-            rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", mapping.getCmd() != null ? mapping.getCmd() : "");
+            rowSnippet = StringUtils.replace(rowSnippet, "%cmd%", StringEscapeUtils.escapeHtml(command));
             rowSnippet = StringUtils.replace(rowSnippet, "%label%",
                     mapping.getLabel() != null ? mapping.getLabel() : "");
             if (state.equals(mapping.getCmd())) {
