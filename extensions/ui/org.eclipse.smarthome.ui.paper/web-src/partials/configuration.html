@@ -99,14 +99,14 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="$location.path('setup/wizard')" aria-label="Add"></md-button>
+					<md-button class="md-fab md-icon-add" ng-click="$location.path('inbox/setup')" aria-label="Add"></md-button>
 				</div>
 			</div>
 		</div>
 		<div class="container">
 			<p class="text-center" ng-show="data.things.length == 0">
 				No things configured yet.
-				<button class="md-button" ng-click="$location.path('setup/wizard')">Add Things</button>
+				<button class="md-button" ng-click="$location.path('inbox/setup')">Add Things</button>
 			</p>
 			<div class="things">
 				<div class="clickable" ng-repeat="thing in data.things | filter:search">
