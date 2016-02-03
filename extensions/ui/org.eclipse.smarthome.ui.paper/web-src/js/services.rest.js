@@ -245,6 +245,16 @@ angular.module('PaperUI.services.rest', ['PaperUI.constants'])
                 'Content-Type' : 'application/json'
             }
         },
+        updateConfig : {
+            method : 'PUT',
+            params : {
+                thingUID : '@thingUID'
+            },
+            url : restConfig.restPath + '/things/:thingUID/config',
+            headers : {
+                'Content-Type' : 'application/json'
+            }
+        },
         link : {
             method : 'POST',
             params : {
