@@ -484,7 +484,9 @@ public class ItemResource implements RESTResource {
 
         // Update the label
         newItem.setLabel(item.label);
-        newItem.setCategory(item.category);
+        if (item.category != null) {
+            newItem.setCategory(item.category);
+        }
         if (item.groupNames != null) {
             newItem.addGroupNames(item.groupNames);
         }
