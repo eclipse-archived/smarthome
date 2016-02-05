@@ -36,7 +36,16 @@ public class CommandWrapper implements Command {
     @Override
     public Object execute(Session session, List<Object> argList) throws Exception {
         final String[] args = new String[argList.size()];
-        argList.toArray(args);
+        for (int i = 0; i < args.length; ++i) {
+            final Object ele = argList.get(i);
+            final String str;
+            if (ele instanceof String) {
+                str = (String) ele;
+            } else {
+                str = ele.toString();
+            }
+            args[i] = str;
+        }
 
         ConsoleInterpreter.execute(new OSGiConsole(getScope()), command, args);
         return null;
