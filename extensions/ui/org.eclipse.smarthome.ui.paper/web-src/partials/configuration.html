@@ -151,35 +151,35 @@
 					{{thing.statusInfo.statusDetail !== 'NONE' ? ' - ' + thing.statusInfo.statusDetail : ''}}</span> <span><small></small></span>
 				<span>{{thing.statusInfo.description}}</span>
 			</p>
-			<h2 ng-show="thing.channels.length > 0">Channels</h2>
+			<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
+			<md-button class="showmore" ng-init="showAdvanced = false" ng-click="refreshChannels(showAdvanced=!showAdvanced)"
+				ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 			<div class="channels">
-				<div class="channel fab-item" ng-repeat="channel in getChannels(false)">
-					<md-button ng-if="channel.linkedItems.length == 0" class="md-fab md-icon-radio-button-off"
-						ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"></md-button>
-					<md-button ng-if="channel.linkedItems.length > 0" class="md-fab md-icon-radio-button-on"
-						ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"></md-button>
-					<div class="item-content">
-						<h3>{{getChannelTypeById(channel.id).label}}</h3>
-						<p>{{thing.UID + ':' + channel.id}}</p>
-						<p>{{getChannelTypeById(channel.id).description}}</p>
+				<div ng-repeat="group in thingChannels track by $index">
+					<div ng-init="collapsed=false">
+						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0">
+							<span class="md-title">{{group.name}}</span>
+							<md-icon ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px;float:right;"
+								class="md-raised md-icon-unfold-less"></md-icon>
+							<md-icon ng-show="collapsed" ng-click="collapsed=!collapsed" style="color:grey;font-size: 22px;float:right;"
+								class="md-raised md-icon-unfold-more"></md-icon>
+							<div>{{group.description}}</div>
+						</div>
+						<div class="channel fab-item" ng-repeat="channel in group.channels">
+							<div ng-show="!collapsed">
+								<md-button ng-if="channel.linkedItems.length == 0" class="md-fab md-icon-radio-button-off"
+									ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"></md-button>
+								<md-button ng-if="channel.linkedItems.length > 0" class="md-fab md-icon-radio-button-on"
+									ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"></md-button>
+								<div class="item-content">
+									<h3>{{getChannelTypeById(channel.id).label}}</h3>
+									<p>{{thing.UID + ':' + channel.id}}</p>
+									<p>{{getChannelTypeById(channel.id).description}}</p>
+								</div>
+								<hr class="border-line" />
+							</div>
+						</div>
 					</div>
-					<hr class="border-line" />
-				</div>
-			</div>
-			<button class="md-button" ng-init="showAdvanced = false" ng-click="showAdvanced = !showAdvanced"
-				ng-show="getChannels(true).length > 0">{{showAdvanced ? 'Show Less' : 'Show More'}}</button>
-			<div class="advanced-channels" ng-if="showAdvanced">
-				<div class="channel fab-item" ng-repeat="channel in getChannels(true)">
-					<md-button ng-if="channel.linkedItems.length == 0" class="md-fab md-icon-radio-button-off"
-						ng-click="enableChannel(thing.UID, channel.id)" aria-label="Off"></md-button>
-					<md-button ng-if="channel.linkedItems.length > 0" class="md-fab md-icon-radio-button-on"
-						ng-click="disableChannel(thing.UID, channel.id)" aria-label="On"></md-button>
-					<div class="item-content">
-						<h3>{{getChannelTypeById(channel.id).label}}</h3>
-						<p>{{thing.UID + ':' + channel.id}}</p>
-						<p>{{getChannelTypeById(channel.id).description}}</p>
-					</div>
-					<hr class="border-line" />
 				</div>
 			</div>
 		</div>
