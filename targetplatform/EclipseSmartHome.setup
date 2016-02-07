@@ -2313,6 +2313,8 @@
           name="org.eclipse.wst.jsdt.feature.feature.group"/>
       <requirement
           name="org.eclipse.wst.web_ui.feature.feature.group"/>
+      <requirement
+          name="org.jboss.tools.m2e.jdt.feature.feature.group"/>
       <repository
           url="http://repo1.maven.org/maven2/.m2e/connectors/m2eclipse-tycho/0.7.0/N/0.7.0.201309291400/"/>
       <repository
@@ -2385,6 +2387,12 @@
         excludedTriggers="STARTUP"
         predecessor="antlr-generator-3.2.0-patch"
         launcher="Generate All Models"/>
+    <setupTask
+        xsi:type="setup:ResourceCreationTask"
+        id="lifecycle-mapping"
+        content="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xA;&lt;lifecycleMappingMetadata>&#xA;  &lt;pluginExecutions>&#xA;    &lt;pluginExecution>&#xA;      &lt;pluginExecutionFilter>&#xA;        &lt;groupId>org.codehaus.mojo&lt;/groupId>&#xA;        &lt;artifactId>build-helper-maven-plugin&lt;/artifactId>&#xA;        &lt;versionRange>1.8&lt;/versionRange>&#xA;        &lt;goals>&#xA;          &lt;goal>add-source&lt;/goal>&#xA;          &lt;goal>add-test-source&lt;/goal>&#xA;        &lt;/goals>&#xA;      &lt;/pluginExecutionFilter>&#xA;      &lt;action>&#xA;        &lt;ignore />&#xA;      &lt;/action>&#xA;    &lt;/pluginExecution>&#xA;  &lt;/pluginExecutions>&#xA;&lt;/lifecycleMappingMetadata>&#xA;"
+        targetURL="${workspace.location|uri}/.metadata/.plugins/org.eclipse.m2e.core/lifecycle-mapping-metadata.xml"
+        encoding="UTF-8"/>
     <stream
         name="master"/>
   </project>
