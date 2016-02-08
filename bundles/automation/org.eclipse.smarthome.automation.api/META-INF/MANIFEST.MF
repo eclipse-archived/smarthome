@@ -5,21 +5,16 @@ Bundle-SymbolicName: org.eclipse.smarthome.automation.api
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: Eclipse.org/SmartHome
 Import-Package: 
- com.google.gson.annotations;resolution:=optional,
  org.eclipse.smarthome.automation,
+ org.eclipse.smarthome.automation.events,
  org.eclipse.smarthome.automation.handler,
+ org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
  org.eclipse.smarthome.automation.type,
- org.eclipse.smarthome.automation.events,
- org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.events,
- org.eclipse.smarthome.core.storage,
  org.osgi.framework,
- org.osgi.service.cm,
- org.osgi.service.component,
- org.osgi.util.tracker,
  org.slf4j
 Export-Package: 
  org.eclipse.smarthome.automation,
