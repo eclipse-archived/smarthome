@@ -7,7 +7,7 @@
  */
 package org.eclipse.smarthome.io.rest.core.internal;
 
-import org.eclipse.smarthome.io.rest.core.JSONResponse;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;

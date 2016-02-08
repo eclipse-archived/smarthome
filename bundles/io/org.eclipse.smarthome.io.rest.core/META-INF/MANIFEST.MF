@@ -7,13 +7,12 @@ Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,
  com.google.common.collect,
- com.google.gson,
  io.swagger.annotations;resolution:=optional,
  javax.servlet,
  javax.servlet.http,
  javax.ws.rs,
- javax.ws.rs.core;version="2.0.0",
- javax.ws.rs.ext;version="1.1.1",
+ javax.ws.rs.core,
+ javax.ws.rs.ext,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.dto,
  org.eclipse.smarthome.config.core.status,
@@ -44,15 +43,13 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.core.transform;resolution:=optional,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.rest,
- org.eclipse.smarthome.io.rest.core,
  org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
  org.slf4j
-Export-Package: org.eclipse.smarthome.io.rest.core,
- org.eclipse.smarthome.io.rest.core.item,
+Export-Package: org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
 Bundle-ActivationPolicy: lazy
