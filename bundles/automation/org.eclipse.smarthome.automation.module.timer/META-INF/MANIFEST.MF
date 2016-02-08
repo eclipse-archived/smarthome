@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Timer Automation Modules
+Bundle-Name: Eclipse SmartHome Automation Module Timer
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.timer
 Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.automation.module.timer.internal.Activator
