@@ -15,6 +15,5 @@ Import-Package: io.swagger.annotations;resolution:=optional,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.id,
  org.eclipse.smarthome.io.rest;resolution:=optional,
- org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

@@ -7,16 +7,12 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.core.autoupdate.internal.AutoUpdateActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: org.apache.commons.lang,
- org.eclipse.smarthome.core.autoupdate,
+Import-Package: org.eclipse.smarthome.core.autoupdate,
  org.eclipse.smarthome.core.events,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.items.events,
  org.eclipse.smarthome.core.types,
  org.osgi.framework,
- org.osgi.service.cm,
- org.osgi.service.component,
- org.osgi.service.event,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core.autoupdate
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
