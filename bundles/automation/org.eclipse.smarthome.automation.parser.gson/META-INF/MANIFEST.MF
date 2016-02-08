@@ -7,7 +7,6 @@ Bundle-Activator: org.eclipse.smarthome.automation.parser.gson.internal.Activato
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.gson,
- com.google.gson.stream,
  org.eclipse.smarthome.automation,
  org.eclipse.smarthome.automation.parser,
  org.eclipse.smarthome.automation.template,
