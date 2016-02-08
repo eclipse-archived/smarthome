@@ -7,17 +7,13 @@ Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.persistence
 Import-Package: io.swagger.annotations;resolution:=optional,
- javax.servlet;resolution:=optional,
- javax.servlet.http;resolution:=optional,
  javax.ws.rs;resolution:=optional,
  javax.ws.rs.core;resolution:=optional,
  org.eclipse.smarthome.core.items,
  org.eclipse.smarthome.core.library.types,
  org.eclipse.smarthome.core.persistence,
- org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.types,
- org.eclipse.smarthome.io.rest,
- org.eclipse.smarthome.io.rest.core,
+ org.eclipse.smarthome.io.rest;resolution:=optional,
  org.slf4j
 Export-Package: org.eclipse.smarthome.core.persistence
 Service-Component: OSGI-INF/*.xml
