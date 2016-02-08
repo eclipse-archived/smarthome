@@ -77,7 +77,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%label%", label);
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
-        snippet = StringUtils.replace(snippet, "%htmlclass%", config.getIconsEnabled() ? "" : "no-icons");
+        snippet = StringUtils.replace(snippet, "%htmlclass%", config.getCssClassList());
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
 
         String[] parts = snippet.split("%children%");
