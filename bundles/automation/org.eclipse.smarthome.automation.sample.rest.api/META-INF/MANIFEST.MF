@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Eclipse SmartHome Automation Sample REST API
+Bundle-SymbolicName: org.eclipse.smarthome.automation.sample.rest.api
+Bundle-Activator: org.eclipse.smarthome.automation.sample.rest.api.Activator
+Bundle-Version: 0.8.0.qualifier
+Bundle-Vendor: Eclipse.org/SmartHome
+Import-Package: 
+ javax.servlet,
+ javax.servlet.http,
+ org.osgi.framework,
+ org.osgi.service.http,
+ org.osgi.util.tracker
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
