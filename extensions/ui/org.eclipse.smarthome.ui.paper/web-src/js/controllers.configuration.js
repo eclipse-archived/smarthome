@@ -72,7 +72,7 @@ angular.module('PaperUI.controllers.configuration',
         $scope.expertMode = false;
         configDescriptionService.getByUri({uri: configDescriptionURI}, function(configDescription) {
             if(configDescription) {
-                $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
+                $scope.parameters = configService.getRenderingModel(configDescription.parameters);
             }
         });
     }
@@ -182,7 +182,7 @@ angular.module('PaperUI.controllers.configuration',
 		$scope.expertMode = false;
 		configDescriptionService.getByUri({uri: configDescriptionURI}, function(configDescription) {
 			if(configDescription) {
-				$scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
+				$scope.parameters = configService.getRenderingModel(configDescription.parameters);
 			}
 		});
 	}
@@ -306,6 +306,8 @@ angular.module('PaperUI.controllers.configuration',
 	
 	$scope.thing;
 	$scope.thingType;
+	$scope.thingChannels=[];
+	$scope.showAdvanced=false;
 	$scope.edit = function(thing, event) {
 		$mdDialog.show({
 			controller : 'EditThingDialogController',
@@ -414,21 +416,71 @@ angular.module('PaperUI.controllers.configuration',
         }
     };
     
-    $scope.getChannels = function(advanced) {
+    var getChannels = function(advanced) {
+    	
         if (!$scope.thingType || !$scope.thing) {
             return;
-        }
-        return $.grep($scope.thing.channels, function(channel, i) {
-           var channelType = $scope.getChannelTypeById(channel.id);
-           return channelType ? advanced == channelType.advanced : false;
-        });
+        }   
+        var thingChannels=[];
+		var includedChannels = [];
+		$scope.isAdvanced = filterAdvance($scope.thing.channels, true).length > 0;
+		if ($scope.thingType.channelGroups && $scope.thingType.channelGroups.length > 0) {
+			for (var i = 0; i < $scope.thingType.channelGroups.length; i++) {
+				var group = {};
+				group.name = $scope.thingType.channelGroups[i].label;
+				group.description = $scope.thingType.channelGroups[i].description;
+				group.channels = matchGroup($scope.thing.channels, $scope.thingType.channelGroups[i].id);
+				group.channels = advanced ? group.channels : filterAdvance(group.channels, false);
+				includedChannels = includedChannels.concat(group.channels);
+				thingChannels.push(group);
+			}
+			var group = {
+				"name" : "Others",
+				"description" : "Other channels",
+				"channels" : []
+			};
+			for (var i = 0; i < $scope.thing.channels.length; i++) {
+				if (includedChannels.indexOf($scope.thing.channels[i]) == -1)
+					group.channels.push($scope.thing.channels[i]);
+			}
+			if (group.channels && group.channels.length > 0) {
+				thingChannels.push(group);
+			}
+		} else {
+			var group = {};
+			group.channels = advanced ? $scope.thing.channels : filterAdvance($scope.thing.channels, advanced);
+			thingChannels.push(group);
+		}	
+        
+        return thingChannels;
     };
-	
+	$scope.refreshChannels = function(showAdvanced){
+	    	$scope.thingChannels = getChannels(showAdvanced);
+    };
+    function filterAdvance(channels,advanced){
+	   	 return $.grep(channels, function(channel, i) {
+	            var channelType = $scope.getChannelTypeById(channel.id);
+	            return channelType ? advanced == channelType.advanced : false;
+	         });
+	}
+	function matchGroup(arr,id){
+	   	var matched=[];
+	   	for (var i=0 ; i < arr.length ; i++){
+	   		 if (arr[i].id){
+	   			var sub = arr[i].id.split("#");
+		   			if (sub[0] && sub[0] == id){
+	   				matched.push(arr[i]);
+	   			}
+	   		}
+	   	}
+	   	return matched;
+	}
     $scope.getThing = function(refresh) {
     	thingRepository.getOne(function(thing) {
     		return thing.UID === thingUID;
     	}, function(thing) {
     		$scope.thing = thing;
+    		 $scope.refreshChannels(false);
     		if(thing.item) {
     			$scope.setTitle(thing.item.label);
     		} else {
@@ -436,12 +488,14 @@ angular.module('PaperUI.controllers.configuration',
     		}
     	}, refresh);	
 	}
-	$scope.getThing(false);
+	$scope.getThing(true);
 	
 	thingTypeRepository.getOne(function(thingType) {
 		return thingType.UID === thingTypeUID;
 	}, function(thingType) {
 		$scope.thingType = thingType;
+		$scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels
+				: thingType.channelGroups;
 		$scope.setHeaderText(thingType.description);
 	});
 }).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, 
@@ -535,7 +589,7 @@ angular.module('PaperUI.controllers.configuration',
             return thingType.UID === thingTypeUID;
         }, function(thingType) {
             $scope.thingType = thingType;
-            $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);;
+            $scope.parameters = configService.getRenderingModel(thingType.configParameters);
             $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
             if($scope.needsBridge) {
                 $scope.getBridges();
