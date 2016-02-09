@@ -294,36 +294,18 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 		return Math.ceil(stateObject.h) + ',' + Math.ceil(stateObject.s) + ',' + Math.ceil(stateObject.b);
 	}
 	
-	$scope.setOn = function(on) {
-		
-		 $scope.sendCommand(on);
-        
-        if(on === 'ON' && $scope.brightness === 0) {
-        	$scope.brightness = 100;
-        }
-        if(on === 'OFF' && $scope.brightness > 0) {
-        	$scope.brightness = 0;
-        }
-    }
-    
 	$scope.pending = false;
     
     $scope.setBrightness = function(brightness) {
     	 // send updates every 300 ms only
         if(!$scope.pending) {
         	$timeout(function() {
-	        	var brightnessValue = $scope.brightness === 0 ? '0' : $scope.brightness;
-		        
-	        	 $scope.sendCommand(brightnessValue);
-		        
-		        var stateObject = getStateAsObject($scope.item.state);
-		    	stateObject.b = brightnessValue;
-		    	if($scope.on === 'ON' && $scope.brightness === 0) {
-		    		$scope.on = 'OFF';
-		        }
-		        if($scope.on === 'OFF' && $scope.brightness > 0) {
-		        	$scope.on = 'ON';
-		        }
+        		var stateObject = getStateAsObject($scope.item.state);
+        		stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
+	        	stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
+   		        stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;    	
+   		    	$scope.item.state = toState(stateObject);
+   		    	$scope.sendCommand($scope.item.state);
 	        	$scope.pending = false;
 	        }, 300);
 	        $scope.pending = true;
@@ -334,33 +316,39 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     	 // send updates every 300 ms only
         if(!$scope.pending) {
             $timeout(function() {
-            	var hueValue = $scope.hue === 0 ? '0' : $scope.hue;
-            	
             	var stateObject = getStateAsObject($scope.item.state);
-            	stateObject.h = hueValue;
-            	stateObject.b = $scope.brightness;
-            	
-            	if (!stateObject.b) {
+            	stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
+            	stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
+            	stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;            	
+            	if ($scope.item.state=="UNDEF" || $scope.item.state === 'NULL') {
 					stateObject.b = 100;
-				}
-            	if (!stateObject.s) {
 					stateObject.s = 100;
+					$scope.brightness = stateObject.b;
+					$scope.saturation = stateObject.s;
 				}
-
-		        if($scope.on === 'OFF') {
-		        	$scope.on = 'ON';
-		        	$scope.brightness = 100;
-		        }
-		        
-                var itemState = toState(stateObject);
-                 
-                $scope.sendCommand(itemState);
-   
-            	$scope.pending = false;
+            	$scope.item.state = toState(stateObject);
+                $scope.sendCommand($scope.item.state);
+              	$scope.pending = false;
             }, 300);
             $scope.pending = true;
         }
         
+    }
+    
+    $scope.setSaturation = function(saturation) {
+     	 // send updates every 300 ms only
+         if(!$scope.pending) {
+         	$timeout(function() {
+         		var stateObject = getStateAsObject($scope.item.state);
+         		stateObject.s = $scope.saturation === 0 ? '0' : $scope.saturation;
+         		stateObject.b = $scope.brightness === 0 ? '0' : $scope.brightness;
+  		        stateObject.h = $scope.hue === 0 ? '0' : $scope.hue;
+  		    	$scope.item.state = toState(stateObject);
+  		    	$scope.sendCommand($scope.item.state);
+  	        	$scope.pending = false;
+  	        }, 300);
+  	        $scope.pending = true;
+         }
     }
 
     $scope.getHexColor = function(hue) {
@@ -376,10 +364,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     	var stateObject = getStateAsObject($scope.item.state);
     	var hue = stateObject.h;
         var brightness = stateObject.b;
+        var saturation = stateObject.s;
         
         $scope.hue = hue ? hue : 0;
         $scope.brightness = brightness ? brightness : 0;
-        $scope.on = $scope.brightness > 0 ? 'ON' : 'OFF';
+        $scope.saturation = saturation ? saturation : 0;
 	}
     
     setStates();
