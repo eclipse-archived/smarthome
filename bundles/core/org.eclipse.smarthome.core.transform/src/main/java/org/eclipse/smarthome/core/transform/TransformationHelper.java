@@ -19,26 +19,27 @@ import org.slf4j.LoggerFactory;
 
 public class TransformationHelper {
 
-    private final static Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
+    private static Logger logger() {
+        return LoggerFactory.getLogger(TransformationHelper.class);
+    }
 
     /* RegEx to extract and parse a function String <code>'(.*?)\((.*)\):(.*)'</code> */
     protected static final Pattern EXTRACT_TRANSFORMFUNCTION_PATTERN = Pattern.compile("(.*?)\\((.*)\\):(.*)");
 
     /**
      * determines whether a pattern refers to a transformation service
-     * 
+     *
      * @param pattern the pattern to check
      * @return true, if the pattern contains a transformation
      */
     static public boolean isTransform(String pattern) {
-    	return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
+        return EXTRACT_TRANSFORMFUNCTION_PATTERN.matcher(pattern).matches();
     }
 
-    
     /**
      * Queries the OSGi service registry for a service that provides a transformation service of
      * a given transformation type (e.g. REGEX, XSLT, etc.)
-     * 
+     *
      * @param transformationType the desired transformation type
      * @return a service instance or null, if none could be found
      */
@@ -47,12 +48,13 @@ public class TransformationHelper {
             Logger logger = LoggerFactory.getLogger(TransformationHelper.class);
             String filter = "(smarthome.transform=" + transformationType + ")";
             try {
-                Collection<ServiceReference<TransformationService>> refs = context.getServiceReferences(
-                        TransformationService.class, filter);
+                Collection<ServiceReference<TransformationService>> refs = context
+                        .getServiceReferences(TransformationService.class, filter);
                 if (refs != null && refs.size() > 0) {
                     return context.getService(refs.iterator().next());
                 } else {
-                    logger.warn("Cannot get service reference for transformation service of type " + transformationType);
+                    logger.warn(
+                            "Cannot get service reference for transformation service of type " + transformationType);
                 }
             } catch (InvalidSyntaxException e) {
                 logger.warn("Cannot get service reference for transformation service of type " + transformationType, e);
@@ -63,7 +65,7 @@ public class TransformationHelper {
 
     /**
      * Transforms a state string using transformation functions within a given pattern.
-     * 
+     *
      * @param context a valid bundle context, required for accessing the services
      * @param stateDescPattern the pattern that contains the transformation instructions
      * @param state the state to be formatted before being passed into the transformation function
@@ -77,23 +79,22 @@ public class TransformationHelper {
             String value = matcher.group(3);
             TransformationService transformation = TransformationHelper.getTransformationService(context, type);
             if (transformation != null) {
-            	value = String.format(value, state);
+                value = String.format(value, state);
                 try {
                     pattern = transformation.transform(pattern, value);
                 } catch (TransformationException e) {
-                    logger.warn("transformation throws exception [transformation=" + transformation + ", value="
+                    logger().warn("transformation throws exception [transformation=" + transformation + ", value="
                             + value + "]", e);
                     pattern = state;
                 }
             } else {
-                logger.warn(
-                        "couldn't transform value  because transformationService of type '{}' is unavailable",
+                logger().warn("couldn't transform value  because transformationService of type '{}' is unavailable",
                         type);
                 pattern = state;
             }
             return pattern;
         } else {
-        	return state;
+            return state;
         }
     }
 

@@ -29,11 +29,13 @@ import org.slf4j.LoggerFactory;
  */
 public class InstanceUUID {
 
-    static final private Logger logger = LoggerFactory.getLogger(InstanceUUID.class);
-
     private static final String UUID_FILE_NAME = "uuid";
 
     private static String uuid = null;
+
+    private static Logger logger() {
+        return LoggerFactory.getLogger(InstanceUUID.class);
+    }
 
     /**
      * Retrieves a unified unique id, based on {@link java.util.UUID.randomUUID()}
@@ -51,16 +53,16 @@ public class InstanceUUID {
                 } else {
                     uuid = readFirstLine(file);
                     if (StringUtils.isNotEmpty(uuid)) {
-                        logger.debug("UUID '{}' has been restored from file '{}'", file.getAbsolutePath(), uuid);
+                        logger().debug("UUID '{}' has been restored from file '{}'", file.getAbsolutePath(), uuid);
                     } else {
                         uuid = java.util.UUID.randomUUID().toString();
-                        logger.warn("UUID file '{}' has no content, rewriting it now with '{}'", file.getAbsolutePath(),
-                                uuid);
+                        logger().warn("UUID file '{}' has no content, rewriting it now with '{}'",
+                                file.getAbsolutePath(), uuid);
                         writeFile(file, uuid);
                     }
                 }
             } catch (IOException e) {
-                logger.error("Failed writing instance uuid file: {}", e.getMessage());
+                logger().error("Failed writing instance uuid file: {}", e.getMessage());
                 return null;
             }
         }
@@ -81,7 +83,7 @@ public class InstanceUUID {
         try {
             lines = IOUtils.readLines(new FileInputStream(file));
         } catch (IOException ioe) {
-            logger.warn("Failed reading the UUID file '{}': ", file.getAbsolutePath(), ioe.getMessage());
+            logger().warn("Failed reading the UUID file '{}': ", file.getAbsolutePath(), ioe.getMessage());
         }
         return lines != null && lines.size() > 0 ? lines.get(0) : "";
     }

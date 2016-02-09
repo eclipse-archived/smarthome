@@ -33,7 +33,9 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 public class SonosXMLParser {
 
-    static final Logger logger = LoggerFactory.getLogger(SonosXMLParser.class);
+    private static Logger logger() {
+        return LoggerFactory.getLogger(SonosXMLParser.class);
+    }
 
     private static MessageFormat METADATA_FORMAT = new MessageFormat(
             "<DIDL-Lite xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
@@ -83,9 +85,9 @@ public class SonosXMLParser {
             reader.setContentHandler(handler);
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
-            logger.error("Could not parse Alarms from string '{}", xml);
+            logger().error("Could not parse Alarms from string '{}", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse Alarms from string '{}'", xml);
+            logger().error("Could not parse Alarms from string '{}'", xml);
         }
         return handler.getAlarms();
     }
@@ -103,9 +105,9 @@ public class SonosXMLParser {
             reader.setContentHandler(handler);
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
-            logger.error("Could not parse Entries from string '{}'", xml);
+            logger().error("Could not parse Entries from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse Entries from string '{}'", xml);
+            logger().error("Could not parse Entries from string '{}'", xml);
         }
 
         return handler.getArtists();
@@ -114,7 +116,7 @@ public class SonosXMLParser {
     /**
      * Returns the meta data which is needed to play Pandora
      * (and others?) favorites
-     * 
+     *
      * @param xml
      * @return The value of the desc xml tag
      * @throws SAXException
@@ -126,7 +128,7 @@ public class SonosXMLParser {
         try {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
-            logger.error("Could not parse Entries from String {}", xml);
+            logger().error("Could not parse Entries from String {}", xml);
         }
         return handler.getMetaData();
     }
@@ -146,9 +148,9 @@ public class SonosXMLParser {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
             // This should never happen - we're not performing I/O!
-            logger.error("Could not parse ZoneGroup from string '{}'", xml);
+            logger().error("Could not parse ZoneGroup from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse ZoneGroup from string '{}'", xml);
+            logger().error("Could not parse ZoneGroup from string '{}'", xml);
         }
 
         return handler.getGroups();
@@ -163,9 +165,9 @@ public class SonosXMLParser {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
             // This should never happen - we're not performing I/O!
-            logger.error("Could not parse RadioTime from string '{}'", xml);
+            logger().error("Could not parse RadioTime from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse RadioTime from string '{}'", xml);
+            logger().error("Could not parse RadioTime from string '{}'", xml);
         }
 
         return handler.getTextFields();
@@ -180,9 +182,9 @@ public class SonosXMLParser {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
             // This should never happen - we're not performing I/O!
-            logger.debug("Could not parse Rendering Control from string '{}'", xml);
+            logger().debug("Could not parse Rendering Control from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse Rendering Control from string '{}'", xml);
+            logger().error("Could not parse Rendering Control from string '{}'", xml);
         }
         return handler.getChanges();
     }
@@ -195,9 +197,9 @@ public class SonosXMLParser {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
             // This should never happen - we're not performing I/O!
-            logger.error("Could not parse AV Transport from string '{}'", xml);
+            logger().error("Could not parse AV Transport from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse AV Transport from string '{}'", xml);
+            logger().error("Could not parse AV Transport from string '{}'", xml);
         }
         return handler.getChanges();
     }
@@ -210,9 +212,9 @@ public class SonosXMLParser {
             reader.parse(new InputSource(new StringReader(xml)));
         } catch (IOException e) {
             // This should never happen - we're not performing I/O!
-            logger.error("Could not parse MetaData from string '{}'", xml);
+            logger().error("Could not parse MetaData from string '{}'", xml);
         } catch (SAXException s) {
-            logger.error("Could not parse MetaData from string '{}'", xml);
+            logger().error("Could not parse MetaData from string '{}'", xml);
         }
 
         return handler.getMetaData();
@@ -275,7 +277,7 @@ public class SonosXMLParser {
                 }
 
                 if (!ignore.contains(localName)) {
-                    logger.warn("Did not recognise element named {}", localName);
+                    logger().warn("Did not recognise element named {}", localName);
                 }
                 element = null;
             }
@@ -332,7 +334,7 @@ public class SonosXMLParser {
                 try {
                     md = getResourceMetaData(desc.toString());
                 } catch (SAXException ignore) {
-                    logger.debug("Failed to parse embeded", ignore);
+                    logger().debug("Failed to parse embeded", ignore);
                 }
 
                 artists.add(new SonosEntry(id, title.toString(), parentId, album.toString(), albumArtUri.toString(),
@@ -487,7 +489,7 @@ public class SonosXMLParser {
                         finalIncludeLinkedZones = true;
                     }
                 } catch (Exception e) {
-                    logger.debug("Error parsing Integer");
+                    logger().debug("Error parsing Integer");
                 }
 
                 alarms.add(new SonosAlarm(finalID, startTime, duration, recurrence, finalEnabled, roomUUID, programURI,
@@ -653,7 +655,7 @@ public class SonosXMLParser {
                 }
             } catch (IllegalArgumentException e) {
                 // this means that localName isn't defined in EventType, which is expected for some elements
-                logger.info("{} is not defined in EventType. ", localName);
+                logger().info("{} is not defined in EventType. ", localName);
             }
         }
 

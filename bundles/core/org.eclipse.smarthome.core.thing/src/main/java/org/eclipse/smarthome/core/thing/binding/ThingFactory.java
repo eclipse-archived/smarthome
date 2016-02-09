@@ -50,7 +50,9 @@ import com.google.common.collect.Lists;
  */
 public class ThingFactory {
 
-    private static Logger logger = LoggerFactory.getLogger(ThingFactory.class);
+    private static Logger logger() {
+        return LoggerFactory.getLogger(ThingFactory.class);
+    }
 
     /**
      * Generates a random Thing UID for the given thingType
@@ -133,7 +135,7 @@ public class ThingFactory {
         return createThingBuilder(thingType, thingUID).withConfiguration(configuration).withChannels(channels)
                 .withProperties(thingType.getProperties()).withBridge(bridgeUID).build();
     }
-    
+
     public static Thing createThing(ThingUID thingUID, Configuration configuration, Map<String, String> properties,
             ThingUID bridgeUID, ThingTypeUID thingTypeUID, List<ThingHandlerFactory> thingHandlerFactories) {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
@@ -196,7 +198,7 @@ public class ThingFactory {
                     }
                 }
             } else {
-                logger.warn(
+                logger().warn(
                         "Could not create channels for channel group '{}' for thing type '{}', because channel group type '{}' could not be found.",
                         channelGroupDefinition.getId(), thingUID, channelGroupDefinition.getTypeUID());
             }
@@ -208,7 +210,7 @@ public class ThingFactory {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = TypeResolver.resolve(channelDefinition.getChannelTypeUID());
         if (type == null) {
-            logger.warn(
+            logger().warn(
                     "Could not create channel '{}' for thing type '{}', because channel type '{}' could not be found.",
                     channelDefinition.getId(), thingUID, channelDefinition.getChannelTypeUID());
             return null;
@@ -272,6 +274,6 @@ public class ThingFactory {
                     + "' as type '" + parameterType + "': " + ex.getMessage(), ex);
             return null;
         }
-    }    
+    }
 
 }
