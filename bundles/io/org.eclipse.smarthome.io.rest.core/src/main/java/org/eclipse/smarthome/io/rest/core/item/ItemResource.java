@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
@@ -281,7 +282,9 @@ public class ItemResource implements RESTResource {
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
-                return Response.ok().build();
+                ResponseBuilder resbuilder = Response.ok();
+                resbuilder.type(MediaType.TEXT_PLAIN);
+                return resbuilder.build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
