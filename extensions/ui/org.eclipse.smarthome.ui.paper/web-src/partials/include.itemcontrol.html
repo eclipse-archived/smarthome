@@ -66,12 +66,12 @@
 		</div>
 		<div layout="row" layout-align="start center" class="dimmer-widget">
 			<div flex="40">
-				<p class="">Off/On</p>
+				<p class="">Saturation</p>
 			</div>
 			<div flex="60" layout="row" layout-align="end center"
 				class="dimmer-widget">
-				<md-switch ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'"
-					ng-false-value="'OFF'" aria-label="{{item.label}} on/off"></md-switch>
+				<md-slider flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)"
+					 aria-label="{{item.label}} saturation"></md-slider>
 			</div>
 		</div>
 	</div>
