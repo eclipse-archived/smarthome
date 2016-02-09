@@ -37,7 +37,7 @@ public class Configuration {
 
     final private Map<String, Object> properties;
 
-    private static transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
         this(new HashMap<String, Object>());
@@ -166,10 +166,12 @@ public class Configuration {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!(obj instanceof Configuration))
+        }
+        if (!(obj instanceof Configuration)) {
             return false;
+        }
         return this.hashCode() == obj.hashCode();
     }
 }
