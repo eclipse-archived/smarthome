@@ -5,8 +5,7 @@
 			<div layout="row">
 				<div flex="35" class="bindings">
 					<p>Bindings</p>
-					<div class="binding fab-item" ng-repeat="binding in data.bindings"
-						ng-click="setCurrentBindingId(binding.id)"
+					<div class="binding fab-item" ng-repeat="binding in data.bindings" ng-click="setCurrentBindingId(binding.id)"
 						ng-class="currentBindingId === binding.id ? 'active' : ''">
 						<h3>{{binding.name}}</h3>
 						<p>{{binding.id}} ({{binding.thingTypes.length}})</p>
@@ -15,8 +14,7 @@
 				<div flex="65" class="thing-types">
 					<p>Supported Things</p>
 					<div ng-repeat="binding in data.bindings">
-						<div ng-if="currentBindingId === binding.id"
-							class="thing-type list-item clickable"
+						<div ng-if="currentBindingId === binding.id" class="thing-type list-item clickable"
 							ng-repeat="thingType in binding.thingTypes | filter:search"
 							ng-click="navigateTo('manual-setup/configure/' + thingType.UID)">
 							<h3>{{thingType.label}}</h3>
@@ -31,12 +29,10 @@
 			</div>
 		</div>
 	</div>
-	<div ng-controller="ManualSetupConfigureController"
-		class="thing-configure white-bg"
+	<div ng-controller="ManualSetupConfigureController" class="thing-configure white-bg"
 		ng-if="page === 'manual-setup' && path[3] === 'configure'">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close"
-				ng-click="navigateTo('manual-setup/choose')" aria-label="Close"></md-button>
+			<md-button class="md-icon-close" ng-click="navigateTo('manual-setup/choose')" aria-label="Close"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
@@ -56,19 +52,15 @@
 			</div>
 		</div>
 	</div>
-	<div ng-controller="InboxController" class="thing-add white-bg"
-		ng-if="page === 'search' && !path[3]">
+	<div ng-controller="InboxController" class="thing-add white-bg" ng-if="page === 'search' && !path[3]">
 		<div class="header-toolbar">
-			<md-button title="Scan" class="md-icon-settings-input-antenna"
-				ng-click="showScanDialog($event)" aria-label="Scan"></md-button>
-			<md-button class="md-icon-refresh" ng-click="refresh()"
-				aria-label="Refresh"></md-button>
+			<md-button title="Scan" class="md-icon-settings-input-antenna" ng-click="showScanDialog($event)" aria-label="Scan"></md-button>
+			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add"
-						ng-click="navigateTo('setup/bindings')" aria-label="Add Thing"></md-button>
+					<md-button class="md-fab md-icon-add" ng-click="navigateTo('setup/bindings')" aria-label="Add Thing"></md-button>
 				</div>
 			</div>
 		</div>
@@ -80,18 +72,15 @@
 			<hr />
 			<p class="text-center">
 				<span>Thing not listed?</span>
-				<md-button title="Add Manually" class="md-button"
-					ng-click="navigateTo('setup/bindings')">Search For
+				<md-button title="Add Manually" class="md-button" ng-click="navigateTo('setup/bindings')">Search For
 				Things</md-button>
 			</p>
 		</div>
 	</div>
-	<div ng-controller="SetupWizardBindingsController" class="white-bg"
-		ng-if="page === 'setup' && path[3] === 'bindings'">
+	<div ng-controller="SetupWizardBindingsController" class="white-bg" ng-if="page === 'setup' && path[3] === 'bindings'">
 		<div class="section-header"></div>
 		<div class="container selection-list">
-			<div ng-repeat="binding in data.bindings"
-				ng-click="selectBinding(binding.id)">
+			<div ng-repeat="binding in data.bindings" ng-click="selectBinding(binding.id)">
 				<div layout="row">
 					<div flex="90">
 						<h3>{{binding.name}}</h3>
@@ -106,20 +95,17 @@
 			</div>
 		</div>
 	</div>
-	<div ng-controller="SetupWizardSearchBindingController"
-		class="white-bg"
+	<div ng-controller="SetupWizardSearchBindingController" class="white-bg"
 		ng-if="page === 'setup' && path[3] === 'search' && path[4]">
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-refresh"
-						ng-click="scan(bindingId)" aria-label="Refresh" title="Refresh"></md-button>
+					<md-button class="md-fab md-icon-refresh" ng-click="scan(bindingId)" aria-label="Refresh" title="Refresh"></md-button>
 				</div>
 			</div>
 		</div>
 		<div class="container">
-			<div layout="row" layout-align="start center" ng-show="scanning"
-				class="scan-indicator">
+			<div layout="row" layout-align="start center" ng-show="scanning" class="scan-indicator">
 				<div>
 					<md-progress-circular md-mode="indeterminate"></md-progress-circular>
 				</div>
@@ -127,32 +113,25 @@
 					<span>Searching for Things...</span>
 				</div>
 			</div>
-			<div layout="row" layout-align="start center"
-				ng-show="!scanning && discoverySupported">
+			<div layout="row" layout-align="start center" ng-show="!scanning && discoverySupported">
 				<div></div>
 				<div>
 					<span>Thing not found?
-						<button class="md-button"
-							ng-click="navigateTo('setup/thing-types/' + bindingId)">Manually
-							Add Thing</button>
+						<button class="md-button" ng-click="navigateTo('setup/thing-types/' + bindingId)">Manually Add Thing</button>
 					</span>
 				</div>
 			</div>
 			<div ng-show="!discoverySupported">
 				<p class="text-center">
 					Binding does not support discovery.
-					<button class="md-button"
-						ng-click="navigateTo('setup/thing-types/' + bindingId)">Manually
-						Add Thing</button>
+					<button class="md-button" ng-click="navigateTo('setup/thing-types/' + bindingId)">Manually Add Thing</button>
 				</p>
 			</div>
 			<div ng-include="'partials/include.inbox.html'"></div>
 			<hr />
 			<p class="text-center">
 				<span>Thing not listed?</span>
-				<button class="md-button"
-					ng-click="navigateTo('setup/thing-types/' + bindingId)">Add
-					Manually</button>
+				<button class="md-button" ng-click="navigateTo('setup/thing-types/' + bindingId)">Add Manually</button>
 			</p>
 		</div>
 	</div>
@@ -160,8 +139,7 @@
 		ng-if="page === 'setup' && path[3] === 'thing-types'">
 		<div class="section-header"></div>
 		<div class="container selection-list">
-			<div
-				ng-repeat="thingType in data.thingTypes | filter:filter | orderBy:'label'"
+			<div ng-repeat="thingType in data.thingTypes | filter:filter | orderBy:'label'"
 				ng-click="selectThingType(thingType.UID)">
 				<div layout="row">
 					<div flex="90">
@@ -177,8 +155,7 @@
 			</div>
 		</div>
 	</div>
-	<div ng-controller="ManualSetupConfigureController"
-		class="thing-configure white-bg"
+	<div ng-controller="ManualSetupConfigureController" class="thing-configure white-bg"
 		ng-if="page === 'setup' && path[3] === 'add'">
 		<div class="header-toolbar">
 			<md-button class="md-icon-close" ng-click="navigateTo('setup')" aria-label="Close"></md-button>
@@ -194,11 +171,11 @@
 
 		<div ng-include="'partials/include.thingconfig.html'"></div>
 		<div class="container">
-            <h3>Configuration Parameters</h3>
-            <p>Configure parameters for the thing.</p>
-            <div ng-init="form={}">
-                <div ng-include="'partials/include.config.html'" onload="configuration=thing.configuration"></div>
-            </div>
-        </div>
+			<h3>Configuration Parameters</h3>
+			<p>Configure parameters for the thing.</p>
+			<div ng-init="form={}">
+				<div ng-include="'partials/include.config.html'" onload="configuration=thing.configuration"></div>
+			</div>
+		</div>
 	</div>
 </section>

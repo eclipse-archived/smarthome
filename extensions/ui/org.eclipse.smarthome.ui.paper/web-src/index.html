@@ -13,25 +13,25 @@
 
 <head>
 
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-	<title>Paper UI</title>
+<title>Paper UI</title>
 
-	<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
-	<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
+<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
+<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
 
-	<!-- custom css files -->
-	<link type="text/css" href="css/components.css" rel="stylesheet">
-	<link type="text/css" href="css/layout.css" rel="stylesheet">
-	<link type="text/css" href="css/views.css" rel="stylesheet">
-	<link type="text/css" href="css/theme.css" rel="stylesheet">
+<!-- custom css files -->
+<link type="text/css" href="css/components.css" rel="stylesheet">
+<link type="text/css" href="css/layout.css" rel="stylesheet">
+<link type="text/css" href="css/views.css" rel="stylesheet">
+<link type="text/css" href="css/theme.css" rel="stylesheet">
 
-	<!-- Icons/Fonts -->
-	<link type="text/css" href="fonts/md-icons/md-icons.css" rel="stylesheet" media="all">
-	<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
+<!-- Icons/Fonts -->
+<link type="text/css" href="fonts/md-icons/md-icons.css" rel="stylesheet" media="all">
+<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
 
-	<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
 
 </head>
 
@@ -44,41 +44,31 @@
 			<h1 class="title">SmartHome</h1>
 		</div>
 		<ul>
-			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}">
-				<a href="#control">
-					<span class="icon md-icon-dashboard"></span> Control</a>
-			</li>
-			<li ng-class="{active: isActive('inbox')}">
-				<a href="#inbox" class="clickable">
-					<span class="icon md-icon-add-circle-outline"></span> Inbox
-					<span ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span>
-				</a>
-			</li>
-			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}">
-				<a ng-click="open('configuration')" class="clickable">
-					<span class="icon md-icon-settings"></span> Configuration</a>
+			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}"><a href="#control"> <span
+					class="icon md-icon-dashboard"></span> Control
+			</a></li>
+			<li ng-class="{active: isActive('inbox')}"><a href="#inbox" class="clickable"> <span
+					class="icon md-icon-add-circle-outline"></span> Inbox <span ng-show="getNumberOfNewDiscoveryResults() > 0"
+					class="badge">{{getNumberOfNewDiscoveryResults()}}</span>
+			</a></li>
+			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}"><a
+				ng-click="open('configuration')" class="clickable"> <span class="icon md-icon-settings"></span> Configuration
+			</a>
 				<ul ng-show="isActive('configuration')">
 					<li ng-class="{active: isSubActive('bindings')}"><a href="#configuration/bindings">Bindings</a></li>
 					<li ng-class="{active: isSubActive('services')}"><a href="#configuration/services">Services</a></li>
 					<li ng-class="{active: isSubActive('groups'), hidden: isHidden('groups')}"><a href="#configuration/groups">Groups</a></li>
 					<li ng-class="{active: isSubActive('things')}"><a href="#configuration/things">Things</a></li>
-				</ul>
-			</li>
-			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
-				<a href="#extensions">
-					<span class="icon md-icon-extension"></span>
-					Extensions</a>
-			</li>
-			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
-				<a href="#rules">
-					<span class="icon md-icon-movie-creation"></span>
-					Rules</a>
-			</li>
-			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}">
-				<a href="#preferences">
-					<span class="icon md-icon-brightness-medium"></span>
-					Preferences</a>
-			</li>
+				</ul></li>
+			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}"><a href="#extensions"> <span
+					class="icon md-icon-extension"></span> Extensions
+			</a></li>
+			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}"><a href="#rules"> <span
+					class="icon md-icon-movie-creation"></span> Rules
+			</a></li>
+			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}"><a href="#preferences"> <span
+					class="icon md-icon-brightness-medium"></span> Preferences
+			</a></li>
 		</ul>
 		<div class="bottom">
 			<span>Paper UI</span>
@@ -90,9 +80,9 @@
 			<a href="#" class="open-menu">&#x2261;</a>
 			<div class="title">
 				<h1>
-					{{title}}
-					<span ng-repeat="subtitle in subtitles" class="subtitle">
-						<span class="chevron md-icon-chevron-right"></span> {{subtitle}}</span>
+					{{title}} <span ng-repeat="subtitle in subtitles" class="subtitle"> <span
+						class="chevron md-icon-chevron-right"></span> {{subtitle}}
+					</span>
 				</h1>
 			</div>
 		</header>
