@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FrontierSiliconRadioConnection {
 
-    private static final Logger logger = LoggerFactory.getLogger(FrontierSiliconRadioConnection.class);
+    private final Logger logger = LoggerFactory.getLogger(FrontierSiliconRadioConnection.class);
 
     /** Timeout for HTTP requests. */
     private final static int SOCKET_TIMEOUT = 5000; // ms
@@ -180,8 +180,9 @@ public class FrontierSiliconRadioConnection {
                 }
 
                 final FrontierSiliconRadioApiResult result = new FrontierSiliconRadioApiResult(responseBody);
-                if (result.isStatusOk())
+                if (result.isStatusOk()) {
                     return result;
+                }
 
                 isLoggedIn = false;
                 method.releaseConnection();
