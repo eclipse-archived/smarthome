@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultScriptScopeProvider implements ScriptScopeProvider {
 
-    private final static Logger logger = LoggerFactory.getLogger(DefaultScriptScopeProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(DefaultScriptScopeProvider.class);
 
     private Map<String, Object> elements;
 
