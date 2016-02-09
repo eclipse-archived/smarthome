@@ -42,7 +42,7 @@ import com.google.common.base.Joiner;
  */
 public class ScriptModuleActivator implements BundleActivator {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScriptModuleActivator.class);
+    private final Logger logger = logger();
     private BundleContext context;
     private ScriptModuleHandlerFactory moduleHandlerFactory;
     @SuppressWarnings("rawtypes")
@@ -54,6 +54,10 @@ public class ScriptModuleActivator implements BundleActivator {
     private final static ScriptEngineManager engineManager = new ScriptEngineManager();
 
     protected final static Map<String, ScriptEngine> engines = new HashMap<>();
+
+    private static Logger logger() {
+        return LoggerFactory.getLogger(ScriptModuleActivator.class);
+    }
 
     public BundleContext getContext() {
         return context;
@@ -209,10 +213,10 @@ public class ScriptModuleActivator implements BundleActivator {
      */
     private static void initializeNashornScope(ScriptEngine engine, ScriptScopeProvider provider) {
         if (!AbstractScriptModuleHandler.class.getClassLoader().getParent().toString().contains("ExtClassLoader")) {
-            logger.warn(
+            logger().warn(
                     "Found wrong classloader: To prevent class loading problems use this directive: -Dorg.osgi.framework.bundle.parent=ext");
         }
-        logger.debug("initializing script scope from '{}' for engine '{}'.",
+        logger().debug("initializing script scope from '{}' for engine '{}'.",
                 new Object[] { provider.getClass().getSimpleName(), engine.getFactory().getEngineName() });
 
         Set<String> expressions = new HashSet<String>();
@@ -229,7 +233,7 @@ public class ScriptModuleActivator implements BundleActivator {
         try {
             engine.eval(scriptToEval);
         } catch (ScriptException e) {
-            logger.error("ScriptException while importing scope: {}", e.getMessage());
+            logger().error("ScriptException while importing scope: {}", e.getMessage());
         }
     }
 
@@ -240,7 +244,7 @@ public class ScriptModuleActivator implements BundleActivator {
      * @param provider the provider holding the elements that should be added to the scope
      */
     private static void initializeGeneralScope(ScriptEngine engine, ScriptScopeProvider provider) {
-        logger.debug("initializing script scope from '{}' for engine '{}'.",
+        logger().debug("initializing script scope from '{}' for engine '{}'.",
                 new Object[] { provider.getClass().getSimpleName(), engine.getFactory().getEngineName() });
 
         for (Entry<String, Object> entry : provider.getScopeElements().entrySet()) {

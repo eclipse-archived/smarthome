@@ -46,7 +46,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ThreadPoolManager {
 
-    private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
+    private final Logger logger = logger();
+
+    private static Logger logger() {
+        return LoggerFactory.getLogger(ThreadPoolManager.class);
+    }
 
     private static final int DEFAULT_THREAD_POOL_MAX_SIZE = 10;
     private static final int DEFAULT_THREAD_POOL_CORE_SIZE = 5;
@@ -64,8 +68,9 @@ public class ThreadPoolManager {
     protected void modified(Map<String, Object> properties) {
         for (Entry<String, Object> entry : properties.entrySet()) {
             if (entry.getKey().equals("service.pid") || entry.getKey().equals("component.id")
-                    || entry.getKey().equals("component.name"))
+                    || entry.getKey().equals("component.name")) {
                 continue;
+            }
             String poolName = entry.getKey();
             Object config = entry.getValue();
             if (config == null) {
@@ -138,7 +143,7 @@ public class ThreadPoolManager {
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created scheduled thread pool '{}' of size {}", new Object[] { poolName, cfg[0] });
+                    logger().debug("Created scheduled thread pool '{}' of size {}", new Object[] { poolName, cfg[0] });
                 }
             }
         }
@@ -168,7 +173,8 @@ public class ThreadPoolManager {
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
-                    logger.debug("Created thread pool '{}' with size {}-{}", new Object[] { poolName, cfg[0], cfg[1] });
+                    logger().debug("Created thread pool '{}' with size {}-{}",
+                            new Object[] { poolName, cfg[0], cfg[1] });
                 }
             }
         }
@@ -189,7 +195,7 @@ public class ThreadPoolManager {
                         @Override
                         public void rejectedExecution(Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
                             // Log and discard
-                            logger.warn("Thread pool '{}' rejected execution of {}",
+                            logger().warn("Thread pool '{}' rejected execution of {}",
                                     new Object[] { poolName, runnable.getClass() });
                             super.rejectedExecution(runnable, threadPoolExecutor);
                         }
@@ -235,10 +241,12 @@ public class ThreadPoolManager {
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-            if (!t.isDaemon())
+            if (!t.isDaemon()) {
                 t.setDaemon(true);
-            if (t.getPriority() != Thread.NORM_PRIORITY)
+            }
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
                 t.setPriority(Thread.NORM_PRIORITY);
+            }
 
             return t;
         }
