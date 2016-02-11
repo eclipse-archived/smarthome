@@ -47,7 +47,7 @@ There are system module types which are provided by the system and there could b
     input variables - list of meta data for the supported input objects
     output variables - list of meta data for the supported output objects
 
-** configDescriptions** has the following metadata defined for each property
+**configDescriptions** has the following metadata defined for each property
 
     name
     type - one of the following "text", "integer", "decimal", "boolean"

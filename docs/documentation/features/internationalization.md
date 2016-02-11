@@ -33,11 +33,13 @@ ESH-INF/i18n
 ```
 
 Example files:
+
 ```
-ESH-INF/i18n
-    yahooweather_de.properties
-    yahooweather_de_DE.properties
-    yahooweather_fr.properties
+|- ESH-INF
+|---- i18n
+|------- yahooweather_de.properties
+|------- yahooweather_de_DE.properties
+|------- yahooweather_fr.properties
 ```
 
 ## Internationalize Binding XML files
