@@ -820,7 +820,7 @@ public class RuleEngine
      * @param rUID unique id of the {@link Rule}
      * @return true when such rule exists, false otherwise.
      */
-    protected boolean hasRule(String rUID) {
+    public boolean hasRule(String rUID) {
         return rules.get(rUID) != null;
     }
 
