@@ -64,6 +64,7 @@ public class ColorpickerRenderer extends AbstractWidgetRenderer {
         }
         String label = getLabel(cp);
         String purelabel = itemUIRegistry.getLabel(w);
+        purelabel = purelabel.replaceAll("\\\"", "\\\\'");
 
         snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(cp));
         snippet = StringUtils.replace(snippet, "%category%", escapeURLPath(itemUIRegistry.getCategory(cp)));
