@@ -182,6 +182,8 @@ public class RuleEngine
 
     private ScheduledExecutorService executor;
 
+    private ManagedRuleProvider managedRuleProvider;
+
     /**
      * Constructor of {@link RuleEngine}. It initializes the logger and starts
      * tracker for {@link ModuleHandlerFactory} services.
@@ -264,7 +266,7 @@ public class RuleEngine
 
         setRuleEnabled(rUID, isEnabled);
 
-        return ruleWithUID;
+        return rules.get(rUID).getRuleCopy();
     }
 
     /**
@@ -358,7 +360,16 @@ public class RuleEngine
         String templateUID = r.getTemplateUID();
         if (templateUID != null) {
             Rule notInitializedRule = r;
-            r = getRuleByTemplate(r);
+            try {
+                r = getRuleByTemplate(r);
+            } catch (IllegalArgumentException e) {
+                errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
+                // change state to NOTINITIALIZED
+                setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
+                        RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
+                r = null;
+                return;
+            }
             if (r == null) {
                 Set<String> rules = mapTemplateToRules.get(templateUID);
                 if (rules == null) {
@@ -374,15 +385,12 @@ public class RuleEngine
                 return;
             } else {
                 rules.put(rUID, r);
-                try {
-                    r.validateConfiguration();
-                } catch (IllegalArgumentException e) {
-                    errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
-                    // change state to NOTINITIALIZED
-                    setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                            RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
-                    return;
+                if (managedRuleProvider.get(rUID) != null) {
+                    // managed provider has to be updated only already stored rules,
+                    // when a rule is added it will be added by the registry.
+                    managedRuleProvider.update(r.getRuleCopy());
                 }
+
             }
         }
 
@@ -461,7 +469,7 @@ public class RuleEngine
             logger.debug("Rule template '" + ruleTemplateUID + "' does not exist.");
             return null;
         } else {
-            RuntimeRule r1 = new RuntimeRule(rule.getUID(), template, rule.getConfiguration());
+            RuntimeRule r1 = new RuntimeRule(rule, template);
             return r1;
         }
     }
@@ -812,7 +820,7 @@ public class RuleEngine
      * @param rUID unique id of the {@link Rule}
      * @return true when such rule exists, false otherwise.
      */
-    protected boolean hasRule(String rUID) {
+    public boolean hasRule(String rUID) {
         return rules.get(rUID) != null;
     }
 
@@ -828,6 +836,11 @@ public class RuleEngine
         @SuppressWarnings("unchecked")
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
+        addNewModuleTypes(mhf, moduleTypes);
+        return mhf;
+    }
+
+    private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
@@ -850,7 +863,6 @@ public class RuleEngine
                 scheduleRuleInitialization(rUID);
             }
         }
-        return mhf;
     }
 
     private synchronized void scheduleRuleInitialization(final String rUID) {
@@ -868,6 +880,8 @@ public class RuleEngine
     }
 
     /**
+     * This method tracks for modification of {@link ModuleHandlerFactory} service.
+     * This is used if the factory can dynamically change its supported ModuleHandlers.
      *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
@@ -875,6 +889,31 @@ public class RuleEngine
     @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
             /* ModuleHandlerFactory */Object service) {
+        logger.debug("ModuleHandlerFactory modified, updating handlers");
+        ModuleHandlerFactory moduleHandlerFactory = ((ModuleHandlerFactory) service);
+
+        Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
+        HashSet<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
+        ArrayList<String> removedTypes = new ArrayList<String>();
+
+        for (Map.Entry<String, ModuleHandlerFactory> entry : moduleHandlerFactories.entrySet()) {
+            if (entry.getValue().equals(moduleHandlerFactory)) {
+                String key = entry.getKey();
+                if (types.contains(key)) {
+                    newTypes.remove(key);
+                } else {
+                    removedTypes.add(key);
+                }
+            }
+        }
+
+        if (removedTypes.size() > 0) {
+            removeMissingModuleTypes(removedTypes);
+        }
+
+        if (newTypes.size() > 0) {
+            addNewModuleTypes(moduleHandlerFactory, newTypes);
+        }
     }
 
     /**
@@ -889,6 +928,10 @@ public class RuleEngine
             ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
+        removeMissingModuleTypes(moduleTypes);
+    }
+
+    private void removeMissingModuleTypes(Collection<String> moduleTypes) {
         Map<String, List<String>> mapMissingHandlers = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
@@ -1365,7 +1408,7 @@ public class RuleEngine
         if (mtManager != null) {
             Map<String, Object> mConfig = module.getConfiguration();
             if (mConfig == null) {
-                mConfig = new HashMap<>(11);
+                mConfig = new HashMap<String, Object>(11);
             }
             ModuleType mt = mtManager.get(type);
             if (mt != null) {
@@ -1410,6 +1453,10 @@ public class RuleEngine
                 return new BigDecimal(value);
         }
         return null;
+    }
+
+    protected void setManagedRuleProvider(ManagedRuleProvider rp) {
+        this.managedRuleProvider = rp;
     }
 
 }

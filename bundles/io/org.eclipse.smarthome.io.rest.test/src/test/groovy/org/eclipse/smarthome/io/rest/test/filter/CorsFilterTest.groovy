@@ -14,6 +14,7 @@ import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.container.ContainerResponseContext
 import javax.ws.rs.core.MultivaluedHashMap
 import javax.ws.rs.core.MultivaluedMap
+import javax.ws.rs.core.HttpHeaders
 
 import org.eclipse.smarthome.io.rest.internal.filter.CorsFilter
 import org.junit.Before
@@ -33,6 +34,8 @@ class CorsFilterTest {
     private static final String HTTP_POST_METHOD = "POST"
     private static final String HTTP_GET_METHOD = "GET"
     private static final String HTTP_OPTIONS_METHOD = "OPTIONS"
+
+    private static final String CONTENT_TYPE_HEADER = HttpHeaders.CONTENT_TYPE;
 
     private static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method"
     private static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers"
@@ -100,7 +103,7 @@ class CorsFilterTest {
 
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_METHODS_HEADER, ACCEPTED_HTTP_METHODS)
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, ECLIPSE_ORIGIN)
-        assertFalse containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_HEADERS, null)
+        assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_HEADERS, CONTENT_TYPE_HEADER)
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), VARY_HEADER, VARY_HEADER_VALUE + "," + ORIGIN_HEADER)
     }
 
@@ -111,7 +114,7 @@ class CorsFilterTest {
 
         filter.filter(requestContext, responseContext)
 
-        // Since the requestMehod header is not present in the request, it is not a valid Preflight CORS request.
+        // Since the requestMethod header is not present in the request, it is not a valid Preflight CORS request.
         // Thus, no CORS header should be added to the response.
         assertFalse containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_METHODS_HEADER, null)
         assertFalse containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, null)
@@ -126,11 +129,11 @@ class CorsFilterTest {
 
         filter.filter(requestContext, responseContext)
 
-        // Since the requestMehod header is not present in the request, it is not a valid Preflight CORS request.
+        // Since the requestMethod header is not present in the request, it is not a valid Preflight CORS request.
         // Thus, no CORS header should be added to the response.
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_METHODS_HEADER, ACCEPTED_HTTP_METHODS)
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, ECLIPSE_ORIGIN)
-        assertFalse containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_HEADERS, null)
+        assertTrue containsHeaderWithValue(responseContext.getHeaders(), ACCESS_CONTROL_ALLOW_HEADERS, CONTENT_TYPE_HEADER)
         assertTrue containsHeaderWithValue(responseContext.getHeaders(), VARY_HEADER, VARY_HEADER_VALUE + "," + ORIGIN_HEADER)
     }
 

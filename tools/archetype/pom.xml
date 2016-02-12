@@ -17,7 +17,7 @@
 
   <modules>
     <module>binding</module>
-	<module>binding.test</module>
+    <module>binding.test</module>
   </modules>
 
 </project>

@@ -36,166 +36,173 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * The NTP Refresh Service polls the configured timeserver with a configurable
  * interval and posts a new event of type ({@link DateTimeType}.
- * 
+ *
  * The {@link NtpHandler} is responsible for handling commands, which are sent
  * to one of the channels.
- * 
+ *
  * @author Marcel Verpaalen - Initial contribution OH2 ntp binding
  * @author Thomas.Eichstaedt-Engelen OH1 ntp binding (getTime routine)
  */
 
 public class NtpHandler extends BaseThingHandler {
 
-	private Logger logger = LoggerFactory.getLogger(NtpHandler.class);
+    private Logger logger = LoggerFactory.getLogger(NtpHandler.class);
 
-	/** timeout for requests to the NTP server */
-	private static final int NTP_TIMEOUT = 5000;
+    /** timeout for requests to the NTP server */
+    private static final int NTP_TIMEOUT = 5000;
 
-	/** for logging purposes */
-	private final DateFormat SDF = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.FULL, SimpleDateFormat.FULL);
+    /** for logging purposes */
+    private final DateFormat SDF = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.FULL, SimpleDateFormat.FULL);
 
-	ScheduledFuture<?> refreshJob;
+    ScheduledFuture<?> refreshJob;
 
-	/** NTP host */
-	private String hostname;
-	/** refresh interval */
-	private BigDecimal refreshInterval;
-	/** NTP refresh frequency */
-	private BigDecimal refreshNtp = new BigDecimal(0);
-	/** Timezone */
-	private TimeZone timeZone;
-	/** Locale */
-	private Locale locale;
+    /** NTP host */
+    private String hostname;
+    /** refresh interval */
+    private BigDecimal refreshInterval;
+    /** NTP refresh frequency */
+    private BigDecimal refreshNtp = new BigDecimal(0);
+    /** Timezone */
+    private TimeZone timeZone;
+    /** Locale */
+    private Locale locale;
 
-	/** NTP refresh counter */
-	private int refreshNtpCount = 0;
-	/** NTP system time delta */
-	private long timeOffset;
-	
-	private ChannelUID dateTimeChannelUID;
+    /** NTP refresh counter */
+    private int refreshNtpCount = 0;
+    /** NTP system time delta */
+    private long timeOffset;
 
-	public NtpHandler(Thing thing) {
-		super(thing);
-	}
+    private ChannelUID dateTimeChannelUID;
 
-	@Override
-	public void handleCommand(ChannelUID channelUID, Command command) {
-		// No specific commands tied to this, but we will trigger an update
-		this.refreshNtpCount = 0;
-		refreshTimeDate();
-	}
+    public NtpHandler(Thing thing) {
+        super(thing);
+    }
 
-	@Override
-	public void initialize() {
+    @Override
+    public void handleCommand(ChannelUID channelUID, Command command) {
+        // No specific commands tied to this, but we will trigger an update
+        this.refreshNtpCount = 0;
+        refreshTimeDate();
+    }
 
-		try {
-			logger.debug("Initializing NTP handler for '{}'.",getThing().getUID());
+    @Override
+    public void initialize() {
 
-			Configuration config = getThing().getConfiguration();
-			this.hostname = (String) config.get(PROPERTY_NTP_SERVER);
-			this.refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
-			this.refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
-			this.refreshNtpCount = 0;
+        try {
+            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
 
-			try {
-				timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
-			} catch (Exception e) {
-				timeZone = TimeZone.getDefault();
-				logger.debug("using default TZ: {}", timeZone);
-			}
+            Configuration config = getThing().getConfiguration();
+            this.hostname = (String) config.get(PROPERTY_NTP_SERVER);
+            this.refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
+            this.refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
+            this.refreshNtpCount = 0;
 
-			try {
-				String localeString = (String) config.get(PROPERTY_LOCALE);
-				locale = new Locale(localeString);
-			} catch (Exception e) {
-				locale = Locale.getDefault();
-				logger.debug("using default locale: {}", locale);
-			}
-			dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
-			startAutomaticRefresh();
+            try {
+                timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
+            } catch (Exception e) {
+                timeZone = TimeZone.getDefault();
+                logger.debug("using default TZ: {}", timeZone);
+            }
 
-		} catch (Exception ex) {
-			String msg = "Error occured while initializing NTP handler: " + ex.getMessage();
-			logger.error(msg, ex);
-			updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
-		}
-	}
+            try {
+                String localeString = (String) config.get(PROPERTY_LOCALE);
+                locale = new Locale(localeString);
+            } catch (Exception e) {
+                locale = Locale.getDefault();
+                logger.debug("using default locale: {}", locale);
+            }
+            dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
+            startAutomaticRefresh();
 
-	@Override
-	public void dispose() {
-		refreshJob.cancel(true);
-		super.dispose();
-	}
+        } catch (Exception ex) {
+            String msg = "Error occured while initializing NTP handler: " + ex.getMessage();
+            logger.error(msg, ex);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, msg);
+        }
+    }
 
-	private void startAutomaticRefresh() {
+    @Override
+    public void dispose() {
+        refreshJob.cancel(true);
+        super.dispose();
+    }
 
-		Runnable runnable = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					refreshTimeDate();
-				} catch (Exception e) {
-					logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
-				}
-			}
-		};
+    private void startAutomaticRefresh() {
 
-		refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
-	}
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    refreshTimeDate();
+                } catch (Exception e) {
+                    logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
+                }
+            }
+        };
 
-	private synchronized void refreshTimeDate() {
+        refreshJob = scheduler.scheduleAtFixedRate(runnable, 0, refreshInterval.intValue(), TimeUnit.SECONDS);
+    }
 
-		long networkTimeInMillis;
-		if (refreshNtpCount <= 0) {
-			networkTimeInMillis = getTime(hostname);
-			timeOffset = networkTimeInMillis - System.currentTimeMillis();
-			logger.debug("delta system time: {}", timeOffset);
-			refreshNtpCount = refreshNtp.intValue();
-		} else {
-			networkTimeInMillis = System.currentTimeMillis() + timeOffset;
-			refreshNtpCount--;
-		}
+    private synchronized void refreshTimeDate() {
 
-		Calendar calendar = Calendar.getInstance(timeZone, locale);
-		calendar.setTimeInMillis(networkTimeInMillis);
+        long networkTimeInMillis;
+        if (refreshNtpCount <= 0) {
+            networkTimeInMillis = getTime(hostname);
+            timeOffset = networkTimeInMillis - System.currentTimeMillis();
+            logger.debug("delta system time: {}", timeOffset);
+            refreshNtpCount = refreshNtp.intValue();
+        } else {
+            networkTimeInMillis = System.currentTimeMillis() + timeOffset;
+            refreshNtpCount--;
+        }
 
-		updateState(dateTimeChannelUID, new DateTimeType(calendar));
-	}
+        Calendar calendar = Calendar.getInstance(timeZone, locale);
+        calendar.setTimeInMillis(networkTimeInMillis);
 
-	/**
-	 * Queries the given timeserver <code>hostname</code> and returns the time
-	 * in milliseconds.
-	 * 
-	 * @param hostname
-	 *            the timeserver to query
-	 * @return the time in milliseconds or the current time of the system if an
-	 *         error occurs.
-	 */
-	public long getTime(String hostname) {
+        updateState(dateTimeChannelUID, new DateTimeType(calendar));
+    }
 
-		try {
-			NTPUDPClient timeClient = new NTPUDPClient();
-			timeClient.setDefaultTimeout(NTP_TIMEOUT);
-			InetAddress inetAddress = InetAddress.getByName(hostname);
-			TimeInfo timeInfo = timeClient.getTime(inetAddress);
+    /**
+     * Queries the given timeserver <code>hostname</code> and returns the time
+     * in milliseconds.
+     * 
+     * @param hostname
+     *            the timeserver to query
+     * @return the time in milliseconds or the current time of the system if an
+     *         error occurs.
+     */
+    public long getTime(String hostname) {
 
-			logger.debug("Got time update from: {}", hostname, SDF.format(new Date(timeInfo.getReturnTime())));
-			updateStatus(ThingStatus.ONLINE,ThingStatusDetail.NONE);
-			return timeInfo.getReturnTime();
-		} catch (UnknownHostException uhe) {
-			String msg = "the given hostname '" + hostname + "' of the timeserver is unknown -> returning current sytem time instead";				
-			logger.warn(msg);
-			updateStatus(ThingStatus.ONLINE,ThingStatusDetail.COMMUNICATION_ERROR, msg);			
-		} catch (IOException ioe) {
-			String msg ="couldn't establish network connection [host '" + hostname + "'] -> returning current sytem time instead";
-			logger.warn(msg);
-			updateStatus(ThingStatus.ONLINE,ThingStatusDetail.COMMUNICATION_ERROR, msg);			
-		}
+        try {
+            NTPUDPClient timeClient = new NTPUDPClient();
+            timeClient.setDefaultTimeout(NTP_TIMEOUT);
+            InetAddress inetAddress = InetAddress.getByName(hostname);
+            TimeInfo timeInfo = timeClient.getTime(inetAddress);
 
-		return System.currentTimeMillis();
-	}
+            logger.debug("Got time update from: {}", hostname, SDF.format(new Date(timeInfo.getReturnTime())));
+            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
+            return timeInfo.getReturnTime();
+        } catch (UnknownHostException uhe) {
+            String msg = "the given hostname '" + hostname
+                    + "' of the timeserver is unknown -> returning current sytem time instead";
+            logger.warn(msg);
+            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+        } catch (IOException ioe) {
+            String msg = "couldn't establish network connection [host '" + hostname
+                    + "'] -> returning current sytem time instead";
+            logger.warn(msg);
+            updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
+        }
+
+        return System.currentTimeMillis();
+    }
+
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        refreshTimeDate();
+    }
 
 }

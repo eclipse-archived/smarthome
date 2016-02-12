@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
@@ -51,9 +52,9 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.JSONResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -281,7 +282,9 @@ public class ItemResource implements RESTResource {
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
-                return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
+                ResponseBuilder resbuilder = Response.ok();
+                resbuilder.type(MediaType.TEXT_PLAIN);
+                return resbuilder.build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
@@ -484,9 +487,15 @@ public class ItemResource implements RESTResource {
 
         // Update the label
         newItem.setLabel(item.label);
-        newItem.setCategory(item.category);
-        newItem.addGroupNames(item.groupNames);
-        newItem.addTags(item.tags);
+        if (item.category != null) {
+            newItem.setCategory(item.category);
+        }
+        if (item.groupNames != null) {
+            newItem.addGroupNames(item.groupNames);
+        }
+        if (item.tags != null) {
+            newItem.addTags(item.tags);
+        }
 
         // Save the item
         if (existingItem == null) {

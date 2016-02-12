@@ -16,9 +16,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -36,6 +37,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
@@ -61,11 +63,18 @@ import com.google.common.collect.ImmutableSet;
  * Items and Links automatically and removes it, when the according thing is
  * removed.
  *
+ * @deprecated This class is not considered to be an official API and will be removed soon.</p>
+ *             You can use the {@link ThingBuilder} to create a Thing by yourself or you can use the
+ *             {@link ThingFactory} to delegate the creation to {@link ThingHandlerFactory}s. Created
+ *             Things can be added to the {@link ThingRegistry} (if required). To create links you can
+ *             make use of {@link ItemChannelLinkRegistry} or {@link ItemThingLinkRegistry}.
+ *
  * @author Dennis Nobel - Initial contribution, changed way of receiving channel types
  * @author Alex Tugarev - addThing operation returns created Thing instance
  * @author Chris Jackson - Remove children when deleted bridge. Add label/description.
  */
-public class ThingSetupManager implements EventSubscriber {
+@Deprecated
+public class ThingSetupManager implements ProviderChangeListener<Thing> {
 
     public static final String TAG_CHANNEL_GROUP = "channel-group";
     public static final String TAG_HOME_GROUP = "home-group";
@@ -719,31 +728,35 @@ public class ThingSetupManager implements EventSubscriber {
         }
     }
 
-    @Override
-    public Set<String> getSubscribedEventTypes() {
-        return subscribedEventTypes;
+    protected void addManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        managedThingProvider.addProviderChangeListener(this);
+    }
+
+    protected void removeManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        managedThingProvider.removeProviderChangeListener(this);
     }
 
     @Override
-    public EventFilter getEventFilter() {
-        return eventFiter;
+    public void added(Provider<Thing> provider, Thing thing) {
     }
 
     @Override
-    public void receive(Event event) {
-        if (event instanceof ThingRemovedEvent) {
-            ThingRemovedEvent thingRemovedEvent = (ThingRemovedEvent) event;
-            ThingUID thingUID = new ThingUID(thingRemovedEvent.getThing().UID);
-            String itemName = toItemName(thingUID);
-            if (itemRegistry.get(itemName) != null) {
-                try {
-                    itemRegistry.remove(itemName, true);
-                    itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
-                    itemChannelLinkRegistry.removeLinksForThing(thingUID);
-                } catch (Exception ex) {
-                    logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);
-                }
+    public void removed(Provider<Thing> provider, Thing thing) {
+        ThingUID thingUID = thing.getUID();
+        String itemName = toItemName(thingUID);
+        if (itemRegistry.get(itemName) != null) {
+            try {
+                itemRegistry.remove(itemName, true);
+                itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
+                itemChannelLinkRegistry.removeLinksForThing(thingUID);
+            } catch (Exception ex) {
+                logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);
             }
         }
     }
+
+    @Override
+    public void updated(Provider<Thing> provider, Thing oldThing, Thing thing) {
+    }
+
 }

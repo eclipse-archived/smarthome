@@ -90,7 +90,6 @@ public class Activator implements BundleActivator {
         ruleEventFactoryReg = bc.registerService(EventFactory.class.getName(), ruleEventFactory, null);
 
         ruleRegistry = new RuleRegistryImpl(ruleEngine);
-        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
 
         Filter filter = bc.createFilter("(|(" + Constants.OBJECTCLASS + "=" + StorageService.class.getName() + ")("
                 + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")(" + Constants.OBJECTCLASS + "="
@@ -104,12 +103,13 @@ public class Activator implements BundleActivator {
                 if (service instanceof StorageService) {
                     StorageService storage = (StorageService) service;
                     if (storage != null) {
-                        Storage storageDisabledRules = storage.getStorage("automation_rules_disabled",
+                        Storage<Boolean> storageDisabledRules = storage.getStorage("automation_rules_disabled",
                                 this.getClass().getClassLoader());
                         ruleRegistry.setDisabledRuleStorage(storageDisabledRules);
-
-                        final ManagedRuleProvider rp = new ManagedRuleProvider(storage);
-                        managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), rp, null);
+                        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+                        final ManagedRuleProvider managedRuleProvider = new ManagedRuleProvider(storage);
+                        ruleEngine.setManagedRuleProvider(managedRuleProvider);
+                        managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), managedRuleProvider, null);
                         return storage;
                     }
                 } else if (service instanceof RuleProvider) {

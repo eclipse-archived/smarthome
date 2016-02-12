@@ -13,11 +13,7 @@ By using this binding, you confirm that you agree with this - please read the de
 
 ## Supported Things
 
-There is exactly one supported thing, which represents the weather service. It has the id ```weather```.
-
-## Discovery
-
-The binding supports discovery, which does a geo location lookup based on the current IP address (using [freegeoip.net](http://freegeoip.net)).
+There is exactly one supported thing, which represents the weather service. It has the id `weather`.
 
 ## Thing Configuration
 

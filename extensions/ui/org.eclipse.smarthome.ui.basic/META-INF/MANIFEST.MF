@@ -5,7 +5,8 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Activator: org.eclipse.smarthome.ui.basic.internal.WebAppActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
-Import-Package: javax.servlet,
+Import-Package: com.google.gson,
+ javax.servlet,
  org.apache.commons.io,
  org.apache.commons.lang,
  org.apache.commons.net.util,

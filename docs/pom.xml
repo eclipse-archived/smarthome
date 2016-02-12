@@ -1,181 +1,181 @@
 <?xml version="1.0" encoding="MACROMAN"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <parent>
-        <groupId>org.eclipse.smarthome</groupId>
-        <artifactId>smarthome</artifactId>
-        <version>0.8.0-SNAPSHOT</version>
-    </parent>
-
-    <modelVersion>4.0.0</modelVersion>
+  <parent>
     <groupId>org.eclipse.smarthome</groupId>
-    <artifactId>docs</artifactId>
+    <artifactId>smarthome</artifactId>
+    <version>0.8.0-SNAPSHOT</version>
+  </parent>
 
-    <name>Eclipse SmartHome Website and Documentation</name>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.smarthome</groupId>
+  <artifactId>docs</artifactId>
 
-    <packaging>pom</packaging>
+  <name>Eclipse SmartHome Website and Documentation</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${basedir}/documentation/features/bindings/</directory>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-binding-docs</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/documentation/features/bindings/</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../extensions/binding</directory>
-                                    <includes>
-                                        <include>**/README.md</include>
-                                        <include>**/doc/**</include>
-                                        <include>**/cfg/**</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-iconset-docs</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/documentation/features/ui/iconset</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../extensions/ui/iconset</directory>
-                                    <includes>
-                                        <include>**/README.md</include>
-                                        <include>**/icons/**</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-javadoc</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/documentation/javadoc</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/../target/apidocs</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>rename-binding-files</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                                def bindings = new File(project.basedir, 'documentation/features/bindings')
+  <packaging>pom</packaging>
 
-                                bindings.eachFile
-                                {
-                                def name = it.name
-                                if(name.contains('binding')) {
-                                def bindingId =
-                                it.name.replace('org.eclipse.smarthome.binding.', '')
-                                def simpleBindingNameDir = new
-                                File(bindings.path, bindingId)
-                                it.renameTo(simpleBindingNameDir)
-                                def readme = new
-                                File(simpleBindingNameDir.path, 'README.md')
-                                if(readme.exists()) {
-                                println readme
-                                readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
-                                }
-                                }
-                                }
-                            </source>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>rename-iconset-files</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                                def iconsets = new File(project.basedir, 'documentation/features/ui/iconset')
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}/documentation/features/bindings/</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-binding-docs</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/documentation/features/bindings/</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../extensions/binding</directory>
+                  <includes>
+                    <include>**/README.md</include>
+                    <include>**/doc/**</include>
+                    <include>**/cfg/**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-iconset-docs</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/documentation/features/ui/iconset</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../extensions/ui/iconset</directory>
+                  <includes>
+                    <include>**/README.md</include>
+                    <include>**/icons/**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-javadoc</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/documentation/javadoc</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../target/apidocs</directory>
+                  <includes>
+                    <include>**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.groovy.maven</groupId>
+        <artifactId>gmaven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>rename-binding-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                def bindings = new File(project.basedir, 'documentation/features/bindings')
 
-                                iconsets.eachFile
-                                {
-                                def name = it.name
-                                if(name.contains('iconset')) {
-                                def iconsetId =
-                                it.name.replace('org.eclipse.smarthome.ui.iconset.', '')
-                                def simpleIconsetNameDir = new
-                                File(iconsets.path, iconsetId)
-                                it.renameTo(simpleIconsetNameDir)
-                                def readme = new
-                                File(simpleIconsetNameDir.path, 'README.md')
-                                if(readme.exists()) {
-                                println readme
-                                readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
-                                }
-                                }
-                                }
-                            </source>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>jekyll</executable>
-                            <arguments>
-                                <argument>build</argument>
-                            </arguments>
-                            <workingDirectory>${project.basedir}</workingDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+                bindings.eachFile
+                {
+                def name = it.name
+                if(name.contains('binding')) {
+                def bindingId =
+                it.name.replace('org.eclipse.smarthome.binding.', '')
+                def simpleBindingNameDir = new
+                File(bindings.path, bindingId)
+                it.renameTo(simpleBindingNameDir)
+                def readme = new
+                File(simpleBindingNameDir.path, 'README.md')
+                if(readme.exists()) {
+                println readme
+                readme.renameTo(new File(simpleBindingNameDir.path, 'readme.md'))
+                }
+                }
+                }
+              </source>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rename-iconset-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                def iconsets = new File(project.basedir, 'documentation/features/ui/iconset')
+
+                iconsets.eachFile
+                {
+                def name = it.name
+                if(name.contains('iconset')) {
+                def iconsetId =
+                it.name.replace('org.eclipse.smarthome.ui.iconset.', '')
+                def simpleIconsetNameDir = new
+                File(iconsets.path, iconsetId)
+                it.renameTo(simpleIconsetNameDir)
+                def readme = new
+                File(simpleIconsetNameDir.path, 'README.md')
+                if(readme.exists()) {
+                println readme
+                readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
+                }
+                }
+                }
+              </source>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>jekyll</executable>
+              <arguments>
+                <argument>build</argument>
+              </arguments>
+              <workingDirectory>${project.basedir}</workingDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

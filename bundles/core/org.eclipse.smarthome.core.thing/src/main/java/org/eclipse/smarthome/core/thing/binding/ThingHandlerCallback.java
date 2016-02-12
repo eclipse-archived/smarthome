@@ -19,7 +19,7 @@ import org.eclipse.smarthome.core.types.State;
  * or an update of the whole thing.
  * 
  * @author Dennis Nobel - Initial contribution
- * @author Stefan Bußweiler - Added new thing status info 
+ * @author Stefan Bußweiler - Added new thing status info, added new configuration update info 
  */
 public interface ThingHandlerCallback {
 
@@ -54,5 +54,12 @@ public interface ThingHandlerCallback {
      * @throws IllegalStateException if the {@link Thing} is read-only.
      */
     void thingUpdated(Thing thing);
+
+    /**
+     * Informs about an updated configuration of a thing.
+     * 
+     * @param thing thing with the updated configuration (must no be null)
+     */
+    void configurationUpdated(Thing thing);
 
 }

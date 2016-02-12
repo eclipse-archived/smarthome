@@ -47,7 +47,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Kai Kreuzer - Initial contribution
  */
 @Path("module-types")
-@Api
+@Api("module-types")
 public class ModuleTypeResource implements RESTResource {
 
     private ModuleTypeRegistry moduleTypeRegistry;

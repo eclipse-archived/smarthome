@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This HandlerFactory creates TimerTriggerHandlers to control items within the
- * RuleEngine. 
+ * RuleEngine.
  *
  * @author Christoph Knauf - initial contribution
  *
@@ -32,8 +32,9 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
 
     private static final Collection<String> types = Arrays.asList(new String[] { TimerTriggerHandler.MODULE_TYPE_ID });
 
-    public TimerModuleHandlerFactory(BundleContext bundleContext) {
-        super(bundleContext);
+    @Override
+    public void activate(BundleContext bundleContext) {
+        super.activate(bundleContext);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
             if (timerTriggerHandler == null) {
                 timerTriggerHandler = new TimerTriggerHandler((Trigger) module);
                 handlers.put(ruleUID + module.getId(), timerTriggerHandler);
-                return timerTriggerHandler; 
+                return timerTriggerHandler;
             } else {
                 logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
             }

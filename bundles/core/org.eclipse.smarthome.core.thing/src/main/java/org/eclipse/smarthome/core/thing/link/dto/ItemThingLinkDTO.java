@@ -16,6 +16,12 @@ public class ItemThingLinkDTO extends AbstractLinkDTO {
 
     public String thingUID;
 
+    /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ItemThingLinkDTO() {
+    }
+
     public ItemThingLinkDTO(String itemName, String thingUID) {
         super(itemName);
         this.thingUID = thingUID;

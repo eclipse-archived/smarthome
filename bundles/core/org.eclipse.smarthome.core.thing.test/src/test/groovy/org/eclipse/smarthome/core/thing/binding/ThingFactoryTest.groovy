@@ -13,6 +13,7 @@ import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
@@ -102,8 +103,7 @@ class ThingFactoryTest extends OSGiTest{
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
                     ConfigDescription getConfigDescription( URI uri) {
                         def parameters = [
-                            new ConfigDescriptionParameter("testProperty",
-                            ConfigDescriptionParameter.Type.TEXT, null, null, null, null, false, false, false, "context", "default", "label", "description", null, null, null, false, true, null)
+                            ConfigDescriptionParameterBuilder.create("testProperty", ConfigDescriptionParameter.Type.TEXT).withContext("context").withDefault("default").withDescription("description").withLimitToOptions(true).build()
                         ]
                         return new ConfigDescription(uri, parameters)
                     }
@@ -127,14 +127,10 @@ class ThingFactoryTest extends OSGiTest{
         def configDescriptionRegistry = new ConfigDescriptionRegistry() {
                     ConfigDescription getConfigDescription( URI uri) {
                         def parameters = [
-                            new ConfigDescriptionParameter("p1",
-                            ConfigDescriptionParameter.Type.BOOLEAN, null, null, null, null, false, false, false, "context", "true", "label", "description", null, null, null, false, true, null),
-                            new ConfigDescriptionParameter("p2",
-                            ConfigDescriptionParameter.Type.INTEGER, null, null, null, null, false, false, false, "context", "5", "label", "description", null, null, null, false, true, null),
-                            new ConfigDescriptionParameter("p3",
-                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "2.3", "label", "description", null, null, null, false, true, null),
-                            new ConfigDescriptionParameter("p4",
-                            ConfigDescriptionParameter.Type.DECIMAL, null, null, null, null, false, false, false, "context", "invalid", "label", "description", null, null, null, false, true, null)
+                            ConfigDescriptionParameterBuilder.create("p1", ConfigDescriptionParameter.Type.BOOLEAN).withContext("context").withDefault("true").withLabel("label").withDescription("description").withLimitToOptions(true).build(),
+                            ConfigDescriptionParameterBuilder.create("p2", ConfigDescriptionParameter.Type.INTEGER).withContext("context").withDefault("5").withLabel("label").withDescription("description").withLimitToOptions(true).build(),
+                            ConfigDescriptionParameterBuilder.create("p3", ConfigDescriptionParameter.Type.DECIMAL).withContext("context").withDefault("2.3").withLabel("label").withDescription("description").withLimitToOptions(true).build(),
+                            ConfigDescriptionParameterBuilder.create("p4", ConfigDescriptionParameter.Type.DECIMAL).withContext("context").withDefault("invalid").withLabel("label").withDescription("description").withLimitToOptions(true).build()
                         ]
                         return new ConfigDescription(uri, parameters)
                     }
