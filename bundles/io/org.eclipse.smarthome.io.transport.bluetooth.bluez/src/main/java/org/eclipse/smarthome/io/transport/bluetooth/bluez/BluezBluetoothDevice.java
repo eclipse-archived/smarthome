@@ -46,6 +46,8 @@ public class BluezBluetoothDevice extends BluetoothDevice implements DBusSigHand
     private static final Logger logger = LoggerFactory.getLogger(BluezBluetoothDevice.class);
 
     public BluezBluetoothDevice(BluezBluetoothAdapter adapter, String address, String name) {
+        this.adapter = adapter;
+
         dbusPath = adapter.getDbusPath() + "/dev_" + address.replaceAll(":", "_");
         this.address = address;
         this.name = name;
