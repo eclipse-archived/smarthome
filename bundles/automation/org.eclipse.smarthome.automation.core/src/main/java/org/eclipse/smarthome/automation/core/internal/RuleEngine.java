@@ -836,6 +836,11 @@ public class RuleEngine
         @SuppressWarnings("unchecked")
         ModuleHandlerFactory mhf = (ModuleHandlerFactory) bc.getService(reference);
         Collection<String> moduleTypes = mhf.getTypes();
+        addNewModuleTypes(mhf, moduleTypes);
+        return mhf;
+    }
+
+    private void addNewModuleTypes(ModuleHandlerFactory mhf, Collection<String> moduleTypes) {
         Set<String> notInitailizedRules = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
@@ -858,7 +863,6 @@ public class RuleEngine
                 scheduleRuleInitialization(rUID);
             }
         }
-        return mhf;
     }
 
     private synchronized void scheduleRuleInitialization(final String rUID) {
@@ -876,6 +880,8 @@ public class RuleEngine
     }
 
     /**
+     * This method tracks for modification of {@link ModuleHandlerFactory} service.
+     * This is used if the factory can dynamically change its supported ModuleHandlers.
      *
      * @see org.osgi.util.tracker.ServiceTrackerCustomizer#modifiedService(org.osgi.framework.ServiceReference,
      *      java.lang.Object)
@@ -883,6 +889,31 @@ public class RuleEngine
     @Override
     public void modifiedService(ServiceReference/* <ModuleHandlerFactory> */ reference,
             /* ModuleHandlerFactory */Object service) {
+        logger.debug("ModuleHandlerFactory modified, updating handlers");
+        ModuleHandlerFactory moduleHandlerFactory = ((ModuleHandlerFactory) service);
+
+        Collection<String> types = new HashSet<String>(moduleHandlerFactory.getTypes());
+        HashSet<String> newTypes = new HashSet<String>(moduleHandlerFactory.getTypes());
+        ArrayList<String> removedTypes = new ArrayList<String>();
+
+        for (Map.Entry<String, ModuleHandlerFactory> entry : moduleHandlerFactories.entrySet()) {
+            if (entry.getValue().equals(moduleHandlerFactory)) {
+                String key = entry.getKey();
+                if (types.contains(key)) {
+                    newTypes.remove(key);
+                } else {
+                    removedTypes.add(key);
+                }
+            }
+        }
+
+        if (removedTypes.size() > 0) {
+            removeMissingModuleTypes(removedTypes);
+        }
+
+        if (newTypes.size() > 0) {
+            addNewModuleTypes(moduleHandlerFactory, newTypes);
+        }
     }
 
     /**
@@ -897,6 +928,10 @@ public class RuleEngine
             ServiceReference/* <ModuleHandlerFactory> */ reference, /* ModuleHandlerFactory */
             Object service) {
         Collection<String> moduleTypes = ((ModuleHandlerFactory) service).getTypes();
+        removeMissingModuleTypes(moduleTypes);
+    }
+
+    private void removeMissingModuleTypes(Collection<String> moduleTypes) {
         Map<String, List<String>> mapMissingHandlers = null;
         for (Iterator<String> it = moduleTypes.iterator(); it.hasNext();) {
             String moduleTypeName = it.next();
