@@ -197,16 +197,20 @@ public class GenericItemProvider extends AbstractProvider<Item>
             String itemName = normalItem.getName();
             item = createItemOfType(normalItem.getType(), itemName);
         }
-        String label = modelItem.getLabel();
-        String format = StringUtils.substringBetween(label, "[", "]");
-        if (format != null) {
-            label = StringUtils.substringBefore(label, "[").trim();
-            stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
+        if (item != null) {
+            String label = modelItem.getLabel();
+            String format = StringUtils.substringBetween(label, "[", "]");
+            if (format != null) {
+                label = StringUtils.substringBefore(label, "[").trim();
+                stateDescriptions.put(modelItem.getName(), new StateDescription(null, null, null, format, false, null));
+            }
+            item.setLabel(label);
+            item.setCategory(modelItem.getIcon());
+            assignTags(modelItem, item);
+            return item;
+        } else {
+            return null;
         }
-        item.setLabel(label);
-        item.setCategory(modelItem.getIcon());
-        assignTags(modelItem, item);
-        return item;
     }
 
     private void assignTags(ModelItem modelItem, GenericItem item) {
@@ -301,7 +305,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
                         for (String itemType : itemTypes) {
                             if (itemType.equals(modelItem.getType())) {
                                 Item item = createItemFromModelItem(modelItem);
-                                internalDispatchBindings(reader, modelName, item, modelItem.getBindings());
+                                if (item != null) {
+                                    internalDispatchBindings(reader, modelName, item, modelItem.getBindings());
+                                }
                             }
                         }
                     }
@@ -324,7 +330,9 @@ public class GenericItemProvider extends AbstractProvider<Item>
                             for (String bindingType : bindingTypes) {
                                 if (bindingType.equals(modelBinding.getType())) {
                                     Item item = createItemFromModelItem(modelItem);
-                                    internalDispatchBindings(reader, modelName, item, modelItem.getBindings());
+                                    if (item != null) {
+                                        internalDispatchBindings(reader, modelName, item, modelItem.getBindings());
+                                    }
                                 }
                             }
                         }
@@ -425,7 +433,7 @@ public class GenericItemProvider extends AbstractProvider<Item>
      * @param itemType The type to find the appropriate {@link ItemFactory} for.
      * @param itemName The name of the {@link Item} to create.
      *
-     * @return An Item instance of type {@code itemType}.
+     * @return An Item instance of type {@code itemType} null if no item factory for it was found.
      */
     private GenericItem createItemOfType(String itemType, String itemName) {
         if (itemType == null) {
