@@ -22,7 +22,7 @@
     <module>org.eclipse.smarthome.automation.providers</module>
     <module>org.eclipse.smarthome.automation.core</module>
     <module>org.eclipse.smarthome.automation.core.test</module>
-    <module>org.eclipse.smarthome.automation.sample.handler</module>
+    <module>org.eclipse.smarthome.automation.sample.extension.json</module>
     <module>org.eclipse.smarthome.automation.module.core</module>
     <module>org.eclipse.smarthome.automation.module.core.test</module>
     <module>org.eclipse.smarthome.automation.module.timer</module>
@@ -32,8 +32,9 @@
     <module>org.eclipse.smarthome.automation.module.script.test</module>
     <module>org.eclipse.smarthome.automation.event.test</module>
     <module>org.eclipse.smarthome.automation.integration.test</module>
-    <module>org.eclipse.smarthome.automation.java.api.demo</module>
+    <module>org.eclipse.smarthome.automation.sample.extension.java</module>
     <module>org.eclipse.smarthome.automation.rest</module>
+	<module>org.eclipse.smarthome.automation.sample.rest.api</module>
   </modules>
 
   <build>
