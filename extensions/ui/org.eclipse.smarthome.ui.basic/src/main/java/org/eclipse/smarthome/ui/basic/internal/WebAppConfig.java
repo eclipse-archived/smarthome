@@ -7,6 +7,9 @@
  */
 package org.eclipse.smarthome.ui.basic.internal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,14 +21,46 @@ import java.util.Map;
 public class WebAppConfig {
     private final static String DEFAULT_SITEMAP = "default";
     private final static String DEFAULT_ICON_TYPE = "png";
-    private final static boolean DEFAULT_ICONS_ENABLED = true;
 
     private String defaultSitemap = DEFAULT_SITEMAP;
     private String iconType = DEFAULT_ICON_TYPE;
-    private boolean iconsEnabled = DEFAULT_ICONS_ENABLED;
+
+    private List<String> cssClassList = new ArrayList<String>();
+
+    private static final Map<String, String> cssClasses;
+    private static final Map<String, Boolean> cssDefaultValues;
+
+    private final static String CONFIG_ENABLE_ICONS = "enableIcons";
+    private final static String CONFIG_CONDENSED_LAYOUT = "condensedLayout";
+    private final static String CONFIG_CAPITALIZE = "capitalizeValues";
+
+    static {
+        cssClasses = new HashMap<String, String>();
+        cssClasses.put(CONFIG_ENABLE_ICONS, "ui-icons-enabled");
+        cssClasses.put(CONFIG_CONDENSED_LAYOUT, "ui-layout-condensed");
+        cssClasses.put(CONFIG_CAPITALIZE, "ui-capitalize-values");
+
+        cssDefaultValues = new HashMap<String, Boolean>();
+        cssDefaultValues.put(CONFIG_ENABLE_ICONS, true);
+        cssDefaultValues.put(CONFIG_CONDENSED_LAYOUT, false);
+        cssDefaultValues.put(CONFIG_CAPITALIZE, false);
+    }
+
+    private void applyCssClasses(Map<String, Object> configProps) {
+        cssClassList.clear();
+
+        for (String key : cssClasses.keySet()) {
+            Boolean value = cssDefaultValues.get(key);
+            if (configProps.containsKey(key)) {
+                value = ((String) configProps.get(key)).equalsIgnoreCase("true");
+            }
+            if (value) {
+                cssClassList.add(cssClasses.get(key));
+            }
+        }
+    }
 
     public void applyConfig(Map<String, Object> configProps) {
-        String configIconsEnabled = (String) configProps.get("enableIcons");
         String configIconType = (String) configProps.get("iconType");
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
 
@@ -39,13 +74,10 @@ public class WebAppConfig {
             configIconType = DEFAULT_ICON_TYPE;
         }
 
-        if (configIconsEnabled == null) {
-            iconsEnabled = DEFAULT_ICONS_ENABLED;
-        } else {
-            iconsEnabled = "true".equalsIgnoreCase(configIconsEnabled);
-        }
         iconType = configIconType;
         defaultSitemap = configDefaultSitemap;
+
+        applyCssClasses(configProps);
     }
 
     public String getDefaultSitemap() {
@@ -56,7 +88,11 @@ public class WebAppConfig {
         return iconType;
     }
 
-    public boolean getIconsEnabled() {
-        return iconsEnabled;
+    public String getCssClassList() {
+        String result = " ";
+        for (String item : cssClassList) {
+            result += item + " ";
+        }
+        return result;
     }
 }

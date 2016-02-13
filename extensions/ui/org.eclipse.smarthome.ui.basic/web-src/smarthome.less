@@ -14,8 +14,14 @@
 @form-row-mobile-height: 52px;
 @form-row-desktop-height: 48px;
 
+@form-row-desktop-height-condensed: 36px;
+@form-row-mobile-height-condensed: 40px;
+
 @form-row-desktop-padding: 16px;
 @form-row-mobile-padding: 12px;
+
+@form-row-desktop-padding-condensed: 10px;
+@form-row-mobile-padding-condensed: 4px;
 
 @mdl-grid-spacing: 8px;
 
@@ -162,6 +168,9 @@
 			height: @form-row-mobile-height;
 			padding: 4px @mdl-grid-spacing;
 			margin: 0;
+			html.ui-layout-condensed & {
+				height: @form-row-desktop-height-condensed;
+			}
 		}
 		@media screen and (min-width: @layout-tablet-size-threshold) {
 			&:last-child,
@@ -175,6 +184,12 @@
 		&--height-auto {
 			height: auto;
 			.justify-content(center);
+			html.ui-layout-condensed &.mdl-form__row {
+				height: auto;
+			}
+		}
+		html.ui-layout-condensed & {
+			height: @form-row-desktop-height-condensed;
 		}
 	}
 	&__image {
@@ -195,11 +210,16 @@
 	&__icon {
 		width: 32px;
 		padding-left: @form-row-desktop-padding;
+		html.ui-layout-condensed & {
+			padding-left: @form-row-desktop-padding-condensed;
+		}
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			padding-left: @form-row-mobile-padding;
+			html.ui-layout-condensed & {
+				padding-left: @form-row-mobile-padding-condensed;
+			}
 		}
-
-		html.no-icons & {
+		html:not(.ui-icons-enabled) & {
 			display: none;
 		}
 		img {
@@ -207,13 +227,24 @@
 			max-height: 32px;
 			width: auto;
 			height: auto;
+
+			html.ui-layout-condensed & {
+				max-width: 28px;
+				max-height: 28px;
+			}
 		}
 	}
 	&__label {
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			padding-left: @form-row-mobile-padding;
+			html.ui-layout-condensed & {
+				padding-left: @form-row-mobile-padding-condensed;
+			}
 		}
 		padding-left: @form-row-desktop-padding;
+		html.ui-layout-condensed & {
+			padding-left: @form-row-desktop-padding-condensed;
+		}
 		
 		.flex-shrink(2);
 		.flex-grow(2);
@@ -226,10 +257,18 @@
 	&__control {
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			padding-right: @form-row-mobile-padding;
+			html.ui-layout-condensed & {
+				padding-left: @form-row-mobile-padding-condensed;
+			}
 		}
 		padding-right: @form-row-desktop-padding;
+		html.ui-layout-condensed & {
+			padding-left: @form-row-desktop-padding-condensed;
+		}
 		font-weight: 700;
-		text-transform: uppercase;
+		html.ui-capitalize-values & {
+			text-transform: uppercase;
+		}
 		&.mdl-switch {
 			width: auto;
 			&.is-upgraded {
@@ -282,15 +321,30 @@
 	&__title {
 		margin: 0;
 		padding-left: @form-row-desktop-padding + @mdl-grid-spacing;
+		html.ui-layout-condensed & {
+			padding-left: @form-row-desktop-padding-condensed + @mdl-grid-spacing;
+		}
+
 		padding-top: 25px;
 		padding-bottom: 10px;
+
+		html.ui-layout-condensed & {
+			padding-top: 15px;
+			padding-bottom: 5px;
+		}
+
 		@media screen and (max-width: @layout-tablet-size-threshold) {
 			padding-left: @form-row-mobile-padding + @mdl-grid-spacing;
+			html.ui-layout-condensed & {
+				padding-left: @form-row-desktop-padding-condensed + @mdl-grid-spacing;
+			}
 		}
 	}
 	&__value {
 		font-weight: 700;
-		text-transform: uppercase;
+		html.ui-capitalize-values & {
+			text-transform: uppercase;
+		}
 		&--setpoint {
 			padding: 0 10px 0 5px;
 		}
