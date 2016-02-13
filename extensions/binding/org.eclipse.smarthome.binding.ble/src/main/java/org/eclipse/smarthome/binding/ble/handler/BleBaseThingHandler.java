@@ -64,7 +64,7 @@ public abstract class BleBaseThingHandler extends BaseThingHandler {
     public void initialize() {
         updateStatus(ThingStatus.UNINITIALIZED);
 
-        address = ((String) getConfig().get(BleBindingConstants.PROPERTY_ADDRESS));
+        address = this.getThing().getProperties().get(BleBindingConstants.PROPERTY_ADDRESS);
         if (address == null) {
             logger.error("Property 'Address' is not set for {}", getThing().getUID());
             return;
