@@ -20,5 +20,5 @@ Import-Package: javax.net,
  org.osgi.service.cm,
  org.osgi.service.component;version="1.2.2",
  org.slf4j
-Bundle-ClassPath: ., lib/unix-0.5.jar
+Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml
