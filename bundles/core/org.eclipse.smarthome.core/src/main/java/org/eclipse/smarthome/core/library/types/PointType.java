@@ -30,18 +30,18 @@ public class PointType implements ComplexType, Command, State {
     public static final double EARTH_GRAVITATIONAL_CONSTANT = 3.986004418e14;
     public static final double WGS84_a = 6378137; // The equatorial radius of WGS84 ellipsoid (6378137 m).
 
-    private BigDecimal latitude = BigDecimal.ZERO; // in decimal degrees
-    private BigDecimal longitude = BigDecimal.ZERO; // in decimal degrees
-    private BigDecimal altitude = BigDecimal.ZERO; // in decimal meters
-
     // constants for the constituents
-    static final public String KEY_LATITUDE = "lat";
-    static final public String KEY_LONGITUDE = "long";
-    static final public String KEY_ALTITUDE = "alt";
+    public static final String KEY_LATITUDE = "lat";
+    public static final String KEY_LONGITUDE = "long";
+    public static final String KEY_ALTITUDE = "alt";
 
     private static final BigDecimal circle = new BigDecimal(360);
     private static final BigDecimal flat = new BigDecimal(180);
     private static final BigDecimal right = new BigDecimal(90);
+
+    private BigDecimal latitude = BigDecimal.ZERO; // in decimal degrees
+    private BigDecimal longitude = BigDecimal.ZERO; // in decimal degrees
+    private BigDecimal altitude = BigDecimal.ZERO; // in decimal meters
 
     /**
      * Default constructor creates a point at sea level where the equator
@@ -187,8 +187,9 @@ public class PointType implements ComplexType, Command, State {
     private void canonicalize(DecimalType aLat, DecimalType aLon) {
         latitude = flat.add(aLat.toBigDecimal()).remainder(circle);
         longitude = aLon.toBigDecimal();
-        if (latitude.compareTo(BigDecimal.ZERO) == -1)
+        if (latitude.compareTo(BigDecimal.ZERO) == -1) {
             latitude.add(circle);
+        }
 
         latitude = latitude.subtract(flat);
         if (latitude.compareTo(right) == 1) {
@@ -200,8 +201,9 @@ public class PointType implements ComplexType, Command, State {
         }
 
         longitude = flat.add(longitude).remainder(circle);
-        if (longitude.compareTo(BigDecimal.ZERO) <= 0)
+        if (longitude.compareTo(BigDecimal.ZERO) <= 0) {
             longitude = longitude.add(circle);
+        }
         longitude = longitude.subtract(flat);
 
     }
@@ -216,12 +218,15 @@ public class PointType implements ComplexType, Command, State {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (!(obj instanceof PointType))
+        }
+        if (!(obj instanceof PointType)) {
             return false;
+        }
         PointType other = (PointType) obj;
         if ((getLatitude() != null && other.getLatitude() == null)
                 || (getLatitude() == null && other.getLatitude() != null)
@@ -231,8 +236,7 @@ public class PointType implements ComplexType, Command, State {
                 || (getAltitude() == null && other.getAltitude() != null)) {
             return false;
         }
-        if (!getLatitude().equals(other.getLatitude())
-                || !getLongitude().equals(other.getLongitude())
+        if (!getLatitude().equals(other.getLatitude()) || !getLongitude().equals(other.getLongitude())
                 || !getAltitude().equals(other.getAltitude())) {
             return false;
         }
