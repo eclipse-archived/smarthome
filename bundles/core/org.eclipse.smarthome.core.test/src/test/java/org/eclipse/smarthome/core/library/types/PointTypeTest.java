@@ -7,8 +7,7 @@
  */
 package org.eclipse.smarthome.core.library.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -50,12 +49,12 @@ public class PointTypeTest {
     @Test
     public void testDistance() {
         // Ensure presence of default constructor
-        PointType midleOfTheOcean = new PointType();
-        assertEquals(0, midleOfTheOcean.getLongitude().doubleValue(), 0.0000001);
-        assertEquals(0, midleOfTheOcean.getLatitude().doubleValue(), 0.0000001);
-        assertEquals(0, midleOfTheOcean.getAltitude().doubleValue(), 0.0000001);
+        PointType middleOfTheOcean = new PointType();
+        assertEquals(0, middleOfTheOcean.getLongitude().doubleValue(), 0.0000001);
+        assertEquals(0, middleOfTheOcean.getLatitude().doubleValue(), 0.0000001);
+        assertEquals(0, middleOfTheOcean.getAltitude().doubleValue(), 0.0000001);
 
-        PointType pointParis = new PointType("48.8566140,2.3522219");
+        PointType pointParis = PointType.valueOf("48.8566140,2.3522219");
 
         assertEquals(2.3522219, pointParis.getLongitude().doubleValue(), 0.0000001);
         assertEquals(48.856614, pointParis.getLatitude().doubleValue(), 0.0000001);
@@ -64,7 +63,7 @@ public class PointTypeTest {
         assertEquals(gravParis, 9.809, 0.001);
 
         // Check canonization of position
-        PointType point3 = new PointType("-100,200");
+        PointType point3 = PointType.valueOf("-100,200");
         double lat3 = point3.getLatitude().doubleValue();
         double lon3 = point3.getLongitude().doubleValue();
         assertTrue(lat3 > -90);
@@ -77,6 +76,11 @@ public class PointTypeTest {
         assertEquals(pointTest1.getAltitude().longValue(), pointTest2.getAltitude().longValue());
         assertEquals(pointTest1.getLatitude().longValue(), pointTest2.getLatitude().longValue());
         assertEquals(pointTest1.getLongitude().longValue(), pointTest2.getLongitude().longValue());
+
+        // Ensure that constructor and toString are consistent
+        // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467612#c17
+        assertTrue(point3.equals(PointType.valueOf(point3.toString())));
+
     }
 
 }
