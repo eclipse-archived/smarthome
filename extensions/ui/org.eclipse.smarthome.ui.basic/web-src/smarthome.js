@@ -513,7 +513,7 @@
 			}));
 		}
 
-		function onMouseDown(command) {
+		function onMouseDown(command, event) {
 			longPress = false;
 			pressed = true;
 
@@ -521,9 +521,12 @@
 				longPress = true;
 				emitEvent(command);
 			}, longpressTimeout);
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
-		function onMouseUp(command) {
+		function onMouseUp(command, event) {
 			clearTimeout(timeout);
 			if (!pressed) {
 				return;
@@ -535,10 +538,16 @@
 			} else {
 				emitEvent(command);
 			}
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
-		function onStop() {
+		function onStop(event) {
 			emitEvent("STOP");
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
 		var
