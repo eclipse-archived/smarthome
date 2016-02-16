@@ -247,6 +247,12 @@ abstract public class GenericItem implements ActiveItem {
             sb.append(Joiner.on(", ").join(getTags()));
             sb.append("]");
         }
+        if (!getGroupNames().isEmpty()) {
+            sb.append(", ");
+            sb.append("Groups=[");
+            sb.append(Joiner.on(", ").join(getGroupNames()));
+            sb.append("]");
+        }
         sb.append(")");
         return sb.toString();
     }
