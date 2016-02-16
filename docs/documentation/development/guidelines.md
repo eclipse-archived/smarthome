@@ -18,7 +18,7 @@ Note that this list also serves as a checklist for code reviews on pull requests
 1. Every class, interface and enumeration should have JavaDoc describing its purpose and usage.
 1. Every class, interface and enumeration must have an @author tag in its JavaDoc for every author that wrote a substantial part of the file.
 1. Every constant, field and method with default, protected or public visibility should have JavaDoc (optional, but encouraged for private visibility as well).
-1. Code must be formatted using the provided [code formatter](https://github.com/eclipse/smarthome/blob/master/targetplatform/esh-formatter.xml) and [clean up](https://github.com/eclipse/smarthome/blob/master/targetplatform/esh-clean-up.xml) settings (import them into your IDE if not available; they are automatically set by the official [IDE setup](ide.html)).
+1. Code must be formatted using the provided code formatter and clean up settings. They are set up automatically by the official [IDE setup](ide.html).
 1. Generics must be used where applicable.
 1. Code should not show any warnings. Warnings that cannot be circumvented should be suppressed by using the @SuppressWarnings annotation. 
 1. For dependency injection, OSGi Declarative Services should be used.
