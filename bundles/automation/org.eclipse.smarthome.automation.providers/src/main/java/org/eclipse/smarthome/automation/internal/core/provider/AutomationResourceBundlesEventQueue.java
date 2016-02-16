@@ -154,8 +154,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
                 processBundleChanged(events.next());
             }
             synchronized (this) {
-                if (shared)
+                if (shared) {
                     queue.clear();
+                }
                 shared = false;
                 waitForEvents = true;
                 notifyAll();
@@ -232,10 +233,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     @Override
     public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
-        if (!closed) {
-            if (isAnAutomationProvider(bundle)) {
-                addEvent(event);
-            }
+        if (mProvider.isProviderProcessed(bundle) || tProvider.isProviderProcessed(bundle)
+                || rImporter.isProviderProcessed(bundle)) {
+            addEvent(event);
         }
     }
 
@@ -266,8 +266,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      *            bundle.
      */
     private synchronized void addEvent(BundleEvent event) {
-        if (closed)
+        if (closed) {
             return;
+        }
         if (shared) {
             queue = new ArrayList<BundleEvent>();
             shared = false;
@@ -275,9 +276,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         if (queue.add(event)) {
             logger.debug("Process bundle event {}, for automation bundle '{}' ", event.getType(),
                     event.getBundle().getSymbolicName());
-            if (running)
+            if (running) {
                 notifyAll();
-            else {
+            } else {
                 Thread th = new Thread(this, "Automation Provider Processing Queue");
                 th.start();
                 running = true;
@@ -301,27 +302,27 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         Bundle bundle = event.getBundle();
         switch (event.getType()) {
             case BundleEvent.UPDATED:
-                if (!mProvider.isProviderProcessed(bundle)) {
+                if (mProvider.isProviderProcessed(bundle)) {
                     mProvider.processAutomationProviderUninstalled(bundle);
                     mProvider.processAutomationProvider(bundle);
                 }
-                if (!tProvider.isProviderProcessed(bundle)) {
+                if (tProvider.isProviderProcessed(bundle)) {
                     tProvider.processAutomationProviderUninstalled(bundle);
                     tProvider.processAutomationProvider(bundle);
                 }
-                if (!rImporter.isProviderProcessed(bundle)) {
+                if (rImporter.isProviderProcessed(bundle)) {
                     rImporter.processAutomationProviderUninstalled(bundle);
                     rImporter.processAutomationProvider(bundle);
                 }
                 break;
             case BundleEvent.UNINSTALLED:
-                if (!mProvider.isProviderProcessed(bundle)) {
+                if (mProvider.isProviderProcessed(bundle)) {
                     mProvider.processAutomationProviderUninstalled(bundle);
                 }
-                if (!tProvider.isProviderProcessed(bundle)) {
+                if (tProvider.isProviderProcessed(bundle)) {
                     tProvider.processAutomationProviderUninstalled(bundle);
                 }
-                if (!rImporter.isProviderProcessed(bundle)) {
+                if (rImporter.isProviderProcessed(bundle)) {
                     rImporter.processAutomationProviderUninstalled(bundle);
                 }
                 break;
