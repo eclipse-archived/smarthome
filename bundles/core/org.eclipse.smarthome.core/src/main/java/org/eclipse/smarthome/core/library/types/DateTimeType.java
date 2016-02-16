@@ -21,16 +21,16 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ssz";
+    public static final String DATE_PATTERN_WITH_TZ_AND_MS = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
-    protected Calendar calendar;
+    private Calendar calendar;
 
-    
     public DateTimeType() {
         this(Calendar.getInstance());
     }
 
     public DateTimeType(Calendar calendar) {
-        this.calendar = calendar;
+        this.calendar = (Calendar) calendar.clone();
     }
 
     public DateTimeType(String calendarValue) {
@@ -38,10 +38,13 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
         try {
             try {
-                date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ).parse(calendarValue);
-            }
-            catch (ParseException fpe2) {
-                date = new SimpleDateFormat(DATE_PATTERN).parse(calendarValue);
+                date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ_AND_MS).parse(calendarValue);
+            } catch (ParseException fpe3) {
+                try {
+                    date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ).parse(calendarValue);
+                } catch (ParseException fpe2) {
+                    date = new SimpleDateFormat(DATE_PATTERN).parse(calendarValue);
+                }
             }
         } catch (ParseException fpe) {
             throw new IllegalArgumentException(calendarValue + " is not in a valid format.", fpe);
@@ -54,7 +57,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
     }
 
     public Calendar getCalendar() {
-        return calendar;
+        return (Calendar) calendar.clone();
     }
 
     public static DateTimeType valueOf(String value) {
@@ -76,7 +79,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public String toString() {
-        return new SimpleDateFormat(DATE_PATTERN).format(calendar.getTime());
+        return new SimpleDateFormat(DATE_PATTERN_WITH_TZ_AND_MS).format(calendar.getTime());
     }
 
     @Override
@@ -89,18 +92,23 @@ public class DateTimeType implements PrimitiveType, State, Command {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         DateTimeType other = (DateTimeType) obj;
         if (calendar == null) {
-            if (other.calendar != null)
+            if (other.calendar != null) {
                 return false;
-        } else if (!calendar.equals(other.calendar))
+            }
+        } else if (calendar.compareTo(other.calendar) != 0) {
             return false;
+        }
         return true;
     }
 
