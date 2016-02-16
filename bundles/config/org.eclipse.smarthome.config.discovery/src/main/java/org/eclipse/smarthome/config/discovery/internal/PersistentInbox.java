@@ -152,6 +152,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                     thingTypeUID);
             return null;
         }
+        if (label != null && !label.isEmpty()) {
+            newThing.setLabel(label);
+        } else {
+            newThing.setLabel(result.getLabel());
+        }
         addThingSafely(newThing);
         return newThing;
     }

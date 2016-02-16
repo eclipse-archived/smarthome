@@ -36,7 +36,8 @@ public class ThingDTOMapper {
         String thingUID = thing.getUID().toString();
         String bridgeUID = thing.getBridgeUID() != null ? thing.getBridgeUID().toString() : null;
 
-        return new ThingDTO(thingUID, bridgeUID, channelDTOs, thing.getConfiguration(), thing.getProperties());
+        return new ThingDTO(thingUID, thing.getLabel(), bridgeUID, channelDTOs, thing.getConfiguration(),
+                thing.getProperties());
     }
 
 }

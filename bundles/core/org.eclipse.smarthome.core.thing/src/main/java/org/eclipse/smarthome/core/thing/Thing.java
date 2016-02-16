@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Simon Kaufmann - Added label
  */
 public interface Thing {
 
@@ -41,6 +42,20 @@ public interface Thing {
 
     /** the key for the firmware version property */
     public static final String PROPERTY_FIRMWARE_VERSION = "firmwareVersion";
+
+    /**
+     * Returns the human readable label for this thing.
+     *
+     * @return the human readable label
+     */
+    String getLabel();
+
+    /**
+     * Sets the human readable label for this thing.
+     *
+     * @return the human readable label
+     */
+    void setLabel(String label);
 
     /**
      * Gets the channels.

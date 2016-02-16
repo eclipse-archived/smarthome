@@ -100,8 +100,10 @@ public class ThingConsoleCommandExtension extends AbstractConsoleCommandExtensio
             String thingType = thing instanceof Bridge ? "Bridge" : "Thing";
             ThingStatusInfo status = thing.getStatusInfo();
             ThingUID bridgeUID = thing.getBridgeUID();
+            String label = thing.getLabel();
 
-            console.println(String.format("%s (Type=%s, Status=%s, Bridge=%s)", id, thingType, status, bridgeUID));
+            console.println(String.format("%s (Type=%s, Status=%s, Label=%s, Bridge=%s)", id, thingType, status, label,
+                    bridgeUID));
         }
     }
 

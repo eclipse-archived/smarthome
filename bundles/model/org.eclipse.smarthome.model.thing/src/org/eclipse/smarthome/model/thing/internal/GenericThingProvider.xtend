@@ -41,6 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import org.eclipse.smarthome.model.thing.internal.GenericThingProvider.QueueContent
 import java.util.ArrayList
 import org.eclipse.smarthome.core.thing.type.TypeResolver
+import java.util.Locale
 
 /**
  * {@link ThingProvider} implementation which computes *.things files.
@@ -130,8 +131,12 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			logger.debug("Thing already exists {}", uid.toString)
 			return
 		}
+		
+        val thingType = thingTypeUID.thingType
 
-		val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, configuration, thingUID, bridgeUID,
+        val label = if (modelThing.label != null) modelThing.label else thingType?.label
+
+		val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, label, configuration, thingUID, bridgeUID,
 			thingHandlerFactory)
 
 		val thingBuilder = if (modelThing instanceof ModelBridge) {
@@ -142,10 +147,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 
 		thingBuilder.withConfiguration(configuration)
 		thingBuilder.withBridge(bridgeUID)
+		thingBuilder.withLabel(label)
 		
-
-		val thingType = thingTypeUID.thingType
-
 		val channels = createChannels(thingUID, modelThing.channels, thingType?.channelDefinitions ?: newArrayList)
 		thingBuilder.withChannels(channels)
 
@@ -180,22 +183,22 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		return false;
 	}
 
-	def private Thing getThingFromThingHandlerFactories(ThingTypeUID thingTypeUID, Configuration configuration,
+	def private Thing getThingFromThingHandlerFactories(ThingTypeUID thingTypeUID, String label, Configuration configuration,
 		ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory specific) {
 		if (specific != null && specific.supportsThingType(thingTypeUID)) {
 			logger.trace("Creating thing from specific ThingHandlerFactory {} for thingType {}", specific, thingTypeUID)
-			return getThingFromThingHandlerFactory(thingTypeUID, configuration, thingUID, bridgeUID, specific)
+			return getThingFromThingHandlerFactory(thingTypeUID, label, configuration, thingUID, bridgeUID, specific)
 		}
 		for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
 			logger.trace("Searching thingHandlerFactory for thingType: {}", thingTypeUID)
 			if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
-			    return getThingFromThingHandlerFactory(thingTypeUID, configuration, thingUID, bridgeUID, thingHandlerFactory)
+			    return getThingFromThingHandlerFactory(thingTypeUID, label, configuration, thingUID, bridgeUID, thingHandlerFactory)
 			}
 		}
 		null
 	}
 	
-	def private getThingFromThingHandlerFactory(ThingTypeUID thingTypeUID, Configuration configuration,
+	def private getThingFromThingHandlerFactory(ThingTypeUID thingTypeUID, String label, Configuration configuration,
         ThingUID thingUID, ThingUID bridgeUID, ThingHandlerFactory thingHandlerFactory) {
         val thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID)
         if (thing == null) {
@@ -203,11 +206,13 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
             // Possible cause: Asynchronous loading of the XML files
             // Add the data to the queue in order to retry it later
             logger.debug("ThingHandlerFactory '{}' claimed it can handle '{}' type but actually did not. Queued for later refresh.", thingHandlerFactory.class.simpleName, thingTypeUID.asString)
-            queue.add(new QueueContent(thingTypeUID, configuration, thingUID, bridgeUID, thingHandlerFactory))
+            queue.add(new QueueContent(thingTypeUID, label, configuration, thingUID, bridgeUID, thingHandlerFactory))
             if (lazyRetryThread == null || !lazyRetryThread.alive) {
                 lazyRetryThread = new Thread(lazyRetryRunnable)
                 lazyRetryThread.start
             }
+        } else {
+            thing.label = label
         }
         return thing
     }
@@ -286,7 +291,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 	}
 
 	def private getThingType(ThingTypeUID thingTypeUID) {
-		thingTypeRegistry?.getThingType(thingTypeUID)
+		thingTypeRegistry?.getThingType(thingTypeUID, Locale.getDefault())
 	}
 
 	def protected void setModelRepository(ModelRepository modelRepository) {
@@ -410,6 +415,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
                             qc.bridgeUID)
                         if (thing != null) {
                             queue.remove(qc)
+                            thing.label = qc.label
                             logger.debug("Successfully loaded '{}' during retry", qc.thingUID)
                             newThings.add(thing)
                         }
@@ -443,6 +449,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
     @Data
     private static final class QueueContent {
         ThingTypeUID thingTypeUID
+        String label
         Configuration configuration
         ThingUID thingUID
         ThingUID bridgeUID

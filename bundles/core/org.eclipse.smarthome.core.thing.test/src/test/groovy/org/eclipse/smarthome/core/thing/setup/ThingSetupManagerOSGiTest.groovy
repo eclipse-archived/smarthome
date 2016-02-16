@@ -297,9 +297,12 @@ class ThingSetupManagerOSGiTest extends OSGiTest {
 
         def thingUID = new ThingUID("binding", "thing-type", "thing")
         thingSetupManager.addThing(thingUID, new Configuration(), null, "MyThing", [] as List, true)
+        assertThat thingSetupManager.getThing(thingUID).getLabel(), is(equalTo("MyThing"))
+
         thingSetupManager.setLabel(thingUID, "Another Label")
 
         assertThat thingSetupManager.getThing(thingUID).linkedItem.label, is(equalTo("Another Label"))
+        assertThat thingSetupManager.getThing(thingUID).getLabel(), is(equalTo("Another Label"))
     }
 
 

@@ -19,10 +19,12 @@ import org.eclipse.smarthome.config.core.Configuration;
  * @author Dennis Nobel - Initial contribution
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Stefan Bußweiler - Added new thing status handling
+ * @author Simon Kaufmann - Added label
  *
  */
 public class ThingDTO {
 
+    public String label;
     public String bridgeUID;
     public Map<String, Object> configuration;
     public Map<String, String> properties;
@@ -32,9 +34,10 @@ public class ThingDTO {
     public ThingDTO() {
     }
 
-    public ThingDTO(String UID, String bridgeUID, List<ChannelDTO> channels, Configuration configuration,
+    public ThingDTO(String UID, String label, String bridgeUID, List<ChannelDTO> channels, Configuration configuration,
             Map<String, String> properties) {
         this.UID = UID;
+        this.label = label;
         this.bridgeUID = bridgeUID;
         this.channels = channels;
         this.configuration = toMap(configuration);

@@ -179,6 +179,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
 		def expectedConfiguration = new Configuration()
 		def expectedBridgeUID = new ThingUID(THING_TYPE_UID, THING2_ID)
+		def expectedLabel = "Test Thing"
 		
 		AsyncResultWrapper<Thing> thingResultWrapper = new AsyncResultWrapper<Thing>();
 		
@@ -196,7 +197,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
             registerHandler: {}
 		] as ThingHandlerFactory)
 
-		def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedConfiguration)
+        def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedLabel, expectedConfiguration)
 		waitForAssert{assertTrue thingResultWrapper.isSet}
 		assertThat thing, is(thingResultWrapper.wrappedObject)
 	}
