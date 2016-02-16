@@ -253,7 +253,9 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         // ThingHandler.initialize() has been called; thing with status ONLINE.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build()
+        waitForAssert({
         assertThat thing.getStatusInfo(), is(statusInfo)
+        }, 4000)
     }
 
     class ConfigStatusProviderThingHandlerFactory extends BaseThingHandlerFactory {
@@ -385,8 +387,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             def thing = ThingBuilder.create(new ThingUID("bindingId:type:thingId")).build()
             assertThat thing.channels.size(), is(0)
             managedThingProvider.add(thing)
+
+            waitForAssert({
             assertThat thingUpdated, is(true)
             assertThat updatedThing.channels.size(), is(1)
+            }, 4000)
 
             updatedThing.getHandler().updateConfig()
             assertThat updatedThing.getConfiguration().get("key"), is("value")
