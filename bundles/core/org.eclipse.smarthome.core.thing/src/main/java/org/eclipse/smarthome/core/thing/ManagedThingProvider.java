@@ -48,12 +48,13 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
      *            the configuration
      * @return the created thing
      */
-    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
+    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID, String label,
             Configuration configuration) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+                thing.setLabel(label);
                 add(thing);
                 return thing;
             }

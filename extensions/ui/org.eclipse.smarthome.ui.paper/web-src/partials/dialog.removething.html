@@ -1,5 +1,5 @@
 <md-dialog aria-label="Remove thing"> <md-dialog-content>
-<h2>Remove Thing {{thing.item ? thing.item.label : thing.UID}}</h2>
+<h2>Remove Thing {{thing.label ? thing.label : thing.UID}}</h2>
 <p>Would you like to remove the thing from the system?</p>
 <p ng-show="isRemoving">
     <strong>Warning:</strong> The thing is currently in the removing
