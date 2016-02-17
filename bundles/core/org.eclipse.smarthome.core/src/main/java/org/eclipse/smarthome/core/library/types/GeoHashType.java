@@ -25,7 +25,8 @@ import ch.hsr.geohash.util.VincentyGeodesy;
  *
  */
 public class GeoHashType implements Command, State {
-
+    public static final int PRECISION_MAX = 12;
+    public static final int PRECISION_MIN = 1;
     private final GeoHash geoHash;
 
     /**
@@ -35,7 +36,7 @@ public class GeoHashType implements Command, State {
      * {@link org.eclipse.smarthome.core.internal.items.ItemUpdater#receiveUpdate})
      */
     public GeoHashType() {
-        this.geoHash = GeoHash.withCharacterPrecision(0, 0, 12);
+        this.geoHash = GeoHash.withCharacterPrecision(0, 0, PRECISION_MAX);
     }
 
     public GeoHashType(String geoHash) {
@@ -53,6 +54,9 @@ public class GeoHashType implements Command, State {
     public GeoHashType(PointType point, DecimalType precision) {
         if (point == null || precision == null) {
             throw new IllegalArgumentException("Constructor arguments can not be null");
+        }
+        if (precision.intValue() < PRECISION_MIN || precision.intValue() > PRECISION_MAX) {
+            throw new IllegalArgumentException("GeoHash precision must be in range of 1 to 12");
         }
         this.geoHash = GeoHash.withCharacterPrecision(point.getLatitude().doubleValue(),
                 point.getLongitude().doubleValue(), precision.intValue());

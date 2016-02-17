@@ -54,6 +54,14 @@ public class LocationItemTest {
 
         double parisBerlin = locationParis.distanceFrom(locationBerlin).doubleValue();
         assertEquals(parisBerlin, 878400, 50);
+
+        PointType convertedPoint = (PointType) locationParis.getStateAs(PointType.class);
+        double distanceconversion = geoHashParis.toPointType().distanceFrom(convertedPoint).doubleValue();
+        assertEquals(0, distanceconversion, 0.01);
+
+        GeoHashType convertedHash = (GeoHashType) locationBerlin.getStateAs(GeoHashType.class);
+        distanceconversion = pointBerlin.distanceFrom(convertedHash.toPointType()).doubleValue();
+        assertEquals(0, distanceconversion, 0.01);
     }
 
 }

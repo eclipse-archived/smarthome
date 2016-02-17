@@ -52,6 +52,28 @@ public class LocationItem extends GenericItem {
         internalSend(command);
     }
 
+    public void send(GeoHashType command) {
+        internalSend(command);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        if (typeClass == PointType.class) {
+            if (state instanceof GeoHashType) {
+                return ((GeoHashType) state).toPointType();
+            }
+        } else if (typeClass == GeoHashType.class) {
+            if (state instanceof PointType) {
+                return new GeoHashType((PointType) state, new DecimalType(GeoHashType.PRECISION_MAX));
+            }
+        }
+
+        return super.getStateAs(typeClass);
+    }
+
     @Override
     public List<Class<? extends State>> getAcceptedDataTypes() {
         return Collections.unmodifiableList(acceptedDataTypes);

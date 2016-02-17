@@ -28,6 +28,20 @@ public class GeoHashTypeTest {
         GeoHashType errorGenerator = new GeoHashType("");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorIllegalPrecision() {
+        @SuppressWarnings("unused")
+        // GeoHashType can only go up to 12 digits
+        GeoHashType errorGenerator = new GeoHashType(new PointType(), new DecimalType(13));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructorIllegalPrecision2() {
+        @SuppressWarnings("unused")
+        // GeoHashType can only go up and down to 1 digit
+        GeoHashType errorGenerator = new GeoHashType(new PointType(), new DecimalType(0));
+    }
+
     @Test
     public void testGeoHashDefaultConstructor() {
         // Ensure effectiveness of default constructor
