@@ -9,12 +9,12 @@ package org.eclipse.smarthome.config.core;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * The {@link ConfigDescriptionParameter} class contains the description of a
@@ -91,9 +91,10 @@ public class ConfigDescriptionParameter {
     private boolean limitToOptions = false;
     private boolean advanced = false;
 
-    private static final Set<String> UNITS = ImmutableSet.of("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
-            "Hz", "N", "Pa", "J", "W", "C", "V", "F", "Ω", "S", "Wb", "T", "H", "Cel", "lm", "lx", "Bq", "Gy", "Sv",
-            "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "min", "h", "d", "week", "y");
+    private static final Set<String> UNITS = Collections
+            .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
+                    "Hz", "N", "Pa", "J", "W", "C", "V", "F", "Ω", "S", "Wb", "T", "H", "Cel", "lm", "lx", "Bq", "Gy",
+                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "min", "h", "d", "week", "y")));
 
     /**
      * Default constructor.
