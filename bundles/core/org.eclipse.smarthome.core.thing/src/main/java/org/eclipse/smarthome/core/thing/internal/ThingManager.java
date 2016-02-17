@@ -20,6 +20,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
@@ -125,6 +127,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private Logger logger = LoggerFactory.getLogger(ThingManager.class);
+
+    private final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool("thingManager");
 
     private BundleContext bundleContext;
 
@@ -529,7 +533,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private void initializeHandler(Thing thing) {
+    private void initializeHandler(final Thing thing) {
         if (isInitializable(thing)) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
             setThingStatus(thing, statusInfo);
@@ -580,26 +584,31 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
-        logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
-        try {
-            SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    thingHandler.initialize();
-                    return null;
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
+                try {
+                    SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            thingHandler.initialize();
+                            return null;
+                        }
+                    });
+                } catch (TimeoutException ex) {
+                    logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
+                            SafeMethodCaller.DEFAULT_TIMEOUT);
+                } catch (Exception ex) {
+                    ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
+                            ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
+                            ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
+                    setThingStatus(thing, statusInfo);
+                    logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
+                            + ex.getMessage(), ex);
                 }
-            });
-        } catch (TimeoutException ex) {
-            logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                    SafeMethodCaller.DEFAULT_TIMEOUT);
-        } catch (Exception ex) {
-            ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
-                    ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
-                    ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-            setThingStatus(thing, statusInfo);
-            logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
-                    + ex.getMessage(), ex);
-        }
+            }
+        }, 0, TimeUnit.NANOSECONDS);
     }
 
     private boolean isInitialized(Thing thing) {

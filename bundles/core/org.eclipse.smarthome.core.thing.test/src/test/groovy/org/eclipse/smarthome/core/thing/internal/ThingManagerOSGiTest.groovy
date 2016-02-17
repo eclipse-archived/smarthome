@@ -702,8 +702,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         callback.statusUpdated(thing, statusInfo)
 
         // ThingHandler.initialize() called, thing status is ONLINE.NONE
+        waitForAssert({
         assertThat initializedCalled, is(true)
         assertThat thing.getStatusInfo(), is(statusInfo)
+        }, 4000)
     }
 
     @Test
@@ -739,7 +741,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedThingProvider.add(bridge)
         managedThingProvider.add(thing)
 
-        waitForAssert({assertThat bridgeInitCalled, is(true)})
+        waitForAssert({
+            waitForAssert({assertThat bridgeInitCalled, is(true)})
+        }, 4000)
     }
     
     class SomeThingHandlerFactory extends BaseThingHandlerFactory {
