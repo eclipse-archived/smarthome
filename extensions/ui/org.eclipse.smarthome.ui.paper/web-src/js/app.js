@@ -18,10 +18,10 @@ angular.module('PaperUI', [
 	when('/control', {templateUrl: 'partials/control.html', controller: 'ControlPageController', title: 'Control', simpleHeader: true}).
 	when('/setup', {redirectTo: '/inbox/search'}).
 	when('/inbox', {redirectTo: '/inbox/search'}).
+	when('/inbox/setup', {redirectTo : '/inbox/setup/bindings'}).
 	when('/inbox/search', {templateUrl: 'partials/setup.html', controller: 'InboxController', title: 'Inbox'}).
 	when('/inbox/manual-setup/choose', {templateUrl: 'partials/setup.html', controller: 'ManualSetupChooseController', title: 'Inbox'}).
 	when('/inbox/manual-setup/configure/:thingTypeUID', {templateUrl: 'partials/setup.html', controller: 'ManualSetupConfigureController', title: 'Inbox'}).
-	when('/inbox/setup', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
 	when('/inbox/setup/bindings', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
 	when('/inbox/setup/search/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
 	when('/inbox/setup/thing-types/:bindingId', {templateUrl: 'partials/setup.html', controller: 'SetupWizardController', title: 'Inbox'}).
