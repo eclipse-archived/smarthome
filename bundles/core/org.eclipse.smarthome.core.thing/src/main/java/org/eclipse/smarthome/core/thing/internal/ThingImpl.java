@@ -38,9 +38,12 @@ import com.google.common.collect.ImmutableMap;
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingType Description
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Simon Kaufmann - Added label
  *
  */
 public class ThingImpl implements Thing {
+
+    private String label;
 
     private ThingUID bridgeUID;
 
@@ -86,6 +89,16 @@ public class ThingImpl implements Thing {
         this.uid = thingUID;
         this.thingTypeUID = new ThingTypeUID(thingUID.getBindingId(), thingUID.getThingTypeId());
         this.channels = new ArrayList<>(0);
+    }
+
+    @Override
+    public String getLabel() {
+        return label;
+    }
+
+    @Override
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @Override

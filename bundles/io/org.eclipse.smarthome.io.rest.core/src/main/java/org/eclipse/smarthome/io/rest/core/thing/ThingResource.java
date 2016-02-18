@@ -127,7 +127,7 @@ public class ThingResource implements RESTResource {
         if (null == thing) {
             // if not, create new Thing
             thing = managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID,
-                    configuration);
+                    thingBean.label, configuration);
             status = Status.CREATED;
         } else {
             // if so, report a conflict
