@@ -71,6 +71,7 @@ class InboxOSGITest extends OSGiTest {
     final ThingUID testUID = new ThingUID("binding:type:id")
     final ThingTypeUID testTypeUID = new ThingTypeUID("binding:type")
     final Thing testThing = ThingBuilder.create(testUID).build()
+    final String discoveryResultLabel = "MyLabel"
     final Map<String, Object> discoveryResultProperties =
     ["ip":"192.168.3.99",
         "pnr": 1234455,
@@ -78,7 +79,7 @@ class InboxOSGITest extends OSGiTest {
         "manufacturer":"huawei",
         "manufactured":new Date(12344)
     ]
-    final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).build()
+    final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).withLabel(discoveryResultLabel).build()
     final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
     final ConfigDescriptionParameter[] configDescriptionParameter = [[discoveryResultProperties.keySet().getAt(0), Type.TEXT], [discoveryResultProperties.keySet().getAt(1), Type.INTEGER]]
     final ConfigDescription testConfigDescription  = new ConfigDescription(testURI, Arrays.asList(configDescriptionParameter))
@@ -706,6 +707,26 @@ class InboxOSGITest extends OSGiTest {
             assertFalse descResultParam == null
             assertTrue thingProperty.equals(descResultParam)
         }
+    }
+
+    @Test
+    void 'assert that approve sets the explicitly given label' () {
+        inbox.add(testDiscoveryResult)
+        Thing approvedThing = inbox.approve(testThing.getUID(), testThingLabel)
+        Thing addedThing = registry.get(testThing.getUID())
+
+        assertThat approvedThing.getLabel(), is(testThingLabel)
+        assertThat addedThing.getLabel(), is(testThingLabel)
+    }
+
+    @Test
+    void 'assert that approve sets the discovered label if no other is given' () {
+        inbox.add(testDiscoveryResult)
+        Thing approvedThing = inbox.approve(testThing.getUID(), null)
+        Thing addedThing = registry.get(testThing.getUID())
+
+        assertThat approvedThing.getLabel(), is(discoveryResultLabel)
+        assertThat addedThing.getLabel(), is(discoveryResultLabel)
     }
 
     @Test

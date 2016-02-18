@@ -252,6 +252,7 @@ angular.module('PaperUI.controllers.setup',
         $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
 		$scope.thing.UID = thingType.UID + ':' + generateUUID();
 		$scope.thing.item.label = thingType.label;
+        $scope.thing.label = thingType.label;
 		$scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
 		if($scope.needsBridge) {
 		    $scope.getBridges();

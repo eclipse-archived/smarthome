@@ -3,7 +3,7 @@
 
     <div>
         <md-input-container> <input
-            ng-model="thing.item.label"> </md-input-container>
+            ng-model="thing.label"> </md-input-container>
     </div>
     <div ng-show="!thingType.bridge || thingType.channels.length > 0 || thingType.channelGroups.length > 0">
         <md-checkbox ng-repeat="homeGroup in homeGroups"
@@ -22,7 +22,7 @@
     <div class="form-group">
         <md-select placeholder="Select a Bridge"
             ng-model="thing.bridgeUID" ng-readonly="true"> <md-option
-            ng-value="bridge.UID" ng-repeat="bridge in bridges">{{bridge.item.label
+            ng-value="bridge.UID" ng-repeat="bridge in bridges">{{bridge.label
         + ' - '}}{{bridge.UID}}</md-option> </md-select>
     </div>
     <hr />

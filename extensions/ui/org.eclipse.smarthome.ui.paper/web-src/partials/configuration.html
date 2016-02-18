@@ -115,7 +115,7 @@
 						<div class="circle">{{thing.UID.split(':')[1].substring(0,1).toUpperCase()}}</div>
 						<div class="cbody item-content">
 							<h3>
-								{{thing.item.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
+								{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
 							</h3>
 							<p>{{thingTypes[getThingTypeUID(thing.UID)].label}}</p>
 							<p>{{thing.UID}}</p>

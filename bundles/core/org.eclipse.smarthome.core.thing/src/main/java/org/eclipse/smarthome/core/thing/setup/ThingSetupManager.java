@@ -454,6 +454,10 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
      */
     public void setLabel(ThingUID thingUID, String label) {
         Thing thing = thingRegistry.get(thingUID);
+        if (label != null && !label.equals(thing.getLabel())) {
+            thing.setLabel(label);
+            thingRegistry.update(thing);
+        }
         GroupItem groupItem = thing.getLinkedItem();
         if (groupItem != null) {
             if (label != null && label.equals(groupItem.getLabel())) {
@@ -583,6 +587,7 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
                     thingTypeUID);
             return null;
         }
+        thing.setLabel(label);
 
         if (properties != null) {
             for (String key : properties.keySet()) {

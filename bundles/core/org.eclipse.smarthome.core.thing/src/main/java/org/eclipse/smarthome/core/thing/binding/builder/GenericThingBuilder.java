@@ -26,6 +26,11 @@ public class GenericThingBuilder<T extends GenericThingBuilder<T>> {
         this.thing = thing;
     }
 
+    public T withLabel(String label) {
+        this.thing.setLabel(label);
+        return self();
+    }
+
     public T withChannel(Channel channel) {
         List<Channel> channels = this.thing.getChannelsMutable();
         channels.add(channel);

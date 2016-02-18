@@ -482,7 +482,7 @@ angular.module('PaperUI.controllers.configuration',
     		$scope.thing = thing;
     		 $scope.refreshChannels(false);
     		if(thing.item) {
-    			$scope.setTitle(thing.item.label);
+    			$scope.setTitle(thing.label);
     		} else {
     			$scope.setTitle(thing.UID);
     		}
@@ -613,7 +613,7 @@ angular.module('PaperUI.controllers.configuration',
 	    	        });
 	    	        $scope.homeGroups = homeGroups;
 	    	    });
-	    		$scope.setTitle('Edit ' + thing.item.label);
+	    		$scope.setTitle('Edit ' + thing.label);
     	    } else {
     	    	$scope.setTitle('Edit ' + thing.UID);
     	    }
