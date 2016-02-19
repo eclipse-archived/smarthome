@@ -90,14 +90,9 @@ public final class Activator implements BundleActivator {
     }
 
     /**
-     * @return the config description registry
-     *
-     * @throws IllegalStateException if config description registry is not available
+     * @return the config description registry or null if the service is not available
      **/
     public static final ConfigDescriptionRegistry getConfigDescriptionRegistry() {
-        if (configDescriptionRegistry == null) {
-            throw new IllegalStateException("There is no config description registry");
-        }
         return configDescriptionRegistry;
     }
 
