@@ -10,7 +10,6 @@ package org.eclipse.smarthome.config.core.validation;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,8 @@ import org.eclipse.smarthome.config.core.internal.Activator;
 import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator;
 import org.eclipse.smarthome.config.core.validation.internal.MaxValidator;
 import org.eclipse.smarthome.config.core.validation.internal.RequiredValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +37,7 @@ import com.google.common.collect.ImmutableList;
  */
 public final class ConfigDescriptionValidator {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigDescriptionValidator.class);
     private static final List<ConfigDescriptionParameterValidator> validators = new ImmutableList.Builder<ConfigDescriptionParameterValidator>()
             .add(new RequiredValidator()).add(new MaxValidator()).build();
 
@@ -53,7 +55,6 @@ public final class ConfigDescriptionValidator {
      * @throws ConfigValidationException if one or more configuration parameters do not match with the configuration
      *             description having the given URI
      * @throws NullPointerException if given config description URI or configuration parameters are null
-     * @throws IllegalArgumentException if no config description for given URI could be found
      */
     public static void validate(Map<String, Object> configurationParameters, URI configDescriptionURI)
             throws ConfigValidationException {
@@ -61,7 +62,14 @@ public final class ConfigDescriptionValidator {
         Preconditions.checkNotNull(configDescriptionURI, "Config description URI must not be null");
 
         ConfigDescription configDescription = getConfigDescription(configDescriptionURI);
-        Map<String, ConfigDescriptionParameter> map = toMap(configDescription);
+
+        if (configDescription == null) {
+            logger.warn("Skipping config description validation because no config description found for URI '{}'",
+                    configDescriptionURI);
+            return;
+        }
+
+        Map<String, ConfigDescriptionParameter> map = configDescription.toParametersMap();
 
         Collection<ConfigValidationMessage> configDescriptionValidationMessages = new ArrayList<>();
         for (String key : configurationParameters.keySet()) {
@@ -85,35 +93,23 @@ public final class ConfigDescriptionValidator {
     }
 
     /**
-     * Transforms the given {@link ConfigDescription} into a map having the parameter name as key and the
-     * {@link ConfigDescriptionParameter} as value.
-     *
-     * @param configDescription the {@link ConfigDescription} to be transformed
-     *
-     * @return a map having the parameter name as key and the {@link ConfigDescriptionParameter} as value
-     */
-    private static Map<String, ConfigDescriptionParameter> toMap(ConfigDescription configDescription) {
-        Map<String, ConfigDescriptionParameter> configDescriptionParameters = new HashMap<>();
-        for (ConfigDescriptionParameter configDescriptionParameter : configDescription.getParameters()) {
-            configDescriptionParameters.put(configDescriptionParameter.getName(), configDescriptionParameter);
-        }
-        return configDescriptionParameters;
-    }
-
-    /**
      * Retrieves the {@link ConfigDescription} for the given URI.
      *
      * @param configDescriptionURI the URI of the configuration description to be retrieved
      *
-     * @return the requested config description
-     *
-     * @throws IllegalArgumentException if no config description for given URI could be found
+     * @return the requested config description or null if config description could not be found (either because of
+     *         config description registry is not available or because of config description could not be found for
+     *         given URI)
      */
     private static ConfigDescription getConfigDescription(URI configDescriptionURI) {
         ConfigDescriptionRegistry configDescriptionRegistry = Activator.getConfigDescriptionRegistry();
+        if (configDescriptionRegistry == null) {
+            logger.warn("No config description registry available.");
+            return null;
+        }
         ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI);
         if (configDescription == null) {
-            throw new IllegalArgumentException("There is no config description for URI " + configDescriptionURI);
+            logger.warn("No config description found for URI '{}'", configDescriptionURI);
         }
         return configDescription;
     }
