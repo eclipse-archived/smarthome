@@ -58,7 +58,7 @@ class ConfigDescriptionValidatorTest {
         Activator.configDescriptionRegistry = [
             getConfigDescription: { uri ->
                 if(!CONFIG_DESCRIPTION_URI.equals(uri)) {
-                    throw new IllegalArgumentException()
+                    null
                 }
                 CONFIG_DESCRIPTION
             }
@@ -170,9 +170,13 @@ class ConfigDescriptionValidatorTest {
         ConfigDescriptionValidator.validate(createDefaultParams(), null)
     }
 
-    @Test(expected=IllegalArgumentException)
-    void 'assert validate throws IllegalArgumentException for unknown uri'() {
+    void 'assert validate can handle unknown URIs'() {
         ConfigDescriptionValidator.validate(createDefaultParams(), new URI(UNKNOWN))
+    }
+
+    void 'assert validate can handle situations without config description registry'() {
+        Activator.configDescriptionRegistry = null
+        ConfigDescriptionValidator.validate(createDefaultParams(), CONFIG_DESCRIPTION_URI)
     }
 
     def failBecauseOfMissingConfigValidationException() {

@@ -90,26 +90,16 @@ public final class Activator implements BundleActivator {
     }
 
     /**
-     * @return the config description registry
-     *
-     * @throws IllegalStateException if config description registry is not available
+     * @return the config description registry or null if config description registry is not available
      **/
     public static final ConfigDescriptionRegistry getConfigDescriptionRegistry() {
-        if (configDescriptionRegistry == null) {
-            throw new IllegalStateException("There is no config description registry");
-        }
         return configDescriptionRegistry;
     }
 
     /**
-     * @return the i18nProvider
-     *
-     * @throws IllegalStateException if i18nProvider is not available
+     * @return the i18nProvider or null if i18nProvider is not available
      **/
     public static final I18nProvider getI18nProvider() {
-        if (i18nProvider == null) {
-            throw new IllegalStateException("There is no I18nProivder");
-        }
         return i18nProvider;
     }
 

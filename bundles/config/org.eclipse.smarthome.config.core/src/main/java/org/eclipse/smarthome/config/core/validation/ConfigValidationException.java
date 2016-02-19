@@ -15,6 +15,8 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.internal.Activator;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -29,6 +31,7 @@ public final class ConfigValidationException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
+    private final Logger logger = LoggerFactory.getLogger(ConfigValidationException.class);
     private final Bundle bundle;
     private final Collection<ConfigValidationMessage> configValidationMessages;
 
@@ -68,6 +71,10 @@ public final class ConfigValidationException extends Exception {
     /**
      * Retrieves the internationalized validation messages for this exception. If there is no text found to be
      * internationalized then the default message is delivered.
+     * <p>
+     * If there is no I18nProvider available then this operation will return the default validation messages by using
+     * {@link ConfigValidationException#getValidationMessages()}.
+     * </p>
      *
      * @param locale the locale to be used; if null then the default locale will be used
      *
@@ -81,10 +88,18 @@ public final class ConfigValidationException extends Exception {
 
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
-            String text = Activator.getI18nProvider().getText(bundle, configValidationMessage.messageKey,
-                    configValidationMessage.defaultMessage, loc);
-            builder.put(configValidationMessage.parameterName,
-                    MessageFormat.format(text, configValidationMessage.content));
+            if (Activator.getI18nProvider() == null) {
+                logger.warn(
+                        "I18nProvider is not available. Will provide default validation message for parameter '{}'.",
+                        configValidationMessage.parameterName);
+                builder.put(configValidationMessage.parameterName,
+                        MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
+            } else {
+                String text = Activator.getI18nProvider().getText(bundle, configValidationMessage.messageKey,
+                        configValidationMessage.defaultMessage, loc);
+                builder.put(configValidationMessage.parameterName,
+                        MessageFormat.format(text, configValidationMessage.content));
+            }
         }
         return builder.build();
     }
