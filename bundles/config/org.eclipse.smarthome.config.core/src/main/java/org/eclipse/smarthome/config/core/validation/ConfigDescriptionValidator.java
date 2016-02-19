@@ -22,6 +22,8 @@ import org.eclipse.smarthome.config.core.internal.Activator;
 import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator;
 import org.eclipse.smarthome.config.core.validation.internal.MaxValidator;
 import org.eclipse.smarthome.config.core.validation.internal.RequiredValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -35,6 +37,8 @@ import com.google.common.collect.ImmutableList;
  * @author Thomas Höfer - Initial contribution
  */
 public final class ConfigDescriptionValidator {
+
+    private final static Logger logger = LoggerFactory.getLogger(ConfigDescriptionValidator.class);
 
     private static final List<ConfigDescriptionParameterValidator> validators = new ImmutableList.Builder<ConfigDescriptionParameterValidator>()
             .add(new RequiredValidator()).add(new MaxValidator()).build();
@@ -61,6 +65,10 @@ public final class ConfigDescriptionValidator {
         Preconditions.checkNotNull(configDescriptionURI, "Config description URI must not be null");
 
         ConfigDescription configDescription = getConfigDescription(configDescriptionURI);
+        if (configDescription == null) {
+            logger.warn("No config description could be found for the uri '{}'.", configDescriptionURI.toString());
+        }
+
         Map<String, ConfigDescriptionParameter> map = toMap(configDescription);
 
         Collection<ConfigValidationMessage> configDescriptionValidationMessages = new ArrayList<>();
@@ -105,16 +113,17 @@ public final class ConfigDescriptionValidator {
      *
      * @param configDescriptionURI the URI of the configuration description to be retrieved
      *
-     * @return the requested config description
-     *
-     * @throws IllegalArgumentException if no config description for given URI could be found
+     * @return the requested config description or null if none is found
      */
     private static ConfigDescription getConfigDescription(URI configDescriptionURI) {
         ConfigDescriptionRegistry configDescriptionRegistry = Activator.getConfigDescriptionRegistry();
-        ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI);
-        if (configDescription == null) {
-            throw new IllegalArgumentException("There is no config description for URI " + configDescriptionURI);
+        if (configDescriptionRegistry != null) {
+            ConfigDescription configDescription = configDescriptionRegistry.getConfigDescription(configDescriptionURI);
+            return configDescription;
+        } else {
+            logger.warn("ConfigDescriptionRegistry is not available - cannot retrieve config description for '{}'.",
+                    configDescriptionURI.toString());
+            return null;
         }
-        return configDescription;
     }
 }
