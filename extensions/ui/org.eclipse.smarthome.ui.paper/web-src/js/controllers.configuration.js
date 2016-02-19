@@ -72,7 +72,7 @@ angular.module('PaperUI.controllers.configuration',
         $scope.expertMode = false;
         configDescriptionService.getByUri({uri: configDescriptionURI}, function(configDescription) {
             if(configDescription) {
-                $scope.parameters = configService.getRenderingModel(configDescription.parameters);
+                $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
             }
         });
     }
@@ -182,7 +182,7 @@ angular.module('PaperUI.controllers.configuration',
 		$scope.expertMode = false;
 		configDescriptionService.getByUri({uri: configDescriptionURI}, function(configDescription) {
 			if(configDescription) {
-				$scope.parameters = configService.getRenderingModel(configDescription.parameters);
+				$scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
 			}
 		});
 	}
@@ -589,7 +589,7 @@ angular.module('PaperUI.controllers.configuration',
             return thingType.UID === thingTypeUID;
         }, function(thingType) {
             $scope.thingType = thingType;
-            $scope.parameters = configService.getRenderingModel(thingType.configParameters);
+            $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
             $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
             if($scope.needsBridge) {
                 $scope.getBridges();
