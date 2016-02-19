@@ -189,7 +189,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void validateConfigurationParameters(Map<String, Object> configurationParameters)
             throws ConfigValidationException {
         ThingType thingType = TypeResolver.resolve(getThing().getThingTypeUID());
-        if (thingType != null) {
+        if (thingType != null && thingType.getConfigDescriptionURI() != null) {
             ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
         }
     }
@@ -515,13 +515,13 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     /**
      * Returns whether the thing has already been initialized.
-     * 
+     *
      * @return true if thing is initialized, false otherwise
      */
     protected boolean thingIsInitialized() {
         return getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE;
     }
-    
+
     @Override
     public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
         // do nothing by default, can be overridden by subclasses
