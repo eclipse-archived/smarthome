@@ -51,6 +51,7 @@
 						</p>
 					</div>
 					<div ng-switch-when="select">
+					   <md-input-container> <label>{{parameter.label}}</label> 
 						<md-select class="config-select" isrequired="parameter.required" ng-init="focus=false"
 							name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value"
 							ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option
@@ -66,6 +67,7 @@
 								<small>{{parameter.description}}</small>
 							</p>
 						</span>
+						</md-input-container>
 					</div>
 				</div>
 				<div ng-if="$odd" class="clearfix"></div>
