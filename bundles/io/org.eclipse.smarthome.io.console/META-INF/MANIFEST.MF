@@ -12,6 +12,7 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.types,
  org.eclipse.smarthome.io.console,
  org.eclipse.smarthome.io.console.extensions,
+ org.eclipse.smarthome.io.multimedia.tts,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j
