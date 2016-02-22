@@ -140,16 +140,16 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			thingHandlerFactory)
 
 		val thingBuilder = if (modelThing instanceof ModelBridge) {
-				BridgeBuilder.create(thingUID)
+				BridgeBuilder.create(thingTypeUID, thingUID)
 			} else {
-				ThingBuilder.create(thingUID)
+				ThingBuilder.create(thingTypeUID, thingUID)
 			}
 
 		thingBuilder.withConfiguration(configuration)
 		thingBuilder.withBridge(bridgeUID)
 		thingBuilder.withLabel(label)
 		
-		val channels = createChannels(thingUID, modelThing.channels, thingType?.channelDefinitions ?: newArrayList)
+		val channels = createChannels(thingTypeUID, thingUID, modelThing.channels, thingType?.channelDefinitions ?: newArrayList)
 		thingBuilder.withChannels(channels)
 
 		var thing = thingBuilder.build
@@ -256,14 +256,14 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 		return bridgeIds
 	}
 
-	def private List<Channel> createChannels(ThingUID thingUID, List<ModelChannel> modelChannels,
+	def private List<Channel> createChannels(ThingTypeUID thingTypeUID, ThingUID thingUID, List<ModelChannel> modelChannels,
 		List<ChannelDefinition> channelDefinitions) {
 		val Set<String> addedChannelIds = newHashSet
 		val List<Channel> channels = newArrayList
 		modelChannels.forEach [
 			if (addedChannelIds.add(id)) {
 				channels +=
-					ChannelBuilder.create(new ChannelUID(thingUID, id), type).withConfiguration(createConfiguration).
+					ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), type).withConfiguration(createConfiguration).
 						build
 			}
 		]
@@ -271,7 +271,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
 			if (addedChannelIds.add(id)) {
 			    val channelType = TypeResolver.resolve(it.channelTypeUID)
 			    if(channelType != null) {
-				    channels += ChannelBuilder.create(new ChannelUID(thingUID, id), channelType.itemType).withType(it.channelTypeUID).build
+				    channels += ChannelBuilder.create(new ChannelUID(thingTypeUID, thingUID, id), channelType.itemType).withType(it.channelTypeUID).build
 				} else {
 				    logger.warn(
                         "Could not create channel '{}' for thing '{}', because channel type '{}' could not be found.",

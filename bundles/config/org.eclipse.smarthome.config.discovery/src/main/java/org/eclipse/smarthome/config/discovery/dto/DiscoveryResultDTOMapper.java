@@ -18,7 +18,7 @@ public class DiscoveryResultDTOMapper {
 
     /**
      * Maps discovery result into discovery result data transfer object.
-     * 
+     *
      * @param discoveryResult the discovery result
      * @return the discovery result data transfer object
      */
@@ -27,7 +27,7 @@ public class DiscoveryResultDTOMapper {
         ThingUID bridgeUID = discoveryResult.getBridgeUID();
 
         return new DiscoveryResultDTO(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
-                discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties(),
-                discoveryResult.getRepresentationProperty());
+                discoveryResult.getThingTypeUID().toString(), discoveryResult.getLabel(), discoveryResult.getFlag(),
+                discoveryResult.getProperties(), discoveryResult.getRepresentationProperty());
     }
 }
