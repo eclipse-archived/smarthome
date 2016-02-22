@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.discovery.internal.DiscoveryResultImpl;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 
 /**
@@ -31,8 +32,10 @@ public class DiscoveryResultBuilder {
     private String representationProperty;
     private String label;
     private long ttl = DiscoveryResult.TTL_UNLIMITED;
+    private ThingTypeUID thingTypeUID;
 
     private DiscoveryResultBuilder(ThingUID thingUID) {
+        this.thingTypeUID = thingUID.getThingTypeUID();
         this.thingUID = thingUID;
     };
 
@@ -48,8 +51,19 @@ public class DiscoveryResultBuilder {
     }
 
     /**
+     * Explicitly sets the thing type
+     *
+     * @param thingTypeUID the {@link ThingTypeUID}
+     * @return the updated builder
+     */
+    public DiscoveryResultBuilder withThingType(ThingTypeUID thingTypeUID) {
+        this.thingTypeUID = thingTypeUID;
+        return this;
+    }
+
+    /**
      * Adds properties to the desired result
-     * 
+     *
      * @param properties of the desired result
      * @return the updated builder
      */
@@ -60,7 +74,7 @@ public class DiscoveryResultBuilder {
 
     /**
      * Adds a property to the desired result
-     * 
+     *
      * @param property of the desired result
      * @return the updated builder
      */
@@ -71,7 +85,7 @@ public class DiscoveryResultBuilder {
 
     /**
      * Sets the representation Property of the desired result
-     * 
+     *
      * @param representationProperty the representation property of the desired result
      * @return the updated builder
      */
@@ -82,7 +96,7 @@ public class DiscoveryResultBuilder {
 
     /**
      * Sets the bridgeUID of the desired result
-     * 
+     *
      * @param bridgeUID of the desired result
      * @return the updated builder
      */
@@ -93,7 +107,7 @@ public class DiscoveryResultBuilder {
 
     /**
      * Sets the label of the desired result
-     * 
+     *
      * @param label of the desired result
      * @return the updated builder
      */
@@ -104,7 +118,7 @@ public class DiscoveryResultBuilder {
 
     /**
      * Sets the time to live for the result in seconds
-     * 
+     *
      * @param ttl time to live in seconds
      * @return the updated builder
      */
@@ -119,7 +133,8 @@ public class DiscoveryResultBuilder {
      * @return the desired result
      */
     public DiscoveryResult build() {
-        return new DiscoveryResultImpl(thingUID, bridgeUID, properties, representationProperty, label, ttl);
+        return new DiscoveryResultImpl(thingTypeUID, thingUID, bridgeUID, properties, representationProperty, label,
+                ttl);
     }
 
 }
