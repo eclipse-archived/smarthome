@@ -14,18 +14,27 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
+import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
+import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
+import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
+import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingConfigStatusSource;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -39,12 +48,18 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Stefan Bußweiler - Integrate new thing status handling
+ * @author Thomas Höfer - Added config status provider
  */
-public class YahooWeatherHandler extends BaseThingHandler {
+public class YahooWeatherHandler extends BaseThingHandler implements ConfigStatusProvider {
 
-    private Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
+    private static final String LOCATION_NOT_FOUND = "yahooweather.configparam.location.notfound";
+    private static final String LOCATION_PARAM = "location";
 
-    private String location;
+    private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
+
+    private ConfigStatusCallback configStatusCallback;
+
+    private Integer location;
     private BigDecimal refresh;
 
     private String weatherData = null;
@@ -62,11 +77,19 @@ public class YahooWeatherHandler extends BaseThingHandler {
 
         Configuration config = getThing().getConfiguration();
 
-        location = (String) config.get("location");
+        try {
+            location = Integer.parseInt((String) config.get("location"));
+        } catch (Exception e) {
+            logger.warn("Cannot set location parameter.", e);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR,
+                    "Location parameter not specified or invalid.");
+            return;
+        }
 
         try {
             refresh = (BigDecimal) config.get("refresh");
         } catch (Exception e) {
+            logger.debug("Cannot set refresh parameter.", e);
         }
 
         if (refresh == null) {
@@ -127,21 +150,67 @@ public class YahooWeatherHandler extends BaseThingHandler {
         }
     }
 
+    @Override
+    public ConfigStatusInfo getConfigStatus(I18nProvider i18nProvider, Locale locale) {
+        ConfigStatusInfo info = new ConfigStatusInfo();
+
+        try {
+            String weatherData = getWeatherData();
+            String result = StringUtils.substringBetween(weatherData, "<item><title>", "</title>");
+            if ("City not found".equals(result)) {
+                String message = i18nProvider.getText(bundleContext.getBundle(), LOCATION_NOT_FOUND, null, locale,
+                        location);
+                info.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM, message).build());
+            }
+        } catch (IOException e) {
+            logger.debug("Communication error occured while getting Yahoo weather information.", e);
+        }
+
+        return info;
+    }
+
+    @Override
+    public boolean supportsEntity(String entityId) {
+        return getThing().getUID().getAsString().equals(entityId);
+    }
+
+    @Override
+    public void setConfigStatusCallback(ConfigStatusCallback configStatusCallback) {
+        this.configStatusCallback = configStatusCallback;
+    }
+
+    @Override
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
+            throws ConfigValidationException {
+        super.handleConfigurationUpdate(configurationParameters);
+        if (configStatusCallback != null) {
+            configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));
+        }
+    }
+
     private synchronized boolean updateWeatherData() {
+        try {
+            weatherData = getWeatherData();
+            if (weatherData != null) {
+                updateStatus(ThingStatus.ONLINE);
+                return true;
+            }
+        } catch (IOException e) {
+            logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
+        }
+        return false;
+    }
+
+    private String getWeatherData() throws IOException {
         String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=c";
         try {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
-            weatherData = IOUtils.toString(connection.getInputStream());
-            updateStatus(ThingStatus.ONLINE);
-            return true;
+            return IOUtils.toString(connection.getInputStream());
         } catch (MalformedURLException e) {
             logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
-            return false;
-        } catch (IOException e) {
-            logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
-            return false;
+            return null;
         }
     }
 

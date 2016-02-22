@@ -28,14 +28,14 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventFilter
 import org.eclipse.smarthome.core.events.EventSubscriber
-import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.i18n.I18nProvider
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
@@ -226,10 +226,10 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             assertThat event.getPayload(), containsString("\"parameterName\":\"param\",\"type\":\"INFORMATION\",\"message\":\"param ok\"}")
         }, 2500)
     }
-    
+
     @Test
     void 'assert BaseThingHandler notifies ThingManager about configuration updates'() {
-        // register ThingTypeProvider & ConfigurationDescription with 'required' parameter 
+        // register ThingTypeProvider & ConfigurationDescription with 'required' parameter
         registerThingTypeProvider()
         registerConfigDescriptionProvider(true)
 
@@ -243,10 +243,10 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         // add thing with empty configuration
         managedThingProvider.add(thing)
-        
-        // ThingHandler.initialize() has not been called; thing with status UNINITIALIZED.HANDLER_CONFIGURATION_PENDING 
-        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, 
-            ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
+
+        // ThingHandler.initialize() has not been called; thing with status UNINITIALIZED.HANDLER_CONFIGURATION_PENDING
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
         assertThat thing.getStatusInfo(), is(statusInfo)
 
         thingRegistry.updateConfiguration(thingUID, [parameter: "value"] as Map)
@@ -296,7 +296,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         @Override
-        public ConfigStatusInfo getConfigStatus(Locale locale) {
+        public ConfigStatusInfo getConfigStatus(I18nProvider i18nProvider, Locale locale) {
             if("invalid".equals(getThing().getConfiguration().get(PARAM))) {
                 return new ConfigStatusInfo([ERROR])
             }
@@ -539,8 +539,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             getConfigDescription: {uri, locale -> configDescription}
         ] as ConfigDescriptionProvider)
     }
-    
-    
+
+
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
         def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)

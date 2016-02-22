@@ -10,6 +10,7 @@ package org.eclipse.smarthome.config.core.status;
 import java.util.Locale;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 
 /**
  * The {@link ConfigStatusProvider} can be implemented and registered as an <i>OSGi</i> service to provide status
@@ -25,11 +26,13 @@ public interface ConfigStatusProvider {
      * Retrieves the configuration status information for the {@link Configuration} of the entity if this configuration
      * status provider supports the entity.
      *
+     * @param i18nProvider the {@link I18nProvider} to be injected into the {@link ConfigStatusProvider} (must not be
+     *            null)
      * @param locale the locale to be used for the corresponding internationalized configuration status messages
      *
      * @return the requested configuration status information
      */
-    ConfigStatusInfo getConfigStatus(Locale locale);
+    ConfigStatusInfo getConfigStatus(I18nProvider i18nProvider, Locale locale);
 
     /**
      * Determines if the {@link ConfigStatusProvider} instance can provide the configuration status information for the

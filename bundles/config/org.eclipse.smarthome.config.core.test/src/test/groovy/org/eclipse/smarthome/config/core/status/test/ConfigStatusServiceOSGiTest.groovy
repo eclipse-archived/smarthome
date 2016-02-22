@@ -9,13 +9,13 @@ package org.eclipse.smarthome.config.core.status.test
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider
 import org.eclipse.smarthome.config.core.status.ConfigStatusService
 import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.i18n.I18nProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
@@ -76,7 +76,7 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         registerService([post:{event->}] as EventPublisher)
-
+        registerService([getText:{bundle, key, defaultText, locale -> ""}, getText:{bundle, key, defaultText, locale, args -> ""}] as I18nProvider)
         configStatusService = getService(ConfigStatusService)
         assertThat configStatusService, is(notNullValue())
 
@@ -119,7 +119,7 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
             supportsEntity: { opEntityId ->
                 entityId.equals(opEntityId) ? true : false
             },
-            getConfigStatus: { locale ->
+            getConfigStatus: { i18nProvider, locale ->
                 LOCALE_DE.equals(locale) ? new ConfigStatusInfo(messagesPerEntityDe.get(entityId)) : new ConfigStatusInfo(messagesPerEntityEn.get(entityId))
             },
             setConfigStatusCallback: {

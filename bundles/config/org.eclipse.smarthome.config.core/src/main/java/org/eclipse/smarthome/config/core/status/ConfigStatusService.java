@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import org.eclipse.smarthome.config.core.status.events.ConfigStatusInfoEvent;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
+import org.eclipse.smarthome.core.i18n.I18nProvider;
 
 /**
  * The {@link ConfigStatusService} provides the {@link ConfigStatusInfo} for a specific entity. For this purpose
@@ -27,6 +28,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     private final List<ConfigStatusProvider> configStatusProviders = new CopyOnWriteArrayList<>();
     private EventPublisher eventPublisher;
+    private I18nProvider i18nProvider;
 
     private final ExecutorService executorService = ThreadPoolManager
             .getPool(ConfigStatusService.class.getSimpleName());
@@ -52,7 +54,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         Locale loc = locale != null ? locale : Locale.getDefault();
         for (ConfigStatusProvider configStatusProvider : configStatusProviders) {
             if (configStatusProvider.supportsEntity(entityId)) {
-                return configStatusProvider.getConfigStatus(loc);
+                return configStatusProvider.getConfigStatus(i18nProvider, loc);
             }
         }
         return null;
@@ -87,5 +89,13 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    protected void setI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = i18nProvider;
+    }
+
+    protected void unsetI18nProvider(I18nProvider i18nProvider) {
+        this.i18nProvider = null;
     }
 }
