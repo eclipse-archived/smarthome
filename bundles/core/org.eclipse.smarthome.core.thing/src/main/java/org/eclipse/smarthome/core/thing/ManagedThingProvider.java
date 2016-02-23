@@ -13,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.DefaultAbstractManagedProvider;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
+import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +52,41 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
      */
     public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID, String label,
             Configuration configuration) {
+    	return createThing(thingTypeUID, thingUID, bridgeUID, label, configuration, null);
+    }
+    
+    /**
+     * Creates a thing based on the given configuration properties and channels, adds it and
+     * informs all listeners.
+     *
+     * @param thingTypeUID
+     *            thing type unique id
+     * @param thingUID
+     *            thing unique id which should be created. This id might be
+     *            null.
+     * @param bridge
+     *            the thing's bridge. Null if there is no bridge or if the thing
+     *            is a bridge by itself.
+     * @param configuration
+     *            the configuration
+     * @param channels
+     *            the list of channels to be added while creting the thing, might be null
+     *          
+     * @return the created thing
+     */
+    public Thing createThing(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID, String label,
+            Configuration configuration, List<Channel> channels) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
                 thing.setLabel(label);
+                
+                // add channels if they were provided ...
+                if (channels != null) {
+                	ThingHelper.addChannelsToThing(thing, channels);
+                }
+                
                 add(thing);
                 return thing;
             }
@@ -63,7 +95,21 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
                 thingTypeUID);
         return null;
     }
-
+    
+    
+    /**
+     * Creates a channel based on the given configuration properties.
+     * 
+     * @param channelUIDObject channel unique id to be created
+     * @param itemType the type of item this channel might be bound to in future 
+     * @param configuration the channel configuration
+     * 
+     * @return the created channel
+     */
+    public Channel createChannel(ChannelUID channelUIDObject, String itemType, Configuration configuration) {
+		return ChannelBuilder.create(channelUIDObject, itemType).withConfiguration(configuration).build();
+	}
+    
     protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.add(thingHandlerFactory);
     }
@@ -71,6 +117,7 @@ public class ManagedThingProvider extends DefaultAbstractManagedProvider<Thing, 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
         this.thingHandlerFactories.remove(thingHandlerFactory);
     }
+    
 
     @Override
     protected ThingUID getKey(Thing thing) {

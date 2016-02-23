@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.rest.core.thing.setup;
 
+import static org.eclipse.smarthome.io.rest.core.thing.ThingResource.convertConfiguration;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,7 +94,7 @@ public class ThingSetupManagerResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Configuration configuration = ThingResource.getConfiguration(thingBean);
+        Configuration configuration = convertConfiguration(thingBean.configuration);
 
         thingSetupManager.addThing(thingUIDObject, configuration, bridgeUID, thingBean.label, thingBean.item.groupNames,
                 enableChannels, locale);
@@ -115,7 +117,7 @@ public class ThingSetupManagerResource implements RESTResource {
             bridgeUID = new ThingUID(thingBean.bridgeUID);
         }
 
-        Configuration configuration = ThingResource.getConfiguration(thingBean);
+        Configuration configuration = convertConfiguration(thingBean.configuration);
 
         Thing thing = thingSetupManager.getThing(thingUID);
 

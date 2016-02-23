@@ -8,8 +8,10 @@
 package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +50,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -95,7 +98,8 @@ public class ThingResource implements RESTResource {
 
     @Context
     private UriInfo uriInfo;
-
+    
+    
     /**
      * create a new Thing
      *
@@ -105,8 +109,9 @@ public class ThingResource implements RESTResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new thing to the registry.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "No binding can create the thing.") })
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "CREATED"),
+            @ApiResponse(code = 400, message = "No binding can create the thing."),
+            @ApiResponse(code = 409, message = "Thing already exists.") })
     public Response create(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @ApiParam(value = "thing data", required = true) ThingDTO thingBean) {
         final Locale locale = LocaleUtil.getLocale(language);
@@ -120,23 +125,53 @@ public class ThingResource implements RESTResource {
         }
 
         // turn the ThingDTO's configuration into a Configuration
-        Configuration configuration = getConfiguration(thingBean);
+        Configuration configuration = convertConfiguration(thingBean.configuration);
 
         Status status;
+        String statusMessage = null;
+        
         Thing thing = thingRegistry.get(thingUIDObject);
 
-        // does the Thing already exist?
-        if (null == thing) {
-            // if not, create new Thing
+        // if Thing does exist, create it
+        if (thing == null) {
+            List<Channel> channels = null;
+            
+        	// if it contains Channels create them as well
+        	if (thingBean.channels != null) {
+        		channels = new ArrayList<Channel>();
+        		
+	            for (ChannelDTO channelBean : thingBean.channels) {
+	            	
+	            	String channelId = channelBean.id;
+	            	if (channelId == null) {
+	            		 
+	            	}
+	            	
+	            	ChannelUID channelUIDObject = new ChannelUID(thingTypeUID, thingUIDObject, channelId);
+	            	configuration = convertConfiguration(channelBean.configuration);
+	            	Channel channel = managedThingProvider.createChannel(channelUIDObject, channelBean.itemType, configuration);
+	            	channels.add(channel);
+	            }
+        	} else {
+        		logger.trace("Thing does not contain any Channel configuration.");
+        	}
+            
             thing = managedThingProvider.createThing(thingTypeUID, thingUIDObject, bridgeUID, thingBean.label,
-                    configuration);
-            status = Status.CREATED;
+                    configuration, channels);
+            
+            if (thing != null) {
+                status = Status.CREATED;
+            } else {
+                status = Status.BAD_REQUEST;
+                statusMessage = "Cannot create thing. No binding found that supports creating a thing of type " + thingTypeUID;
+            }
         } else {
-            // if so, report a conflict
+            // else, report a conflict
             status = Status.CONFLICT;
+            statusMessage = "Thing " + thingUIDObject.toString() + " already exists!";
         }
 
-        return getThingResponse(status, thing, locale, "Thing " + thingUIDObject.toString() + " already exists!");
+        return getThingResponse(status, thing, locale, statusMessage);
     }
 
     @GET
@@ -348,7 +383,7 @@ public class ThingResource implements RESTResource {
 
         // only process if Thing is known to be managed, so it can get updated
         thing.setBridgeUID(bridgeUID);
-        updateConfiguration(thing, getConfiguration(thingBean));
+        updateConfiguration(thing, convertConfiguration(thingBean.configuration));
 
         // update, returns null in case Thing cannot be found
         Thing oldthing = managedThingProvider.update(thing);
@@ -545,10 +580,10 @@ public class ThingResource implements RESTResource {
         }
     }
 
-    public static Configuration getConfiguration(ThingDTO thingBean) {
+    public static Configuration convertConfiguration(Map<String,Object> configMap) {
         Configuration configuration = new Configuration();
 
-        Map<String, Object> convertDoublesToBigDecimal = ConfigUtil.normalizeTypes(thingBean.configuration);
+        Map<String, Object> convertDoublesToBigDecimal = ConfigUtil.normalizeTypes(configMap);
         configuration.setProperties(convertDoublesToBigDecimal);
 
         return configuration;
