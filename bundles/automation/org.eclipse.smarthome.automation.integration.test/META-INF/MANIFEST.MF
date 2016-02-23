@@ -39,5 +39,7 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  org.eclipse.smarthome.automation.core,
  org.eclipse.smarthome.automation.module.core,
  org.eclipse.smarthome.automation.parser.gson,
- org.eclipse.smarthome.automation.providers
+ org.eclipse.smarthome.automation.providers,
+ org.eclipse.smarthome.automation.sample.extension.json,
+ org.eclipse.smarthome.io.console
 Bundle-ActivationPolicy: lazy
