@@ -2,10 +2,10 @@
 	ng-repeat="discoveryResult in data.discoveryResults | filter:filter | orderBy:flag"
 	ng-controller="InboxEntryController">
 	<md-button title="Add" class="md-fab md-icon-done green"
-		ng-click="approve(discoveryResult.thingUID, $event)" aria-label="Approve"></md-button>
+		ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"></md-button>
 	<div class="item-content">
 		<h3>
-			{{thingTypes[getThingTypeUID(discoveryResult.thingUID)].label}} <small
+			{{thingTypes[discoveryResult.thingTypeUID].label}} <small
 				ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
 		</h3>
 		<p>{{discoveryResult.label}}</p>
