@@ -1,3 +1,8 @@
+function getThingTypeUID(thingUID) {
+	var segments = thingUID.split(':');
+	return segments[0] + ':' + segments[1];
+};
+    
 angular.module('PaperUI.controllers.configuration', 
 []).controller('ConfigurationPageController', function($scope, $location, thingTypeRepository) {
     $scope.navigateTo = function(path) {
@@ -9,6 +14,7 @@ angular.module('PaperUI.controllers.configuration',
             $scope.thingTypes[thingType.UID] = thingType;
         });
     });
+    $scope.getThingTypeUID = getThingTypeUID; 
 }).controller('BindingController', function($scope, $mdDialog, bindingRepository) {
 	$scope.setSubtitle(['Bindings']);
 	$scope.setHeaderText('Shows all installed bindings.');
@@ -296,7 +302,7 @@ angular.module('PaperUI.controllers.configuration',
 		thingRepository, thingSetupService, homeGroupRepository, linkService) {
 	
 	var thingUID = $scope.path[4];
-	$scope.thingTypeUID = null;
+	var thingTypeUID = getThingTypeUID(thingUID);
 	
 	$scope.thing;
 	$scope.thingType;
@@ -475,7 +481,6 @@ angular.module('PaperUI.controllers.configuration',
     	}, function(thing) {
     		$scope.thing = thing;
     		 $scope.refreshChannels(false);
-    		$scope.thingTypeUID = thing.thingTypeUID;
     		if(thing.item) {
     			$scope.setTitle(thing.label);
     		} else {
@@ -486,7 +491,7 @@ angular.module('PaperUI.controllers.configuration',
 	$scope.getThing(true);
 	
 	thingTypeRepository.getOne(function(thingType) {
-		return thingType.UID === $scope.thingTypeUID;
+		return thingType.UID === thingTypeUID;
 	}, function(thingType) {
 		$scope.thingType = thingType;
 		$scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels
@@ -530,7 +535,7 @@ angular.module('PaperUI.controllers.configuration',
 	$scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 	
 	var thingUID = $scope.path[4];
-	$scope.thingTypeUID = null;
+	var thingTypeUID = getThingTypeUID(thingUID);
 	
 	$scope.thing;
 	$scope.groups = [];
@@ -572,7 +577,7 @@ angular.module('PaperUI.controllers.configuration',
                 var thing = things[i];
                 for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
                     var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
-                    if (thing.thingTypeUID === supportedBridgeTypeUID) {
+                    if(getThingTypeUID(thing.UID) === supportedBridgeTypeUID) {
                         $scope.bridges.push(thing);
                     }   
                 }
@@ -581,7 +586,7 @@ angular.module('PaperUI.controllers.configuration',
     };
     $scope.getThingType = function() {
         thingTypeRepository.getOne(function(thingType) {
-            return thingType.UID === $scope.thingTypeUID;
+            return thingType.UID === thingTypeUID;
         }, function(thingType) {
             $scope.thingType = thingType;
             $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
@@ -596,7 +601,6 @@ angular.module('PaperUI.controllers.configuration',
     		return thing.UID === thingUID;
     	}, function(thing) {
     		$scope.thing = thing;
-    		$scope.thingTypeUID = thing.thingTypeUID;
     		$scope.getThingType();
     	    if(thing.item) {
 	    		homeGroupRepository.getAll(function(homeGroups) {
