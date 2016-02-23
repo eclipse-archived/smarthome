@@ -326,6 +326,6 @@ angular.module('PaperUI.controllers.setup',
         $scope.navigateTo('setup/add/' + thingTypeUID);
     }
     $scope.filter = function(thingType) {
-        return thingType.UID.split(':')[0] === $scope.bindingId;
+        return (thingType.UID.split(':')[0] === $scope.bindingId) && (thingType.listed);
     }
 });

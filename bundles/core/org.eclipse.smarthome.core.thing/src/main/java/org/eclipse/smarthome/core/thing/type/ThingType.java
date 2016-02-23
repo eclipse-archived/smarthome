@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
  * @author Michael Grammling - Initial Contribution
  * @author Dennis Nobel - Initial Contribution
  * @author Thomas Höfer - Added thing and thing type properties
+ * @author Simon Kaufmann - Added listed field
  */
 public class ThingType extends AbstractDescriptionType {
 
@@ -37,12 +38,13 @@ public class ThingType extends AbstractDescriptionType {
     private final List<String> supportedBridgeTypeUIDs;
     private final Map<String, String> properties;
     private URI configDescriptionURI;
+    private boolean listed;
 
     /**
      * @see ThingType#ThingType(ThingTypeUID, List, String, String, List, List, Map, URI)
      */
     public ThingType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null);
     }
 
     /**
@@ -60,6 +62,8 @@ public class ThingType extends AbstractDescriptionType {
      * @param description the human readable description for the according type
      *            (could be null or empty)6
      *
+     * @param listed detemines whether it should be listed for manually pairing or not
+     *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Thing type
@@ -73,10 +77,13 @@ public class ThingType extends AbstractDescriptionType {
      *             if the UID is null or empty, or the the meta information is null
      */
     public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
+            boolean listed, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
         super(uid, label, description);
+
+        this.listed = listed;
 
         if (supportedBridgeTypeUIDs != null) {
             this.supportedBridgeTypeUIDs = Collections.unmodifiableList(supportedBridgeTypeUIDs);
@@ -218,6 +225,10 @@ public class ThingType extends AbstractDescriptionType {
             }
         }
         return null;
+    }
+
+    public boolean isListed() {
+        return listed;
     }
 
     @Override

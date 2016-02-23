@@ -32,7 +32,7 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null);
     }
 
     /**
@@ -50,6 +50,8 @@ public class BridgeType extends ThingType {
      * @param description the human readable description for the according type
      *            (could be null or empty)
      *
+     * @param listed detemines whether it should be displayed for manually pairing or not
+     *
      * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
@@ -63,10 +65,11 @@ public class BridgeType extends ThingType {
      *             or the the meta information is null
      */
     public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
-            List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
-            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
+            boolean listed, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
+            URI configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, supportedBridgeTypeUIDs, label, description, channelDefinitions, channelGroupDefinitions,
+        super(uid, supportedBridgeTypeUIDs, label, description, listed, channelDefinitions, channelGroupDefinitions,
                 properties, configDescriptionURI);
     }
 

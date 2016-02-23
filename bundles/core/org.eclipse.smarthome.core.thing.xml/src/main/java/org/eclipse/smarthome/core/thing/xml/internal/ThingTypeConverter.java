@@ -10,6 +10,7 @@ package org.eclipse.smarthome.core.thing.xml.internal;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.smarthome.config.xml.util.ConverterAttributeMapValidator;
 import org.eclipse.smarthome.config.xml.util.NodeIterator;
 import org.eclipse.smarthome.config.xml.util.NodeList;
 import org.eclipse.smarthome.config.xml.util.NodeValue;
@@ -35,7 +36,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTypeXmlResult> {
 
     public ThingTypeConverter() {
-        super(ThingTypeXmlResult.class, "thing-type");
+        this(ThingTypeXmlResult.class, "thing-type");
     }
 
     /**
@@ -47,6 +48,8 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected ThingTypeConverter(Class clazz, String type) {
         super(clazz, type);
+        this.attributeMapValidator = new ConverterAttributeMapValidator(
+                new String[][] { { "id", "true" }, { "listed", "false" } });
     }
 
     protected List<String> readSupportedBridgeTypeUIDs(NodeIterator nodeIterator, UnmarshallingContext context) {
@@ -88,12 +91,21 @@ public class ThingTypeConverter extends AbstractDescriptionTypeConverter<ThingTy
     protected ThingTypeXmlResult unmarshalType(HierarchicalStreamReader reader, UnmarshallingContext context,
             Map<String, String> attributes, NodeIterator nodeIterator) throws ConversionException {
 
-        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(new ThingTypeUID(super.getUID(attributes,
-                context)), readSupportedBridgeTypeUIDs(nodeIterator, context), super.readLabel(nodeIterator),
-                super.readDescription(nodeIterator), getChannelTypeReferenceObjects(nodeIterator),
-                getProperties(nodeIterator), super.getConfigDescriptionObjects(nodeIterator));
+        ThingTypeXmlResult thingTypeXmlResult = new ThingTypeXmlResult(
+                new ThingTypeUID(super.getUID(attributes, context)), readSupportedBridgeTypeUIDs(nodeIterator, context),
+                super.readLabel(nodeIterator), super.readDescription(nodeIterator), getListed(attributes),
+                getChannelTypeReferenceObjects(nodeIterator), getProperties(nodeIterator),
+                super.getConfigDescriptionObjects(nodeIterator));
 
         return thingTypeXmlResult;
+    }
+
+    protected boolean getListed(Map<String, String> attributes) {
+        String listedFlag = attributes.get("listed");
+        if (listedFlag != null) {
+            return Boolean.parseBoolean(listedFlag);
+        }
+        return true;
     }
 
 }
