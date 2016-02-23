@@ -101,7 +101,7 @@
             </bundle>
             <bundle>
               <id>org.eclipse.smarthome.automation.module.core</id>
-              <level>3</level>
+              <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
             <bundle>
@@ -112,6 +112,11 @@
             <bundle>
               <id>org.eclipse.smarthome.automation.providers</id>
               <level>2</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.automation.sample.extension.json</id>
+              <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
             <bundle>
