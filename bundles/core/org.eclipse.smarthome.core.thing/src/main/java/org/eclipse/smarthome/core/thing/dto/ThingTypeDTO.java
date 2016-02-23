@@ -31,6 +31,7 @@ public class ThingTypeDTO {
     public Map<String, String> properties;
     public String description;
     public String label;
+    public boolean listed;
 
     public String UID;
     boolean bridge;
@@ -38,13 +39,14 @@ public class ThingTypeDTO {
     public ThingTypeDTO() {
     }
 
-    public ThingTypeDTO(String UID, String label, String description,
+    public ThingTypeDTO(String UID, String label, String description, boolean listed,
             List<ConfigDescriptionParameterDTO> configParameters, List<ChannelDefinitionDTO> channels,
             List<ChannelGroupDefinitionDTO> channelGroups, List<String> supportedBridgeTypeUIDs,
             Map<String, String> properties, boolean bridge, List<ConfigDescriptionParameterGroupDTO> parameterGroups) {
         this.UID = UID;
         this.label = label;
         this.description = description;
+        this.listed = listed;
         this.configParameters = configParameters;
         this.channels = channels;
         this.channelGroups = channelGroups;

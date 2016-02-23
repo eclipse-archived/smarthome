@@ -25,6 +25,15 @@ Things represent devices or services that can be individually added to, configur
     </thing-type>
 ```
 
+Bindings may optionally set the listing of a thing type. By doing do, they indicate to user interfaces whether it should be shown to the users or not, e.g. when pairing things manually:
+
+```xml
+    <thing-type id="thingTypeID" listed="false">
+        ...
+    </thing-type>
+``` 
+
+Thing types are listed by default, unless specified otherwise. Hiding thing types potentially makes sense if they are deprecated and should not be used anymore. Also, this can be useful if users should not be bothered with distinguishing similar devices which for technical reasons have to have separate thing types. In that way, a generic thing type could be listed for users and a corresponding thing handler would change the thing type immediately to a more concrete one, handing over control to the correct specialized handler.
 
 ## Channels
 

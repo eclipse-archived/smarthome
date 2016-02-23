@@ -240,7 +240,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0
         http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
-  <bridge-type id="bridgeTypeID">
+  <bridge-type id="bridgeTypeID" listed="{true|false}">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -266,7 +266,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
     <config-description-ref uri="{binding|thing-type|bridge-type|channel-type|any_other}:bindingID:..." />
   </bridge-type>
 
-  <thing-type id="thingTypeID">
+  <thing-type id="thingTypeID" listed="{true|false}">
     <supported-bridge-type-refs>
       <bridge-type-ref id="bridgeTypeID" />
       ...
@@ -343,6 +343,7 @@ Bridge and *Thing* descriptions must be placed as XML file(s) (with the ending `
 <table>
   <tr><td><b>Property</b></td><td><b>Description</b></td></tr>
   <tr><td>bridge-type.id | thing-type.id</td><td>An identifier for the bridge/<i>Thing</i> type (mandatory).</td></tr>
+  <tr><td>bridge-type.listed | thing-type.listed</td><td>Denotes if user interfaces should list the bridge/<i>Thing</i>, e.g. for pairing (optional, defaults to true).</td></tr>
   <tr><td>supported-bridge-type-refs</td><td>The identifiers of the bridges this bridge/<i>Thing</i> can connect to (optional).</td></tr>
   <tr><td>bridge-type-ref.id</td><td>The identifier of a bridge this bridge/<i>Thing</i> can connect to (mandatory).</td></tr>
   <tr><td>label</td><td>A human-readable label for the bridge/<i>Thing</i> (mandatory).</td></tr>
