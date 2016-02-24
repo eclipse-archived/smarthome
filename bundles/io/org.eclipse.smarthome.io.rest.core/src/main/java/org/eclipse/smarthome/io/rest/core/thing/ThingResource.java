@@ -350,6 +350,9 @@ public class ThingResource implements RESTResource {
         thing.setBridgeUID(bridgeUID);
         updateConfiguration(thing, getConfiguration(thingBean));
 
+        // Update the label
+        thing.setLabel(thingBean.label);
+
         // update, returns null in case Thing cannot be found
         Thing oldthing = managedThingProvider.update(thing);
         if (null == oldthing) {
