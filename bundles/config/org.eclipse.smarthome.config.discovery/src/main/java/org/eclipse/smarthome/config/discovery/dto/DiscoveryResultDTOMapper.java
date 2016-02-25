@@ -27,7 +27,8 @@ public class DiscoveryResultDTOMapper {
         ThingUID bridgeUID = discoveryResult.getBridgeUID();
 
         return new DiscoveryResultDTO(thingUID.toString(), bridgeUID != null ? bridgeUID.toString() : null,
-                discoveryResult.getThingTypeUID().toString(), discoveryResult.getLabel(), discoveryResult.getFlag(),
-                discoveryResult.getProperties(), discoveryResult.getRepresentationProperty());
+                discoveryResult.getThingTypeUID() != null ? discoveryResult.getThingTypeUID().toString() : null,
+                discoveryResult.getLabel(), discoveryResult.getFlag(), discoveryResult.getProperties(),
+                discoveryResult.getRepresentationProperty());
     }
 }
