@@ -132,9 +132,9 @@ angular.module('PaperUI.controllers.setup',
 	$scope.homeGroups = [];
     $scope.groupNames = [];
     $scope.thingType = null;
-    var thingTypeUID = getThingTypeUID(discoveryResult.thingUID);
+    $scope.thingTypeUID = discoveryResult.thingTypeUID;
     thingTypeRepository.getOne(function(thingType) {
-        return thingType.UID === thingTypeUID;
+        return thingType.UID === $scope.thingTypeUID;
     }, function(thingType) {
         $scope.thingType = thingType;
     });
@@ -227,7 +227,7 @@ angular.module('PaperUI.controllers.setup',
                 var thing = things[i];
                 for (var j = 0; j < $scope.thingType.supportedBridgeTypeUIDs.length; j++) {
                     var supportedBridgeTypeUID = $scope.thingType.supportedBridgeTypeUIDs[j];
-                    if(getThingTypeUID(thing.UID) === supportedBridgeTypeUID) {
+                    if(thing.thingTypeUID === supportedBridgeTypeUID) {
                         $scope.bridges.push(thing);
                     }   
                 }
