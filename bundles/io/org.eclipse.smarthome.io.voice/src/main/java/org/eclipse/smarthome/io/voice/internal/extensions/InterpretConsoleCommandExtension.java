@@ -5,18 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.console.internal.extension;
+package org.eclipse.smarthome.io.voice.internal.extensions;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
-import org.eclipse.smarthome.io.multimedia.text.HumanLanguageInterpreter;
-import org.eclipse.smarthome.io.multimedia.text.InterpretationException;
+import org.eclipse.smarthome.io.voice.text.HumanLanguageInterpreter;
+import org.eclipse.smarthome.io.voice.text.InterpretationException;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -29,8 +28,6 @@ import org.osgi.framework.ServiceReference;
  *
  */
 public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExtension {
-
-    private ItemRegistry itemRegistry;
 
     public InterpretConsoleCommandExtension() {
         super("interpret", "Interpret a command by a human language interpreter.");
@@ -60,14 +57,6 @@ public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExte
         } else {
             console.println("No human language interpreter available - tried to interpret: " + msg);
         }
-    }
-
-    protected void setItemRegistry(ItemRegistry itemRegistry) {
-        this.itemRegistry = itemRegistry;
-    }
-
-    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
-        this.itemRegistry = null;
     }
 
 }
