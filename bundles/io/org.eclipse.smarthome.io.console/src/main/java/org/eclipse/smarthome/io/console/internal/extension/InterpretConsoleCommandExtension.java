@@ -12,9 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.items.ItemNotFoundException;
-import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -46,27 +43,7 @@ public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExte
 
     @Override
     public void execute(String[] args, Console console) {
-        StringBuilder msg = new StringBuilder();
-        for (String word : args) {
-            if (word.startsWith("%") && word.endsWith("%") && word.length() > 2) {
-                String itemName = word.substring(1, word.length() - 1);
-                try {
-                    Item item = this.itemRegistry.getItemByPattern(itemName);
-                    msg.append(item.getState().toString());
-                } catch (ItemNotFoundException e) {
-                    console.println("Error: Item '" + itemName + "' does not exist.");
-                } catch (ItemNotUniqueException e) {
-                    console.print("Error: Multiple items match this pattern: ");
-                    for (Item item : e.getMatchingItems()) {
-                        console.print(item.getName() + " ");
-                    }
-                }
-            } else {
-                msg.append(word);
-            }
-            msg.append(" ");
-        }
-
+        String msg = String.join(" ", args);
         BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
         Collection<ServiceReference<HumanLanguageInterpreter>> refs = null;
         try {
@@ -76,7 +53,7 @@ public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExte
         }
         if (refs != null && refs.size() > 0) {
             try {
-                console.println(context.getService(refs.iterator().next()).interpret(Locale.ENGLISH, msg.toString()));
+                console.println(context.getService(refs.iterator().next()).interpret(Locale.ENGLISH, msg));
             } catch (InterpretationException ie) {
                 console.println(ie.getMessage());
             }
