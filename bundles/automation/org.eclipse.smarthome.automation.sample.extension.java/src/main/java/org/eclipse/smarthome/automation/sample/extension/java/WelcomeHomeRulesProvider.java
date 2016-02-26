@@ -146,7 +146,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         Map<String, Object> config = new HashMap<String, Object>();
         config.put(CONFIG_UNIT, "Air Conditioner");
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
-        config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, 18);
+        config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
         config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, TemperatureConditionType.OPERATOR_HEATING);
         return new Rule(AC_UID, AirConditionerRuleTemplate.UID, config);
     }

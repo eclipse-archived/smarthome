@@ -29,7 +29,6 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
@@ -172,7 +171,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             while (i.hasNext()) {
                 Bundle bundle = i.next();
                 if (bundle.getState() != Bundle.UNINSTALLED) {
-                    queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));
+                    queue.addingBundle(bundle, null);
                 }
             }
         }
