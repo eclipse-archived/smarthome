@@ -12,6 +12,8 @@ Import-Package:
  org.eclipse.smarthome.core.common.registry,
  org.eclipse.smarthome.core.i18n,
  org.osgi.framework,
+ org.osgi.framework.namespace,
+ org.osgi.framework.wiring,
  org.osgi.util.tracker,
  org.slf4j
 Bundle-Activator: org.eclipse.smarthome.automation.internal.core.provider.Activator

@@ -363,7 +363,7 @@ public class RuleEngine
             try {
                 r = getRuleByTemplate(r);
             } catch (IllegalArgumentException e) {
-                errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
+                errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getMessage();
                 // change state to NOTINITIALIZED
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                         RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
@@ -385,7 +385,7 @@ public class RuleEngine
                 return;
             } else {
                 rules.put(rUID, r);
-                if (managedRuleProvider.get(rUID) != null) {
+                if (managedRuleProvider != null && managedRuleProvider.get(rUID) != null) {
                     // managed provider has to be updated only already stored rules,
                     // when a rule is added it will be added by the registry.
                     managedRuleProvider.update(r.getRuleCopy());
@@ -419,7 +419,7 @@ public class RuleEngine
                 ConnectionValidator.validateConnections(r);
             } catch (IllegalArgumentException e) {
                 unregister(r);
-                errMsgs = "\n Validation of rule" + rUID + "has failed! " + e.getMessage();
+                errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getMessage();
                 // change state to NOTINITIALIZED
                 setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
                         RuleStatusDetail.CONFIGURATION_ERROR, errMsgs.trim()));
