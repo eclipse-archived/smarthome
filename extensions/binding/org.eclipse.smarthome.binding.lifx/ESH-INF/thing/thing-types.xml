@@ -4,11 +4,29 @@
     xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
     <!-- LIFX Light -->
-    <thing-type id="light">
-        <label>LIFX Light</label>
+    <thing-type id="colorlight">
+        <label>LIFX Color Light</label>
 
         <channels>
             <channel id="color" typeId="color" />
+            <channel id="temperature" typeId="temperature" />
+        </channels>
+
+        <config-description>
+            <parameter name="deviceId" type="text" required="true">
+                <label>LIFX device ID</label>
+            </parameter>
+        </config-description>
+        
+    </thing-type>
+
+    <!-- LIFX Light -->
+    <thing-type id="whitelight">
+        <label>LIFX White Light</label>
+
+        <channels>
+            <channel id="brightness" typeId="brightness" />
+            <channel id="temperature" typeId="temperature" />
         </channels>
 
         <config-description>
@@ -25,6 +43,20 @@
         <label>Color</label>
         <description>Selects the color of the light</description>
         <category>ColorLight</category>
+    </channel-type>
+    
+    <channel-type id="temperature">
+        <item-type>Dimmer</item-type>
+        <label>Temperature</label>
+        <description>Sets the temperature of the light</description>
+        <category>Temperature</category>
+    </channel-type>
+
+    <channel-type id="brightness">
+        <item-type>Dimmer</item-type>
+        <label>Brightness</label>
+        <description>Sets the brightness of the light</description>
+        <category>DimmableLight</category>
     </channel-type>
 
 </thing:thing-descriptions>
