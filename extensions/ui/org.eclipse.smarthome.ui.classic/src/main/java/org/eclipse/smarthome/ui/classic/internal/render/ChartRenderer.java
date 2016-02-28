@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.ui.classic.internal.render;
 
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -54,26 +56,22 @@ public class ChartRenderer extends AbstractWidgetRenderer {
                 itemParam = "items=" + chart.getItem();
             }
 
-            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&random=1";
-            if (chart.getService() != null)
+            String url = "/chart?" + itemParam + "&period=" + chart.getPeriod() + "&t=" + (new Date()).getTime();
+            if (chart.getService() != null) {
                 url += "&service=" + chart.getService();
+            }
 
             String snippet = getSnippet("image");
 
             if (chart.getRefresh() > 0) {
-                snippet = StringUtils.replace(snippet, "%setrefresh%",
-                        "<script type=\"text/javascript\">imagesToRefreshOnPage=1</script>");
-                snippet = StringUtils.replace(snippet, "%refresh%",
-                        "id=\"%id%\" onload=\"setTimeout('reloadImage(\\'%url%\\', \\'%id%\\')', " + chart.getRefresh()
-                                + ")\"");
+                snippet = StringUtils.replace(snippet, "%refresh%", "id=\"%id%\" data-timeout=\"" + chart.getRefresh()
+                        + "\" onload=\"startReloadImage('%url%', '%id%')\"");
             } else {
-                snippet = StringUtils.replace(snippet, "%setrefresh%", "");
                 snippet = StringUtils.replace(snippet, "%refresh%", "");
             }
 
             snippet = StringUtils.replace(snippet, "%id%", itemUIRegistry.getWidgetId(w));
             snippet = StringUtils.replace(snippet, "%url%", url);
-            snippet = StringUtils.replace(snippet, "%refresh%", Integer.toString(chart.getRefresh()));
 
             sb.append(snippet);
         } catch (ItemNotFoundException e) {
