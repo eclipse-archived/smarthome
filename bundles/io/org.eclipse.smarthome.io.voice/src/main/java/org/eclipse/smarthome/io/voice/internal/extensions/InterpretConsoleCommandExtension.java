@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
@@ -50,13 +51,47 @@ public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExte
         }
         if (refs != null && refs.size() > 0) {
             try {
-                console.println(context.getService(refs.iterator().next()).interpret(Locale.ENGLISH, msg));
+                HumanLanguageInterpreter interpreter = context.getService(refs.iterator().next());
+                Locale locale = pickLanguage(interpreter.getSupportedLocales());
+                console.println(interpreter.interpret(locale, msg));
             } catch (InterpretationException ie) {
                 console.println(ie.getMessage());
             }
         } else {
             console.println("No human language interpreter available - tried to interpret: " + msg);
         }
+    }
+
+    /**
+     * Picks the best fit from a set of available languages (given by {@link Locale}s).
+     * Matching happens in the following priority order:
+     * 1st: system's default {@link Locale} (e.g. "de-DE"), if contained in {@link locales}
+     * 2nd: first item in {@link locales} matching system default language (e.g. "de" matches "de-CH")
+     * 3rd: first language in {@link locales}
+     * 4th: English, if {@link locales} is null or empty
+     *
+     * @param locales set of supported {@link Locale}s to pick from
+     * @return {@link Locale} of the best fitting language
+     */
+    private Locale pickLanguage(Set<Locale> locales) {
+        if (locales == null || locales.size() == 0) {
+            return Locale.ENGLISH;
+        }
+        Locale locale = Locale.getDefault();
+        if (locales.contains(locale)) {
+            return locale;
+        }
+        String language = locale.getLanguage();
+        Locale first = null;
+        for (Locale l : locales) {
+            if (first == null) {
+                first = l;
+            }
+            if (language.equals(l.getLanguage())) {
+                return l;
+            }
+        }
+        return first;
     }
 
 }

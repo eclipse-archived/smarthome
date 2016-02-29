@@ -36,7 +36,7 @@ public class StandardHumanLanguageInterpreter implements HumanLanguageInterprete
 
     private final Set<Locale> supportedLocales = Collections.unmodifiableSet(Collections.singleton(Locale.ENGLISH));
 
-    private final String PADON = "I didn't quite follow that.";
+    private final String PARDON = "I didn't quite follow that.";
 
     private final String MORE_THAN_ONE = "There's more than one thing with a similar name.";
 
@@ -54,13 +54,13 @@ public class StandardHumanLanguageInterpreter implements HumanLanguageInterprete
         }
         String[] tokens = text.trim().toLowerCase().split("\\s++");
         if (tokens.length == 0) {
-            throw new InterpretationException(PADON);
+            throw new InterpretationException(PARDON);
         }
 
         String first = tokens[0];
         if (first.equals("turn") && tokens.length >= 3) {
 
-            // parsing
+            // parse
             int pos = 1, end = tokens.length;
             String state = STATE_ON;
             if (tokens[1].equals(STATE_ON)) {
@@ -74,13 +74,13 @@ public class StandardHumanLanguageInterpreter implements HumanLanguageInterprete
                 end--;
                 state = STATE_OFF;
             } else {
-                throw new InterpretationException(PADON);
+                throw new InterpretationException(PARDON);
             }
 
-            // searching
+            // search
             ArrayList<Item> items = getMatchingItems(Arrays.copyOfRange(tokens, pos, end), OnOffType.class);
 
-            // acting
+            // execute
             if (items.size() <= 0) {
                 throw new InterpretationException(NO_ONE);
             } else if (items.size() > 1) {
@@ -97,7 +97,7 @@ public class StandardHumanLanguageInterpreter implements HumanLanguageInterprete
             }
 
         } else {
-            throw new InterpretationException(PADON);
+            throw new InterpretationException(PARDON);
         }
     }
 
