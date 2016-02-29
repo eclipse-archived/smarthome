@@ -126,7 +126,7 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat itemRegistry, is(notNullValue())
             assertThat ruleRegistry, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
-            assertThat TemplateRegistry, is(notNullValue())
+            assertThat templateRegistry, is(notNullValue())
         }, 9000)
         logger.info('@Before.finish');
     }
