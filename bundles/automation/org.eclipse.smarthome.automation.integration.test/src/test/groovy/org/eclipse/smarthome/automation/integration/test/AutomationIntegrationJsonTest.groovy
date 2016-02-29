@@ -41,6 +41,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
+import org.osgi.framework.FrameworkEvent
+import org.osgi.framework.FrameworkListener
 import org.osgi.framework.wiring.FrameworkWiring
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -292,11 +294,11 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         // then install the host
         testAutomationProviderHost = bundleContext.installBundle('automation.test.host', getClass().getClassLoader().getResourceAsStream("src/test/resources/automation.test.host.jar"))
         testAutomationProviderHost.start()
-        assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
-        assertThat testAutomationProviderFragmet.getState(), is(Bundle.RESOLVED)
 
         // assert that the host and fragment resources are loaded
         waitForAssert({
+            assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
+            assertThat testAutomationProviderFragmet.getState(), is(Bundle.RESOLVED)
             ModuleType m = moduleTypeRegistry.get("AutomationTestHostAction")
             assertThat m, is(notNullValue())
             m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
@@ -304,26 +306,34 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         }, 3000, 200)
 
         testAutomationProviderFragmet.update(getClass().getClassLoader().getResourceAsStream("src/test/resources/automation.test.fragment_updated.jar"))
-        assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
-
         Bundle systemBundle = bundleContext.getBundle(0)
         FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class)
-        frameworkWiring.refreshBundles(null)
+
+        def waiting = true
+        def bundles = [testAutomationProviderHost, testAutomationProviderFragmet]
+        def FrameworkListener listener = new FrameworkListener() {
+                    public void frameworkEvent(FrameworkEvent event) {
+                        waiting = false
+                        assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
+                        assertThat testAutomationProviderFragmet.getState(), is(Bundle.RESOLVED)
+                        ModuleType m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
+                        assertThat m, is(notNullValue())
+                        m = moduleTypeRegistry.get("AutomationTestFragmentAction")
+                        assertThat m, is(notNullValue())
+                        m = moduleTypeRegistry.get("AutomationTestHostAction")
+                        assertThat m, is(notNullValue())
+                    }
+                }
+        frameworkWiring.refreshBundles(bundles, listener)
+        while ({
+            sleep(3000)
+            waiting == true
+        }()) continue
+
+            testAutomationProviderHost.update(getClass().getClassLoader().getResourceAsStream("src/test/resources/automation.test.host_updated.jar"))
 
         waitForAssert({
-            assertThat testAutomationProviderFragmet.getState(), is(Bundle.RESOLVED)
-            ModuleType m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
-            assertThat m, is(notNullValue())
-            m = moduleTypeRegistry.get("AutomationTestFragmentAction")
-            assertThat m, is(notNullValue())
-            m = moduleTypeRegistry.get("AutomationTestHostAction")
-            assertThat m, is(notNullValue())
-        }, 3000, 200)
-
-        testAutomationProviderHost.update(getClass().getClassLoader().getResourceAsStream("src/test/resources/automation.test.host_updated.jar"))
-        assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
-
-        waitForAssert({
+            assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
             assertThat testAutomationProviderFragmet.getState(), is(Bundle.RESOLVED)
             ModuleType m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
             assertThat m, is(notNullValue())
@@ -338,21 +348,29 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         // first uninstall the fragment
         testAutomationProviderFragmet.uninstall()
         assertThat testAutomationProviderFragmet.getState(), is(Bundle.UNINSTALLED)
+        waiting = true
+        listener = new FrameworkListener() {
+                    public void frameworkEvent(FrameworkEvent event) {
+                        waiting = false
+                        // assert that the host is updated and only its resources are available
+                        ModuleType m = moduleTypeRegistry.get("AutomationTestHostAction")
+                        assertThat m, is(notNullValue())
+                        m = moduleTypeRegistry.get("AutomationTestHostTrigger")
+                        assertThat m, is(notNullValue())
+                        m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
+                        assertThat m, is(nullValue())
+                        m = moduleTypeRegistry.get("AutomationTestFragmentAction")
+                        assertThat m, is(nullValue())
+                    }
+                }
+        frameworkWiring.refreshBundles(bundles, listener)
+        while ({
+            sleep(3000)
+            waiting == true
+        }()) continue
 
-        // assert that the host is updated and only its resources are available
-        waitForAssert({
-            ModuleType m = moduleTypeRegistry.get("AutomationTestHostAction")
-            assertThat m, is(notNullValue())
-            m = moduleTypeRegistry.get("AutomationTestHostTrigger")
-            assertThat m, is(notNullValue())
-            m = moduleTypeRegistry.get("AutomationTestFragmentTrigger")
-            assertThat m, is(nullValue())
-            m = moduleTypeRegistry.get("AutomationTestFragmentAction")
-            assertThat m, is(nullValue())
-        }, 3000, 200)
-
-        // then uninstall the host
-        testAutomationProviderHost.uninstall()
+            // then uninstall the host
+            testAutomationProviderHost.uninstall()
         assertThat testAutomationProviderHost.getState(), is(Bundle.UNINSTALLED)
 
         // assert that the host resources also are removed
