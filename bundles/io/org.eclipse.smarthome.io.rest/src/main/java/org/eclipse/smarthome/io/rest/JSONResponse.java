@@ -13,6 +13,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.Provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -142,11 +145,19 @@ public class JSONResponse {
      */
     @Provider
     public static class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exception> {
+
+        private final Logger logger = LoggerFactory.getLogger(ExceptionMapper.class);
+
         /**
          * create JSON Response
          */
+
         @Override
         public Response toResponse(Exception e) {
+
+            // always log exception
+            logger.debug("Exception in REST call", e);
+
             Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
 
             // in case the Exception is a WebApplicationException, it already carries a Status
