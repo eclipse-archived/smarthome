@@ -146,7 +146,7 @@ public class JSONResponse {
     @Provider
     public static class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Exception> {
 
-        private final static Logger logger = LoggerFactory.getLogger(ExceptionMapper.class);
+        private final Logger logger = LoggerFactory.getLogger(ExceptionMapper.class);
 
         /**
          * create JSON Response
