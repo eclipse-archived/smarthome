@@ -17,7 +17,6 @@ import java.util.Properties;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -33,7 +32,6 @@ public class MapTransformationServiceTest {
     }
 
     @Test
-    @Ignore
     public void testTransformByMap() throws TransformationException {
 
         String existingGermanFilename = "map/doorstatus_de.map";
@@ -69,11 +67,11 @@ public class MapTransformationServiceTest {
             e1.printStackTrace();
         }
 
-        // Test that an unknown input in an existing file give the expected behaviour
-        // transformed response shall be the same as source if not found in the file
+        // Checks that an unknown input in an existing file give the expected
+        // transformed response that shall be empty string (Issue #1107) if not found in the file
         source = "UNKNOWN";
         transformedResponse = processor.transform(existingGermanFilename, source);
-        Assert.assertEquals(source, transformedResponse);
+        Assert.assertEquals("", transformedResponse);
 
         // Test that an inexisting file raises correct exception as expected
         source = "CLOSED";
