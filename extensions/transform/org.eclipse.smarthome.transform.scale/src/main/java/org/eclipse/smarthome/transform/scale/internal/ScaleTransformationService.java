@@ -16,9 +16,9 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.eclipse.smarthome.core.transform.TransformationService;
-import org.eclipse.smarthome.core.transform.AbstractFileTransformationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,74 +54,82 @@ public class ScaleTransformationService extends AbstractFileTransformationServic
      *
      */
     @Override
-    protected String internalTransform(Map<Range<Double>, String> data, String source)  throws TransformationException {
-        
-        Double value = null;
+    protected String internalTransform(Map<Range<Double>, String> data, String source) throws TransformationException {
+
         try {
-            value = new Double(source);
+            Double value = new Double(source);
+
             for (Range<Double> range : data.keySet()) {
                 if (range.contains(value)) {
                     return data.get(range);
                 }
             }
-            logger.debug("No matching range for '{}'", source);
+
+            throw new TransformationException("No matching range for '" + source + "'");
         } catch (NumberFormatException e) {
-            logger.debug("Scale can not work with non numeric input");          
+            throw new TransformationException("Scale can only be used with numeric inputs");
         }
-        return null;
     }
-    
+
     @Override
     protected Map<Range<Double>, String> internalLoadTransform(String filename) throws TransformationException {
         try {
             Properties properties = new Properties();
             properties.load(new FileReader(filename));
-            Map<Range<Double>,String> data = new HashMap<Range<Double>,String>();
-            
+            Map<Range<Double>, String> data = new HashMap<>();
+
             for (Entry<Object, Object> f : properties.entrySet()) {
                 String key = (String) f.getKey();
                 String value = properties.getProperty(key);
                 Matcher matcher = limits_pattern.matcher(key);
                 if (matcher.matches() && (matcher.groupCount() == 4)) {
-                    
-                    BoundType lowBoundType = matcher.group(1).equals("]") ? BoundType.OPEN  : BoundType.CLOSED;
+
+                    BoundType lowBoundType = matcher.group(1).equals("]") ? BoundType.OPEN : BoundType.CLOSED;
                     BoundType highBoundType = matcher.group(4).equals("[") ? BoundType.OPEN : BoundType.CLOSED;
 
                     String lowLimit = matcher.group(2);
                     String highLimit = matcher.group(3);
 
-                    Range<Double> range = null;
-
                     Double lowValue = null;
                     Double highValue = null;
 
                     try {
-                        if (!lowLimit.isEmpty()) lowValue = new Double(lowLimit);
-                        if (!highLimit.isEmpty()) highValue = new Double(highLimit);
+                        if (!lowLimit.isEmpty()) {
+                            lowValue = new Double(lowLimit);
+                        }
+                        if (!highLimit.isEmpty()) {
+                            highValue = new Double(highLimit);
+                        }
                     } catch (NumberFormatException e) {
-                        throw new TransformationException("Error parsing bounds : "+lowLimit+".."+highLimit);
+                        throw new TransformationException("Error parsing bounds : " + lowLimit + ".." + highLimit);
                     }
 
-                    if (lowValue == null && highValue == null) {
-                        range = Ranges.all();
-                    } else if (lowValue == null) {
-                        range = Ranges.upTo(highValue, highBoundType);
-                    } else if (highValue == null) {
-                        range = Ranges.downTo(lowValue, lowBoundType);
-                    } else {
-                        range = Ranges.range(lowValue, lowBoundType, highValue, highBoundType);
-                    }
-                    
+                    Range<Double> range = getRange(lowBoundType, highBoundType, lowValue, highValue);
+
                     data.put(range, value);
-                    
+
                 } else {
-                    logger.warn("Scale transform entry does not comply with syntax : '{}', '{}'",key,value);
+                    logger.warn("Scale transform entry does not comply with syntax : '{}', '{}'", key, value);
                 }
             }
             return data;
         } catch (IOException e) {
             throw new TransformationException("An error occured while opening file.", e);
-        }       
+        }
+    }
+
+    private Range<Double> getRange(BoundType lowBoundType, BoundType highBoundType, Double lowValue, Double highValue) {
+
+        if (lowValue == null && highValue == null) {
+            return Ranges.all();
+        } else if (lowValue == null) {
+            return Ranges.upTo(highValue, highBoundType);
+        } else if (highValue == null) {
+            return Ranges.downTo(lowValue, lowBoundType);
+        } else {
+            return Ranges.range(lowValue, lowBoundType, highValue, highBoundType);
+        }
+
     }
 
 }

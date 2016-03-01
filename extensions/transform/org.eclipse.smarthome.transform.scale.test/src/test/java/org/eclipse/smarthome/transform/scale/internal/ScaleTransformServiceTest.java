@@ -7,88 +7,88 @@
  */
 package org.eclipse.smarthome.transform.scale.internal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.eclipse.smarthome.core.transform.TransformationException;
-import org.eclipse.smarthome.transform.scale.internal.ScaleTransformationService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Gaël L'hopital
+ * @author Gaël L'hopital - Initial contribution
  */
 public class ScaleTransformServiceTest {
     private ScaleTransformationService processor;
-    
+
     @Before
     public void init() {
         processor = new ScaleTransformationService();
     }
-    
+
     @Test
     public void testTransformByScale() throws TransformationException {
-        
-    	// need to be sur we'll have the german version
+
+        // need to be sure we'll have the german version
         String existingscale = "scale/humidex_de.scale";
-        String source="10";
+        String source = "10";
         String transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("nicht wesentlich", transformedResponse);
-        
+
         existingscale = "scale/limits.scale";
-        source="10";
+        source = "10";
         transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("middle", transformedResponse);
-        
+
     }
-    
+
     @Test
     public void testTransformByScaleLimits() throws TransformationException {
         String existingscale = "scale/limits.scale";
-        
+
         // Testing upper bound opened range
-        String source="500";
+        String source = "500";
         String transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("extreme", transformedResponse);
-        
+
         // Testing lower bound opened range
-        source="-10";
+        source = "-10";
         transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("low", transformedResponse);
-        
+
         // Testing unfinite up and down range
         existingscale = "scale/catchall.scale";
-        source="-10";
+        source = "-10";
         transformedResponse = processor.transform(existingscale, source);
         Assert.assertEquals("catchall", transformedResponse);
     }
-    
+
     @Test
     public void testTransformByScaleUndef() throws TransformationException {
-        
-    	// check that for undefined/non numeric value we return the original value
+
+        // check that for undefined/non numeric value we return empty string
+        // Issue #1107
         String existingscale = "scale/humidex_fr.scale";
-        String source="-";
+        String source = "-";
         String transformedResponse = processor.transform(existingscale, source);
-        Assert.assertEquals("-", transformedResponse);
-        
+        Assert.assertEquals("", transformedResponse);
+
     }
-    
+
     @Test
     public void testTransformByScaleErrorInBounds() throws TransformationException {
-        
-    	// the tested file contains inputs that generate a conversion error of the bounds
-    	// of range
+
+        // the tested file contains inputs that generate a conversion error of the bounds
+        // of range
         String existingscale = "scale/erroneous.scale";
-        String source="15";
+        String source = "15";
         try {
-       		@SuppressWarnings("unused")
-			String transformedResponse = processor.transform(existingscale, source);
-        	fail();
+            @SuppressWarnings("unused")
+            String transformedResponse = processor.transform(existingscale, source);
+            fail();
         } catch (TransformationException e) {
-        	// awaited result
+            // awaited result
         }
-        
+
     }
-    
+
 }
