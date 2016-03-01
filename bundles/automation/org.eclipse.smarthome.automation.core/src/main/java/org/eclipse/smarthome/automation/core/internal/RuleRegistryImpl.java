@@ -89,7 +89,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public synchronized void add(Rule element) {
+    public synchronized Rule add(Rule element) {
         if (element == null) {
             throw new IllegalArgumentException("The added rule must not be null!");
         }
@@ -102,6 +102,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         }
         super.add(ruleToPersist);
         postEvent(RuleEventFactory.createRuleAddedEvent(ruleToPersist, SOURCE));
+        return ruleToPersist;
     }
 
     @Override
