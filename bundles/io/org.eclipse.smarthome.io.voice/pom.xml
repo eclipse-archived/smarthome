@@ -8,15 +8,15 @@
   </parent>
 
   <properties>
-    <bundle.symbolicName>org.eclipse.smarthome.io.multimedia</bundle.symbolicName>
-    <bundle.namespace>org.eclipse.smarthome.io.multimedia</bundle.namespace>
+    <bundle.symbolicName>org.eclipse.smarthome.io.voice</bundle.symbolicName>
+    <bundle.namespace>org.eclipse.smarthome.io.voice</bundle.namespace>
   </properties>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.smarthome.io</groupId>
-  <artifactId>org.eclipse.smarthome.io.multimedia</artifactId>
+  <artifactId>org.eclipse.smarthome.io.voice</artifactId>
 
-  <name>Eclipse SmartHome Multimedia I/O</name>
+  <name>Eclipse SmartHome Voice I/O</name>
 
   <packaging>eclipse-plugin</packaging>
 </project>

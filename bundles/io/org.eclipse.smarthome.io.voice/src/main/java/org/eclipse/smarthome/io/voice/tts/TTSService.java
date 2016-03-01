@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.multimedia.tts;
+package org.eclipse.smarthome.io.voice.tts;
 
 /**
  * This is the interface that a text-to-speech service has to implement.
