@@ -21,7 +21,6 @@
     <module>org.eclipse.smarthome.io.console.rfc147</module>
     <module>org.eclipse.smarthome.io.console.karaf</module>
     <module>org.eclipse.smarthome.io.monitor</module>
-    <module>org.eclipse.smarthome.io.multimedia</module>
     <module>org.eclipse.smarthome.io.net</module>
     <module>org.eclipse.smarthome.io.net.test</module>
     <module>org.eclipse.smarthome.io.rest</module>
@@ -35,6 +34,7 @@
     <module>org.eclipse.smarthome.io.transport.mqtt</module>
     <module>org.eclipse.smarthome.io.transport.upnp</module>
     <module>org.eclipse.smarthome.io.transport.upnp.test</module>
+    <module>org.eclipse.smarthome.io.voice</module>
   </modules>
 
 </project>
