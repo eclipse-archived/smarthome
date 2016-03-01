@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.multimedia.internal;
+package org.eclipse.smarthome.io.voice.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  */
-public class MultimediaActivator implements BundleActivator {
+public class VoiceActivator implements BundleActivator {
 
-    private final Logger logger = LoggerFactory.getLogger(MultimediaActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(VoiceActivator.class);
 
     private static BundleContext context;
 
@@ -29,7 +29,7 @@ public class MultimediaActivator implements BundleActivator {
     @Override
     public void start(BundleContext bc) throws Exception {
         context = bc;
-        logger.debug("Multimedia I/O bundle has been started.");
+        logger.debug("Voice I/O bundle has been started.");
     }
 
     /**
@@ -38,12 +38,12 @@ public class MultimediaActivator implements BundleActivator {
     @Override
     public void stop(BundleContext bc) throws Exception {
         context = null;
-        logger.debug("Multimedia I/O bundle has been stopped.");
+        logger.debug("Voice I/O bundle has been stopped.");
     }
 
     /**
      * Returns the bundle context of this bundle
-     * 
+     *
      * @return the bundle context
      */
     public static BundleContext getContext() {

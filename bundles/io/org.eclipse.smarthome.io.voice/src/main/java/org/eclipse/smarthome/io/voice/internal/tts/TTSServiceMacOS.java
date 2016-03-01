@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.multimedia.internal.tts;
+package org.eclipse.smarthome.io.voice.internal.tts;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.eclipse.smarthome.io.multimedia.tts.TTSService;
+import org.eclipse.smarthome.io.voice.tts.TTSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

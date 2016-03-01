@@ -8,10 +8,10 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.multimedia.tts.mac">
-   <implementation class="org.eclipse.smarthome.io.multimedia.internal.tts.TTSServiceMacOS"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.voice.tts.mac">
+   <implementation class="org.eclipse.smarthome.io.voice.internal.tts.TTSServiceMacOS"/>
    <service>
-      <provide interface="org.eclipse.smarthome.io.multimedia.tts.TTSService"/>
+      <provide interface="org.eclipse.smarthome.io.voice.tts.TTSService"/>
    </service>
    <property name="os" type="String" value="macosx"/>
 </scr:component>
