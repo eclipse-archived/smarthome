@@ -41,7 +41,16 @@ public class InterpretConsoleCommandExtension extends AbstractConsoleCommandExte
 
     @Override
     public void execute(String[] args, Console console) {
-        String msg = String.join(" ", args);
+        if (args.length < 1) {
+            console.println("Nothing to interpret");
+            return;
+        }
+        StringBuilder sb = new StringBuilder(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            sb.append(" ");
+            sb.append(args[i]);
+        }
+        String msg = sb.toString();
         BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
         Collection<ServiceReference<HumanLanguageInterpreter>> refs = null;
         try {
