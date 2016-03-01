@@ -41,8 +41,8 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
         logger.debug("TestHueThingTypeProvider created");
         try {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_BRIDGE,
-                    new BridgeType(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", null,
-                            null, null, null));
+                    new BridgeType(TestHueThingHandlerFactory.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", false,
+                            null, null, null, null));
 
             ChannelDefinition color = new ChannelDefinition("color", TestHueChannelTypeProvider.COLOR_CHANNEL_TYPE_UID);
 
@@ -51,12 +51,12 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
             thingTypes.put(TestHueThingHandlerFactory.THING_TYPE_LCT001,
                     new ThingType(TestHueThingHandlerFactory.THING_TYPE_LCT001,
                             Lists.newArrayList(TestHueThingHandlerFactory.THING_TYPE_BRIDGE.toString()), "LCT001",
-                            "Hue LAMP", Lists.newArrayList(color, colorTemp), null, null,
+                            "Hue LAMP", false, Lists.newArrayList(color, colorTemp), null, null,
                             new URI("hue", "LCT001", null)));
 
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE,
-                    new BridgeType(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", null,
-                            null, null, null));
+                    new BridgeType(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE, null, "HueBridge", "HueBridge", false,
+                            null, null, null, null));
 
             ChannelDefinition colorX = new ChannelDefinition("Xcolor",
                     TestHueChannelTypeProvider.COLORX_CHANNEL_TYPE_UID);
@@ -66,7 +66,7 @@ public class TestHueThingTypeProvider implements ThingTypeProvider {
             thingTypes.put(TestHueThingHandlerFactoryX.THING_TYPE_LCT001,
                     new ThingType(TestHueThingHandlerFactoryX.THING_TYPE_LCT001,
                             Lists.newArrayList(TestHueThingHandlerFactoryX.THING_TYPE_BRIDGE.toString()), "XLCT001",
-                            "Hue LAMP", Lists.newArrayList(colorX, colorTempX), null, null,
+                            "Hue LAMP", false, Lists.newArrayList(colorX, colorTempX), null, null,
                             new URI("Xhue", "XLCT001", null)));
         } catch (Exception e) {
             logger.error(e.getMessage());
