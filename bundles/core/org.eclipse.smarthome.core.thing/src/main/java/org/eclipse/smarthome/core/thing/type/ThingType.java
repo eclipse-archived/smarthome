@@ -62,6 +62,40 @@ public class ThingType extends AbstractDescriptionType {
      * @param description the human readable description for the according type
      *            (could be null or empty)6
      *
+     * @param channelDefinitions the channels this Thing type provides (could be null or empty)
+     *
+     * @param channelGroupDefinitions the channel groups defining the channels this Thing type
+     *            provides (could be null or empty)
+     *
+     * @param properties the properties this Thing type provides (could be null)
+     *
+     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     *
+     * @throws IllegalArgumentException
+     *             if the UID is null or empty, or the the meta information is null
+     */
+    public ThingType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
+            List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
+            Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
+        this(uid, supportedBridgeTypeUIDs, label, description, true, channelDefinitions, channelGroupDefinitions,
+                properties, configDescriptionURI);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this Thing type within the overall system
+     *            (must neither be null, nor empty)
+     *
+     * @param supportedBridgeTypeUIDs the unique identifiers of the bridges this Thing type supports
+     *            (could be null or empty)
+     *
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     *
+     * @param description the human readable description for the according type
+     *            (could be null or empty)6
+     *
      * @param listed detemines whether it should be listed for manually pairing or not
      *
      * @param channelDefinitions the channels this Thing type provides (could be null or empty)
