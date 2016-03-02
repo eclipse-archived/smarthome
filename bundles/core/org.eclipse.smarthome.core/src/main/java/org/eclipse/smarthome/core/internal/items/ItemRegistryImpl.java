@@ -355,7 +355,7 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
         Collection<Item> items = getItemsByTag(tags);
         for (Item item : items) {
             if (typeFilter.isInstance(item)) {
-                filteredItems.add((T) filteredItems);
+                filteredItems.add((T) item);
             }
         }
         return filteredItems;
