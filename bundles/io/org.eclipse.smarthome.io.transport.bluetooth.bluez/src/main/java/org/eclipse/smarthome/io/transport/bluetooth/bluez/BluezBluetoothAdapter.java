@@ -108,6 +108,7 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
 
             adapter1 = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath, Adapter1.class);
 
+            // Setting the discovery filter should ensure we get more notifications about RSSI
             Map<String, Variant> scanProperties = new HashMap<String, Variant>(1);
             scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_RSSI,
                     new Variant(new Short((short) -125)));
@@ -115,7 +116,7 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
         } catch (DBusException e) {
             e.printStackTrace();
         } catch (DBusExecutionException e) {
-            logger.debug("DBus method failed: {}", e.getMessage());
+            logger.error("DBus method failed: {}", e.getMessage());
         }
     }
 
