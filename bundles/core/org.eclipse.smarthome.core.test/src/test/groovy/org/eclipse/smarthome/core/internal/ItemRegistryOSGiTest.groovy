@@ -14,6 +14,7 @@ import static org.junit.matchers.JUnitMatchers.*
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.eclipse.smarthome.core.events.EventSubscriber
+import org.eclipse.smarthome.core.items.GenericItem
 import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.items.Item
 import org.eclipse.smarthome.core.items.ItemProvider
@@ -33,11 +34,12 @@ import org.junit.Test
 import com.google.common.collect.Sets
 
 /**
- * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.  
- * 
+ * The {@link ItemRegistryOSGiTest} runs inside an OSGi container and tests the {@link ItemRegistry}.
+ *
  * @author Dennis Nobel - Initial contribution
  * @author Andre Fuechsel - extended with tag tests
  * @author Kai Kreuzer - added tests for all items changed cases
+ * @author Sebastian Janzen - added test for getItemsByTag
  */
 class ItemRegistryOSGiTest extends OSGiTest {
 
@@ -172,6 +174,29 @@ class ItemRegistryOSGiTest extends OSGiTest {
         unregisterService itemProvider
 
         assertThat itemRegistry.getItems().size(), is(0)
+    }
+
+    @Test
+    void 'assert getItemsByTag can filter by class and tag'() {
+
+      assertThat itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG).size(), is(0)
+
+      registerService itemProvider
+
+      def items = itemRegistry.getItemsByTag(SwitchItem.class, CAMERA_TAG)
+      assertThat items.size(), is(2)
+      assertThat items.first().name, is(equalTo(CAMERA_ITEM_NAME1))
+      assertThat items.last().name, is(equalTo(CAMERA_ITEM_NAME2))
+    }
+
+    @Test
+    void 'assert getItemsByTag can filter by class and tag with GenericItem'() {
+
+      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(0)
+
+      registerService itemProvider
+
+      assertThat itemRegistry.getItemsByTag(GenericItem.class, CAMERA_TAG).size(), is(3)
     }
 
     @Test
