@@ -1026,10 +1026,11 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
     }
 
     @Override
-    public void add(Item element) {
+    public Item add(Item element) {
         if (itemRegistry != null) {
-            itemRegistry.add(element);
+            return itemRegistry.add(element);
         }
+        return element;
     }
 
     @Override

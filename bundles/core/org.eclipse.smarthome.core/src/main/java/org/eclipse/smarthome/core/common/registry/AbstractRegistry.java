@@ -107,9 +107,10 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
     }
 
     @Override
-    public void add(E element) {
+    public E add(E element) {
         if (this.managedProvider != null) {
             this.managedProvider.add(element);
+            return element;
         } else {
             throw new IllegalStateException("ManagedProvider is not available");
         }
