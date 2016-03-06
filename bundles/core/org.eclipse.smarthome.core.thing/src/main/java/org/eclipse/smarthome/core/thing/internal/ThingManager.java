@@ -177,7 +177,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 // only allow REMOVING -> REMOVED transition and ignore all other state changes
                 return;
             }
-            ThingStatus oldStatus = thing.getStatus();
+            ThingStatusInfo oldStatusInfo = thing.getStatusInfo();
 
             // update thing status and send event with new status
             setThingStatus(thing, thingStatus);
@@ -186,14 +186,19 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             if (thing instanceof Bridge) {
                 Bridge bridge = (Bridge) thing;
                 // notify all child-things about bridge initialization
-                if (oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
+                if (oldStatusInfo.getStatus() == ThingStatus.INITIALIZING && isInitialized(thing)) {
                     notifyThingsAboutBridgeInitialization(bridge);
                 }
-                // notify all child-things that bridge is ONLINE/OFFLINE
-                notifyThingsAboutBridgeStatusUpdate(thingStatus, bridge);
+                // update status of child-things
+                updateThingStatus(thingStatus, bridge);
+                // notify child-things about bridge status change, if bridge status is ONLINE/OFFLINE
+                if(!oldStatusInfo.equals(thingStatus)) {
+                    notifyThingsAboutBridgeStatusChange(thingStatus, bridge);
+                }
             }
             // if thing has a bridge: determine if bridge has been initialized and notify thing handler about it
-            if (thing.getBridgeUID() != null && oldStatus == ThingStatus.INITIALIZING && isInitialized(thing)) {
+            if (thing.getBridgeUID() != null && oldStatusInfo.getStatus() == ThingStatus.INITIALIZING
+                    && isInitialized(thing)) {
                 notifyThingAboutBridgeInitialization(thing);
             }
             // notify thing about its removal
@@ -754,7 +759,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         });
     }
 
-    private void notifyThingsAboutBridgeStatusUpdate(final ThingStatusInfo thingStatus, final Bridge bridge) {
+    private void updateThingStatus(final ThingStatusInfo thingStatus, final Bridge bridge) {
         for (final Thing bridgeChildThing : bridge.getThings()) {
             final ThingStatusInfo bridgeChildThingStatus = bridgeChildThing.getStatusInfo();
             if (bridgeChildThingStatus.getStatus() == ThingStatus.ONLINE
@@ -777,6 +782,28 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         } catch (Exception ex) {
                             logger.error("Exception occured during status update of thing '" + bridgeChildThing.getUID()
                                     + "': " + ex.getMessage(), ex);
+                        }
+                    }
+                });
+            }
+        }
+    }
+    
+    private void notifyThingsAboutBridgeStatusChange(final ThingStatusInfo bridgeStatus, final Bridge bridge) {
+        if (bridgeStatus.getStatus() == ThingStatus.ONLINE || bridgeStatus.getStatus() == ThingStatus.OFFLINE) {
+
+            for (final Thing bridgeChildThing : bridge.getThings()) {
+                ThreadPoolManager.getPool(THING_MANAGER_THREADPOOL_NAME).execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ThingHandler handler = bridgeChildThing.getHandler();
+                            if (handler != null) {
+                                handler.bridgeStatusChanged(bridgeStatus);
+                            }
+                        } catch (Exception ex) {
+                            logger.error("Exception occured during notification about bridge status change on thing '"
+                                    + bridgeChildThing.getUID() + "': " + ex.getMessage(), ex);
                         }
                     }
                 });
