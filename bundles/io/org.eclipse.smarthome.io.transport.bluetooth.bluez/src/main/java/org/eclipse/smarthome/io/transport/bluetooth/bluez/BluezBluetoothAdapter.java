@@ -61,62 +61,73 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
         logger.debug("Creating BlueZ adapter at '{}'", dbusPath);
 
         try {
-            String dbusAddress = System.getProperty(BluezBluetoothConstants.BLUEZ_DBUS_CONFIGURATION);
-            if (dbusAddress == null) {
-                connection = DBusConnection.getConnection(DBusConnection.SYSTEM);
-            } else {
-                connection = DBusConnection.getConnection(dbusAddress);
+            try {
+                String dbusAddress = System.getProperty(BluezBluetoothConstants.BLUEZ_DBUS_CONFIGURATION);
+                if (dbusAddress == null) {
+                    connection = DBusConnection.getConnection(DBusConnection.SYSTEM);
+                } else {
+                    connection = DBusConnection.getConnection(dbusAddress);
+                }
+                logger.debug("BlueZ connection opened at {}", connection.getUniqueName());
+            } catch (DBusExecutionException e) {
+                logger.error("DBus method failed connecting: {}", e.getMessage());
             }
-            logger.debug("BlueZ connection opened at {}", connection.getUniqueName());
 
-            ObjectManager objectManager = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, "/",
-                    ObjectManager.class);
-            Map<Path, Map<String, Map<String, Variant>>> managedObjects = objectManager.GetManagedObjects();
+            try {
+                ObjectManager objectManager = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE,
+                        "/", ObjectManager.class);
+                Map<Path, Map<String, Map<String, Variant>>> managedObjects = objectManager.GetManagedObjects();
 
-            // Notify our user(s) of any devices that already exist - otherwise they won't know about them!
-            if (managedObjects != null) {
-                for (Map<String, Map<String, Variant>> managedObject : managedObjects.values()) {
-                    Map<String, Variant> deviceProperties = managedObject
-                            .get(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_DEVICE1);
-                    if (deviceProperties == null) {
-                        continue;
-                    }
+                // Notify our user(s) of any devices that already exist - otherwise they won't know about them!
+                if (managedObjects != null) {
+                    for (Map<String, Map<String, Variant>> managedObject : managedObjects.values()) {
+                        Map<String, Variant> deviceProperties = managedObject
+                                .get(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_DEVICE1);
+                        if (deviceProperties == null) {
+                            continue;
+                        }
 
-                    Variant adapterPath = deviceProperties
-                            .get(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_ADAPTER);
-                    if (adapterPath == null) {
-                        continue;
-                    }
+                        Variant adapterPath = deviceProperties
+                                .get(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_ADAPTER);
+                        if (adapterPath == null) {
+                            continue;
+                        }
 
-                    String adapterName = adapterPath.getValue().toString();
-                    if (dbusPath.equals(adapterName)) {
-                        addInterface(deviceProperties);
+                        String adapterName = adapterPath.getValue().toString();
+                        if (dbusPath.equals(adapterName)) {
+                            addInterface(deviceProperties);
+                        }
                     }
                 }
+            } catch (DBusExecutionException e) {
+                logger.error("DBus method failed getting managed objects: {}", e.getMessage());
             }
 
-            propertyReader = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath,
-                    DBus.Properties.class);
+            try {
+                propertyReader = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath,
+                        DBus.Properties.class);
 
-            Map<String, Variant> properties = propertyReader
-                    .GetAll(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1);
-            updateProperties(properties);
+                Map<String, Variant> properties = propertyReader
+                        .GetAll(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1);
+                updateProperties(properties);
 
-            connection.addSigHandler(PropertiesChanged.class, this);
-            connection.addSigHandler(InterfacesAdded.class, this);
-            connection.addSigHandler(InterfacesRemoved.class, this);
+                connection.addSigHandler(PropertiesChanged.class, this);
+                connection.addSigHandler(InterfacesAdded.class, this);
+                connection.addSigHandler(InterfacesRemoved.class, this);
 
-            adapter1 = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath, Adapter1.class);
+                adapter1 = connection.getRemoteObject(BluezBluetoothConstants.BLUEZ_DBUS_SERVICE, dbusPath,
+                        Adapter1.class);
 
-            // Setting the discovery filter should ensure we get more notifications about RSSI
-            Map<String, Variant> scanProperties = new HashMap<String, Variant>(1);
-            scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_RSSI,
-                    new Variant(new Short((short) -125)));
-            adapter1.SetDiscoveryFilter(scanProperties);
+                // Setting the discovery filter should ensure we get more notifications about RSSI
+                Map<String, Variant> scanProperties = new HashMap<String, Variant>(1);
+                scanProperties.put(BluezBluetoothConstants.BLUEZ_DBUS_DEVICE_PROPERTY_RSSI,
+                        new Variant(new Short((short) -125)));
+                adapter1.SetDiscoveryFilter(scanProperties);
+            } catch (DBusExecutionException e) {
+                logger.error("DBus method failed setting handlers: {}", e.getMessage());
+            }
         } catch (DBusException e) {
             e.printStackTrace();
-        } catch (DBusExecutionException e) {
-            logger.error("DBus method failed: {}", e.getMessage());
         }
     }
 
@@ -137,6 +148,9 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
 
     @Override
     public int getState() {
+        if (propertyReader == null) {
+            return STATE_OFF;
+        }
         state = ((Boolean) propertyReader.Get(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1,
                 BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_PROPERTY_POWERED)) ? STATE_ON : STATE_OFF;
 
@@ -181,6 +195,10 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
 
     @Override
     public boolean isDiscovering() {
+        if (propertyReader == null) {
+            return false;
+        }
+
         scanning = (Boolean) propertyReader.Get(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1,
                 BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_PROPERTY_DISCOVERING);
 
@@ -194,12 +212,20 @@ public class BluezBluetoothAdapter extends BluetoothAdapter implements DBusSigHa
 
     @Override
     public void enable() {
+        if (propertyReader == null) {
+            return;
+        }
+
         propertyReader.Set(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1,
                 BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_PROPERTY_POWERED, true);
     }
 
     @Override
     public void disable() {
+        if (propertyReader == null) {
+            return;
+        }
+
         propertyReader.Set(BluezBluetoothConstants.BLUEZ_DBUS_INTERFACE_ADAPTER1,
                 BluezBluetoothConstants.BLUEZ_DBUS_ADAPTER_PROPERTY_POWERED, false);
     }
