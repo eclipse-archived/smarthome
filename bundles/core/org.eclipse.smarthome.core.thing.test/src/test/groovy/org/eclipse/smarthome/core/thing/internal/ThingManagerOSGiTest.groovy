@@ -746,6 +746,57 @@ class ThingManagerOSGiTest extends OSGiTest {
         }, 4000)
     }
     
+    @Test
+    void 'ThingManager calls bridgeStatusChanged on ThingHandler correctly'() {
+        ThingHandlerCallback callback;
+        def bridgeStatusChangedCalled = false
+        
+        def bridge = BridgeBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:bridgeUID-1")).build()
+        def bridgeHandler = [
+            setCallback: {callbackArg -> callback = callbackArg },
+            initialize: {},
+            dispose: {}
+        ] as ThingHandler
+        registerService(bridgeHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): bridge.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): bridge.getThingTypeUID()
+        ] as Hashtable)
+    
+        def thing = ThingBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:thingUID-1")).withBridge(bridge.getUID()).build()
+        def thingHandler = [
+            setCallback: {},
+            initialize: {},
+            dispose: {},
+            bridgeStatusChanged: {bridgeStatusChangedCalled = true}
+        ] as ThingHandler
+        registerService(thingHandler,[
+            (ThingHandler.SERVICE_PROPERTY_THING_ID): thing.getUID(),
+            (ThingHandler.SERVICE_PROPERTY_THING_TYPE): thing.getThingTypeUID()
+        ] as Hashtable)
+
+        managedThingProvider.add(bridge)
+        managedThingProvider.add(thing)
+        
+        assertThat bridgeStatusChangedCalled, is(false)
+        
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(bridge, statusInfo)
+        waitForAssert({assertThat bridgeStatusChangedCalled, is(true)})
+        bridgeStatusChangedCalled = false;
+
+        callback.statusUpdated(bridge, statusInfo)
+        waitForAssert({assertThat bridgeStatusChangedCalled, is(false)})
+        
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(bridge, statusInfo)
+        waitForAssert({assertThat bridgeStatusChangedCalled, is(true)})
+        bridgeStatusChangedCalled = false;
+        
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVED, ThingStatusDetail.NONE).build()
+        callback.statusUpdated(bridge, statusInfo)
+        waitForAssert({assertThat bridgeStatusChangedCalled, is(false)})
+    }
+    
     class SomeThingHandlerFactory extends BaseThingHandlerFactory {
 
         @Override

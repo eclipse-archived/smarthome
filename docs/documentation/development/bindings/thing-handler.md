@@ -32,7 +32,7 @@ The diagram below illustrates the startup of a handler in more detail. The life 
 
 The `ThingManager` tracks all Things and mediates the communication between the `Thing` and the `ThingHandler` from the binding. Therefore it tracks `ThingHandlerFactory`s and calls `ThingHandlerFactory.registerHandler(Thing)` for each thing, that was added. A `ThingHandlerFactory` has to create a new `ThingHandler` instance and and must register the instance as an OSGi service. 
 
-The `ThingHandlerTracker` notifies the `ThingManager` about the registered `ThingHandler` instance and determines if the `Thing` is initializable or not. A `Thing` is considered as *initializable* if all 'required' configuration parameters (cf. property *parameter.required* in [Configuration Description](xml-reference.html)) are available. If so, the method `ThingHandler.initialize()` is called in order to initialize the `Thing`. In this method the handler has to set the status to `ONLINE` resp. `OFFLINE` (cf. [Thing Status](../../concepts/things.html#thing-status)). Only Things in status `ONLINE` or `OFFLINE` are considered as *initialized*.
+The `ThingHandlerTracker` notifies the `ThingManager` about the registered `ThingHandler` instance and determines if the `Thing` is initializable or not. A `Thing` is considered as *initializable* if all 'required' configuration parameters (cf. property *parameter.required* in [Configuration Description](xml-reference.html)) are available. If so, the method `ThingHandler.initialize()` is called in order to initialize the `Thing`. If the initialization is done, the status must be set to `ONLINE` resp. `OFFLINE` (cf. [Thing Status](../../concepts/things.html#thing-status)). Only Things in status `ONLINE` or `OFFLINE` are considered as *initialized*.
 
 If the `Thing` is not initializable the configuration can be updated via `ThingHandler.handleConfigurationUpdate(Map)`. The binding has to notify the `ThingManager` about the updated configuration. The `ThingManager` tries to initialize the `ThingHandler` resp. `Thing` again.
 
@@ -49,6 +49,10 @@ The shutdown of a handler is also divided in two essential steps:
 ![thing_life_cycle_shutdown](diagrams/thing_life_cycle_shutdown.png)
 
 After the handler is disposed, the framework will not call the handler anymore. 
+
+## Bridge Status Changes
+
+A Thing is notified about status changes of its Bridge (only changes to ONLINE / OFFLINE). Therefore, the method `ThingHandler.bridgeStatusChanged(ThingStatusInfo)` must be implemented. If the Thing of this handler does not have a Bridge, this method is never called.
 
 ## Handling Commands
 
