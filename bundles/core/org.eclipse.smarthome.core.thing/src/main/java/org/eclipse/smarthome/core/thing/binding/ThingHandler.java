@@ -16,6 +16,7 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -155,5 +156,14 @@ public interface ThingHandler {
      *            bridge
      */
     void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge);
+
+    /**
+     * This method is called, when the status of the bridge has been changed to
+     * {@link ThingStatus#ONLINE} or {@link ThingStatus#OFFLINE}. If the thing
+     * of this handler does not have a bridge, this method is never called.
+     * 
+     * @param thingStatusInfo the status info of the bridge
+     */
+    void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo);
 
 }

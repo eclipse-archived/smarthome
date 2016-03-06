@@ -534,6 +534,11 @@ public abstract class BaseThingHandler implements ThingHandler {
         // do nothing by default, can be overridden by subclasses
     }
 
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
     protected void changeThingType(ThingTypeUID thingTypeUID, Configuration configuration) {
         if (this.callback != null) {
             this.callback.changeThingType(getThing(), thingTypeUID, configuration);
