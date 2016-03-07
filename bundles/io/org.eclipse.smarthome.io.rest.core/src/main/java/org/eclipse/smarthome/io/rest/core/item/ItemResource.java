@@ -448,7 +448,8 @@ public class ItemResource implements RESTResource {
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new item to the registry or updates the existing item.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 400, message = "Item null."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 201, message = "Item created."), @ApiResponse(code = 400, message = "Item null."),
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response createOrUpdateItem(
