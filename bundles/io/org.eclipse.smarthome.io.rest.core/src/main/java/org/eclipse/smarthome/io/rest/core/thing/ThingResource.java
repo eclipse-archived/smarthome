@@ -421,8 +421,11 @@ public class ThingResource implements RESTResource {
 
     @GET
     @Path("/{thingUID}/config/status")
+    @ApiOperation(value = "Gets thing's config status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Config status for thing not found.") })
     public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
-            @PathParam("thingUID") String thingUID) throws IOException {
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
             return Response.ok().entity(info.getConfigStatusMessages()).build();
