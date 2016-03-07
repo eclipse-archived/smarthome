@@ -29,8 +29,10 @@ Bundle-Activator: org.eclipse.smarthome.config.xml.internal.Activator
 Export-Package: com.thoughtworks.xstream,
  com.thoughtworks.xstream.annotations,
  com.thoughtworks.xstream.converters,
+ com.thoughtworks.xstream.converters.basic,
  com.thoughtworks.xstream.io,
  com.thoughtworks.xstream.io.xml,
+ com.thoughtworks.xstream.io.naming,
  org.eclipse.smarthome.config.xml,
  org.eclipse.smarthome.config.xml.osgi,
  org.eclipse.smarthome.config.xml.util
