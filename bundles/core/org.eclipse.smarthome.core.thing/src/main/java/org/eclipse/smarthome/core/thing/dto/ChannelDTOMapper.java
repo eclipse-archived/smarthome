@@ -34,7 +34,7 @@ public class ChannelDTOMapper {
         }
         ChannelTypeUID channelTypeUID = channel.getChannelTypeUID();
         String channelTypeUIDValue = channelTypeUID != null ? channelTypeUID.toString() : null;
-        return new ChannelDTO(channel.getUID().getId(), channelTypeUIDValue, channel.getAcceptedItemType().toString(),
+        return new ChannelDTO(channel.getUID(), channelTypeUIDValue, channel.getAcceptedItemType().toString(),
                 channel.getLabel(), channel.getDescription(), linkedItemNames, channel.getProperties(),
                 channel.getConfiguration());
     }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.ChannelUID;
 
 /**
  * This is a data transfer object that is used to serialize channels.
@@ -22,6 +23,7 @@ import org.eclipse.smarthome.config.core.Configuration;
 public class ChannelDTO {
 
     public List<String> linkedItems;
+    public String uid;
     public String id;
     public String channelTypeUID;
     public String itemType;
@@ -33,9 +35,10 @@ public class ChannelDTO {
     public ChannelDTO() {
     }
 
-    public ChannelDTO(String id, String channelTypeUID, String itemType, String label, String description,
+    public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, String label, String description,
             List<String> linkedItems, Map<String, String> properties, Configuration configuration) {
-        this.id = id;
+        this.uid = uid.toString();
+        this.id = uid.getId();
         this.channelTypeUID = channelTypeUID;
         this.itemType = itemType;
         this.label = label;
