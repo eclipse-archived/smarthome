@@ -35,14 +35,13 @@
 		class="thing-configure white-bg"
 		ng-if="page === 'manual-setup' && path[3] === 'configure'">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close"
-				ng-click="navigateTo('manual-setup/choose')" aria-label="Close"></md-button>
+			<md-button ng-click="navigateTo('manual-setup/choose')" aria-label="Close"><i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
 					<md-button title="Add" ng-click="addThing(thing)" ng-disabled="form.configForm.$invalid"
-						class="md-fab md-icon-check" aria-label="Add Thing">
+						class="md-fab" aria-label="Add Thing"><i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -59,16 +58,15 @@
 	<div ng-controller="InboxController" class="thing-add white-bg"
 		ng-if="page === 'search' && !path[3]">
 		<div class="header-toolbar">
-			<md-button title="Scan" class="md-icon-settings-input-antenna"
-				ng-click="showScanDialog($event)" aria-label="Scan"></md-button>
-			<md-button class="md-icon-refresh" ng-click="refresh()"
-				aria-label="Refresh"></md-button>
+			<md-button title="Scan"
+				ng-click="showScanDialog($event)" aria-label="Scan"><i class="material-icons">settings_input_antenna</i></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add"
-						ng-click="navigateTo('setup/bindings')" aria-label="Add Thing"></md-button>
+					<md-button class="md-fab"
+						ng-click="navigateTo('setup/bindings')" aria-label="Add Thing"><i class="material-icons">add</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -99,7 +97,7 @@
 					</div>
 
 					<div flex="10" layout="row" layout-align="end center">
-						<span class="md-icon-chevron-right"></span>
+						<i class="material-icons">chevron_right</i>
 					</div>
 				</div>
 				<hr ng-show="!$last" />
@@ -112,8 +110,8 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-refresh"
-						ng-click="scan(bindingId)" aria-label="Refresh" title="Refresh"></md-button>
+					<md-button class="md-fab"
+						ng-click="scan(bindingId)" aria-label="Refresh" title="Refresh"><i class="material-icons">refresh</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -170,7 +168,7 @@
 					</div>
 
 					<div flex="10" layout="row" layout-align="end center">
-						<span class="md-icon-chevron-right"></span>
+						<i class="material-icons">chevron_right</span>
 					</div>
 				</div>
 				<hr ng-show="!$last" />
@@ -181,13 +179,13 @@
 		class="thing-configure white-bg"
 		ng-if="page === 'setup' && path[3] === 'add'">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close" ng-click="navigateTo('setup')" aria-label="Close"></md-button>
+			<md-button ng-click="navigateTo('setup')" aria-label="Close"><i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
 					<md-button title="Add" ng-click="addThing(thing)" ng-disabled="form.configForm.$invalid"
-						class="md-fab md-icon-check" aria-label="Add">
+						class="md-fab" aria-label="Add"><i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>

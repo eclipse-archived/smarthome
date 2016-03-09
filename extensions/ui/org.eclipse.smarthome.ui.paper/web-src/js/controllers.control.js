@@ -99,12 +99,12 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 		'Blinds' : {},
 		'ColorLight' : {
 			label: 'Color',
-			icon: 'md-icon-wb-incandescent'
+			icon: 'wb_incandescent'
 		},
 		'Contact' : {},
 		'DimmableLight' : {
 			label: 'Brightness',
-			icon: 'md-icon-wb-incandescent'
+			icon: 'wb_incandescent'
 		},
 		'CarbonDioxide' : {
 			label: 'CO2'
@@ -130,7 +130,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 		'Smoke' : {},
 		'SoundVolume' : {
 			label: 'Volume',
-			icon: 'md-icon-volume-up',
+			icon: 'volume_up',
 			hideSwitch: true
 		},
 		'Switch' : {},
@@ -160,7 +160,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
 		}
     }
     $scope.getIcon = function (itemCategory, fallbackIcon) {
-    	var defaultIcon = fallbackIcon ? fallbackIcon : 'md-icon-radio-button-off';
+    	var defaultIcon = fallbackIcon ? fallbackIcon : 'radio_button_unchecked';
     	if(itemCategory) {
     		var category = categories[itemCategory];
     		if(category) {
