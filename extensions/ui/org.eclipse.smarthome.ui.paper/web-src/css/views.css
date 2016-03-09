@@ -96,7 +96,8 @@ section#main.header-tabs {
 }
 
 .items .item p[class^="icon-"]:before, .items .item p[class*=" icon-"]:before,
-.items .item p[class^="md-icon-"]:before, .items .item p[class*=" md-icon-"]:before,
+.items .item p[class^="material-icons"], .items .item p[class*=" material-icons"],
+.items .item i[class^="material-icons"], .items .item i[class*=" material-icons"],
 .items .item p[class^="home-icon-"]:before, .items .item p[class*=" home-icon-"]:before {
 	margin-right: 10px;
 	border-radius: 50%;
@@ -108,22 +109,8 @@ section#main.header-tabs {
 	font-size: 16px;
 	line-height: 32px;
 	padding: 10px;
-	font-family: 'md-icons';
+	display: inline;
 }
-
-.items .item [class^="md-icon-"], .items .item [class*=" md-icon-"] {
-	font-family: inherit;
-	font-weight: inherit;
-	color: inherit;
-	font-size: inherit;
-	-webkit-font-smoothing: inherit;
-  	-moz-osx-font-smoothing: inherit;
-}
-
-.items .item button[class*=" md-icon-"] {
-	font-family: 'md-icons';
-}
-
 
 .items .item md-input-container input {
 	text-align: right;

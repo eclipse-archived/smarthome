@@ -1,7 +1,6 @@
 <section id="main" class="white-bg extensions header-tabs">
 	<div class="header-toolbar">
-		<md-button class="md-icon-refresh" ng-click="refresh()"
-			aria-label="Refresh"></md-button>
+		<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 	</div>
 	<md-tabs md-stretch-tabs="always" class="section-tabs"
 		md-selected="selectedIndex"> <md-tab
@@ -9,13 +8,11 @@
 		label="{{extensionType.label}}" layout-fill>
 	<md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">
-		<md-icon ng-style="{'font-size': '24px'}" class="md-icon-search"></md-icon>
+		<i ng-style="{'font-size': '24px'}" class="material-icons">search</i>
 		<md-input-container flex="auto" md-no-float class="md-block">
 		<input ng-model="searchText" type="text" placeholder="Search">
 		</md-input-container>
-		<md-icon ng-click="searchText = undefined"
-			ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}"
-			class="md-icon-close"></md-icon>
+		<i ng-click="searchText = undefined" ng-class="{'vhidden': !searchText}" ng-style="{'font-size': '24px'}" class="material-icons">close</i>
 	</div>
 	<div class="container">
 
