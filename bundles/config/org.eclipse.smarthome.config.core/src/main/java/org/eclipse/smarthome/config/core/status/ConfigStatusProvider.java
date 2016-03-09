@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.config.core.status;
 
+import java.util.Collection;
 import java.util.Locale;
 
 import org.eclipse.smarthome.config.core.Configuration;
@@ -22,14 +23,12 @@ import org.eclipse.smarthome.config.core.Configuration;
 public interface ConfigStatusProvider {
 
     /**
-     * Retrieves the configuration status information for the {@link Configuration} of the entity if this configuration
-     * status provider supports the entity.
+     * Returns the configuration status in form of a collection of {@link ConfigStatusMessage}s for the
+     * {@link Configuration} of the entity that is supported by this {@link ConfigStatusProvider}.
      *
-     * @param locale the locale to be used for the corresponding internationalized configuration status messages
-     *
-     * @return the requested configuration status information
+     * @return the requested configuration status (not null)
      */
-    ConfigStatusInfo getConfigStatus(Locale locale);
+    Collection<ConfigStatusMessage> getConfigStatus();
 
     /**
      * Determines if the {@link ConfigStatusProvider} instance can provide the configuration status information for the

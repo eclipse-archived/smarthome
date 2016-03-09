@@ -130,7 +130,7 @@ class ConfigStatusInfoTest {
         assertThat info.getConfigStatusMessages("unknown").size(), is(0)
     }
 
-    def static ConfigStatusMessage createMessage(String paramName, Type type, String message, Integer statusCode=null) {
-        return new ConfigStatusMessage.Builder(paramName, type, message).withStatusCode(statusCode).build()
+    def static ConfigStatusMessage createMessage(String paramName, Type type, String messageKey, Integer statusCode=null) {
+        return new ConfigStatusMessage.Builder(paramName, type, messageKey).withStatusCode(statusCode).build()
     }
 }
