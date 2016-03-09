@@ -33,6 +33,12 @@
                 <description>Serial number of the hue bridge.</description>
                 <required>false</required>
             </parameter>
+            <parameter name="pollingInterval" type="integer" min="1" step="1">
+                <label>Polling Interval</label>
+                <description>Seconds between fetching values from the Bridge.</description>
+                <required>true</required>
+                <default>10</default>
+            </parameter>
         </config-description>
     </bridge-type>
 

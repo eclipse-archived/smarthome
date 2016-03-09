@@ -57,6 +57,7 @@ public class HueBindingConstants {
     public static final String HOST = "ipAddress";
     public static final String USER_NAME = "userName";
     public static final String SERIAL_NUMBER = "serialNumber";
+    public static final String POLLING_INTERVAL = "pollingInterval";
 
     // Light config properties
     public static final String LIGHT_ID = "lightId";
