@@ -14,18 +14,21 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
 import org.eclipse.smarthome.core.library.types.DecimalType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ConfigStatusThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
@@ -39,10 +42,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Stefan Bußweiler - Integrate new thing status handling
+ * @author Thomas Höfer - Added config status provider
  */
-public class YahooWeatherHandler extends BaseThingHandler {
+public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
-    private Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
+    private static final String LOCATION_NOT_FOUND = "yahooweather.configparam.location.notfound";
+    private static final String LOCATION_PARAM = "location";
+
+    private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
     private String location;
     private BigDecimal refresh;
@@ -67,6 +74,7 @@ public class YahooWeatherHandler extends BaseThingHandler {
         try {
             refresh = (BigDecimal) config.get("refresh");
         } catch (Exception e) {
+            logger.debug("Cannot set refresh parameter.", e);
         }
 
         if (refresh == null) {
@@ -127,21 +135,47 @@ public class YahooWeatherHandler extends BaseThingHandler {
         }
     }
 
+    @Override
+    public Collection<ConfigStatusMessage> getConfigStatus() {
+        Collection<ConfigStatusMessage> configStatus = new ArrayList<>();
+
+        try {
+            String weatherData = getWeatherData();
+            String result = StringUtils.substringBetween(weatherData, "<item><title>", "</title>");
+            if ("City not found".equals(result)) {
+                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM, LOCATION_NOT_FOUND)
+                        .withArguments(location).build());
+            }
+        } catch (IOException e) {
+            logger.debug("Communication error occurred while getting Yahoo weather information.", e);
+        }
+
+        return configStatus;
+    }
+
     private synchronized boolean updateWeatherData() {
+        try {
+            weatherData = getWeatherData();
+            if (weatherData != null) {
+                updateStatus(ThingStatus.ONLINE);
+                return true;
+            }
+        } catch (IOException e) {
+            logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
+        }
+        return false;
+    }
+
+    private String getWeatherData() throws IOException {
         String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=c";
         try {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
-            weatherData = IOUtils.toString(connection.getInputStream());
-            updateStatus(ThingStatus.ONLINE);
-            return true;
+            return IOUtils.toString(connection.getInputStream());
         } catch (MalformedURLException e) {
             logger.debug("Constructed url '{}' is not valid: {}", urlString, e.getMessage());
-            return false;
-        } catch (IOException e) {
-            logger.warn("Error accessing Yahoo weather: {}", e.getMessage());
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.COMMUNICATION_ERROR, e.getMessage());
-            return false;
+            return null;
         }
     }
 
