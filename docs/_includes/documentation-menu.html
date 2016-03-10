@@ -1,133 +1,57 @@
-{% include base.html %}
-{% assign docu = base | append: '/documentation' %}
+{% include base.html %} {% assign docu = base | append: '/documentation' %}
 
 <ul class="nav">
-	<li>
-		<a href="{{docu}}/index.html">Overview</a>
-	</li>
-	<li>
-        <a href="{{docu}}/concepts/items.html">Concepts</a>
-        <ul>
-            <li>
-                 <a href="{{docu}}/concepts/items.html">Items</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/concepts/things.html">Things</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/concepts/discovery.html">Inbox & Discovery</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/concepts/events.html">Events</a>
-            </li>
-		</ul>
-	</li>
-    <li>
-        <a href="{{docu}}/features/index.html">Features</a>
-        <ul>
-            <li>
-                 <a href="{{docu}}/features/index.html">Overview</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/rest.html">REST API</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/dsl.html">Textual Configuration</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/internationalization.html">Internationalization</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/rules.html">Rules</a>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/bindings/hue/readme.html">Bindings</a>
-                 <ul>
-		        	<li>
-		                 <a href="{{docu}}/features/bindings/hue/readme.html">Philips Hue</a>
-		            </li>
-		           	<li>
-		                 <a href="{{docu}}/features/bindings/lifx/readme.html">LIFX</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/features/bindings/wemo/readme.html">Belkin Wemo</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/features/bindings/yahooweather/readme.html">Yahoo Weather</a>
-		            </li>
-	            </ul>
-            </li>
-            <li>
-                 <a href="{{docu}}/features/ui/icons.html">User Interfaces</a>
-                 <ul>
-                     <li>
-                         <a href="{{docu}}/features/ui/icons.html">Icon Support</a>
-                     </li>    
-                     <li>
-                         <a href="{{docu}}/features/ui/paperui.html">Paper UI</a>
-                     </li>
-                 </ul>  
-            </li>
-    	</ul>
-    </li>
-	<li>
-        <a href="{{docu}}/development/ide.html">Development</a>
-        <ul>
-			<li>
-	        	<a href="{{docu}}/development/ide.html">IDE Setup</a>
-	        </li>
-            <li>
-                 <a href="{{docu}}/development/guidelines.html">Guidelines</a>
-            </li>
-        	<li>
-        		<a href="{{docu}}/development/bindings/how-to.html">Bindings</a>
-        		<ul>
-		        	<li>
-		                 <a href="{{docu}}/development/bindings/how-to.html">Binding Tutorial</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/development/bindings/thing-definition.html">Thing Definition</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/development/bindings/thing-handler.html">Thing Handler</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/development/bindings/xml-reference.html">XML Reference Guide</a>
-		            </li>
-					<li>
-		                 <a href="{{docu}}/development/bindings/dependencies.html">Dependencies</a>
-		            </li>
-                    <li>
-                         <a href="{{docu}}/development/bindings/discovery-services.html">Discovery</a>
-                    </li>
-		            <li>
-		                 <a href="{{docu}}/development/bindings/docs.html">Documentation</a>
-		            </li>
-		            <li>
-		                 <a href="{{docu}}/development/bindings/faq.html">FAQ</a>
-		            </li>
-				</ul>
-			</li>
-            <li>
-                 <a href="{{docu}}/development/rules/java-api.html">Rules</a>
-            </li>
-			<li>
-	        	<a href="{{docu}}/development/testing.html">Testing</a>
-	        </li>
-			<li>
-	        	<a href="{{docu}}/javadoc/index.html">API Reference</a>
-	        </li>
-    	</ul>    
-    </li>
-    <li>
-        <a href="{{docu}}/community/contributing.html">Community</a>
-        		<ul>
-		        	<li>
-		                 <a href="{{docu}}/community/contributing.html">Contributing</a>
-		            </li>
-		        	<li>
-		                 <a href="{{docu}}/community/downloads.html">Downloads</a>
-		            </li>
-				</ul>
-    </li>
+	<li><a href="{{docu}}/index.html">Overview</a></li>
+	<li><a href="{{docu}}/concepts/items.html">Concepts</a>
+		<ul>
+			<li><a href="{{docu}}/concepts/items.html">Items</a></li>
+			<li><a href="{{docu}}/concepts/things.html">Things</a></li>
+			<li><a href="{{docu}}/concepts/discovery.html">Inbox & Discovery</a></li>
+			<li><a href="{{docu}}/concepts/events.html">Events</a></li>
+		</ul></li>
+	<li><a href="{{docu}}/features/index.html">Features</a>
+		<ul>
+			<li><a href="{{docu}}/features/index.html">Overview</a></li>
+			<li><a href="{{docu}}/features/rest.html">REST API</a></li>
+			<li><a href="{{docu}}/features/dsl.html">Textual Configuration</a></li>
+			<li><a href="{{docu}}/features/internationalization.html">Internationalization</a></li>
+			<li><a href="{{docu}}/features/rules.html">Rules</a></li>
+			<li><a href="{{docu}}/features/bindings/hue/readme.html">Bindings</a>
+				<ul>
+					<li><a href="{{docu}}/features/bindings/hue/readme.html">Philips Hue</a></li>
+					<li><a href="{{docu}}/features/bindings/lifx/readme.html">LIFX</a></li>
+					<li><a href="{{docu}}/features/bindings/wemo/readme.html">Belkin Wemo</a></li>
+					<li><a href="{{docu}}/features/bindings/yahooweather/readme.html">Yahoo Weather</a></li>
+				</ul></li>
+			<li><a href="{{docu}}/features/ui/icons.html">User Interfaces</a>
+				<ul>
+					<li><a href="{{docu}}/features/ui/icons.html">Icon Support</a></li>
+					<li><a href="{{docu}}/features/ui/paperui.html">Paper UI</a></li>
+				</ul></li>
+		</ul></li>
+	<li><a href="{{docu}}/development/ide.html">Development</a>
+		<ul>
+			<li><a href="{{docu}}/development/ide.html">IDE Setup</a></li>
+            <li><a href="{{docu}}/development/guidelines.html">Guidelines</a></li>
+            <li><a href="{{docu}}/development/notes.html">Notes</a></li>
+			<li><a href="{{docu}}/development/bindings/how-to.html">Bindings</a>
+				<ul>
+					<li><a href="{{docu}}/development/bindings/how-to.html">Binding Tutorial</a></li>
+					<li><a href="{{docu}}/development/bindings/thing-definition.html">Thing Definition</a></li>
+					<li><a href="{{docu}}/development/bindings/thing-handler.html">Thing Handler</a></li>
+					<li><a href="{{docu}}/development/bindings/xml-reference.html">XML Reference Guide</a></li>
+					<li><a href="{{docu}}/development/bindings/dependencies.html">Dependencies</a></li>
+					<li><a href="{{docu}}/development/bindings/discovery-services.html">Discovery</a></li>
+					<li><a href="{{docu}}/development/bindings/docs.html">Documentation</a></li>
+					<li><a href="{{docu}}/development/bindings/faq.html">FAQ</a></li>
+				</ul></li>
+			<li><a href="{{docu}}/development/rules/java-api.html">Rules</a></li>
+			<li><a href="{{docu}}/development/testing.html">Testing</a></li>
+			<li><a href="{{docu}}/javadoc/index.html">API Reference</a></li>
+		</ul></li>
+	<li><a href="{{docu}}/community/contributing.html">Community</a>
+		<ul>
+			<li><a href="{{docu}}/community/contributing.html">Contributing</a></li>
+			<li><a href="{{docu}}/community/downloads.html">Downloads</a></li>
+		</ul></li>
 </ul>
