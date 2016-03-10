@@ -50,6 +50,8 @@ import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
+import org.eclipse.smarthome.automation.type.ConditionType;
+import org.eclipse.smarthome.automation.type.Input;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
@@ -393,6 +395,8 @@ public class RuleEngine
 
             }
         }
+
+        autoMapConnections(r);
 
         String errMessage;
         List<Condition> conditions = r.getConditions();
@@ -1459,4 +1463,179 @@ public class RuleEngine
         this.managedRuleProvider = rp;
     }
 
+    /**
+     * The auto mapping tries to link not connected module inputs to output of other modules. The auto mapping will link
+     * input to output only when following criteria are done:
+     * 1) input must not be connected. The auto mapping will not overwrite explicit connections done by the user.
+     * 2) input tags must be subset of the output tags.
+     * 3) condition inputs can be connected only to triggers' outputs
+     * 4) action outputs can be connected to both conditions and actions outputs
+     * 5) There is only one output, based on previous criteria, where the input can connect to. If more then one
+     * candidate outputs exists for connection, this is a conflict and the auto mapping leaves the input
+     * unconnected.
+     * Auto mapping is always applied when the rule is added or updated. It changes initial value of inputs of
+     * conditions and actions participating in the rule.
+     * If an "auto map" connection has to be removed, the tags of corresponding input/output have to be changed.
+     *
+     * @param r updated rule
+     */
+    private void autoMapConnections(RuntimeRule r) {
+        Map<Set<String>, OutputRef> triggerOutputTags = new HashMap<Set<String>, OutputRef>(11);
+        for (Trigger t : r.getTriggers()) {
+            TriggerType tt = mtManager.get(t.getTypeUID());
+            if (tt != null) {
+                initTagsMap(t.getId(), tt.getOutputs(), triggerOutputTags);
+            }
+        }
+        Map<Set<String>, OutputRef> actionOutputTags = new HashMap<Set<String>, OutputRef>(11);
+        for (Action a : r.getActions()) {
+            ActionType at = mtManager.get(a.getTypeUID());
+            if (at != null) {
+                initTagsMap(a.getId(), at.getOutputs(), actionOutputTags);
+            }
+        }
+
+        // auto mapping of conditions
+        if (!triggerOutputTags.isEmpty()) {
+            for (Condition c : r.getConditions()) {
+                boolean isConnectionChanged = false;
+                ConditionType ct = mtManager.get(c.getTypeUID());
+                if (ct != null) {
+                    Set<Connection> connections = ((RuntimeCondition) c).getConnections();
+
+                    for (Input input : ct.getInputs()) {
+                        if (isConnected(input, connections)) {
+                            continue; // the input is already connected. Skip it.
+                        }
+                        if (addAutoMapConnections(input, triggerOutputTags, connections)) {
+                            isConnectionChanged = true;
+                        }
+                    }
+                    if (isConnectionChanged) {
+                        // update condition inputs
+                        connections = ((RuntimeCondition) c).getConnections();
+                        Map<String, String> connectionMap = getConnectionMap(connections);
+                        c.setInputs(connectionMap);
+                    }
+                }
+            }
+        }
+
+        // auto mapping of actions
+        if (!triggerOutputTags.isEmpty() || !actionOutputTags.isEmpty()) {
+            for (Action a : r.getActions()) {
+                boolean isConnectionChanged = false;
+                ActionType at = mtManager.get(a.getTypeUID());
+                if (at != null) {
+                    Set<Connection> connections = ((RuntimeAction) a).getConnections();
+                    for (Input input : at.getInputs()) {
+                        if (isConnected(input, connections)) {
+                            continue; // the input is already connected. Skip it.
+                        }
+                        if (addAutoMapConnections(input, triggerOutputTags, connections)) {
+                            isConnectionChanged = true;
+                        }
+                        if (addAutoMapConnections(input, actionOutputTags, connections)) {
+                            isConnectionChanged = true;
+                        }
+                    }
+                    if (isConnectionChanged) {
+                        // update condition inputs
+                        connections = ((RuntimeAction) a).getConnections();
+                        Map<String, String> connectionMap = getConnectionMap(connections);
+                        a.setInputs(connectionMap);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Try to connect a free input to available outputs.
+     *
+     * @param input a free input which has to be connected
+     * @param outputTagMap a map of set of tags to outptu references
+     * @param currentConnections current connections of this module
+     * @return true when only one output which meets auto mapping ctiteria is found. False otherwise.
+     */
+    private boolean addAutoMapConnections(Input input, Map<Set<String>, OutputRef> outputTagMap,
+            Set<Connection> currentConnections) {
+        boolean result = false;
+        Set<String> inputTags = input.getTags();
+        OutputRef outputRef = null;
+        boolean conflict = false;
+        if (inputTags.size() > 0) {
+            for (Set<String> outTags : outputTagMap.keySet()) {
+                if (outTags.containsAll(inputTags)) { // input tags must be subset of the output ones
+                    if (outputRef == null) {
+                        outputRef = outputTagMap.get(outTags);
+                    } else {
+                        conflict = true; // already exist candidate for autoMap
+                        break;
+                    }
+                }
+            }
+            if (!conflict && outputRef != null) {
+                if (currentConnections == null) {
+                    currentConnections = new HashSet<Connection>(11);
+                }
+                currentConnections
+                        .add(new Connection(input.getName(), outputRef.getModuleId(), outputRef.getOutputName()));
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    private void initTagsMap(String moduleId, List<Output> outputs, Map<Set<String>, OutputRef> tagMap) {
+        for (Output output : outputs) {
+            Set<String> tags = output.getTags();
+            if (tags.size() > 0) {
+                if (tagMap.get(tags) != null) {
+                    // this set of output tags already exists. (conflict)
+                    tagMap.remove(tags);
+                } else {
+                    tagMap.put(tags, new OutputRef(moduleId, output.getName()));
+                }
+            }
+        }
+    }
+
+    private boolean isConnected(Input input, Set<Connection> connections) {
+        if (connections != null) {
+            for (Connection connection : connections) {
+                if (connection.getInputName().equals(input.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private Map<String, String> getConnectionMap(Set<Connection> connections) {
+        Map<String, String> connectionMap = new HashMap<String, String>(11);
+        for (Connection connection : connections) {
+            connectionMap.put(connection.getInputName(),
+                    connection.getOuputModuleId() + "." + connection.getOutputName());
+        }
+        return connectionMap;
+    }
+
+    class OutputRef {
+        private String moduleId;
+        private String outputName;
+
+        public OutputRef(String moduleId, String outputName) {
+            this.moduleId = moduleId;
+            this.outputName = outputName;
+        }
+
+        public String getModuleId() {
+            return moduleId;
+        }
+
+        public String getOutputName() {
+            return outputName;
+        }
+    }
 }
