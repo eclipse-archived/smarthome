@@ -9,7 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.io.voice.text.stdinterpreter">
-   <implementation class="org.eclipse.smarthome.io.voice.internal.text.StandardHumanLanguageInterpreter"/>
+   <implementation class="org.eclipse.smarthome.io.voice.internal.text.StandardInterpreter"/>
    <service>
       <provide interface="org.eclipse.smarthome.io.voice.text.HumanLanguageInterpreter"/>
    </service>
