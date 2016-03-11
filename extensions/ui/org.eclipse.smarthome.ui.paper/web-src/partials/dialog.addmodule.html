@@ -10,14 +10,11 @@
 		<md-input-container ng-show="step==2"> <label>Name</label> <input ng-model="name"> </md-input-container>
 		<input type="hidden" ng-value="id">
 
-		<md-select ng-invalid="" required ng-show="step==1" placeholder="{{type}} type" aria-label="Select module"
-			ng-model="module"> <md-option ng-repeat="item in moduleData" value="{{item.uid}}">
-		{{item.label}} </md-option> </md-select>
+		<md-select ng-invalid="" required ng-show="step==1" placeholder="{{type}} type" aria-label="Select module" ng-model="module"> <md-option ng-repeat="item in moduleData" value="{{item.uid}}"> {{item.label}} </md-option> </md-select>
 	</form>
 	<div>
 		<div ng-show="step==2">
-			<md-input-container style=" margin-right:3%;">
-			<label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
+			<md-input-container style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 		</div>
 	</div>
 	<div ng-show="step==2">

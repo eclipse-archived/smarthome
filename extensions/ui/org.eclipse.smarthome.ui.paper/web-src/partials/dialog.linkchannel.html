@@ -2,17 +2,11 @@
 <h1>Link channel</h1>
 <p>Please select the item to link:</p>
 <form name="linkForm">
-<md-input-container>
-        <label>Item</label>
-        <md-select required="true" ng-model="itemName">
-          <md-option ng-repeat="item in items | orderBy: 'name'" value="{{item.name}}" ng-show="acceptedItemType === item.type">
-            {{item.name}}
-          </md-option>
-        </md-select>
-      </md-input-container>
+	<md-input-container> <label>Item</label> <md-select required="true" ng-model="itemName"> <md-option ng-repeat="item in items | orderBy: 'name'" value="{{item.name}}" ng-show="acceptedItemType === item.type"> {{item.name}} </md-option> </md-select> </md-input-container>
 </form>
 </md-dialog-content>
 <div class="md-actions" layout="row">
-    <md-button ng-click="close()">Cancel</md-button>
-    <md-button ng-disabled="linkForm.$invalid" ng-click="link(itemName)">Link</md-button>
-</div></md-dialog>
+	<md-button ng-click="close()">Cancel</md-button>
+	<md-button ng-disabled="linkForm.$invalid" ng-click="link(itemName)">Link</md-button>
+</div>
+</md-dialog>

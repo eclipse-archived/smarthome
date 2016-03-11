@@ -10,9 +10,11 @@
 </div>
 </md-dialog-content>
 <div class="md-actions" layout="row">
-	<a class="md-button md-ink-ripple" ng-show="!newConfig" ng-click="expertMode=!expertMode"><span>{{expertMode
-			? 'Normal' : 'Expert'}} Mode</span>
-		<div class="md-ripple-container"></div></a> <span flex="auto"></span>
+	<a class="md-button md-ink-ripple" ng-show="!newConfig" ng-click="expertMode=!expertMode">
+		<span>{{expertMode ? 'Normal' : 'Expert'}} Mode</span>
+		<div class="md-ripple-container"></div>
+	</a>
+	<span flex="auto"></span>
 	<md-button ng-click="close()">Cancel</md-button>
 	<md-button ng-disabled="form.configForm.$invalid && !expertMode" " ng-click="save()">Save</md-button>
 </div>
