@@ -20,7 +20,6 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.core.internal.type.ModuleTypeManager;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
@@ -44,7 +43,7 @@ public class RuleEngineTest {
     private RuleEngine createRuleEngine() {
         BundleContextMockup bc = new BundleContextMockup();
         RuleEngine ruleEngine = new RuleEngine(bc);
-        ruleEngine.setModuleTypeManager(new ModuleTypeManager(bc, ruleEngine));
+        ruleEngine.setModuleTypeManager(new ModuleTypeManagerMockup(bc, ruleEngine));
         return ruleEngine;
     }
 
@@ -67,6 +66,54 @@ public class RuleEngineTest {
         ruleEngine.addRule(rule1, true);
         Rule rule1Get = ruleEngine.getRule("rule1");
         Assert.assertEquals("Returned rule with wrong UID", "rule1", rule1Get.getUID());
+    }
+
+    /**
+     * test auto map connections of the rule
+     */
+    @Test
+    public void testAutoMapRuleConnections() {
+        RuleEngine ruleEngine = createRuleEngine();
+        Rule rule = createAutoMapRule();
+        // check condition connections
+        Map<String, String> conditionInputs = rule.getConditions().get(0).getInputs();
+        Assert.assertEquals("Number of user define condition inputs", 1, conditionInputs.size());
+        Assert.assertTrue("Check user define condition connection",
+                "triggerId.triggerOutput".equals(conditionInputs.get("conditionInput")));
+
+        // check action connections
+        Map<String, String> actionInputs = rule.getActions().get(0).getInputs();
+        Assert.assertEquals("Number of user define action inputs", 2, actionInputs.size());
+        Assert.assertTrue("Check user define action connections for input actionInput",
+                "triggerId.triggerOutput".equals(actionInputs.get("actionInput")));
+        Assert.assertTrue("Check user define action connections for input in6",
+                "triggerId.triggerOutput".equals(actionInputs.get("in6")));
+
+        // do connections auto mapping
+        ruleEngine.addRule(rule, true);
+        Rule ruleGet = ruleEngine.getRule("rule1");
+        Assert.assertEquals("Returned rule with wrong UID", "rule1", ruleGet.getUID());
+
+        // check condition connections
+        conditionInputs = ruleGet.getConditions().get(0).getInputs();
+        Assert.assertEquals("Number of user define condition inputs", 2, conditionInputs.size());
+        Assert.assertTrue("Check user define condition connection",
+                "triggerId.triggerOutput".equals(conditionInputs.get("conditionInput")));
+        Assert.assertTrue("Auto map condition intput in2[tagA, tagB] to trigger output out3[tagA, tagB, tagC]",
+                "triggerId.out3".equals(conditionInputs.get("in2")));
+
+        // check action connections
+        actionInputs = ruleGet.getActions().get(0).getInputs();
+        Assert.assertEquals("Number of user define action inputs", 4, actionInputs.size());
+        Assert.assertTrue("Check user define action connections for input actionInput",
+                "triggerId.triggerOutput".equals(actionInputs.get("actionInput")));
+        Assert.assertTrue("Check user define action connections for input in6 is not changed by the auto mapping",
+                "triggerId.triggerOutput".equals(actionInputs.get("in6")));
+        Assert.assertTrue("Auto map action intput in5[tagA, tagB, tagC] to trigger output out3[tagA, tagB, tagC]",
+                "triggerId.out3".equals(actionInputs.get("in5")));
+        Assert.assertTrue("Auto map action intput in5[tagD, tagE] to action output out5[tagD, tagE]",
+                "actionId.out5".equals(actionInputs.get("in4")));
+
     }
 
     /**
@@ -107,7 +154,8 @@ public class RuleEngineTest {
     public void testRuleConfigNull() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule3 = new Rule("rule3", createTriggers(), createConditions(), createActions(), null, null);
+        Rule rule3 = new Rule("rule3", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
+                null, null);
         ruleEngine.addRule(rule3, true);
         Rule rule3Get = ruleEngine.getRule("rule3");
         Assert.assertNotNull("Rule configuration description is null", rule3Get.getConfigurationDescriptions());
@@ -125,8 +173,8 @@ public class RuleEngineTest {
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("config1", 5);
 
-        Rule rule4 = new Rule("rule4", createTriggers(), createConditions(), createActions(), configDescriptions,
-                configurations);
+        Rule rule4 = new Rule("rule4", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
+                configDescriptions, configurations);
         ruleEngine.addRule(rule4, true);
         Rule rule4Get = ruleEngine.getRule("rule4");
         Map<String, ?> rule4cfg = rule4Get.getConfiguration();
@@ -234,21 +282,29 @@ public class RuleEngineTest {
     private Rule createRule() {
         List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
         Map<String, Object> configurations = null;// new HashMap<String, Object>();
-        return new Rule("rule1", createTriggers(), createConditions(), createActions(), configDescriptions,
-                configurations);
+        return new Rule("rule1", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
+                configDescriptions, configurations);
     }
 
-    private List<Trigger> createTriggers() {
+    private Rule createAutoMapRule() {
+        List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
+        Map<String, Object> configurations = null;// new HashMap<String, Object>();
+        return new Rule("rule1", createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE),
+                createConditions(ModuleTypeManagerMockup.CONDITION_TYPE),
+                createActions(ModuleTypeManagerMockup.ACTION_TYPE), configDescriptions, configurations);
+    }
+
+    private List<Trigger> createTriggers(String type) {
         List<Trigger> triggers = new ArrayList<Trigger>();
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        triggers.add(new Trigger("triggerId", "typeUID", configurations));
+        triggers.add(new Trigger("triggerId", type, configurations));
         return triggers;
     }
 
-    private List<Condition> createConditions() {
+    private List<Condition> createConditions(String type) {
         List<Condition> conditions = new ArrayList<Condition>();
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("a", "x");
@@ -259,11 +315,11 @@ public class RuleEngineTest {
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
-        conditions.add(new Condition("conditionId", "typeUID", configurations, inputs));
+        conditions.add(new Condition("conditionId", type, configurations, inputs));
         return conditions;
     }
 
-    private List<Action> createActions() {
+    private List<Action> createActions(String type) {
         List<Action> actions = new ArrayList<Action>();
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("a", "x");
@@ -272,9 +328,10 @@ public class RuleEngineTest {
         Map<String, String> inputs = new HashMap<>(11);
         String ouputModuleId = "triggerId";
         String outputName = "triggerOutput";
-        String inputName = "conditionInput";
+        String inputName = "actionInput";
         inputs.put(inputName, ouputModuleId + "." + outputName);
-        actions.add(new Action("actionId", "typeUID", configurations, inputs));
+        inputs.put("in6", ouputModuleId + "." + outputName);
+        actions.add(new Action("actionId", type, configurations, inputs));
         return actions;
     }
 
