@@ -18,11 +18,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
@@ -40,6 +42,7 @@ import io.swagger.annotations.ApiResponses;
  * {@link ConfigDescriptionResource} provides access to {@link ConfigDescription}s via REST.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Chris Jackson - Modify response to use JSONResponse
  */
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
@@ -81,9 +84,9 @@ public class ConfigDescriptionResource implements RESTResource {
             ConfigDescription configDescription = this.configDescriptionRegistry.getConfigDescription(new URI(uri),
                     locale);
             return configDescription != null ? Response.ok(ConfigDescriptionDTOMapper.map(configDescription)).build()
-                    : Response.status(404).build();
+                    : JSONResponse.createErrorResponse(Status.NOT_FOUND, "Configuration not found: " + uri);
         } catch (URISyntaxException e) {
-            return Response.status(400).build();
+            return JSONResponse.createErrorResponse(Status.BAD_REQUEST, "Exception getting confinguration description");
         }
     }
 
