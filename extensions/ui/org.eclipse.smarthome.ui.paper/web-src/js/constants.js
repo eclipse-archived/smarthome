@@ -1,18 +1,17 @@
 /* This file can be be overridden by fragments for customization */
-angular.module('PaperUI.constants', [])
-.constant('globalConfig', {
-   'advancedDefault': false,
-   'defaultRoute': '/control'
+angular.module('PaperUI.constants', []).constant('globalConfig', {
+    'advancedDefault' : false,
+    'defaultRoute' : '/control'
 }).constant('restConfig', {
-  'restPath': '/rest',
-  'eventPath': $('#authentication').data('access-token') != '{{ACCESS_TOKEN}}' ? '/rest/events?access_token=' + $('#authentication').data('access-token') : '/rest/events'
+    'restPath' : '/rest',
+    'eventPath' : $('#authentication').data('access-token') != '{{ACCESS_TOKEN}}' ? '/rest/events?access_token=' + $('#authentication').data('access-token') : '/rest/events'
 }).constant('moduleConfig', {
-  'control': true,
-  'configuration': true,
-  'setup': true,
-  'configuration': true,
-  'extensions': true,
-  'rules': true,
-  'preferences': true,
-  'groups': true
+    'control' : true,
+    'configuration' : true,
+    'setup' : true,
+    'configuration' : true,
+    'extensions' : true,
+    'rules' : true,
+    'preferences' : true,
+    'groups' : true
 });
