@@ -51,7 +51,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private final Logger logger = LoggerFactory.getLogger(YahooWeatherHandler.class);
 
-    private String location;
+    private BigDecimal location;
     private BigDecimal refresh;
 
     private String weatherData = null;
@@ -69,7 +69,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
         Configuration config = getThing().getConfiguration();
 
-        location = (String) config.get("location");
+        location = (BigDecimal) config.get("location");
 
         try {
             refresh = (BigDecimal) config.get("refresh");
