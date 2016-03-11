@@ -1,8 +1,8 @@
 /**
  * Layout Styles 
  */
- 
-/* General styles */ 
+
+/* General styles */
 body, h1, h2, h3 {
 	font-family: "Roboto", Helvetica, Arial, sans-serif;
 	font-weight: 300;
@@ -24,7 +24,7 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small, .h1 small,
 	.h2 small, .h3 small, .h4 small, .h5 small, .h6 small, h1 .small, h2 .small,
 	h3 .small, h4 .small, h5 .small, h6 .small, .h1 .small, .h2 .small, .h3 .small,
 	.h4 .small, .h5 .small, .h6 .small {
-
+	
 }
 
 .white-bg {
@@ -55,30 +55,31 @@ body p, html p {
 }
 
 /* Grid adaptions */
+@media ( min-width : 768px) {
+	.container {
+		width: 750px;
+	}
+}
 
-@media (min-width: 768px) {
-  .container {
-    width: 750px;
-  }
+@media ( min-width : 992px) {
+	.container {
+		width: 970x;
+	}
 }
-@media (min-width: 992px) {
-  .container {
-    width: 970x;
-  }
+
+@media ( min-width : 1200px) {
+	.container {
+		width: 950px;
+	}
 }
-@media (min-width: 1200px) {
-  .container {
-    width: 950px;
-  }
-}
-@media (min-width: 1409px) {
-  .container {
-    width: 1170px;
-  }
+
+@media ( min-width : 1409px) {
+	.container {
+		width: 1170px;
+	}
 }
 
 /* Navigation */
-
 nav.menu {
 	position: fixed;
 	z-index: 20;
@@ -88,7 +89,7 @@ nav.menu {
 	height: 100%;
 	border-right: 1px solid #e0e0e0;
 	overflow-x: hidden;
-	overflow-y: auto; 
+	overflow-y: auto;
 }
 
 nav.menu .top {
@@ -129,7 +130,7 @@ nav.menu ul {
 	padding-left: 0px;
 }
 
-nav.menu > ul {
+nav.menu>ul {
 	margin-bottom: 64px;
 }
 
@@ -213,7 +214,6 @@ nav.menu ul li a ul li a:hover, nav.menu ul li.active ul li a:hover, nav.menu ul
 }
 
 /* Main Wrapper  */
-
 #wrapper {
 	position: relative;
 	z-index: 10;
@@ -238,7 +238,6 @@ nav.menu ul li a ul li a:hover, nav.menu ul li.active ul li a:hover, nav.menu ul
 }
 
 /* Header */
-
 header {
 	position: fixed;
 	top: 0px;
@@ -248,7 +247,6 @@ header {
 	/*background-color: #333;
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);*/
 	background-color: #01324D;
-	 
 	z-index: 22;
 	margin-left: 240px;
 }
@@ -300,7 +298,7 @@ header a.open-menu {
 		line-height: 64px;
 		margin: 0px 0px 0px 45px;
 	}
-	header.big h1{
+	header.big h1 {
 		font-size: 20px;
 		margin-top: 60px;
 	}
@@ -324,7 +322,6 @@ header a.open-menu {
 }
 
 /* Section / Toolbar */
-
 section#main {
 	padding: 0px;
 	margin-top: 40px;
@@ -339,13 +336,12 @@ section#main {
 }
 
 @media only screen and (max-width: 1120px) {
-    .header-toolbar {
-        top: 15px;
-    }
+	.header-toolbar {
+		top: 15px;
+	}
 }
 
 /* Action Bar / Section Header */
-
 .section-header {
 	color: #FFF;
 	background: #01324D;
@@ -380,12 +376,11 @@ md-tabs.section-tabs {
 	}
 }
 
-.section-header h1 small{
+.section-header h1 small {
 	color: #444;
 }
 
-
-.section-header .container { 
+.section-header .container {
 	position: relative;
 	min-height: 10px;
 }
@@ -411,6 +406,6 @@ md-tabs.section-tabs {
 	background-color: white;
 }
 
-#main > div > div.container {
+#main>div>div.container {
 	margin-top: 20px;
 }
