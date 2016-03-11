@@ -66,13 +66,13 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
         <channel id="temperature" typeId="temperature" />
     </channels>
     <config-description>
-        <parameter name="location" type="text" required="true">
+        <parameter name="location" type="integer" required="true">
             <label>Location</label>
             <description>Location for the weather information.
                 Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
             </description>
         </parameter>
-        <parameter name="refresh" type="integer">
+        <parameter name="refresh" type="integer" min="1">
             <label>Refresh interval</label>
             <description>Specifies the refresh interval in seconds.</description>
             <default>60</default>
