@@ -19,7 +19,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback
-import org.eclipse.smarthome.config.core.status.ConfigStatusInfo
 import org.eclipse.smarthome.config.core.status.ConfigStatusMessage
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider
 import org.eclipse.smarthome.config.core.status.ConfigStatusService
@@ -28,14 +27,14 @@ import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventFilter
 import org.eclipse.smarthome.core.events.EventSubscriber
-import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.i18n.I18nProvider
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
+import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder
@@ -184,7 +183,12 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         managedThingProvider.add(thing)
 
-        getService(ConfigStatusService)
+        ConfigStatusService service = getService(ConfigStatusService)
+        service.setI18nProvider([
+            getText: { bundle, key, defaultText, locale, args ->
+                key.equals("param.invalid") ? "param invalid" : "param ok"
+            }
+        ]  as I18nProvider)
 
         EventSubscriber eventSubscriber = new EventSubscriber() {
                     Event event;
@@ -209,7 +213,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
                 }
         registerService(eventSubscriber, EventSubscriber.class.getName())
 
-        thingRegistry.updateConfiguration(thingUID, ["param":"invalid"])
+        thing.getHandler().handleConfigurationUpdate(["param":"invalid"])
 
         waitForAssert({
             Event event = eventSubscriber.event
@@ -218,7 +222,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             eventSubscriber.event = null
         }, 2500)
 
-        thingRegistry.updateConfiguration(thingUID, ["param":"ok"])
+        thing.getHandler().handleConfigurationUpdate(["param":"ok"])
 
         waitForAssert({
             Event event = eventSubscriber.event
@@ -226,10 +230,10 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             assertThat event.getPayload(), containsString("\"parameterName\":\"param\",\"type\":\"INFORMATION\",\"message\":\"param ok\"}")
         }, 2500)
     }
-    
+
     @Test
     void 'assert BaseThingHandler notifies ThingManager about configuration updates'() {
-        // register ThingTypeProvider & ConfigurationDescription with 'required' parameter 
+        // register ThingTypeProvider & ConfigurationDescription with 'required' parameter
         registerThingTypeProvider()
         registerConfigDescriptionProvider(true)
 
@@ -243,10 +247,10 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         // add thing with empty configuration
         managedThingProvider.add(thing)
-        
-        // ThingHandler.initialize() has not been called; thing with status UNINITIALIZED.HANDLER_CONFIGURATION_PENDING 
-        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, 
-            ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
+
+        // ThingHandler.initialize() has not been called; thing with status UNINITIALIZED.HANDLER_CONFIGURATION_PENDING
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
+                ThingStatusDetail.HANDLER_CONFIGURATION_PENDING).build()
         assertThat thing.getStatusInfo(), is(statusInfo)
 
         thingRegistry.updateConfiguration(thingUID, [parameter: "value"] as Map)
@@ -254,7 +258,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         // ThingHandler.initialize() has been called; thing with status ONLINE.NONE
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build()
         waitForAssert({
-        assertThat thing.getStatusInfo(), is(statusInfo)
+            assertThat thing.getStatusInfo(), is(statusInfo)
         }, 4000)
     }
 
@@ -271,11 +275,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
     }
 
-    class ConfigStatusProviderThingHandler extends BaseThingHandler implements ConfigStatusProvider {
+    class ConfigStatusProviderThingHandler extends ConfigStatusThingHandler {
 
         private static final String PARAM = "param"
-        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM, "param invalid").build()
-        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM, "param ok").build()
+        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM, "param.invalid").build()
+        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM, "param.ok").build()
         private ConfigStatusCallback configStatusCallback;
 
         ConfigStatusProviderThingHandler(Thing thing) {
@@ -288,29 +292,11 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         @Override
-        protected void updateConfiguration(Configuration configuration) {
-            super.updateConfiguration(configuration);
-            if (configStatusCallback != null) {
-                configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().asString))
-            }
-        }
-
-        @Override
-        public ConfigStatusInfo getConfigStatus(Locale locale) {
+        public Collection<ConfigStatusMessage> getConfigStatus() {
             if("invalid".equals(getThing().getConfiguration().get(PARAM))) {
-                return new ConfigStatusInfo([ERROR])
+                return [ERROR]
             }
-            return new ConfigStatusInfo([INFO])
-        }
-
-        @Override
-        public boolean supportsEntity(String entityId) {
-            return entityId.equals(getThing().getUID().asString)
-        }
-
-        @Override
-        public void setConfigStatusCallback(ConfigStatusCallback configStatusCallback) {
-            this.configStatusCallback = configStatusCallback
+            return [INFO]
         }
     }
 
@@ -389,8 +375,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             managedThingProvider.add(thing)
 
             waitForAssert({
-            assertThat thingUpdated, is(true)
-            assertThat updatedThing.channels.size(), is(1)
+                assertThat thingUpdated, is(true)
+                assertThat updatedThing.channels.size(), is(1)
             }, 4000)
 
             updatedThing.getHandler().updateConfig()
@@ -539,8 +525,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             getConfigDescription: {uri, locale -> configDescription}
         ] as ConfigDescriptionProvider)
     }
-    
-    
+
+
     private void registerThingTypeProvider() {
         def URI configDescriptionUri = new URI("test:test");
         def thingType = new ThingType(new ThingTypeUID(BINDING_ID, THING_TYPE_ID), null, "label", null, null, null, null, configDescriptionUri)
