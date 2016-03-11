@@ -2,22 +2,30 @@
  * Material Angular Overrides 
  */
 
+.material-icons {
+	width: auto!important;
+}
+
+.md-button .material-icons {
+	line-height: inherit;
+}
+
 /* Button */
 
-.md-button[class*="md-icon-"]:before {
+.md-button[class*="material-icons"]:before {
 	font-size: 24px;	
 }
 
-.md-button[class*="md-icon-"] {
+.md-button[class*="material-icons"] {
 	margin: 0px;
     min-width: 0px;
 }
 
-.md-button[class*="md-icon-"]:before, .md-button[class*="md-icon-"] * {
+.md-button[class*="material-icons"]:before, .md-button[class*="material-icons"] * {
 	vertical-align: middle;
 }
 
-.md-button span[class*="md-icon-"] {
+.md-button span[class*="material-icons"] {
 	margin-right: 5px;
 }
 
@@ -146,7 +154,7 @@ md-radio-button.md-default-theme.md-checked .md-ink-ripple, md-switch.md-default
 
 /* Checkbox */
 
-md-checkbox.md-default-theme.md-checked .md-icon {
+md-checkbox.md-default-theme.md-checked .material-icons {
 	background-color: #4CAF50;
 }
 
@@ -415,7 +423,7 @@ select.form-control {
 	margin: 5px 0px 10px;
 }
 
-md-input-container:not(.md-input-invalid).md-input-focused md-icon {
+md-input-container:not(.md-input-invalid).md-input-focused material-icons {
 	color: #4CAF50;
 }
 
@@ -458,7 +466,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle {
 	margin: 10px 0px;
 }
 
-.selection-list .md-icon-chevron-right {
+.selection-list .material-icons {
 	font-size: 30px;
 	color: #999;
 }

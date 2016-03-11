@@ -1,7 +1,7 @@
 <section id="main">
 	<div class="bindings tab-panel content" ng-if="page === 'bindings'" ng-controller="BindingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header"></div>
 		<div class="container">
@@ -27,12 +27,12 @@
 	</div>
 	<div class="services tab-panel content" ng-if="page === 'services'" ng-controller="ServicesController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="add()" aria-label="Add Configuration"></md-button>
+					<md-button class="md-fab" ng-click="add()" aria-label="Add Configuration"><i class="material-icons">add</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -62,12 +62,12 @@
 	</div>
 	<div class="groups white-bg" ng-if="page === 'groups'" ng-controller="GroupController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="add($event)" aria-label="Add"></md-button>
+					<md-button class="md-fab" ng-click="add($event)" aria-label="Add"><i class="material-icons">add</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -83,7 +83,7 @@
 						<div class="item-content">
 							<h3>{{homeGroup.label}}</h3>
 							<div class="actions">
-								<md-button class="md-raised md-icon-delete" ng-click="remove(homeGroup, $event)" aria-label="Remove"></md-button>
+								<md-button class="md-raised" ng-click="remove(homeGroup, $event)" aria-label="Remove"><i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -94,12 +94,12 @@
 	</div>
 	<div class="things white-bg" ng-if="page === 'things' && !path[3]" ng-controller="ThingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()" aria-label="Refresh"></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-add" ng-click="$location.path('inbox/setup')" aria-label="Add"></md-button>
+					<md-button class="md-fab" ng-click="$location.path('inbox/setup')" aria-label="Add"><i class="material-icons">add</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -120,8 +120,8 @@
 							<p>{{thingTypes[thing.thingTypeUID].label}}</p>
 							<p>{{thing.UID}}</p>
 							<div class="actions">
-								<md-button class="md-raised md-icon-edit" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"></md-button>
-								<md-button class="md-raised md-icon-delete" ng-click="remove(thing, $event)" aria-label="Delete"></md-button>
+								<md-button class="md-raised" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"><i class="material-icons">edit</i></md-button>
+								<md-button class="md-raised" ng-click="remove(thing, $event)" aria-label="Delete"><i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -132,13 +132,13 @@
 	</div>
 	<div class="thing-view white-bg" ng-if="page === 'things' && path[3] === 'view'" ng-controller="ViewThingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-delete" ng-click="remove(thing, $event)" aria-label="Delete"></md-button>
-			<md-button class="md-icon-close" ng-click="navigateTo('things')" aria-label="Close"></md-button>
+			<md-button ng-click="remove(thing, $event)" aria-label="Delete"><i class="material-icons">delete</i></md-button>
+			<md-button ng-click="navigateTo('things')" aria-label="Close"><i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-edit" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"></md-button>
+					<md-button class="md-fab" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"><i class="material-icons">edit</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -159,18 +159,18 @@
 					<div ng-init="collapsed=false">
 						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0">
 							<span class="md-title">{{group.name}}</span>
-							<md-icon ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px;float:right;"
-								class="md-raised md-icon-unfold-less"></md-icon>
-							<md-icon ng-show="collapsed" ng-click="collapsed=!collapsed" style="color:grey;font-size: 22px;float:right;"
-								class="md-raised md-icon-unfold-more"></md-icon>
+							<i ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px;float:right;"
+								class="md-raised material-icons">unfold_less</i>
+							<i ng-show="collapsed" ng-click="collapsed=!collapsed" style="color:grey;font-size: 22px;float:right;"
+								class="md-raised material-icons">unfold_more</i>
 							<div>{{group.description}}</div>
 						</div>
 						<div class="channel fab-item" ng-repeat="channel in group.channels">
 							<div ng-show="!collapsed">
-								<md-button ng-if="channel.linkedItems.length == 0" class="md-fab md-icon-radio-button-off"
-									ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"></md-button>
-								<md-button ng-if="channel.linkedItems.length > 0" class="md-fab md-icon-radio-button-on"
-									ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"></md-button>
+								<md-button ng-if="channel.linkedItems.length == 0" class="md-fab"
+									ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"><i class="material-icons">radio_button_unchecked</i></md-button>
+								<md-button ng-if="channel.linkedItems.length > 0" class="md-fab"
+									ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"><i class="material-icons">radio_button_checked</i></md-button>
 								<div class="item-content">
 									<h3>{{getChannelTypeById(channel.id).label}}</h3>
 									<p>{{thing.UID + ':' + channel.id}}</p>
@@ -186,13 +186,13 @@
 	</div>
 	<div class="thing-edit white-bg" ng-if="page === 'things' && path[3] === 'edit'" ng-controller="EditThingController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close" ng-click="navigateTo('things/view/' + thing.UID)" aria-label="Close"></md-button>
+			<md-button ng-click="navigateTo('things/view/' + thing.UID)" aria-label="Close"><i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
 					<md-button title="Save" ng-click="update(thing)" ng-disabled="form.configForm.$invalid"
-						class="md-fab md-icon-check" aria-label="Save"></md-button>
+						class="md-fab" aria-label="Save"><i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>

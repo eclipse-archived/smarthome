@@ -2,14 +2,13 @@
 	<div class="rules white-bg" ng-if="!page"
 		ng-controller="RulesController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-refresh" ng-click="refresh()"
-				aria-label="Refresh"></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"><i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-menu md-offset="60 -25"> <md-button class="md-fab md-icon-add" ng-click="$mdOpenMenu(ev);"
-						aria-label="Add"></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']">
+					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);"
+						aria-label="Add"><i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']">
 					<md-menu-item ng-repeat="item in ruleOptions"> <md-button
 						ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
@@ -28,14 +27,13 @@
 							<h3>{{rule.name}}</h3>
 							<p>{{rule.uid}}</p>
 							<div class="actions">
-							<md-button class="md-raised md-icon-alarm-off"
+							<md-button class="md-raised"
                                     ng-click="toggleEnabled(rule, $event)"
-                                    ng-class="{'md-icon-alarm-off': !rule.enabled, 'md-icon-alarm-on': rule.enabled}"
-                                    aria-label="Toggle Enable"></md-button>
-								<md-button class="md-raised md-icon-settings"
-									ng-click="configure(rule, $event)" aria-label="Configure"></md-button>
-								<md-button class="md-raised md-icon-delete"
-									ng-click="remove(rule, $event)" aria-label="Remove"></md-button>
+                                    aria-label="Toggle Enable"><i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
+								<md-button class="md-raised"
+									ng-click="configure(rule, $event)" aria-label="Configure"><i class="material-icons">settings</i></md-button>
+								<md-button class="md-raised"
+									ng-click="remove(rule, $event)" aria-label="Remove"><i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -47,14 +45,12 @@
 	<div class="rules white-bg" ng-if="page === 'view'"
 		ng-controller="ViewRuleController">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close" ng-click="navigateTo('')"
-				aria-label="Refresh"></md-button>
+			<md-button ng-click="navigateTo('')" aria-label="Refresh"><i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab md-icon-chevron-left"
-						ng-click="navigateTo('')" aria-label="Back"></md-button>
+					<md-button class="md-fab" ng-click="navigateTo('')" aria-label="Back"><i class="material-icons">chevron_left</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -67,16 +63,15 @@
 	   <div class="rules white-bg" ng-if="page === 'configure' || page ==='new' "
           ng-controller="NewRuleController">
         <div class="header-toolbar">
-            <md-button class="md-icon-close" ng-click="navigateTo('')"
-                aria-label="Refresh"></md-button>
+            <md-button ng-click="navigateTo('')" aria-label="Refresh"><i class="material-icons">close</i></md-button>
         </div>
         <div class="section-header">
             <div class="container">
                 <div class="toolbar">
                     <md-button ng-show="editing" title="Save" ng-click="updateUserRule()"
-                        class="md-fab md-icon-check" aria-label="Save"></md-button>
+                        class="md-fab" aria-label="Save"><i class="material-icons">check</i></md-button>
                      <md-button ng-show="!editing" title="Save" ng-click="saveUserRule()"
-                        class="md-fab md-icon-check" aria-label="Save"></md-button>
+                        class="md-fab" aria-label="Save"><i class="material-icons">check</i></md-button>
                 </div>
             </div>
         </div>
@@ -103,7 +98,7 @@
                                 <h5 class="col-md-10">{{val.label?val.label:'Trigger '+($index+1)}}</h5>
                                 <div class="col-md-2">
                                 
-                                 <md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised md-icon-settings"></md-button>
+                                 <md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised"><i class="material-icons">settings</i></md-button>
                                 </div>
                             </div>
                             <p>{{val.description}}</p>
@@ -125,7 +120,7 @@
                          <div class="row">
                         <h5 class="col-md-10">{{val.label?val.label:'Action '+($index+1)}}</h5>
                             <div class="col-md-2">
-                            <md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised md-icon-settings"></md-button>
+                            <md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised"><i class="material-icons">settings</i></md-button>
                             </div>
                          </div>
                        <p>{{val.description}}</p>
@@ -151,7 +146,7 @@
                              <div class="row">
                                 <h5 class="col-md-10">{{val.label?val.label:'Condition '+($index+1)}}</h5>
                                 <div class="col-md-1">
-                                <md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised md-icon-settings"></md-button>
+                                <md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised"><i class="material-icons">settings</i></md-button>
                              
                                 </div>
                             </div>
