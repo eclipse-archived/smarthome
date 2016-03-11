@@ -28,8 +28,8 @@
 	<link type="text/css" href="css/theme.css" rel="stylesheet">
 
 	<!-- Icons/Fonts -->
-	<link type="text/css" href="fonts/md-icons/md-icons.css" rel="stylesheet" media="all">
 	<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
+	<link type="text/css" href="css/material-icons.css" rel="stylesheet" media="all">
 
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 
@@ -46,17 +46,17 @@
 		<ul>
 			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}">
 				<a href="#control">
-					<span class="icon md-icon-dashboard"></span> Control</a>
+					<span class="icon material-icons">dashboard</span> Control</a>
 			</li>
 			<li ng-class="{active: isActive('inbox')}">
 				<a href="#inbox" class="clickable">
-					<span class="icon md-icon-add-circle-outline"></span> Inbox
+					<span class="icon material-icons">add_circle_outline</span> Inbox
 					<span ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}">
 				<a ng-click="open('configuration')" class="clickable">
-					<span class="icon md-icon-settings"></span> Configuration</a>
+					<span class="icon material-icons">settings</span> Configuration</a>
 				<ul ng-show="isActive('configuration')">
 					<li ng-class="{active: isSubActive('bindings')}"><a href="#configuration/bindings">Bindings</a></li>
 					<li ng-class="{active: isSubActive('services')}"><a href="#configuration/services">Services</a></li>
@@ -66,17 +66,17 @@
 			</li>
 			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
 				<a href="#extensions">
-					<span class="icon md-icon-extension"></span>
+					<span class="icon material-icons">extension</span>
 					Extensions</a>
 			</li>
 			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
 				<a href="#rules">
-					<span class="icon md-icon-movie-creation"></span>
+					<span class="icon material-icons">movie_creation</span>
 					Rules</a>
 			</li>
 			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}">
 				<a href="#preferences">
-					<span class="icon md-icon-brightness-medium"></span>
+					<span class="icon material-icons">brightness_medium</span>
 					Preferences</a>
 			</li>
 		</ul>
@@ -92,7 +92,7 @@
 				<h1>
 					{{title}}
 					<span ng-repeat="subtitle in subtitles" class="subtitle">
-						<span class="chevron md-icon-chevron-right"></span> {{subtitle}}</span>
+						<span class="chevron material-icons">chevron_right</span> {{subtitle}}</span>
 				</h1>
 			</div>
 		</header>

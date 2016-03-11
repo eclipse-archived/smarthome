@@ -58,7 +58,8 @@ var paths = {
         './node_modules/roboto-fontface/css/roboto-fontface.css'
     ],
     FontLibs: [
-        './node_modules/roboto-fontface/fonts/*.woff'
+        './node_modules/roboto-fontface/fonts/*.woff',
+        './node_modules/material-design-icons/iconfont/MaterialIcons-Regular.*'
     ]
 };
 
