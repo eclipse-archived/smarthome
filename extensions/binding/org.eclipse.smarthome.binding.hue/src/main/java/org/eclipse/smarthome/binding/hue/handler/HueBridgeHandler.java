@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.hue.handler;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +62,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
 
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    private static final int POLLING_FREQUENCY = 10; // in seconds
+    private static final int DEFAULT_POLLING_INTERVAL = 10; // in seconds
 
     private static final String DEVICE_TYPE = "EclipseSmartHome";
 
@@ -254,7 +255,20 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private synchronized void onUpdate() {
         if (bridge != null) {
             if (pollingJob == null || pollingJob.isCancelled()) {
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, POLLING_FREQUENCY, TimeUnit.SECONDS);
+                int pollingInterval = DEFAULT_POLLING_INTERVAL;
+                try {
+                    Object pollingIntervalConfig = getConfig().get(POLLING_INTERVAL);
+                    if (pollingIntervalConfig != null) {
+                        pollingInterval = ((BigDecimal) pollingIntervalConfig).intValue();
+                    } else {
+                        logger.info("Polling interval not configured for this hue bridge. Using default value: {}s",
+                                pollingInterval);
+                    }
+                } catch (NumberFormatException ex) {
+                    logger.info("Wrong configuration value for polling interval. Using default value: {}s",
+                            pollingInterval);
+                }
+                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
         }
     }
