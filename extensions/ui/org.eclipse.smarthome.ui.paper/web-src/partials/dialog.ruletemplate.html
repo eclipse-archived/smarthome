@@ -1,18 +1,14 @@
-<md-dialog aria-label="Add rule" class="rules-dialog"> 
-<md-dialog-content>
+<md-dialog aria-label="Add rule" class="rules-dialog"> <md-dialog-content>
 <h1 ng-if="templateStep==1">Select a rule template</h1>
 <h1 ng-if="templateStep==2">Configure rule</h1>
 <br>
 <div>
 	<form name="myForm" ng-show="templateStep==1">
-		<md-select ng-invalid="" required placeholder="rule template" aria-label="Select template" ng-model="templateIndex">
-		<md-option ng-repeat="item in templateData" value="{{$index}}"> {{item.label?item.label:item.description}}
-		</md-option> </md-select>
+		<md-select ng-invalid="" required placeholder="rule template" aria-label="Select template" ng-model="templateIndex"> <md-option ng-repeat="item in templateData" value="{{$index}}"> {{item.label?item.label:item.description}} </md-option> </md-select>
 	</form>
 	<div ng-show="templateStep==2">
 		<md-input-container> <label>Name</label> <input ng-model="name"> </md-input-container>
-		<md-input-container> <label>Description</label> <textarea rows="1" ng-model="description"></textarea>
-		</md-input-container>
+		<md-input-container> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 		<h3 class="md-title-nospace">Configurations</h3>
 		<div ng-include="'partials/include.config.html'"></div>
 	</div>
