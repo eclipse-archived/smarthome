@@ -337,26 +337,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/setup/things/:thingUID/groups'
         }
     });
-}).factory('groupSetupService', function($resource, restConfig) {
-    return $resource(restConfig.restPath + '/setup/groups', {}, {
-        add : {
-            method : 'POST',
-            headers : {
-                'Content-Type' : 'application/json'
-            }
-        },
-        remove : {
-            method : 'DELETE',
-            params : {
-                itemName : '@itemName'
-            },
-            url : restConfig.restPath + '/setup/groups/:itemName'
-        },
-        getAll : {
-            method : 'GET',
-            isArray : true
-        },
-    });
 }).factory('serviceConfigService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/services', {}, {
         getAll : {
