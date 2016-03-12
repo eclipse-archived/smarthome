@@ -558,6 +558,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.thing;
     $scope.groups = [];
     $scope.thingType;
+    var originalThing = {};
 
     $scope.homeGroups = [];
     $scope.groupNames = [];
@@ -577,13 +578,24 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         } else {
             thing.item = {};
         }
-        thingService.updateConfig({
-            thingUID : thing.UID
-        }, thing.configuration, function() {
-            thingRepository.update(thing);
-            toastService.showDefaultToast('Thing updated');
-            $scope.navigateTo('things/view/' + thing.UID);
-        });
+        if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
+            thingService.updateConfig({
+                thingUID : thing.UID
+            }, thing.configuration, function() {
+                thingRepository.update(thing);
+            });
+        }
+
+        if (originalThing.label !== thing.label) {
+            thingService.update({
+                thingUID : thing.UID
+            }, {
+                label : thing.label,
+                configuration : {}
+            });
+        }
+        toastService.showDefaultToast('Thing updated');
+        $scope.navigateTo('things/view/' + thing.UID);
     };
 
     $scope.needsBridge = false;
@@ -619,6 +631,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             return thing.UID === thingUID;
         }, function(thing) {
             $scope.thing = thing;
+            angular.copy(thing, originalThing);
             $scope.thingTypeUID = thing.thingTypeUID;
             $scope.getThingType();
             if (thing.item) {
