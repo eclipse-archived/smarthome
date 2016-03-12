@@ -157,10 +157,6 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
     });
 
     return repository;
-}).factory('homeGroupRepository', function($q, $rootScope, groupSetupService) {
-    var repository = new Repository($q, $rootScope, groupSetupService, 'homeGroups')
-    $rootScope.data.homeGroups = [];
-    return repository;
 }).factory('itemRepository', function($q, $rootScope, itemService) {
     var repository = new Repository($q, $rootScope, itemService, 'items')
     $rootScope.data.items = [];

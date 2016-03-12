@@ -62,41 +62,6 @@
 			</p>
 		</div>
 	</div>
-	<div class="groups white-bg" ng-if="page === 'groups'" ng-controller="GroupController">
-		<div class="header-toolbar">
-			<md-button ng-click="refresh()" aria-label="Refresh">
-			<i class="material-icons">refresh</i></md-button>
-		</div>
-		<div class="section-header">
-			<div class="container">
-				<div class="toolbar">
-					<md-button class="md-fab" ng-click="add($event)" aria-label="Add">
-					<i class="material-icons">add</i></md-button>
-				</div>
-			</div>
-		</div>
-		<div class="container">
-			<p class="text-center" ng-show="data.homeGroups.length == 0">
-				No groups defined yet.
-				<button class="md-button" ng-click="add($event)">Add Group</button>
-			</p>
-			<div class="groups">
-				<div class="clickable" ng-repeat="homeGroup in data.homeGroups">
-					<div class="homeGroup fab-item text-left">
-						<div class="circle">{{homeGroup.label.substring(0,1)}}</div>
-						<div class="item-content">
-							<h3>{{homeGroup.label}}</h3>
-							<div class="actions">
-								<md-button class="md-raised" ng-click="remove(homeGroup, $event)" aria-label="Remove">
-								<i class="material-icons">delete</i></md-button>
-							</div>
-						</div>
-						<hr class="border-line" ng-show="!$last" />
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
 	<div class="things white-bg" ng-if="page === 'things' && !path[3]" ng-controller="ThingController">
 		<div class="header-toolbar">
 			<md-button ng-click="refresh()" aria-label="Refresh">
