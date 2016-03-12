@@ -235,41 +235,6 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             $scope.configuration = configService.getConfigAsObject($scope.configArray);
         }
     });
-}).controller('GroupController', function($scope, $mdDialog, toastService, homeGroupRepository, groupSetupService) {
-    $scope.setSubtitle([ 'Home Groups' ]);
-    $scope.setHeaderText('Shows all configured Home Groups.');
-    $scope.refresh = function() {
-        homeGroupRepository.getAll(true);
-    }
-    $scope.add = function(event) {
-        $mdDialog.show({
-            controller : 'AddGroupDialogController',
-            templateUrl : 'partials/dialog.addgroup.html',
-            hasBackdrop : true,
-            targetEvent : event
-        }).then(function(label) {
-            var homeGroup = {
-                name : 'home_group_' + $scope.generateUUID(),
-                label : label
-            };
-            groupSetupService.add(homeGroup, function() {
-                $scope.refresh();
-                toastService.showDefaultToast('Group added.');
-            });
-        });
-    };
-    $scope.remove = function(homeGroup, event) {
-        var confirm = $mdDialog.confirm().title('Remove ' + homeGroup.label).content('Would you like to remove the group?').ariaLabel('Remove Group').ok('Remove').cancel('Cancel').targetEvent(event);
-        $mdDialog.show(confirm).then(function() {
-            groupSetupService.remove({
-                itemName : homeGroup.name
-            }, function() {
-                $scope.refresh();
-                toastService.showSuccessToast('Group removed');
-            });
-        });
-    };
-    $scope.refresh();
 }).controller('AddGroupDialogController', function($scope, $mdDialog) {
     $scope.binding = undefined;
 
@@ -279,7 +244,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.add = function(label) {
         $mdDialog.hide(label);
     }
-}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingSetupService, toastService, homeGroupRepository) {
+}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingSetupService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
     $scope.refresh = function() {
@@ -300,7 +265,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, homeGroupRepository, linkService) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, linkService) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -515,7 +480,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         $scope.setHeaderText(thingType.description);
         $scope.refreshChannels(false);
     });
-}).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingSetupService, homeGroupRepository, thing) {
+}).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingSetupService, thing) {
     $scope.thing = thing;
     $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
     $scope.close = function() {
@@ -527,7 +492,6 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             thingUID : thing.UID,
             force : forceRemove
         }, function() {
-            homeGroupRepository.setDirty(true);
             if (forceRemove) {
                 toastService.showDefaultToast('Thing removed (forced).');
             } else {
@@ -548,7 +512,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.link = function(itemName) {
         $mdDialog.hide(itemName);
     }
-}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, homeGroupRepository, configService, thingService) {
+}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, configService, thingService) {
 
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
@@ -560,22 +524,8 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.thingType;
     var originalThing = {};
 
-    $scope.homeGroups = [];
-    $scope.groupNames = [];
-
     $scope.update = function(thing) {
-        if (thing.item) {
-            for ( var groupName in $scope.groupNames) {
-                if ($scope.groupNames[groupName]) {
-                    thing.item.groupNames.push(groupName);
-                } else {
-                    var index = thing.item.groupNames.indexOf(groupName);
-                    if (index > -1) {
-                        thing.item.groupNames.splice(index, 1);
-                    }
-                }
-            }
-        } else {
+        if (!thing.item) {
             thing.item = {};
         }
         if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
@@ -635,16 +585,6 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             $scope.thingTypeUID = thing.thingTypeUID;
             $scope.getThingType();
             if (thing.item) {
-                homeGroupRepository.getAll(function(homeGroups) {
-                    $.each(homeGroups, function(i, homeGroup) {
-                        if ($scope.thing.item.groupNames.indexOf(homeGroup.name) >= 0) {
-                            $scope.groupNames[homeGroup.name] = true;
-                        } else {
-                            $scope.groupNames[homeGroup.name] = false;
-                        }
-                    });
-                    $scope.homeGroups = homeGroups;
-                });
                 $scope.setTitle('Edit ' + thing.label);
             } else {
                 $scope.setTitle('Edit ' + thing.UID);

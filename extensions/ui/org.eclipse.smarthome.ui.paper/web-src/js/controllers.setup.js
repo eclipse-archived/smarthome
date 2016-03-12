@@ -38,12 +38,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
                 'thingUID' : thingUID,
                 'enableChannels' : !$scope.advancedMode
             }, result.label).$promise.then(function() {
-                return thingSetupService.setGroups({
-                    'thingUID' : thingUID
-                }, result.groupNames).$promise;
-            }).then(function() {
                 thingRepository.setDirty(true);
-
                 toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thingUID);
                 var thingType = thingTypeRepository.find(function(thingType) {
                     return thingTypeUID === thingType.UID;
@@ -122,24 +117,15 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.close = function() {
         $mdDialog.hide();
     }
-}).controller('ApproveInboxEntryDialogController', function($scope, $mdDialog, discoveryResult, thingTypeRepository, homeGroupRepository) {
+}).controller('ApproveInboxEntryDialogController', function($scope, $mdDialog, discoveryResult, thingTypeRepository) {
     $scope.discoveryResult = discoveryResult;
     $scope.label = discoveryResult.label;
-    $scope.homeGroups = [];
-    $scope.groupNames = [];
     $scope.thingType = null;
     $scope.thingTypeUID = discoveryResult.thingTypeUID;
     thingTypeRepository.getOne(function(thingType) {
         return thingType.UID === $scope.thingTypeUID;
     }, function(thingType) {
         $scope.thingType = thingType;
-    });
-
-    homeGroupRepository.getAll(function(homeGroups) {
-        $.each(homeGroups, function(i, homeGroup) {
-            $scope.groupNames[homeGroup.name] = false;
-        });
-        $scope.homeGroups = homeGroups;
     });
 
     $scope.close = function() {
@@ -169,7 +155,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     bindingRepository.getAll(function(data) {
     });
 
-}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, toastService, bindingRepository, thingTypeRepository, thingSetupService, homeGroupRepository, thingRepository, configService) {
+}).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, toastService, bindingRepository, thingTypeRepository, thingSetupService, thingRepository, configService) {
 
     var thingTypeUID = $routeParams.thingTypeUID;
 
@@ -193,27 +179,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             groupNames : []
         }
     }
-    $scope.homeGroups = [];
-    $scope.groupNames = [];
-
-    homeGroupRepository.getAll(function(homeGroups) {
-        $.each(homeGroups, function(i, homeGroup) {
-            $scope.groupNames[homeGroup.name] = false;
-        });
-        $scope.homeGroups = homeGroups;
-    });
 
     $scope.addThing = function(thing) {
-
-        for ( var groupName in $scope.groupNames) {
-            if ($scope.groupNames[groupName]) {
-                thing.item.groupNames.push(groupName);
-            }
-        }
         thingSetupService.add({
             'enableChannels' : !$scope.advancedMode
         }, thing, function() {
-            homeGroupRepository.setDirty(true);
             toastService.showDefaultToast('Thing added');
             $scope.navigateTo('setup/search/' + $scope.thingType.UID.split(':')[0]);
         });

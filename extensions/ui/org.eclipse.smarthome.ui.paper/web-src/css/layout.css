@@ -405,7 +405,3 @@ md-tabs.section-tabs {
 	.section-header .toolbar button.md-default-theme.md-fab:focus {
 	background-color: white;
 }
-
-#main>div>div.container {
-	margin-top: 20px;
-}
