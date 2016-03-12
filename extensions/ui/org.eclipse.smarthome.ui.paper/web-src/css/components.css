@@ -607,3 +607,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 .inline {
 	display: inline;
 }
+
+.thingName {
+    margin-top:10px;
+}

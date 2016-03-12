@@ -139,29 +139,4 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         $('.mask').remove();
         $scope.opened = null;
     });
-}).controller('SelectGroupsDialogController', function($scope, $mdDialog, groupNames, homeGroupRepository) {
-    $scope.homeGroups = [];
-    $scope.groupNames = [];
-    homeGroupRepository.getAll(function(homeGroups) {
-        $.each(homeGroups, function(i, homeGroup) {
-            if (groupNames.indexOf(homeGroup.name) >= 0) {
-                $scope.groupNames[homeGroup.name] = true;
-            } else {
-                $scope.groupNames[homeGroup.name] = false;
-            }
-        });
-        $scope.homeGroups = homeGroups;
-    });
-    $scope.close = function() {
-        $mdDialog.cancel();
-    }
-    $scope.ok = function(groupNames) {
-        var selectedGroupNames = [];
-        for ( var gropuName in groupNames) {
-            if (groupNames[gropuName]) {
-                selectedGroupNames.push(gropuName);
-            }
-        }
-        $mdDialog.hide(selectedGroupNames);
-    }
 });
