@@ -23,6 +23,8 @@ import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.internal.ThingFactoryHelper;
 import org.eclipse.smarthome.core.thing.type.BridgeType;
 import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link ThingFactory} helps to create thing based on a given {@link ThingType} .
@@ -34,6 +36,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
  * @author Chris Jackson - Added properties, label, description
  */
 public class ThingFactory {
+    private static final Logger logger = LoggerFactory.getLogger(ThingFactory.class);
 
     /**
      * Generates a random Thing UID for the given thingType
@@ -105,9 +108,13 @@ public class ThingFactory {
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
-                if (properties != null) {
-                    for (String key : properties.keySet()) {
-                        thing.setProperty(key, properties.get(key));
+                if (thing == null) {
+                    logger.error("Thing factory returned null when it reports to support the thing");
+                } else {
+                    if (properties != null) {
+                        for (String key : properties.keySet()) {
+                            thing.setProperty(key, properties.get(key));
+                        }
                     }
                 }
                 return thing;
