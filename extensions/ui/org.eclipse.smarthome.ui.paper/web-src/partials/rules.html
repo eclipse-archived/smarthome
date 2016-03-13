@@ -1,14 +1,12 @@
 <section id="main" class="white-bg">
 	<div class="rules white-bg" ng-if="!page" ng-controller="RulesController">
 		<div class="header-toolbar">
-			<md-button ng-click="refresh()" aria-label="Refresh">
-			<i class="material-icons">refresh</i></md-button>
+			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add">
-					<i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
+					<md-menu md-offset="60 -25"> <md-button class="md-fab" ng-click="$mdOpenMenu(ev);" aria-label="Add"> <i class="material-icons">add</i></md-button> <md-menu-content width="2" ng-init="ruleOptions=['New rule','Rule from template']"> <md-menu-item ng-repeat="item in ruleOptions"> <md-button ng-click="ruleOptionSelected($event,$index)"> {{item}} </md-button> </md-menu-item> </md-menu-content> </md-menu>
 				</div>
 			</div>
 		</div>
@@ -22,12 +20,9 @@
 							<h3>{{rule.name}}</h3>
 							<p>{{rule.uid}}</p>
 							<div class="actions">
-								<md-button class="md-raised" ng-click="toggleEnabled(rule, $event)" aria-label="Toggle Enable">
-								<i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
-								<md-button class="md-raised" ng-click="configure(rule, $event)" aria-label="Configure">
-								<i class="material-icons">settings</i></md-button>
-								<md-button class="md-raised" ng-click="remove(rule, $event)" aria-label="Remove">
-								<i class="material-icons">delete</i></md-button>
+								<md-button class="md-raised" ng-click="toggleEnabled(rule, $event)" aria-label="Toggle Enable"> <i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
+								<md-button class="md-raised" ng-click="configure(rule, $event)" aria-label="Configure"> <i class="material-icons">settings</i></md-button>
+								<md-button class="md-raised" ng-click="remove(rule, $event)" aria-label="Remove"> <i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
@@ -38,14 +33,12 @@
 	</div>
 	<div class="rules white-bg" ng-if="page === 'view'" ng-controller="ViewRuleController">
 		<div class="header-toolbar">
-			<md-button ng-click="navigateTo('')" aria-label="Refresh">
-			<i class="material-icons">close</i></md-button>
+			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button class="md-fab" ng-click="navigateTo('')" aria-label="Back">
-					<i class="material-icons">chevron_left</i></md-button>
+					<md-button class="md-fab" ng-click="navigateTo('')" aria-label="Back"> <i class="material-icons">chevron_left</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -57,16 +50,13 @@
 	<!-- Config block -->
 	<div class="rules white-bg" ng-if="page === 'configure' || page ==='new' " ng-controller="NewRuleController">
 		<div class="header-toolbar">
-			<md-button ng-click="navigateTo('')" aria-label="Refresh">
-			<i class="material-icons">close</i></md-button>
+			<md-button ng-click="navigateTo('')" aria-label="Refresh"> <i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button ng-show="editing" title="Save" ng-click="updateUserRule()" class="md-fab" aria-label="Save">
-					<i class="material-icons">check</i></md-button>
-					<md-button ng-show="!editing" title="Save" ng-click="saveUserRule()" class="md-fab" aria-label="Save">
-					<i class="material-icons">check</i></md-button>
+					<md-button ng-show="editing" title="Save" ng-click="updateUserRule()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
+					<md-button ng-show="!editing" title="Save" ng-click="saveUserRule()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -74,8 +64,7 @@
 			<div class="bindings row">
 				<div class="row">
 					<md-input-container style="padding-bottom:12px; margin-right:3%;"> <label>Name</label> <input ng-model="name" /> </md-input-container>
-					<md-input-container style=" margin-right:3%;">
-					<label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
+					<md-input-container style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 					<input type="hidden" ng-value="id" />
 				</div>
 
@@ -91,8 +80,7 @@
 								<h5 class="col-md-10">{{val.label?val.label:'Trigger '+($index+1)}}</h5>
 								<div class="col-md-2">
 
-									<md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised">
-									<i class="material-icons">settings</i></md-button>
+									<md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
 								</div>
 							</div>
 							<p>{{val.description}}</p>
@@ -114,8 +102,7 @@
 							<div class="row">
 								<h5 class="col-md-10">{{val.label?val.label:'Action '+($index+1)}}</h5>
 								<div class="col-md-2">
-									<md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised">
-									<i class="material-icons">settings</i></md-button>
+									<md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
 								</div>
 							</div>
 							<p>{{val.description}}</p>
@@ -141,8 +128,7 @@
 							<div class="row">
 								<h5 class="col-md-10">{{val.label?val.label:'Condition '+($index+1)}}</h5>
 								<div class="col-md-1">
-									<md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised">
-									<i class="material-icons">settings</i></md-button>
+									<md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
 
 								</div>
 							</div>
