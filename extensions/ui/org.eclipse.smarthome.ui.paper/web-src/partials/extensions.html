@@ -1,7 +1,6 @@
 <section id="main" class="white-bg extensions header-tabs">
 	<div class="header-toolbar">
-		<md-button ng-click="refresh()" aria-label="Refresh">
-		<i class="material-icons">refresh</i></md-button>
+		<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
 	</div>
 	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex"> <md-tab ng-repeat="extensionType in extensionTypes" ng-disabled="tab.disabled" label="{{extensionType.label}}" layout-fill> <md-tab-content layout-fill="">
 	<div class="search" layout="row" layout-align="center center">

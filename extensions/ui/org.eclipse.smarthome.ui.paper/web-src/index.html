@@ -13,25 +13,25 @@
 
 <head>
 
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-	<title>Paper UI</title>
+<title>Paper UI</title>
 
-	<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
-	<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
+<link type="text/css" href="css/bootstrap.min.css" rel="stylesheet">
+<link type="text/css" href="css/angular-material.min.css" rel="stylesheet">
 
-	<!-- custom css files -->
-	<link type="text/css" href="css/components.css" rel="stylesheet">
-	<link type="text/css" href="css/layout.css" rel="stylesheet">
-	<link type="text/css" href="css/views.css" rel="stylesheet">
-	<link type="text/css" href="css/theme.css" rel="stylesheet">
+<!-- custom css files -->
+<link type="text/css" href="css/components.css" rel="stylesheet">
+<link type="text/css" href="css/layout.css" rel="stylesheet">
+<link type="text/css" href="css/views.css" rel="stylesheet">
+<link type="text/css" href="css/theme.css" rel="stylesheet">
 
-	<!-- Icons/Fonts -->
-	<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
-	<link type="text/css" href="css/material-icons.css" rel="stylesheet" media="all">
+<!-- Icons/Fonts -->
+<link type="text/css" href="css/roboto-fontface.css" rel="stylesheet" media="all">
+<link type="text/css" href="css/material-icons.css" rel="stylesheet" media="all">
 
-	<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
 
 </head>
 
@@ -46,37 +46,51 @@
 		<ul>
 			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}">
 				<a href="#control">
-					<span class="icon material-icons">dashboard</span> Control</a>
+					<span class="icon material-icons">dashboard</span>
+					Control
+				</a>
 			</li>
 			<li ng-class="{active: isActive('inbox')}">
 				<a href="#inbox" class="clickable">
-					<span class="icon material-icons">add_circle_outline</span> Inbox
+					<span class="icon material-icons">add_circle_outline</span>
+					Inbox
 					<span ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}">
 				<a ng-click="open('configuration')" class="clickable">
-					<span class="icon material-icons">settings</span> Configuration</a>
+					<span class="icon material-icons">settings</span>
+					Configuration
+				</a>
 				<ul ng-show="isActive('configuration')">
-					<li ng-class="{active: isSubActive('bindings')}"><a href="#configuration/bindings">Bindings</a></li>
-					<li ng-class="{active: isSubActive('services')}"><a href="#configuration/services">Services</a></li>
-					<li ng-class="{active: isSubActive('things')}"><a href="#configuration/things">Things</a></li>
+					<li ng-class="{active: isSubActive('bindings')}">
+						<a href="#configuration/bindings">Bindings</a>
+					</li>
+					<li ng-class="{active: isSubActive('services')}">
+						<a href="#configuration/services">Services</a>
+					</li>
+					<li ng-class="{active: isSubActive('things')}">
+						<a href="#configuration/things">Things</a>
+					</li>
 				</ul>
 			</li>
 			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
 				<a href="#extensions">
 					<span class="icon material-icons">extension</span>
-					Extensions</a>
+					Extensions
+				</a>
 			</li>
 			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
 				<a href="#rules">
 					<span class="icon material-icons">movie_creation</span>
-					Rules</a>
+					Rules
+				</a>
 			</li>
 			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}">
 				<a href="#preferences">
 					<span class="icon material-icons">brightness_medium</span>
-					Preferences</a>
+					Preferences
+				</a>
 			</li>
 		</ul>
 		<div class="bottom">
@@ -91,7 +105,9 @@
 				<h1>
 					{{title}}
 					<span ng-repeat="subtitle in subtitles" class="subtitle">
-						<span class="chevron material-icons">chevron_right</span> {{subtitle}}</span>
+						<span class="chevron material-icons">chevron_right</span>
+						{{subtitle}}
+					</span>
 				</h1>
 			</div>
 		</header>
