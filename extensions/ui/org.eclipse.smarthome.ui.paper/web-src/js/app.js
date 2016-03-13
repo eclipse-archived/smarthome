@@ -48,10 +48,6 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',
         title : 'Configuration'
-    }).when('/configuration/groups', {
-        templateUrl : 'partials/configuration.html',
-        controller : 'ConfigurationPageController',
-        title : 'Configuration'
     }).when('/configuration/things', {
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',
@@ -123,7 +119,11 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
 
             element[0].addEventListener('click', function() {
                 scope.$watch(attrs.ngModel, function(value) {
-                    if ((value === undefined || value == "") && attrs.isrequired){element.addClass('border-invalid');} else {element.removeClass('border-invalid');}
+                    if ((value === undefined || value == "") && attrs.isrequired) {
+                        element.addClass('border-invalid');
+                    } else {
+                        element.removeClass('border-invalid');
+                    }
                 });
             });
 
