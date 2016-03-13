@@ -55,7 +55,6 @@ var paths = {
     CSSLibs: [
         './node_modules/bootstrap/dist/css/bootstrap.min.css',
         './node_modules/angular-material/angular-material.min.css',
-        './node_modules/roboto-fontface/css/roboto-fontface.css'
     ],
     FontLibs: [
         './node_modules/roboto-fontface/fonts/*.woff',
