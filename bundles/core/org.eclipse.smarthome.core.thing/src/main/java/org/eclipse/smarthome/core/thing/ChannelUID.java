@@ -17,6 +17,7 @@ import java.util.List;
  * @author Oliver Libutzki - Initital contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
  * @author Dennis Nobel - Added channel group id
+ * @author Chris Jackson - Made channel references relative to things
  */
 public class ChannelUID extends UID {
 
@@ -40,9 +41,8 @@ public class ChannelUID extends UID {
      * @param id
      *            the channel's id
      */
-    @Deprecated
     public ChannelUID(ThingUID thingUID, String id) {
-        super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), null, id,
+        super(getArray(thingUID.getBindingId(), thingUID.getThingId(), thingUID.getId(), null, id,
                 thingUID.getBridgeIds()));
     }
 
@@ -58,12 +58,19 @@ public class ChannelUID extends UID {
      * @param id
      *            the channel's id
      */
-    @Deprecated
     public ChannelUID(ThingUID thingUID, String groupId, String id) {
-        super(getArray(thingUID.getBindingId(), thingUID.getThingTypeId(), thingUID.getId(), groupId, id,
+        super(getArray(thingUID.getBindingId(), thingUID.getThingId(), thingUID.getId(), groupId, id,
                 thingUID.getBridgeIds()));
     }
 
+    /**
+     * @param thingUID
+     *            the unique identifier of the thing the channel belongs to
+     * @param groupId the channel's group id
+     * @param id
+     *            the channel's id
+     */
+    @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String groupId, String id) {
         super(getArray(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingUID.getId(), groupId, id,
                 thingUID.getBridgeIds()));
@@ -74,6 +81,7 @@ public class ChannelUID extends UID {
      * @param thingId the id of the thing the channel belongs to
      * @param id the channel's id
      */
+    @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, String thingId, String id) {
         this(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingId, id);
     }

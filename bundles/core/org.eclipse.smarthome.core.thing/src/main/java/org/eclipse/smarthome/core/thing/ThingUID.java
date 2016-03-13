@@ -15,6 +15,7 @@ import java.util.List;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Jochen Hiller - Bugfix 455434: added default constructor
+ * @author Chris Jackson - Added getThingId method
  */
 public class ThingUID extends UID {
 
@@ -164,6 +165,20 @@ public class ThingUID extends UID {
             return null;
         } else {
             return new ThingTypeUID(getSegment(0), getSegment(1));
+        }
+    }
+
+    /**
+     * Returns the thing id.
+     *
+     * @return thing id
+     */
+    public String getThingId() {
+        String thingType = getSegment(1);
+        if (NO_THING_TYPE.equals(thingType)) {
+            return null;
+        } else {
+            return thingType;
         }
     }
 
