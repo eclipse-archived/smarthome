@@ -21,6 +21,12 @@ public class RuleStatusInfo {
     private String description;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected RuleStatusInfo() {
+    }
+
+    /**
      * Constructs a status info.
      *
      * @param status the status (must not be null)
@@ -111,22 +117,29 @@ public class RuleStatusInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         RuleStatusInfo other = (RuleStatusInfo) obj;
         if (description == null) {
-            if (other.description != null)
+            if (other.description != null) {
                 return false;
-        } else if (!description.equals(other.description))
+            }
+        } else if (!description.equals(other.description)) {
             return false;
-        if (status != other.status)
+        }
+        if (status != other.status) {
             return false;
-        if (statusDetail != other.statusDetail)
+        }
+        if (statusDetail != other.statusDetail) {
             return false;
+        }
         return true;
     }
 }
