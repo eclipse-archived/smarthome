@@ -61,8 +61,8 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
     final static ThingTypeUID THING_TYPE_GENERIC_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_GENERIC_ID)
     final static ThingTypeUID THING_TYPE_SPECIFIC_UID = new ThingTypeUID(BINDING_ID, THING_TYPE_SPECIFIC_ID)
     final static String THING_ID = "testThing"
-    final static ChannelUID CHANNEL_GENERIC_UID = new ChannelUID(BINDING_ID + ":" + THING_TYPE_GENERIC_ID + ":" + THING_ID + ":" + "channel" + THING_TYPE_GENERIC_ID)
-    final static ChannelUID CHANNEL_SPECIFIC_UID = new ChannelUID(BINDING_ID + ":" + THING_TYPE_SPECIFIC_ID + ":" + THING_ID + ":" + "channel" + THING_TYPE_SPECIFIC_ID)
+    final static ChannelUID CHANNEL_GENERIC_UID = new ChannelUID(BINDING_ID + "::" + THING_ID + ":" + "channel" + THING_TYPE_GENERIC_ID)
+    final static ChannelUID CHANNEL_SPECIFIC_UID = new ChannelUID(BINDING_ID + "::" + THING_ID + ":" + "channel" + THING_TYPE_SPECIFIC_ID)
     final static String ITEM_GENERIC = "item" + THING_TYPE_GENERIC_ID;
     final static String ITEM_SPECIFIC = "item" + THING_TYPE_SPECIFIC_ID;
     final static ItemChannelLink ITEM_CHANNEL_LINK_GENERIC = new ItemChannelLink(ITEM_GENERIC,  CHANNEL_GENERIC_UID)
