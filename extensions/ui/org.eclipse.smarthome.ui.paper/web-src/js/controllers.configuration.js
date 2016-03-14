@@ -182,6 +182,9 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         }, function(configDescription) {
             if (configDescription) {
                 $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
+                if (!jQuery.isEmptyObject($scope.configuration)) {
+                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+                }
             }
         });
     }
@@ -197,6 +200,9 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             if (config) {
                 $scope.configuration = config;
                 $scope.configArray = configService.getConfigAsArray(config);
+                if ($scope.parameters && $scope.parameters.length > 0) {
+                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+                }
             }
         });
     } else {
@@ -221,6 +227,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         if ($scope.expertMode) {
             $scope.configuration = configService.getConfigAsObject($scope.configArray);
         }
+        $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
         serviceConfigService.updateConfig({
             id : (serviceId ? serviceId : $scope.serviceId)
         }, $scope.configuration, function() {
