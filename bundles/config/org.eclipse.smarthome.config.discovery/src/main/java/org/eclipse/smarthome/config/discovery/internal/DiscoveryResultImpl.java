@@ -127,7 +127,12 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     @Override
     public ThingTypeUID getThingTypeUID() {
-        return this.thingTypeUID;
+        if (this.thingTypeUID != null) {
+            return this.thingTypeUID;
+        } else {
+            // fallback for discovery result which were created before the thingTypeUID field was added
+            return this.thingUID.getThingTypeUID();
+        }
     }
 
     /**
