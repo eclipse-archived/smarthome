@@ -18,7 +18,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
@@ -39,6 +38,7 @@ import com.google.common.collect.Lists;
  * It is supposed to contain methods that are commonly shared between {@link ThingManager} and {@link ThingFactory}.
  *
  * @author Simon Kaufmann - Initial contribution and API
+ * @author Kai Kreuzer - Changed creation of channels to not require a thing type
  *
  */
 public class ThingFactoryHelper {
@@ -59,8 +59,7 @@ public class ThingFactoryHelper {
         List<Channel> channels = Lists.newArrayList();
         List<ChannelDefinition> channelDefinitions = thingType.getChannelDefinitions();
         for (ChannelDefinition channelDefinition : channelDefinitions) {
-            Channel channel = createChannel(channelDefinition, thingUID, thingType.getUID(), null,
-                    configDescriptionRegistry);
+            Channel channel = createChannel(channelDefinition, thingUID, null, configDescriptionRegistry);
             if (channel != null) {
                 channels.add(channel);
             }
@@ -71,8 +70,8 @@ public class ThingFactoryHelper {
             if (channelGroupType != null) {
                 List<ChannelDefinition> channelGroupChannelDefinitions = channelGroupType.getChannelDefinitions();
                 for (ChannelDefinition channelDefinition : channelGroupChannelDefinitions) {
-                    Channel channel = createChannel(channelDefinition, thingUID, thingType.getUID(),
-                            channelGroupDefinition.getId(), configDescriptionRegistry);
+                    Channel channel = createChannel(channelDefinition, thingUID, channelGroupDefinition.getId(),
+                            configDescriptionRegistry);
                     if (channel != null) {
                         channels.add(channel);
                     }
@@ -86,8 +85,8 @@ public class ThingFactoryHelper {
         return channels;
     }
 
-    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID,
-            ThingTypeUID thingTypeUID, String groupId, ConfigDescriptionRegistry configDescriptionRegistry) {
+    private static Channel createChannel(ChannelDefinition channelDefinition, ThingUID thingUID, String groupId,
+            ConfigDescriptionRegistry configDescriptionRegistry) {
         ChannelType type = TypeResolver.resolve(channelDefinition.getChannelTypeUID());
         if (type == null) {
             logger.warn(
@@ -97,7 +96,7 @@ public class ThingFactoryHelper {
         }
 
         ChannelBuilder channelBuilder = ChannelBuilder
-                .create(new ChannelUID(thingTypeUID, thingUID, groupId, channelDefinition.getId()), type.getItemType())
+                .create(new ChannelUID(thingUID, groupId, channelDefinition.getId()), type.getItemType())
                 .withType(type.getUID()).withDefaultTags(type.getTags());
 
         // If we want to override the label, add it...
