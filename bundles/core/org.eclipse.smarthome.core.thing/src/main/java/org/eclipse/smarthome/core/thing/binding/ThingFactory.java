@@ -109,7 +109,9 @@ public class ThingFactory {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
                 if (thing == null) {
-                    logger.error("Thing factory returned null when it reports to support the thing");
+                    logger.error(
+                            "Thing factory ({}) returned null on create thing when it reports to support the thing type ({}).",
+                            thingHandlerFactory.getClass(), thingTypeUID);
                 } else {
                     if (properties != null) {
                         for (String key : properties.keySet()) {
