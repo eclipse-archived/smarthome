@@ -54,5 +54,5 @@ Export-Package: org.eclipse.smarthome.model.persistence,org.eclipse.sm
  ert,org.joda.time.field,org.joda.time.format,org.joda.time.tz
 Service-Component: OSGI-INF/persistencemanager.xml,
  OSGI-INF/persistenceextension.xml
-Bundle-ClassPath: lib/joda-time-2.3.jar,
+Bundle-ClassPath: lib/joda-time-2.9.2.jar,
  .
