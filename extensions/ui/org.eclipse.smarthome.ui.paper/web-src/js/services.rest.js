@@ -568,4 +568,18 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             }
         }
     });
+}).factory('channelTypeService', function($resource, restConfig) {
+    return $resource(restConfig.restPath + '/channel-types', {}, {
+        getAll : {
+            method : 'GET',
+            isArray : true
+        },
+        getByUri : {
+            method : 'GET',
+            params : {
+                channelTypeUID : '@channelTypeUID'
+            },
+            url : restConfig.restPath + '/channel-types/:channelTypeUID'
+        },
+    });
 });
