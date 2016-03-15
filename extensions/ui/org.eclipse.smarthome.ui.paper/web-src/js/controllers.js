@@ -104,7 +104,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     $scope.setHeaderText('Edit user preferences.');
 
     var localStorage = window.localStorage;
-    var language = localStorage.getItem('language');
+    var language = localStorage.getItem('paperui.language');
 
     $scope.language = language ? language : 'english';
     $scope.advancedMode = $rootScope.advancedMode;
