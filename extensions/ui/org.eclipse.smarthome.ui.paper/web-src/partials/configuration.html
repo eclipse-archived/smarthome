@@ -130,14 +130,17 @@
 							<i ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px; float: right;" class="md-raised material-icons">unfold_less</i> <i ng-show="collapsed" ng-click="collapsed=!collapsed" style="color: grey; font-size: 22px; float: right;" class="md-raised material-icons">unfold_more</i>
 							<div>{{group.description}}</div>
 						</div>
-						<div class="channel fab-item" ng-repeat="channel in group.channels">
+						<div class="channel fab-item" ng-init="index=1" ng-repeat="channel in group.channels">
 							<div ng-show="!collapsed">
 								<md-button ng-if="channel.linkedItems.length == 0" class="md-fab" ng-click="enableChannel(thing.UID, channel.id, $event)" aria-label="Off"> <i class="material-icons">radio_button_unchecked</i></md-button>
 								<md-button ng-if="channel.linkedItems.length > 0" class="md-fab" ng-click="disableChannel(thing.UID, channel.id, $event)" aria-label="On"> <i class="material-icons">radio_button_checked</i></md-button>
 								<div class="item-content">
-									<h3>{{getChannelTypeById(channel.id).label}}</h3>
+									<h3 ng-if="getChannelById(channel.id).label">{{getChannelById(channel.id).label}}</h3>
+									<h3 ng-if="!getChannelById(channel.id).label && getChannelTypeById(channel.id).label">{{getChannelTypeById(channel.id).label}}</h3>
+									<h3 ng-if="!getChannelById(channel.id).label && !getChannelTypeById(channel.id).label">{{channel.id}}</h3>
 									<p>{{thing.UID + ':' + channel.id}}</p>
-									<p>{{getChannelTypeById(channel.id).description}}</p>
+									<p ng-if="getChannelById(channel.id).description">{{getChannelTypeById(channel.id).description}}</p>
+									<p ng-if="!getChannelById(channel.id).description && getChannelTypeById(channel.id).description">{{getChannelTypeById(channel.id).description}}</p>									
 								</div>
 								<hr class="border-line" />
 							</div>
