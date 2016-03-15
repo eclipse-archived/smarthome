@@ -181,6 +181,28 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     }
                 });
             }
+        },
+        setConfigDefaults : function(configuration, groups) {
+            for (var i = 0; i < groups.length; i++) {
+                $.each(groups[i].parameters, function(i, parameter) {
+                    if (parameter.defaultValue !== 'null') {
+                        if (configuration[parameter.name] == null || configuration[parameter.name] == "") {
+                            if (parameter.type === 'TEXT') {
+                                configuration[parameter.name] = parameter.defaultValue
+                            } else if (parameter.type === 'BOOLEAN') {
+                                configuration[parameter.name] = new Boolean(parameter.defaultValue);
+                            } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                                configuration[parameter.name] = parseInt(parameter.defaultValue);
+                            } else {
+                                configuration[parameter.name] = parameter.defaultValue;
+                            }
+                        }
+                    } else {
+                        configuration[parameter.name] = '';
+                    }
+                });
+            }
+            return configuration;
         }
     };
 });
