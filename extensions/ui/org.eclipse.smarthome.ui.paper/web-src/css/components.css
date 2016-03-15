@@ -555,7 +555,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .config-select {
 	margin-bottom: 0px;
-	margin-top: 27px;
+	margin-top: 0px;
 }
 
 .parameter>div {
@@ -610,4 +610,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 
 .thingName {
     margin-top:10px;
+}
+
+.config-textInput {
+    font-size: 10.5px;
+    color: rgba(0,0,0,0.54);
+    margin-left: 4px;
 }
