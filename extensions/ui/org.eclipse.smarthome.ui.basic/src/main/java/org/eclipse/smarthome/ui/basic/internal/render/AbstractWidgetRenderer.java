@@ -159,15 +159,21 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
      */
     protected String processColor(Widget w, String snippet) {
         String style = "";
-        String color = itemUIRegistry.getLabelColor(w);
-        if (color != null)
-            style = "color:" + color;
+        String color = "";
+
+        color = itemUIRegistry.getLabelColor(w);
+
+        if (color != null) {
+            style = "style=\"color:" + color + "\"";
+        }
         snippet = StringUtils.replace(snippet, "%labelstyle%", style);
 
         style = "";
         color = itemUIRegistry.getValueColor(w);
-        if (color != null)
-            style = "color:" + color;
+
+        if (color != null) {
+            style = "style=\"color:" + color + "\"";
+        }
         snippet = StringUtils.replace(snippet, "%valuestyle%", style);
 
         return snippet;

@@ -599,6 +599,34 @@ html.flexbox-legacy {
 	position: relative;
 }
 
+.page {
+	&-static {
+		&__content {
+			padding: @form-row-desktop-padding;
+			@media screen and (max-width: @layout-tablet-size-threshold) {
+				padding: @form-row-mobile-padding;
+			}
+		}
+	}
+}
+
+.welcome-sitemaps {
+	&__sitemap {
+		padding: 5px 0;
+		.material-icons {
+			vertical-align: middle;
+			line-height: 19px;
+			padding-right: 6px;
+		}
+		a {
+			text-transform: capitalize;
+		}
+	}
+	&__empty {
+		font-style: italic;
+	}
+}
+
 .mdl-modal {
 	&--colorpicker {
 		max-width: @colorpicker-desktop-size;
