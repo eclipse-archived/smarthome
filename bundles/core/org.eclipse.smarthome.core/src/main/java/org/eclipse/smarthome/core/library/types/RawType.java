@@ -9,8 +9,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import java.util.Arrays;
 
-import javax.xml.bind.DatatypeConverter;
-
+import org.eclipse.smarthome.core.internal.PortableBase64;
 import org.eclipse.smarthome.core.types.PrimitiveType;
 import org.eclipse.smarthome.core.types.State;
 
@@ -38,12 +37,12 @@ public class RawType implements PrimitiveType, State {
     }
 
     public static RawType valueOf(String value) {
-        return new RawType(DatatypeConverter.parseBase64Binary(value));
+        return new RawType(PortableBase64.getDecoder().decode(value));
     }
 
     @Override
     public String toString() {
-        return DatatypeConverter.printBase64Binary(bytes);
+        return PortableBase64.getEncoder().encode(bytes);
     }
 
     @Override
