@@ -31,7 +31,7 @@ Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
- javax.xml.bind,
+ javax.xml.bind;resolution:=optional,
  org.apache.commons.lang,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.binding.dto,
