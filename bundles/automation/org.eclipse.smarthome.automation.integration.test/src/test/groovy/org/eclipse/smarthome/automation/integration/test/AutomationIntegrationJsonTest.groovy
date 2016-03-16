@@ -43,7 +43,7 @@ import org.junit.Test
 import org.osgi.framework.Bundle
 import org.osgi.framework.FrameworkEvent
 import org.osgi.framework.FrameworkListener
-import org.osgi.framework.wiring.FrameworkWiring
+import org.osgi.service.packageadmin.PackageAdmin
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -57,6 +57,7 @@ import com.google.common.collect.Sets
  * @author Marin Mitev - make the test to pass on each run
  *
  */
+@SuppressWarnings("deprecation")
 class AutomationIntegrationJsonTest extends OSGiTest{
 
     final Logger logger = LoggerFactory.getLogger(AutomationIntegrationJsonTest.class)
@@ -65,6 +66,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
     def RuleRegistry ruleRegistry
     def ModuleTypeRegistry moduleTypeRegistry
     def Event ruleEvent
+    def PackageAdmin pkgAdmin
+
     public static def VolatileStorageService VOLATILE_STORAGE_SERVICE = new VolatileStorageService()//keep storage with rules imported from json files
 
     @Before
@@ -127,6 +130,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         itemRegistry = getService(ItemRegistry)
         ruleRegistry = getService(RuleRegistry)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
+        pkgAdmin = getService(PackageAdmin)
         waitForAssert ({
             assertThat storageService, is(notNullValue())
 
@@ -134,6 +138,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
             assertThat itemRegistry, is(notNullValue())
             assertThat ruleRegistry, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
+            assertThat pkgAdmin, is(notNullValue())
         }, 9000)
         logger.info('@Before.finish');
     }
@@ -306,12 +311,10 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         }, 3000, 200)
 
         testAutomationProviderFragmet.update(getClass().getClassLoader().getResourceAsStream("src/test/resources/automation.test.fragment_updated.jar"))
-        Bundle systemBundle = bundleContext.getBundle(0)
-        FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class)
 
         def waiting = true
-        def bundles = [testAutomationProviderHost, testAutomationProviderFragmet]
-        def FrameworkListener listener = new FrameworkListener() {
+        Bundle[] bundles = [testAutomationProviderHost, testAutomationProviderFragmet] as Bundle[]
+        def FrameworkListener listener1 = new FrameworkListener() {
                     public void frameworkEvent(FrameworkEvent event) {
                         waiting = false
                         assertThat testAutomationProviderHost.getState(), is(Bundle.ACTIVE)
@@ -324,7 +327,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
                         assertThat m, is(notNullValue())
                     }
                 }
-        frameworkWiring.refreshBundles(bundles, listener)
+        bundleContext.addFrameworkListener(listener1);
+        pkgAdmin.refreshPackages(bundles)
         while ({
             sleep(3000)
             waiting == true
@@ -349,7 +353,7 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         testAutomationProviderFragmet.uninstall()
         assertThat testAutomationProviderFragmet.getState(), is(Bundle.UNINSTALLED)
         waiting = true
-        listener = new FrameworkListener() {
+        def FrameworkListener listener2 = new FrameworkListener() {
                     public void frameworkEvent(FrameworkEvent event) {
                         waiting = false
                         // assert that the host is updated and only its resources are available
@@ -363,7 +367,8 @@ class AutomationIntegrationJsonTest extends OSGiTest{
                         assertThat m, is(nullValue())
                     }
                 }
-        frameworkWiring.refreshBundles(bundles, listener)
+        bundleContext.addFrameworkListener(listener2);
+        pkgAdmin.refreshPackages(bundles)
         while ({
             sleep(3000)
             waiting == true
