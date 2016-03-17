@@ -39,11 +39,11 @@ public class ChannelUID extends UID {
      * @param id
      *            the channel's id
      */
-    @Deprecated
     public ChannelUID(ThingUID thingUID, String id) {
         super(getArray(thingUID, null, id));
     }
 
+    @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, ThingUID thingUID, String id) {
         super(getArray(thingUID, null, id));
     }
@@ -69,6 +69,7 @@ public class ChannelUID extends UID {
      * @param thingId the id of the thing the channel belongs to
      * @param id the channel's id
      */
+    @Deprecated
     public ChannelUID(ThingTypeUID thingTypeUID, String thingId, String id) {
         this(thingTypeUID.getBindingId(), thingTypeUID.getId(), thingId, id);
     }
@@ -79,6 +80,7 @@ public class ChannelUID extends UID {
      * @param thingId the id of the thing the channel belongs to
      * @param id the channel's id
      */
+    @Deprecated
     public ChannelUID(String bindingId, String thingTypeId, String thingId, String id) {
         super(bindingId, thingTypeId, thingId, id);
     }
@@ -90,6 +92,7 @@ public class ChannelUID extends UID {
      * @param groupId the channel's group id
      * @param id the channel's id
      */
+    @Deprecated
     public ChannelUID(String bindingId, String thingTypeId, String thingId, String groupId, String id) {
         super(bindingId, thingTypeId, thingId, getChannelId(groupId, id));
     }
