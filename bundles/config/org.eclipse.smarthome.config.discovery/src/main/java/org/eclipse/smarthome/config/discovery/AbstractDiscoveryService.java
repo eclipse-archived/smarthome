@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - Refactored API
  * @author Dennis Nobel - Added background discovery configuration through Configuration Admin
  * @author Andre Fuechsel - Added removeOlderResults
+ * @author Chris Jackson - Added getInboxEntry
  */
 public abstract class AbstractDiscoveryService implements DiscoveryService {
 
@@ -43,7 +44,8 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractDiscoveryService.class);
 
-    static protected final ScheduledExecutorService scheduler = ThreadPoolManager.getScheduledPool(DISCOVERY_THREADPOOL_NAME);
+    static protected final ScheduledExecutorService scheduler = ThreadPoolManager
+            .getScheduledPool(DISCOVERY_THREADPOOL_NAME);
 
     private Set<DiscoveryListener> discoveryListeners = new CopyOnWriteArraySet<>();
     protected ScanListener scanListener = null;
@@ -292,6 +294,17 @@ public abstract class AbstractDiscoveryService implements DiscoveryService {
      */
     protected void removeOlderResults(long timestamp) {
         removeOlderResults(timestamp, null);
+    }
+
+    /**
+     * Call to get an existing cached inbox entry if it exists.
+     *
+     * @param thingUID
+     *            The UID of the removed thing. null if no entry exists.
+     * @return
+     */
+    protected DiscoveryResult getInboxEntry(ThingUID thingUID) {
+        return cachedResults.get(thingUID);
     }
 
     /**
