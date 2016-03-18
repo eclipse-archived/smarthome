@@ -146,6 +146,7 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
             Path transformFilePath = Paths.get(watchedDirectory);
             try {
                 transformFilePath.register(watchService, ENTRY_DELETE, ENTRY_MODIFY);
+                logger.debug("Watching directory {}", transformFilePath);
                 watchedDirectories.add(subDirectory);
             } catch (IOException e) {
                 logger.warn("Unable to watch transformation directory : {}", watchedDirectory);
@@ -217,7 +218,7 @@ public abstract class AbstractFileTransformationService<T> implements Transforma
     /**
      * Returns the path to the root of the transformation folder
      */
-    private String getSourcePath() {
+    protected String getSourcePath() {
         return ConfigConstants.getConfigFolder() + File.separator + TransformationService.TRANSFORM_FOLDER_NAME
                 + File.separator;
     }
