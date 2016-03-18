@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.ui.basic.internal.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -58,6 +59,9 @@ public class WebAppServlet extends BaseServlet {
     /** the name of the servlet to be used in the URL */
     public static final String SERVLET_NAME = "app";
 
+    private static final String CONTENT_TYPE_ASYNC = "application/xml;charset=UTF-8";
+    private static final String CONTENT_TYPE = "text/html;charset=UTF-8";
+
     private PageRenderer renderer;
     private WebAppConfig config = new WebAppConfig();
     protected Set<SitemapProvider> sitemapProviders = new CopyOnWriteArraySet<>();
@@ -99,6 +103,14 @@ public class WebAppServlet extends BaseServlet {
         logger.info("Stopped Basic UI");
     }
 
+    private void showSitemapList(ServletResponse res) throws IOException, RenderException {
+        PrintWriter resWriter;
+        resWriter = res.getWriter();
+        resWriter.append(renderer.renderSitemapList(sitemapProviders));
+
+        res.setContentType(CONTENT_TYPE);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -121,13 +133,17 @@ public class WebAppServlet extends BaseServlet {
 
         for (SitemapProvider sitemapProvider : sitemapProviders) {
             sitemap = sitemapProvider.getSitemap(sitemapName);
-            if (sitemap != null)
+            if (sitemap != null) {
                 break;
+            }
         }
+
         try {
             if (sitemap == null) {
-                throw new RenderException("Sitemap '" + sitemapName + "' could not be found");
+                showSitemapList(res);
+                return;
             }
+
             logger.debug("reading sitemap {}", sitemap.getName());
             if (widgetId == null || widgetId.isEmpty() || widgetId.equals(sitemapName)) {
                 // we are at the homepage, so we render the children of the sitemap root node
@@ -144,8 +160,9 @@ public class WebAppServlet extends BaseServlet {
                 Widget w = renderer.getItemUIRegistry().getWidget(sitemap, widgetId);
                 if (w != null) {
                     String label = renderer.getItemUIRegistry().getLabel(w);
-                    if (label == null)
+                    if (label == null) {
                         label = "undefined";
+                    }
                     if (!(w instanceof LinkableWidget)) {
                         throw new RenderException("Widget '" + w + "' can not have any content");
                     }
@@ -163,9 +180,9 @@ public class WebAppServlet extends BaseServlet {
             throw new ServletException(e.getMessage(), e);
         }
         if (async) {
-            res.setContentType("application/xml;charset=UTF-8");
+            res.setContentType(CONTENT_TYPE_ASYNC);
         } else {
-            res.setContentType("text/html;charset=UTF-8");
+            res.setContentType(CONTENT_TYPE);
         }
         res.getWriter().append(result);
         res.getWriter().close();
