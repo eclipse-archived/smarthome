@@ -248,9 +248,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                         OnOffType binaryState = null;
                         binaryState = value.equals("0") ? OnOffType.OFF : OnOffType.ON;
                         if (binaryState != null) {
-                            updateState(
-                                    new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STATE),
-                                    binaryState);
+                            updateState(CHANNEL_STATE, binaryState);
                         }
                     }
                 }
@@ -298,9 +296,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                         OnOffType binaryState = null;
                         binaryState = splitResponse[0].equals("0") ? OnOffType.OFF : OnOffType.ON;
                         if (binaryState != null) {
-                            updateState(
-                                    new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STATE),
-                                    binaryState);
+                            updateState(CHANNEL_STATE, binaryState);
                         }
                     }
                     if (splitResponse[1] != null) {
@@ -310,8 +306,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                             int newBrightness = Math.round(newBrightnessValue * 100 / 255);
                             logger.trace("newBrightness = {}", newBrightness);
                             State newBrightnessState = new PercentType(newBrightness);
-                            updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(),
-                                    CHANNEL_BRIGHTNESS), newBrightnessState);
+                            updateState(CHANNEL_BRIGHTNESS, newBrightnessState);
                             currentBrightness = newBrightness;
                         }
                     }
@@ -333,8 +328,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                 OnOffType binaryState = null;
                 binaryState = newValue.equals("0") ? OnOffType.OFF : OnOffType.ON;
                 if (binaryState != null) {
-                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STATE),
-                            binaryState);
+                    updateState(CHANNEL_STATE, binaryState);
                 }
                 break;
             case "10008":
@@ -343,8 +337,7 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
                     int newBrightnessValue = Integer.valueOf(splitValue[0]);
                     int newBrightness = Math.round(newBrightnessValue * 100 / 255);
                     State newBrightnessState = new PercentType(newBrightness);
-                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_BRIGHTNESS),
-                            newBrightnessState);
+                    updateState(CHANNEL_BRIGHTNESS, newBrightnessState);
                     currentBrightness = newBrightness;
                 }
                 break;
