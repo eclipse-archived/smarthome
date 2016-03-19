@@ -65,7 +65,7 @@ public class FSInternetRadioHandler extends BaseThingHandler {
                     if (!radioOn && !CHANNEL_POWER.equals(channel.getUID().getId())) {
                         // if radio is off, set all channels (except for 'POWER') to 'undefined'
                         updateState(channel.getUID(), UnDefType.UNDEF);
-                    } else if (channel.isLinked()) {
+                    } else if (isLinked(channel.getUID().getId())) {
                         // update all channels that are linked
                         switch (channel.getUID().getId()) {
                             case CHANNEL_POWER:
@@ -156,8 +156,9 @@ public class FSInternetRadioHandler extends BaseThingHandler {
 
     @Override
     public void dispose() {
-        if (updateJob != null)
+        if (updateJob != null) {
             updateJob.cancel(true);
+        }
         updateJob = null;
         radio = null;
     }
