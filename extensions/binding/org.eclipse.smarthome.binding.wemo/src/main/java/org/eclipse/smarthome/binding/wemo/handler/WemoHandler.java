@@ -207,9 +207,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                         if (binaryState != null) {
                             logger.trace("New InsightParam binaryState '{}' for device '{}' received", binaryState,
                                     getThing().getUID());
-                            updateState(
-                                    new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STATE),
-                                    binaryState);
+                            updateState(CHANNEL_STATE, binaryState);
                         }
                     }
 
@@ -226,50 +224,42 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     if (lastChangedAt != 0) {
                         logger.trace("New InsightParam lastChangedAt '{}' for device '{}' received", lastChangedAtState,
                                 getThing().getUID());
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(),
-                                CHANNEL_LASTCHANGEDAT), lastChangedAtState);
+                        updateState(CHANNEL_LASTCHANGEDAT, lastChangedAtState);
                     }
 
                     State lastOnFor = DecimalType.valueOf(splitInsightParams[2]);
                     if (lastOnFor != null) {
                         logger.trace("New InsightParam lastOnFor '{}' for device '{}' received", lastOnFor,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_LASTONFOR),
-                                lastOnFor);
+                        updateState(CHANNEL_LASTONFOR, lastOnFor);
                     }
 
                     State onToday = DecimalType.valueOf(splitInsightParams[3]);
                     if (onToday != null) {
                         logger.trace("New InsightParam onToday '{}' for device '{}' received", onToday,
                                 getThing().getUID());
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_ONTODAY),
-                                onToday);
+                        updateState(CHANNEL_ONTODAY, onToday);
                     }
 
                     State onTotal = DecimalType.valueOf(splitInsightParams[4]);
                     if (onTotal != null) {
                         logger.trace("New InsightParam onTotal '{}' for device '{}' received", onTotal,
                                 getThing().getUID());
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_ONTOTAL),
-                                onTotal);
+                        updateState(CHANNEL_ONTOTAL, onTotal);
                     }
 
                     State timespan = DecimalType.valueOf(splitInsightParams[5]);
                     if (timespan != null) {
                         logger.trace("New InsightParam timespan '{}' for device '{}' received", timespan,
                                 getThing().getUID());
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_TIMESPAN),
-                                timespan);
+                        updateState(CHANNEL_TIMESPAN, timespan);
                     }
 
                     State averagePower = DecimalType.valueOf(splitInsightParams[6]); // natively given in W
                     if (averagePower != null) {
                         logger.trace("New InsightParam averagePower '{}' for device '{}' received", averagePower,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_AVERAGEPOWER),
-                                averagePower);
+                        updateState(CHANNEL_AVERAGEPOWER, averagePower);
                     }
 
                     BigDecimal currentMW = new BigDecimal(splitInsightParams[7]);
@@ -278,9 +268,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     if (currentPower != null) {
                         logger.trace("New InsightParam currentPower '{}' for device '{}' received", currentPower,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_CURRENTPOWER),
-                                currentPower);
+                        updateState(CHANNEL_CURRENTPOWER, currentPower);
                     }
 
                     BigDecimal energyTodayMWMin = new BigDecimal(splitInsightParams[8]);
@@ -290,9 +278,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     if (energyToday != null) {
                         logger.trace("New InsightParam energyToday '{}' for device '{}' received", energyToday,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_ENERGYTODAY),
-                                energyToday);
+                        updateState(CHANNEL_ENERGYTODAY, energyToday);
                     }
 
                     BigDecimal energyTotalMWMin = new BigDecimal(splitInsightParams[9]);
@@ -302,9 +288,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     if (energyTotal != null) {
                         logger.trace("New InsightParam energyTotal '{}' for device '{}' received", energyTotal,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_ENERGYTOTAL),
-                                energyTotal);
+                        updateState(CHANNEL_ENERGYTOTAL, energyTotal);
                     }
 
                     BigDecimal standByLimitMW = new BigDecimal(splitInsightParams[10]);
@@ -314,9 +298,7 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
                     if (standByLimit != null) {
                         logger.trace("New InsightParam standByLimit '{}' for device '{}' received", standByLimit,
                                 getThing().getUID());
-                        updateState(
-                                new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STANDBYLIMIT),
-                                standByLimit);
+                        updateState(CHANNEL_STANDBYLIMIT, standByLimit);
                     }
                 }
 
@@ -327,11 +309,9 @@ public class WemoHandler extends BaseThingHandler implements UpnpIOParticipant, 
 
                 if (state != null) {
                     if (getThing().getThingTypeUID().getId().equals("motion")) {
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(),
-                                CHANNEL_MOTIONDETECTION), state);
+                        updateState(CHANNEL_MOTIONDETECTION, state);
                     } else {
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CHANNEL_STATE),
-                                state);
+                        updateState(CHANNEL_STATE, state);
                     }
                 }
             }

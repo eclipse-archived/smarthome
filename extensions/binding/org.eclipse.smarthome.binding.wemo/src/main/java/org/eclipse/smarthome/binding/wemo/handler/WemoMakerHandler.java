@@ -264,8 +264,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
                                     if (relayState != null) {
                                         logger.debug("New relayState '{}' for device '{}' received", relayState,
                                                 getThing().getUID());
-                                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(),
-                                                CHANNEL_RELAY), relayState);
+                                        updateState(CHANNEL_RELAY, relayState);
                                     }
                                     break;
                                 case "Sensor":
@@ -273,8 +272,7 @@ public class WemoMakerHandler extends BaseThingHandler implements UpnpIOParticip
                                     if (sensorState != null) {
                                         logger.debug("New sensorState '{}' for device '{}' received", sensorState,
                                                 getThing().getUID());
-                                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(),
-                                                CHANNEL_SENSOR), sensorState);
+                                        updateState(CHANNEL_SENSOR, sensorState);
                                     }
                                     break;
                             }
