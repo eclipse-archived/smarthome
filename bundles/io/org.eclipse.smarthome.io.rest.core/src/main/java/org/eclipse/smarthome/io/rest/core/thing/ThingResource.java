@@ -210,7 +210,7 @@ public class ThingResource implements RESTResource {
             managedItemProvider.add(item);
         }
 
-        ChannelUID channelUID = new ChannelUID(thing.getThingTypeUID(), thing.getUID(), channelId);
+        ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         unlinkChannelIfAlreadyLinked(channelUID);
 
@@ -294,7 +294,7 @@ public class ThingResource implements RESTResource {
             return getThingNotFoundResponse(thingUID);
         }
 
-        ChannelUID channelUID = new ChannelUID(thing.getThingTypeUID(), new ThingUID(thingUID), channelId);
+        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
             managedItemChannelLinkProvider.remove(new ItemChannelLink(itemName, channelUID).getID());
