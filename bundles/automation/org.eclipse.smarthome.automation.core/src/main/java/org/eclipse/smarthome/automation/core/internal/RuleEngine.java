@@ -1423,7 +1423,7 @@ public class RuleEngine
                         String strValue = cftDesc.getDefault();
                         if (strValue != null) {
                             Type t = cftDesc.getType();
-                            Object defValue = t != Type.TEXT ? getDefaultValue(t, strValue) : strValue;
+                            Object defValue = getDefaultValue(t, strValue);
                             mConfig.put(parameterName, defValue);
                         } else {
                             if (cftDesc.isRequired()) {
@@ -1455,8 +1455,11 @@ public class RuleEngine
                 return Integer.valueOf(value);
             case DECIMAL:
                 return new BigDecimal(value);
+            case TEXT:
+                return value;
+            default:
+                return null;
         }
-        return null;
     }
 
     protected void setManagedRuleProvider(ManagedRuleProvider rp) {
