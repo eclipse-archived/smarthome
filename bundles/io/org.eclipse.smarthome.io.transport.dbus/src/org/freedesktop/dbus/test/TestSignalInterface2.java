@@ -25,21 +25,19 @@ import java.util.List;
  */
 @Description("Test interface containing signals")
 @DBusInterfaceName("some.other.interface.Name")
-public interface TestSignalInterface2 extends DBusInterface
-{
-   @Description("Test basic signal")
-   public static class TestRenamedSignal extends DBusSignal
-   {
-      public final String value;
-      public final UInt32 number;
-      /**
-       * Create a signal.
-       */
-      public TestRenamedSignal(String path, String value, UInt32 number) throws DBusException
-      {
-         super(path, value, number);
-         this.value = value;
-         this.number = number;
-      }
-   }
+public interface TestSignalInterface2 extends DBusInterface {
+    @Description("Test basic signal")
+    public static class TestRenamedSignal extends DBusSignal {
+        public final String value;
+        public final UInt32 number;
+
+        /**
+         * Create a signal.
+         */
+        public TestRenamedSignal(String path, String value, UInt32 number) throws DBusException {
+            super(path, value, number);
+            this.value = value;
+            this.number = number;
+        }
+    }
 }

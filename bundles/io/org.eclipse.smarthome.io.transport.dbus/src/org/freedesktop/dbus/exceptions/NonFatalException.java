@@ -10,6 +10,5 @@
 */
 package org.freedesktop.dbus.exceptions;
 
-public interface NonFatalException
-{
+public interface NonFatalException {
 }

@@ -10,31 +10,30 @@
 */
 package org.freedesktop.dbus;
 
-public class Path implements Comparable<Path>
-{
-   protected String path;
-   public Path(String path)
-   {
-      this.path = path;
-   }
-   public String getPath()
-   {
-      return path;
-   }
-   public String toString()
-   {
-      return path;
-   }
-   public boolean equals(Object other)
-   {
-      return (other instanceof Path) && path.equals(((Path) other).path);
-   }
-   public int hashCode()
-   {
-      return path.hashCode();
-   }
-   public int compareTo(Path that)
-   {
-      return path.compareTo(that.path);
-   }
+public class Path implements Comparable<Path> {
+    protected String path;
+
+    public Path(String path) {
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String toString() {
+        return path;
+    }
+
+    public boolean equals(Object other) {
+        return (other instanceof Path) && path.equals(((Path) other).path);
+    }
+
+    public int hashCode() {
+        return path.hashCode();
+    }
+
+    public int compareTo(Path that) {
+        return path.compareTo(that.path);
+    }
 }

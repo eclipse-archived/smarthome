@@ -10,6 +10,5 @@
 */
 package org.freedesktop.dbus.exceptions;
 
-public interface FatalException
-{
+public interface FatalException {
 }

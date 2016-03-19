@@ -17,26 +17,24 @@ import java.io.InputStreamReader;
 import org.freedesktop.DBus;
 import org.freedesktop.dbus.DirectConnection;
 
-public class test_p2p_client
-{
-   public static void main(String[] args) throws Exception
-   {
-      BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream("address")));
-      String address = r.readLine();
-      DirectConnection dc = new DirectConnection(address);
-      System.out.println("Connected");
-      TestRemoteInterface tri = (TestRemoteInterface) dc.getRemoteObject("/Test");
-      System.out.println(tri.getName());
-      System.out.println(tri.testfloat(new float[] { 17.093f, -23f, 0.0f, 31.42f }));
-      
-      try { 
-         tri.throwme();
-      } catch (TestException Te) {
-         System.out.println("Caught TestException");
-      }
-      ((DBus.Peer) tri).Ping();
-      System.out.println(((DBus.Introspectable) tri).Introspect());
-      dc.disconnect();
-      System.out.println("Disconnected");
-   }      
+public class test_p2p_client {
+    public static void main(String[] args) throws Exception {
+        BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream("address")));
+        String address = r.readLine();
+        DirectConnection dc = new DirectConnection(address);
+        System.out.println("Connected");
+        TestRemoteInterface tri = (TestRemoteInterface) dc.getRemoteObject("/Test");
+        System.out.println(tri.getName());
+        System.out.println(tri.testfloat(new float[] { 17.093f, -23f, 0.0f, 31.42f }));
+
+        try {
+            tri.throwme();
+        } catch (TestException Te) {
+            System.out.println("Caught TestException");
+        }
+        ((DBus.Peer) tri).Ping();
+        System.out.println(((DBus.Introspectable) tri).Introspect());
+        dc.disconnect();
+        System.out.println("Disconnected");
+    }
 }

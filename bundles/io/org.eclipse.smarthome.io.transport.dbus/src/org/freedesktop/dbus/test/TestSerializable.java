@@ -16,33 +16,43 @@ import java.util.Vector;
 import org.freedesktop.dbus.DBusSerializable;
 import org.freedesktop.dbus.exceptions.DBusException;
 
-public class TestSerializable<A> implements DBusSerializable
-{
-   private int a;
-   private String b;
-   private Vector<Integer> c;
-   public TestSerializable(int a, A b, Vector<Integer> c)
-   {
-      this.a = a;
-      this.b = b.toString();
-      this.c = c;
-   }
-   public TestSerializable() {}
-   public void deserialize(int a, String b, List<Integer> c)
-   {
-      this.a = a;
-      this.b = b;
-      this.c = new Vector<Integer>(c);
-   }
-   public Object[] serialize() throws DBusException
-   {
-      return new Object[] { a, b, c };
-   }
-   public int getInt() { return a; }
-   public String getString() { return b; }
-   public Vector<Integer> getVector() { return c; }
-   public String toString()
-   {
-      return "TestSerializable{"+a+","+b+","+c+"}";
-   }
+public class TestSerializable<A> implements DBusSerializable {
+    private int a;
+    private String b;
+    private Vector<Integer> c;
+
+    public TestSerializable(int a, A b, Vector<Integer> c) {
+        this.a = a;
+        this.b = b.toString();
+        this.c = c;
+    }
+
+    public TestSerializable() {
+    }
+
+    public void deserialize(int a, String b, List<Integer> c) {
+        this.a = a;
+        this.b = b;
+        this.c = new Vector<Integer>(c);
+    }
+
+    public Object[] serialize() throws DBusException {
+        return new Object[] { a, b, c };
+    }
+
+    public int getInt() {
+        return a;
+    }
+
+    public String getString() {
+        return b;
+    }
+
+    public Vector<Integer> getVector() {
+        return c;
+    }
+
+    public String toString() {
+        return "TestSerializable{" + a + "," + b + "," + c + "}";
+    }
 }

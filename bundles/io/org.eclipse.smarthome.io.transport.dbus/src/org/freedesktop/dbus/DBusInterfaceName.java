@@ -20,8 +20,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface DBusInterfaceName
-{
-   /** The replacement interface name. */
-   String value();
+public @interface DBusInterfaceName {
+    /** The replacement interface name. */
+    String value();
 }

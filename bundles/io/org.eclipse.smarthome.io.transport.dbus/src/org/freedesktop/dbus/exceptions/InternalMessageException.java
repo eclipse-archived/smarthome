@@ -11,10 +11,8 @@
 package org.freedesktop.dbus.exceptions;
 
 @SuppressWarnings("serial")
-public class InternalMessageException extends DBusExecutionException implements NonFatalException
-{
-   public InternalMessageException(String message)
-   {
-      super (message);
-   }
+public class InternalMessageException extends DBusExecutionException implements NonFatalException {
+    public InternalMessageException(String message) {
+        super(message);
+    }
 }

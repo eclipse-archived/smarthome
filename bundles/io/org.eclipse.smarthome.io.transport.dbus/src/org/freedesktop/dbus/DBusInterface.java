@@ -9,10 +9,11 @@
    Full licence texts are included in the COPYING file with this program.
 */
 package org.freedesktop.dbus;
-/** 
+
+/**
  * Denotes a class as exportable or a remote interface which can be called.
  * <p>
- * Any interface which should be exported or imported should extend this 
+ * Any interface which should be exported or imported should extend this
  * interface. All public methods from that interface are exported/imported
  * with the given method signatures.
  * </p>
@@ -21,11 +22,10 @@ package org.freedesktop.dbus;
  * Application writers are responsible for any concurrency issues.
  * </p>
  */
-public interface DBusInterface
-{
-   /**
-    * Returns true on remote objects.
-    * Local objects implementing this interface MUST return false.
-    */
-   public boolean isRemote();
+public interface DBusInterface {
+    /**
+     * Returns true on remote objects.
+     * Local objects implementing this interface MUST return false.
+     */
+    public boolean isRemote();
 }

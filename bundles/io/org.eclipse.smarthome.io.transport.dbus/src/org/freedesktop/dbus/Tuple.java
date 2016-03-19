@@ -18,7 +18,7 @@ package org.freedesktop.dbus;
  * remote method should be annotated with the org.freedesktop.dbus.Position
  * annotation, in the order they should appear to DBus.
  */
-public abstract class Tuple extends Container
-{
-   public Tuple() {}
+public abstract class Tuple extends Container {
+    public Tuple() {
+    }
 }

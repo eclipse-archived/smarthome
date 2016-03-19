@@ -11,10 +11,8 @@
 package org.freedesktop.dbus.exceptions;
 
 @SuppressWarnings("serial")
-public class MarshallingException extends DBusException implements NonFatalException
-{
-   public MarshallingException(String message)
-   {
-      super(message);
-   }
+public class MarshallingException extends DBusException implements NonFatalException {
+    public MarshallingException(String message) {
+        super(message);
+    }
 }

@@ -13,18 +13,17 @@ package org.freedesktop.dbus.test;
 import org.freedesktop.dbus.Position;
 import org.freedesktop.dbus.Tuple;
 
-public final class TestTuple<A,B,C> extends Tuple
-{
-   @Position(0)
-   public final A a;
-   @Position(1)
-   public final B b;
-   @Position(2)
-   public final C c;
-   public TestTuple(A a, B b, C c)
-   {
-      this.a = a;
-      this.b = b;
-      this.c = c;
-   }
+public final class TestTuple<A, B, C> extends Tuple {
+    @Position(0)
+    public final A a;
+    @Position(1)
+    public final B b;
+    @Position(2)
+    public final C c;
+
+    public TestTuple(A a, B b, C c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+    }
 }
