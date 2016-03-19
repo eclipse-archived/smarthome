@@ -7,3 +7,4 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.core.extension
 Bundle-Vendor: Eclipse.org/SmartHome
 Service-Component: OSGI-INF/*.xml
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
