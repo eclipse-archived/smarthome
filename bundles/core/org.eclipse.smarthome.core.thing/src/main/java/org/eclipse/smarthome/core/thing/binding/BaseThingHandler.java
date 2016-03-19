@@ -250,7 +250,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void updateState(String channelID, State state) {
-        ChannelUID channelUID = new ChannelUID(this.getThing().getThingTypeUID(), this.getThing().getUID(), channelID);
+        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
         updateState(channelUID, state);
     }
 
@@ -265,7 +265,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      *             if handler is not initialized correctly, because no callback is present
      */
     protected void postCommand(String channelID, Command command) {
-        ChannelUID channelUID = new ChannelUID(this.getThing().getThingTypeUID(), this.getThing().getUID(), channelID);
+        ChannelUID channelUID = new ChannelUID(this.getThing().getUID(), channelID);
         postCommand(channelUID, command);
     }
 
