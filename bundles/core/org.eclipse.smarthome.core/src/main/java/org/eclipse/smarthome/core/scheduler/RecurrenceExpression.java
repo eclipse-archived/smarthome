@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.common;
+package org.eclipse.smarthome.core.scheduler;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -20,7 +20,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.smarthome.core.common.RecurrenceExpression.RecurrenceExpressionPart;
+import org.eclipse.smarthome.core.scheduler.RecurrenceExpression.RecurrenceExpressionPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
