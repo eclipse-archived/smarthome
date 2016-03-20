@@ -143,7 +143,7 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
             String weatherData = getWeatherData();
             String result = StringUtils.substringBetween(weatherData, "<item><title>", "</title>");
             if ("City not found".equals(result)) {
-                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM, LOCATION_NOT_FOUND)
+                configStatus.add(ConfigStatusMessage.Builder.error(LOCATION_PARAM).withMessageKey(LOCATION_NOT_FOUND)
                         .withArguments(location).build());
             }
         } catch (IOException e) {

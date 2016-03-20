@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * {@link ConfigStatusProvider}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Chris Jackson - Allow null messages
  */
 public final class ConfigStatusService implements ConfigStatusCallback {
 
@@ -105,16 +106,20 @@ public final class ConfigStatusService implements ConfigStatusCallback {
         ConfigStatusInfo info = new ConfigStatusInfo();
 
         for (ConfigStatusMessage configStatusMessage : configStatus) {
-            String message = i18nProvider.getText(bundle, configStatusMessage.messageKey, null, locale,
-                    configStatusMessage.arguments);
-            if (message == null) {
-                logger.warn(
-                        "No translation found for key {} and config status provider {}. Will ignore the config status message.",
-                        configStatusMessage.messageKey, configStatusProvider.getClass().getSimpleName());
-            } else {
-                info.add(new ConfigStatusMessage(configStatusMessage.parameterName, configStatusMessage.type, message,
-                        configStatusMessage.statusCode));
+            String message = null;
+            if (configStatusMessage.messageKey != null) {
+                message = i18nProvider.getText(bundle, configStatusMessage.messageKey, null, locale,
+                        configStatusMessage.arguments);
+                if (message == null) {
+                    logger.warn(
+                            "No translation found for key {} and config status provider {}. Will ignore the config status message.",
+                            configStatusMessage.messageKey, configStatusProvider.getClass().getSimpleName());
+                    continue;
+                }
             }
+            info.add(new ConfigStatusMessage(configStatusMessage.parameterName, configStatusMessage.type, message,
+                    configStatusMessage.statusCode));
+
         }
 
         return info;
