@@ -114,7 +114,7 @@ public class SonosXMLParser {
     /**
      * Returns the meta data which is needed to play Pandora
      * (and others?) favorites
-     * 
+     *
      * @param xml
      * @return The value of the desc xml tag
      * @throws SAXException
@@ -558,7 +558,7 @@ public class SonosXMLParser {
         private final List<String> textFields = new ArrayList<String>();
         private String textField;
         private String type;
-        private String logo;
+        // private String logo;
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes)
