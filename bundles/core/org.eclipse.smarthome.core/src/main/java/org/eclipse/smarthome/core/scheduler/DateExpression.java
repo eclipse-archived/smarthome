@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.common;
+package org.eclipse.smarthome.core.scheduler;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.eclipse.smarthome.core.common.DateExpression.DateExpressionPart;
+import org.eclipse.smarthome.core.scheduler.DateExpression.DateExpressionPart;
 
 /**
  * <code>DateExpression</code> is an implementation of {@link Expression} that provides a parser and evaluator for for
