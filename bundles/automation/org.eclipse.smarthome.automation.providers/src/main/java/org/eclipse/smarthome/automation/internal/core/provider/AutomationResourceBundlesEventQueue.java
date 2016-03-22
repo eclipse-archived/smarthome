@@ -23,9 +23,7 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.namespace.HostNamespace;
-import org.osgi.framework.wiring.BundleWire;
-import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.slf4j.Logger;
@@ -39,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
+@SuppressWarnings("deprecation")
 class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer<Object> {
 
     /**
@@ -94,6 +93,8 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
 
     private Map<Bundle, List<Bundle>> hostFragmentMapping = new HashMap<Bundle, List<Bundle>>();
 
+    private PackageAdmin pkgAdmin;
+
     /**
      * This constructor is responsible for initializing the tracker for bundles providing automation resources and their
      * providers.
@@ -109,6 +110,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         this.mProvider = mProvider;
         this.rImporter = rImporter;
         bTracker = new BundleTracker<Object>(bc, ~Bundle.UNINSTALLED, this);
+        pkgAdmin = bc.getService(bc.getServiceReference(PackageAdmin.class));
     }
 
     /**
@@ -278,28 +280,36 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     }
 
     /**
-     * This method is used to get the host bundle of the parameter of the method which is a fragment bundle.
+     * This method is used to get the host bundles of the parameter which is a fragment bundle.
      *
-     * @param bundle is an OSGi fragment bundle.
-     * @return a string representing bundle symbolic name and version of the host if the parameter of the method is a
-     *         fragment bundle and {@code null} in the opposite case.
+     * @param bundle an OSGi fragment bundle.
+     * @return a list with the hosts of the <code>fragment</code> parameter.
      */
     private List<Bundle> returnHostBundles(Bundle fragment) {
         List<Bundle> hosts = new ArrayList<Bundle>();
-        BundleWiring wiring = fragment.adapt(BundleWiring.class);
-        if (wiring == null) {
-            for (Entry<Bundle, List<Bundle>> entry : hostFragmentMapping.entrySet()) {
-                if (entry.getValue().contains(fragment)) {
-                    Bundle host = entry.getKey();
-                    hosts.add(host);
-                }
-            }
-        } else {
-            List<BundleWire> wires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
-            if (wires != null && !wires.isEmpty()) {
-                for (BundleWire wire : wires) {
-                    hosts.add(wire.getProvider().getBundle());
-                }
+        // R5 version of the code --->>>
+        // BundleWiring wiring = fragment.adapt(BundleWiring.class);
+        // if (wiring == null) {
+        // for (Entry<Bundle, List<Bundle>> entry : hostFragmentMapping.entrySet()) {
+        // if (entry.getValue().contains(fragment)) {
+        // Bundle host = entry.getKey();
+        // hosts.add(host);
+        // }
+        // }
+        // } else {
+        // List<BundleWire> wires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
+        // if (wires != null && !wires.isEmpty()) {
+        // for (BundleWire wire : wires) {
+        // hosts.add(wire.getProvider().getBundle());
+        // }
+        // }
+        // }
+
+        // R4 version of the code --->>>
+        Bundle[] bundles = pkgAdmin.getHosts(fragment);
+        if (bundles != null) {
+            for (int i = 0; i < bundles.length; i++) {
+                hosts.add(bundles[i]);
             }
         }
         return hosts;
@@ -307,13 +317,22 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
 
     private void fillHostFragmentMapping(Bundle host) {
         List<Bundle> fragments = new ArrayList<Bundle>();
-        BundleWiring wiring = host.adapt(BundleWiring.class);
-        List<BundleWire> wires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
-        if (wires == null || wires.isEmpty()) {
-            return;
-        }
-        for (BundleWire wire : wires) {
-            fragments.add(wire.getRequirer().getBundle());
+        // R5 version of the code --->>>
+        // BundleWiring wiring = host.adapt(BundleWiring.class);
+        // List<BundleWire> wires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
+        // if (wires == null || wires.isEmpty()) {
+        // return;
+        // }
+        // for (BundleWire wire : wires) {
+        // fragments.add(wire.getRequirer().getBundle());
+        // }
+
+        // R4 version of the code --->>>
+        Bundle[] bundles = pkgAdmin.getFragments(host);
+        if (bundles != null) {
+            for (int i = 0; i < bundles.length; i++) {
+                fragments.add(bundles[i]);
+            }
         }
         synchronized (hostFragmentMapping) {
             hostFragmentMapping.put(host, fragments);
@@ -406,8 +425,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     private void processBundleChanged(BundleEvent event) {
         Bundle bundle = event.getBundle();
         if (isFragmentBundle(bundle)) {
-            List<Bundle> hosts = returnHostBundles(bundle);
-            processFragmentBundleUpdated(hosts);
+            processFragmentBundleUpdated(returnHostBundles(bundle));
         } else {
             switch (event.getType()) {
                 case BundleEvent.UPDATED:
