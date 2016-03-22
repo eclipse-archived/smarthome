@@ -2266,6 +2266,12 @@
             xsi:type="predicates:LocationPredicate"
             pattern=".*/targetplatform/.*;.*/docs/.*;.*/distribution/.*"/>
       </workingSet>
+      <workingSet
+          name="Tests">
+        <predicate
+            xsi:type="predicates:NamePredicate"
+            pattern="org.eclipse.smarthome..*.test"/>
+      </workingSet>
     </setupTask>
     <setupTask
         xsi:type="setup.p2:P2Task">
