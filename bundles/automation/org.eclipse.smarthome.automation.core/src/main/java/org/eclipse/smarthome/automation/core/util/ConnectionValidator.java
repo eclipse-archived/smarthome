@@ -60,21 +60,19 @@ public class ConnectionValidator {
     }
 
     /**
-     * The method validates connections between inputs and outputs of the modules participated in a rule. It checks is
-     * there unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws
-     * exception if they are incompatible.
+     * The method validates connections between inputs and outputs of modules participated in rule. It compares data
+     * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param triggers is a list with triggers of the rule whose connections have to be validated
-     * @param conditions is a list with conditions of the rule whose connections have to be validated
-     * @param actions is a list with actions of the rule whose connections have to be validated
+     * @param triggers triggers of the rule
+     * @param conditions condition of the rule
+     * @param actions actions of the rule.
      * @throws IllegalArgumentException when validation fails.
      */
     public static void validateConnections(List<Trigger> triggers, List<Condition> conditions, List<Action> actions) {
-        if (!conditions.isEmpty()) {
+        if (!conditions.isEmpty())
             for (Condition condition : conditions) {
                 validateConditionConnections((RuntimeCondition) condition, triggers);
             }
-        }
         if (!actions.isEmpty()) {
             for (Action action : actions) {
                 validateActionConnections((RuntimeAction) action, triggers, actions);
@@ -83,200 +81,83 @@ public class ConnectionValidator {
     }
 
     /**
-     * The method validates connections between outputs of triggers and actions and action's inputs. It checks is there
-     * unconnected required inputs and compatibility of data types of connected inputs and outputs. Throws exception if
-     * they are incompatible.
+     * The method validates connections between outputs of triggers and actions and action's inputs. It compares data
+     * types of connected inputs and outputs and throws exception when there is a lack of coincidence.
      *
-     * @param action is an Action module whose connections have to be validated
-     * @param triggers is a list with triggers of the rule on which the action belongs
-     * @param actions is a list with actions of the rule on which the action belongs
+     * @param action validated action.
+     * @param triggers list of rule's triggers
+     * @param actions list rule's actions.
      * @throws IllegalArgumentException when validation fails.
      */
     private static void validateActionConnections(RuntimeAction action, List<Trigger> triggers, List<Action> actions) {
-
-        ActionType type = (ActionType) mtManager.get(action.getTypeUID()); // get module type of the condition
-        if (type == null) {
-            // if module type not exists in the system - throws exception
-            throw new IllegalArgumentException("Condition Type \"" + action.getTypeUID() + "\" does not exist!");
-        }
-
-        List<Input> inputs = type.getInputs(); // get inputs of the condition according to module type definition
-
-        // gets connected inputs from the condition module and put them into map
+        Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
         Set<Connection> cons = action.getConnections();
-        Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
+        if (cons == null) {
+            return;
+        }
         Iterator<Connection> connectionsI = cons.iterator();
         while (connectionsI.hasNext()) {
             Connection connection = connectionsI.next();
             String inputName = connection.getInputName();
             connectionsMap.put(inputName, connection);
         }
-
-        // checks is there unconnected required inputs
-        if (inputs != null && !inputs.isEmpty()) {
-            for (Input input : inputs) {
-                String name = input.getName();
-                Connection connection = connectionsMap.get(name);
-                if (connection == null && input.isRequired()) {
-                    throw new IllegalArgumentException("Required input \"" + name + "\" of the condition \""
-                            + action.getId() + "\" not connected");
-                } else if (connection != null) {
-                    checkConnection(connection, input, triggers, actions);
-                }
-            }
-        }
-    }
-
-    /**
-     * The method validates the connection between outputs of list of triggers and actions to the action's input. It
-     * checks if the input is unconnected and compatibility of data types of the input and connected output. Throws
-     * exception if they are incompatible.
-     *
-     * @param connection that should be validated
-     * @param input that should be validated
-     * @param triggers is a list with triggers of the rule on which the action belongs
-     * @param actions is a list with actions of the rule on which the action belongs
-     * @throws IllegalArgumentException when validation fails.
-     */
-    private static void checkConnection(Connection connection, Input input, List<Trigger> triggers,
-            List<Action> actions) {
-
-        Map<String, Action> actionsMap = new HashMap<String, Action>();
-        for (Action a : actions) {
-            actionsMap.put(a.getId(), a);
-        }
-        String moduleId = connection.getOuputModuleId();
-        Action action = actionsMap.get(moduleId);
-        if (moduleId != null && action != null) {
-            String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
-            String typeUID = action.getTypeUID();
-            ActionType actionType = mtManager.get(typeUID);
-            if (actionType == null) {
-                throw new IllegalArgumentException(msg + " Action Type with UID \"" + typeUID + "\" does not exist!");
-            }
-            String outputName = connection.getOutputName();
-            List<Output> outputs = actionType.getOutputs();
-            if (outputs != null && !outputs.isEmpty()) {
-                for (Output output : outputs) {
-                    if (output.getName().equals(outputName)) {
-                        try {
-                            Class<?> outputType = Class.forName(output.getType());
-                            Class<?> inputType = Class.forName(input.getType());
-                            if (inputType.isAssignableFrom(outputType)) {
-                                return;
-                            } else {
-                                throw new IllegalArgumentException(msg + " Incompatible types : \"" + output.getType()
-                                        + "\" and \"" + input.getType() + "\".");
-                            }
-                        } catch (ClassNotFoundException e) {
-                            if (output.getType().equals(input.getType())) {
-                                return;
-                            } else {
-                                throw new IllegalArgumentException(msg + " Incompatible types : \"" + output.getType()
-                                        + "\" and \"" + input.getType() + "\".");
-                            }
-                        }
-                    }
-                }
-                throw new IllegalArgumentException(msg + " Output with name \"" + outputName
-                        + "\" not exists in the Action with ID \"" + moduleId + "\"");
-            }
-        } else {
-            checkConnection(connection, input, triggers);
-        }
-
-    }
-
-    /**
-     * The method validates connections between trigger's outputs and condition's inputs. It checks is there unconnected
-     * required inputs and compatibility of data types of connected inputs and outputs. Throws exception if they are
-     * incompatible.
-     *
-     * @param condition is a Condition module whose connections have to be validated
-     * @param triggers is a list with triggers of the rule on which the condition belongs
-     * @throws IllegalArgumentException when validation fails.
-     */
-    private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
-
-        ConditionType type = (ConditionType) mtManager.get(condition.getTypeUID()); // get module type of the condition
-        if (type == null) {
-            // if module type not exists in the system - throws exception
-            throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
-        }
-
-        List<Input> inputs = type.getInputs(); // get inputs of the condition according to module type definition
-
-        // gets connected inputs from the condition module and put them into map
-        Set<Connection> cons = condition.getConnections();
-        Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
-        Iterator<Connection> connectionsI = cons.iterator();
-        while (connectionsI.hasNext()) {
-            Connection connection = connectionsI.next();
-            String inputName = connection.getInputName();
-            connectionsMap.put(inputName, connection);
-        }
-
-        // checks is there unconnected required inputs
-        if (inputs != null && !inputs.isEmpty()) {
-            for (Input input : inputs) {
-                String name = input.getName();
-                Connection connection = connectionsMap.get(name);
-                if (connection == null && input.isRequired()) {
-                    throw new IllegalArgumentException("Required input \"" + name + "\" of the condition \""
-                            + condition.getId() + "\" not connected");
-                } else if (connection != null) {
-                    checkConnection(connection, input, triggers);
-                }
-            }
-        }
-    }
-
-    /**
-     * The method validates the connection between outputs of list of triggers to the action's or condition's input. It
-     * checks if the input is unconnected and compatibility of data types of the input and connected output. Throws
-     * exception if they are incompatible.
-     *
-     * @param connection that should be validated
-     * @param input that should be validated
-     * @param triggers is a list with triggers of the rule on which the action belongs
-     * @throws IllegalArgumentException when validation fails.
-     */
-    private static void checkConnection(Connection connection, Input input, List<Trigger> triggers) {
-
         Map<String, Trigger> triggersMap = new HashMap<String, Trigger>();
         for (Trigger trigger : triggers) {
             triggersMap.put(trigger.getId(), trigger);
         }
-        String moduleId = connection.getOuputModuleId();
-        if (moduleId != null) {
-            String msg = " Invalid Connection \"" + connection.getInputName() + "\" : ";
-            Trigger trigger = triggersMap.get(moduleId);
-            if (trigger == null) {
-                throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" does not exist!");
-            }
-            String triggerTypeUID = trigger.getTypeUID();
-            TriggerType triggerType = mtManager.get(triggerTypeUID);
-            if (triggerType == null) {
-                throw new IllegalArgumentException(
-                        msg + " Trigger Type with UID \"" + triggerTypeUID + "\" does not exist!");
-            }
-            String outputName = connection.getOutputName();
-            List<Output> outputs = triggerType.getOutputs();
-            if (outputs != null && !outputs.isEmpty()) {
-                for (Output output : outputs) {
-                    if (output.getName().equals(outputName)) {
-                        try {
-                            Class<?> outputType = Class.forName(output.getType());
-                            Class<?> inputType = Class.forName(input.getType());
-                            if (inputType.isAssignableFrom(outputType)) {
-                                return;
-                            } else {
-                                throw new IllegalArgumentException(msg + " Incompatible types : \"" + output.getType()
-                                        + "\" and \"" + input.getType() + "\".");
-                            }
-                        } catch (ClassNotFoundException e) {
+        Map<String, Action> actionsMap = new HashMap<String, Action>();
+        for (Action a : actions) {
+            actionsMap.put(a.getId(), a);
+        }
+        ActionType type = (ActionType) mtManager.get(action.getTypeUID());
+        if (type == null)
+            throw new IllegalArgumentException("Action Type with UID \"" + action.getTypeUID() + "\" not exists!");
+        List<Input> inputs = type.getInputs();
+        if (inputs != null && !inputs.isEmpty()) {
+            for (Input input : inputs) {
+                String inputName = input.getName();
+                Connection connection = connectionsMap.get(inputName);
+                if (connection == null) {
+                    throw new IllegalArgumentException("Input \"" + inputName + "\" in the Action with ID \""
+                            + action.getId() + "\" not connected!");
+                }
+                String moduleId = connection.getOuputModuleId();
+                if (moduleId == null) {
+                    continue; // connection contain reference to config property or composite input
+                }
+                String outputName = connection.getOutputName();
+                String msg = "Connection \"" + inputName + ":" + moduleId + "." + outputName
+                        + "\" in the Action with ID \"" + action.getId() + "\" is invalid!";
+                Trigger trigger = triggersMap.get(moduleId);
+                List<Output> outputs;
+                boolean notFound = true;
+                if (trigger != null) {
+                    String triggerTypeUID = trigger.getTypeUID();
+                    TriggerType triggerType = mtManager.get(triggerTypeUID);
+                    if (triggerType == null) {
+                        throw new IllegalArgumentException(
+                                msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
+                    }
+                    outputs = triggerType.getOutputs();
+                } else {
+                    Action processor = actionsMap.get(moduleId);
+                    if (processor == null) {
+                        throw new IllegalArgumentException(msg + " Action " + moduleId + " not exists!");
+                    }
+                    String processorTypeUID = processor.getTypeUID();
+                    ActionType processorType = mtManager.get(processorTypeUID);
+                    if (processorType == null) {
+                        throw new IllegalArgumentException(
+                                msg + " Action Type with UID \"" + processorTypeUID + "\" not exists!");
+                    }
+                    outputs = processorType.getOutputs();
+                }
+                if (outputs != null && !outputs.isEmpty()) {
+                    for (Output output : outputs) {
+                        if (output.getName().equals(outputName)) {
+                            notFound = false;
                             if (output.getType().equals(input.getType())) {
-                                return;
+                                break;
                             } else {
                                 throw new IllegalArgumentException(msg + " Incompatible types : \"" + output.getType()
                                         + "\" and \"" + input.getType() + "\".");
@@ -284,9 +165,98 @@ public class ConnectionValidator {
                         }
                     }
                 }
-                throw new IllegalArgumentException(msg + " Output with name \"" + outputName
-                        + "\" not exists in the Trigger with ID \"" + moduleId + "\"");
+                if (notFound)
+                    throw new IllegalArgumentException(msg + " Output with name \"" + outputName
+                            + "\" not exists in the Module with ID \"" + moduleId + "\"");
             }
         }
     }
+
+    /**
+     * The method validates connections between trigger's outputs and condition's inputs. It compares data types of
+     * connected inputs and outputs and throws exception when there is a lack of coincidence.
+     *
+     * @param condition validated condition
+     * @param triggers list of triggers
+     * @throws IllegalArgumentException when validation is failed.
+     */
+    private static void validateConditionConnections(RuntimeCondition condition, List<Trigger> triggers) {
+        Map<String, Connection> connectionsMap = new HashMap<String, Connection>();
+        Set<Connection> cons = condition.getConnections();
+        if (cons == null) {
+            return;
+        }
+        Iterator<Connection> connectionsI = cons.iterator();
+        while (connectionsI.hasNext()) {
+            Connection connection = connectionsI.next();
+            String inputName = connection.getInputName();
+            connectionsMap.put(inputName, connection);
+        }
+        Map<String, Trigger> triggersMap = new HashMap<String, Trigger>();
+        for (Trigger trigger : triggers) {
+            triggersMap.put(trigger.getId(), trigger);
+        }
+        ConditionType type = (ConditionType) mtManager.get(condition.getTypeUID());
+        if (type == null)
+            throw new IllegalArgumentException("Condition Type \"" + condition.getTypeUID() + "\" does not exist!");
+        List<Input> inputs = type.getInputs();
+        if (inputs != null && !inputs.isEmpty()) {
+            for (Input input : inputs) {
+                String inputName = input.getName();
+                Connection connection = connectionsMap.get(inputName);
+                if (connection == null) {
+                    continue;
+                }
+                String moduleId = connection.getOuputModuleId();
+                if (moduleId == null) {
+                    continue; // connection contain reference to config property or composite input
+                }
+
+                String outputName = connection.getOutputName();
+                String msg = "Connection \"" + inputName + ":" + moduleId + "." + outputName
+                        + "\" in the Condition with ID \"" + condition.getId() + "\" is invalid!";
+                Trigger trigger = triggersMap.get(moduleId);
+                if (trigger == null) {
+                    throw new IllegalArgumentException(msg + " Trigger with ID \"" + moduleId + "\" not exists!");
+                }
+                String triggerTypeUID = trigger.getTypeUID();
+                TriggerType triggerType = mtManager.get(triggerTypeUID);
+                if (triggerType == null) {
+                    throw new IllegalArgumentException(
+                            msg + " Trigger Type with UID \"" + triggerTypeUID + "\" not exists!");
+                }
+                List<Output> outputs = triggerType.getOutputs();
+                boolean notFound = true;
+                if (outputs != null && !outputs.isEmpty()) {
+                    for (Output output : outputs) {
+                        if (output.getName().equals(outputName)) {
+                            notFound = false;
+                            try {
+                                Class<?> outputType = Class.forName(output.getType());
+                                Class<?> inputType = Class.forName(input.getType());
+                                if (inputType.isAssignableFrom(outputType)) {
+                                    break;
+                                } else {
+                                    throw new IllegalArgumentException(msg + " Incompatible types : \""
+                                            + output.getType() + "\" and \"" + input.getType() + "\".");
+                                }
+                            } catch (ClassNotFoundException e) {
+                                if (output.getType().equals(input.getType())) {
+                                    break;
+                                } else {
+                                    throw new IllegalArgumentException(msg + " Incompatible types : \""
+                                            + output.getType() + "\" and \"" + input.getType() + "\".");
+                                }
+                            }
+
+                        }
+                    }
+                }
+                if (notFound)
+                    throw new IllegalArgumentException(msg + " Output with name \"" + outputName
+                            + "\" not exists in the Trigger with ID \"" + moduleId + "\"");
+            }
+        }
+    }
+
 }
