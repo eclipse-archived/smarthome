@@ -311,6 +311,9 @@ public class SonosXMLParser {
                 case RESMD:
                     desc.append(ch, start, length);
                     break;
+                case DESC:
+                    desc.append(ch, start, length);
+                    break;
                 // no default
             }
         }
@@ -399,7 +402,6 @@ public class SonosXMLParser {
                     break;
                 case DESC:
                     desc.append(ch, start, length);
-                    ;
                     break;
                 default:
                     break;
@@ -736,6 +738,9 @@ public class SonosXMLParser {
                     case albumArtist:
                         albumArtist.append(ch, start, length);
                         break;
+                    case desc:
+                        break;
+                    // no default
                 }
             }
         }
