@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.thing.Thing;
  * {@link ConfigStatusProvider#getConfigStatus()}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Chris Jackson - Add updateConfiguration override to handle status updates
  */
 public abstract class ConfigStatusThingHandler extends BaseThingHandler implements ConfigStatusProvider {
 
@@ -54,6 +56,14 @@ public abstract class ConfigStatusThingHandler extends BaseThingHandler implemen
     public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
             throws ConfigValidationException {
         super.handleConfigurationUpdate(configurationParameters);
+        if (configStatusCallback != null) {
+            configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));
+        }
+    }
+
+    @Override
+    protected void updateConfiguration(Configuration configuration) {
+        super.updateConfiguration(configuration);
         if (configStatusCallback != null) {
             configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));
         }
