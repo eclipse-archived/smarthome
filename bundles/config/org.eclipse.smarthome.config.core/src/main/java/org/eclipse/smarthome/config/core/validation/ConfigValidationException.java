@@ -96,9 +96,8 @@ public final class ConfigValidationException extends Exception {
                         MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
             } else {
                 String text = Activator.getI18nProvider().getText(bundle, configValidationMessage.messageKey,
-                        configValidationMessage.defaultMessage, loc);
-                builder.put(configValidationMessage.parameterName,
-                        MessageFormat.format(text, configValidationMessage.content));
+                        configValidationMessage.defaultMessage, loc, configValidationMessage.content);
+                builder.put(configValidationMessage.parameterName, text);
             }
         }
         return builder.build();

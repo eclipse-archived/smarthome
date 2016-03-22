@@ -406,10 +406,9 @@ public class ThingResource implements RESTResource {
         try {
             thingRegistry.updateConfiguration(thingUIDObject, ConfigUtil.normalizeTypes(configurationParameters));
         } catch (ConfigValidationException ex) {
-            logger.debug("Config description validation exception occured for thingUID " + thingUID,
+            logger.debug("Config description validation exception occured for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
-            return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(LocaleUtil.getLocale(language)))
-                    .build();
+            return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
         } catch (IllegalArgumentException ex) {
             logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
                     uriInfo.getPath(), thingUID);
