@@ -19,8 +19,7 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.internal.Activator;
 import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidator;
-import org.eclipse.smarthome.config.core.validation.internal.MaxValidator;
-import org.eclipse.smarthome.config.core.validation.internal.RequiredValidator;
+import org.eclipse.smarthome.config.core.validation.internal.ConfigDescriptionParameterValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +37,12 @@ import com.google.common.collect.ImmutableList;
 public final class ConfigDescriptionValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigDescriptionValidator.class);
+
     private static final List<ConfigDescriptionParameterValidator> validators = new ImmutableList.Builder<ConfigDescriptionParameterValidator>()
-            .add(new RequiredValidator()).add(new MaxValidator()).build();
+            .add(ConfigDescriptionParameterValidatorFactory.createRequiredValidator())
+            .add(ConfigDescriptionParameterValidatorFactory.createTypeValidator())
+            .add(ConfigDescriptionParameterValidatorFactory.createMinMaxValidator())
+            .add(ConfigDescriptionParameterValidatorFactory.createPatternValidator()).build();
 
     private ConfigDescriptionValidator() {
         super();
@@ -72,16 +75,14 @@ public final class ConfigDescriptionValidator {
         Map<String, ConfigDescriptionParameter> map = configDescription.toParametersMap();
 
         Collection<ConfigValidationMessage> configDescriptionValidationMessages = new ArrayList<>();
+
         for (String key : configurationParameters.keySet()) {
             ConfigDescriptionParameter configDescriptionParameter = map.get(key);
             if (configDescriptionParameter != null) {
-                for (ConfigDescriptionParameterValidator validator : validators) {
-                    ConfigValidationMessage message = validator.validate(configDescriptionParameter,
-                            configurationParameters.get(key));
-                    if (message != null) {
-                        configDescriptionValidationMessages.add(message);
-                        break;
-                    }
+                ConfigValidationMessage message = validateParameter(configDescriptionParameter,
+                        configurationParameters.get(key));
+                if (message != null) {
+                    configDescriptionValidationMessages.add(message);
                 }
             }
         }
@@ -90,6 +91,26 @@ public final class ConfigDescriptionValidator {
             throw new ConfigValidationException(Activator.getBundleContext().getBundle(),
                     configDescriptionValidationMessages);
         }
+    }
+
+    /**
+     * Validates the given value against the given config description parameter.
+     *
+     * @param configDescriptionParameter the corresponding config description parameter
+     * @param value the actual value
+     *
+     * @return the {@link ConfigValidationMessage} if the given value is not valid for the config description parameter,
+     *         otherwise null
+     */
+    private static ConfigValidationMessage validateParameter(ConfigDescriptionParameter configDescriptionParameter,
+            Object value) {
+        for (ConfigDescriptionParameterValidator validator : validators) {
+            ConfigValidationMessage message = validator.validate(configDescriptionParameter, value);
+            if (message != null) {
+                return message;
+            }
+        }
+        return null;
     }
 
     /**
