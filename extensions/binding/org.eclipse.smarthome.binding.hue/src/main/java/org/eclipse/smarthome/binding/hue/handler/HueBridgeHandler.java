@@ -435,18 +435,39 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
     }
 
+    /**
+     * Because the State can produce NPEs on getColorMode() and getEffect(), at first we check for the common
+     * properties which are set for every light type. If they equal, we additionally try to check the colorMode. If we
+     * get an NPE,
+     * the light does not support color mode and the common properties equality is our result: true. Otherwise if no NPE
+     * occurs
+     * the equality of colorMode is our result.
+     * 
+     * @param state1 Reference state
+     * @param state2 State which is checked for equality.
+     * @return True if the available informations of both states are equal.
+     */
     private boolean isEqual(State state1, State state2) {
-        try {
-            return state1.getAlertMode().equals(state2.getAlertMode()) && state1.isOn() == state2.isOn()
-                    && state1.getEffect().equals(state2.getEffect()) && state1.getBrightness() == state2.getBrightness()
-                    && state1.getColorMode().equals(state2.getColorMode())
-                    && state1.getColorTemperature() == state2.getColorTemperature()
-                    && state1.getHue() == state2.getHue() && state1.getSaturation() == state2.getSaturation()
-                    && state1.isReachable() == state2.isReachable();
-        } catch (Exception e) {
-            // if a device does not support color, the Jue library throws an NPE
-            // when testing for color-related properties
-            return true;
+        boolean commonStateIsEqual = state1.getAlertMode().equals(state2.getAlertMode())
+                && state1.isOn() == state2.isOn() && state1.getBrightness() == state2.getBrightness()
+                && state1.getColorTemperature() == state2.getColorTemperature() && state1.getHue() == state2.getHue()
+                && state1.getSaturation() == state2.getSaturation() && state1.isReachable() == state2.isReachable();
+        if (!commonStateIsEqual) {
+            return false;
         }
+
+        boolean colorModeIsEqual = true;
+        boolean effectIsEqual = true;
+        try {
+            colorModeIsEqual = state1.getColorMode().equals(state2.getColorMode());
+        } catch (NullPointerException npe) {
+            logger.trace("Light does not support color mode.");
+        }
+        try {
+            effectIsEqual = state1.getEffect().equals(state2.getEffect());
+        } catch (NullPointerException npe) {
+            logger.trace("Light does not support effect.");
+        }
+        return colorModeIsEqual && effectIsEqual;
     }
 }
