@@ -131,6 +131,6 @@ class ConfigStatusInfoTest {
     }
 
     def static ConfigStatusMessage createMessage(String paramName, Type type, String messageKey, Integer statusCode=null) {
-        return new ConfigStatusMessage.Builder(paramName, type, messageKey).withStatusCode(statusCode).build()
+        return new ConfigStatusMessage.Builder(paramName, type).withMessageKey(messageKey).withStatusCode(statusCode).build()
     }
 }

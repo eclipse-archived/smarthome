@@ -22,6 +22,7 @@ import com.google.common.base.Preconditions;
  * </p>
  *
  * @author Thomas Höfer - Initial contribution
+ * @author Chris Jackson - Add withMessageKey and remove message from other methods
  */
 public final class ConfigStatusMessage {
 
@@ -120,19 +121,17 @@ public final class ConfigStatusMessage {
 
         private final Type type;
 
-        private final String messageKey;
+        private String messageKey;
 
         private Object[] arguments;
 
         private Integer statusCode;
 
-        private Builder(String parameterName, Type type, String messageKey) {
+        private Builder(String parameterName, Type type) {
             Preconditions.checkNotNull(parameterName, "Parameter name must not be null.");
             Preconditions.checkNotNull(type, "Type must not be null.");
-            Preconditions.checkNotNull(messageKey, "Message key must not be null.");
             this.parameterName = parameterName;
             this.type = type;
-            this.messageKey = messageKey;
         }
 
         /**
@@ -140,48 +139,44 @@ public final class ConfigStatusMessage {
          * {@link Type#INFORMATION}.
          *
          * @param parameterName the name of the configuration parameter (must not be null)
-         * @param messageKey the key for the message to be internationalized (must not be null)
          *
          * @return the new builder instance
          */
-        public static Builder information(String parameterName, String messageKey) {
-            return new Builder(parameterName, Type.INFORMATION, messageKey);
+        public static Builder information(String parameterName) {
+            return new Builder(parameterName, Type.INFORMATION);
         }
 
         /**
          * Creates a builder for the construction of a {@link ConfigStatusMessage} having type {@link Type#WARNING}.
          *
          * @param parameterName the name of the configuration parameter (must not be null)
-         * @param messageKey the key for the message to be internationalized (must not be null)
          *
          * @return the new builder instance
          */
-        public static Builder warning(String parameterName, String messageKey) {
-            return new Builder(parameterName, Type.WARNING, messageKey);
+        public static Builder warning(String parameterName) {
+            return new Builder(parameterName, Type.WARNING);
         }
 
         /**
          * Creates a builder for the construction of a {@link ConfigStatusMessage} having type {@link Type#ERROR}.
          *
          * @param parameterName the name of the configuration parameter (must not be null)
-         * @param messageKey the key for the message to be internationalized (must not be null)
          *
          * @return the new builder instance
          */
-        public static Builder error(String parameterName, String messageKey) {
-            return new Builder(parameterName, Type.ERROR, messageKey);
+        public static Builder error(String parameterName) {
+            return new Builder(parameterName, Type.ERROR);
         }
 
         /**
          * Creates a builder for the construction of a {@link ConfigStatusMessage} having type {@link Type#PENDING}.
          *
          * @param parameterName the name of the configuration parameter (must not be null)
-         * @param messageKey the key for the message to be internationalized (must not be null)
          *
          * @return the new builder instance
          */
-        public static Builder pending(String parameterName, String messageKey) {
-            return new Builder(parameterName, Type.PENDING, messageKey);
+        public static Builder pending(String parameterName) {
+            return new Builder(parameterName, Type.PENDING);
         }
 
         /**
@@ -205,6 +200,18 @@ public final class ConfigStatusMessage {
          */
         public Builder withStatusCode(Integer statusCode) {
             this.statusCode = statusCode;
+            return this;
+        }
+
+        /**
+         * Adds the given message to the builder.
+         *
+         * @param message the message key to be added
+         *
+         * @return the updated builder
+         */
+        public Builder withMessageKey(String messageKey) {
+            this.messageKey = messageKey;
             return this;
         }
 
