@@ -56,9 +56,9 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
 
     private static final String ARGS = "args"
 
-    private final ConfigStatusMessage PARAM1_MSG1 = ConfigStatusMessage.Builder.information(PARAM1, MSG_KEY1).build()
-    private final ConfigStatusMessage PARAM2_MSG2 = ConfigStatusMessage.Builder.warning(PARAM2, MSG_KEY2).withStatusCode(1).withArguments(ARGS).build()
-    private final ConfigStatusMessage PARAM3_MSG3 = ConfigStatusMessage.Builder.error(PARAM3, MSG_KEY3).withStatusCode(2).withArguments(ARGS).build()
+    private final ConfigStatusMessage PARAM1_MSG1 = ConfigStatusMessage.Builder.information(PARAM1).withMessageKey(MSG_KEY1).build()
+    private final ConfigStatusMessage PARAM2_MSG2 = ConfigStatusMessage.Builder.warning(PARAM2).withMessageKey(MSG_KEY2).withStatusCode(1).withArguments(ARGS).build()
+    private final ConfigStatusMessage PARAM3_MSG3 = ConfigStatusMessage.Builder.error(PARAM3).withMessageKey(MSG_KEY3).withStatusCode(2).withArguments(ARGS).build()
 
     private final Collection messagesEntity1 = new ArrayList()
     private final Collection messagesEntity2 = new ArrayList()
