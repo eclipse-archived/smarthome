@@ -76,13 +76,19 @@ public class ItemDTOMapper {
     }
 
     private static void fillProperties(ItemDTO itemDTO, Item item, boolean drillDown) {
-        if (item instanceof GroupItem && drillDown) {
+        if (item instanceof GroupItem) {
             GroupItem groupItem = (GroupItem) item;
-            Collection<ItemDTO> memberDTOs = new LinkedHashSet<ItemDTO>();
-            for (Item member : groupItem.getMembers()) {
-                memberDTOs.add(map(member, drillDown));
+            GroupItemDTO groupItemDTO = (GroupItemDTO) itemDTO;
+            if (groupItem.getBaseItem() != null) {
+                groupItemDTO.groupType = groupItem.getBaseItem().getType();
             }
-            ((GroupItemDTO) itemDTO).members = memberDTOs.toArray(new ItemDTO[memberDTOs.size()]);
+            if (drillDown) {
+                Collection<ItemDTO> memberDTOs = new LinkedHashSet<ItemDTO>();
+                for (Item member : groupItem.getMembers()) {
+                    memberDTOs.add(map(member, drillDown));
+                }
+                groupItemDTO.members = memberDTOs.toArray(new ItemDTO[memberDTOs.size()]);
+            }
         }
         itemDTO.name = item.getName();
         itemDTO.type = item.getClass().getSimpleName();
