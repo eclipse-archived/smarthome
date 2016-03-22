@@ -1370,11 +1370,12 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (SonosAlarm anAlarm : sonosAlarms) {
                 SimpleDateFormat durationFormat = new SimpleDateFormat("HH:mm:ss");
                 durationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                Date durationDate = null;
+                final Date durationDate;
                 try {
                     durationDate = durationFormat.parse(anAlarm.getDuration());
                 } catch (ParseException e) {
                     logger.error("An exception occurred while parsing a date : '{}'", e.getMessage());
+                    continue;
                 }
 
                 long duration = durationDate.getTime();
