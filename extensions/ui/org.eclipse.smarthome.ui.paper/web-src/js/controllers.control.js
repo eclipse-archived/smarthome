@@ -21,16 +21,18 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.refresh = function() {
         itemRepository.getAll(function(items) {
             $scope.tabs = [];
+            $scope.tabs.push({
+                name : 'all',
+                label : 'All'
+            });
             $scope.items['All'] = items;
             for (var int = 0; int < items.length; int++) {
                 var item = items[int];
-                if (item.type === 'GroupItem') {
-                    if (item.tags.indexOf("home-group") > -1) {
-                        $scope.tabs.push({
-                            name : item.name,
-                            label : item.label
-                        });
-                    }
+                if (item.tags.indexOf('home-group') > -1) {
+                    $scope.tabs.push({
+                        name : item.name,
+                        label : item.label
+                    });
                 }
             }
         }, true);
@@ -44,6 +46,21 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }
         return null;
+    }
+
+    $scope.getItemsForTab = function(tabName) {
+        var items = []
+        if (tabName === 'all') {
+            for (var int = 0; int < $scope.data.items.length; int++) {
+                var item = $scope.data.items[int];
+                if (item.tags.indexOf('thing') > -1) {
+                    items.push(item);
+                }
+            }
+            return items;
+        } else {
+            return getItem(tabName).members;
+        }
     }
 
     $scope.masonry = function() {
@@ -189,8 +206,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     /**
-     * Check if the item has a configured option list. Returns true if there are
-     * options, otherwise false.
+     * Check if the item has a configured option list. Returns true if there are options, otherwise false.
      * 
      * @param item
      *            the current item
