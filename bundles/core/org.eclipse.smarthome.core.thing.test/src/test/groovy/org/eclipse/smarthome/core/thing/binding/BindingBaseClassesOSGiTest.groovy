@@ -278,8 +278,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
     class ConfigStatusProviderThingHandler extends ConfigStatusThingHandler {
 
         private static final String PARAM = "param"
-        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM, "param.invalid").build()
-        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM, "param.ok").build()
+        private static final ConfigStatusMessage ERROR = ConfigStatusMessage.Builder.error(PARAM).withMessageKey("param.invalid").build()
+        private static final ConfigStatusMessage INFO = ConfigStatusMessage.Builder.information(PARAM).withMessageKey("param.ok").build()
         private ConfigStatusCallback configStatusCallback;
 
         ConfigStatusProviderThingHandler(Thing thing) {
