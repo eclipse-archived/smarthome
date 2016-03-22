@@ -51,6 +51,10 @@ public class EnrichedItemDTOMapper {
 
         if (item instanceof GroupItem) {
             GroupItem groupItem = (GroupItem) item;
+            String groupType = null;
+            if (groupItem.getBaseItem() != null) {
+                groupType = groupItem.getBaseItem().getType();
+            }
             EnrichedItemDTO[] memberDTOs;
             if (drillDown) {
                 Collection<EnrichedItemDTO> members = new LinkedHashSet<>();
@@ -61,7 +65,7 @@ public class EnrichedItemDTOMapper {
             } else {
                 memberDTOs = new EnrichedItemDTO[0];
             }
-            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, memberDTOs, link, state, stateDescription);
+            enrichedItemDTO = new EnrichedGroupItemDTO(itemDTO, groupType, memberDTOs, link, state, stateDescription);
         } else {
             enrichedItemDTO = new EnrichedItemDTO(itemDTO, link, state, stateDescription);
         }
