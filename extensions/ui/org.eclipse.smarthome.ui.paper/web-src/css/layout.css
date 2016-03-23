@@ -405,3 +405,7 @@ md-tabs.section-tabs {
 	.section-header .toolbar button.md-default-theme.md-fab:focus {
 	background-color: white;
 }
+
+.side-menu {
+	margin-left: 4%;
+}
