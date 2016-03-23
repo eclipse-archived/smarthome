@@ -1,10 +1,6 @@
 /**
  * Material Angular Overrides 
  */
-.material-icons {
-	width: auto !important;
-}
-
 .md-button .material-icons {
 	line-height: inherit;
 }

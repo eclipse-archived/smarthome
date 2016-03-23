@@ -47,20 +47,20 @@
 			<li ng-class="{active: isActive('control'), hidden: isHidden('control')}">
 				<a href="#control">
 					<span class="icon material-icons">dashboard</span>
-					Control
+					<span class="side-menu">Control</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('inbox')}">
 				<a href="#inbox" class="clickable">
 					<span class="icon material-icons">add_circle_outline</span>
-					Inbox
+					<span class="side-menu">Inbox</span>
 					<span ng-show="getNumberOfNewDiscoveryResults() > 0" class="badge">{{getNumberOfNewDiscoveryResults()}}</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('configuration'), hidden: isHidden('configuration')}">
 				<a ng-click="open('configuration')" class="clickable">
 					<span class="icon material-icons">settings</span>
-					Configuration
+					<span class="side-menu">Configuration</span>
 				</a>
 				<ul ng-show="isActive('configuration')">
 					<li ng-class="{active: isSubActive('bindings')}">
@@ -77,19 +77,19 @@
 			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
 				<a href="#extensions">
 					<span class="icon material-icons">extension</span>
-					Extensions
+					<span class="side-menu">Extensions</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
 				<a href="#rules">
 					<span class="icon material-icons">movie_creation</span>
-					Rules
+					<span class="side-menu">Rules</span>
 				</a>
 			</li>
 			<li ng-class="{active: isActive('preferences'), hidden: isHidden('preferences')}">
 				<a href="#preferences">
 					<span class="icon material-icons">brightness_medium</span>
-					Preferences
+					<span class="side-menu">Preferences</span>
 				</a>
 			</li>
 		</ul>
