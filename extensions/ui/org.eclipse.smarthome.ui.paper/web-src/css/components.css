@@ -613,3 +613,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
     color: rgba(0,0,0,0.54);
     margin-left: 4px;
 }
+
+.icontrol .md-button, .thing .md-button, .item-content .actions .md-button, .header-toolbar .md-button,
+.rule .actions .md-button {
+    min-width: 42px;
+    min-height: 42px;
+}
+
