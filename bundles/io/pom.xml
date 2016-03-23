@@ -16,6 +16,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>org.eclipse.smarthome.io.audio</module>
     <module>org.eclipse.smarthome.io.console</module>
     <module>org.eclipse.smarthome.io.console.eclipse</module>
     <module>org.eclipse.smarthome.io.console.rfc147</module>
