@@ -12,7 +12,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         redirectTo : '/inbox/setup/bindings'
     }).when('/inbox/search', {
         templateUrl : 'partials/setup.html',
-        controller : 'InboxController',
+        controller : 'SetupWizardController',
         title : 'Inbox'
     }).when('/inbox/manual-setup/choose', {
         templateUrl : 'partials/setup.html',

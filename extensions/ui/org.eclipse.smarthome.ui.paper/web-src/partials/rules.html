@@ -20,9 +20,9 @@
 							<h3>{{rule.name}}</h3>
 							<p>{{rule.uid}}</p>
 							<div class="actions">
-								<md-button class="md-raised" ng-click="toggleEnabled(rule, $event)" aria-label="Toggle Enable"> <i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
-								<md-button class="md-raised" ng-click="configure(rule, $event)" aria-label="Configure"> <i class="material-icons">settings</i></md-button>
-								<md-button class="md-raised" ng-click="remove(rule, $event)" aria-label="Remove"> <i class="material-icons">delete</i></md-button>
+								<md-button ng-click="toggleEnabled(rule, $event)" aria-label="Toggle Enable"> <i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
+								<md-button ng-click="configure(rule, $event)" aria-label="Configure"> <i class="material-icons">settings</i></md-button>
+								<md-button ng-click="remove(rule, $event)" aria-label="Remove"> <i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />
