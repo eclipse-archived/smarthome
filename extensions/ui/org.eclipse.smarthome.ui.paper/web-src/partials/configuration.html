@@ -86,8 +86,8 @@
 							<p>{{thingTypes[thing.thingTypeUID].label}}</p>
 							<p>{{thing.UID}}</p>
 							<div class="actions">
-								<md-button class="md-raised" ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
-								<md-button class="md-raised" ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+								<md-button ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
+								<md-button ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
 							</div>
 						</div>
 						<hr class="border-line" ng-show="!$last" />

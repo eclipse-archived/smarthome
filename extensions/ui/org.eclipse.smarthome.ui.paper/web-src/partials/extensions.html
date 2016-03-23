@@ -16,8 +16,8 @@
 				<h3>{{extension.label}}</h3>
 				<p>{{extension.id}} - {{extension.version}}</p>
 				<div class="actions">
-					<md-button class="md-raised" aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
-					<md-button class="md-raised" aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
+					<md-button aria-label="Install" ng-show="!extension.installed && !extension.inProgress" ng-click="install(extension.id)">Install</md-button>
+					<md-button aria-label="Uninstall" ng-show="extension.installed && !extension.inProgress" ng-click="uninstall(extension.id)">Uninstall</md-button>
 					<md-progress-circular md-mode="indeterminate" ng-show="extension.inProgress" style="margin-right: 25px;"></md-progress-circular>
 				</div>
 			</div>
