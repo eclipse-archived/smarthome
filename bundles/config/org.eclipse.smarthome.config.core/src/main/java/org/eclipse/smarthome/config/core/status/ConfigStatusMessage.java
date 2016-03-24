@@ -204,7 +204,7 @@ public final class ConfigStatusMessage {
         }
 
         /**
-         * Adds the given message to the builder.
+         * Adds the given message key to the builder.
          *
          * @param message the message key to be added
          *
