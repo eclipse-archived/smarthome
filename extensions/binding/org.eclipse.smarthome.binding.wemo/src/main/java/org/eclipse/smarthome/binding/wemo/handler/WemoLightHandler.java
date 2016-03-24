@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -103,6 +104,13 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
         if (DEVICE_ID != null) {
             wemoLightID = configLightId;
             logger.debug("Initializing WemoLightHandler for LightID '{}'", wemoLightID);
+            WemoBridgeHandler handler = getWemoBridgeHandler();
+            if (handler != null) {
+                updateStatus(ThingStatus.ONLINE);
+            } else {
+                updateStatus(ThingStatus.OFFLINE);
+                logger.debug("No WemoBridgeHandler found for LightID '{}'", wemoLightID);
+            }
 
         }
     }
@@ -124,6 +132,25 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
     @Override
     public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
         this.wemoBridgeHandler = null;
+        if (refreshJob != null && !refreshJob.isCancelled()) {
+            refreshJob.cancel(true);
+            refreshJob = null;
+        }
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.equals(ThingStatus.ONLINE)) {
+            updateStatus(ThingStatus.ONLINE);
+            onSubscription();
+            onUpdate();
+        } else {
+            updateStatus(ThingStatus.OFFLINE);
+            if (refreshJob != null && !refreshJob.isCancelled()) {
+                refreshJob.cancel(true);
+                refreshJob = null;
+            }
+        }
     }
 
     @Override
@@ -157,9 +184,6 @@ public class WemoLightHandler extends BaseThingHandler implements UpnpIOParticip
         return this.wemoBridgeHandler;
     }
 
-    /**
-     * The {@link handleCommand}
-     */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
