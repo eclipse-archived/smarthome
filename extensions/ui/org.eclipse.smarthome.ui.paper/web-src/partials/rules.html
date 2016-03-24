@@ -83,7 +83,7 @@
 									<md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
 								</div>
 							</div>
-							<p>{{val.description}}</p>
+							<p ng-bind-html="val.description"></p>
 						</div>
 
 					</div>
@@ -132,7 +132,7 @@
 
 								</div>
 							</div>
-							<p>{{val.description}}</p>
+							<p ng-bind-html="val.description"></p>
 						</div>
 
 					</div>
