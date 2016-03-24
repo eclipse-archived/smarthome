@@ -9,14 +9,18 @@ package org.eclipse.smarthome.core.thing.internal
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.core.Configuration
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener
 import org.eclipse.smarthome.core.items.GenericItem
+import org.eclipse.smarthome.core.items.Item
+import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
+import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
@@ -24,7 +28,8 @@ import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.thing.type.ChannelDefinition
 import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
@@ -49,8 +54,8 @@ import org.osgi.service.component.ComponentContext
 class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
 
     def ItemRegistry itemRegistry
+    def ItemChannelLinkRegistry linkRegistry
     def StateDescriptionProvider stateDescriptionProvider
-    def ThingSetupManager thingSetupManager
 
     @Before
     void setup() {
@@ -83,8 +88,10 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         def thingTypeProvider = new TestThingTypeProvider([new ThingType(new ThingTypeUID("hue:lamp"), null, " ", null, [new ChannelDefinition("1", channelType.UID)], null, null, null)])
         registerService(thingTypeProvider)
 
-        thingSetupManager = getService(ThingSetupManager)
-        assertThat thingSetupManager, is(notNullValue())
+        def itemProvider = new TestItemProvider([new NumberItem("TestItem")])
+        registerService(itemProvider)
+
+        linkRegistry = getService(ItemChannelLinkRegistry)
 
         stateDescriptionProvider = getService(StateDescriptionProvider)
         assertThat stateDescriptionProvider, is(notNullValue())
@@ -96,11 +103,18 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
+        linkRegistry.getAll().each { linkRegistry.remove(it.ID) }
     }
 
     @Test
     void 'assert that item\'s state description is present'() {
-        thingSetupManager.addThing(new ThingUID("hue:lamp:lamp1"), new Configuration(), /* bridge */ null)
+        ThingRegistry thingRegistry = getService(ThingRegistry)
+        ManagedThingProvider managedThingProvider = getService(ManagedThingProvider)
+        Thing thing = thingRegistry.createThingOfType(new ThingTypeUID("hue:lamp"), new ThingUID("hue:lamp:lamp1"), null, "test thing", new Configuration())
+        managedThingProvider.add(thing)
+        def link = new ItemChannelLink("TestItem", thing.channels.get(0).UID)
+        linkRegistry.add(link)
+
         def items = itemRegistry.getItems()
         assertThat items.isEmpty(), is(false)
 
@@ -155,6 +169,27 @@ class ChannelStateDescriptionProviderOSGiTest extends OSGiTest {
         @Override
         public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
             return thingTypes.find { it.UID == thingTypeUID }
+        }
+    }
+
+    class TestItemProvider implements ItemProvider {
+        def Collection<Item> items
+
+        TestItemProvider(Collection<Item> items) {
+            this.items = items
+        }
+
+        @Override
+        public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
+        }
+
+        @Override
+        public Collection<Item> getAll() {
+            return items;
+        }
+
+        @Override
+        public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
         }
     }
 }

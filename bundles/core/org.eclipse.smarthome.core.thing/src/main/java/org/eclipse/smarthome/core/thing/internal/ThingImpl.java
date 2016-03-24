@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -61,8 +60,6 @@ public class ThingImpl implements Thing {
             .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
     transient volatile private ThingHandler thingHandler;
-
-    transient volatile private GroupItem linkedItem;
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -201,20 +198,6 @@ public class ThingImpl implements Thing {
 
     public void setThingTypeUID(ThingTypeUID thingTypeUID) {
         this.thingTypeUID = thingTypeUID;
-    }
-
-    public void setLinkedItem(GroupItem groupItem) {
-        this.linkedItem = groupItem;
-    }
-
-    @Override
-    public GroupItem getLinkedItem() {
-        return this.linkedItem;
-    }
-
-    @Override
-    public boolean isLinked() {
-        return getLinkedItem() != null;
     }
 
     @Override

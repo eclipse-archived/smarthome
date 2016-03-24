@@ -595,6 +595,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-left: 20px;
 }
 
+.channels {
+	margin-top: 5px;
+}
+
 .showmore {
 	float: right;
 	margin-top: 0px
@@ -707,4 +711,12 @@ textarea.scriptArea {
 
 md-input-container .md-errors-spacer {
 	min-height: 0px;
+}
+
+.controlSelect .md-select-value :first-child {
+	flex: auto;
+}
+
+.no-margin {
+	margin: 0px;
 }

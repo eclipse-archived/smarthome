@@ -14,5 +14,4 @@
       <provide interface="org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension"/>
    </service>
    <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
-   <reference bind="setItemThingLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry" name="ItemThingLinkRegistry" policy="static" unbind="unsetItemThingLinkRegistry"/>
 </scr:component>

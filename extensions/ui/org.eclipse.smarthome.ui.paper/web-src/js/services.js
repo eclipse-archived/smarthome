@@ -258,4 +258,116 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             return configurations;
         }
     };
+}).factory('thingConfigService', function() {
+    return {
+        getThingChannels : function(thing, thingType, channelTypes, advanced) {
+            var thingChannels = [];
+            var includedChannels = [];
+            if (thingType.channelGroups && thingType.channelGroups.length > 0) {
+                for (var i = 0; i < thingType.channelGroups.length; i++) {
+                    var group = {};
+                    group.name = thingType.channelGroups[i].label;
+                    group.description = thingType.channelGroups[i].description;
+                    group.channels = this.matchGroup(thing.channels, thingType.channelGroups[i].id);
+                    includedChannels = includedChannels.concat(group.channels);
+                    group.channels = advanced ? group.channels : this.filterAdvance(thingType, channelTypes, group.channels, false);
+                    thingChannels.push(group);
+                }
+                var group = {
+                    "name" : "Others",
+                    "description" : "Other channels",
+                    "channels" : []
+                };
+                for (var i = 0; i < thing.channels.length; i++) {
+                    if (includedChannels.indexOf(thing.channels[i]) == -1) {
+                        group.channels.push(thing.channels[i]);
+                    }
+                }
+                if (group.channels && group.channels.length > 0) {
+                    thingChannels.push(group);
+                }
+            } else {
+                var group = {};
+                group.channels = advanced ? thing.channels : this.filterAdvance(thingType, channelTypes, thing.channels, advanced);
+                thingChannels.push(group);
+            }
+
+            return thingChannels;
+        },
+
+        filterAdvance : function(thingType, channelTypes, channels, advanced) {
+            var self = this;
+            self.thingType = thingType, self.channelTypes = channelTypes, self.channels = channels;
+            return $.grep(channels, function(channel, i) {
+                var channelType = self.getChannelTypeById(self.thingType, self.channelTypes, channel.id);
+                return channelType ? advanced == channelType.advanced : true;
+            });
+        },
+        getChannelTypeById : function(thingType, channelTypes, channelId) {
+            if (thingType) {
+                var cid_part = channelId.split('#', 2)
+                if (cid_part.length == 1) {
+                    var c, c_i, c_l;
+                    for (c_i = 0, c_l = thingType.channels.length; c_i < c_l; ++c_i) {
+                        c = thingType.channels[c_i];
+                        if (c.id == channelId) {
+                            return c;
+                        }
+                    }
+                } else if (cid_part.length == 2) {
+                    var cg, cg_i, cg_l;
+                    var c, c_i, c_l;
+                    for (cg_i = 0, cg_l = thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
+                        cg = thingType.channelGroups[cg_i];
+                        if (cg.id == cid_part[0]) {
+                            for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
+                                c = cg.channels[c_i];
+                                if (c.id == cid_part[1]) {
+                                    return c;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    return;
+                }
+            }
+            if (channelTypes) {
+                var c = {}, c_i, c_l;
+                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
+                    c = channelTypes[c_i];
+                    c.advanced = false;
+                    var id = c.UID.split(':', 2);
+                    if (id[1] == channelId) {
+                        return c;
+                    }
+                }
+            }
+            return;
+        },
+        getChannelFromChannelTypes : function(channelTypes, channelUID) {
+            if (channelTypes) {
+                var c = {}, c_i, c_l;
+                for (c_i = 0, c_l = channelTypes.length; c_i < c_l; ++c_i) {
+                    c = channelTypes[c_i];
+                    if (c.UID == channelUID) {
+                        return c;
+                    }
+                }
+            }
+            return;
+        },
+        matchGroup : function(arr, id) {
+            var matched = [];
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].id) {
+                    var sub = arr[i].id.split("#");
+                    if (sub[0] && sub[0] == id) {
+                        matched.push(arr[i]);
+                    }
+                }
+            }
+            return matched;
+        }
+    }
 });

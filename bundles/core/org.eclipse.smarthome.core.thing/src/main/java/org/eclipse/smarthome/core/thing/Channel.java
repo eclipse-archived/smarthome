@@ -16,11 +16,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * {@link Channel} is a part of a {@link Thing} that represents a functionality
@@ -32,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
  * @author Chris Jackson - Added properties, label, description
+ * @author Kai Kreuzer - Removed linked items from channel
  */
 public class Channel {
 
@@ -50,8 +47,6 @@ public class Channel {
     private Map<String, String> properties;
 
     private Set<String> defaultTags = new LinkedHashSet<>();
-
-    transient private Set<Item> linkedItems = new LinkedHashSet<>();
 
     /**
      * Package protected default constructor to allow reflective instantiation.
@@ -173,54 +168,4 @@ public class Channel {
     public Set<String> getDefaultTags() {
         return defaultTags;
     }
-
-    /**
-     * Adds an linked item to the list of linked items (this is an internal method
-     * that must not be called by clients).
-     *
-     * @param item item (must not be null)
-     */
-    public void addLinkedItem(Item item) {
-        this.linkedItems.add(item);
-    }
-
-    /**
-     * Removes an linked item from the list of linked items (this is an internal method
-     * that must not be called by clients).
-     *
-     * @param item item (must not be null)
-     */
-    public void removeLinkedItem(Item item) {
-        this.linkedItems.remove(item);
-    }
-
-    /**
-     * Returns a set of items, which are linked to the channel.
-     *
-     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link BaseThingHandler#isLinked} instead or alternatively
-     *             {@link ItemChannelLinkRegistry} if you are not within a handler implementation.
-     *
-     * @return Set of items, which are linked to the channel
-     */
-    @Deprecated
-    public Set<Item> getLinkedItems() {
-        return ImmutableSet.copyOf(this.linkedItems);
-    }
-
-    /**
-     * Returns whether at least one item is linked to the channel.
-     *
-     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link BaseThingHandler#isLinked} instead or alternatively
-     *             {@link ItemChannelLinkRegistry} if you are not within a handler implementation.
-     *
-     * @return true if at least one item is linked to the channel, false
-     *         otherwise
-     */
-    @Deprecated
-    public boolean isLinked() {
-        return !getLinkedItems().isEmpty();
-    }
-
 }

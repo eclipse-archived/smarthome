@@ -120,11 +120,11 @@
 				<span>{{thing.statusInfo.description}}</span>
 			</p>
 			<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
-			<md-button class="showmore" ng-init="showAdvanced = false" ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
+			<md-button class="showmore no-margin" ng-init="showAdvanced = false" ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 			<div class="channels">
 				<div ng-repeat="group in thingChannels track by $index">
 					<div ng-init="collapsed=false">
-						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0">
+						<div ng-show="!angular.isUndefined(group.name) && group.name.length > 0 && group.channels && group.channels.length > 0">
 							<span class="md-title">{{group.name}}</span>
 							<i ng-show="!collapsed" ng-click="collapsed=!collapsed" style="font-size: 22px; float: right;" class="md-raised material-icons">unfold_less</i> <i ng-show="collapsed" ng-click="collapsed=!collapsed" style="color: grey; font-size: 22px; float: right;" class="md-raised material-icons">unfold_more</i>
 							<div>{{group.description}}</div>

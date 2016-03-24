@@ -31,7 +31,6 @@ import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.SafeMethodCaller;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
-import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.events.AbstractItemEventSubscriber;
 import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -55,7 +54,6 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.types.Command;
@@ -87,6 +85,7 @@ import com.google.common.collect.Multimaps;
  * @author Stefan Bußweiler - Added new thing status handling, migration to new event mechanism,
  *         refactorings thing life cycle
  * @author Simon Kaufmann - Added remove handling
+ * @author Kai Kreuzer - Removed usage of itemRegistry and thingLinkRegistry
  */
 public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, BundleProcessorListener {
 
@@ -150,8 +149,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private EventPublisher eventPublisher;
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-
-    private ItemThingLinkRegistry itemThingLinkRegistry;
 
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
@@ -302,8 +299,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     };
 
-    private ItemRegistry itemRegistry;
-
     private ThingRegistryImpl thingRegistry;
 
     private ConfigDescriptionRegistry configDescriptionRegistry;
@@ -311,8 +306,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private ManagedThingProvider managedThingProvider;
 
     private Set<Thing> things = new CopyOnWriteArraySet<>();
-
-    private ThingLinkManager thingLinkManager;
 
     private Set<ThingUID> registerHandlerLock = new HashSet<>();
 
@@ -467,7 +460,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             logger.debug("Handler for thing '{}' already exists.", thing.getUID());
             handlerAdded(thing, thingHandler);
         }
-        this.thingLinkManager.thingAdded(thing);
     }
 
     @Override
@@ -477,8 +469,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     @Override
     public void thingRemoved(final Thing thing, ThingTrackerEvent thingTrackerEvent) {
-        this.thingLinkManager.thingRemoved(thing);
-
         ThingUID thingId = thing.getUID();
         ThingHandler thingHandler = thingHandlers.get(thingId);
         if (thingHandler != null) {
@@ -513,8 +503,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             this.things.remove(oldThing);
             this.things.add(thing);
         }
-
-        thingLinkManager.thingUpdated(thing);
 
         final ThingHandler thingHandler = thingHandlers.get(thingUID);
         if (thingHandler != null) {
@@ -932,9 +920,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     protected void activate(ComponentContext componentContext) {
-        this.thingLinkManager = new ThingLinkManager(itemRegistry, thingRegistry, itemChannelLinkRegistry,
-                itemThingLinkRegistry);
-        this.thingLinkManager.startListening();
         this.thingRegistry.addThingTracker(this);
         this.bundleContext = componentContext.getBundleContext();
         this.thingHandlerTracker = new ThingHandlerTracker(this.bundleContext);
@@ -963,7 +948,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     protected void deactivate(ComponentContext componentContext) {
         this.thingRegistry.removeThingTracker(this);
         this.thingHandlerTracker.close();
-        this.thingLinkManager.stopListening();
     }
 
     protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
@@ -994,22 +978,6 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = null;
-    }
-
-    protected void setItemRegistry(ItemRegistry itemRegistry) {
-        this.itemRegistry = itemRegistry;
-    }
-
-    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
-        this.itemRegistry = null;
-    }
-
-    protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = itemThingLinkRegistry;
-    }
-
-    protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = null;
     }
 
     protected void setManagedThingProvider(ManagedThingProvider managedThingProvider) {

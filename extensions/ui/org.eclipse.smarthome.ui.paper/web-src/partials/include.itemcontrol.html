@@ -225,7 +225,7 @@
 		<div layout="row" layout-align="start center" ng-show="isOptionList(item)">
 			<div layout="row" layout-align="end center" flex="100">
 				<div class="container options">
-					<md-select ng-model="item.state" ng-change="optionListChanged()" ng-disabled="isReadOnly(item)" aria-label={{item.label}}> <md-option ng-value="option.value" ng-repeat="option in item.stateDescription.options"> {{option.label}} ({{option.value}}) </md-option> </md-select>
+					<md-select class="controlSelect" ng-model="item.state" ng-change="optionListChanged()" ng-disabled="isReadOnly(item)" aria-label={{item.label}}> <md-option ng-value="option.value" ng-repeat="option in item.stateDescription.options"> {{option.label}} ({{option.value}}) </md-option> </md-select>
 				</div>
 			</div>
 		</div>

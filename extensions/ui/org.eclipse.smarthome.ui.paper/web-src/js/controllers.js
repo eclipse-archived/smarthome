@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository) {
+angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyController', function($rootScope, $scope, $http, eventService, toastService, discoveryResultRepository, thingTypeRepository, bindingRepository, restConfig) {
     $scope.scrollTop = 0;
     $(window).scroll(function() {
         $scope.$apply(function(scope) {
@@ -96,6 +96,13 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         }
         return numberOfNewDiscoveryResults;
     }
+
+    $http.get(restConfig.restPath + "/links/auto").then(function(response) {
+        if (response.data !== undefined) {
+            $rootScope.advancedMode = !response.data;
+            window.localStorage.setItem('paperui.advancedMode', !response.data);
+        }
+    });
 
     discoveryResultRepository.getAll();
     thingTypeRepository.getAll();

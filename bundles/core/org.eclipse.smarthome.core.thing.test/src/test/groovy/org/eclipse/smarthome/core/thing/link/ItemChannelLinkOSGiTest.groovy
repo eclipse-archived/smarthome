@@ -22,7 +22,7 @@ import org.junit.Test
 
 /**
  * Tests for {@link ManagedItemChannelLinkProvider}.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 class ItemChannelLinkOSGiTest extends OSGiTest {
@@ -33,10 +33,13 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
     ItemChannelLinkRegistry itemChannelLinkRegistry
     ManagedThingProvider managedThingProvider
+    ThingLinkManager thingLinkManager
 
     @Before
     void setup() {
         registerVolatileStorageService()
+        thingLinkManager = getService ThingLinkManager
+        thingLinkManager.deactivate()
         managedThingProvider = getService ManagedThingProvider
         managedThingProvider.add(ThingBuilder.create(CHANNEL_UID.getThingUID()).withChannels([
             ChannelBuilder.create(CHANNEL_UID, "Color").build()
@@ -50,6 +53,7 @@ class ItemChannelLinkOSGiTest extends OSGiTest {
     void teardown() {
         managedItemChannelLinkProvider.getAll().each { managedItemChannelLinkProvider.remove(it.getID()) }
         managedThingProvider.getAll().each { managedThingProvider.remove(it.getUID()) }
+        thingLinkManager.activate(null)
     }
 
     @Test

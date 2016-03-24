@@ -11,10 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 
 /**
  * A {@link Thing} is a representation of a connected part (e.g. physical device
@@ -25,6 +23,7 @@ import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
  * @author Dennis Nobel - Initial contribution and API
  * @author Thomas Höfer - Added thing and thing type properties
  * @author Simon Kaufmann - Added label
+ * @author Kai Kreuzer - Removed linked items from Thing
  */
 public interface Thing {
 
@@ -151,29 +150,6 @@ public interface Thing {
      * @return the thing type UID
      */
     ThingTypeUID getThingTypeUID();
-
-    /**
-     * Returns the group item, which is linked to the thing or null if no item is
-     * linked.
-     *
-     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link ItemThingLinkRegistry} instead.
-     *
-     * @return group item , which is linked to the thing or null
-     */
-    @Deprecated
-    GroupItem getLinkedItem();
-
-    /**
-     * Returns whether the thing is linked to an item.
-     *
-     * @deprecated Will be removed soon, because it is dynamic data which does not belong to the thing. Use
-     *             {@link ItemThingLinkRegistry} instead.
-     *
-     * @return true if thing is linked, false otherwise.
-     */
-    @Deprecated
-    public boolean isLinked();
 
     /**
      * Returns an immutable copy of the {@link Thing} properties.

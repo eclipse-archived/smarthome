@@ -256,9 +256,6 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
             assertThat thing.getStatus(), is(ThingStatus.ONLINE)
         }, 4000, 100)
 
-        assertThat thing.getChannels().get(0).getLinkedItems().size(), is(1)
-        assertThat thing.getChannels().get(0).getLinkedItems().iterator().next().getName(), is(ITEM_GENERIC)
-
         // Now do the actual migration
         thing.getHandler().changeThingType(THING_TYPE_SPECIFIC_UID, new Configuration(['providedspecific':'there']))
 
@@ -351,10 +348,6 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
         // Ensure that the properties are still there
         assertThat thing.getProperties().get("universal"), is("survives")
-
-        // Ensure items links have been updated
-        assertThat thing.getChannels().get(0).getLinkedItems().size(), is(1)
-        assertThat thing.getChannels().get(0).getLinkedItems().iterator().next().getName(), is(ITEM_SPECIFIC)
 
         // Ensure the new thing type got written correctly into the storage
         assertThat managedThingProvider.get(new ThingUID("testBinding", "testThing")).getThingTypeUID(), is(THING_TYPE_SPECIFIC_UID)
