@@ -16,7 +16,7 @@
 							<h3>{{thingType.label}}</h3>
 							<p>{{thingType.UID}}</p>
 							<p>
-								<small>{{thingType.description}}</small>
+								<small ng-bind-html="thingType.description"></small>
 							</p>
 							<hr class="border-line" ng-show="!$last" />
 						</div>
@@ -77,7 +77,7 @@
 				<div layout="row">
 					<div flex="90">
 						<h3>{{binding.name}}</h3>
-						<p>{{binding.description}}</p>
+						<p ng-bind-html="binding.description"></p>
 					</div>
 
 					<div flex="10" layout="row" layout-align="end center">
@@ -135,7 +135,7 @@
 				<div layout="row">
 					<div flex="90">
 						<h3>{{thingType.label}}</h3>
-						<p>{{thingType.description}}</p>
+						<p ng-bind-html="thingType.description"></p>
 					</div>
 
 					<div flex="10" layout="row" layout-align="end center">
