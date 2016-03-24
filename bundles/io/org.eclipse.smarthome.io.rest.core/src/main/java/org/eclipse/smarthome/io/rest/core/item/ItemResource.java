@@ -386,7 +386,7 @@ public class ItemResource implements RESTResource {
     }
 
     @PUT
-    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag}")
     @ApiOperation(value = "Adds a tag to an item.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found."),
