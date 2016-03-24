@@ -140,7 +140,10 @@ log "change hardcoded version string in files"
 sed 's:\("version"\: *"\).*\(".*\):\1'"${VERSION_NEW}"'\2:g' -i extensions/ui/org.eclipse.smarthome.ui.paper/bower.json
 
 # Check if maven could build
-mvn clean install || die "mvn clean install failed"
+if [ -z "${REF_TAG_MVN_ARGS_CHECK_BUILD}" ]; then
+  REF_TAG_MVN_ARGS_CHECK_BUILD="clean install"
+fi
+mvn ${REF_TAG_MVN_ARGS_CHECK_BUILD} || die "Check build using 'mvn ${REF_TAG_MVN_ARGS_CHECK_BUILD}' failed"
 
 # Commit changes done in the working copy
 git add . || die "git add failed"
