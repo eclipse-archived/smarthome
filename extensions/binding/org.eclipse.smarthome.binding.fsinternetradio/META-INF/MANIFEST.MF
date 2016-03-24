@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: FSInternetRadio Binding
 Bundle-SymbolicName: org.eclipse.smarthome.binding.fsinternetradio;singleton:=true
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: 

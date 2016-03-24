@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Console for OSGi runtime Karaf
 Bundle-SymbolicName: org.eclipse.smarthome.io.console.karaf
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: org.apache.karaf.shell.api.console;version="4.0.0",

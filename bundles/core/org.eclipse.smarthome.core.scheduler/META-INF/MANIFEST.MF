@@ -3,7 +3,7 @@ Private-Package: org.eclipse.smarthome.core.scheduler.internal
 Ignore-Package: org.eclipse.smarthome.core.scheduler.internal
 Bundle-Name: Eclipse SmartHome Scheduler Service
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Bundle-SymbolicName: org.eclipse.smarthome.core.scheduler

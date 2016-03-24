@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Automation Module Script
 Bundle-SymbolicName: org.eclipse.smarthome.automation.module.script
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-Activator: org.eclipse.smarthome.automation.module.script.internal.ScriptModuleActivator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.google.common.base,

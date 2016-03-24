@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome UI Icons
 Bundle-SymbolicName: org.eclipse.smarthome.ui.icon
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-Vendor: Eclipse.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: javax.servlet,

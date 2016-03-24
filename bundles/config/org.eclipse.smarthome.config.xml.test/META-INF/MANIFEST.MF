@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Config XML Tests
 Bundle-SymbolicName: org.eclipse.smarthome.config.xml.test;singleton:=true
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Fragment-Host: org.eclipse.smarthome.config.xml
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7

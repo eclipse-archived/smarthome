@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-Name: Eclipse SmartHome Console
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: org.apache.commons.lang,

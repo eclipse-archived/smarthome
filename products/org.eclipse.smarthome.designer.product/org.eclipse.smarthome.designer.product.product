@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse SmartHome Designer" uid="org.eclipse.smarthome.designer.product" id="org.eclipse.smarthome.designer.core.product" application="org.eclipse.smarthome.designer.ui.application" version="0.8.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Eclipse SmartHome Designer" uid="org.eclipse.smarthome.designer.product" id="org.eclipse.smarthome.designer.core.product" application="org.eclipse.smarthome.designer.ui.application" version="0.8.0.b4" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/org.eclipse.smarthome.designer.core/icons/esh400.png"/>

@@ -11,7 +11,7 @@
 <feature
       id="org.eclipse.smarthome.feature.designer"
       label="Eclipse SmartHome Designer"
-      version="0.8.0.qualifier"
+      version="0.8.0.b4"
       provider-name="Eclipse.org"
       plugin="org.eclipse.smarthome.designer.core">
 

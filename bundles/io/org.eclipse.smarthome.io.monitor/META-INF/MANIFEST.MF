@@ -4,7 +4,7 @@ Private-Package: org.eclipse.smarthome.core.monitor.internal
 Ignore-Package: org.eclipse.smarthome.core.monitor.internal
 Bundle-Name: Eclipse SmartHome Monitor
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0.b4
 Bundle-Activator: org.eclipse.smarthome.io.monitor.internal.MonitorActivator
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.eclipse.org/legal/epl-v10.html
