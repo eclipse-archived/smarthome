@@ -19,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -30,6 +31,7 @@ import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemThingLinkDTO;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
 import com.google.common.collect.Iterables;
@@ -83,11 +85,25 @@ public class ItemChannelLinkResource implements RESTResource {
     @DELETE
     @Path("/{itemName}/{channelUID}")
     @ApiOperation(value = "Unlinks item from a channel.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Link not found."),
+            @ApiResponse(code = 405, message = "Link not editable.") })
     public Response unlink(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
             @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
-        itemChannelLinkRegistry.remove(AbstractLink.getIDFor(itemName, new ChannelUID(channelUid)));
-        return Response.ok().build();
+
+        String linkId = AbstractLink.getIDFor(itemName, new ChannelUID(channelUid));
+        if (itemChannelLinkRegistry.get(linkId) == null) {
+            String message = "Link " + linkId + " does not exist!";
+            return JSONResponse.createResponse(Status.NOT_FOUND, null, message);
+        }
+
+        ItemChannelLink result = itemChannelLinkRegistry
+                .remove(AbstractLink.getIDFor(itemName, new ChannelUID(channelUid)));
+        if (result != null) {
+            return Response.ok().build();
+        } else {
+            return JSONResponse.createErrorResponse(Status.METHOD_NOT_ALLOWED, "Channel is read-only.");
+        }
     }
 
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {

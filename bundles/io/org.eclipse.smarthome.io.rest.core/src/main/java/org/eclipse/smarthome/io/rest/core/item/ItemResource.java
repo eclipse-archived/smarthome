@@ -511,7 +511,8 @@ public class ItemResource implements RESTResource {
         } else {
             // Item exists but cannot be updated
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
-            return JSONResponse.createErrorResponse(Status.CONFLICT, "Cannot update non-managed Item " + itemname);
+            return JSONResponse.createErrorResponse(Status.METHOD_NOT_ALLOWED,
+                    "Cannot update non-managed Item " + itemname);
         }
     }
 
