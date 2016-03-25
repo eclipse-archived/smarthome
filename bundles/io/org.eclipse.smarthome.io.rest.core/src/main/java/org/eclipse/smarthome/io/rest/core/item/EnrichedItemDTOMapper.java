@@ -37,7 +37,7 @@ public class EnrichedItemDTOMapper {
      * @return item DTO object
      */
     public static EnrichedItemDTO map(Item item, boolean drillDown, URI uri, Locale locale) {
-        ItemDTO itemDTO = ItemDTOMapper.map(item, drillDown);
+        ItemDTO itemDTO = ItemDTOMapper.map(item);
         return map(item, itemDTO, uri, drillDown, locale);
     }
 

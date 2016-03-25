@@ -15,7 +15,6 @@ package org.eclipse.smarthome.core.items.dto;
  */
 public class GroupItemDTO extends ItemDTO {
 
-    public ItemDTO[] members;
     public String groupType;
 
 }
