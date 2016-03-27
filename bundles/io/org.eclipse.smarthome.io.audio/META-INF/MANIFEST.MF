@@ -7,7 +7,6 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: org.slf4j
-Service-Component: OSGI-INF/*.xml,
 Export-Package: org.eclipse.smarthome.io.audio
 Bundle-ActivationPolicy: lazy
 
