@@ -168,7 +168,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
     }
 
     private String getWeatherData() throws IOException {
-        String urlString = "http://weather.yahooapis.com/forecastrss?w=" + location + "&u=c";
+        String urlString = "https://query.yahooapis.com/v1/public/yql?format=json&q=SELECT%20*%20FROM%20weather.forecast%20WHERE%20u=%27c%27%20AND%20woeid%20=%20%27"
+                + location + "%27";
         try {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
@@ -181,8 +182,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private State getHumidity() {
         if (weatherData != null) {
-            String humidity = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
-            humidity = StringUtils.substringBetween(humidity, "humidity=\"", "\"");
+            String humidity = StringUtils.substringAfter(weatherData, "atmosphere");
+            humidity = StringUtils.substringBetween(humidity, "humidity\":\"", "\"");
             if (humidity != null) {
                 return new DecimalType(humidity);
             }
@@ -192,8 +193,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private State getPressure() {
         if (weatherData != null) {
-            String pressure = StringUtils.substringAfter(weatherData, "yweather:atmosphere");
-            pressure = StringUtils.substringBetween(pressure, "pressure=\"", "\"");
+            String pressure = StringUtils.substringAfter(weatherData, "atmosphere");
+            pressure = StringUtils.substringBetween(pressure, "pressure\":\"", "\"");
             if (pressure != null) {
                 return new DecimalType(pressure);
             }
@@ -203,8 +204,8 @@ public class YahooWeatherHandler extends ConfigStatusThingHandler {
 
     private State getTemperature() {
         if (weatherData != null) {
-            String temp = StringUtils.substringAfter(weatherData, "yweather:condition");
-            temp = StringUtils.substringBetween(temp, "temp=\"", "\"");
+            String temp = StringUtils.substringAfter(weatherData, "condition");
+            temp = StringUtils.substringBetween(temp, "temp\":\"", "\"");
             if (temp != null) {
                 return new DecimalType(temp);
             }
