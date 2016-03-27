@@ -43,7 +43,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
-import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -57,6 +57,8 @@ import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -455,7 +457,7 @@ public class ItemResource implements RESTResource {
     public Response createOrUpdateItem(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
-            @ApiParam(value = "item data", required = true) ItemDTO item) {
+            @ApiParam(value = "item data", required = true) GroupItemDTO item) {
         final Locale locale = LocaleUtil.getLocale(language);
 
         // If we didn't get an item bean, then return!
@@ -466,15 +468,14 @@ public class ItemResource implements RESTResource {
         GenericItem newItem = null;
 
         if (item.type != null && item.type.equals("GroupItem")) {
-            newItem = new GroupItem(itemname);
+            GenericItem baseItem = null;
+            if (!Strings.isNullOrEmpty(item.groupType)) {
+                baseItem = createItem(item.groupType, itemname);
+            }
+            newItem = new GroupItem(itemname, baseItem);
         } else {
             String itemType = item.type.substring(0, item.type.length() - 4);
-            for (ItemFactory itemFactory : itemFactories) {
-                newItem = itemFactory.createItem(itemType, itemname);
-                if (newItem != null) {
-                    break;
-                }
-            }
+            newItem = createItem(itemType, itemname);
         }
 
         if (newItem == null) {
@@ -514,6 +515,24 @@ public class ItemResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.METHOD_NOT_ALLOWED,
                     "Cannot update non-managed Item " + itemname);
         }
+    }
+
+    /**
+     * helper: Create new item with name and type
+     *
+     * @param itemType type of the item
+     * @param itemname name of the item
+     * @return the newly created item
+     */
+    private GenericItem createItem(String itemType, String itemname) {
+        GenericItem newItem = null;
+        for (ItemFactory itemFactory : itemFactories) {
+            newItem = itemFactory.createItem(itemType, itemname);
+            if (newItem != null) {
+                break;
+            }
+        }
+        return newItem;
     }
 
     /**

@@ -335,7 +335,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     private static ItemDTO map(Item item) {
-        return ItemDTOMapper.map(item, false);
+        return ItemDTOMapper.map(item);
     }
 
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
