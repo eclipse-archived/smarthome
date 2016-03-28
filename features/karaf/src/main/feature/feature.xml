@@ -9,7 +9,7 @@
     <feature dependency="true">esh-tp-commons</feature>
 
     <feature dependency="true">esh-tp-xtext</feature>
-    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.9.1)(!(version&gt;=2.9.2)))"</requirement>
+    <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.9.2)(!(version&gt;=2.9.3)))"</requirement>
 
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
