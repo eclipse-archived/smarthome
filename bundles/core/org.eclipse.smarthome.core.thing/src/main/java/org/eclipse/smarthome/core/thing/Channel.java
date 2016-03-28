@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering default
  *         values
  * @author Chris Jackson - Added properties, label, description
+ * @author Chris Jackson - Added configuration update methods
  */
 public class Channel {
 
@@ -221,5 +222,25 @@ public class Channel {
     @Deprecated
     public boolean isLinked() {
         return !getLinkedItems().isEmpty();
+    }
+
+    /**
+     * Returns a copy of the configuration, that can be modified. The method
+     * {@link Channel#updateConfiguration(Configuration)} must be called to persist the configuration.
+     *
+     * @return copy of the thing configuration (not null)
+     */
+    public Configuration editConfiguration() {
+        Map<String, Object> properties = this.configuration.getProperties();
+        return new Configuration(new HashMap<>(properties));
+    }
+
+    /**
+     * Update the configuration properties after the configuration is changed
+     *
+     * @param newConfiguration an update confifguration
+     */
+    public void updateConfiguration(Configuration newConfiguration) {
+        configuration.setProperties(newConfiguration.getProperties());
     }
 }
