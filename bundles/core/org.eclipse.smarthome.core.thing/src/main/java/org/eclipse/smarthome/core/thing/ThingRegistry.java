@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.thing;
 
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.registry.Registry;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
@@ -81,4 +82,22 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @return the {@link Thing} that was removed, or null if no {@link Thing} with the given {@link ThingUID} exists
      */
     Thing forceRemove(ThingUID thingUID);
+
+    /**
+     * Creates a thing based on the given configuration properties
+     *
+     * @param thingTypeUID
+     *            thing type unique id
+     * @param thingUID
+     *            thing unique id which should be created. This id might be
+     *            null.
+     * @param bridge
+     *            the thing's bridge. Null if there is no bridge or if the thing
+     *            is a bridge by itself.
+     * @param configuration
+     *            the configuration
+     * @return the created thing
+     */
+	Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID, String label,
+			Configuration configuration);
 }

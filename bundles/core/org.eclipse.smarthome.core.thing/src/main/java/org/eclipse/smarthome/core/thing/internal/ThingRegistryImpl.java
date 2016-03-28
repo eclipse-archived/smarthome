@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -19,8 +20,10 @@ import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.events.ThingEventFactory;
 import org.eclipse.smarthome.core.thing.internal.ThingTracker.ThingTrackerEvent;
 import org.slf4j.Logger;
@@ -39,6 +42,8 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implemen
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 
     private List<ThingTracker> thingTrackers = new CopyOnWriteArrayList<>();
+
+    private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
 
     /**
      * Adds a thing tracker.
@@ -234,6 +239,30 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implemen
         for (Thing thing : getAll()) {
             thingTracker.thingRemoved(thing, ThingTrackerEvent.TRACKER_REMOVED);
         }
+    }
+
+    @Override
+    public Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID, String label,
+            Configuration configuration) {
+        logger.debug("Creating thing for type '{}'.", thingTypeUID);
+        for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
+            if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
+                Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+                thing.setLabel(label);
+                return thing;
+            }
+        }
+        logger.warn("Cannot create thing. No binding found that supports creating a thing" + " of type {}.",
+                thingTypeUID);
+        return null;
+    }
+
+    protected void addThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+        this.thingHandlerFactories.add(thingHandlerFactory);
+    }
+
+    protected void removeThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+        this.thingHandlerFactories.remove(thingHandlerFactory);
     }
 
 }

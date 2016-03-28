@@ -11,17 +11,21 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
+import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
+import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.core.thing.events.ThingAddedEvent
 import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent
 import org.eclipse.smarthome.core.thing.events.ThingUpdatedEvent
+import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -33,25 +37,29 @@ import com.google.common.collect.Sets
  * {@link ThingRegistryOSGiTest} tests the {@link ThingRegistry}.
  *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Kai Kreuzer - Moved createThing test from managed provider
  */
 class ThingRegistryOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
-
+	ThingHandlerFactory thingHandlerFactory
+	
     def THING_TYPE_UID = new ThingTypeUID("binding:type")
-
     def THING_UID = new ThingUID(THING_TYPE_UID, "id")
-
     def THING = ThingBuilder.create(THING_UID).build()
-
+	def THING1_ID = "testThing1"
+	def THING2_ID = "testThing2"
+	
     @Before
     void setUp() {
         registerVolatileStorageService()
         managedThingProvider = getService(ManagedThingProvider)
+		unregisterCurrentThingHandlerFactory()
     }
 
     @After
     void teardown() {
+		unregisterCurrentThingHandlerFactory()
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
@@ -125,4 +133,48 @@ class ThingRegistryOSGiTest extends OSGiTest {
         ] as Map;
         thingRegistry.updateConfiguration(thingUID, parameters)
     }
+	
+	@Test
+	void 'assert that createThing delegates to registered ThingHandlerFactory'() {
+		def expectedThingTypeUID = THING_TYPE_UID
+		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
+		def expectedConfiguration = new Configuration()
+		def expectedBridgeUID = new ThingUID(THING_TYPE_UID, THING2_ID)
+		def expectedLabel = "Test Thing"
+		
+		AsyncResultWrapper<Thing> thingResultWrapper = new AsyncResultWrapper<Thing>();
+		
+		ThingRegistry thingRegistry = getService(ThingRegistry)
+		
+		registerThingHandlerFactory( [
+			supportsThingType: { ThingTypeUID thingTypeUID -> true },
+			createThing : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID ->
+				assertThat thingTypeUID, is(expectedThingTypeUID)
+				assertThat configuration, is(expectedConfiguration)
+				assertThat thingUID, is(expectedThingUID)
+				assertThat bridgeUID, is(expectedBridgeUID)
+				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridgeUID).build()
+				thingResultWrapper.set(thing)
+				thing
+			},
+			registerHandler: {}
+		] as ThingHandlerFactory)
+
+		def thing = thingRegistry.createThingOfType(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedLabel, expectedConfiguration)
+		waitForAssert{assertTrue thingResultWrapper.isSet}
+		assertThat thing, is(thingResultWrapper.wrappedObject)
+	}
+
+	private void registerThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
+		unregisterCurrentThingHandlerFactory()
+		this.thingHandlerFactory = thingHandlerFactory
+		registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
+	}
+	
+	private void unregisterCurrentThingHandlerFactory() {
+		if (this.thingHandlerFactory != null) {
+			unregisterService(thingHandlerFactory)
+		}
+	}
+
 }

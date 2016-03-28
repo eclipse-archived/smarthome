@@ -8,8 +8,10 @@
 package org.eclipse.smarthome.core.thing.dto;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -19,6 +21,7 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Chris Jackson - Added properties and configuration
+ * @author Kai Kreuzer - Added default tags
  */
 public class ChannelDTO {
 
@@ -29,6 +32,7 @@ public class ChannelDTO {
     public String itemType;
     public String label;
     public String description;
+    public Set<String> defaultTags;
     public Map<String, String> properties;
     public Map<String, Object> configuration;
 
@@ -36,7 +40,8 @@ public class ChannelDTO {
     }
 
     public ChannelDTO(ChannelUID uid, String channelTypeUID, String itemType, String label, String description,
-            List<String> linkedItems, Map<String, String> properties, Configuration configuration) {
+            List<String> linkedItems, Map<String, String> properties, Configuration configuration,
+            Set<String> defaultTags) {
         this.uid = uid.toString();
         this.id = uid.getId();
         this.channelTypeUID = channelTypeUID;
@@ -46,6 +51,7 @@ public class ChannelDTO {
         this.linkedItems = linkedItems;
         this.properties = properties;
         this.configuration = toMap(configuration);
+        this.defaultTags = new HashSet<>(defaultTags);
     }
 
     private Map<String, Object> toMap(Configuration configuration) {

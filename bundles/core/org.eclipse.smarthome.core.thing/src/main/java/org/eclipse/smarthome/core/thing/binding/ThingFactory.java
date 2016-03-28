@@ -55,11 +55,11 @@ public class ThingFactory {
      * Creates a thing based on a given thing type.
      *
      * @param thingType
-     *            thing type (should not be null)
+     *            thing type (must not be null)
      * @param thingUID
-     *            thindUID (should not be null)
+     *            thindUID (must not be null)
      * @param configuration
-     *            (should not be null)
+     *            (must not be null)
      * @param bridge
      *            (can be null)
      * @return thing
@@ -75,11 +75,11 @@ public class ThingFactory {
      * configDescriptionRegistry is not null
      *
      * @param thingType
-     *            (should not be null)
+     *            (must not be null)
      * @param thingUID
-     *            (should not be null)
+     *            (must not be null)
      * @param configuration
-     *            (should not be null)
+     *            (must not be null)
      * @param bridgeUID
      *            (can be null)
      * @param configDescriptionRegistry
@@ -89,10 +89,10 @@ public class ThingFactory {
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration,
             ThingUID bridgeUID, ConfigDescriptionRegistry configDescriptionRegistry) {
         if (thingType == null) {
-            throw new IllegalArgumentException("The thingType should not be null.");
+            throw new IllegalArgumentException("The thingType must not be null.");
         }
         if (thingUID == null) {
-            throw new IllegalArgumentException("The thingUID should not be null.");
+            throw new IllegalArgumentException("The thingUID must not be null.");
         }
 
         ThingFactoryHelper.applyDefaultConfiguration(configuration, thingType, configDescriptionRegistry);
@@ -130,11 +130,11 @@ public class ThingFactory {
      * Creates a thing based on given thing type.
      *
      * @param thingType
-     *            thing type (should not be null)
+     *            thing type (must not be null)
      * @param thingUID
-     *            thindUID (should not be null)
+     *            thingUID (must not be null)
      * @param configuration
-     *            (should not be null)
+     *            (must not be null)
      * @return thing
      */
     public static Thing createThing(ThingType thingType, ThingUID thingUID, Configuration configuration) {

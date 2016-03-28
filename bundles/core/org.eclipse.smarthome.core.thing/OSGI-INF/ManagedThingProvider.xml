@@ -15,5 +15,4 @@
       <provide interface="org.eclipse.smarthome.core.thing.ManagedThingProvider"/>
    </service>
 <reference bind="setStorageService" cardinality="1..1" interface="org.eclipse.smarthome.core.storage.StorageService" name="StorageService" policy="static" unbind="unsetStorageService"/>
-<reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>
 </scr:component>
