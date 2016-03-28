@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
  * This class is a wrapper for configuration settings of {@link Thing}s.
  *
  * @author Dennis Nobel - Initial API and contribution, Changed Logging
- * @author Kai Kreuzer - added constructors
+ * @author Kai Kreuzer - added constructors and normalization
  * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
  */
 public class Configuration {
@@ -44,7 +44,7 @@ public class Configuration {
     }
 
     public Configuration(Map<String, Object> properties) {
-        this.properties = properties;
+        this.properties = normalizeTypes(properties);
     }
 
     public <T> T as(Class<T> configurationClass) {
@@ -148,7 +148,7 @@ public class Configuration {
 
     public void setProperties(Map<String, Object> properties) {
         for (Entry<String, Object> entrySet : properties.entrySet()) {
-            this.put(entrySet.getKey(), entrySet.getValue());
+            this.put(entrySet.getKey(), normalizeType(entrySet.getValue()));
         }
         for (String key : this.properties.keySet()) {
             if (!properties.containsKey(key)) {
@@ -174,4 +174,32 @@ public class Configuration {
         }
         return this.hashCode() == obj.hashCode();
     }
+
+    /**
+     * normalizes the types to the ones allowed for configurations
+     *
+     * @param configuration
+     * @return normalized configuration
+     */
+    protected static Map<String, Object> normalizeTypes(Map<String, Object> configuration) {
+        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        for (Entry<String, Object> parameter : configuration.entrySet()) {
+            String name = parameter.getKey();
+            Object value = parameter.getValue();
+            convertedConfiguration.put(name, normalizeType(value));
+        }
+        return convertedConfiguration;
+    }
+
+    /**
+     * normalizes the type of the parameter to the one allowed for configurations
+     *
+     * @param value the value to return as normalized type
+     *
+     * @return corresponding value as a valid type
+     */
+    protected static Object normalizeType(Object value) {
+        return value instanceof Double ? new BigDecimal((Double) value) : value;
+    }
+
 }

@@ -15,5 +15,5 @@
    </service>
    <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.ThingProvider" name="ThingProvider" policy="dynamic" unbind="removeProvider"/>
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
-   
+   <reference bind="addThingHandlerFactory" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory" name="ThingHandlerFactory" policy="dynamic" unbind="removeThingHandlerFactory"/>   
 </scr:component>

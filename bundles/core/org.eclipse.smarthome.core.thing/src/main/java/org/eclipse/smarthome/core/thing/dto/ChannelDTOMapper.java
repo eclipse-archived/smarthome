@@ -10,14 +10,18 @@ package org.eclipse.smarthome.core.thing.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ChannelBuilder;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 
 /**
  * The {@link ChannelDTOMapper} is an utility class to map channels into channel data transfer objects (DTOs).
  *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Kai Kreuzer - added DTO to channel mapping
  */
 public class ChannelDTOMapper {
 
@@ -36,6 +40,21 @@ public class ChannelDTOMapper {
         String channelTypeUIDValue = channelTypeUID != null ? channelTypeUID.toString() : null;
         return new ChannelDTO(channel.getUID(), channelTypeUIDValue, channel.getAcceptedItemType().toString(),
                 channel.getLabel(), channel.getDescription(), linkedItemNames, channel.getProperties(),
-                channel.getConfiguration());
+                channel.getConfiguration(), channel.getDefaultTags());
+    }
+
+    /**
+     * Maps channel DTO into channel object.
+     *
+     * @param channelDTO the channel DTO
+     * @return the channel object
+     */
+    public static Channel map(ChannelDTO channelDTO) {
+        ChannelUID channelUID = new ChannelUID(channelDTO.uid);
+        ChannelTypeUID channelTypeUID = new ChannelTypeUID(channelDTO.channelTypeUID);
+        return ChannelBuilder.create(channelUID, channelDTO.itemType)
+                .withConfiguration(new Configuration(channelDTO.configuration)).withLabel(channelDTO.label)
+                .withDescription(channelDTO.description).withProperties(channelDTO.properties).withType(channelTypeUID)
+                .withDefaultTags(channelDTO.defaultTags).build();
     }
 }
