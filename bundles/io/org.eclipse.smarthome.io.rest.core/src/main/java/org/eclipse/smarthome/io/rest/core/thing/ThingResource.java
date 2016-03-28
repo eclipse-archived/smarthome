@@ -48,6 +48,7 @@ import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
@@ -74,6 +75,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Thomas Höfer - added validation of configuration
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
+ * @author Chris Jackson - added channel configuration updates
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -352,6 +354,17 @@ public class ThingResource implements RESTResource {
 
         // Update the label
         thing.setLabel(thingBean.label);
+
+        // Update the configuration in the channels
+        for (Channel channel : thing.getChannels()) {
+            for (ChannelDTO newChannel : thingBean.channels) {
+                if (newChannel.uid.equals(channel.getUID().getAsString())) {
+                    Configuration configuration = channel.editConfiguration();
+                    configuration.setProperties(newChannel.configuration);
+                    channel.updateConfiguration(configuration);
+                }
+            }
+        }
 
         // update, returns null in case Thing cannot be found
         Thing oldthing = managedThingProvider.update(thing);
