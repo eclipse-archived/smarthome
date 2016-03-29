@@ -32,7 +32,7 @@ public class BridgeType extends ThingType {
      */
     public BridgeType(String bindingId, String thingTypeId, String label) throws IllegalArgumentException {
 
-        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, null, null, null, null);
+        this(new ThingTypeUID(bindingId, thingTypeId), null, label, null, true, null, null, null, null);
     }
 
     /**
@@ -54,7 +54,7 @@ public class BridgeType extends ThingType {
      *
      * @param channelGroupDefinitions the channel groups defining the channels this Bridge
      *            type provides (could be null or empty)
-     * 
+     *
      * @param properties the properties this Bridge type provides (could be null)
      *
      * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
@@ -66,7 +66,45 @@ public class BridgeType extends ThingType {
             List<ChannelDefinition> channelDefinitions, List<ChannelGroupDefinition> channelGroupDefinitions,
             Map<String, String> properties, URI configDescriptionURI) throws IllegalArgumentException {
 
-        super(uid, supportedBridgeTypeUIDs, label, description, channelDefinitions, channelGroupDefinitions,
+        this(uid, supportedBridgeTypeUIDs, label, description, true, channelDefinitions, channelGroupDefinitions,
+                properties, configDescriptionURI);
+    }
+
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param uid the unique identifier which identifies this Bridge type within
+     *            the overall system (must neither be null, nor empty)
+     *
+     * @param supportedBridgeTypeUIDs the unique identifiers to the bridges this Bridge type
+     *            supports (could be null or empty)
+     *
+     * @param label the human readable label for the according type
+     *            (must neither be null nor empty)
+     *
+     * @param description the human readable description for the according type
+     *            (could be null or empty)
+     *
+     * @param listed detemines whether it should be displayed for manually pairing or not
+     *
+     * @param channelDefinitions the channels this Bridge type provides (could be null or empty)
+     *
+     * @param channelGroupDefinitions the channel groups defining the channels this Bridge
+     *            type provides (could be null or empty)
+     * 
+     * @param properties the properties this Bridge type provides (could be null)
+     *
+     * @param configDescriptionURI the link to the concrete ConfigDescription (could be null)
+     *
+     * @throws IllegalArgumentException if the UID is null or empty,
+     *             or the the meta information is null
+     */
+    public BridgeType(ThingTypeUID uid, List<String> supportedBridgeTypeUIDs, String label, String description,
+            boolean listed, List<ChannelDefinition> channelDefinitions,
+            List<ChannelGroupDefinition> channelGroupDefinitions, Map<String, String> properties,
+            URI configDescriptionURI) throws IllegalArgumentException {
+
+        super(uid, supportedBridgeTypeUIDs, label, description, listed, channelDefinitions, channelGroupDefinitions,
                 properties, configDescriptionURI);
     }
 

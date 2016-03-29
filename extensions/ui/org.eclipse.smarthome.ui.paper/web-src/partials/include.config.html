@@ -1,77 +1,75 @@
 <div class="row">
 	<form name="form.configForm">
-		<div ng-show="!expertMode">
-			<div ng-repeat="parameter in parameters">
-				<div class="parameter col-sm-6 col-xs-12" ng-switch="parameter.element">
-					<div ng-switch-when="input">
-						<div ng-if="parameter.type=='INTEGER'">
-							<md-input-container> <label>{{parameter.label}}</label> <input ng-init="focus=false"
-								name="integerfield{{$index}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}"
-								ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}"
-								ng-focus="focus=true" ng-blur="focus=false">
-							<div ng-messages="form.configForm.integerfield{{$index}}.$error" ng-show="focus">
-								<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
-								<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
-								<div ng-message="required">Field is required</div>
+		<div class="includeConfig" ng-show="!expertMode">
+			<fieldset ng-class="{borderhidden: parameters.length==1}" ng-repeat="group in parameters track by $index">
+				<legend ng-if="parameters.length>1">{{group.groupLabel}}</legend>
+				<div ng-repeat="parameter in group.parameters track by $index">
+					<div class="parameter col-sm-6 col-xs-12" ng-switch="parameter.element">
+						<div ng-switch-when="input">
+							<div ng-if="parameter.type=='INTEGER'">
+								<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label><md-input-container>  <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+								<div ng-messages="form.configForm.{{parameter.name}}.$error" ng-show="focus">
+									<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
+									<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
+									<div ng-message="required">Field is required</div>
+								</div>
+								<span ng-messages="" ng-show="!focus">
+									<p class="hint">
+										<small>{{parameter.description}}</small>
+									</p>
+								</span> </md-input-container>
 							</div>
-							<span ng-messages="" ng-show="!focus">
-								<p class="hint">
-									<small>{{parameter.description}}</small>
-								</p>
-							</span> </md-input-container>
-						</div>
-						<div ng-if="parameter.type=='TEXT'">
-							<md-input-container> <label>{{parameter.label}}</label> <input ng-init="focus=false"
-								name="textfield{{$index}}" ng-minlength="parameter.min" ng-maxlength="parameter.max"
-								ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}"
-								ng-focus="focus=true" ng-blur="focus=false">
-							<div ng-messages="form.configForm.textfield{{$index}}.$error" ng-show="focus">
-								<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
-								<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
-								<div ng-message="required">Field is required</div>
+							<div ng-if="parameter.type=='TEXT'">
+								<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label><md-input-container md-no-float><input ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+								<div ng-messages="form.configForm.{{parameter.name}}.$error" ng-show="focus">
+									<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
+									<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
+									<div ng-message="required">Field is required</div>
+								</div>
+								<span ng-messages="" ng-show="!focus">
+									<p class="hint">
+										<small>{{parameter.description}}</small>
+									</p>
+								</span> </md-input-container>
+								<span ng-messages="" ng-show="focus">
+									<p class="hint">
+										<small>&nbsp;</small>
+									</p>
+								</span>
+								</md-input-container>
 							</div>
-							<span ng-messages="" ng-show="!focus">
-								<p class="hint">
-									<small>{{parameter.description}}</small>
-								</p>
-							</span> </md-input-container>
 						</div>
-					</div>
-					<div ng-switch-when="switch">
-						<md-switch ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
-						<p class="hint">
-							<small>{{parameter.description}}</small>
-						</p>
-					</div>
-					<div ng-switch-when="select">
-						<md-select class="config-select" isrequired="parameter.required" ng-init="focus=false"
-							name="selectfield{{$index}}" ng-model="configuration[parameter.name]" placeholder="Select a value"
-							ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option
-							ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span
-							style="display: inline-block;" ng-if="parameter.context=='item'">{{ option.label?option.label:option.name
-							}} <span class="md-caption" style="color: grey;">({{ option.name?option.name:'' }}) </span>
-						</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
-						<div ng-messages="form.configForm.selectfield{{$index}}.$error" ng-show="focus">
-							<div ng-message="required">Field is required</div>
-						</div>
-						<span ng-messages="" ng-show="!focus">
+						<div ng-switch-when="switch">
+							<md-switch ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
 							<p class="hint">
 								<small>{{parameter.description}}</small>
 							</p>
-						</span>
+						</div>
+						<div ng-switch-when="select">
+							<md-input-container> <label>{{parameter.label}}</label> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
+								{{ option.label?option.label:option.name }}
+								<span class="md-caption" style="color: grey;">({{ option.name?option.name:'' }}) </span>
+							</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
+							<div ng-messages="form.configForm.{{parameter.name}}.$error" ng-show="focus">
+								<div ng-message="required">Field is required</div>
+							</div>
+							<span ng-messages="" ng-show="!focus">
+								<p class="hint">
+									<small>{{parameter.description}}</small>
+								</p>
+							</span> </md-input-container>
+						</div>
 					</div>
+					<div ng-if="$odd" class="clearfix"></div>
 				</div>
-				<div ng-if="$odd" class="clearfix"></div>
-			</div>
+			</fieldset>
 		</div>
 	</form>
 	<div class="expert-view" ng-if="expertMode">
 		<div ng-repeat="parameter in configArray">
 			<div class="parameter col-xs-12" layout="row">
-				<md-input-container flex="30"> <label>Name</label> <input ng-model="configArray[$index].name"
-					type="text"> </md-input-container>
-				<md-input-container flex="70"> <label>Value</label> <input ng-model="configArray[$index].value"
-					type="text"> </md-input-container>
+				<md-input-container flex="30"> <label>Name</label> <input ng-model="configArray[$index].name" type="text"> </md-input-container>
+				<md-input-container flex="70"> <label>Value</label> <input ng-model="configArray[$index].value" type="text"> </md-input-container>
 			</div>
 		</div>
 	</div>

@@ -46,15 +46,16 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
 import org.eclipse.smarthome.io.rest.ConfigUtil;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.JSONResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +111,7 @@ public class ThingResource implements RESTResource {
             @ApiParam(value = "thing data", required = true) ThingDTO thingBean) {
         final Locale locale = LocaleUtil.getLocale(language);
 
+        ThingTypeUID thingTypeUID = new ThingTypeUID(thingBean.thingTypeUID);
         ThingUID thingUIDObject = new ThingUID(thingBean.UID);
         ThingUID bridgeUID = null;
 
@@ -126,7 +128,7 @@ public class ThingResource implements RESTResource {
         // does the Thing already exist?
         if (null == thing) {
             // if not, create new Thing
-            thing = managedThingProvider.createThing(thingUIDObject.getThingTypeUID(), thingUIDObject, bridgeUID,
+            thing = managedThingProvider.createThing(thingTypeUID, thingUIDObject, bridgeUID, thingBean.label,
                     configuration);
             status = Status.CREATED;
         } else {
@@ -208,7 +210,7 @@ public class ThingResource implements RESTResource {
             managedItemProvider.add(item);
         }
 
-        ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
+        ChannelUID channelUID = new ChannelUID(thing.getUID(), channelId);
 
         unlinkChannelIfAlreadyLinked(channelUID);
 
@@ -286,6 +288,12 @@ public class ThingResource implements RESTResource {
             @PathParam("channelId") @ApiParam(value = "channelId") String channelId,
             @ApiParam(value = "channelId") String itemName) {
 
+        Thing thing = thingRegistry.get(new ThingUID(thingUID));
+        if (thing == null) {
+            logger.warn("Received HTTP POST request at '{}' for the unknown thing '{}'.", uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
         ChannelUID channelUID = new ChannelUID(new ThingUID(thingUID), channelId);
 
         if (itemChannelLinkRegistry.isLinked(itemName, channelUID)) {
@@ -342,6 +350,9 @@ public class ThingResource implements RESTResource {
         thing.setBridgeUID(bridgeUID);
         updateConfiguration(thing, getConfiguration(thingBean));
 
+        // Update the label
+        thing.setLabel(thingBean.label);
+
         // update, returns null in case Thing cannot be found
         Thing oldthing = managedThingProvider.update(thing);
         if (null == oldthing) {
@@ -395,10 +406,9 @@ public class ThingResource implements RESTResource {
         try {
             thingRegistry.updateConfiguration(thingUIDObject, ConfigUtil.normalizeTypes(configurationParameters));
         } catch (ConfigValidationException ex) {
-            logger.debug("Config description validation exception occured for thingUID " + thingUID,
+            logger.debug("Config description validation exception occured for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
-            return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(LocaleUtil.getLocale(language)))
-                    .build();
+            return Response.status(Status.BAD_REQUEST).entity(ex.getValidationMessages(locale)).build();
         } catch (IllegalArgumentException ex) {
             logger.info("Received HTTP PUT request for update config at '{}' for the unknown thing '{}'.",
                     uriInfo.getPath(), thingUID);
@@ -410,8 +420,11 @@ public class ThingResource implements RESTResource {
 
     @GET
     @Path("/{thingUID}/config/status")
+    @ApiOperation(value = "Gets thing's config status.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Config status for thing not found.") })
     public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
-            @PathParam("thingUID") String thingUID) throws IOException {
+            @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
             return Response.ok().entity(info.getConfigStatusMessages()).build();

@@ -42,5 +42,11 @@ public class MDNSClientImpl implements MDNSClient {
     }
 
     public void deactivate() {
+        if (jmdns != null) {
+            try {
+                jmdns.close();
+            } catch (IOException e) {
+            }
+        }
     }
 }

@@ -13,11 +13,6 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import nl.q42.jue.FullLight;
-import nl.q42.jue.HueBridge;
-import nl.q42.jue.State;
-import nl.q42.jue.StateUpdate;
-
 import org.eclipse.smarthome.core.library.types.HSBType;
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType;
 import org.eclipse.smarthome.core.library.types.OnOffType;
@@ -37,6 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+
+import nl.q42.jue.FullLight;
+import nl.q42.jue.HueBridge;
+import nl.q42.jue.State;
+import nl.q42.jue.StateUpdate;
 
 /**
  * {@link HueLightHandler} is the handler for a hue light. It uses the {@link HueBridgeHandler} to execute the actual
@@ -311,24 +311,32 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             if (!fullLight.getState().isOn()) {
                 hsbType = new HSBType(hsbType.getHue(), hsbType.getSaturation(), new PercentType(0));
             }
-            updateState(new ChannelUID(getThing().getUID(), CHANNEL_COLOR), hsbType);
+            updateState(CHANNEL_COLOR, hsbType);
 
             PercentType percentType = LightStateConverter.toColorTemperaturePercentType(fullLight.getState());
-            updateState(new ChannelUID(getThing().getUID(), CHANNEL_COLORTEMPERATURE), percentType);
+            updateState(CHANNEL_COLORTEMPERATURE, percentType);
 
             percentType = LightStateConverter.toBrightnessPercentType(fullLight.getState());
             if (!fullLight.getState().isOn()) {
                 percentType = new PercentType(0);
             }
-            updateState(new ChannelUID(getThing().getUID(), CHANNEL_BRIGHTNESS), percentType);
+            updateState(CHANNEL_BRIGHTNESS, percentType);
 
             StringType stringType = LightStateConverter.toAlertStringType(fullLight.getState());
             if (!stringType.toString().equals("NULL")) {
-                updateState(new ChannelUID(getThing().getUID(), CHANNEL_ALERT), stringType);
+                updateState(CHANNEL_ALERT, stringType);
                 scheduleAlertStateRestore(stringType);
             }
         }
 
+    }
+    
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        HueBridgeHandler handler = getHueBridgeHandler();
+        if (handler != null) {
+            onLightStateChanged(null, handler.getLightById(lightId));
+        }
     }
 
     @Override
@@ -347,7 +355,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     }
 
     /**
-     * Schedules restoration of the alert item state to {@link LightStateConverter#ALERT_MODE_NONE} after a given time.<br>
+     * Schedules restoration of the alert item state to {@link LightStateConverter#ALERT_MODE_NONE} after a given time.
+     * <br>
      * Based on the initial command:
      * <ul>
      * <li>For {@link LightStateConverter#ALERT_MODE_SELECT} restoration will be triggered after <strong>2
@@ -356,7 +365,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
      * seconds</strong>.
      * </ul>
      * This method also cancels any previously scheduled restoration.
-     * 
+     *
      * @param command
      *            The {@link Command} sent to the item
      */
@@ -369,8 +378,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
                 @Override
                 public void run() {
-                    updateState(new ChannelUID(getThing().getUID(), CHANNEL_ALERT), new StringType(
-                            LightStateConverter.ALERT_MODE_NONE));
+                    updateState(CHANNEL_ALERT, new StringType(LightStateConverter.ALERT_MODE_NONE));
                 }
             }, delay, TimeUnit.MILLISECONDS);
         }
@@ -389,7 +397,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     /**
      * This method returns the time in <strong>milliseconds</strong> after
      * which, the state of the alert item has to be restored to {@link LightStateConverter#ALERT_MODE_NONE}.
-     * 
+     *
      * @param command
      *            The initial command sent to the alert item.
      * @return Based on the initial command will return:

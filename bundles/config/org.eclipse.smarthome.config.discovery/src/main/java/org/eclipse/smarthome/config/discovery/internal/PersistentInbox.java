@@ -152,6 +152,11 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
                     thingTypeUID);
             return null;
         }
+        if (label != null && !label.isEmpty()) {
+            newThing.setLabel(label);
+        } else {
+            newThing.setLabel(result.getLabel());
+        }
         addThingSafely(newThing);
         return newThing;
     }
@@ -285,8 +290,9 @@ public final class PersistentInbox implements Inbox, DiscoveryListener, ThingReg
             Collection<ThingTypeUID> thingTypeUIDs) {
         HashSet<ThingUID> removedThings = new HashSet<>();
         for (DiscoveryResult discoveryResult : getAll()) {
-            ThingUID thingUID = discoveryResult.getThingUID();
-            if (thingTypeUIDs.contains(thingUID.getThingTypeUID()) && discoveryResult.getTimestamp() < timestamp) {
+            if (thingTypeUIDs.contains(discoveryResult.getThingTypeUID())
+                    && discoveryResult.getTimestamp() < timestamp) {
+                ThingUID thingUID = discoveryResult.getThingUID();
                 removedThings.add(thingUID);
                 remove(thingUID);
                 logger.debug("Removed {} from inbox because it was older than {}", thingUID, new Date(timestamp));

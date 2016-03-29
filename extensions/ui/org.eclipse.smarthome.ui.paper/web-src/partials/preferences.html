@@ -1,14 +1,12 @@
 <section id="main" class="white-bg">
 	<div class="content">
 		<div class="header-toolbar">
-			<md-button class="md-icon-close" ng-click="navigateToRoot()"
-				aria-label="Close"></md-button>
+			<md-button ng-click="navigateToRoot()" aria-label="Close"> <i class="material-icons">close</i></md-button>
 		</div>
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button title="Save" ng-click="save()"
-						class="md-fab md-icon-check" aria-label="Save"></md-button>
+					<md-button title="Save" ng-click="save()" class="md-fab" aria-label="Save"> <i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>
@@ -19,19 +17,15 @@
 
 			<form class="form" role="form">
 				<div class="form-group">
-					<md-select placeholder="Language" ng-model="language">
-					<md-option value="en">English</md-option> <md-option value="de">German</md-option>
-					</md-select>
+					<md-select placeholder="Language" ng-model="language"> <md-option value="en">English</md-option> <md-option value="de">German</md-option> </md-select>
 					<p class="hint">
-						<small>Configure language for Binding texts (UI is not
-							localized yet)</small>
+						<small>Configure language for Binding texts (UI is not localized yet)</small>
 					</p>
 				</div>
 				<div class="form-group">
 					<md-checkbox ng-model="advancedMode">Advanced Mode</md-checkbox>
 					<p class="hint">
-						<small>When using advanced mode mode channels will not be enabled
-							automatically.</small>
+						<small>When using advanced mode mode channels will not be enabled automatically.</small>
 					</p>
 				</div>
 			</form>

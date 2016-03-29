@@ -36,7 +36,8 @@ public class Activator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         this.context = bundleContext;
-        this.moduleHandlerFactory = new BasicModuleHandlerFactory(context);
+        this.moduleHandlerFactory = new BasicModuleHandlerFactory();
+        this.moduleHandlerFactory.activate(context);
         this.factoryRegistration = bundleContext.registerService(ModuleHandlerFactory.class.getName(),
                 this.moduleHandlerFactory, null);
         logger.debug("started bundle automation.module");

@@ -7,11 +7,13 @@
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.template.Template;
@@ -21,6 +23,7 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.slf4j.Logger;
@@ -30,10 +33,11 @@ import org.slf4j.LoggerFactory;
  * This class is responsible for tracking the bundles providing automation resources and delegating the processing to
  * the responsible providers in separate thread.
  *
- * @author Ana Dimova - Initial Contribution
+ * @author Ana Dimova - Initial Contribution, host-fragment support
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
+@SuppressWarnings("deprecation")
 class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer<Object> {
 
     /**
@@ -87,6 +91,10 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     private AbstractResourceBundleProvider<Rule> rImporter;
 
+    private Map<Bundle, List<Bundle>> hostFragmentMapping = new HashMap<Bundle, List<Bundle>>();
+
+    private PackageAdmin pkgAdmin;
+
     /**
      * This constructor is responsible for initializing the tracker for bundles providing automation resources and their
      * providers.
@@ -102,6 +110,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         this.mProvider = mProvider;
         this.rImporter = rImporter;
         bTracker = new BundleTracker<Object>(bc, ~Bundle.UNINSTALLED, this);
+        pkgAdmin = bc.getService(bc.getServiceReference(PackageAdmin.class));
     }
 
     /**
@@ -154,8 +163,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
                 processBundleChanged(events.next());
             }
             synchronized (this) {
-                if (shared)
+                if (shared) {
                     queue.clear();
+                }
                 shared = false;
                 waitForEvents = true;
                 notifyAll();
@@ -194,9 +204,19 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
     @Override
     public Object addingBundle(Bundle bundle, BundleEvent event) {
         if (isAnAutomationProvider(bundle)) {
-            addEvent(event == null ? new BundleEvent(BundleEvent.INSTALLED, bundle) : event);
+            if (isFragmentBundle(bundle)) {
+                List<Bundle> hosts = returnHostBundles(bundle);
+                if (needToProcessFragment(bundle, hosts)) {
+                    addEvent(bundle, event);
+                    fillHostFragmentMapping(hosts);
+                }
+            } else {
+                addEvent(bundle, event);
+                fillHostFragmentMapping(bundle);
+            }
+            return bundle;
         }
-        return bundle;
+        return null;
     }
 
     /**
@@ -213,8 +233,9 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     @Override
     public void modifiedBundle(Bundle bundle, BundleEvent event, Object object) {
-        if (event.getType() == BundleEvent.UPDATED && isAnAutomationProvider(bundle)) {
-            addEvent(event);
+        int type = event.getType();
+        if (type == BundleEvent.UPDATED || type == BundleEvent.RESOLVED) {
+            addEvent(bundle, event);
         }
     }
 
@@ -232,9 +253,16 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     @Override
     public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
-        if (!closed) {
-            if (isAnAutomationProvider(bundle)) {
-                addEvent(event);
+        if (mProvider.isProviderProcessed(bundle) || tProvider.isProviderProcessed(bundle)
+                || rImporter.isProviderProcessed(bundle)) {
+            addEvent(bundle, event);
+        }
+        if (isFragmentBundle(bundle)) {
+            for (Entry<Bundle, List<Bundle>> entry : hostFragmentMapping.entrySet()) {
+                if (entry.getValue().contains(bundle)) {
+                    Bundle host = entry.getKey();
+                    addEvent(host, new BundleEvent(BundleEvent.UPDATED, host));
+                }
             }
         }
     }
@@ -248,8 +276,88 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      *         resources, <tt>false</tt> otherwise.
      */
     private boolean isAnAutomationProvider(Bundle bundle) {
-        URL url = bundle.getEntry(AbstractResourceBundleProvider.PATH);
-        return url != null && !isFragmentBundle(bundle);
+        return bundle.findEntries(AbstractResourceBundleProvider.PATH, null, false) != null;
+    }
+
+    /**
+     * This method is used to get the host bundles of the parameter which is a fragment bundle.
+     *
+     * @param bundle an OSGi fragment bundle.
+     * @return a list with the hosts of the <code>fragment</code> parameter.
+     */
+    private List<Bundle> returnHostBundles(Bundle fragment) {
+        List<Bundle> hosts = new ArrayList<Bundle>();
+        // R5 version of the code --->>>
+        // BundleWiring wiring = fragment.adapt(BundleWiring.class);
+        // if (wiring == null) {
+        // for (Entry<Bundle, List<Bundle>> entry : hostFragmentMapping.entrySet()) {
+        // if (entry.getValue().contains(fragment)) {
+        // Bundle host = entry.getKey();
+        // hosts.add(host);
+        // }
+        // }
+        // } else {
+        // List<BundleWire> wires = wiring.getRequiredWires(HostNamespace.HOST_NAMESPACE);
+        // if (wires != null && !wires.isEmpty()) {
+        // for (BundleWire wire : wires) {
+        // hosts.add(wire.getProvider().getBundle());
+        // }
+        // }
+        // }
+
+        // R4 version of the code --->>>
+        Bundle[] bundles = pkgAdmin.getHosts(fragment);
+        if (bundles != null) {
+            for (int i = 0; i < bundles.length; i++) {
+                hosts.add(bundles[i]);
+            }
+        }
+        return hosts;
+    }
+
+    private void fillHostFragmentMapping(Bundle host) {
+        List<Bundle> fragments = new ArrayList<Bundle>();
+        // R5 version of the code --->>>
+        // BundleWiring wiring = host.adapt(BundleWiring.class);
+        // List<BundleWire> wires = wiring.getProvidedWires(HostNamespace.HOST_NAMESPACE);
+        // if (wires == null || wires.isEmpty()) {
+        // return;
+        // }
+        // for (BundleWire wire : wires) {
+        // fragments.add(wire.getRequirer().getBundle());
+        // }
+
+        // R4 version of the code --->>>
+        Bundle[] bundles = pkgAdmin.getFragments(host);
+        if (bundles != null) {
+            for (int i = 0; i < bundles.length; i++) {
+                fragments.add(bundles[i]);
+            }
+        }
+        synchronized (hostFragmentMapping) {
+            hostFragmentMapping.put(host, fragments);
+        }
+    }
+
+    private void fillHostFragmentMapping(List<Bundle> hosts) {
+        for (Bundle host : hosts) {
+            fillHostFragmentMapping(host);
+        }
+    }
+
+    private boolean needToProcessFragment(Bundle fragment, List<Bundle> hosts) {
+        if (hosts.isEmpty()) {
+            return false;
+        }
+        synchronized (hostFragmentMapping) {
+            for (Bundle host : hosts) {
+                List<Bundle> fragments = hostFragmentMapping.get(host);
+                if (fragments != null && fragments.contains(fragment)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private boolean isFragmentBundle(Bundle bundle) {
@@ -262,26 +370,43 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      * creation of a new thread if there is no other created yet and starting the thread. If the thread already exists,
      * it is waiting for events and will be notified for the event.
      *
+     * @param bundle
+     *
      * @param event for a bundle tracked by the {@code BundleTracker}. It has been for adding, modifying or removing the
      *            bundle.
      */
-    private synchronized void addEvent(BundleEvent event) {
-        if (closed)
+    private synchronized void addEvent(Bundle bundle, BundleEvent event) {
+        if (closed) {
             return;
+        }
         if (shared) {
             queue = new ArrayList<BundleEvent>();
             shared = false;
         }
+        if (event == null) {
+            event = initializeEvent(bundle);
+        }
         if (queue.add(event)) {
             logger.debug("Process bundle event {}, for automation bundle '{}' ", event.getType(),
                     event.getBundle().getSymbolicName());
-            if (running)
+            if (running) {
                 notifyAll();
-            else {
+            } else {
                 Thread th = new Thread(this, "Automation Provider Processing Queue");
                 th.start();
                 running = true;
             }
+        }
+    }
+
+    private BundleEvent initializeEvent(Bundle bundle) {
+        switch (bundle.getState()) {
+            case Bundle.INSTALLED:
+                return new BundleEvent(BundleEvent.INSTALLED, bundle);
+            case Bundle.RESOLVED:
+                return new BundleEvent(BundleEvent.RESOLVED, bundle);
+            default:
+                return new BundleEvent(BundleEvent.STARTED, bundle);
         }
     }
 
@@ -299,42 +424,65 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
      */
     private void processBundleChanged(BundleEvent event) {
         Bundle bundle = event.getBundle();
-        switch (event.getType()) {
-            case BundleEvent.UPDATED:
-                if (!mProvider.isProviderProcessed(bundle)) {
-                    mProvider.processAutomationProviderUninstalled(bundle);
-                    mProvider.processAutomationProvider(bundle);
-                }
-                if (!tProvider.isProviderProcessed(bundle)) {
-                    tProvider.processAutomationProviderUninstalled(bundle);
-                    tProvider.processAutomationProvider(bundle);
-                }
-                if (!rImporter.isProviderProcessed(bundle)) {
-                    rImporter.processAutomationProviderUninstalled(bundle);
-                    rImporter.processAutomationProvider(bundle);
-                }
-                break;
-            case BundleEvent.UNINSTALLED:
-                if (!mProvider.isProviderProcessed(bundle)) {
-                    mProvider.processAutomationProviderUninstalled(bundle);
-                }
-                if (!tProvider.isProviderProcessed(bundle)) {
-                    tProvider.processAutomationProviderUninstalled(bundle);
-                }
-                if (!rImporter.isProviderProcessed(bundle)) {
-                    rImporter.processAutomationProviderUninstalled(bundle);
-                }
-                break;
-            default:
-                if (!mProvider.isProviderProcessed(bundle)) {
-                    mProvider.processAutomationProvider(bundle);
-                }
-                if (!tProvider.isProviderProcessed(bundle)) {
-                    tProvider.processAutomationProvider(bundle);
-                }
-                if (!rImporter.isProviderProcessed(bundle)) {
-                    rImporter.processAutomationProvider(bundle);
-                }
+        if (isFragmentBundle(bundle)) {
+            processFragmentBundleUpdated(returnHostBundles(bundle));
+        } else {
+            switch (event.getType()) {
+                case BundleEvent.UPDATED:
+                    processBundleUpdated(bundle);
+                    break;
+                case BundleEvent.UNINSTALLED:
+                    processBundleUninstalled(bundle);
+                    break;
+                default:
+                    processBundleDefault(bundle);
+            }
+        }
+    }
+
+    private void processFragmentBundleUpdated(List<Bundle> hosts) {
+        for (Bundle host : hosts) {
+            processBundleUpdated(host);
+        }
+    }
+
+    private void processBundleUpdated(Bundle bundle) {
+        if (mProvider.isProviderProcessed(bundle)) {
+            mProvider.processAutomationProviderUninstalled(bundle);
+        }
+        mProvider.processAutomationProvider(bundle);
+        if (tProvider.isProviderProcessed(bundle)) {
+            tProvider.processAutomationProviderUninstalled(bundle);
+        }
+        tProvider.processAutomationProvider(bundle);
+        if (rImporter.isProviderProcessed(bundle)) {
+            rImporter.processAutomationProviderUninstalled(bundle);
+        }
+        rImporter.processAutomationProvider(bundle);
+    }
+
+    private void processBundleUninstalled(Bundle bundle) {
+        if (mProvider.isProviderProcessed(bundle)) {
+            mProvider.processAutomationProviderUninstalled(bundle);
+        }
+        if (tProvider.isProviderProcessed(bundle)) {
+            tProvider.processAutomationProviderUninstalled(bundle);
+        }
+        if (rImporter.isProviderProcessed(bundle)) {
+            rImporter.processAutomationProviderUninstalled(bundle);
+        }
+        hostFragmentMapping.remove(bundle);
+    }
+
+    private void processBundleDefault(Bundle bundle) {
+        if (!mProvider.isProviderProcessed(bundle)) {
+            mProvider.processAutomationProvider(bundle);
+        }
+        if (!tProvider.isProviderProcessed(bundle)) {
+            tProvider.processAutomationProvider(bundle);
+        }
+        if (!rImporter.isProviderProcessed(bundle)) {
+            rImporter.processAutomationProvider(bundle);
         }
     }
 }

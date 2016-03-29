@@ -8,8 +8,8 @@ skinparam state {
   EndColor #01324D
 }
 [*] -up-> UNINITIALIZED
-UNINITIALIZED -up-> INITIALIZING
-INITIALIZING -down-> UNINITIALIZED
+UNINITIALIZED -right-> INITIALIZING
+INITIALIZING -left-> UNINITIALIZED
 INITIALIZING -right-> initialized
 
 state initialized {

@@ -24,12 +24,12 @@ Import-Package: com.google.common.base,
  org.eclipse.smarthome.io.console.extensions,
  org.jupnp;resolution:=optional,
  org.jupnp.controlpoint;resolution:=optional,
+ org.jupnp.model.message.header;resolution:=optional,
  org.jupnp.model.meta;resolution:=optional,
  org.jupnp.registry;resolution:=optional,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.component,
- org.osgi.util.tracker,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
 Export-Package: org.eclipse.smarthome.config.discovery,

@@ -25,12 +25,21 @@ Things represent devices or services that can be individually added to, configur
     </thing-type>
 ```
 
+Bindings may optionally set the listing of a thing type. By doing do, they indicate to user interfaces whether it should be shown to the users or not, e.g. when pairing things manually:
+
+```xml
+    <thing-type id="thingTypeID" listed="false">
+        ...
+    </thing-type>
+``` 
+
+Thing types are listed by default, unless specified otherwise. Hiding thing types potentially makes sense if they are deprecated and should not be used anymore. Also, this can be useful if users should not be bothered with distinguishing similar devices which for technical reasons have to have separate thing types. In that way, a generic thing type could be listed for users and a corresponding thing handler would change the thing type immediately to a more concrete one, handing over control to the correct specialized handler.
 
 ## Channels
 
 A channel describes a specific functionality of a thing and can be linked to an item. So the basic information is, which command types the channel can handle and which state it sends to the linked item. This can be specified by the accepted item type. Inside the thing type description XML file a list of channels can be referenced. The channel type definition is specified on the same level as the thing type definition. That way channels can be reused in different things.
 
-The following XML snippet shows a thing type definition with 2 channels and one referenced channel types:
+The following XML snippet shows a thing type definition with 2 channels and one referenced channel type:
 
 ```xml 
 <thing-type id="thingTypeID">
@@ -77,7 +86,7 @@ There exist systemwide channels that are available by default:
 | Channel Type ID | Reference typeId       | Item Type    | Category         | Description  |
 |-----------------|------------------------|--------------|----------------- |------------- |
 | signal-strength | system.signal-strength | Number       | QualityOfService | Represents signal strength of a device as a Number with values 0, 1, 2, 3 or 4; 0 being worst strength and 4 being best strength.  |
-| low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off |
+| low-battery     | system.low-battery     | Switch       | Battery          | Represents a low battery warning with possible values on/off. |
 | battery-level   | system.battery-level   | Number       | Battery          | Represents the battery level as a percentage (0-100%). Bindings for things supporting battery level in a different format (eg 4 levels) should convert to a percentage to provide a consistent battery level reading. |
 
 
@@ -87,7 +96,7 @@ In the following sections the declaration and semantics of tags, state descripti
 
 ### Default Tags
 
-The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows an weather tag definition:
+The XML definition of a ThingType allows to assign default tags to channels. All items bound to this channel will automatically be tagged with these default tags. The following snippet shows a weather tag definition:
 
 ```xml 
 <tags>
@@ -162,7 +171,7 @@ R=Read, RW=Read/Write
 
 The accessible mode indicates whether a category could have `read only` flag configured to true or not. For example the `Motion` category can be used for sensors only, so `read only` can not be false. Temperature can be either measured or adjusted, so the accessible mode is R and RW, which means the read only flag can be `true` or `false`. In addition categories are related to specific item types. For example the 'Energy' category can only be used for `Number` items. But `Rain` could be either expressed as Switch item, where it only indicates if it rains or not, or as `Number`, which gives information about the rain intensity.
 
-The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
+The list of categories may not be complete and not every device will fit into one of these categories. It is possible to define own categories. If the category is widely used, the list of predefined categories can be extended. Moreover, not all user interfaces will support all categories. It is more important to specify the `read only` information and state information, so that default controls can be rendered, even if the category is not supported.
 
 ### Channel Groups
 
@@ -181,7 +190,7 @@ Inside the thing types XML file channel groups can be defined like this:
 </thing-type>    
 ```
 
-The channel group type is defined on the same level as the thing types and channel types. The group type must have a label and an optional description. More over the list of contained channels must be specified:
+The channel group type is defined on the same level as the thing types and channel types. The group type must have a label and an optional description. Moreover the list of contained channels must be specified:
 
 ```xml
 <channel-group-type id="switchActor">
@@ -193,17 +202,17 @@ The channel group type is defined on the same level as the thing types and chann
 </channel-group-type> 
 ```
 
-When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
+When a thing will be created for a thing type with channel groups, the channel UID will contain the group ID in the last segment divided by a hash (#). If an Item should be linked to a channel within a group, the channel UID would be `binding:multiChannelSwitchActor:myDevice:switchActor1#switch` for the XML example before.
 
 ## Properties
-Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include 
+Solutions based on Eclipse SmartHome might require meta data from a device. These meta data could include: 
 
 - general device information, e.g. the device vendor, the device series or the model ID, ...
 - device characteristics, e.g. if it is battery based, which home automation protocol is used, what is the current firmware version or the serial number, ...
 - physical descriptions, e.g. what is the size, the weight or the color of the device, ...
 - any other meta data that should be made available for the solution by the binding
 
-Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on an user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called `properties`:
+Depending on the solution the provided meta data can be used for different purposes. Among others the one solution could use the data during a device pairing process whereas another solution might use the data to group the devices/things by the vendors or by the home automation protocols on a user interface. To define such thing meta data the thing type definition provides the possibility to specify so-called `properties`:
 
 ```xml 
     <thing-type id="thingTypeId">
@@ -221,8 +230,8 @@ Depending on the solution the provided meta data can be used for different purpo
 In general each `property` must have a name attribute which should be written in camel case syntax. The actual property value is defined as plain text and is placed as child node of the property element. It is recommended that at least the vendor and the model id properties are specified here since they should be definable for the most of the devices. In contrast to the properties defined in the 'ThingType' definitions the thing handler [documentation](thing-handler.html) explains how properties can be set during runtime.
 
 ## Formatting Labels and Descriptions
-The label and descriptions for things, channels and config descriptions should follow the following format. The label should be short so that for most UIs it does not spread across multiple lines. The description can contain longer text to describe the thing in more detail. Limited use of HTML tags is permitted to enhance the description - if a long description is provided, the first line should be kept short, and a line break (```<br>```) placed at the end of the line to allow UIs to display a short description in limited space.
+The label and descriptions for things, channels and config descriptions should follow the following format. The label should be short so that for most UIs it does not spread across multiple lines. The description can contain longer text to describe the thing in more detail. Limited use of HTML tags is permitted to enhance the description - if a long description is provided, the first line should be kept short, and a line break (```<br />```) placed at the end of the line to allow UIs to display a short description in limited space.
 
 Configuration options should be kept short so that they are displayable in a single line in most UIs. If you want to provide a longer description of the options provided by a particular parameter, then this should be placed into the ```<description>``` of the parameter to keep the option label short. The description can include limited HTML to enhance the display of this information.
 
-The following HTML tags are allowed -: ```<b>, <br>, <em>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <i>, <p>, <small>, <strong>, <sub>, <sup>, <ul>, <ol>, <li>```. These must be inside the XML escape sequence - eg - ```<description><![CDATA[ HTML marked up text here ]]></description>```.
+The following HTML tags are allowed : ```<b>, <br />, <em>, <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <i>, <p>, <small>, <strong>, <sub>, <sup>, <ul>, <ol>, <li>```. These must be inside the XML escape sequence - eg. ```<description><![CDATA[ HTML marked up text here ]]></description>```.

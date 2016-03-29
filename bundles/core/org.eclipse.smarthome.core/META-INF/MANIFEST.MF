@@ -31,7 +31,7 @@ Bundle-License: http://www.eclipse.org/legal/epl-v10.html
 Import-Package: com.google.common.base,
  com.google.common.collect,
  com.google.gson,
- org.apache.commons.io,
+ javax.xml.bind,
  org.apache.commons.lang,
  org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.binding.dto,
@@ -51,9 +51,7 @@ Import-Package: com.google.common.base,
  org.osgi.framework,
  org.osgi.service.component,
  org.osgi.service.event,
- org.osgi.service.log,
  org.osgi.util.tracker,
- javax.xml.bind,
  org.slf4j
 Bundle-SymbolicName: org.eclipse.smarthome.core
 Bundle-Activator: org.eclipse.smarthome.core.internal.CoreActivator

@@ -10,8 +10,12 @@ package org.eclipse.smarthome.core.items;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.core.common.registry.AbstractManagedProvider;
@@ -56,6 +60,8 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     private Collection<ItemFactory> itemFactories = new CopyOnWriteArrayList<ItemFactory>();
 
+    private final Map<String, PersistedItem> failedToCreate = new ConcurrentHashMap<>();
+
     /**
      * Removes an item and it´s member if recursive flag is set to true.
      *
@@ -96,7 +102,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
     }
 
     private GenericItem createItem(String itemType, String itemName) {
-
         for (ItemFactory factory : this.itemFactories) {
             GenericItem item = factory.createItem(itemType, itemName);
             if (item != null) {
@@ -123,6 +128,29 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
 
     protected void addItemFactory(ItemFactory itemFactory) {
         itemFactories.add(itemFactory);
+
+        if (failedToCreate.size() > 0) {
+            // retry failed creation attempts
+            Iterator<Entry<String, PersistedItem>> iterator = failedToCreate.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Entry<String, PersistedItem> entry = iterator.next();
+                String itemName = entry.getKey();
+                PersistedItem persistedItem = entry.getValue();
+                ActiveItem item = itemFactory.createItem(persistedItem.itemType, itemName);
+                if (item != null) {
+                    iterator.remove();
+                    configureItem(persistedItem, item);
+                    notifyListenersAboutAddedElement(item);
+                } else {
+                    logger.debug("The added item factory '{}' still could not instantiate item '{}'.", itemFactory,
+                            itemName);
+                }
+            }
+
+            if (failedToCreate.isEmpty()) {
+                logger.info("Finished loading the items which could not have been created before.");
+            }
+        }
     }
 
     @Override
@@ -159,6 +187,18 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             item = createItem(persistedItem.itemType, itemName);
         }
 
+        configureItem(persistedItem, item);
+
+        if (item == null) {
+            failedToCreate.put(itemName, persistedItem);
+            logger.debug("Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
+                    itemName, persistedItem.itemType);
+        }
+
+        return item;
+    }
+
+    private void configureItem(PersistedItem persistedItem, ActiveItem item) {
         if (item != null) {
             List<String> groupNames = persistedItem.groupNames;
             if (groupNames != null) {
@@ -177,13 +217,6 @@ public class ManagedItemProvider extends AbstractManagedProvider<Item, String, P
             item.setLabel(persistedItem.label);
             item.setCategory(persistedItem.category);
         }
-
-        if (item == null) {
-            logger.debug("Couldn't restore item '{}' of type '{}' ~ there is no appropriate ItemFactory available.",
-                    itemName, persistedItem.itemType);
-        }
-
-        return item;
     }
 
     @Override

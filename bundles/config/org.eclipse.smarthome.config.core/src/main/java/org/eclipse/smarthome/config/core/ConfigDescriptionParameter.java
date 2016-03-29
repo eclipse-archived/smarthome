@@ -9,9 +9,12 @@ package org.eclipse.smarthome.config.core;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The {@link ConfigDescriptionParameter} class contains the description of a
@@ -25,6 +28,7 @@ import java.util.List;
  *         multipleLimit attributes
  * @author Christoph Knauf - Added default constructor, changed Boolean
  *         getter to return primitive types
+ * @author Thomas Höfer - Added unit
  */
 public class ConfigDescriptionParameter {
 
@@ -73,6 +77,8 @@ public class ConfigDescriptionParameter {
     private boolean readOnly = false;
     private boolean multiple = false;
     private Integer multipleLimit;
+    private String unit;
+    private String unitLabel;
 
     private String context;
     private String defaultValue;
@@ -85,9 +91,14 @@ public class ConfigDescriptionParameter {
     private boolean limitToOptions = false;
     private boolean advanced = false;
 
+    private static final Set<String> UNITS = Collections
+            .unmodifiableSet(new HashSet<String>(Arrays.asList("A", "cd", "K", "kg", "m", "mol", "s", "g", "rad", "sr",
+                    "Hz", "N", "Pa", "J", "W", "C", "V", "F", "Ω", "S", "Wb", "T", "H", "Cel", "lm", "lx", "Bq", "Gy",
+                    "Sv", "kat", "m/s2", "m2v", "m3", "kph", "%", "l", "min", "h", "d", "week", "y")));
+
     /**
      * Default constructor.
-     * 
+     *
      */
     public ConfigDescriptionParameter() {
     }
@@ -107,7 +118,7 @@ public class ConfigDescriptionParameter {
      */
     public ConfigDescriptionParameter(String name, Type type) throws IllegalArgumentException {
         this(name, type, null, null, null, null, false, false, false, null, null, null, null, null, null, null, false,
-                true, null);
+                true, null, null, null);
     }
 
     /**
@@ -167,15 +178,26 @@ public class ConfigDescriptionParameter {
      * @param multipleLimit
      *            specifies the maximum number of options that can be selected
      *            when multiple is true
+     * @param unit
+     *            specifies the unit of measurements for the configuration parameter (nullable)
+     * @param unitLabel
+     *            specifies the unit label for the configuration parameter. This attribute can also be used to provide
+     *            natural language units as iterations, runs, etc.
      *
      * @throws IllegalArgumentException
-     *             if the name is null or empty, or the type is null
+     *             <ul>
+     *             <li>if the name is null or empty, or the type is null</li>
+     *             <li>if a unit or a unit label is provided for a parameter having type text or boolean</li>
+     *             <li>if an invalid unit was given (cp.
+     *             https://www.eclipse.org/smarthome/documentation/development/bindings/xml-reference.html for the list
+     *             of valid units)</li>
+     *             </ul>
      */
-    public ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum,
-            BigDecimal stepsize, String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context,
-            String defaultValue, String label, String description, List<ParameterOption> options,
-            List<FilterCriteria> filterCriteria, String groupName, Boolean advanced, Boolean limitToOptions,
-            Integer multipleLimit) throws IllegalArgumentException {
+    ConfigDescriptionParameter(String name, Type type, BigDecimal minimum, BigDecimal maximum, BigDecimal stepsize,
+            String pattern, Boolean required, Boolean readOnly, Boolean multiple, String context, String defaultValue,
+            String label, String description, List<ParameterOption> options, List<FilterCriteria> filterCriteria,
+            String groupName, Boolean advanced, Boolean limitToOptions, Integer multipleLimit, String unit,
+            String unitLabel) throws IllegalArgumentException {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
@@ -183,6 +205,14 @@ public class ConfigDescriptionParameter {
 
         if (type == null) {
             throw new IllegalArgumentException("The type must not be null!");
+        }
+
+        if ((type == Type.TEXT || type == Type.BOOLEAN) && (unit != null || unitLabel != null)) {
+            throw new IllegalArgumentException(
+                    "Unit or unit label must only be set for integer or decimal configuration parameters");
+        }
+        if (unit != null && !UNITS.contains(unit)) {
+            throw new IllegalArgumentException("The given unit is invalid.");
         }
 
         this.name = name;
@@ -197,6 +227,8 @@ public class ConfigDescriptionParameter {
         this.label = label;
         this.description = description;
         this.multipleLimit = multipleLimit;
+        this.unit = unit;
+        this.unitLabel = unitLabel;
 
         if (readOnly != null) {
             this.readOnly = readOnly;
@@ -406,6 +438,24 @@ public class ConfigDescriptionParameter {
         return this.filterCriteria;
     }
 
+    /**
+     * Returns the unit of measurements of this parameter.
+     *
+     * @return the unit of measurements of this parameter (could be null)
+     */
+    public String getUnit() {
+        return unit;
+    }
+
+    /**
+     * Returns the unit label of this parameter.
+     *
+     * @return the unit label of this parameter (could be null)
+     */
+    public String getUnitLabel() {
+        return unitLabel;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -473,6 +523,16 @@ public class ConfigDescriptionParameter {
             sb.append(", ");
             sb.append("defaultValue=");
             sb.append(defaultValue);
+        }
+        if (unit != null) {
+            sb.append(", ");
+            sb.append("unit=");
+            sb.append(unit);
+        }
+        if (unitLabel != null) {
+            sb.append(", ");
+            sb.append("unitLabel=");
+            sb.append(unitLabel);
         }
         sb.append("]");
         return sb.toString();

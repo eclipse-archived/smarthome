@@ -12,6 +12,7 @@ import org.eclipse.smarthome.core.common.osgi.ServiceBinder;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Bind;
 import org.eclipse.smarthome.core.common.osgi.ServiceBinder.Unbind;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -22,6 +23,7 @@ import org.osgi.framework.BundleContext;
  */
 public final class Activator implements BundleActivator {
 
+    private static Bundle bundle;
     private static BundleContext bundleContext;
     private static ConfigDescriptionRegistry configDescriptionRegistry;
     private static I18nProvider i18nProvider;
@@ -37,6 +39,7 @@ public final class Activator implements BundleActivator {
     @Override
     public void start(BundleContext context) throws Exception {
         Activator.bundleContext = context;
+        Activator.bundle = context.getBundle();
 
         configDescriptionRegistryServiceBinder = new ServiceBinder(context, new ConfigDescriptionRegistryBinder());
         configDescriptionRegistryServiceBinder.open();
@@ -53,6 +56,7 @@ public final class Activator implements BundleActivator {
     @Override
     public void stop(BundleContext context) throws Exception {
         Activator.bundleContext = null;
+        Activator.bundle = null;
 
         configDescriptionRegistryServiceBinder.close();
         configDescriptionRegistryServiceBinder = null;
@@ -74,26 +78,28 @@ public final class Activator implements BundleActivator {
     }
 
     /**
-     * @return the config description registry
+     * @return the bundle
      *
-     * @throws IllegalStateException if config description registry is not available
+     * @throws IllegalStateException if bundle is not available
+     */
+    public static final Bundle getBundle() {
+        if (bundle == null) {
+            throw new IllegalStateException("There is no bundle");
+        }
+        return bundle;
+    }
+
+    /**
+     * @return the config description registry or null if config description registry is not available
      **/
     public static final ConfigDescriptionRegistry getConfigDescriptionRegistry() {
-        if (configDescriptionRegistry == null) {
-            throw new IllegalStateException("There is no config description registry");
-        }
         return configDescriptionRegistry;
     }
 
     /**
-     * @return the i18nProvider
-     *
-     * @throws IllegalStateException if i18nProvider is not available
+     * @return the i18nProvider or null if i18nProvider is not available
      **/
     public static final I18nProvider getI18nProvider() {
-        if (i18nProvider == null) {
-            throw new IllegalStateException("There is no I18nProivder");
-        }
         return i18nProvider;
     }
 

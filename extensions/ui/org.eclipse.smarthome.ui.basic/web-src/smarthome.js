@@ -491,6 +491,20 @@
 		_t.buttonDown = _t.parentNode.querySelector(o.rollerblind.down);
 		_t.buttonStop = _t.parentNode.querySelector(o.rollerblind.stop);
 
+		_t.hasValue = _t.parentNode.getAttribute("data-has-value") === "true";
+		_t.valueNode = _t.parentNode.parentNode.querySelector(o.formValue);
+		_t.setValuePrivate = function(value) {
+			if (!_t.hasValue) {
+				return;
+			}
+			if (value === "DOWN") {
+				value = "100";
+			} else if (value === "UP") {
+				value = "0";
+			}
+			_t.valueNode.innerHTML = value;
+		};
+
 		function emitEvent(value) {
 			_t.parentNode.dispatchEvent(createEvent(
 				"control-change", {
@@ -499,7 +513,7 @@
 			}));
 		}
 
-		function onMouseDown(command) {
+		function onMouseDown(command, event) {
 			longPress = false;
 			pressed = true;
 
@@ -507,9 +521,12 @@
 				longPress = true;
 				emitEvent(command);
 			}, longpressTimeout);
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
-		function onMouseUp(command) {
+		function onMouseUp(command, event) {
 			clearTimeout(timeout);
 			if (!pressed) {
 				return;
@@ -521,10 +538,16 @@
 			} else {
 				emitEvent(command);
 			}
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
-		function onStop() {
+		function onStop(event) {
 			emitEvent("STOP");
+
+			event.stopPropagation();
+			event.preventDefault();
 		}
 
 		var

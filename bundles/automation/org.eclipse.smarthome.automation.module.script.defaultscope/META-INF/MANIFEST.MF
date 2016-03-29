@@ -19,6 +19,5 @@ Import-Package: com.google.common.collect,
  org.eclipse.smarthome.core.thing,
  org.eclipse.smarthome.core.types,
  org.joda.time;resolution:=optional,
- org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml

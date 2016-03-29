@@ -6,7 +6,7 @@ layout: documentation
 
 # Textual Configuration
 
-Eclipse SmartHome provides the possibility to do fully text-based system setups. This is done using domain specific languages (DSLs) for the different kind of artifacts.
+Eclipse SmartHome provides the possibility to do fully text-based system setups. This is done using domain specific languages (DSLs) for the different kinds of artifacts.
 
 ## Thing Configuration DSL
 
@@ -20,10 +20,10 @@ Things can be defined as followed:
 
 ```
 Thing yahooweather:weather:berlin [ location="638242" ]
-Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=120 ]
+Thing yahooweather:weather:losangeles "Los Angeles" [ location="2442047", unit="us", refresh=120 ]
 ```
 
-The first keyword defines whether the entry is a bridge or a thing. The next statement defines the UID of the thing which contains of the following three segments: binding id, thing type id, thing id. So the first two segments must match to thing type supported by a binding (e.g. `yahooweather:weatheryahooweather`), whereas the thing id can be freely defined. Inside the squared brackets configuration parameter of the thing are defined.
+The first keyword defines whether the entry is a bridge or a thing. The next statement defines the UID of the thing which contains of the following three segments: binding id, thing type id, thing id. So the first two segments must match to thing type supported by a binding (e.g. `yahooweather:weatheryahooweather`), whereas the thing id can be freely defined. Optionally, you may provide a label in order to recognize it easily, otherwise the default label from the thing type will be displayed. Inside the squared brackets configuration parameters of the thing are defined.
 
 The type of the configuration parameter is determined by the binding and must be specified accordingly in the DSL. If the binding requires a text the configuration parameter must be specified as a string: `location="2442047"`. Other types are decimal values (`refresh=12`) and boolean values (`refreshEnabled=true`).
 
@@ -68,4 +68,4 @@ Thing yahooweather:weather:losangeles [ location="2442047", unit="us", refresh=1
 }
 ```
 
-Each channel definition must be placed inside the curly braces and begin with the accepted item type (e.g. String). After this the channel ID follows with the configuration of a channel. The framework will merge the list of channels coming from the binding and the user defined list in the DSL.
+Each channel definition must be placed inside the curly braces and begin with the accepted item type (e.g. String). After this the channel ID follows with the configuration of a channel. The framework will merge the list of channels coming from the binding and the user-defined list in the DSL.

@@ -8,13 +8,16 @@
 package org.eclipse.smarthome.ui.basic.internal.render;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.smarthome.model.sitemap.Frame;
 import org.eclipse.smarthome.model.sitemap.Sitemap;
+import org.eclipse.smarthome.model.sitemap.SitemapProvider;
 import org.eclipse.smarthome.model.sitemap.Widget;
 import org.eclipse.smarthome.ui.basic.internal.WebAppConfig;
 import org.eclipse.smarthome.ui.basic.internal.servlet.WebAppServlet;
@@ -77,7 +80,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         snippet = StringUtils.replace(snippet, "%label%", label);
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
-        snippet = StringUtils.replace(snippet, "%htmlclass%", config.getIconsEnabled() ? "" : "no-icons");
+        snippet = StringUtils.replace(snippet, "%htmlclass%", config.getCssClassList());
         snippet = StringUtils.replace(snippet, "%icon_type%", config.getIconType());
 
         String[] parts = snippet.split("%children%");
@@ -188,5 +191,40 @@ public class PageRenderer extends AbstractWidgetRenderer {
         for (WidgetRenderer renderer : widgetRenderers) {
             renderer.setConfig(config);
         }
+    }
+
+    public CharSequence renderSitemapList(Set<SitemapProvider> sitemapProviders) throws RenderException {
+        List<String> sitemapList = new LinkedList<String>();
+
+        for (SitemapProvider sitemapProvider : sitemapProviders) {
+            Set<String> sitemaps = sitemapProvider.getSitemapNames();
+            for (String sitemap : sitemaps) {
+                if (!sitemap.equals("_default")) {
+                    sitemapList.add(sitemap);
+                }
+            }
+        }
+
+        String pageSnippet = getSnippet("main_static");
+        String listSnippet = getSnippet("sitemaps_list");
+        String sitemapSnippet = getSnippet("sitemaps_list_item");
+
+        StringBuilder sb = new StringBuilder();
+        if (sitemapList.isEmpty()) {
+            sb.append(getSnippet("sitemaps_list_empty"));
+        } else {
+            for (String sitemap : sitemapList) {
+                sb.append(StringUtils.replace(sitemapSnippet, "%sitemap%", sitemap));
+            }
+        }
+
+        listSnippet = StringUtils.replace(listSnippet, "%items%", sb.toString());
+
+        pageSnippet = StringUtils.replace(pageSnippet, "%title%", "openHAB BasicUI");
+        pageSnippet = StringUtils.replace(pageSnippet, "%htmlclass%",
+                config.getCssClassList() + " page-welcome-sitemaps");
+        pageSnippet = StringUtils.replace(pageSnippet, "%content%", listSnippet);
+
+        return pageSnippet;
     }
 }

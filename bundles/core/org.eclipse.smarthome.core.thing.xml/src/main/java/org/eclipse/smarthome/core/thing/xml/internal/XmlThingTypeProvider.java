@@ -168,15 +168,16 @@ public class XmlThingTypeProvider implements ThingTypeProvider {
             if (thingType instanceof BridgeType) {
                 BridgeType bridgeType = (BridgeType) thingType;
                 BridgeType localizedBridgeType = new BridgeType(bridgeType.getUID(),
-                        bridgeType.getSupportedBridgeTypeUIDs(), label, description, localizedChannelDefinitions,
-                        localizedChannelGroupDefinitions, thingType.getProperties(),
+                        bridgeType.getSupportedBridgeTypeUIDs(), label, description, thingType.isListed(),
+                        localizedChannelDefinitions, localizedChannelGroupDefinitions, thingType.getProperties(),
                         bridgeType.getConfigDescriptionURI());
                 localizedThingTypeCache.put(localizedThingTypeKey, localizedBridgeType);
                 return localizedBridgeType;
             } else {
                 ThingType localizedThingType = new ThingType(thingType.getUID(), thingType.getSupportedBridgeTypeUIDs(),
-                        label, description, localizedChannelDefinitions, localizedChannelGroupDefinitions,
-                        thingType.getProperties(), thingType.getConfigDescriptionURI());
+                        label, description, thingType.isListed(), localizedChannelDefinitions,
+                        localizedChannelGroupDefinitions, thingType.getProperties(),
+                        thingType.getConfigDescriptionURI());
                 localizedThingTypeCache.put(localizedThingTypeKey, localizedThingType);
                 return localizedThingType;
             }

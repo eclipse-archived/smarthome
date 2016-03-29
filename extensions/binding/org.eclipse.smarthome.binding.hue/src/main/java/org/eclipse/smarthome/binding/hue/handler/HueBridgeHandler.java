@@ -10,6 +10,7 @@ package org.eclipse.smarthome.binding.hue.handler;
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,9 +60,13 @@ import nl.q42.jue.exceptions.UnauthorizedException;
  */
 public class HueBridgeHandler extends BaseBridgeHandler {
 
+    private static final String LIGHT_STATE_ADDED = "added";
+
+    private static final String LIGHT_STATE_CHANGED = "changed";
+
     public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections.singleton(THING_TYPE_BRIDGE);
 
-    private static final int POLLING_FREQUENCY = 10; // in seconds
+    private static final int DEFAULT_POLLING_INTERVAL = 10; // in seconds
 
     private static final String DEVICE_TYPE = "EclipseSmartHome";
 
@@ -83,17 +88,8 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                 try {
                     FullConfig fullConfig = bridge.getFullConfig();
                     if (!lastBridgeConnectionState) {
-                        logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
-                        if (getConfig().get(USER_NAME) == null) {
-                            logger.warn("User name for Hue bridge authentication not available in configuration. "
-                                    + "Setting ThingStatus to offline.");
-                            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                                    "User name is not properly configured - please check log files");
-                        } else {
-                            lastBridgeConnectionState = true;
-                            onConnectionResumed(bridge);
-                        }
-                    }
+                        lastBridgeConnectionState = tryResumeBridgeConnection();
+                    } 
                     if (lastBridgeConnectionState) {
                         Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightStates);
                         for (final FullLight fullLight : fullConfig.getLights()) {
@@ -104,27 +100,12 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                                 lastLightStates.put(lightId, fullLight);
                                 if (!isEqual(lastFullLightState, fullLight.getState())) {
                                     logger.debug("Status update for Hue light {} detected.", lightId);
-                                    for (LightStatusListener lightStatusListener : lightStatusListeners) {
-                                        try {
-                                            lightStatusListener.onLightStateChanged(bridge, fullLight);
-                                        } catch (Exception e) {
-                                            logger.error(
-                                                    "An exception occurred while calling the BridgeHeartbeatListener",
-                                                    e);
-                                        }
-                                    }
+                                    notifyLightStatusListeners(fullLight, LIGHT_STATE_CHANGED);
                                 }
                             } else {
                                 lastLightStates.put(lightId, fullLight);
                                 logger.debug("Hue light {} added.", lightId);
-                                for (LightStatusListener lightStatusListener : lightStatusListeners) {
-                                    try {
-                                        lightStatusListener.onLightAdded(bridge, fullLight);
-                                    } catch (Exception e) {
-                                        logger.error("An exception occurred while calling the BridgeHeartbeatListener",
-                                                e);
-                                    }
-                                }
+                                notifyLightStatusListeners(fullLight, LIGHT_STATE_ADDED);
                             }
                         }
                         // Check for removed lights
@@ -254,7 +235,20 @@ public class HueBridgeHandler extends BaseBridgeHandler {
     private synchronized void onUpdate() {
         if (bridge != null) {
             if (pollingJob == null || pollingJob.isCancelled()) {
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, POLLING_FREQUENCY, TimeUnit.SECONDS);
+                int pollingInterval = DEFAULT_POLLING_INTERVAL;
+                try {
+                    Object pollingIntervalConfig = getConfig().get(POLLING_INTERVAL);
+                    if (pollingIntervalConfig != null) {
+                        pollingInterval = ((BigDecimal) pollingIntervalConfig).intValue();
+                    } else {
+                        logger.info("Polling interval not configured for this hue bridge. Using default value: {}s",
+                                pollingInterval);
+                    }
+                } catch (NumberFormatException ex) {
+                    logger.info("Wrong configuration value for polling interval. Using default value: {}s",
+                            pollingInterval);
+                }
+                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 1, pollingInterval, TimeUnit.SECONDS);
             }
         }
     }
@@ -283,6 +277,25 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             if (handler != null) {
                 handler.initialize();
             }
+        }
+    }
+    
+    /**
+     * Check USER_NAME config for null. Call onConnectionResumed() otherwise.
+     * 
+     * @return True if USER_NAME was not null.
+     */
+    private boolean tryResumeBridgeConnection() {
+        logger.debug("Connection to Hue Bridge {} established.", bridge.getIPAddress());
+        if (getConfig().get(USER_NAME) == null) {
+            logger.warn("User name for Hue bridge authentication not available in configuration. "
+                    + "Setting ThingStatus to offline.");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                    "User name is not properly configured - please check log files");
+            return false;
+        } else {
+            onConnectionResumed(bridge);
+            return true;
         }
     }
 
@@ -420,19 +433,68 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
         }
     }
+    
+    /**
+     * Iterate through lightStatusListeners and notify them about a changed ot added light state.
+     * 
+     * @param fullLight
+     * @param type Can be "changed" if just a state has changed or "added" if this is a new light on the bridge.
+     */
+    private void notifyLightStatusListeners(final FullLight fullLight, final String type) {
+        for (LightStatusListener lightStatusListener : lightStatusListeners) {
+            try {
+                switch (type) {
+                    case LIGHT_STATE_ADDED:
+                        lightStatusListener.onLightAdded(bridge, fullLight);
+                        break;
+                    case LIGHT_STATE_CHANGED:
+                        lightStatusListener.onLightStateChanged(bridge, fullLight);
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                "Could not notify lightStatusListeners for unknown event type " + type);
+                }
 
-    private boolean isEqual(State state1, State state2) {
-        try {
-            return state1.getAlertMode().equals(state2.getAlertMode()) && state1.isOn() == state2.isOn()
-                    && state1.getEffect().equals(state2.getEffect()) && state1.getBrightness() == state2.getBrightness()
-                    && state1.getColorMode().equals(state2.getColorMode())
-                    && state1.getColorTemperature() == state2.getColorTemperature()
-                    && state1.getHue() == state2.getHue() && state1.getSaturation() == state2.getSaturation()
-                    && state1.isReachable() == state2.isReachable();
-        } catch (Exception e) {
-            // if a device does not support color, the Jue library throws an NPE
-            // when testing for color-related properties
-            return true;
+            } catch (Exception e) {
+                logger.error("An exception occurred while calling the BridgeHeartbeatListener", e);
+            }
         }
     }
+
+    /**
+     * Because the State can produce NPEs on getColorMode() and getEffect(), at first we check for the common
+     * properties which are set for every light type. If they equal, we additionally try to check the colorMode. If we
+     * get an NPE,
+     * the light does not support color mode and the common properties equality is our result: true. Otherwise if no NPE
+     * occurs
+     * the equality of colorMode is our result.
+     * 
+     * @param state1 Reference state
+     * @param state2 State which is checked for equality.
+     * @return True if the available informations of both states are equal.
+     */
+    private boolean isEqual(State state1, State state2) {
+        boolean commonStateIsEqual = state1.getAlertMode().equals(state2.getAlertMode())
+                && state1.isOn() == state2.isOn() && state1.getBrightness() == state2.getBrightness()
+                && state1.getColorTemperature() == state2.getColorTemperature() && state1.getHue() == state2.getHue()
+                && state1.getSaturation() == state2.getSaturation() && state1.isReachable() == state2.isReachable();
+        if (!commonStateIsEqual) {
+            return false;
+        }
+
+        boolean colorModeIsEqual = true;
+        boolean effectIsEqual = true;
+        try {
+            colorModeIsEqual = state1.getColorMode().equals(state2.getColorMode());
+        } catch (NullPointerException npe) {
+            logger.trace("Light does not support color mode.");
+        }
+        try {
+            effectIsEqual = state1.getEffect().equals(state2.getEffect());
+        } catch (NullPointerException npe) {
+            logger.trace("Light does not support effect.");
+        }
+        return colorModeIsEqual && effectIsEqual;
+    }
+
 }

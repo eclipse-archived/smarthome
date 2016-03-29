@@ -48,13 +48,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.smarthome.io.multimedia"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.smarthome.io.net"
          download-size="0"
          install-size="0"
@@ -224,13 +217,27 @@
 
    <plugin
          id="org.eclipse.smarthome.transform.scale"
-	 download-size="0"
+         download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.smarthome.transform.jsonpath"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.io.audio"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.smarthome.io.voice"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -11,10 +11,12 @@ import java.util.Map;
 
 import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
+import org.eclipse.smarthome.core.thing.ThingStatusInfo;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
@@ -29,6 +31,7 @@ import org.eclipse.smarthome.core.types.State;
  * @author Dennis Nobel - Initial contribution and API
  * @author Michael Grammling - Added dynamic configuration update
  * @auther Thomas Höfer - Added config description validation exception to handleConfigurationUpdate operation
+ * @author Stefan Bußweiler - Added methods to handle bridge handler initializations
  */
 public interface ThingHandler {
 
@@ -101,7 +104,8 @@ public interface ThingHandler {
     void dispose();
 
     /**
-     * This method is called, when the handler is started.
+     * This method is called, when the handler has been registered and all required configuration parameters of the
+     * {@link Thing} are present.
      */
     void initialize();
 
@@ -128,5 +132,38 @@ public interface ThingHandler {
      * @param channelUID UID of the unlinked channel
      */
     void channelUnlinked(ChannelUID channelUID);
+
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was initialized. If the thing of this handler does not have a
+     * bridge, this method is never called.
+     *
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge);
+
+    /**
+     * This method is called, when the according {@link ThingHandler} of the
+     * bridge was disposed. If the thing of this handler does not have a
+     * bridge, this method is never called.
+     *
+     * @param thingHandler
+     *            thing handler of the bridge
+     * @param bridge
+     *            bridge
+     */
+    void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge);
+
+    /**
+     * This method is called, when the status of the bridge has been changed to
+     * {@link ThingStatus#ONLINE} or {@link ThingStatus#OFFLINE}. If the thing
+     * of this handler does not have a bridge, this method is never called.
+     * 
+     * @param thingStatusInfo the status info of the bridge
+     */
+    void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo);
 
 }

@@ -21,6 +21,12 @@ public class ParameterOption {
     private String label;
     private String value;
 
+    /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ParameterOption() {
+    }
+
     public ParameterOption(String value, String label) {
         this.value = value;
         this.label = label;

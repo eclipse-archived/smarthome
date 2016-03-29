@@ -22,7 +22,7 @@
     <module>org.eclipse.smarthome.automation.providers</module>
     <module>org.eclipse.smarthome.automation.core</module>
     <module>org.eclipse.smarthome.automation.core.test</module>
-    <module>org.eclipse.smarthome.automation.sample.handler</module>
+    <module>org.eclipse.smarthome.automation.sample.extension.json</module>
     <module>org.eclipse.smarthome.automation.module.core</module>
     <module>org.eclipse.smarthome.automation.module.core.test</module>
     <module>org.eclipse.smarthome.automation.module.timer</module>
@@ -32,7 +32,9 @@
     <module>org.eclipse.smarthome.automation.module.script.test</module>
     <module>org.eclipse.smarthome.automation.event.test</module>
     <module>org.eclipse.smarthome.automation.integration.test</module>
+    <module>org.eclipse.smarthome.automation.sample.extension.java</module>
     <module>org.eclipse.smarthome.automation.rest</module>
+	<module>org.eclipse.smarthome.automation.sample.rest.api</module>
   </modules>
 
   <build>
@@ -48,20 +50,20 @@
       </plugins>
     </pluginManagement>
   </build>
-  
-<dependencies>
-	<dependency>
-		<groupId>de.twentyeleven.skysail</groupId>
-		<artifactId>org.json-osgi</artifactId>
-		<version>20080701</version>
-	</dependency>
+
+  <dependencies>
+    <dependency>
+      <groupId>de.twentyeleven.skysail</groupId>
+      <artifactId>org.json-osgi</artifactId>
+      <version>20080701</version>
+    </dependency>
 <!--
-	<dependency>
-	<groupId>org.json</groupId>
-	<artifactId>json</artifactId>
-	<version>20141113</version>
-	</dependency>
+  <dependency>
+  <groupId>org.json</groupId>
+  <artifactId>json</artifactId>
+  <version>20141113</version>
+  </dependency>
 -->
 </dependencies>   
-  
+
 </project>

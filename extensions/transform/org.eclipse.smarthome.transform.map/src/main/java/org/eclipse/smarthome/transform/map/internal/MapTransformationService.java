@@ -47,9 +47,12 @@ public class MapTransformationService extends AbstractFileTransformationService<
     @Override
     protected String internalTransform(Properties properties, String source) throws TransformationException {
         String target = properties.getProperty(source);
-        if (target != null) {
-            logger.debug("transformation resulted in '{}'", target);
+
+        if (target == null) {
+            throw new TransformationException("Target value not found in map for '" + source + "'");
         }
+
+        logger.debug("Transformation resulted in '{}'", target);
         return target;
     }
 

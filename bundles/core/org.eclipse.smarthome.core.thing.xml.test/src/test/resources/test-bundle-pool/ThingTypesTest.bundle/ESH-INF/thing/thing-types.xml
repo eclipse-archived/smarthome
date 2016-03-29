@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 org.eclipse.smarthome.thing-description.xsd">
 
 	<!-- HUE Bridge -->
-	<bridge-type id="bridge">
+	<bridge-type id="bridge" listed="false">
 		<label>HUE Bridge</label>
 		<description>The hue Bridge represents the Philips hue bridge.
 		</description>
@@ -32,7 +32,7 @@
 	</bridge-type>
 
 	<!-- HUE Lamp -->
-	<thing-type id="lamp">
+	<thing-type id="lamp" listed="false">
 		<supported-bridge-type-refs>
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>

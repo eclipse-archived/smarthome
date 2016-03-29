@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class PaperUIApp {
 
     public static final String WEBAPP_ALIAS = "/ui";
-    private static final Logger logger = LoggerFactory.getLogger(PaperUIApp.class);
+    private final Logger logger = LoggerFactory.getLogger(PaperUIApp.class);
 
     protected HttpService httpService;
 

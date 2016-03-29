@@ -77,7 +77,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         hueBridge = managedThingProvider.createThing(
                 BRIDGE_THING_TYPE_UID,
                 BRIDGE_THING_UID,
-                null, configuration)
+                null, "Bridge", configuration)
 
         assertThat hueBridge, is(notNullValue())
 

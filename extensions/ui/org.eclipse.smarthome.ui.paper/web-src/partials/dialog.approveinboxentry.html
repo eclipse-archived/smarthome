@@ -1,22 +1,15 @@
 <md-dialog aria-label="Binding Info approve"> <md-dialog-content>
 <h1>{{thingType.label}}</h1>
 <p>
-	You are about to add a new thing <strong>{{discoveryResult.label}}</strong>
-	({{discoveryResult.thingUID}}) from the inbox.
+	You are about to add a new thing <strong>{{discoveryResult.label}}</strong> ({{discoveryResult.thingUID}}) from the inbox.
 </p>
 <div>
-	<md-input-container> <label>Name</label> <input
-		ng-model="label"> </md-input-container>
-</div>
-<div ng-show="!thingType.bridge || thingType.channels.length > 0 || thingType.channelGroups.length > 0" >
-	<md-checkbox ng-repeat="homeGroup in homeGroups"
-		ng-model="groupNames[homeGroup.name]" class="inline">{{homeGroup.label}}</md-checkbox>
-	<p ng-show="homeGroups.length == 0">No groups defined yet.</p>
+	<md-input-container> <label>Name</label> <input ng-model="label"> </md-input-container>
 </div>
 </md-dialog-content>
 
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>
-	<md-button class="md-primary" ng-click="approve(label)">Add
-	As Thing</md-button>
-</div></md-dialog>
+	<md-button class="md-primary" ng-click="approve(label)">Add As Thing</md-button>
+</div>
+</md-dialog>

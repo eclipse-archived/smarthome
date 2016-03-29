@@ -16,6 +16,12 @@ public class ItemChannelLinkDTO extends AbstractLinkDTO {
 
     public String channelUID;
 
+    /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ItemChannelLinkDTO() {
+    }
+
     public ItemChannelLinkDTO(String itemName, String channelUID) {
         super(itemName);
         this.channelUID = channelUID;

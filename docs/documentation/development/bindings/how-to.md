@@ -56,7 +56,7 @@ Every binding needs to define a `binding.xml` file, which is located in the fold
 
 External systems are represented as *Things* in the Eclipse SmartHome runtime. When starting the implementation of an Eclipse SmartHome binding, you should think about the abstraction of your external system. Different services or devices should be represented as individual *Things* described by a *ThingType*. Each functionality of the *Thing* should be modelled as a `Channel`. A binding should define all *ThingTypes* that are supported by that binding.
 
-Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover, supported channels must be specified. For channels it is important to specify which type of *Item* can be linked the *Channel*. Below an excerpt of the Yahoo Weather service *ThingType* definition is shown:
+Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way through XML files. The XML files must be located at `/ESH-INF/thing/`. A *ThingType* definition must contain the UID and optionally a description and a manufacturer. Moreover, supported channels must be specified. For channels it is important to specify which type of *Item* can be linked to the *Channel*. Below an excerpt of the Yahoo Weather service *ThingType* definition is shown:
 
 ```xml
 <thing-type id="weather">
@@ -66,13 +66,13 @@ Eclipse SmartHome allows you to define your *ThingTypes* in a declarative way th
         <channel id="temperature" typeId="temperature" />
     </channels>
     <config-description>
-        <parameter name="location" type="text" required="true">
+        <parameter name="location" type="integer" required="true">
             <label>Location</label>
             <description>Location for the weather information.
                 Syntax is WOEID, see https://en.wikipedia.org/wiki/WOEID.
             </description>
         </parameter>
-        <parameter name="refresh" type="integer">
+        <parameter name="refresh" type="integer" min="1">
             <label>Refresh interval</label>
             <description>Specifies the refresh interval in seconds.</description>
             <default>60</default>
@@ -97,7 +97,7 @@ In order to give user interfaces a chance to render good default UIs for things,
 
 The `ThingHandlerFactory` is responsible for creating `ThingHandler` instances. Every binding must implement a `ThingHandlerFactory` and register it as OSGi service so that the runtime knows which class needs to be called for creating and handling things. From the generated archetype there already exists a `ThingHandlerFactory`, which can be extended with further *ThingTypes*.
 
-When a new *Thing* is added, the Eclipse SmartHome runtime queries every `ThingHandlerFactory` for support of the *ThingType* by calling the `supportsThingType` method. When the method returns `true`, the runtime calls `createHandler`, which should then return a proper `ThingHandler` implementation. This handler will automatically be registered as OSGi service through the base class implementation.
+When a new *Thing* is added, the Eclipse SmartHome runtime queries every `ThingHandlerFactory` for support of the *ThingType* by calling the `supportsThingType` method. When the method returns `true`, the runtime calls `createHandler`, which should then return a proper `ThingHandler` implementation. This handler will automatically be registered as an OSGi service through the base class implementation.
 
 The `YahooWeatherHandlerFactory` supports only one *ThingType* and instantiates a new `YahooWeatherHandler` for a given thing:
 
@@ -159,7 +159,7 @@ When a `RefreshType` command is sent to the `ThingHandler` it updates the weathe
 
 ### Lifecycle
 
-The `ThingHandler` has two important lifecycle methods: `initialize` and `dispose`. The `initialize` method is called when the handler is started and `dispose` just before the handler is stopped. Therefore these methods can used to allocate and deallocate resources. For an example, the Yahoo Weather binding starts and stops a scheduled job within these methods.
+The `ThingHandler` has two important lifecycle methods: `initialize` and `dispose`. The `initialize` method is called when the handler is started and `dispose` just before the handler is stopped. Therefore these methods can be used to allocate and deallocate resources. For an example, the Yahoo Weather binding starts and stops a scheduled job within these methods.
 
 ### Configuration
 
@@ -173,11 +173,11 @@ For example, the Yahoo Weather binding allows configuration of the location and 
 
 *Things* can have properties. If you would like to add meta data to your thing, e.g. the vendor of the thing, then you can define your own thing properties by simply adding them to the thing type definition. The properties section [here](thing-definition.html#Properties) explains how to specify such properties.
 
-To retrieve the properties one can call the operation `getProperties` of the corresponding `org.eclipse.smarthome.core.thing.type.ThingType` instance. If a thing will be created for this thing type then its properties will be automatically copied into the new thing instance. Therefore the `org.eclipse.smarthome.core.thing.Thing` interface provides also the `getProperties` operation to retrieve the defined properties. In contrast to the `getProperties` operation of the thing type instance the result of the thing´s `getProperties` operation will also contain the properties updated during runtime (cp. the thing handler [documentation](thing-handler.html)).
+To retrieve the properties one can call the operation `getProperties` of the corresponding `org.eclipse.smarthome.core.thing.type.ThingType` instance. If a thing will be created for this thing type then its properties will be automatically copied into the new thing instance. Therefore the `org.eclipse.smarthome.core.thing.Thing` interface also provides the `getProperties` operation to retrieve the defined properties. In contrast to the `getProperties` operation of the thing type instance the result of the thing´s `getProperties` operation will also contain the properties updated during runtime (cp. the thing handler [documentation](thing-handler.html)).
 
 ## Bridges
 
-In the domain of an IoT system there are often hierarchical structures of devices and services. For example, one device acts as a gateway that enables communication with other devices that use the same protocol. In Eclipse SmartHome this kind of device or service is called *Bridge*. Philips Hue is one example of a system that requires a bridge. The Hue gateway is an IP device with an HTTP API, which communicates over the ZigBee protocol with the Hue bulbs. In the Eclipse SmartHome model the Hue gateway is represented as a *Bridge* with connected *Things*, that represent the hue bulbs. *Bridge* inherits from *Thing*, so that it also has *Channels* and all other features of a thing, with the addition that it also holds a list of things.
+In the domain of an IoT system there are often hierarchical structures of devices and services. For example, one device acts as a gateway that enables communication with other devices that use the same protocol. In Eclipse SmartHome this kind of device or service is called *Bridge*. Philips Hue is one example of a system that requires a bridge. The Hue gateway is an IP device with an HTTP API, which communicates over the ZigBee protocol with the Hue bulbs. In the Eclipse SmartHome model the Hue gateway is represented as a *Bridge* with connected *Things*, that represent the Hue bulbs. *Bridge* inherits from *Thing*, so that it also has *Channels* and all other features of a thing, with the addition that it also holds a list of things.
 
 When implementing a binding with *Bridges*, the logic to communicate with the external system is often shared between the different `ThingHandler` implementations. In that case it makes sense to implement a handler for the *Bridge* and delegate the actual command execution from the *ThingHandler* to the *BridgeHandler*. To access the *BridgeHandler* from the *ThingHandler*, call `getBridge().getHandler()`
 

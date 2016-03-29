@@ -18,6 +18,7 @@ import org.eclipse.smarthome.config.core.validation.ConfigValidationException
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage
 import org.eclipse.smarthome.config.core.validation.internal.MessageKey
 import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
@@ -28,6 +29,8 @@ import org.osgi.framework.Bundle
  * @author Thomas Höfer - Initial contribution
  */
 class ConfigValidationExceptionTest {
+
+    private Locale defaultLocale
 
     private static final String PARAM1 = "param1"
     private static final String PARAM2 = "param2"
@@ -43,10 +46,10 @@ class ConfigValidationExceptionTest {
     private static final String TXT_EN2 = MessageFormat.format("English 2 with some {0} parameter", MAX)
 
     private static final String TXT_DEFAULT1 = MessageKey.PARAMETER_REQUIRED.defaultMessage
-    private static final String TXT_DEFAULT2 = MessageFormat.format(MessageKey.MAX_VALUE_EXCEEDED.defaultMessage, MAX)
+    private static final String TXT_DEFAULT2 = MessageFormat.format(MessageKey.MAX_VALUE_TXT_VIOLATED.defaultMessage, MAX)
 
     private static final ConfigValidationMessage MSG1 = createMessage(PARAM1, TXT_DEFAULT1, MessageKey.PARAMETER_REQUIRED.key)
-    private static final ConfigValidationMessage MSG2 = createMessage(PARAM2, TXT_DEFAULT2, MessageKey.MAX_VALUE_EXCEEDED.key, [MAX])
+    private static final ConfigValidationMessage MSG2 = createMessage(PARAM2, TXT_DEFAULT2, MessageKey.MAX_VALUE_TXT_VIOLATED.key, [MAX])
 
     private static final List ALL = [
         MSG1,
@@ -60,14 +63,14 @@ class ConfigValidationExceptionTest {
     @Before
     void setUp() {
         Activator.i18nProvider = [
-            getText: { bundle, key, defaultText, locale ->
+            getText: { bundle, key, defaultText, locale, params ->
                 if(MessageKey.PARAMETER_REQUIRED.key.equals(key)) {
                     if(DE.equals(locale)) {
                         TXT_DE1
                     } else {
                         TXT_EN1
                     }
-                } else if(MessageKey.MAX_VALUE_EXCEEDED.key.equals(key)) {
+                } else if(MessageKey.MAX_VALUE_TXT_VIOLATED.key.equals(key)) {
                     if(DE.equals(locale)) {
                         TXT_DE2
                     } else {
@@ -76,10 +79,18 @@ class ConfigValidationExceptionTest {
                 }
             }
         ] as I18nProvider
+
+        defaultLocale = Locale.getDefault()
+        Locale.setDefault(Locale.ENGLISH)
+    }
+
+    @After
+    void tearDown(){
+        Locale.setDefault(defaultLocale)
     }
 
     @Test
-    void 'assert default messages are provided'() {
+    void 'assert that default messages are provided'() {
         ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
 
         Map messages = configValidationException.getValidationMessages();
@@ -90,7 +101,7 @@ class ConfigValidationExceptionTest {
     }
 
     @Test
-    void 'assert internationalized messages are provided'() {
+    void 'assert that internationalized messages are provided'() {
         ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
 
         Map messages = configValidationException.getValidationMessages(DE);
@@ -104,6 +115,25 @@ class ConfigValidationExceptionTest {
         assertThat messages.size(), is(2)
         assertThat messages.get(PARAM1), is(TXT_EN1)
         assertThat messages.get(PARAM2), is(TXT_EN2)
+    }
+
+    @Test
+    void 'assert that default messages are provided if no i18n provider is available'() {
+        Activator.i18nProvider = null
+
+        ConfigValidationException configValidationException = new ConfigValidationException(bundle, ALL)
+
+        Map messages = configValidationException.getValidationMessages(DE);
+
+        assertThat messages.size(), is(2)
+        assertThat messages.get(PARAM1), is(TXT_DEFAULT1)
+        assertThat messages.get(PARAM2), is(TXT_DEFAULT2)
+
+        messages = configValidationException.getValidationMessages(EN)
+
+        assertThat messages.size(), is(2)
+        assertThat messages.get(PARAM1), is(TXT_DEFAULT1)
+        assertThat messages.get(PARAM2), is(TXT_DEFAULT2)
     }
 
     @Test(expected=NullPointerException)

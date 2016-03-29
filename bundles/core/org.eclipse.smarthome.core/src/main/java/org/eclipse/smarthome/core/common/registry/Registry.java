@@ -57,10 +57,11 @@ public interface Registry<E, K> {
      *
      * @param element
      *            element to be added (must not be null)
+     * @return the added element or newly created object of the same type
      * @throws IllegalStateException
      *             if no ManagedProvider is available
      */
-    public void add(E element);
+    public E add(E element);
 
     /**
      * Updates the given element at the according {@link ManagedProvider}.

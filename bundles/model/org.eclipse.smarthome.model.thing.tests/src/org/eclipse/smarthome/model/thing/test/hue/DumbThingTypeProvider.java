@@ -31,8 +31,8 @@ public class DumbThingTypeProvider implements ThingTypeProvider {
         logger.debug("DumbThingTypeProvider created");
         try {
             thingTypes.put(DumbThingHandlerFactory.THING_TYPE_TEST,
-                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", null, null,
-                            null, new URI("dumb", "DUMB", null)));
+                    new ThingType(DumbThingHandlerFactory.THING_TYPE_TEST, null, "DUMB", "Funky Thing", false, null,
+                            null, null, new URI("dumb", "DUMB", null)));
         } catch (Exception e) {
             logger.error(e.getMessage());
         }

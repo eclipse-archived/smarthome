@@ -16,9 +16,9 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.events.Event;
+import org.eclipse.smarthome.core.common.registry.Provider;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.EventSubscriber;
 import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
@@ -29,6 +29,7 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.ManagedThingProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -73,7 +74,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Chris Jackson - Remove children when deleted bridge. Add label/description.
  */
 @Deprecated
-public class ThingSetupManager implements EventSubscriber {
+public class ThingSetupManager implements ProviderChangeListener<Thing> {
 
     public static final String TAG_CHANNEL_GROUP = "channel-group";
     public static final String TAG_HOME_GROUP = "home-group";
@@ -453,6 +454,10 @@ public class ThingSetupManager implements EventSubscriber {
      */
     public void setLabel(ThingUID thingUID, String label) {
         Thing thing = thingRegistry.get(thingUID);
+        if (label != null && !label.equals(thing.getLabel())) {
+            thing.setLabel(label);
+            thingRegistry.update(thing);
+        }
         GroupItem groupItem = thing.getLinkedItem();
         if (groupItem != null) {
             if (label != null && label.equals(groupItem.getLabel())) {
@@ -582,6 +587,7 @@ public class ThingSetupManager implements EventSubscriber {
                     thingTypeUID);
             return null;
         }
+        thing.setLabel(label);
 
         if (properties != null) {
             for (String key : properties.keySet()) {
@@ -727,31 +733,35 @@ public class ThingSetupManager implements EventSubscriber {
         }
     }
 
-    @Override
-    public Set<String> getSubscribedEventTypes() {
-        return subscribedEventTypes;
+    protected void addManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        managedThingProvider.addProviderChangeListener(this);
+    }
+
+    protected void removeManagedThingProvider(ManagedThingProvider managedThingProvider) {
+        managedThingProvider.removeProviderChangeListener(this);
     }
 
     @Override
-    public EventFilter getEventFilter() {
-        return eventFiter;
+    public void added(Provider<Thing> provider, Thing thing) {
     }
 
     @Override
-    public void receive(Event event) {
-        if (event instanceof ThingRemovedEvent) {
-            ThingRemovedEvent thingRemovedEvent = (ThingRemovedEvent) event;
-            ThingUID thingUID = new ThingUID(thingRemovedEvent.getThing().UID);
-            String itemName = toItemName(thingUID);
-            if (itemRegistry.get(itemName) != null) {
-                try {
-                    itemRegistry.remove(itemName, true);
-                    itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
-                    itemChannelLinkRegistry.removeLinksForThing(thingUID);
-                } catch (Exception ex) {
-                    logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);
-                }
+    public void removed(Provider<Thing> provider, Thing thing) {
+        ThingUID thingUID = thing.getUID();
+        String itemName = toItemName(thingUID);
+        if (itemRegistry.get(itemName) != null) {
+            try {
+                itemRegistry.remove(itemName, true);
+                itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
+                itemChannelLinkRegistry.removeLinksForThing(thingUID);
+            } catch (Exception ex) {
+                logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);
             }
         }
     }
+
+    @Override
+    public void updated(Provider<Thing> provider, Thing oldThing, Thing thing) {
+    }
+
 }

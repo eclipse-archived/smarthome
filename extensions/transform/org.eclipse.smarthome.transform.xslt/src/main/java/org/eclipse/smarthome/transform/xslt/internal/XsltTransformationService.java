@@ -27,12 +27,12 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The implementation of {@link TransformationService} which transforms the input by XSLT.
  * </p>
- * 
+ *
  * @author Thomas.Eichstaedt-Engelen
  */
 public class XsltTransformationService implements TransformationService {
 
-    static final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
+    private final Logger logger = LoggerFactory.getLogger(XsltTransformationService.class);
 
     /**
      * <p>
@@ -40,15 +40,15 @@ public class XsltTransformationService implements TransformationService {
      * is stored under the 'configurations/transform' folder. To organize the various transformations one should use
      * subfolders.
      * </p>
-     * 
+     *
      * @param filename
      *            the name of the file which contains the XSLT transformation rule. The name may contain subfoldernames
      *            as well
      * @param source
      *            the input to transform
-     * 
+     *
      * @{inheritDoc
-     * 
+     *
      */
     @Override
     public String transform(String filename, String source) throws TransformationException {

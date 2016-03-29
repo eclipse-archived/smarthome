@@ -7,16 +7,15 @@ layout: documentation
 # Belkin Wemo Binding
 
 This binding integrates the [Belkin WeMo Family](http://www.belkin.com/us/Products/c/home-automation/).
-The integration happens either through the WeMo-Link bridge (feature still to come), which acts as an IP gateway to the ZigBee devices or through WiFi connection to standalone devices.
+The integration happens either through the WeMo-Link bridge, which acts as an IP gateway to the ZigBee devices or through WiFi connection to standalone devices.
 
 ## Supported Things
 
-At current development stage, the WeMo Binding supports the Socket, Insight, Lightswitch and Motion devices.
-Future Versions will also allow to integrate the new WeMo-Link bridge to interact with WeMo LED bulbs.
+The WeMo Binding supports the Socket, Insight, Lightswitch, Motion and Maker devices, as well as the WeMo-Link bridge with WeMo LED bulbs.
 
 ## Discovery
 
-The WeMo devices are discovered through an individual discovery service in the network. Devices will show up in the inbox and can be easily added as Things.
+The WeMo devices are discovered through UPnP discovery service in the network. Devices will show up in the inbox and can be easily added as Things.
 
 ## Binding Configuration
 
@@ -32,15 +31,22 @@ In the thing file, this looks e.g. like
 
 ## Channels
 
-All devices support some of the following channels:
+Devices support some of the following channels:
 
 | Channel Type ID | Item Type    | Description  |
 |-----------------|------------------------|--------------|----------------- |------------- |
-| state | Switch       | This channel controls the actual binary State of a Socket Device or represents Motion Detection. |
-| currentPower | Number       | This channel shows the current power consumption of an Insight device. |
-| lastOnFor | Number       | This channel shows the duration an Insight Device has been switched on for. |
-| onToday	| Number       | This channel shows how long an Insight device has been switched on today.   |
-| onTotal   | Number       | This channel shows how long an Insight device has been switched on totally. |
+| state | Switch       | This channel controls the actual binary State of a Device or represents Motion Detection. |
+| lastChangedAt | DateTime | Representing the Date and Time the device was last turned on or of. |
+| lastOnFor | Number       | Time in seconds an Insight device was last turned on for. |
+| onToday   | Number       | Time in seconds an Insight device has been switched on today.   |
+| onTotal   | Number       | Time in seconds an Insight device has been switched on totally. |
+| timespan  | Number       | Time in seconds over which onTotal applies. Typically 2 weeks except first used. |
+| averagePower | Number    | Average power consumption in Watts. 
+| currentPower | Number    | Current power consumption of an Insight device. 0 if switched off. |
+| energyToday | Number     | Energy in Wh used today. |
+| energyTotal | Number     | Energy in Wh used in total. |
+| standbyLimit | Number    | Minimum energy draw in W to register device as switched on (default 8W, configurable via WeMo App). |
+| brightness   | Number    | Brightness of a WeMo LED. |
 
 
 ## Full Example

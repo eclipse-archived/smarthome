@@ -11,11 +11,11 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
 
 /**
- * The {@link ConfigDescriptionParameterValidator} for the required flag of a {@link ConfigDescriptionParameter}.
+ * The {@link ConfigDescriptionParameterValidator} for the required attribute of a {@link ConfigDescriptionParameter}.
  *
  * @author Thomas Höfer - Initial contribution
  */
-public final class RequiredValidator implements ConfigDescriptionParameterValidator {
+final class RequiredValidator implements ConfigDescriptionParameterValidator {
 
     /*
      * (non-Javadoc)
@@ -25,13 +25,13 @@ public final class RequiredValidator implements ConfigDescriptionParameterValida
      * smarthome.config.core.ConfigDescriptionParameter, java.lang.Object)
      */
     @Override
-    public ConfigValidationMessage validate(ConfigDescriptionParameter configDescriptionParameter,
-            Object value) {
-        if (configDescriptionParameter.isRequired() && value == null) {
+    public ConfigValidationMessage validate(ConfigDescriptionParameter param, Object value) {
+        if (param.isRequired() && value == null) {
             MessageKey messageKey = MessageKey.PARAMETER_REQUIRED;
-            return new ConfigValidationMessage(configDescriptionParameter.getName(),
-                    messageKey.defaultMessage, messageKey.key);
+            return new ConfigValidationMessage(param.getName(), messageKey.defaultMessage, messageKey.key);
         }
+
         return null;
     }
+
 }

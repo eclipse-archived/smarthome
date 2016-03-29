@@ -80,7 +80,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         Bridge hueBridge = managedThingProvider.createThing(
                 BRIDGE_THING_TYPE_UID,
                 new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge"),
-                null, bridgeConfiguration)
+                null, "Bridge", bridgeConfiguration)
 
         assertThat hueBridge, is(notNullValue())
 
@@ -96,7 +96,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         Thing hueLight = managedThingProvider.createThing(
                 lightUID,
                 new ThingUID(lightUID, "Light1"),
-                hueBridge.getUID(), lightConfiguration)
+                hueBridge.getUID(), "Light", lightConfiguration)
 
         assertThat hueLight, is(notNullValue())
 

@@ -24,6 +24,7 @@ import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingStatusInfo;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
@@ -47,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties and config description validation
- * @author Stefan Bußweiler - Added new thing status handling
+ * @author Stefan Bußweiler - Added new thing status handling, refactorings thing life cycle
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -64,8 +65,6 @@ public abstract class BaseThingHandler implements ThingHandler {
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
-    @SuppressWarnings("rawtypes")
-    private ServiceTracker thingHandlerServiceTracker;
 
     private ThingHandlerCallback callback;
 
@@ -99,51 +98,9 @@ public abstract class BaseThingHandler implements ThingHandler {
         thingRegistryServiceTracker.open();
     }
 
-    /**
-     * This method is called after {@link BaseThingHandler#initialize()} is called. If this method will be overridden,
-     * the super method must be
-     * called.
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void postInitialize() {
-        thingHandlerServiceTracker = new ServiceTracker(this.bundleContext, ThingHandler.class.getName(), null) {
-            @Override
-            public Object addingService(final ServiceReference reference) {
-                Object thingId = reference.getProperty(SERVICE_PROPERTY_THING_ID);
-                if (thingId instanceof ThingUID && BaseThingHandler.this.thing != null) {
-                    ThingUID thingUID = (ThingUID) thingId;
-                    if (thingUID.equals(BaseThingHandler.this.thing.getBridgeUID())) {
-                        ThingHandler thingHandler = (ThingHandler) bundleContext.getService(reference);
-                        Thing thing = thingHandler.getThing();
-                        if (thing instanceof Bridge) {
-                            bridgeHandlerInitialized(thingHandler, (Bridge) thing);
-                            return thingHandler;
-                        }
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public void removedService(final ServiceReference reference, final Object service) {
-                ThingHandler thingHandler = (ThingHandler) service;
-                bridgeHandlerDisposed(thingHandler, (Bridge) thingHandler.getThing());
-            }
-        };
-        thingHandlerServiceTracker.open();
-    }
-
     public void unsetBundleContext(final BundleContext bundleContext) {
         thingRegistryServiceTracker.close();
         this.bundleContext = null;
-    }
-
-    /**
-     * This method is called before {@link BaseThingHandler#dispose()} is called. If this method will be overridden, the
-     * super method must be called.
-     */
-    public void preDispose() {
-        thingHandlerServiceTracker.close();
     }
 
     @Override
@@ -163,10 +120,16 @@ public abstract class BaseThingHandler implements ThingHandler {
             configuration.put(configurationParmeter.getKey(), configurationParmeter.getValue());
         }
 
-        // reinitialize with new configuration and persist changes
-        dispose();
-        updateConfiguration(configuration);
-        initialize();
+        if (thingIsInitialized()) {
+            // persist new configuration and reinitialize handler
+            dispose();
+            updateConfiguration(configuration);
+            initialize();
+        } else {
+            // persist new configuration and notify Thing Manager
+            updateConfiguration(configuration);
+            callback.configurationUpdated(getThing());
+        }
     }
 
     @Override
@@ -227,7 +190,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected void validateConfigurationParameters(Map<String, Object> configurationParameters)
             throws ConfigValidationException {
         ThingType thingType = TypeResolver.resolve(getThing().getThingTypeUID());
-        if (thingType != null) {
+        if (thingType != null && thingType.getConfigDescriptionURI() != null) {
             ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());
         }
     }
@@ -380,8 +343,9 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @return {@link ThingBuilder} which builds an exact copy of the thing (not null)
      */
     protected ThingBuilder editThing() {
-        return ThingBuilder.create(this.thing.getUID()).withBridge(this.thing.getBridgeUID())
-                .withChannels(this.thing.getChannels()).withConfiguration(this.thing.getConfiguration());
+        return ThingBuilder.create(this.thing.getThingTypeUID(), this.thing.getUID())
+                .withBridge(this.thing.getBridgeUID()).withChannels(this.thing.getChannels())
+                .withConfiguration(this.thing.getConfiguration());
     }
 
     /**
@@ -417,7 +381,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * Informs the framework, that the given configuration of the thing was updated.
+     * Updates the configuration of the thing and informs the framework about it.
      *
      * @param configuration
      *            configuration, that was updated and should be persisted
@@ -552,33 +516,35 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     /**
-     * This method is called, when the according {@link ThingHandler} of the
-     * bridge was initialized. If the thing of this handler does not have a
-     * bridge, this method is never called. This method can be overridden by
-     * subclasses.
+     * Returns whether the thing has already been initialized.
      *
-     * @param thingHandler
-     *            thing handler of the bridge
-     * @param bridge
-     *            bridge
+     * @return true if thing is initialized, false otherwise
      */
-    protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-        // can be overridden by subclasses
+    protected boolean thingIsInitialized() {
+        return getThing().getStatus() == ThingStatus.ONLINE || getThing().getStatus() == ThingStatus.OFFLINE;
     }
 
-    /**
-     * This method is called, when the according {@link ThingHandler} of the
-     * bridge was disposed. If the thing of this handler does not have a
-     * bridge, this method is never called. This method can be overridden by
-     * subclasses.
-     *
-     * @param thingHandler
-     *            thing handler of the bridge
-     * @param bridge
-     *            bridge
-     */
-    protected void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
-        // can be overridden by subclasses
+    @Override
+    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
+    @Override
+    public void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        // do nothing by default, can be overridden by subclasses
+    }
+
+    protected void changeThingType(ThingTypeUID thingTypeUID, Configuration configuration) {
+        if (this.callback != null) {
+            this.callback.changeThingType(getThing(), thingTypeUID, configuration);
+        } else {
+            throw new IllegalStateException("Could not change thing type because callback is missing");
+        }
     }
 
 }

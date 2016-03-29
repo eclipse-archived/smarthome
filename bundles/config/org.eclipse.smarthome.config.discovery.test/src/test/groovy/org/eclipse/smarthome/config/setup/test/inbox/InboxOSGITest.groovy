@@ -71,6 +71,7 @@ class InboxOSGITest extends OSGiTest {
     final ThingUID testUID = new ThingUID("binding:type:id")
     final ThingTypeUID testTypeUID = new ThingTypeUID("binding:type")
     final Thing testThing = ThingBuilder.create(testUID).build()
+    final String discoveryResultLabel = "MyLabel"
     final Map<String, Object> discoveryResultProperties =
     ["ip":"192.168.3.99",
         "pnr": 1234455,
@@ -78,7 +79,7 @@ class InboxOSGITest extends OSGiTest {
         "manufacturer":"huawei",
         "manufactured":new Date(12344)
     ]
-    final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).build()
+    final DiscoveryResult testDiscoveryResult = DiscoveryResultBuilder.create(testThing.getUID()).withProperties(discoveryResultProperties).withLabel(discoveryResultLabel).build()
     final ThingType testThingType = new ThingType(testTypeUID, null, "label", "", null, null, null, testURI)
     final ConfigDescriptionParameter[] configDescriptionParameter = [[discoveryResultProperties.keySet().getAt(0), Type.TEXT], [discoveryResultProperties.keySet().getAt(1), Type.INTEGER]]
     final ConfigDescription testConfigDescription  = new ConfigDescription(testURI, Arrays.asList(configDescriptionParameter))
@@ -631,11 +632,6 @@ class InboxOSGITest extends OSGiTest {
 
     @Test
     void 'assert that remove removes associated DiscoveryResults from Inbox when Bridge is removed'() {
-        inbox.add(BRIDGE)
-        inbox.add(THING1_WITH_BRIDGE)
-        inbox.add(THING2_WITH_BRIDGE)
-        inbox.add(THING_WITHOUT_BRIDGE)
-        inbox.add(THING_WITH_OTHER_BRIDGE)
         def receivedEvents = new ArrayList()
         def inboxEventSubscriber = [
             receive: { event -> receivedEvents.add(event) },
@@ -643,6 +639,16 @@ class InboxOSGITest extends OSGiTest {
             getEventFilter: { null },
         ] as EventSubscriber
         registerService inboxEventSubscriber
+        inbox.add(BRIDGE)
+        inbox.add(THING1_WITH_BRIDGE)
+        inbox.add(THING2_WITH_BRIDGE)
+        inbox.add(THING_WITHOUT_BRIDGE)
+        inbox.add(THING_WITH_OTHER_BRIDGE)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(5)
+        }
+        receivedEvents.clear()
+
         assertTrue inbox.remove(BRIDGE.thingUID)
         assertTrue inbox.get(new InboxFilterCriteria(BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
         assertTrue inbox.get(new InboxFilterCriteria(THING1_WITH_BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
@@ -658,10 +664,6 @@ class InboxOSGITest extends OSGiTest {
 
     @Test
     void 'assert that remove leaves associated DiscoveryResults in Inbox when Bridge is added to ThingRegistry'() {
-        inbox.add(BRIDGE)
-        inbox.add(THING1_WITH_BRIDGE)
-        inbox.add(THING2_WITH_BRIDGE)
-        inbox.add(THING_WITHOUT_BRIDGE)
         def receivedEvents = new ArrayList()
         def inboxEventSubscriber = [
             receive: { event -> receivedEvents.add(event) },
@@ -669,6 +671,15 @@ class InboxOSGITest extends OSGiTest {
             getEventFilter: { null },
         ] as EventSubscriber
         registerService inboxEventSubscriber
+        inbox.add(BRIDGE)
+        inbox.add(THING1_WITH_BRIDGE)
+        inbox.add(THING2_WITH_BRIDGE)
+        inbox.add(THING_WITHOUT_BRIDGE)
+        waitForAssert {
+            assertThat receivedEvents.size(), is(4)
+        }
+        receivedEvents.clear()
+
         registry.add(BridgeBuilder.create(BRIDGE.thingUID).build())
         assertTrue inbox.get(new InboxFilterCriteria(BRIDGE.thingUID, DiscoveryResultFlag.NEW)).isEmpty()
         assertThat inbox.get(new InboxFilterCriteria(DiscoveryResultFlag.NEW)), hasItems(THING1_WITH_BRIDGE,THING2_WITH_BRIDGE,THING_WITHOUT_BRIDGE)
@@ -706,6 +717,26 @@ class InboxOSGITest extends OSGiTest {
             assertFalse descResultParam == null
             assertTrue thingProperty.equals(descResultParam)
         }
+    }
+
+    @Test
+    void 'assert that approve sets the explicitly given label' () {
+        inbox.add(testDiscoveryResult)
+        Thing approvedThing = inbox.approve(testThing.getUID(), testThingLabel)
+        Thing addedThing = registry.get(testThing.getUID())
+
+        assertThat approvedThing.getLabel(), is(testThingLabel)
+        assertThat addedThing.getLabel(), is(testThingLabel)
+    }
+
+    @Test
+    void 'assert that approve sets the discovered label if no other is given' () {
+        inbox.add(testDiscoveryResult)
+        Thing approvedThing = inbox.approve(testThing.getUID(), null)
+        Thing addedThing = registry.get(testThing.getUID())
+
+        assertThat approvedThing.getLabel(), is(discoveryResultLabel)
+        assertThat addedThing.getLabel(), is(discoveryResultLabel)
     }
 
     @Test

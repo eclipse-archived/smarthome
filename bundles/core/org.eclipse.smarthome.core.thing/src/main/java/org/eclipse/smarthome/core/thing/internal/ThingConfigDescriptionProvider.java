@@ -9,6 +9,8 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.ConfigOptionProvider;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
@@ -22,9 +24,11 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
  * method to get updated options.
  *
  * @author Chris Jackson - Initial Implementation
+ * @author Chris Jackson - Updated to separate thing type from thing name
  *
  */
 public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider {
+    private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
     private ConfigDescriptionRegistry configDescriptionRegistry;
 
@@ -34,6 +38,14 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
 
     protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
         this.configDescriptionRegistry = null;
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
     }
 
     protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
@@ -58,7 +70,12 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
 
         // First, get the thing type so we get the generic config descriptions
         ThingUID thingUID = new ThingUID(uri.getSchemeSpecificPart());
-        ThingType thingType = thingTypeRegistry.getThingType(thingUID.getThingTypeUID());
+        Thing thing = thingRegistry.get(thingUID);
+        if (thing == null) {
+            return null;
+        }
+
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
         if (thingType == null) {
             return null;
         }

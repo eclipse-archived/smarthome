@@ -62,6 +62,12 @@ public abstract class ModuleType {
     protected List<ConfigDescriptionParameter> configDescriptions;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected ModuleType() {
+    }
+
+    /**
      * This constructor is responsible to initialize common base properties of the {@link ModuleType}s.
      *
      * @param UID is an unique id of the {@link ModuleType}, used as reference from the {@link Module}s, to find their
@@ -173,18 +179,23 @@ public abstract class ModuleType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ModuleType other = (ModuleType) obj;
         if (uid == null) {
-            if (other.uid != null)
+            if (other.uid != null) {
                 return false;
-        } else if (!uid.equals(other.uid))
+            }
+        } else if (!uid.equals(other.uid)) {
             return false;
+        }
         return true;
     }
 

@@ -132,4 +132,12 @@ class DiscoveryResultImplTest {
         assertEquals("SOURCE", discoveryResult.getLabel())
         assertEquals(DiscoveryResultFlag.IGNORED, discoveryResult.getFlag())
     }
+
+    @Test
+    public void testThingTypeCompatibility() {
+        def thingTypeUID = new ThingTypeUID("bindingId", "thingType")
+        DiscoveryResultImpl discoveryResult = new DiscoveryResultImpl(null, new ThingUID(thingTypeUID, "thingId"), null, null, "nothing", "label", DEFAULT_TTL)
+        assertNotNull(discoveryResult.getThingTypeUID())
+        assertEquals(discoveryResult.getThingTypeUID(), thingTypeUID)
+    }
 }

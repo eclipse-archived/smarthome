@@ -18,13 +18,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Bundle activator for Eclipse Smarthome SSE bundle.
- * 
+ *
  * @author Ivan Iliev - Initial Contribution and API
- * 
+ *
  */
 public class SseActivator implements BundleActivator {
 
-    private static final Logger logger = LoggerFactory.getLogger(SseActivator.class);
+    private final Logger logger = LoggerFactory.getLogger(SseActivator.class);
 
     private static BundleContext context;
 
@@ -77,7 +77,7 @@ public class SseActivator implements BundleActivator {
 
     /**
      * Returns the bundle context of this bundle
-     * 
+     *
      * @return the bundle context
      */
     public static BundleContext getContext() {

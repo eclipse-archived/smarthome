@@ -22,6 +22,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
 
     private ThingUID bridgeUID;
     private ThingUID thingUID;
+    private ThingTypeUID thingTypeUID;
 
     private Map<String, Object> properties;
     private String representationProperty;
@@ -52,10 +53,34 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      *
      * @throws IllegalArgumentException
      *             if the Thing type UID or the Thing UID is null
+     * @deprecated use {@link #DiscoveryResultImpl(ThingUID, ThingTypeUID, ThingUID, Map, String, String, long)}
+     *             instead.
      */
+    @Deprecated
     public DiscoveryResultImpl(ThingUID thingUID, ThingUID bridgeUID, Map<String, Object> properties,
             String representationProperty, String label, long timeToLive) throws IllegalArgumentException {
+        this(thingUID.getThingTypeUID(), thingUID, bridgeUID, properties, representationProperty, label, timeToLive);
+    }
 
+    /**
+     * Creates a new instance of this class with the specified parameters.
+     *
+     * @param thingTypeUID the {@link ThingTypeUID}
+     * @param thingUID the Thing UID to be set (must not be null). If a {@code Thing} disappears and is discovered
+     *            again, the same {@code Thing} ID must be created. A typical {@code Thing} ID could be the serial
+     *            number. It's usually <i>not</i> a product name.
+     * @param properties the properties to be set (could be null or empty)
+     * @param representationProperty the representationProperty to be set (could be null or empty)
+     * @param label the human readable label to set (could be null or empty)
+     * @param bridgeUID the unique bridge ID to be set
+     * @param timeToLive time to live in seconds
+     *
+     * @throws IllegalArgumentException
+     *             if the Thing type UID or the Thing UID is null
+     */
+    public DiscoveryResultImpl(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID,
+            Map<String, Object> properties, String representationProperty, String label, long timeToLive)
+                    throws IllegalArgumentException {
         if (thingUID == null) {
             throw new IllegalArgumentException("The thing UID must not be null!");
         }
@@ -64,10 +89,10 @@ public class DiscoveryResultImpl implements DiscoveryResult {
         }
 
         this.thingUID = thingUID;
-
+        this.thingTypeUID = thingTypeUID;
         this.bridgeUID = bridgeUID;
-        this.properties = Collections.unmodifiableMap((properties != null) ? new HashMap<>(properties)
-                : new HashMap<String, Object>());
+        this.properties = Collections
+                .unmodifiableMap((properties != null) ? new HashMap<>(properties) : new HashMap<String, Object>());
         this.representationProperty = representationProperty;
         this.label = label == null ? "" : label;
 
@@ -102,7 +127,12 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      */
     @Override
     public ThingTypeUID getThingTypeUID() {
-        return this.thingUID.getThingTypeUID();
+        if (this.thingTypeUID != null) {
+            return this.thingTypeUID;
+        } else {
+            // fallback for discovery result which were created before the thingTypeUID field was added
+            return this.thingUID.getThingTypeUID();
+        }
     }
 
     /**
@@ -141,7 +171,7 @@ public class DiscoveryResultImpl implements DiscoveryResult {
      * discovered. Its actual value can be retrieved from the {@link DiscoveryResult#getProperties()} map. Such unique
      * identifiers are among others the <code>ipAddress</code>, the <code>macAddress</code> or the
      * <code>serialNumber</code> of the discovered thing.
-     * 
+     *
      * @return the representation property of this result object (could be null)
      */
     @Override

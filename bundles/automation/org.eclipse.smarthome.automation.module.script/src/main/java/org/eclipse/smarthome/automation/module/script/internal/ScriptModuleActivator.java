@@ -69,8 +69,8 @@ public class ScriptModuleActivator implements BundleActivator {
     @Override
     public void start(final BundleContext bundleContext) throws Exception {
         this.context = bundleContext;
-        this.moduleHandlerFactory = new ScriptModuleHandlerFactory(context);
-        moduleHandlerFactory.activate();
+        this.moduleHandlerFactory = new ScriptModuleHandlerFactory();
+        this.moduleHandlerFactory.activate(context);
         this.factoryRegistration = bundleContext.registerService(ModuleHandlerFactory.class.getName(),
                 this.moduleHandlerFactory, null);
         scriptScopeProviders = new CopyOnWriteArraySet<ScriptScopeProvider>();

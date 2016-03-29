@@ -25,6 +25,12 @@ public class EnrichedThingDTO extends ThingDTO {
 
     public EnrichedThingDTO(ThingDTO thingDTO, ThingStatusInfo statusInfo, EnrichedGroupItemDTO item, String link) {
         this.UID = thingDTO.UID;
+        if (thingDTO.label != null) {
+            this.label = thingDTO.label;
+        } else if (item != null) {
+            this.label = item.label;
+        }
+        this.thingTypeUID = thingDTO.thingTypeUID;
         this.bridgeUID = thingDTO.bridgeUID;
         this.channels = thingDTO.channels;
         this.configuration = thingDTO.configuration;

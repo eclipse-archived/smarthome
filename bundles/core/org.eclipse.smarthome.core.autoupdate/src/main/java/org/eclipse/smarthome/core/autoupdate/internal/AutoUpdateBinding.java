@@ -25,14 +25,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * The AutoUpdate-Binding is no 'normal' binding as it doesn't connect any hardware to openHAB. In fact it takes care of
- * updating the State of an item with respect to the received command automatically or not. By default the State is
- * getting updated automatically which is desired behavior in most of the cases. However it could be useful to disable
- * this default behavior.
- * </p>
+ * The AutoUpdate-Binding is no 'normal' binding as it doesn't connect any hardware to the Eclipse SmartHome system. In
+ * fact it takes care of updating the State of an item with respect to the received command automatically or not. By
+ * default the State is getting updated automatically which is desired behavior in most of the cases. However it could
+ * be useful to disable this default behavior.
+ *
  * <p>
  * For example when implementing validation steps before changing a State one needs to control the State update oneself.
- * </p>
  *
  * @author Thomas.Eichstaedt-Engelen - Initial contribution
  * @author Kai Kreuzer - added sending real events
@@ -78,13 +77,13 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
      * Iterates through all registered {@link AutoUpdateBindingConfigProvider}s and checks whether an autoupdate
      * configuration is available for <code>itemName</code>.
      * </p>
-     * 
+     *
      * <p>
      * If there are more then one {@link AutoUpdateBindingConfigProvider}s providing a configuration the results are
      * combined by a logical <em>OR</em>. If no configuration is provided at all the autoupdate defaults to
      * <code>true</code> and an update is posted for the corresponding {@link State}.
      * </p>
-     * 
+     *
      * @param itemName the item for which to find an autoupdate configuration
      * @param command the command being received and posted as {@link State} update if <code>command</code> is instance
      *            of {@link State} as well.
@@ -127,7 +126,8 @@ public class AutoUpdateBinding extends AbstractItemEventSubscriber {
                     // Look for class hierarchy
                     for (Class<? extends State> state : item.getAcceptedDataTypes()) {
                         try {
-                            if (!state.isEnum() && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
+                            if (!state.isEnum()
+                                    && state.newInstance().getClass().isAssignableFrom(newState.getClass())) {
                                 isAccepted = true;
                                 break;
                             }

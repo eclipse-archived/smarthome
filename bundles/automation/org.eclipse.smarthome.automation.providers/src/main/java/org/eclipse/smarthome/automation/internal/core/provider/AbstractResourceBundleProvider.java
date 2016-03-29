@@ -29,7 +29,6 @@ import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
@@ -172,7 +171,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             while (i.hasNext()) {
                 Bundle bundle = i.next();
                 if (bundle.getState() != Bundle.UNINSTALLED) {
-                    queue.addingBundle(bundle, new BundleEvent(BundleEvent.INSTALLED, bundle));
+                    queue.addingBundle(bundle, null);
                 }
             }
         }
@@ -288,19 +287,28 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
                 if (vendor.getVendorSymbolicName().equals(bundle.getSymbolicName())
                         && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
                     List<String> portfolio = providerPortfolio.remove(vendor);
-                    if (portfolio != null && !portfolio.isEmpty())
+                    if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
                             synchronized (providedObjectsHolder) {
                                 providedObjectsHolder.remove(uid);
                             }
                         }
+                    }
                     break;
                 }
             }
         }
-        Enumeration<URL> urlEnum = bundle.findEntries(path, null, false);
-        if (urlEnum == null)
+        Enumeration<URL> urlEnum = null;
+        try {
+            urlEnum = bundle.findEntries(path, null, false);
+        } catch (IllegalStateException e) {
+            logger.debug("Can't read from resource of bundle with ID " + bundle.getBundleId()
+                    + ". The bundle is uninstalled.", e);
+            processAutomationProviderUninstalled(bundle);
+        }
+        if (urlEnum == null) {
             return;
+        }
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
         while (urlEnum.hasMoreElements()) {
             URL url = urlEnum.nextElement();
@@ -309,17 +317,27 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             synchronized (waitingProviders) {
                 List<URL> urlList = waitingProviders.get(bundle);
                 if (parser != null) {
-                    if (urlList != null && urlList.remove(url) && urlList.isEmpty())
+                    if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
                         waitingProviders.remove(bundle);
+                    }
+                    InputStreamReader reader = null;
                     try {
-                        importData(vendor, parser, new InputStreamReader(url.openStream()));
+                        importData(vendor, parser, reader = new InputStreamReader(url.openStream()));
                     } catch (IOException e) {
-                        logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId() + ". URL is "
-                                + url, e);
+                        logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId(), e);
+                        processAutomationProviderUninstalled(bundle);
+                    } finally {
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (IOException ignore) {
+                            }
+                        }
                     }
                 } else if (parser == null) {
-                    if (urlList == null)
+                    if (urlList == null) {
                         urlList = new ArrayList<URL>();
+                    }
                     urlList.add(url);
                     waitingProviders.put(bundle, urlList);
                 }
@@ -336,11 +354,13 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     protected String getParserType(URL url) {
         String fileName = url.getPath();
         int fileExtesionStartIndex = fileName.lastIndexOf(".") + 1;
-        if (fileExtesionStartIndex == -1)
+        if (fileExtesionStartIndex == -1) {
             return Parser.FORMAT_JSON;
+        }
         String fileExtesion = fileName.substring(fileExtesionStartIndex);
-        if (fileExtesion.equals("txt"))
+        if (fileExtesion.equals("txt")) {
             return Parser.FORMAT_JSON;
+        }
         return fileExtesion;
     }
 
@@ -365,7 +385,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         synchronized (providerPortfolio) {
             portfolio = providerPortfolio.remove(vendor);
         }
-        if (portfolio != null && portfolio.isEmpty()) {
+        if (portfolio != null && !portfolio.isEmpty()) {
             Iterator<String> i = portfolio.iterator();
             while (i.hasNext()) {
                 String uid = i.next();

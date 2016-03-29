@@ -127,15 +127,17 @@ public class ItemEventFactory extends AbstractEventFactory {
 
     private String getItemName(String topic) {
         String[] topicElements = getTopicElements(topic);
-        if (topicElements.length < 4)
+        if (topicElements.length < 4) {
             throw new IllegalArgumentException("Event creation failed, invalid topic: " + topic);
+        }
         return topicElements[2];
     }
 
     private String getMemberName(String topic) {
         String[] topicElements = getTopicElements(topic);
-        if (topicElements.length < 5)
+        if (topicElements.length < 5) {
             throw new IllegalArgumentException("Event creation failed, invalid topic: " + topic);
+        }
         return topicElements[3];
     }
 
@@ -333,7 +335,7 @@ public class ItemEventFactory extends AbstractEventFactory {
     }
 
     private static ItemDTO map(Item item) {
-        return ItemDTOMapper.map(item, false);
+        return ItemDTOMapper.map(item);
     }
 
     private static void assertValidArguments(String itemName, Type type, String typeArgumentName) {
@@ -361,6 +363,12 @@ public class ItemEventFactory extends AbstractEventFactory {
         private String type;
         private String value;
 
+        /**
+         * Default constructor for deserialization e.g. by Gson.
+         */
+        protected ItemEventPayloadBean() {
+        }
+
         public ItemEventPayloadBean(String type, String value) {
             this.type = type;
             this.value = value;
@@ -383,6 +391,12 @@ public class ItemEventFactory extends AbstractEventFactory {
         private String value;
         private String oldType;
         private String oldValue;
+
+        /**
+         * Default constructor for deserialization e.g. by Gson.
+         */
+        protected ItemStateChangedEventPayloadBean() {
+        }
 
         public ItemStateChangedEventPayloadBean(String type, String value, String oldType, String oldValue) {
             this.type = type;

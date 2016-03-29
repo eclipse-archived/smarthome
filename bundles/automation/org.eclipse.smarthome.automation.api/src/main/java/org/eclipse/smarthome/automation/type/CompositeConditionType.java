@@ -30,6 +30,12 @@ public class CompositeConditionType extends ConditionType {
     private List<Condition> children;
 
     /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected CompositeConditionType() {
+    }
+
+    /**
      * This constructor is responsible for creation of a {@code CompositeConditionType} with ordered set of
      * {@link Condition}s.
      * It initialize only base properties of the {@code CompositeConditionType}.

@@ -7,9 +7,7 @@
  */
 package org.eclipse.smarthome.core.transform;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,22 +25,20 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.smarthome.config.core.ConfigConstants;
-import org.eclipse.smarthome.core.transform.TransformationException;
-import org.eclipse.smarthome.core.transform.TransformationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for cacheable and localizable file based transformation 
- * {@link TransformationService}. 
- * It expects the transformation to be applied to be read from a file stored 
- * under the 'transform' folder within the configuration path. To organize the various 
+ * Base class for cacheable and localizable file based transformation
+ * {@link TransformationService}.
+ * It expects the transformation to be applied to be read from a file stored
+ * under the 'transform' folder within the configuration path. To organize the various
  * transformations one might use subfolders.
  *
  * @author Gaël L'hopital - Initial contribution
- * @author Kai Kreuzer - File caching mechanism 
+ * @author Kai Kreuzer - File caching mechanism
  */
-public abstract class AbstractFileTransformationService<T> implements   TransformationService {
+public abstract class AbstractFileTransformationService<T> implements TransformationService {
 
     private WatchService watchService = null;
 
@@ -51,24 +47,25 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
 
     private final Logger logger = LoggerFactory.getLogger(AbstractFileTransformationService.class);
     private final String language = Locale.getDefault().getLanguage();
-    
+
     /**
      * <p>
-     * Transforms the input <code>source</code> by the according method defined in subclass to another string. 
+     * Transforms the input <code>source</code> by the according method defined in subclass to another string.
      * It expects the transformation to be read from a file which is stored
-     * under the 'configurations/transform'
+     * under the 'conf/transform'
      * </p>
-     * 
+     *
      * @param filename
-     *            the name of the file which contains the transformation definition. 
+     *            the name of the file which contains the transformation definition.
      *            The name may contain subfoldernames
      *            as well
      * @param source
      *            the input to transform
-     * 
+     * @throws TransformationException
+     *
      * @{inheritDoc
-     * 
-     */  
+     *
+     */
     @Override
     public String transform(String filename, String source) throws TransformationException {
 
@@ -88,53 +85,51 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
             transform = internalLoadTransform(transformFile);
             cachedFiles.put(transformFile, transform);
         }
-        
-        String result = internalTransform(transform, source);
-        
-        if (result == null) {
-            logger.warn("Could not transform '{}' with the file '{}'.", source, filename);
-            result = source;     
+
+        try {
+            return internalTransform(transform, source);
+        } catch (TransformationException e) {
+            logger.warn("Could not transform '{}' with the file '{}' : {}", source, filename, e.getMessage());
+            return "";
         }
-        
-        return result;
+
     }
-    
+
     /**
      * <p>
      * Abstract method defined by subclasses to effectively operate the
      * transformation according to its rules
      * </p>
-     * 
+     *
      * @param transform
-     *          transformation held by the file provided to <code>transform</code> method
-     * 
+     *            transformation held by the file provided to <code>transform</code> method
+     *
      * @param source
-     *          the input to transform
+     *            the input to transform
      *
      * @return the transformed result or null if the
      *         transformation couldn't be completed for any reason.
-     * 
-     */ 
+     *
+     */
     protected abstract String internalTransform(T transform, String source) throws TransformationException;
-    
+
     /**
      * <p>
      * Abstract method defined by subclasses to effectively read the transformation
      * source file according to their own needs.
      * </p>
-     * 
+     *
      * @param filename
-     *          Name of the file to be read. This filename may have been transposed
-     *          to a localized one
-     * 
+     *            Name of the file to be read. This filename may have been transposed
+     *            to a localized one
+     *
      * @return
-     *          An object containing the source file
-     * 
+     *         An object containing the source file
+     *
      * @throws TransformationException
-     *          file couldn't be read for any reason
+     *             file couldn't be read for any reason
      */
     protected abstract T internalLoadTransform(String filename) throws TransformationException;
-    
 
     private void initializeWatchService() {
         try {
@@ -144,13 +139,14 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
             logger.error("Unable to start transformation directory monitoring");
         }
     }
-    
+
     private void watchSubDirectory(String subDirectory) {
         if (watchedDirectories.indexOf(subDirectory) == -1) {
             String watchedDirectory = getSourcePath() + subDirectory;
             Path transformFilePath = Paths.get(watchedDirectory);
             try {
                 transformFilePath.register(watchService, ENTRY_DELETE, ENTRY_MODIFY);
+                logger.debug("Watching directory {}", transformFilePath);
                 watchedDirectories.add(subDirectory);
             } catch (IOException e) {
                 logger.warn("Unable to watch transformation directory : {}", watchedDirectory);
@@ -174,9 +170,9 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
                 @SuppressWarnings("unchecked")
                 WatchEvent<Path> ev = (WatchEvent<Path>) e;
                 Path path = ev.context();
-                
+
                 logger.debug("Refreshing transformation file '{}'", path);
-                
+
                 for (String fileEntry : cachedFiles.keySet()) {
                     if (fileEntry.endsWith(path.toString())) {
                         cachedFiles.remove(fileEntry);
@@ -186,25 +182,25 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
             key.reset();
         }
     }
-    
+
     /**
-     * Returns the name of the localized transformation file 
+     * Returns the name of the localized transformation file
      * if it actually exists, keeps the original in the other case
-     * 
+     *
      * @param filename name of the requested transformation file
      * @return original or localized transformation file to use
      */
-    protected String getLocalizedProposedFilename(String filename) {        
-        String extension = FilenameUtils.getExtension(filename);                
+    protected String getLocalizedProposedFilename(String filename) {
+        String extension = FilenameUtils.getExtension(filename);
         String prefix = FilenameUtils.getPath(filename);
         String result = filename;
-        
+
         if (!prefix.isEmpty()) {
             watchSubDirectory(prefix);
         }
-        
+
         // the filename may already contain locale information
-        if (!filename.matches(".*_[a-z]{2}." + extension +"$")) {
+        if (!filename.matches(".*_[a-z]{2}." + extension + "$")) {
             String basename = FilenameUtils.getBaseName(filename);
             String alternateName = prefix + basename + "_" + language + "." + extension;
             String alternatePath = getSourcePath() + alternateName;
@@ -212,18 +208,19 @@ public abstract class AbstractFileTransformationService<T> implements   Transfor
             File f = new File(alternatePath);
             if (f.exists()) {
                 result = alternateName;
-            }       
+            }
         }
-        
+
         result = getSourcePath() + result;
         return result;
     }
-    
+
     /**
      * Returns the path to the root of the transformation folder
      */
-    private String getSourcePath() {
-        return ConfigConstants.getConfigFolder() + File.separator + TransformationService.TRANSFORM_FOLDER_NAME + File.separator;
+    protected String getSourcePath() {
+        return ConfigConstants.getConfigFolder() + File.separator + TransformationService.TRANSFORM_FOLDER_NAME
+                + File.separator;
     }
 
 }

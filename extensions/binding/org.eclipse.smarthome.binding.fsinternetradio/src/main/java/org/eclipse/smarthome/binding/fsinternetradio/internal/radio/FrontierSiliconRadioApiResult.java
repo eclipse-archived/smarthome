@@ -48,7 +48,7 @@ public class FrontierSiliconRadioApiResult {
      */
     final Document xmlDoc;
 
-    private static final Logger logger = LoggerFactory.getLogger(FrontierSiliconRadioApiResult.class);
+    private final Logger logger = LoggerFactory.getLogger(FrontierSiliconRadioApiResult.class);
 
     /**
      * Create result object from XML that was received from the radio.
@@ -65,8 +65,9 @@ public class FrontierSiliconRadioApiResult {
             logger.trace("converting to XML failed: '" + requestResultString + "' with " + e.getClass().getName() + ": "
                     + e.getMessage());
             logger.debug("converting to XML failed with " + e.getClass().getName() + ": " + e.getMessage());
-            if (e instanceof IOException)
+            if (e instanceof IOException) {
                 throw (IOException) e;
+            }
             throw new IOException(e);
         }
         xmlDoc = xml;

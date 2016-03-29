@@ -55,8 +55,9 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     private ItemRegistry itemRegistry;
     private EventPublisher eventPublisher;
 
-    public BasicModuleHandlerFactory(BundleContext bundleContext) {
-        super(bundleContext);
+    @Override
+    public void activate(BundleContext bundleContext) {
+        super.activate(bundleContext);
         initializeServiceTrackers();
     }
 
@@ -74,7 +75,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {
@@ -95,7 +96,7 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
 
-            }
+                    }
 
                     @Override
                     public void removedService(ServiceReference reference, Object service) {

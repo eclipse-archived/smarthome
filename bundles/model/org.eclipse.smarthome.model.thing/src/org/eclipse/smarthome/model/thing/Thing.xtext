@@ -20,6 +20,7 @@ ModelPropertyContainer:
 ModelBridge returns ModelThing: 
 	{ModelBridge}
 	bridge?='Bridge' (id=UID | thingTypeId=UID_SEGMENT thingId=UID_SEGMENT)
+    (label=STRING)?
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
 	']')?
@@ -34,6 +35,7 @@ ModelBridge returns ModelThing:
 
 ModelThing:
 	('Thing')? (id=UID | thingTypeId=UID_SEGMENT thingId=UID_SEGMENT)
+	(label=STRING)?
 	('(' bridgeUID = UID ')')?
 	('['
 		properties+=ModelProperty? (',' properties+=ModelProperty)*
@@ -64,7 +66,7 @@ UID:
 ;
 
 UID_SEGMENT :
-	ID|STRING
+	ID
 ;
 
 

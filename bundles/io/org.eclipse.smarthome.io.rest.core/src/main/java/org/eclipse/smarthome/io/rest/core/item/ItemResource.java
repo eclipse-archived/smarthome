@@ -30,6 +30,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
@@ -42,7 +43,7 @@ import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
-import org.eclipse.smarthome.core.items.dto.ItemDTO;
+import org.eclipse.smarthome.core.items.dto.GroupItemDTO;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.library.items.RollershutterItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
@@ -51,11 +52,13 @@ import org.eclipse.smarthome.core.library.types.UpDownType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
-import org.eclipse.smarthome.io.rest.core.JSONResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -281,7 +284,9 @@ public class ItemResource implements RESTResource {
             if (command != null) {
                 logger.debug("Received HTTP POST request at '{}' with value '{}'.", uriInfo.getPath(), value);
                 eventPublisher.post(ItemEventFactory.createCommandEvent(itemname, command));
-                return Response.created(localUriInfo.getAbsolutePathBuilder().path("state").build()).build();
+                ResponseBuilder resbuilder = Response.ok();
+                resbuilder.type(MediaType.TEXT_PLAIN);
+                return resbuilder.build();
             } else {
                 logger.warn("Received HTTP POST request at '{}' with an invalid status value '{}'.", uriInfo.getPath(),
                         value);
@@ -383,7 +388,7 @@ public class ItemResource implements RESTResource {
     }
 
     @PUT
-    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag: [a-zA-Z_0-9]*}")
+    @Path("/{itemname: [a-zA-Z_0-9]*}/tags/{tag}")
     @ApiOperation(value = "Adds a tag to an item.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 404, message = "Item not found."),
@@ -445,13 +450,14 @@ public class ItemResource implements RESTResource {
     @Path("/{itemname: [a-zA-Z_0-9]*}")
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Adds a new item to the registry or updates the existing item.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 400, message = "Item null."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 201, message = "Item created."), @ApiResponse(code = 400, message = "Item null."),
             @ApiResponse(code = 404, message = "Item not found."),
             @ApiResponse(code = 405, message = "Item not editable.") })
     public Response createOrUpdateItem(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("itemname") @ApiParam(value = "item name", required = true) String itemname,
-            @ApiParam(value = "item data", required = true) ItemDTO item) {
+            @ApiParam(value = "item data", required = true) GroupItemDTO item) {
         final Locale locale = LocaleUtil.getLocale(language);
 
         // If we didn't get an item bean, then return!
@@ -462,15 +468,14 @@ public class ItemResource implements RESTResource {
         GenericItem newItem = null;
 
         if (item.type != null && item.type.equals("GroupItem")) {
-            newItem = new GroupItem(itemname);
+            GenericItem baseItem = null;
+            if (!Strings.isNullOrEmpty(item.groupType)) {
+                baseItem = createItem(item.groupType, itemname);
+            }
+            newItem = new GroupItem(itemname, baseItem);
         } else {
             String itemType = item.type.substring(0, item.type.length() - 4);
-            for (ItemFactory itemFactory : itemFactories) {
-                newItem = itemFactory.createItem(itemType, itemname);
-                if (newItem != null) {
-                    break;
-                }
-            }
+            newItem = createItem(itemType, itemname);
         }
 
         if (newItem == null) {
@@ -484,9 +489,15 @@ public class ItemResource implements RESTResource {
 
         // Update the label
         newItem.setLabel(item.label);
-        newItem.setCategory(item.category);
-        newItem.addGroupNames(item.groupNames);
-        newItem.addTags(item.tags);
+        if (item.category != null) {
+            newItem.setCategory(item.category);
+        }
+        if (item.groupNames != null) {
+            newItem.addGroupNames(item.groupNames);
+        }
+        if (item.tags != null) {
+            newItem.addTags(item.tags);
+        }
 
         // Save the item
         if (existingItem == null) {
@@ -501,8 +512,27 @@ public class ItemResource implements RESTResource {
         } else {
             // Item exists but cannot be updated
             logger.warn("Cannot update existing item '{}', because is not managed.", itemname);
-            return JSONResponse.createErrorResponse(Status.CONFLICT, "Cannot update non-managed Item " + itemname);
+            return JSONResponse.createErrorResponse(Status.METHOD_NOT_ALLOWED,
+                    "Cannot update non-managed Item " + itemname);
         }
+    }
+
+    /**
+     * helper: Create new item with name and type
+     *
+     * @param itemType type of the item
+     * @param itemname name of the item
+     * @return the newly created item
+     */
+    private GenericItem createItem(String itemType, String itemname) {
+        GenericItem newItem = null;
+        for (ItemFactory itemFactory : itemFactories) {
+            newItem = itemFactory.createItem(itemType, itemname);
+            if (newItem != null) {
+                break;
+            }
+        }
+        return newItem;
     }
 
     /**

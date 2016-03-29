@@ -26,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Dennis Nobel - Initial contribution, added locale support
  * @author Michael Grammling - Initial contribution
  * @author Chris Jackson - Added compatibility with multiple ConfigDescriptionProviders. Added Config OptionProvider.
+ * @author Thomas Höfer - Added unit
  */
 public class ConfigDescriptionRegistry {
 
@@ -226,7 +227,7 @@ public class ConfigDescriptionRegistry {
                     parameter.isReadOnly(), parameter.isMultiple(), parameter.getContext(), parameter.getDefault(),
                     parameter.getLabel(), parameter.getDescription(), options, parameter.getFilterCriteria(),
                     parameter.getGroupName(), parameter.isAdvanced(), parameter.getLimitToOptions(),
-                    parameter.getMultipleLimit());
+                    parameter.getMultipleLimit(), parameter.getUnit(), parameter.getUnitLabel());
         } else {
             // Otherwise return the original parameter
             return parameter;

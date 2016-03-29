@@ -16,6 +16,7 @@ import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
+import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.io.rest.internal.Constants;
@@ -45,10 +46,13 @@ public class CorsFilter implements ContainerResponseFilter {
     private static final String HTTP_POST_METHOD = "POST";
     private static final String HTTP_GET_METHOD = "GET";
     private static final String HTTP_OPTIONS_METHOD = "OPTIONS";
+    
+    private static final String CONTENT_TYPE_HEADER = HttpHeaders.CONTENT_TYPE;
 
     private static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
     private static final String ACCESS_CONTROL_ALLOW_METHODS_HEADER = "Access-Control-Allow-Methods";
     private static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
     private static final String ORIGIN_HEADER = "Origin";
     private static final String VARY_HEADER = "Vary";
 
@@ -118,6 +122,7 @@ public class CorsFilter implements ContainerResponseFilter {
             if (isCorsPreflight) {
                 responseContext.getHeaders().add(ACCESS_CONTROL_ALLOW_ORIGIN_HEADER, origin);
                 responseContext.getHeaders().add(ACCESS_CONTROL_ALLOW_METHODS_HEADER, ACCEPTED_HTTP_METHODS);
+                responseContext.getHeaders().add(ACCESS_CONTROL_ALLOW_HEADERS, CONTENT_TYPE_HEADER);
 
                 // Add the accepted request headers
                 appendVaryHeader(responseContext);
