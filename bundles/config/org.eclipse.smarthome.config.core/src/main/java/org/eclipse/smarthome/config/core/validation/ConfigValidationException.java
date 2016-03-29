@@ -22,12 +22,12 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Exception to be thrown if given {@link Configuration} parameters do not match their declaration in the
+ * A runtime exception to be thrown if given {@link Configuration} parameters do not match their declaration in the
  * {@link ConfigDescription}.
  *
  * @author Thomas Höfer - Initial contribution
  */
-public final class ConfigValidationException extends Exception {
+public final class ConfigValidationException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
