@@ -184,7 +184,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         thingSetupService.add({
             'enableChannels' : !$scope.advancedMode
         }, thing, function() {
-            toastService.showDefaultToast('Thing added');
+            toastService.showDefaultToast('Thing added.', 'Show Thing', 'configuration/things/view/' + thing.UID);
             $scope.navigateTo('setup/search/' + $scope.thingType.UID.split(':')[0]);
         });
     };
