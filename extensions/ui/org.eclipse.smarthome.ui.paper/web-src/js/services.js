@@ -60,8 +60,10 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 toast.hideDelay(3000);
             }
             toast.position('bottom right');
-            $mdToast.show(toast).then(function() {
-                $rootScope.$location.path(actionUrl);
+            $mdToast.show(toast).then(function(value) {
+                if (value == "ok") {
+                    $rootScope.$location.path(actionUrl);
+                }
             });
         }
         this.showDefaultToast = function(text, actionText, actionUrl) {
