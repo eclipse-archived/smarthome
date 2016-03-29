@@ -3,11 +3,21 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $location.path('inbox/' + path);
     }
     $scope.thingTypes = [];
-    thingTypeRepository.getAll(function(thingTypes) {
-        $.each(thingTypes, function(i, thingType) {
-            $scope.thingTypes[thingType.UID] = thingType;
+    function getThingTypes() {
+        thingTypeRepository.getAll(function(thingTypes) {
+            $.each(thingTypes, function(i, thingType) {
+                $scope.thingTypes[thingType.UID] = thingType;
+            });
         });
-    });
+    }
+    $scope.getThingTypeLabel = function(key) {
+        if ($scope.thingTypes && Object.keys($scope.thingTypes).length != 0) {
+            return $scope.thingTypes[key].label;
+        } else {
+            getThingTypes();
+        }
+    };
+    getThingTypes();
 }).controller('InboxController', function($scope, $timeout, $mdDialog, $q, inboxService, discoveryResultRepository, thingTypeRepository, thingSetupService, toastService) {
     $scope.setHeaderText('Shows a list of found things in your home.')
 
