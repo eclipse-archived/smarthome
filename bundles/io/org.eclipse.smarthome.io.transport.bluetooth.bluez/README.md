@@ -29,7 +29,7 @@ DBus is used for the communication between applications within Linux. It can be 
 
 ### Quick Configuration
 
-The easiest way is to use the default configuration. This requires `libunix-java` to be available on the computer. On Debian, this can be installed with `apt-get install libunixsocket-java`. You may need to locate the `libuniz-java.so` file and either ensure it is in the path, or move it to the SmartHome folder.
+The easiest way is to use the default configuration. This requires `libunix-java` to be available on the computer. On Debian, this can be installed with `apt-get install libunixsocket-java`. You may need to locate the `libunix-java.so` file and either ensure it is in the path, or move it to the SmartHome folder. In Debian, it is located in `/usr/lib.jni`.
 
 The limitation of this configuration is that JNI is used and this has security implications.
 
