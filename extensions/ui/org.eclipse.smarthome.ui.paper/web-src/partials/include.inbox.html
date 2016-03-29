@@ -2,7 +2,7 @@
 	<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
 	<div class="item-content">
 		<h3>
-			{{thingTypes[discoveryResult.thingTypeUID].label}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
+			{{getThingTypeLabel(discoveryResult.thingTypeUID)}} <small ng-show="discoveryResult.flag === 'IGNORED'" class="badge">IGNORED</small>
 		</h3>
 		<p>{{discoveryResult.label}}</p>
 		<p>{{discoveryResult.thingUID}}</p>
