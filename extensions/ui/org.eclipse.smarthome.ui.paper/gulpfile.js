@@ -40,19 +40,29 @@ var paths = {
             './node_modules/angular-aria/angular-aria.min.js',
             './node_modules/angular-material/angular-material.min.js',
             './node_modules/angular-messages/angular-messages.min.js',
-            './node_modules/angular-sanitize/angular-sanitize.min.js'
+            './node_modules/angular-sanitize/angular-sanitize.min.js',
+            './node_modules/angular-ui-sortable/dist/sortable.min.js'
         ],
         'name': 'angular-bundle.js'
     }],
     partials: ['./web-src/partials/*.html'],
     JSLibs: [
-        './node_modules/angular/angular.min.js',
         './node_modules/jquery/dist/jquery.min.js',
+        './node_modules/angular/angular.min.js',
         './node_modules/masonry-layout/dist/masonry.pkgd.min.js',
         './node_modules/sprintf-js/dist/sprintf.min.js',
         './node_modules/bootstrap/dist/js/bootstrap.min.js',
         './node_modules/tinycolor2/tinycolor.js',
     ],
+    JQUI: [{
+        'src' : [
+             './node_modules/jquery-ui/ui/core.js',
+             './node_modules/jquery-ui/ui/widget.js',
+             './node_modules/jquery-ui/ui/mouse.js',
+             './node_modules/jquery-ui/ui/sortable.js',
+        ],
+        'name': 'jquery-ui.js'
+    }],
     CSSLibs: [
         './node_modules/bootstrap/dist/css/bootstrap.min.css',
         './node_modules/angular-material/angular-material.min.css',
@@ -64,7 +74,7 @@ var paths = {
 };
 
 gulp.task('default', ['build']);
-gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyStatic', 'copyPartials']);
+gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyJQUI' , 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
@@ -86,6 +96,20 @@ gulp.task('copyPartials', function () {
 gulp.task('copyJSLibs', function () {
     return gulp.src(paths.JSLibs)
         .pipe(gulp.dest('./web/js'));
+});
+
+gulp.task('copyJQUI', function() {
+    return paths.JQUI.forEach(function (obj) {
+        return gulp.src(obj.src)
+            //.pipe(angularFilesort())
+            .pipe(concat(obj.name))
+            .pipe(rename(function (path) {
+                path.basename += '.min';
+                return path;
+            }))
+            .pipe(uglify())
+            .pipe(gulp.dest('./web/js'));
+    });
 });
 
 gulp.task('copyCSSLibs', function () {

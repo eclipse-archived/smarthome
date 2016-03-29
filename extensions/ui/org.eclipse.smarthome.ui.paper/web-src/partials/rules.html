@@ -63,81 +63,85 @@
 		<div class="container" style="margin-left: 20px;">
 			<div class="bindings row">
 				<div class="row">
-					<md-input-container style="padding-bottom:12px; margin-right:3%;"> <label>Name</label> <input ng-model="name" /> </md-input-container>
-					<md-input-container style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
-					<input type="hidden" ng-value="id" />
-				</div>
-
-				<div class="col-md-5 item-wrapper">
-					<h3 class="md-title md-title-nospace">
-						Triggers
-						<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'trigger')" aria-label="Add">+</md-button>
-					</h3>
-					<br>
-					<div ng-repeat="val in aTriggers">
-						<div class="vcard card col-md-12">
-							<div class="row">
-								<h5 class="col-md-10">{{val.label?val.label:'Trigger '+($index+1)}}</h5>
-								<div class="col-md-2">
-
-									<md-button ng-click="openUpdateModuleDialog($event,'trigger',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
-								</div>
-							</div>
-							<p ng-bind-html="val.description"></p>
-						</div>
-
+					<div>
+						<md-input-container class="rules-input"> <label>Name</label> <input ng-model="name" /> </md-input-container>
+						<md-input-container class="rules-input"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
+						<input type="hidden" ng-value="id" />
 					</div>
 
-				</div>
-				<div class="col-md-5 item-wrapper">
-					<h3 class="md-title md-title-nospace">
-						Actions
-						<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'action')" aria-label="Add">+</md-button>
-
-					</h3>
-					<br>
-
-					<div ng-repeat="val in aActions track by $index">
-						<div class="vcard card col-md-12">
-							<div class="row">
-								<h5 class="col-md-10">{{val.label?val.label:'Action '+($index+1)}}</h5>
-								<div class="col-md-2">
-									<md-button ng-click="openUpdateModuleDialog($event,'action',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
+					<div class="col-md-5 item-wrapper">
+						<h3 class="md-title md-title-nospace">
+							Triggers
+							<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'trigger')" aria-label="Add">+</md-button>
+						</h3>
+						<br>
+						<div ui-sortable="sortableOptions" ng-model="aTriggers">
+							<div ng-repeat="val in aTriggers">
+								<div class="draggable vcard card">
+									<div class="item-content">
+										<h5>{{val.label?val.label:'Trigger '+($index+1)}}</h5>
+										<div class="actions">
+											<span ng-click="openUpdateModuleDialog($event,'trigger',val)" class="material-icons cursor-pointer">settings</span>
+										</div>
+									</div>
+									<p>{{val.description}}</p>
+									<span class="draggable md-icon-reorder drag-handle" dragdrop></span>
 								</div>
 							</div>
-							<p>{{val.description}}</p>
 						</div>
-
 					</div>
+					<div class="col-md-5 item-wrapper">
+						<h3 class="md-title md-title-nospace">
+							Actions
+							<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'action')" aria-label="Add">+</md-button>
+						</h3>
+						<br>
+						<div ui-sortable="sortableOptions" ng-model="aActions">
+							<div ng-repeat="val in aActions">
+								<div class="draggable vcard card">
+									<div class="item-content">
+										<h5>{{val.label?val.label:'Action '+($index+1)}}</h5>
+										<div class="actions">
 
-				</div>
-
-			</div>
-		</div>
-		<hr></hr>
-		<div class="container" style="margin-left: 20px;">
-			<div class="bindings row">
-				<div class="col-md-12 item-wrapper">
-					<h3 class="md-title md-title-nospace">
-						Conditions
-						<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'condition')" aria-label="Add">+</md-button>
-					</h3>
-					<br>
-					<div ng-repeat="val in aConditions track by $index">
-						<div class="vcard card col-md-10">
-							<div class="row">
-								<h5 class="col-md-10">{{val.label?val.label:'Condition '+($index+1)}}</h5>
-								<div class="col-md-1">
-									<md-button ng-click="openUpdateModuleDialog($event,'condition',val)" class="md-raised"> <i class="material-icons">settings</i></md-button>
-
+											<span ng-click="openUpdateModuleDialog($event,'action',val)" class="material-icons cursor-pointer">settings</span>
+										</div>
+									</div>
+									<p>{{val.description}}</p>
+									<span class="draggable md-icon-reorder drag-handle" dragdrop></span>
 								</div>
 							</div>
-							<p ng-bind-html="val.description"></p>
 						</div>
-
 					</div>
+
 				</div>
 			</div>
+			<hr></hr>
+			<div>
+				<div class="row">
+					<div class="col-md-10 item-wrapper no-padding">
+						<h3 class="md-title md-title-nospace">
+							Conditions
+							<md-button class="md-fab md-custom-plus" ng-click="openNewModuleDialog($event,'condition')" aria-label="Add">+</md-button>
+						</h3>
+						<br>
+
+						<div ui-sortable="sortableOptions" ng-model="aConditions">
+							<div ng-repeat="val in aConditions track by $index">
+								<div class="draggable vcard card">
+									<div class="item-content">
+										<h5>{{val.label?val.label:'Condition '+($index+1)}}</h5>
+										<div class="actions">
+											<span ng-click="openUpdateModuleDialog($event,'condition',val)" class="material-icons cursor-pointer">settings</span>
+										</div>
+									</div>
+									<p>{{val.description}}</p>
+									<span class="draggable md-icon-reorder drag-handle" dragdrop></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		</div>
-	</div>
 </section>
