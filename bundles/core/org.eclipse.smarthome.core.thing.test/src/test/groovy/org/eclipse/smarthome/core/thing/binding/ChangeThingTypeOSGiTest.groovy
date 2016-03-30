@@ -199,6 +199,8 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
         @Override
         public void initialize() {
+            println "[ChangeThingTypeOSGiTest] GenericThingHandler.initialize"
+            new RuntimeException().printStackTrace()
             super.initialize()
             genericInits++;
             if (selfChanging) {
@@ -208,7 +210,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
-            println "Generic Handle Command"
+            println "[ChangeThingTypeOSGiTest] Generic Handle Command"
         }
     }
 
@@ -221,18 +223,20 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
         @Override
         public void initialize() {
+            println "[ChangeThingTypeOSGiTest] SpecificThingHandler.initialize"
             specificInits++;
             super.initialize();
         }
 
         @Override
         public void handleCommand(ChannelUID channelUID, Command command) {
-            println "Specific Handle Command"
+            println "[ChangeThingTypeOSGiTest] Specific Handle Command"
         }
     }
 
     @Test
     void 'assert changing the ThingType works'() {
+        println "[ChangeThingTypeOSGiTest] ======== assert changing the ThingType works"
         def thing = ThingFactory.createThing(thingTypeGeneric, new ThingUID("testBinding", "testThing"), new Configuration(), null, configDescriptionRegistry)
         thing.setProperty("universal", "survives")
         managedThingProvider.add(thing)
@@ -264,16 +268,21 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     @Test
     void 'assert changing thing type within initialize works'() {
+        println "[ChangeThingTypeOSGiTest] ======== assert changing thing type within initialize works"
         selfChanging = true
+        println "[ChangeThingTypeOSGiTest] Create thing"
         def thing = ThingFactory.createThing(thingTypeGeneric, new ThingUID("testBinding", "testThing"), new Configuration(), null, configDescriptionRegistry)
         thing.setProperty("universal", "survives")
+        println "[ChangeThingTypeOSGiTest] Add thing to managed thing provider"
         managedThingProvider.add(thing)
 
+        println "[ChangeThingTypeOSGiTest] Wait for thing changed"
         assertThingWasChanged(thing)
     }
 
     @Test
     void 'assert loading specialized thing type works directly'() {
+        println "[ChangeThingTypeOSGiTest] ======== assert loading specialized thing type works directly"
         clearProviders()
 
         def storage = getService(StorageService)
