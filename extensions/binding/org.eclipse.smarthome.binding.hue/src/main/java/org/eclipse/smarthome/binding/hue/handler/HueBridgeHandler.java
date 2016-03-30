@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -307,7 +308,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onNotAuthenticated(HueBridge bridge) {
         String userName = (String) getConfig().get(USER_NAME);
-        if (userName == null) {
+        if (StringUtils.isBlank(userName)) {
             createUser(bridge);
         } else {
             try {
