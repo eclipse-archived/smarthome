@@ -559,6 +559,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.thing;
     $scope.groups = [];
     $scope.thingType;
+    $scope.isEditing = true;
     var originalThing = {};
 
     $scope.update = function(thing) {

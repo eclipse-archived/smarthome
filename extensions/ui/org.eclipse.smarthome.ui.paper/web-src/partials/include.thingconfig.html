@@ -1,12 +1,20 @@
-<div class="container" ng-if="thing.item">
-	<div class="thingName">
-		<md-input-container> <label>Name</label> <input ng-model="thing.label"> </md-input-container>
+<form name="form.thingform">
+	<div class="container" ng-if="thing.item">
+		<div class="thingName">
+			<md-input-container> <label>Name</label> <input ng-model="thing.label"> </md-input-container>
+
+			<md-input-container ng-if="!isEditing"> <label>Thing ID</label> <input ng-model="thing.ID" required>
+			<div ng-messages="form.thingform.uid.$error">
+				<div ng-message="pattern">ID is required</div>
+			</div>
+			</md-input-container>
+		</div>
 	</div>
-</div>
-<div class="container" ng-if="needsBridge">
-	<h3>Bridge Selection</h3>
-	<div class="form-group">
-		<md-select placeholder="Select a Bridge" ng-model="thing.bridgeUID" ng-readonly="true"> <md-option ng-value="bridge.UID" ng-repeat="bridge in bridges">{{bridge.label + ' - '}}{{bridge.UID}}</md-option> </md-select>
+	<div class="container" ng-if="needsBridge">
+		<h3>Bridge Selection</h3>
+		<div class="form-group">
+			<md-select placeholder="Select a Bridge" ng-model="thing.bridgeUID" ng-readonly="true"> <md-option ng-value="bridge.UID" ng-repeat="bridge in bridges">{{bridge.label + ' - '}}{{bridge.UID}}</md-option> </md-select>
+		</div>
+		<hr />
 	</div>
-	<hr />
-</div>
+</form>

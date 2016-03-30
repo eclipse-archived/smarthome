@@ -188,9 +188,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             label : null,
             groupNames : []
         }
-    }
+    };
+    $scope.thingID = null;
 
     $scope.addThing = function(thing) {
+        thing.UID = thingTypeUID + ':' + thing.ID;
         thingSetupService.add({
             'enableChannels' : !$scope.advancedMode
         }, thing, function() {
@@ -223,7 +225,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         $scope.setHeaderText(thingType.description);
         $scope.thingType = thingType;
         $scope.parameters = configService.getRenderingModel(thingType.configParameters, thingType.parameterGroups);
-        $scope.thing.UID = thingType.UID + ':' + generateUUID();
+        $scope.thing.ID = generateUUID();
         $scope.thing.item.label = thingType.label;
         $scope.thing.label = thingType.label;
         $scope.needsBridge = $scope.thingType.supportedBridgeTypeUIDs && $scope.thingType.supportedBridgeTypeUIDs.length > 0;
