@@ -153,16 +153,16 @@
 		<div class="section-header">
 			<div class="container">
 				<div class="toolbar">
-					<md-button title="Add" ng-click="addThing(thing)" ng-disabled="form.configForm.$invalid" class="md-fab" aria-label="Add"> <i class="material-icons">check</i></md-button>
+					<md-button title="Add" ng-click="addThing(thing)" ng-disabled="form.configForm.$invalid || form.thingform.$invalid" class="md-fab" aria-label="Add"> <i class="material-icons">check</i></md-button>
 				</div>
 			</div>
 		</div>
+		<div ng-init="form={}">
+			<div ng-include="'partials/include.thingconfig.html'"></div>
+			<div class="container">
+				<h3>Configuration Parameters</h3>
+				<p>Configure parameters for the thing.</p>
 
-		<div ng-include="'partials/include.thingconfig.html'"></div>
-		<div class="container">
-			<h3>Configuration Parameters</h3>
-			<p>Configure parameters for the thing.</p>
-			<div ng-init="form={}">
 				<div ng-include="'partials/include.config.html'" onload="configuration=thing.configuration"></div>
 			</div>
 		</div>
