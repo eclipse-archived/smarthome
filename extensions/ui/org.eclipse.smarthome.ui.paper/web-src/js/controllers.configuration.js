@@ -359,13 +359,22 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
 
     $scope.unlinkChannel = function(channelID) {
         var channel = $scope.getChannelById(channelID);
-        var linkedItem = channel.linkedItems[0];
-        linkService.unlink({
-            itemName : linkedItem,
-            channelUID : $scope.thing.UID + ':' + channelID
-        }, function() {
-            $scope.getThing(true);
-            toastService.showDefaultToast('Channel unlinked');
+        $mdDialog.show({
+            controller : 'UnlinkChannelDialogController',
+            templateUrl : 'partials/dialog.unlinkchannel.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                itemName : channel.linkedItems[0]
+            }
+        }).then(function(itemName) {
+            linkService.unlink({
+                itemName : channel.linkedItems[0],
+                channelUID : $scope.thing.UID + ':' + channelID
+            }, function() {
+                $scope.getThing(true);
+                toastService.showDefaultToast('Channel unlinked');
+            });
         });
     }
 
@@ -548,6 +557,14 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.link = function(itemName) {
         $mdDialog.hide(itemName);
+    }
+}).controller('UnlinkChannelDialogController', function($scope, $mdDialog, toastService, linkService, itemName) {
+    $scope.itemName = itemName;
+    $scope.close = function() {
+        $mdDialog.cancel();
+    }
+    $scope.unlink = function() {
+        $mdDialog.hide();
     }
 }).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, configService, thingService) {
 
