@@ -45,7 +45,7 @@ public class ListRenderer extends AbstractWidgetRenderer {
         String[] rowContents = state.split(((List) w).getSeparator());
         StringBuilder rowSB = new StringBuilder();
         for (String row : rowContents) {
-            rowSB.append(StringUtils.replace(rowSnippet, "%title%", row));
+            rowSB.append(StringUtils.replace(rowSnippet, "%title%", escapeHtml(row)));
         }
         snippet = StringUtils.replace(snippet, "%rows%", rowSB.toString());
 
