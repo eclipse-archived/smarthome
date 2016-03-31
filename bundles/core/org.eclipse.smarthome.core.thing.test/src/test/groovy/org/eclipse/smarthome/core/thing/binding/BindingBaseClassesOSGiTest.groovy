@@ -409,6 +409,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
             managedThingProvider.add(thing)
 
+            waitForAssert({-> assertThat thingUpdated, is(true) }, 10000, 100)
+
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_MODEL_ID), is(null)
             assertThat updatedThing.getProperties().get(Thing.PROPERTY_VENDOR), is(null)
 
@@ -448,6 +450,8 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
             managedThingProvider.add(thing)
 
             thingRegistry.updateConfiguration(thingUID, [parameter: 'value'] as Map)
+
+            waitForAssert({-> assertThat thingUpdated, is(true) }, 10000, 100)
 
             assertThat updatedThing.getConfiguration().get('parameter'), is('value')
         } finally {
@@ -491,7 +495,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
 
         // set the config to an initial value
         thingRegistry.updateConfiguration(thingUID, [parameter: "before"] as Map)
-        assert thing.getConfiguration().get("parameter"), is("before")
+        assertThat thing.getConfiguration().get("parameter"), is("before")
 
         // let it fail next time...
         thing.getHandler().callback = [thingUpdated: {updatedThing -> throw new IllegalStateException()}] as ThingHandlerCallback
@@ -503,7 +507,7 @@ class BindingBaseClassesOSGiTest extends OSGiTest {
         }
 
         // now check if the thing's configuration has been rolled back
-        assert thing.getConfiguration().get("parameter"), is("before")
+        assertThat thing.getConfiguration().get("parameter"), is("before")
     }
 
     private void registerThingTypeAndConfigDescription() {
