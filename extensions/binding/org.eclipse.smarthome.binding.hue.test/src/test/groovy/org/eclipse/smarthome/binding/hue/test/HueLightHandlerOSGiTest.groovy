@@ -485,7 +485,12 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         // mock HttpClient
         def hueBridgeField = hueBridgeHandler.getClass().getDeclaredField("bridge")
         hueBridgeField.accessible = true
-        def hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+        def hueBridgeValue = null
+
+        waitForAssert({
+            hueBridgeValue = hueBridgeField.get(hueBridgeHandler)
+            assertThat hueBridgeValue, is(notNullValue())
+        }, 10000, 100)
 
         def httpClientField = hueBridgeValue.getClass().getDeclaredField("http")
         httpClientField.accessible = true
