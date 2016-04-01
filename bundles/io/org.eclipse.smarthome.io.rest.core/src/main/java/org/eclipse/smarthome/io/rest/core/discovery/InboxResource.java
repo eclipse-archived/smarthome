@@ -38,6 +38,7 @@ import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
+import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
@@ -54,6 +55,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Dennis Nobel - Initial contribution
  * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
  * @author Yordan Zhelev - Added Swagger annotations
+ * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve.
  */
 @Path(InboxResource.PATH_INBOX)
 @Api(value = InboxResource.PATH_INBOX)
@@ -89,7 +91,8 @@ public class InboxResource implements RESTResource {
     @Consumes(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Approves the discovery result by adding the thing to the registry.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Thing not found in the inbox.") })
+            @ApiResponse(code = 404, message = "Thing not found in the inbox."),
+            @ApiResponse(code = 409, message = "No binding found that supports this thing.") })
     public Response approve(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
             @ApiParam(value = "thing label") String label,
@@ -101,8 +104,14 @@ public class InboxResource implements RESTResource {
         try {
             thing = inbox.approve(thingUIDObject, notEmptyLabel);
         } catch (IllegalArgumentException e) {
-            return Response.status(Status.NOT_FOUND).build();
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Thing not found in inbox");
         }
+
+        // inbox.approve returns null if no handler is found that supports this thing
+        if (thing == null) {
+            return JSONResponse.createErrorResponse(Status.CONFLICT, "No binding found that can create the thing");
+        }
+
         thingSetupManager.createGroupItems(notEmptyLabel, new ArrayList<String>(), thing, thing.getThingTypeUID(),
                 locale);
         if (enableChannels) {
@@ -120,7 +129,7 @@ public class InboxResource implements RESTResource {
         if (inbox.remove(new ThingUID(thingUID))) {
             return Response.ok().build();
         } else {
-            return Response.status(Status.NOT_FOUND).build();
+            return JSONResponse.createErrorResponse(Status.NOT_FOUND, "Thing not found in inbox");
         }
     }
 
