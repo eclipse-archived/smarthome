@@ -620,3 +620,53 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
     min-height: 42px;
 }
 
+.vcard .actions {
+	margin: 10px;
+}
+
+.vcard .actions span {
+	font-size: 24px;
+}
+
+.md-icon-reorder:hover {
+	text-decorations: none;
+}
+
+.vcard .actions span:focus {
+	outline: none;
+}
+
+@media all and (max-width: 720px) {
+	md-dialog-content {
+		max-height: 420px;
+	}
+	.draggable .md-icon-reorder {
+		display: block;
+	}
+}
+
+@media all and (min-width: 720px) {
+	.draggable .md-icon-reorder {
+		display: none;
+	}
+}
+
+.rules-input {
+	padding: 0 0 12px 10px;
+	margin-right: 3%;
+}
+
+.no-padding {
+	padding: 0px;
+}
+
+.drag-handle {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	color: grey;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
