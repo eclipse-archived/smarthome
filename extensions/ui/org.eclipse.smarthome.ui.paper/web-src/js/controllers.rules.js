@@ -158,6 +158,13 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     $scope.aActions = sharedProperties.getActionsArray();
     $scope.aConditions = sharedProperties.getConditionsArray();
 
+    $scope.sortableOptions = {
+        handle : '.draggable',
+        update : function(e, ui) {
+        },
+        axis : 'y'
+    };
+
 }).controller('RuleConfigureController', function($scope, ruleRepository, ruleService, toastService) {
     $scope.setSubtitle([ 'Configure' ]);
     var ruleUID = $scope.path[3];
@@ -215,5 +222,30 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     $scope.close = function() {
         sharedProperties.resetParams();
         $mdDialog.hide();
+    };
+}).directive('dragdrop', function() {
+    return {
+        restrict : 'AE',
+        replace : true,
+        template : '<span class="draggable md-icon-reorder"></span>',
+        link : function(scope, elem, attrs) {
+
+            var touchHandler = function(event) {
+                var touch = event.changedTouches[0];
+                var simulatedEvent = document.createEvent("MouseEvent");
+                simulatedEvent.initMouseEvent({
+                    touchstart : "mousedown",
+                    touchmove : "mousemove",
+                    touchend : "mouseup"
+                }[event.type], true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+
+                touch.target.dispatchEvent(simulatedEvent);
+                event.preventDefault();
+            };
+            elem[0].addEventListener("touchstart", touchHandler, true)
+            elem[0].addEventListener("touchmove", touchHandler, true);
+            elem[0].addEventListener("touchend", touchHandler, true);
+            elem[0].addEventListener("touchcancel", touchHandler, true);
+        }
     };
 });
