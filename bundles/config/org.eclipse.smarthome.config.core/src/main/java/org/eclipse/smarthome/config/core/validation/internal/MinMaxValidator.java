@@ -9,6 +9,7 @@ package org.eclipse.smarthome.config.core.validation.internal;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.ParameterOption;
 import org.eclipse.smarthome.config.core.validation.ConfigValidationMessage;
 import org.eclipse.smarthome.config.core.validation.internal.TypeIntrospections.TypeIntrospection;
 
@@ -17,6 +18,7 @@ import org.eclipse.smarthome.config.core.validation.internal.TypeIntrospections.
  * {@link ConfigDescriptionParameter}.
  *
  * @author Thomas Höfer - Initial contribution
+ * @authod Chris Jackson - Allow options to be outside of min/max value
  * @param <T>
  */
 final class MinMaxValidator implements ConfigDescriptionParameterValidator {
@@ -32,6 +34,14 @@ final class MinMaxValidator implements ConfigDescriptionParameterValidator {
     public ConfigValidationMessage validate(ConfigDescriptionParameter parameter, Object value) {
         if (value == null || parameter.getType() == Type.BOOLEAN) {
             return null;
+        }
+
+        // Allow specified options to be outside of the min/max value
+        for (ParameterOption option : parameter.getOptions()) {
+            // Option values are a string, so we can do a simple compare
+            if (option.getValue().equals(value.toString())) {
+                return null;
+            }
         }
 
         TypeIntrospection typeIntrospection = TypeIntrospections.get(parameter.getType());
