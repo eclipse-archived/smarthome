@@ -220,7 +220,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
 
         listSnippet = StringUtils.replace(listSnippet, "%items%", sb.toString());
 
-        pageSnippet = StringUtils.replace(pageSnippet, "%title%", "openHAB BasicUI");
+        pageSnippet = StringUtils.replace(pageSnippet, "%title%", "BasicUI");
         pageSnippet = StringUtils.replace(pageSnippet, "%htmlclass%",
                 config.getCssClassList() + " page-welcome-sitemaps");
         pageSnippet = StringUtils.replace(pageSnippet, "%content%", listSnippet);
