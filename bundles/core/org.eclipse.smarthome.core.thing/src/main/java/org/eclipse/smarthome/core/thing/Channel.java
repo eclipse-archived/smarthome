@@ -49,7 +49,7 @@ public class Channel {
 
     private Map<String, String> properties;
 
-    private Set<String> defaultTags;
+    private Set<String> defaultTags = new LinkedHashSet<>();
 
     transient private Set<Item> linkedItems = new LinkedHashSet<>();
 
@@ -222,4 +222,5 @@ public class Channel {
     public boolean isLinked() {
         return !getLinkedItems().isEmpty();
     }
+
 }

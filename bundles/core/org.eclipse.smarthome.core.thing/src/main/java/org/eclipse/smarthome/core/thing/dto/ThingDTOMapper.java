@@ -12,11 +12,16 @@ import java.util.List;
 
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.util.ThingHelper;
 
 /**
  * The {@link ThingDTOMapper} is an utility class to map things into data transfer objects (DTO).
  *
  * @author Stefan Bußweiler - Initial contribution
+ * @author Kai Kreuzer - Added DTO to Thing mapping
  */
 public class ThingDTOMapper {
 
@@ -41,4 +46,16 @@ public class ThingDTOMapper {
                 thing.getProperties());
     }
 
+    /**
+     * Maps thing DTO into thing
+     *
+     * @param thingDTO the thingDTO
+     * @return the corresponding thing 
+     */
+    public static Thing map(ThingDTO thingDTO) {
+    	ThingUID thingUID = new ThingUID(thingDTO.UID);
+    	ThingTypeUID thingTypeUID = thingDTO.thingTypeUID==null ? new ThingTypeUID("") : new ThingTypeUID(thingDTO.thingTypeUID);
+    	Thing thing = ThingBuilder.create(thingTypeUID, thingUID).build();    	
+    	return ThingHelper.merge(thing, thingDTO);
+    }
 }

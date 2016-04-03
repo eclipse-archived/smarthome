@@ -11,14 +11,11 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
-import org.eclipse.smarthome.config.core.Configuration
-import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingProvider
 import org.eclipse.smarthome.core.thing.ThingTypeUID
-import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -37,7 +34,6 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 	ManagedThingProvider managedThingProvider
 	
 	ProviderChangeListener<Thing> thingChangeListener
-	ThingHandlerFactory thingHandlerFactory
 	
 	final static String BINDIND_ID = "testBinding"
 	final static String THING_TYPE_ID = "testThingType"
@@ -51,13 +47,11 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		managedThingProvider = getService ManagedThingProvider
 		assertThat managedThingProvider, is(notNullValue())
 		unregisterCurrentThingsChangeListener()
-		unregisterCurrentThingHandlerFactory()
 	}
 	
 	@After
 	void teardown() {
 		unregisterCurrentThingsChangeListener()
-		unregisterCurrentThingHandlerFactory()
 		managedThingProvider.getAll().each {
 			managedThingProvider.remove(it.getUID())
 		} 
@@ -75,19 +69,7 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 			managedThingProvider.removeProviderChangeListener(this.thingChangeListener)
 		}
 	}
-	
-	private void registerThingHandlerFactory(ThingHandlerFactory thingHandlerFactory) {
-		unregisterCurrentThingHandlerFactory()
-		this.thingHandlerFactory = thingHandlerFactory
-		registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
-	}
-	
-	private void unregisterCurrentThingHandlerFactory() {
-		if (this.thingHandlerFactory != null) {
-			unregisterService(thingHandlerFactory)
-		}
-	}
-	
+		
 	@Test
 	void 'assert that added thing is returned by getThings'() {
 		def thing1 = ThingBuilder.create(THING_TYPE_UID, THING1_ID).build()
@@ -173,33 +155,4 @@ class ManagedThingProviderOSGiTest extends OSGiTest {
 		assertThat updatedThingWrapper.wrappedObject, is(thing2)
 	}
 	
-	@Test
-	void 'assert that createThing delegates to registered ThingHandlerFactory'() {
-		def expectedThingTypeUID = THING_TYPE_UID
-		def expectedThingUID = new ThingUID(THING_TYPE_UID, THING1_ID)
-		def expectedConfiguration = new Configuration()
-		def expectedBridgeUID = new ThingUID(THING_TYPE_UID, THING2_ID)
-		def expectedLabel = "Test Thing"
-		
-		AsyncResultWrapper<Thing> thingResultWrapper = new AsyncResultWrapper<Thing>();
-		
-		registerThingHandlerFactory( [
-			supportsThingType: { ThingTypeUID thingTypeUID -> true },
-			createThing : { ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID, ThingUID bridgeUID ->
-				assertThat thingTypeUID, is(expectedThingTypeUID)
-				assertThat configuration, is(expectedConfiguration)
-				assertThat thingUID, is(expectedThingUID)
-				assertThat bridgeUID, is(expectedBridgeUID)
-				def thing = ThingBuilder.create(thingTypeUID, thingUID.getId()).withBridge(bridgeUID).build()
-				thingResultWrapper.set(thing)
-				thing
-			},
-            registerHandler: {}
-		] as ThingHandlerFactory)
-
-        def thing = managedThingProvider.createThing(expectedThingTypeUID, expectedThingUID, expectedBridgeUID, expectedLabel, expectedConfiguration)
-		waitForAssert{assertTrue thingResultWrapper.isSet}
-		assertThat thing, is(thingResultWrapper.wrappedObject)
-	}
-
 }

@@ -12,8 +12,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
+import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
+import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
+import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 
 import com.google.common.base.Joiner;
@@ -27,12 +33,13 @@ import com.google.common.base.Joiner;
  *         https://bugs.eclipse.org/bugs/show_bug.cgi?id=450236 - Considering
  *         ThingTypeDescription
  * @author Dennis Nobel - Removed createAndBindItems method
+ * @author Kai Kreuzer - Added merge method
  */
 public class ThingHelper {
 
     /**
      * Indicates whether two {@link Thing}s are technical equal.
-     * 
+     *
      * @param a
      *            Thing object
      * @param b
@@ -79,5 +86,61 @@ public class ThingHelper {
 
     public static void addChannelsToThing(Thing thing, Collection<Channel> channels) {
         ((ThingImpl) thing).getChannelsMutable().addAll(channels);
+    }
+
+    /**
+     * Merges the content of a ThingDTO with an existing Thing.
+     * Where ever the DTO has null values, the content of the original Thing is kept.
+     * Where ever the DTO has non-null values, these are used.
+     * In consequence, care must be taken when the content of a list (like configuration, properties or channels) is to
+     * be updated - the DTO must contain the full list, otherwise entries will be deleted.
+     *
+     * @param thing the Thing instance to merge the new content into
+     * @param updatedContents a DTO which carries the updated content
+     *
+     * @return A Thing instance, which is the result of the merge
+     */
+    public static Thing merge(Thing thing, ThingDTO updatedContents) {
+
+        ThingBuilder builder = ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
+
+        // Update the label
+        if (updatedContents.label != null) {
+            builder.withLabel(updatedContents.label);
+        } else {
+            builder.withLabel(thing.getLabel());
+        }
+
+        // update bridge UID
+        if (updatedContents.bridgeUID != null) {
+            builder.withBridge(new ThingUID(updatedContents.bridgeUID));
+        } else {
+            builder.withBridge(thing.getBridgeUID());
+        }
+
+        // update thing configuration
+        if (updatedContents.configuration != null) {
+            builder.withConfiguration(new Configuration(updatedContents.configuration));
+        } else {
+            builder.withConfiguration(thing.getConfiguration());
+        }
+
+        // update thing properties
+        if (updatedContents.properties != null) {
+            builder.withProperties(updatedContents.properties);
+        } else {
+            builder.withProperties(thing.getProperties());
+        }
+
+        // Update the channels
+        if (updatedContents.channels != null) {
+            for (ChannelDTO channelDTO : updatedContents.channels) {
+                builder.withChannel(ChannelDTOMapper.map(channelDTO));
+            }
+        } else {
+            builder.withChannels(thing.getChannels());
+        }
+
+        return builder.build();
     }
 }
