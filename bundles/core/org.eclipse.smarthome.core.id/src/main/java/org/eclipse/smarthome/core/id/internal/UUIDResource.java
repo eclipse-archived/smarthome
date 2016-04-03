@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.id.internal;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @Path(UUIDResource.PATH_UUID)
 @Api(value = UUIDResource.PATH_UUID)
+@RolesAllowed({ "administrator" })
 public class UUIDResource implements RESTResource {
 
     public static final String PATH_UUID = "uuid";

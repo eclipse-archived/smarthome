@@ -48,6 +48,7 @@
   <feature name="esh-tp-jax-rs" version="${project.version}">
     <capability>esh.tp;feature=jax-rs;version=5.3.1</capability>
     <feature>esh-tp-jax-rs-min</feature>
+    <feature>esh-tp-jax-rs-provider-security</feature>
     <feature>esh-tp-jax-rs-provider-gson</feature>
   </feature>
 
@@ -112,6 +113,12 @@
     <bundle dependency="true">mvn:org.slf4j/slf4j-api/1.7.7</bundle>
     <bundle dependency="true">mvn:org.yaml/snakeyaml/1.12</bundle>
   </feature>
+
+  <feature name="esh-tp-jax-rs-provider-security" description="Security provider for jaxrs" version="${project.version}">
+    <capability>esh.tp;feature=jax-rs-provider-security;version=2.2</capability>
+    <feature dependency="true">esh-tp-jax-rs-min</feature>
+    <bundle>mvn:com.eclipsesource.jaxrs/provider-security/2.2</bundle>
+  </feature>  
 
   <feature name="esh-tp-jax-rs-provider-gson" description="JAX-RS provider for de/serialization using Gson" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-gson;version=2.3</capability>
