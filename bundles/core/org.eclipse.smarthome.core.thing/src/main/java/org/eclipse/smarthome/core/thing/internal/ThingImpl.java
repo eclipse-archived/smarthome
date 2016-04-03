@@ -57,8 +57,8 @@ public class ThingImpl implements Thing {
 
     private ThingTypeUID thingTypeUID;
 
-    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED,
-            ThingStatusDetail.NONE).build();
+    transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder
+            .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
     transient volatile private ThingHandler thingHandler;
 
@@ -238,6 +238,11 @@ public class ThingImpl implements Thing {
     }
 
     @Override
+    public void setProperties(Map<String, String> properties) {
+        this.properties = new HashMap<>(properties);
+    }
+
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -247,18 +252,23 @@ public class ThingImpl implements Thing {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         ThingImpl other = (ThingImpl) obj;
         if (uid == null) {
-            if (other.uid != null)
+            if (other.uid != null) {
                 return false;
-        } else if (!uid.equals(other.uid))
+            }
+        } else if (!uid.equals(other.uid)) {
             return false;
+        }
         return true;
     }
 

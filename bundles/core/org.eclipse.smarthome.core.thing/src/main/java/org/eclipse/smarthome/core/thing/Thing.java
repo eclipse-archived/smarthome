@@ -193,4 +193,11 @@ public interface Thing {
      * @return the previous value associated with the name, or null if there was no mapping for the name
      */
     String setProperty(String name, String value);
+
+    /**
+     * Updates all properties of the thing.
+     *
+     * @param properties the properties to set (must not be null)
+     */
+    void setProperties(Map<String, String> properties);
 }
