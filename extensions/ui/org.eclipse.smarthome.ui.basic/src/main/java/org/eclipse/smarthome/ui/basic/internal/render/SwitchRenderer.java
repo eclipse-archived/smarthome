@@ -102,7 +102,7 @@ public class SwitchRenderer extends AbstractWidgetRenderer {
                 String button = getSnippet("button");
                 button = StringUtils.replace(button, "%item%", w.getItem());
                 button = StringUtils.replace(button, "%cmd%", mapping.getCmd());
-                button = StringUtils.replace(button, "%label%", mapping.getLabel());
+                button = StringUtils.replace(button, "%label%", escapeHtml(mapping.getLabel()));
                 if (s.getMappings().size() > 1 && state.toString().equals(mapping.getCmd())) {
                     button = StringUtils.replace(button, "%class%", "mdl-button--accent");
                 } else {
