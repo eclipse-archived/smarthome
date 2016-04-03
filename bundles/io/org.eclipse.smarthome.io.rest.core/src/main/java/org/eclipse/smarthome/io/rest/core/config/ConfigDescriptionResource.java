@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -24,6 +25,7 @@ import org.eclipse.smarthome.config.core.ConfigDescription;
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.SatisfiableRESTResource;
@@ -45,6 +47,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Chris Jackson - Modify response to use JSONResponse
  */
 @Path(ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
+@RolesAllowed({ Role.ADMIN })
 @Api(value = ConfigDescriptionResource.PATH_CONFIG_DESCRIPTIONS)
 public class ConfigDescriptionResource implements SatisfiableRESTResource {
 
@@ -63,7 +66,7 @@ public class ConfigDescriptionResource implements SatisfiableRESTResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available config descriptions.", response = ConfigDescriptionDTO.class, responseContainer = "List")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK") )
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
     public Response getAll(@HeaderParam("Accept-Language") @ApiParam(value = "Accept-Language") String language) {
         Locale locale = LocaleUtil.getLocale(language);
         Iterable<ConfigDescriptionDTO> transform = Iterables

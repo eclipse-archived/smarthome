@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
-Export-Package: org.eclipse.smarthome.core.binding,
+Export-Package: org.eclipse.smarthome.core.auth,
+ org.eclipse.smarthome.core.binding,
  org.eclipse.smarthome.core.binding.dto,
  org.eclipse.smarthome.core.common,
  org.eclipse.smarthome.core.common.osgi,

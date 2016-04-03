@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -28,6 +29,7 @@ import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionDTOMapper;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterDTO;
 import org.eclipse.smarthome.config.core.dto.ConfigDescriptionParameterGroupDTO;
+import org.eclipse.smarthome.core.auth.Role;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.dto.ChannelDefinitionDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelGroupDefinitionDTO;
@@ -93,9 +95,10 @@ public class ThingTypeResource implements SatisfiableRESTResource {
     }
 
     @GET
+    @RolesAllowed({ Role.USER })
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets all available thing types without config description, channels and properties.", response = StrippedThingTypeDTO.class, responseContainer = "Set")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "OK") )
+    @ApiResponses(value = @ApiResponse(code = 200, message = "OK"))
     public Response getAll(
             @HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = HttpHeaders.ACCEPT_LANGUAGE) String language) {
         Locale locale = LocaleUtil.getLocale(language);
@@ -105,6 +108,7 @@ public class ThingTypeResource implements SatisfiableRESTResource {
     }
 
     @GET
+    @RolesAllowed({ Role.USER })
     @Path("/{thingTypeUID}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Gets thing type by UID.", response = ThingTypeDTO.class)
