@@ -77,7 +77,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
         if (label.contains("[") && label.endsWith("]")) {
             label = label.replace("[", "").replace("]", "");
         }
-        snippet = StringUtils.replace(snippet, "%label%", label);
+        snippet = StringUtils.replace(snippet, "%label%", escapeHtml(label));
         snippet = StringUtils.replace(snippet, "%servletname%", WebAppServlet.SERVLET_NAME);
         snippet = StringUtils.replace(snippet, "%sitemap%", sitemap);
         snippet = StringUtils.replace(snippet, "%htmlclass%", config.getCssClassList());

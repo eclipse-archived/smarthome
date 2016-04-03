@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.model.sitemap.Widget;
@@ -112,7 +113,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
             label = label.substring(0, index);
         }
 
-        return label;
+        return escapeHtml(label);
     }
 
     /**
@@ -126,7 +127,7 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         int index = label.indexOf('[');
 
         if (index != -1) {
-            return label.substring(index + 1, label.length() - 1);
+            return escapeHtml(label.substring(index + 1, label.length() - 1));
         } else {
             return "";
         }
@@ -191,6 +192,10 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
         } else {
             return "NULL";
         }
+    }
+
+    protected String escapeHtml(String s) {
+        return StringEscapeUtils.escapeHtml(s);
     }
 
     @Override
