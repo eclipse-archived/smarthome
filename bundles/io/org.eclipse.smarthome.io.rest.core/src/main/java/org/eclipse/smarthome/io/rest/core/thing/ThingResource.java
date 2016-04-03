@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -81,6 +82,7 @@ import io.swagger.annotations.ApiResponses;
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Jörg Plewe - refactoring, error handling
  * @author Chris Jackson - added channel configuration updates
+ *         return empty set for config/status if no status available
  */
 @Path(ThingResource.PATH_THINGS)
 @Api(value = ThingResource.PATH_THINGS)
@@ -451,14 +453,24 @@ public class ThingResource implements RESTResource {
     @Path("/{thingUID}/config/status")
     @ApiOperation(value = "Gets thing's config status.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Config status for thing not found.") })
+            @ApiResponse(code = 404, message = "Thing not found.") })
     public Response getConfigStatus(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID) throws IOException {
+        ThingUID thingUIDObject = new ThingUID(thingUID);
+
+        // Check if the Thing exists, 404 if not
+        Thing thing = thingRegistry.get(thingUIDObject);
+        if (null == thing) {
+            logger.info("Received HTTP GET request for thing config status at '{}' for the unknown thing '{}'.",
+                    uriInfo.getPath(), thingUID);
+            return getThingNotFoundResponse(thingUID);
+        }
+
         ConfigStatusInfo info = configStatusService.getConfigStatus(thingUID, LocaleUtil.getLocale(language));
         if (info != null) {
             return Response.ok().entity(info.getConfigStatusMessages()).build();
         }
-        return Response.status(Status.NOT_FOUND).build();
+        return Response.ok().entity(Collections.EMPTY_SET).build();
     }
 
     /**
