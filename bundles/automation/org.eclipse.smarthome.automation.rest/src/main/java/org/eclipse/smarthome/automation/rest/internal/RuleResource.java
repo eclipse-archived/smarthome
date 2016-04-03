@@ -34,7 +34,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
-import org.eclipse.smarthome.io.rest.ConfigUtil;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
