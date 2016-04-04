@@ -294,7 +294,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
 
     @Override
     public void onLightStateChanged(HueBridge bridge, FullLight fullLight) {
-        if (fullLight.getId().equals(lightId)) {
+        if (fullLight != null && fullLight.getId().equals(lightId)) {
             lastSentColorTemp = null;
             lastSentBrightness = null;
 
@@ -330,7 +330,7 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
         }
 
     }
-    
+
     @Override
     public void channelLinked(ChannelUID channelUID) {
         HueBridgeHandler handler = getHueBridgeHandler();

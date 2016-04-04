@@ -26,9 +26,8 @@ import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
-import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
@@ -58,15 +57,15 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LWB004")
     final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "PAR16_50_TW")
 
-    ManagedThingProvider managedThingProvider
+    ThingRegistry thingRegistry
     VolatileStorageService volatileStorageService = new VolatileStorageService()
 
 
     @Before
     void setUp() {
         registerService(volatileStorageService)
-        managedThingProvider = getService(ThingProvider, ManagedThingProvider)
-        assertThat managedThingProvider, is(notNullValue())
+        thingRegistry = getService(ThingRegistry, ThingRegistry)
+        assertThat thingRegistry, is(notNullValue())
     }
 
     Bridge createBridge() {
@@ -77,12 +76,13 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             it
         }
 
-        Bridge hueBridge = managedThingProvider.createThing(
+        Bridge hueBridge = thingRegistry.createThingOfType(
                 BRIDGE_THING_TYPE_UID,
                 new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge"),
                 null, "Bridge", bridgeConfiguration)
 
         assertThat hueBridge, is(notNullValue())
+        thingRegistry.add(hueBridge)
 
         return hueBridge
     }
@@ -93,12 +93,13 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             it
         }
 
-        Thing hueLight = managedThingProvider.createThing(
+        Thing hueLight = thingRegistry.createThingOfType(
                 lightUID,
                 new ThingUID(lightUID, "Light1"),
                 hueBridge.getUID(), "Light", lightConfiguration)
 
         assertThat hueLight, is(notNullValue())
+        thingRegistry.add(hueLight)
 
         return hueLight
     }
@@ -118,7 +119,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(notNullValue())
         }, 10000)
 
-        managedThingProvider.remove(hueLight.getUID())
+        thingRegistry.remove(hueLight.getUID())
 
         // wait for HueLightHandler to be unregistered
         waitForAssert({
@@ -126,7 +127,7 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat hueLightHandler, is(nullValue())
         }, 10000)
 
-        managedThingProvider.remove(hueBridge.getUID())
+        thingRegistry.remove(hueBridge.getUID())
     }
 
     @Test
@@ -335,20 +336,20 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         def expectedReply ='{"on" : false}'
         assertSendCommandForBrightness(OnOffType.OFF, currentState, expectedReply)
     }
-    
+
     @Test
     void 'assert command for brightness channel: on'() {
         def currentState = new HueLightState()
         def expectedReply ='{"on" : true}'
         assertSendCommandForBrightness(OnOffType.ON, currentState, expectedReply)
     }
-    
+
     @Test
     void 'assert command for alert channel'() {
         def currentState = new HueLightState().alert('NONE')
         def expectedReply ='{"alert" : "none"}'
         assertSendCommandForAlert(new StringType("NONE"), currentState, expectedReply)
-        
+
         currentState.alert("NONE")
         expectedReply ='{"alert" : "select"}'
         assertSendCommandForAlert(new StringType("SELECT"), currentState, expectedReply)
@@ -441,8 +442,8 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertThat addressWrapper.wrappedObject, is("http://1.2.3.4/api/testUserName/lights/1/state")
             assertJson(expectedReply, bodyWrapper.wrappedObject)
         } finally {
-            managedThingProvider.remove(hueLight.getUID())
-            managedThingProvider.remove(hueBridge.getUID())
+            thingRegistry.remove(hueLight.getUID())
+            thingRegistry.remove(hueBridge.getUID())
         }
     }
 
