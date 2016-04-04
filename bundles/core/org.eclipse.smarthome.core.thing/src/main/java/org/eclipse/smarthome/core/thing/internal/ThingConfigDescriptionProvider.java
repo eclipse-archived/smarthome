@@ -64,7 +64,7 @@ public class ThingConfigDescriptionProvider implements ConfigDescriptionProvider
     @Override
     public ConfigDescription getConfigDescription(URI uri, Locale locale) {
         // If this is not a concrete thing, then return
-        if ("thing".equals(uri.getScheme()) == false) {
+        if (uri == null || "thing".equals(uri.getScheme()) == false) {
             return null;
         }
 
