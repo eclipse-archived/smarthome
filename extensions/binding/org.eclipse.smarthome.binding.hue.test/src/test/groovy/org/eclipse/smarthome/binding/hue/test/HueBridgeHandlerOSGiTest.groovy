@@ -19,8 +19,7 @@ import nl.q42.jue.exceptions.UnauthorizedException
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.ManagedThingProvider
-import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
@@ -43,14 +42,14 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
     private static final TEST_USER_NAME = "eshTestUser"
     private static final DUMMY_HOST = "1.2.3.4"
 
-    ManagedThingProvider managedThingProvider
+    ThingRegistry thingRegistry
 
 
     @Before
     void setUp() {
         registerVolatileStorageService()
-        managedThingProvider = getService(ThingProvider, ManagedThingProvider)
-        assertThat managedThingProvider, is(notNullValue())
+        thingRegistry = getService(ThingRegistry, ThingRegistry)
+        assertThat thingRegistry, is(notNullValue())
     }
 
     @Test
@@ -73,7 +72,7 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
             assertThat hueBridgeHandler, is(notNullValue())
         }, 10000)
 
-        managedThingProvider.remove(hueBridge.getUID())
+        thingRegistry.remove(hueBridge.getUID())
 
         // wait for HueBridgeHandler to be unregistered
         waitForAssert({
@@ -209,12 +208,13 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
     }
 
     private Bridge createBridgeThing(Configuration configuration){
-        Bridge bridge = managedThingProvider.createThing(
+        Bridge bridge = thingRegistry.createThingOfType(
                 BRIDGE_THING_TYPE_UID,
                 new ThingUID(BRIDGE_THING_TYPE_UID, "testBridge"),
                 null, "Bridge", configuration)
 
         assertThat bridge, is(notNullValue())
+        thingRegistry.add(bridge)
         return bridge
     }
 

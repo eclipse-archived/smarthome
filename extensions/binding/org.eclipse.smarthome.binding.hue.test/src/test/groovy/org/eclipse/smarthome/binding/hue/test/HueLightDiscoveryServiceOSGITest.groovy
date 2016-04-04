@@ -24,8 +24,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResult
 import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag
 import org.eclipse.smarthome.config.discovery.DiscoveryService
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.ManagedThingProvider
-import org.eclipse.smarthome.core.thing.ThingProvider
+import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
 import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
@@ -49,7 +48,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
     HueThingHandlerFactory hueThingHandlerFactory
     DiscoveryListener discoveryListener
-    ManagedThingProvider managedThingProvider
+    ThingRegistry thingRegistry
     Bridge hueBridge
     HueBridgeHandler hueBridgeHandler
     HueLightDiscoveryService discoveryService
@@ -61,8 +60,9 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
     @Before
     void setUp() {
         registerVolatileStorageService()
-        managedThingProvider = getService(ThingProvider, ManagedThingProvider)
-        assertThat managedThingProvider, is(notNullValue())
+
+        thingRegistry = getService(ThingRegistry, ThingRegistry)
+        assertThat thingRegistry, is(notNullValue())
 
         hueBridgeHandler = getService(ThingHandler, HueBridgeHandler)
         assertThat hueBridgeHandler, is(nullValue())
@@ -74,12 +74,13 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
             it
         }
 
-        hueBridge = managedThingProvider.createThing(
+        hueBridge = thingRegistry.createThingOfType(
                 BRIDGE_THING_TYPE_UID,
                 BRIDGE_THING_UID,
                 null, "Bridge", configuration)
 
         assertThat hueBridge, is(notNullValue())
+        thingRegistry.add(hueBridge)
 
         // wait for HueBridgeHandler to be registered
         waitForAssert({
@@ -93,7 +94,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
     @After
     void cleanUp() {
-        managedThingProvider.remove(BRIDGE_THING_UID)
+        thingRegistry.remove(BRIDGE_THING_UID)
     }
 
     private void registerDiscoveryListener(DiscoveryListener discoveryListener) {
