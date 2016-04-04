@@ -444,6 +444,10 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         } finally {
             thingRegistry.remove(hueLight.getUID())
             thingRegistry.remove(hueBridge.getUID())
+            waitForAssert({
+                assertThat thingRegistry.get(hueLight.getUID()), is(nullValue())
+                assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
+            }, 10000)
         }
     }
 
