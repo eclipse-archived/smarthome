@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -90,14 +91,14 @@ public class ConfigurableServiceResource implements RESTResource {
     @Path("/{serviceId}/config")
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get service configuration for given service ID.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 404, message = "Not found"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 500, message = "Configuration can not be read due to internal error") })
     public Response getConfiguration(
             @PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
         try {
             Configuration configuration = configurationService.get(serviceId);
             return configuration != null ? Response.ok(configuration.getProperties()).build()
-                    : Response.status(404).build();
+                    : Response.ok(Collections.emptyMap()).build();
         } catch (IOException ex) {
             logger.error("Cannot get configuration for service {}: " + ex.getMessage(), serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
