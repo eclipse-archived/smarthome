@@ -200,7 +200,6 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         @Override
         public void initialize() {
             println "[ChangeThingTypeOSGiTest] GenericThingHandler.initialize"
-            new RuntimeException().printStackTrace()
             super.initialize()
             genericInits++;
             if (selfChanging) {
