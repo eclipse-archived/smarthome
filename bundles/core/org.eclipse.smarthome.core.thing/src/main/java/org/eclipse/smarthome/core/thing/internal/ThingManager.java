@@ -242,6 +242,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 @Override
                 public void run() {
                     ThingUID thingUID = thing.getUID();
+                    waitForRunningHandlerRegistrations(thingUID);
                     ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
 
                     // Remove the ThingHandler
@@ -267,6 +268,23 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
                     logger.debug("Changed ThingType of Thing {} to {}. New ThingHandler is {}.",
                             thing.getUID().toString(), thing.getThingTypeUID(), thing.getHandler().toString());
+                }
+
+                private void waitForRunningHandlerRegistrations(ThingUID thingUID) {
+                    for (int i = 0; i < 10 * 10; i++) {
+                        if (!registerHandlerLock.contains(thingUID)) {
+                            return;
+                        }
+                        try {
+                            // Wait a little to give running handler registrations a chance to complete...
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
+                    throw new RuntimeException(MessageFormat.format(
+                            "Thing type migration failed for {0}. Could not obtain lock for hander registration.",
+                            thingUID.getAsString()));
                 }
             }, 0, TimeUnit.MILLISECONDS);
         }
