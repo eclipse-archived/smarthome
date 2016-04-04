@@ -44,4 +44,26 @@ class ConfigurationTest {
         assertThat configClass.stringField, is("test")
     }
 
+    @Test
+    void 'assert config allows null values'() {
+
+        def configuration = new Configuration([
+            stringField: null,
+            anotherField: null
+        ])
+
+        // ensure conversions are null-tolerant and don't throw exceptions
+        def props = configuration.getProperties()
+        def keys = configuration.keySet()
+        def values = configuration.values()
+
+        // ensure copies, not views
+        configuration.put("stringField", "someValue")
+        configuration.put("additionalField", "")
+        assertThat props.get("stringField"), is(nullValue())
+        assertThat values.first(), is(nullValue())
+        assertThat values.last(), is(nullValue())
+        assertThat values.size(), is(2)
+        assertThat keys.size(), is(2)
+    }
 }

@@ -12,7 +12,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,10 +23,6 @@ import java.util.Set;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * This class is a wrapper for configuration settings of {@link Thing}s.
@@ -130,19 +128,19 @@ public class Configuration {
 
     public Set<String> keySet() {
         synchronized (this) {
-            return ImmutableSet.copyOf(properties.keySet());
+            return Collections.unmodifiableSet(new HashSet<>(properties.keySet()));
         }
     }
 
     public Collection<Object> values() {
         synchronized (this) {
-            return ImmutableList.copyOf(properties.values());
+            return Collections.unmodifiableCollection(new ArrayList<>(properties.values()));
         }
     }
 
     public Map<String, Object> getProperties() {
         synchronized (this) {
-            return ImmutableMap.copyOf(properties);
+            return Collections.unmodifiableMap(new HashMap<>(properties));
         }
     }
 
