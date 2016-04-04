@@ -15,7 +15,7 @@ import javax.script.ScriptException;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
-import org.eclipse.smarthome.automation.module.script.internal.ScriptModuleActivator;
+import org.eclipse.smarthome.automation.module.script.ScriptEngineProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class ScriptConditionHandler extends AbstractScriptModuleHandler<Conditio
         Object script = module.getConfiguration().get(SCRIPT);
         if (type instanceof String) {
             if (script instanceof String) {
-                ScriptEngine engine = ScriptModuleActivator.getScriptEngine((String) type);
+                ScriptEngine engine = ScriptEngineProvider.getScriptEngine((String) type);
                 if (engine != null) {
                     ScriptContext executionContext = getExecutionContext(engine, context);
                     try {
@@ -54,6 +54,8 @@ public class ScriptConditionHandler extends AbstractScriptModuleHandler<Conditio
                     } catch (ScriptException e) {
                         logger.error("Script execution failed: {}", e.getMessage());
                     }
+
+                    ScriptEngineProvider.removeEngine(engine);
                 } else {
                     logger.debug("No engine available for script type '{}' in condition '{}'.",
                             new Object[] { type, module.getId() });
