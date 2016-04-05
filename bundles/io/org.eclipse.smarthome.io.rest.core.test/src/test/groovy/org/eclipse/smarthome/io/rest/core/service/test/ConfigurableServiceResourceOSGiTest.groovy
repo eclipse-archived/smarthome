@@ -89,7 +89,7 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
     void 'assert configuration management works'() {
 
         Response response = configurableServiceResource.getConfiguration("id")
-        assertThat response.status, is(404)
+        assertThat response.status, is(200)
 
         response = configurableServiceResource.updateConfiguration("id", ["a" : "b"])
         assertThat response.status, is(204)
@@ -107,7 +107,8 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
         assertThat response.entity.get("a"), is(equalTo("c"))
 
         response = configurableServiceResource.getConfiguration("id")
-        assertThat response.status, is(404)
+        assertThat response.status, is(200)
+        assertThat response.entity.get("a"), nullValue()
 
         response = configurableServiceResource.deleteConfiguration("id")
         assertThat response.status, is(204)
