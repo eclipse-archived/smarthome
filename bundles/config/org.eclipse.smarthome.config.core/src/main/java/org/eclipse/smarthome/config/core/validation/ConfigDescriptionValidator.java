@@ -61,8 +61,7 @@ public final class ConfigDescriptionValidator {
      * @throws NullPointerException if given config description URI or configuration parameters are null
      */
     @SuppressWarnings("unchecked")
-    public static void validate(Map<String, Object> configurationParameters, URI configDescriptionURI)
-            throws ConfigValidationException {
+    public static void validate(Map<String, Object> configurationParameters, URI configDescriptionURI) {
         Preconditions.checkNotNull(configurationParameters, "Configuration parameters must not be null");
         Preconditions.checkNotNull(configDescriptionURI, "Config description URI must not be null");
 
