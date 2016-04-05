@@ -30,13 +30,24 @@
                "name":"type",
                "type":"TEXT",
                "description":"the scripting language to use (like in a file extension, i.e. 'js')",
-               "required":true
+               "required":true,
+               "options":[
+                    {
+                        "label": "Javascript",
+                        "value": "js"
+                    },
+                    {
+                        "label": "Jython",
+                        "value": "jy"
+                    }
+                ]
             },
             {  
                "name":"script",
                "type":"TEXT",
                "description":"the script to execute",
-               "required":true
+               "required":true,
+               "context":"script"
             }
          ],
          "outputs":[  
