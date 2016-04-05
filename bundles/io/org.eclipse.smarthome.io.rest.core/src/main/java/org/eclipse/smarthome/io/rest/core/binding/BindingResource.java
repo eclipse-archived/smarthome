@@ -9,6 +9,7 @@ package org.eclipse.smarthome.io.rest.core.binding;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -95,7 +96,7 @@ public class BindingResource implements RESTResource {
     @Produces({ MediaType.APPLICATION_JSON })
     @ApiOperation(value = "Get binding configuration for given binding ID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 404, message = "Binding does not exist or config not found"),
+            @ApiResponse(code = 404, message = "Binding does not exist"),
             @ApiResponse(code = 500, message = "Configuration can not be read due to internal error") })
     public Response getConfiguration(
             @PathParam("bindingId") @ApiParam(value = "service ID", required = true) String bindingId) {
@@ -108,7 +109,7 @@ public class BindingResource implements RESTResource {
             }
             Configuration configuration = configurationService.get(configId);
             return configuration != null ? Response.ok(configuration.getProperties()).build()
-                    : Response.status(404).build();
+                    : Response.ok(Collections.emptyMap()).build();
         } catch (IOException ex) {
             logger.error("Cannot get configuration for service {}: " + ex.getMessage(), bindingId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
