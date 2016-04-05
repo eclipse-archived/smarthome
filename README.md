@@ -48,3 +48,5 @@ the designer zips are placed in there.
 
 - unzip the file eclipsesmarthome-incubation-0.x.0-designer-<platform>.zip to a local folder
 - run the executable „Eclipse-SmartHome-Designer[.exe]"
+
+123
