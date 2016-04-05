@@ -192,7 +192,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             if (parameter.type === 'TEXT') {
                                 configuration[parameter.name] = parameter.defaultValue
                             } else if (parameter.type === 'BOOLEAN') {
-                                configuration[parameter.name] = new Boolean(parameter.defaultValue);
+                                if (typeof (configuration[parameter.name]) !== 'boolean') {
+                                    configuration[parameter.name] = new Boolean(parameter.defaultValue);
+                                }
                             } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
                                 configuration[parameter.name] = parseInt(parameter.defaultValue);
                             } else {
@@ -205,6 +207,26 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 });
             }
             return configuration;
+        },
+        convertValues : function(configurations) {
+            angular.forEach(configurations, function(value, name) {
+                if (typeof (value) !== "boolean") {
+                    var parsedValue = Number(value);
+                    if (isNaN(parsedValue)) {
+                        if (value.toUpperCase() == 'TRUE') {
+                            configurations[name] = true;
+                        } else if (value.toUpperCase() == 'FALSE') {
+                            configurations[name] = false;
+                        } else {
+                            configurations[name] = value;
+                        }
+
+                    } else {
+                        configurations[name] = parsedValue;
+                    }
+                }
+            });
+            return configurations;
         }
     };
 });
