@@ -12,7 +12,6 @@ import java.util.Map;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
 import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
-import org.eclipse.smarthome.config.core.validation.ConfigValidationException;
 import org.eclipse.smarthome.core.thing.Thing;
 
 /**
@@ -53,8 +52,7 @@ public abstract class ConfigStatusThingHandler extends BaseThingHandler implemen
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
-            throws ConfigValidationException {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
         super.handleConfigurationUpdate(configurationParameters);
         if (configStatusCallback != null) {
             configStatusCallback.configUpdated(new ThingConfigStatusSource(getThing().getUID().getAsString()));

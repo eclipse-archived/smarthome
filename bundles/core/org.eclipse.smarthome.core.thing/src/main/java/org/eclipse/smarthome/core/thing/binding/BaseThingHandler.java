@@ -110,8 +110,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     }
 
     @Override
-    public void handleConfigurationUpdate(Map<String, Object> configurationParameters)
-            throws ConfigValidationException {
+    public void handleConfigurationUpdate(Map<String, Object> configurationParameters) {
         validateConfigurationParameters(configurationParameters);
 
         // can be overridden by subclasses
@@ -187,8 +186,7 @@ public abstract class BaseThingHandler implements ThingHandler {
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
-    protected void validateConfigurationParameters(Map<String, Object> configurationParameters)
-            throws ConfigValidationException {
+    protected void validateConfigurationParameters(Map<String, Object> configurationParameters) {
         ThingType thingType = TypeResolver.resolve(getThing().getThingTypeUID());
         if (thingType != null && thingType.getConfigDescriptionURI() != null) {
             ConfigDescriptionValidator.validate(configurationParameters, thingType.getConfigDescriptionURI());

@@ -53,8 +53,7 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
-    void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters)
-            throws ConfigValidationException;
+    void updateConfiguration(ThingUID thingUID, Map<String, Object> configurationParameters);
 
     /**
      * Initiates the removal process for the {@link Thing} specified by the given {@link ThingUID}.

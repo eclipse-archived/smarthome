@@ -95,7 +95,7 @@ public interface ThingHandler {
      * @throws ConfigValidationException if one or more of the given configuration parameters do not match
      *             their declarations in the configuration description
      */
-    void handleConfigurationUpdate(Map<String, Object> configurationParameters) throws ConfigValidationException;
+    void handleConfigurationUpdate(Map<String, Object> configurationParameters);
 
     /**
      * This method is called, before the handler is shut down.
@@ -161,7 +161,7 @@ public interface ThingHandler {
      * This method is called, when the status of the bridge has been changed to
      * {@link ThingStatus#ONLINE} or {@link ThingStatus#OFFLINE}. If the thing
      * of this handler does not have a bridge, this method is never called.
-     * 
+     *
      * @param thingStatusInfo the status info of the bridge
      */
     void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo);
