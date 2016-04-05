@@ -78,7 +78,13 @@ public class ConfigurationService {
             }
         }
         for (Entry<String, Object> configurationParameter : configurationParameters) {
-            properties.put(configurationParameter.getKey(), configurationParameter.getValue());
+            Object value = configurationParameter.getValue();
+            if (value == null || value instanceof String || value instanceof Integer || value instanceof Boolean) {
+                properties.put(configurationParameter.getKey(), value);
+            } else {
+                // the config admin does not support complex object types, so let's store the string representation
+                properties.put(configurationParameter.getKey(), value.toString());
+            }
         }
         configuration.update(properties);
         return oldConfiguration;
