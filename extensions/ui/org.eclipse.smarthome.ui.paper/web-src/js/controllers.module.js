@@ -27,7 +27,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
         var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
         if (index != -1) {
-            $scope.configuration = sharedProperties.getModuleArray(type)[index].configuration;
+            $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
             $scope.configArray = configService.getConfigAsArray($scope.configuration);
         }
     }

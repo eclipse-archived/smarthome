@@ -81,8 +81,8 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         bindingService.getConfigById({
             id : bindingId
         }).$promise.then(function(config) {
-            $scope.configuration = config;
-            $scope.configArray = configService.getConfigAsArray(config);
+            $scope.configuration = configService.convertValues(config);
+            $scope.configArray = configService.getConfigAsArray($scope.configuration);
         }, function(failed) {
             $scope.configuration = {};
             $scope.configArray = configService.getConfigAsArray($scope.configuration);
@@ -198,8 +198,8 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             id : serviceId
         }).$promise.then(function(config) {
             if (config) {
-                $scope.configuration = config;
-                $scope.configArray = configService.getConfigAsArray(config);
+                $scope.configuration = configService.convertValues(config);
+                $scope.configArray = configService.getConfigAsArray($scope.configuration);
                 if ($scope.parameters && $scope.parameters.length > 0) {
                     $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
                 }
