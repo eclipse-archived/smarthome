@@ -110,7 +110,7 @@ class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCust
         this.mProvider = mProvider;
         this.rImporter = rImporter;
         bTracker = new BundleTracker<Object>(bc, ~Bundle.UNINSTALLED, this);
-        pkgAdmin = bc.getService(bc.getServiceReference(PackageAdmin.class));
+        pkgAdmin = (PackageAdmin) bc.getService(bc.getServiceReference(PackageAdmin.class.getName()));
     }
 
     /**
