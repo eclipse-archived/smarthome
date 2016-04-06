@@ -4,6 +4,7 @@
          "uid":"GenericEventTrigger",
          "label":"Basic Event Trigger",
          "description":"Triggers Rules on Events",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"eventTopic",

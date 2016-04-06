@@ -4,6 +4,7 @@
          "uid":"EventCondition",
          "label":"Event Condition",
          "description":"Condition for events",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"topic",
