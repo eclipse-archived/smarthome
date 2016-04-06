@@ -114,6 +114,10 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     parameter.element = 'select';
                     itemsList = itemsList === undefined ? itemService.getAll() : itemsList;
                     parameter.options = itemsList;
+                } else if (parameter.context && parameter.context.toUpperCase() === 'SCRIPT') {
+                    parameter.element = 'textarea';
+                    parameter.inputType = 'text';
+                    parameter.label = parameter.label && parameter.label.length > 0 ? parameter.label : 'Script';
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
                     if (parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
