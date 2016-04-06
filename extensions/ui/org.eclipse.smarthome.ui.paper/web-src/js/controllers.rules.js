@@ -242,10 +242,36 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
                 touch.target.dispatchEvent(simulatedEvent);
                 event.preventDefault();
             };
-            elem[0].addEventListener("touchstart", touchHandler, true)
+            elem[0].addEventListener("touchstart", touchHandler, true);
             elem[0].addEventListener("touchmove", touchHandler, true);
             elem[0].addEventListener("touchend", touchHandler, true);
             elem[0].addEventListener("touchcancel", touchHandler, true);
         }
     };
+}).directive('scriptarea', function() {
+    return {
+        restrict : 'A',
+        require : '^ngModel',
+        link : function(scope, elem, attrs) {
+            elem.ready(function() {
+                setTimeout(function() {
+                    elem[0].style.cssText = 'height:auto;';
+                    elem[0].style.cssText = 'height:' + elem[0].scrollHeight + 'px';
+                }, 500);
+            });
+
+            var resizeHandler = function(event) {
+                elem[0].style.cssText = 'height:auto;';
+                if (elem[0].value.length < 1) {
+                    elem[0].style.cssText = 'height:35px';
+                } else {
+                    elem[0].style.cssText = 'height:' + elem[0].scrollHeight + 'px';
+                }
+            };
+            elem[0].addEventListener("keydown", resizeHandler, true);
+            elem[0].addEventListener("input", resizeHandler, true);
+            elem[0].addEventListener("cut", resizeHandler);
+
+        }
+    }
 });
