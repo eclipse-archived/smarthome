@@ -45,6 +45,7 @@ public class HueBindingConstants {
     public final static ThingTypeUID THING_TYPE_SURFACE_LIGHT_TW = new ThingTypeUID(BINDING_ID, "Surface_Light_TW");
     public final static ThingTypeUID THING_TYPE_ZLL_LIGHT = new ThingTypeUID(BINDING_ID, "ZLL_Light");
     public final static ThingTypeUID THING_TYPE_PAR16_50_TW = new ThingTypeUID(BINDING_ID, "PAR16_50_TW");
+    public final static ThingTypeUID THING_TYPE_FLEX_RGBW = new ThingTypeUID(BINDING_ID, "Flex_RGBW");
 
     // List all channels
     public static final String CHANNEL_COLORTEMPERATURE = "color_temperature";
