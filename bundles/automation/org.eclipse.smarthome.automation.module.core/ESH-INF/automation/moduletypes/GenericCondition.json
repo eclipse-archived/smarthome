@@ -4,6 +4,7 @@
       "uid":"GenericCompareCondition",
       "label":"CompareCondition",
       "description":"configurable compare condition",
+      "visibility":"HIDDEN",
       "configDescriptions":[
         {
           "name":"inputproperty",
@@ -41,6 +42,7 @@
       "uid":"ItemStateEventCompareCondition",
       "label":"Item Event Condition",
       "description":"checks if the input event was thrown by a specific item and if the state of this item changed to a given state",
+      "visibility":"HIDDEN",      
       "configDescriptions":[
         {
           "name":"itemName",

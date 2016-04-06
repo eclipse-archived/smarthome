@@ -4,6 +4,7 @@
          "uid":"ItemStateEventCondition",
          "label":"ItemStateEvent Condition",
          "description":"checks if an item event was a state event and compares the new state",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"itemName",
@@ -50,6 +51,7 @@
          "uid":"ItemStateEvent_ON_Condition",
          "label":"ItemStateEvent ON Condition",
          "description":"checks if an item event was a state event and checks if the new state is ON",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"itemName",
@@ -87,6 +89,7 @@
          "uid":"ItemStateEvent_OFF_Condition",
          "label":"ItemStateEvent OFF Condition",
          "description":"checks if an item event was a state event and checks if the new state is OFF",
+         "visibility":"HIDDEN",
          "configDescriptions":[  
             {  
                "name":"itemName",
