@@ -6,6 +6,7 @@ angular.module('PaperUI.controllers.rules').service('sharedProperties', function
     var conditionsArray = [];
     var tId = 1, aId = 1, cId = 1;
     var params = [];
+    var moduleTypes = [];
     return {
         updateParams : function(elem) {
             params.push(elem);
@@ -20,7 +21,9 @@ angular.module('PaperUI.controllers.rules').service('sharedProperties', function
             arr.type = type;
             var self = this;
             angular.forEach(arr, function(value) {
-                self.updateModule(arr.type, value);
+                if (self.searchVisibleType(arr, value.type) == -1) {
+                    self.updateModule(arr.type, value);
+                }
             });
         },
         updateModule : function(type, value) {
@@ -104,6 +107,18 @@ angular.module('PaperUI.controllers.rules').service('sharedProperties', function
 
         },
 
+        searchVisibleType : function(arr, type) {
+
+            var k;
+            for (k = 0; arr != null && k < arr.length; k = k + 1) {
+                if (arr[k].uid === type && arr[k].visibility.toUpperCase() === 'VISIBLE') {
+                    return k;
+                }
+            }
+            return -1;
+
+        },
+
         getModuleArray : function(type) {
             if (type == 'trigger') {
                 return triggersArray;
@@ -113,6 +128,10 @@ angular.module('PaperUI.controllers.rules').service('sharedProperties', function
                 return conditionsArray;
             }
 
+        },
+
+        setModuleTypes : function(mTypes) {
+            moduleTypes = mTypes;
         }
 
     }
