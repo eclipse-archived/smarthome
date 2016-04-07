@@ -3,9 +3,14 @@
 angular.module('PaperUI.controllers.rules').controller('addModuleDialogController', function($rootScope, $scope, $mdDialog, moduleTypeService, sharedProperties, $filter, configService, module, ruleID, type) {
 
     var objectFilter = $filter('filter');
-
-    $scope.moduleData = moduleTypeService.getByType({
+    $scope.moduleData;
+    moduleTypeService.getByType({
         mtype : type
+    }).$promise.then(function(data) {
+        $scope.moduleData = objectFilter(data, {
+            visibility : 'VISIBLE'
+        });
+        setConfigurations();
     });
     $scope.id = module.id;
     $scope.type = type;
@@ -16,19 +21,18 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     $scope.configuration = {};
 
     function setConfigurations() {
-
-        $scope.moduleData.$promise.then(function(data) {
-            var params = filterByUid(data, $scope.module);
+        if ($scope.moduleData) {
+            var params = filterByUid($scope.moduleData, $scope.module);
             var res = configService.getRenderingModel(params[0].configDescriptions);
             angular.forEach(res, function(value) {
                 sharedProperties.updateParams(value);
             });
-        });
 
-        var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
-        if (index != -1) {
-            $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
-            $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
+            if (index != -1) {
+                $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
+                $scope.configArray = configService.getConfigAsArray($scope.configuration);
+            }
         }
     }
 
