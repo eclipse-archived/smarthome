@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.automation.core.internal.composite;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,16 +38,12 @@ public class CompositeConditionHandler extends
      */
     @Override
     public boolean isSatisfied(Map<String, ?> context) {
-        Map<String, Object> internalContext = new HashMap<String, Object>(context);
         List<Condition> children = moduleType.getChildren();
+        Map<String, Object> compositeContext = getCompositeContext(context);
         for (Condition child : children) {
-            Map<String, ?> compositeContext = getCompositeContext(internalContext);
-            Map<String, Object> originalConfig = new HashMap<String, Object>(child.getConfiguration());
-            updateChildConfig(child, compositeContext);
+            Map<String, Object> childContext = getChildContext(child, compositeContext);
             ConditionHandler childHandler = moduleHandlerMap.get(child);
-            boolean isSatisfied = childHandler.isSatisfied(compositeContext);
-            child.setConfiguration(originalConfig); // restore original configs with links
-
+            boolean isSatisfied = childHandler.isSatisfied(childContext);
             if (!isSatisfied) {
                 return false;
             }

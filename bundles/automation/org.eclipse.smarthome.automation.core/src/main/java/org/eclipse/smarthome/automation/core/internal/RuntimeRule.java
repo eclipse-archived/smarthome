@@ -231,7 +231,6 @@ public class RuntimeRule extends Rule {
 
     private void validateConfiguration(List<ConfigDescriptionParameter> configDescriptions,
             Map<String, ?> ruleConfiguration) {
-        // Map<String, ?> ruleConfiguration = getConfiguration();
         if (ruleConfiguration != null) {
             validateConfiguration0(configDescriptions, new HashMap<String, Object>(ruleConfiguration));
             handleModuleConfigReferences(getTriggers(), ruleConfiguration);
@@ -243,21 +242,7 @@ public class RuntimeRule extends Rule {
     private void handleModuleConfigReferences(List<? extends Module> modules, Map<String, ?> ruleConfiguration) {
         if (modules != null) {
             for (Module module : modules) {
-                Map<String, Object> moduleConfiguration = module.getConfiguration();
-                if (moduleConfiguration != null) {
-                    for (Map.Entry<String, ?> entry : moduleConfiguration.entrySet()) {
-                        String configName = entry.getKey();
-                        Object configValue = entry.getValue();
-                        if (configValue instanceof String) {
-                            String configValueStr = (String) configValue;
-                            if (configValueStr.charAt(0) == REFERENCE_SYMBOL) {
-                                String referredRuleConfigName = configValueStr.substring(1);
-                                Object referredRuleConfigValue = ruleConfiguration.get(referredRuleConfigName);
-                                moduleConfiguration.put(configName, referredRuleConfigValue);
-                            }
-                        }
-                    }
-                }
+                ReferenceResolverUtil.updateModuleConfiguration(module, ruleConfiguration);
             }
         }
     }

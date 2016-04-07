@@ -1,21 +1,35 @@
 [  
   {  
-    "name": "ItemSampleRule",
-	"uid": "ItemSampleRule",
+    "name": "TemplateSampleRuleWithReferences",
+	"uid": "TemplateSampleRuleWithReferences",
     "tags": [  
       "sample",
 	  "item",
 	  "jsonTest",
-      "rule"
+      "rule",
+      "references"
     ],
-    "configuration": {},
+    "configDescriptions": [
+         {  
+            "name":"triggerItem",
+            "type":"TEXT",
+            "description":"ItemName which state change triggers the rule",
+            "required":true
+         },
+         {  
+            "name":"actionItem",
+            "type":"TEXT",
+            "description":"ItemName on which action will be performed.",
+            "required":true
+         }
+    ],
     "description": "Sample Rule for items definition.",
     "triggers": [  
       {  
         "id": "ItemStateChangeTriggerID",
         "type": "GenericEventTrigger",
 		"configuration":{
-			"eventSource":"myMotionItem",
+			"eventSource":"$triggerItem",
 			"eventTopic":"smarthome/items/*",
 			"eventTypes":"ItemStateEvent"
 		}
@@ -26,7 +40,7 @@
         "id": "ItemStateConditionID",
         "type": "EventCondition",
         "configuration": {
-          "topic": "smarthome/items/myMotionItem/state",
+          "topic": "smarthome/items/${triggerItem}/state",
 		  "payload":".*ON.*"
         },
 		"inputs":{
@@ -39,26 +53,10 @@
         "id": "ItemPostCommandActionID",
         "type": "ItemPostCommandAction",
         "configuration": {  
-          "itemName": "myLampItem",
+          "itemName": "$actionItem",
 		  "command": "ON"
         }
       }
     ]
-  },
-  {  
-    "uid": "ItemSampleRuleWithReferences",
-    "name": "ItemSampleRuleWithReferences",
-    "templateUID": "TemplateSampleRuleWithReferences",
-    "tags": [  
-      "sample",
-      "item",
-      "jsonTest",
-      "rule",
-      "references"
-    ],
-    "configuration": {  
-      "triggerItem": "myMotionItem",
-      "actionItem": "myLampItem"
-    }
   }
 ]

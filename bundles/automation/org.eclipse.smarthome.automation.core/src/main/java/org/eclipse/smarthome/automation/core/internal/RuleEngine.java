@@ -88,12 +88,6 @@ public class RuleEngine
         implements ServiceTrackerCustomizer/* <ModuleHandlerFactory, ModuleHandlerFactory> */, ManagedService {
 
     /**
-     * Constant defining separator between parent and custom module types. For example: SampleTrigger:CustomTrigger is a
-     * custom module type uid which defines custom trigger type base on the SampleTrigge module type.
-     */
-    public static final char MODULE_TYPE_SEPARATOR = ':';
-
-    /**
      * Constant defining separator between module uid and output name.
      */
     public static final char OUTPUT_SEPARATOR = '.';
@@ -1075,7 +1069,8 @@ public class RuleEngine
                 } else {
                     // get reference from context
                     String ref = c.getOutputName();
-                    Object value = context.get(ref);
+                    final Object value = ReferenceResolverUtil.resolveReference(ref, context);
+
                     if (value != null) {
                         context.put(c.getInputName(), value);
                     }

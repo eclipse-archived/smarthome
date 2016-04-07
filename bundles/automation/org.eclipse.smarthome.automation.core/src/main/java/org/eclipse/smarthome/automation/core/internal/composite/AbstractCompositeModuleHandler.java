@@ -10,12 +10,12 @@ package org.eclipse.smarthome.automation.core.internal.composite;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.automation.core.internal.ReferenceResolverUtil;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.ConditionHandler;
 import org.eclipse.smarthome.automation.handler.ModuleHandler;
@@ -64,68 +64,26 @@ public class AbstractCompositeModuleHandler<M extends Module, MT extends ModuleT
     }
 
     /**
-     * This method creates internal composite context which will be used as context passed to the child
-     * handlers. The composite context is base on the rule context, but it also has configuration properties and input
-     * values of parent module (the module which type is composite one). The keys in composite context of parent input
-     * values and config values are same with '$' prefix.
+     * Creates internal composite context which will be used for resolving child module's context.
      *
-     * @param context rule context pass to the parent module
-     * @return context which combines rule context and input and configuration properties of the parent module.
+     * @param context contains composite inputs and composite configuration.
+     * @return context that will be passed to the child module
      */
-    protected Map<String, ?> getCompositeContext(Map<String, ?> context) {
+    protected Map<String, Object> getCompositeContext(Map<String, ?> context) {
         Map<String, Object> result = new HashMap<String, Object>(context);
-        for (Entry<String, Object> config : module.getConfiguration().entrySet()) {
-            result.put("$" + config.getKey(), config.getValue());
-        }
-
-        Map<String, String> inputs = null;
-
-        if (module instanceof Condition) {
-            inputs = ((Condition) module).getInputs();
-        } else if (module instanceof Action) {
-            inputs = ((Action) module).getInputs();
-        }
-
-        if (inputs != null) {
-            for (Entry<String, String> input : inputs.entrySet()) {
-                Object o = context.get(input.getValue());
-                result.put("$" + input.getKey(), o);
-            }
-        }
+        result.putAll(module.getConfiguration());
         return result;
     }
 
     /**
-     * This method updates (changes) configuration properties of the child module base on the composite context values.
-     * It resolve references of child module configuration properties to inputs and configuration properties of
-     * parent module.
-     * For example: if a child configuration property has a value '$name' the method looks for such key in composite
-     * context and replace the child's configuration value.
+     * Creates child context that will be passed to the child handler.
      *
-     * @param child child module defined by composite module type
-     * @param compositeContext context containing rule context and inputs and configuration values of parent module.
+     * @param child Composite Module's child
+     * @param compositeContext context with which child context will be resolved.
+     * @return child context ready to be passed to the child for execution.
      */
-    protected void updateChildConfig(Module child, Map<String, ?> compositeContext) {
-        for (Entry<String, Object> config : child.getConfiguration().entrySet()) {
-            Object o = config.getValue();
-            if (o instanceof String) {
-                String key = (String) o;
-                if (isReference(key)) {
-                    Object contextValue = compositeContext.get(key);
-                    config.setValue(contextValue);
-                }
-            }
-        }
-    }
-
-    /**
-     * Check if the string argument is a reference to the composite context or it is a real value.
-     *
-     * @param ref a string value.
-     * @return true when the string value is a reference to the context value
-     */
-    protected boolean isReference(String ref) {
-        return ref.startsWith("$") && ref.length() > 1;
+    protected Map<String, Object> getChildContext(Module child, Map<String, ?> compositeContext) {
+        return ReferenceResolverUtil.getCompositeChildContext(child, compositeContext);
     }
 
     @Override
