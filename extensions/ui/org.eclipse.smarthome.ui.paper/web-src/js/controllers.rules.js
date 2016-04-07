@@ -89,7 +89,7 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         $scope.setSubtitle([ rule.name ]);
         $scope.rule = rule;
     });
-}).controller('NewRuleController', function($scope, itemRepository, ruleService, toastService, $mdDialog, sharedProperties) {
+}).controller('NewRuleController', function($scope, itemRepository, ruleService, toastService, $mdDialog, sharedProperties, moduleTypeService) {
     $scope.setSubtitle([ 'New Rule' ]);
     itemRepository.getAll();
     sharedProperties.reset();
@@ -113,9 +113,14 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     }
 
     function setModuleArrays(data) {
-        sharedProperties.addArray('trigger', data.triggers);
-        sharedProperties.addArray('action', data.actions);
-        sharedProperties.addArray('condition', data.conditions);
+        moduleTypeService.getByType({
+            mtype : 'trigger'
+        }).$promise.then(function(moduleData) {
+            sharedProperties.setModuleTypes(moduleData);
+            sharedProperties.addArray('trigger', data.triggers);
+            sharedProperties.addArray('action', data.actions);
+            sharedProperties.addArray('condition', data.conditions);
+        });
     }
 
     $scope.saveUserRule = function() {
