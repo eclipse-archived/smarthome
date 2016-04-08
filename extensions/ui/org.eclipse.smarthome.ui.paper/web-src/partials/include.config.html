@@ -47,7 +47,8 @@
 								</p>
 							</div>
 							<div ng-switch-when="select">
-								<md-input-container> <label>{{parameter.label}}</label> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
+								<label class="config-textInput">{{parameter.label}}</label>
+								<md-input-container> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
 									{{ option.label?option.label:option.name }}
 									<span class="md-caption" style="color: grey;">({{ option.name?option.name:'' }}) </span>
 								</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
