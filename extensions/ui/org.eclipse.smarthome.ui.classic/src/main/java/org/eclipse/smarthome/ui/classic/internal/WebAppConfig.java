@@ -29,7 +29,7 @@ public class WebAppConfig {
     public void applyConfig(Map<String, Object> configProps) {
         String configIconType = (String) configProps.get("iconType");
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
-        String configHtmlCacheDisabled = (String) configProps.get("disableHtmlCache");
+        String configHtmlCacheDisabled = configProps.get("disableHtmlCache").toString();
 
         if (configDefaultSitemap == null) {
             configDefaultSitemap = DEFAULT_SITEMAP;
