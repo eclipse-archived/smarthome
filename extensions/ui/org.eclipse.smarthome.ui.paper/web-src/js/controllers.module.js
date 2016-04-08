@@ -10,7 +10,9 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         $scope.moduleData = objectFilter(data, {
             visibility : 'VISIBLE'
         });
-        setConfigurations();
+        if ($scope.id) {
+            setConfigurations();
+        }
     });
     $scope.id = module.id;
     $scope.type = type;
