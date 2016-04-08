@@ -52,7 +52,7 @@ public class WebAppConfig {
         for (String key : cssClasses.keySet()) {
             Boolean value = cssDefaultValues.get(key);
             if (configProps.containsKey(key)) {
-                value = ((String) configProps.get(key)).equalsIgnoreCase("true");
+                value = configProps.get(key).toString().equalsIgnoreCase("true");
             }
             if (value) {
                 cssClassList.add(cssClasses.get(key));
