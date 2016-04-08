@@ -611,7 +611,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 .config-textInput {
     font-size: 10.5px;
     color: rgba(0,0,0,0.54);
-    margin-left: 4px;
+    margin-left: 2px;
 }
 
 .icontrol .md-button, .thing .md-button, .item-content .actions .md-button, .header-toolbar .md-button,
@@ -672,7 +672,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 }
 
 md-input-container textarea.md-input.scriptArea, md-input-container textarea.md-input.ng-invalid.ng-dirty,
-	md-input-container.md-input-focused .md-input {
+	md-input-container textarea.md-input-focused .md-input {
 	max-width: 550px;
 	max-height: 250px;
 	overflow: scroll;
