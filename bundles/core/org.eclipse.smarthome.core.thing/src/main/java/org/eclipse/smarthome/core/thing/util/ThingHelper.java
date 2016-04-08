@@ -119,7 +119,7 @@ public class ThingHelper {
         }
 
         // update thing configuration
-        if (updatedContents.configuration != null) {
+        if (updatedContents.configuration != null && !updatedContents.configuration.keySet().isEmpty()) {
             builder.withConfiguration(new Configuration(updatedContents.configuration));
         } else {
             builder.withConfiguration(thing.getConfiguration());
