@@ -17,7 +17,7 @@
 									</div>
 									<span ng-messages="" ng-show="!focus">
 										<p class="hint">
-											<small>{{parameter.description}}</small>
+											<small ng-bind-html="parameter.description"></small>
 										</p>
 									</span> </md-input-container>
 								</div>
@@ -31,7 +31,7 @@
 									</div>
 									<span ng-messages="" ng-show="!focus">
 										<p class="hint">
-											<small>{{parameter.description}}</small>
+											<small ng-bind-html="parameter.description"></small>
 										</p>
 									</span> <span ng-messages="" ng-show="focus">
 										<p class="hint">
@@ -43,7 +43,7 @@
 							<div ng-switch-when="switch">
 								<md-switch ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
 								<p class="hint">
-									<small>{{parameter.description}}</small>
+									<small ng-bind-html="parameter.description"></small>
 								</p>
 							</div>
 							<div ng-switch-when="select">
@@ -57,7 +57,7 @@
 								</div>
 								<span ng-messages="" ng-show="!focus">
 									<p class="hint">
-										<small>{{parameter.description}}</small>
+										<small ng-bind-html="parameter.description"></small>
 									</p>
 								</span> </md-input-container>
 							</div>
@@ -72,7 +72,7 @@
 							</div>
 							<span ng-messages="" ng-show="!focus">
 								<p class="hint">
-									<small>{{parameter.description}}</small>
+									<small ng-bind-html="parameter.description"></small>
 								</p>
 							</span> </md-input-container>
 							<span ng-messages="" ng-show="focus">
