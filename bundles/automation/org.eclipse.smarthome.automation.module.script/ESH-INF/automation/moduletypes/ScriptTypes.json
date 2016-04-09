@@ -8,16 +8,12 @@
             {  
                "name":"type",
                "type":"TEXT",
-               "description":"the scripting language to use (like in a file extension, i.e. 'js')",
+               "description":"the scripting language to use (as mime-type, i.e. 'application/javascript')",
                "required":true,
                "options":[
                     {
                         "label": "Javascript",
-                        "value": "js"
-                    },
-                    {
-                        "label": "Jython",
-                        "value": "jy"
+                        "value": "application/javascript"
                     }
                 ]
             },
@@ -40,16 +36,12 @@
             {  
                "name":"type",
                "type":"TEXT",
-               "description":"the scripting language to use (like in a file extension, i.e. 'js')",
+               "description":"the scripting language to use (as mime-type, i.e. 'application/javascript')",
                "required":true,
                "options":[
                     {
                         "label": "Javascript",
-                        "value": "js"
-                    },
-                    {
-                        "label": "Jython",
-                        "value": "jy"
+                        "value": "application/javascript"
                     }
                 ]
             },
