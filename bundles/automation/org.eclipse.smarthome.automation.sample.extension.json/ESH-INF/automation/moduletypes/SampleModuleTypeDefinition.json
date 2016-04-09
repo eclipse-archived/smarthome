@@ -71,14 +71,12 @@
          "uid":"SampleAction",
          "label":"SampleAction label",
          "description":"Sample Action description.",
-         "configDescriptions":[  
+         "inputs":[  
             {  
                "name":"message",
-               "type":"TEXT",
+               "type":"java.lang.String",
                "label":"message label",
-               "description":"Defines the message description.",
-               "defaultValue":"Default message",
-               "required":false
+               "description":"Defines the message description."
             }
          ]
       },
@@ -92,7 +90,6 @@
                "type":"TEXT",
                "label":"custom message label",
                "description":"Defines the custom message description.",
-               "defaultValue":">>> Default Custom Message",
                "required":false
             }
          ],
@@ -102,21 +99,22 @@
                "type":"java.lang.String",
                "label":"ActionInput label",
                "description":"Text that will be printed.",
-               "required":true
+               "defaultValue":">>> Default Composite Action Message",
+               "required":false
             }
          ],
          "children":[  
             {  
-               "id":"SampleAction1",
+               "id":"SampleAction2",
                "type":"SampleAction",
-               "configuration":{  
+               "inputs":{
                   "message":"$compositeMessage"
                }
             },
             {  
-               "id":"SampleAction2",
+               "id":"SampleAction1",
                "type":"SampleAction",
-               "configuration":{  
+               "inputs":{  
                   "message":"$compositeActionInput"
                }
             }

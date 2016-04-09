@@ -37,8 +37,7 @@ public class SampleActionHandler extends BaseModuleHandler<Action>implements Act
 
     @Override
     public Map<String, Object> execute(Map<String, ?> inputs) {
-        Map<String, Object> config = module.getConfiguration();
-        Object message = getMessage(config);
+        Object message = getMessage(inputs);
         if (message == null) {
             message = "";
         }
@@ -46,7 +45,7 @@ public class SampleActionHandler extends BaseModuleHandler<Action>implements Act
         return null;
     }
 
-    private Object getMessage(Map<String, ?> resolvedConfigration) {
-        return resolvedConfigration != null ? resolvedConfigration.get("message") : null;
+    private Object getMessage(Map<String, ?> inputs) {
+        return inputs != null ? inputs.get("message") : null;
     }
 }
