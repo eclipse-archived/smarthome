@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="raspbee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- Hue Bridge -->
+    <bridge-type id="bridge">
+        <label>RaspBee Bridge</label>
+        <description>The raspbee bridge represents the RaspBee bridge.</description>
+
+        <properties>
+        	<property name="vendor">Dresden-elektronik</property>
+        </properties>
+        
+        <config-description>
+            <parameter name="ipAddress" type="text">
+                <context>network_address</context>
+                <label>Network Address</label>
+                <description>Network address of the raspbee bridge.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="portNumber" type="text">
+                <context>Number</context>
+                <label>Port Number</label>
+                <description>Port number of the raspbee bridge.</description>
+                <required>true</required>
+            </parameter>
+            <parameter name="userName" type="text">
+                <context>password</context>
+                <label>Username</label>
+                <description>
+                    Name of a registered raspbee bridge user, that allows to access the API.
+                </description>
+                <required>false</required>
+            </parameter>
+            <parameter name="serialNumber" type="text">
+                <label>Serial Number</label>
+                <description>Serial number of the raspbee bridge.</description>
+                <required>false</required>
+            </parameter>
+            <parameter name="pollingInterval" type="integer" min="1" step="1">
+                <label>Polling Interval</label>
+                <description>Seconds between fetching values from the Bridge.</description>
+                <required>true</required>
+                <default>10</default>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+</thing:thing-descriptions>
