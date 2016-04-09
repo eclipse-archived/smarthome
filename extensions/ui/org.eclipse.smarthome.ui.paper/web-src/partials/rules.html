@@ -18,6 +18,7 @@
 						<div class="circle">{{rule.name.substring(0,1)}}</div>
 						<div class="item-content">
 							<h3>{{rule.name}}</h3>
+							<p ng-bind-html="rule.description"></p>
 							<p>{{rule.uid}}</p>
 							<div class="actions">
 								<md-button ng-click="toggleEnabled(rule, $event)" aria-label="Toggle Enable"> <i class="material-icons">{{rule.enabled ? "alarm_on" : "alarm_off"}}</i></md-button>
