@@ -30,8 +30,8 @@
             {
                 "id":"SampleActionID",
                 "type":"SampleAction",
-                "configuration":{
-                    "message":">>> Hello World!!!"
+                "inputs":{
+                    "message":"SampleTriggerID.triggerOutput"
                 }
             }
         ]
@@ -69,17 +69,11 @@
         ],
         "actions":[
             {
-                "id":"SampleActionID2",
-                "type":"SampleAction",
-                "label":"SampleAction label",
-                "description":"SampleAction descr",
-                "configuration":{
-                    "message":"<<< Hello World!!!"
-                }
-            },
-            {
                 "id":"CompositeActionID",
                 "type":"CompositeSampleAction",
+                "configuration": {
+                    "compositeMessage": "Hello World!!!"
+                },
                 "inputs":{
                     "compositeActionInput":"CompositeSampleTriggerID.compositeTriggerOutput"
                 }

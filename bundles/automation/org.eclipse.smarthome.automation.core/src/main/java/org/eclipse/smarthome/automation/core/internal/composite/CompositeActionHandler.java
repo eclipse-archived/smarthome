@@ -56,16 +56,13 @@ public class CompositeActionHandler extends AbstractCompositeModuleHandler<Actio
      */
     @Override
     public Map<String, Object> execute(Map<String, ?> context) {
-        Map<String, Object> internalContext = new HashMap<String, Object>(context);
-        Map<String, Object> result = new HashMap<String, Object>();
-        List<Action> children = moduleType.getChildren();
+        final Map<String, Object> result = new HashMap<String, Object>();
+        final List<Action> children = moduleType.getChildren();
+        final Map<String, Object> compositeContext = getCompositeContext(context);
         for (Action child : children) {
-            Map<String, ?> compositeContext = getCompositeContext(internalContext);
-            Map<String, Object> originalConfig = new HashMap<String, Object>(child.getConfiguration());
-            updateChildConfig(child, compositeContext);
             ActionHandler childHandler = moduleHandlerMap.get(child);
-            Map<String, Object> childResults = childHandler.execute(compositeContext);
-            child.setConfiguration(originalConfig); // restore original config (restore links in config)
+            Map<String, Object> childContext = getChildContext(child, compositeContext);
+            Map<String, Object> childResults = childHandler.execute(childContext);
             if (childResults != null) {
                 for (Entry<String, Object> childResult : childResults.entrySet()) {
                     String childOuputName = childResult.getKey();

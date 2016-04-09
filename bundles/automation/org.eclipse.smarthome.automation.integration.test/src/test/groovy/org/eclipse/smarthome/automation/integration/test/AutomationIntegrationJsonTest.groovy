@@ -153,7 +153,6 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         registerService(VOLATILE_STORAGE_SERVICE);
     }
 
-
     @Test
     public void 'assert that a rule from json file is added automatically' () {
         logger.info("assert that a rule from json file is added automatically");
@@ -192,6 +191,44 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
     }
 
+    @Test
+    public void 'assert that a rule from json file is added automatically with resolved module references' () {
+        logger.info("assert that a rule from json file is added automatically with resolved module references");
+
+        //WAIT until Rule modules types are parsed and the rule becomes IDLE
+        waitForAssert({
+            assertThat ruleRegistry.getAll().isEmpty(), is(false)
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && it.tags.contains("references")} as Rule
+            assertThat rule2, is(notNullValue())
+            def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatusInfo
+            assertThat ruleStatus2.getStatus(), is(RuleStatus.IDLE)
+        }, 10000, 200)
+        def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && it.tags.contains("references")} as Rule
+        assertThat rule, is(notNullValue())
+        assertThat rule.name, is("ItemSampleRuleWithReferences")
+        assertTrue rule.tags.any{it == "sample"}
+        assertTrue rule.tags.any{it == "item"}
+        assertTrue rule.tags.any{it == "rule"}
+        assertTrue rule.tags.any{it == "references"}
+        def trigger = rule.triggers.find{it.id.equals("ItemStateChangeTriggerID")} as Trigger
+        assertThat trigger, is(notNullValue())
+        assertThat trigger.typeUID, is("GenericEventTrigger")
+        assertThat trigger.configuration.get("eventSource"), is ("myMotionItem")
+        assertThat trigger.configuration.get("eventTopic"), is("smarthome/items/*")
+        assertThat trigger.configuration.get("eventTypes"), is("ItemStateEvent")
+        def condition1 = rule.conditions.find{it.id.equals("ItemStateConditionID")} as Condition
+        assertThat condition1, is(notNullValue())
+        assertThat condition1.typeUID, is("EventCondition")
+        assertThat condition1.configuration.get("topic"), is("smarthome/items/myMotionItem/state")
+        assertThat condition1.configuration.get("payload"), is(".*ON.*")
+        def action = rule.actions.find{it.id.equals("ItemPostCommandActionID")} as Action
+        assertThat action, is(notNullValue())
+        assertThat action.typeUID, is("ItemPostCommandAction")
+        assertThat action.configuration.get("itemName"), is("myLampItem")
+        assertThat action.configuration.get("command"), is("ON")
+        def ruleStatus = ruleRegistry.getStatus(rule.uid) as RuleStatusInfo
+        assertThat ruleStatus.getStatus(), is(RuleStatus.IDLE)
+    }
 
     @Test
     public void 'assert that a rule from json file is executed correctly' () {

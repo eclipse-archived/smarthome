@@ -50,6 +50,9 @@
         "type": "CompositeSampleAction",
         "label": "Sample Action",
         "description": "This is a sample action",
+        "configuration": {
+          "compositeMessage": "Hello World!!!"
+        },
         "inputs": {  
           "compositeActionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }

@@ -88,6 +88,9 @@
             "inputproperty":"payload",
             "operator":"matches",
             "right":"$state"
+          },
+          "inputs":{
+                "input":"$event"
           }
         }
       ]

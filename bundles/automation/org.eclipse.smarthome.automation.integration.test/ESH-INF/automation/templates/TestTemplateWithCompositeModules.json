@@ -52,7 +52,7 @@
                "state":"$ifState"
             },
 			"inputs":{
-				"input":"ItemUpdateTrigger_2.event"
+				"event":"ItemUpdateTrigger_2.event"
 			}
          }
       ],
