@@ -35,6 +35,15 @@ public class BluezBluetoothConstants {
     public final static String BLUEZ_DBUS_ADAPTER_PROPERTY_DISCOVERABLE = "Discoverable";
     public final static String BLUEZ_DBUS_ADAPTER_PROPERTY_POWERED = "Powered";
 
+    public final static String BLUEZ_DBUS_ADAPTER_FILTER_TRANSPORT = "Transport";
+    public final static String BLUEZ_DBUS_ADAPTER_FILTER_PATHLOSS = "Pathloss";
+    public final static String BLUEZ_DBUS_ADAPTER_FILTER_RSSI = "RSSI";
+    public final static String BLUEZ_DBUS_ADAPTER_FILTER_UUID = "UUIDs";
+
+    public final static String BLUEZ_DBUS_ADAPTER_TRANSPORT_LE = "le";
+    public final static String BLUEZ_DBUS_ADAPTER_TRANSPORT_BREDR = "bredr";
+    public final static String BLUEZ_DBUS_ADAPTER_TRANSPORT_AUTO = "auto";
+
     public final static String BLUEZ_DBUS_DEVICE_PROPERTY_NAME = "Name";
     public final static String BLUEZ_DBUS_DEVICE_PROPERTY_ALIAS = "Alias";
     public final static String BLUEZ_DBUS_DEVICE_PROPERTY_ADDRESS = "Address";
