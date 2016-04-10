@@ -16,7 +16,7 @@ import org.junit.Test
 
 /**
  * Test for Configuration class.
- * 
+ *
  * @author Dennis Nobel - Initial contribution
  */
 class ConfigurationTest {
@@ -25,20 +25,20 @@ class ConfigurationTest {
         private int intField;
         private boolean booleanField;
         private String stringField;
-        private static final String CONSTANT = "SOME_CONSTANT"; 
+        private static final String CONSTANT = "SOME_CONSTANT";
     }
-    
+
     @Test
     void 'assert getConfigAs works'() {
 
         def configuration = new Configuration([
-            intField: 1, 
-            booleanField: false, 
-            stringField: "test", 
+            intField: 1,
+            booleanField: false,
+            stringField: "test",
             notExisitingProperty: true])
-        
+
         def configClass = configuration.as(ConfigClass)
-        
+
         assertThat configClass.intField, is(equalTo(1))
         assertThat configClass.booleanField, is(false)
         assertThat configClass.stringField, is("test")
@@ -65,5 +65,28 @@ class ConfigurationTest {
         assertThat values.last(), is(nullValue())
         assertThat values.size(), is(2)
         assertThat keys.size(), is(2)
+    }
+
+
+    @Test
+    void 'assert properties can be removed'() {
+        def orgProperties = new HashMap([
+            intField: 1,
+            booleanField: false,
+            stringField: "test",
+            notExisitingProperty: true]);
+
+        def newProperties = new HashMap([
+            booleanField: false,
+            stringField: "test",
+            notExisitingProperty: true]);
+
+        def configuration = new Configuration(orgProperties)
+
+        assertThat configuration.get("intField"), is(equalTo(1))
+
+        configuration.setProperties(newProperties)
+
+        assertThat configuration.get("intField"), is(equalTo(null))
     }
 }

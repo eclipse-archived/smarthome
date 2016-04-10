@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial API and contribution, Changed Logging
  * @author Kai Kreuzer - added constructors and normalization
  * @author Gerhard Riegler - added converting BigDecimal values to the type of the configuration class field
+ * @author Chris Jackson - fix concurrent modification exception when removing properties
  */
 public class Configuration {
 
@@ -148,9 +150,10 @@ public class Configuration {
         for (Entry<String, Object> entrySet : properties.entrySet()) {
             this.put(entrySet.getKey(), ConfigUtil.normalizeType(entrySet.getValue()));
         }
-        for (String key : this.properties.keySet()) {
-            if (!properties.containsKey(key)) {
-                this.remove(key);
+        for (Iterator<String> it = this.properties.keySet().iterator(); it.hasNext();) {
+            String entry = it.next();
+            if (!properties.containsKey(entry)) {
+                it.remove();
             }
         }
     }
