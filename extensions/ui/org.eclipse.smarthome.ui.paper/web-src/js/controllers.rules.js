@@ -206,8 +206,8 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
             sharedProperties.updateParams(value);
         });
         $scope.templateStep = 2;
-        $scope.configuration = {};
         $scope.parameters = sharedProperties.getParams();
+        $scope.configuration = configService.setConfigDefaults({}, $scope.parameters);
     };
 
     $scope.saveRule = function() {
