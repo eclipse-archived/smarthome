@@ -737,7 +737,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public SonosMetaData getCurrentURIMetadata() {
-        if (stateMap.get("CurrentURIMetaData") != null) {
+        if (stateMap.get("CurrentURIMetaData") != null && !stateMap.get("CurrentURIMetaData").isEmpty()) {
             return SonosXMLParser.getMetaDataFromXML(stateMap.get("CurrentURIMetaData"));
         } else {
             return null;
@@ -745,7 +745,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public SonosMetaData getTrackMetadata() {
-        if (stateMap.get("CurrentTrackMetaData") != null) {
+        if (stateMap.get("CurrentTrackMetaData") != null && !stateMap.get("CurrentTrackMetaData").isEmpty()) {
             return SonosXMLParser.getMetaDataFromXML(stateMap.get("CurrentTrackMetaData"));
         } else {
             return null;
@@ -753,8 +753,8 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public SonosMetaData getEnqueuedTransportURIMetaData() {
-
-        if (stateMap.get("EnqueuedTransportURIMetaData") != null) {
+        if (stateMap.get("EnqueuedTransportURIMetaData") != null
+                && !stateMap.get("EnqueuedTransportURIMetaData").isEmpty()) {
             return SonosXMLParser.getMetaDataFromXML(stateMap.get("EnqueuedTransportURIMetaData"));
         } else {
             return null;
