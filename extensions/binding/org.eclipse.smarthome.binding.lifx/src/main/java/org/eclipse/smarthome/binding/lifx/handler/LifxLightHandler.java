@@ -204,6 +204,8 @@ public class LifxLightHandler extends BaseThingHandler {
             lighCounterLock.unlock();
             broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
+            updateStatus(ThingStatus.OFFLINE);
+
             // look for lights on the network
             GetServiceRequest packet = new GetServiceRequest();
             broadcastPacket(packet);
