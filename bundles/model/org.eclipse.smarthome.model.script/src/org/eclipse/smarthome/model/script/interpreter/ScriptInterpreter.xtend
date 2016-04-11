@@ -99,7 +99,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
 		}
 	}
 
-	override _assigneValueTo(JvmField jvmField, XAbstractFeatureCall assignment, Object value,
+	override _assignValueTo(JvmField jvmField, XAbstractFeatureCall assignment, Object value,
 		IEvaluationContext context, CancelIndicator indicator) {
 
 		// Check if the JvmField is inferred
@@ -108,7 +108,7 @@ public class ScriptInterpreter extends XbaseInterpreter {
 			context.assignValue(QualifiedName.create(jvmField.simpleName), value)
 			value
 		} else {
-			super._assigneValueTo(jvmField, assignment, value, context, indicator)
+			super._assignValueTo(jvmField, assignment, value, context, indicator)
 		}
 	}
 

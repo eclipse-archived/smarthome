@@ -24,7 +24,7 @@ import org.eclipse.xtext.generator.IGenerator.NullGenerator;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
-import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 
 import com.google.inject.Binder;
 import com.google.inject.name.Names;
@@ -38,7 +38,7 @@ import com.google.inject.name.Names;
 @SuppressWarnings("restriction")
 public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.AbstractRulesRuntimeModule {
 
-    public Class<? extends ImplicitlyImportedTypes> bindImplicitlyImportedTypes() {
+    public Class<? extends ImplicitlyImportedFeatures> bindImplicitlyImportedTypes() {
         return RulesImplicitlyImportedTypes.class;
     }
 
