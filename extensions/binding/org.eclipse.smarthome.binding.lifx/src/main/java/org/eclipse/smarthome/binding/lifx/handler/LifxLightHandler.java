@@ -79,6 +79,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
     private static final double INCREASE_DECREASE_STEP = 0.10;
+    private static final long DEFAULT_FADE_TIME = 100;
     private final int BROADCAST_PORT = 56700;
     private static long NETWORK_INTERVAL = 50;
     private static int ECHO_POLLING_INTERVAL = 15;
@@ -204,6 +205,8 @@ public class LifxLightHandler extends BaseThingHandler {
             lighCounterLock.unlock();
             broadcastKey = broadcastChannel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
+            updateStatus(ThingStatus.OFFLINE);
+
             // look for lights on the network
             GetServiceRequest packet = new GetServiceRequest();
             broadcastPacket(packet);
@@ -251,7 +254,7 @@ public class LifxLightHandler extends BaseThingHandler {
         SetColorRequest packet = new SetColorRequest((int) (currentColorState.getHue().floatValue() / 360 * 65535.0f),
                 (int) (currentColorState.getSaturation().floatValue() / 100 * 65535.0f),
                 (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
-                toKelvin(temperature.intValue()), 0);
+                toKelvin(temperature.intValue()), DEFAULT_FADE_TIME);
         packet.setResponseRequired(false);
         sendPacket(packet);
 
@@ -265,7 +268,7 @@ public class LifxLightHandler extends BaseThingHandler {
         SetColorRequest packet = new SetColorRequest((int) (hsbType.getHue().floatValue() / 360 * 65535.0f),
                 (int) (hsbType.getSaturation().floatValue() / 100 * 65535.0f),
                 (int) (hsbType.getBrightness().floatValue() / 100 * 65535.0f), toKelvin(currentTempState.intValue()),
-                0);
+                DEFAULT_FADE_TIME);
         packet.setResponseRequired(false);
         sendPacket(packet);
 
