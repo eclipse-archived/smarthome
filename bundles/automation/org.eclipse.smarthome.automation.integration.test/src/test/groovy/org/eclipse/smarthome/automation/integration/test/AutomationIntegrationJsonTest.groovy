@@ -160,12 +160,12 @@ class AutomationIntegrationJsonTest extends OSGiTest{
         //WAIT until Rule modules types are parsed and the rule becomes IDLE
         waitForAssert({
             assertThat ruleRegistry.getAll().isEmpty(), is(false)
-            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
+            def rule2 = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && !it.tags.contains("references")} as Rule
             assertThat rule2, is(notNullValue())
             def ruleStatus2 = ruleRegistry.getStatus(rule2.uid) as RuleStatusInfo
             assertThat ruleStatus2.getStatus(), is(RuleStatus.IDLE)
         }, 10000, 200)
-        def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest")} as Rule
+        def rule = ruleRegistry.getAll().find{it.tags!=null && it.tags.contains("jsonTest") && !it.tags.contains("references")} as Rule
         assertThat rule, is(notNullValue())
         assertThat rule.name, is("ItemSampleRule")
         assertTrue rule.tags.any{it == "sample"}
