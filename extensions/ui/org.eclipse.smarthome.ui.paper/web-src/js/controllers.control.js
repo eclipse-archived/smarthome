@@ -59,7 +59,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
             return items;
         } else {
-            return getItem(tabName).members;
+            return this.getItem(tabName).members;
         }
     }
 

@@ -83,7 +83,7 @@
 							<h3>
 								{{thing.label}} <small class="badge" ng-class="thing.statusInfo.status.toLowerCase()">{{thing.statusInfo.status}}</small>
 							</h3>
-							<p>{{thingTypes[thing.thingTypeUID].label}}</p>
+							<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
 							<p>{{thing.UID}}</p>
 							<div class="actions">
 								<md-button ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>

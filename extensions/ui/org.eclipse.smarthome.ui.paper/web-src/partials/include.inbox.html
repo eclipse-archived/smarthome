@@ -1,4 +1,4 @@
-<div class="fab-item" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | orderBy:flag" ng-controller="InboxEntryController">
+<div class="fab-item" ng-repeat="discoveryResult in data.discoveryResults | filter:filter | orderBy:flag" ng-controller="InboxEntryController" ng-init="getThingTypes()">
 	<md-button title="Add" class="md-fab green" ng-click="approve(discoveryResult.thingUID,discoveryResult.thingTypeUID, $event)" aria-label="Approve"> <i class="material-icons">done</i></md-button>
 	<div class="item-content">
 		<h3>
