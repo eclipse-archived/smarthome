@@ -58,6 +58,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         var tempModule = filterByUid($scope.moduleData, $scope.module);
         if (tempModule != null && tempModule.length > 0) {
             tempModule[0].label = $scope.name;
+            $scope.configuration = configService.replaceEmptyValues($scope.configuration);
             var obj = {
                 id : $scope.id,
                 label : $scope.name,

@@ -185,7 +185,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             thing.configuration[parameter.name] = parameter.defaultValue;
                         }
                     } else {
-                        thing.configuration[parameter.name] = '';
+                        thing.configuration[parameter.name] = null;
                     }
                 });
             }
@@ -206,9 +206,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             } else {
                                 configuration[parameter.name] = parameter.defaultValue;
                             }
+                        } else {
+                            if (!configuration[parameter.name]) {
+                                configuration[parameter.name] = null;
+                            }
                         }
                     } else {
-                        configuration[parameter.name] = '';
+                        if (!configuration[parameter.name]) {
+                            configuration[parameter.name] = null;
+                        }
                     }
                 });
             }
@@ -216,7 +222,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         },
         convertValues : function(configurations) {
             angular.forEach(configurations, function(value, name) {
-                if (typeof (value) !== "boolean") {
+                if (value && typeof (value) !== "boolean") {
                     var parsedValue = Number(value);
                     if (isNaN(parsedValue)) {
                         if (value.toUpperCase() == 'TRUE') {
@@ -230,6 +236,14 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     } else {
                         configurations[name] = parsedValue;
                     }
+                }
+            });
+            return configurations;
+        },
+        replaceEmptyValues : function(configurations) {
+            angular.forEach(configurations, function(value, name) {
+                if (!configurations[name]) {
+                    configurations[name] = null;
                 }
             });
             return configurations;
