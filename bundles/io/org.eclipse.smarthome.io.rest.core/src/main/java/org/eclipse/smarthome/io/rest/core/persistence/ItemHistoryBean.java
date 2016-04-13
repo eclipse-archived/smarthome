@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.persistence.internal.rest;
+package org.eclipse.smarthome.io.rest.core.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
