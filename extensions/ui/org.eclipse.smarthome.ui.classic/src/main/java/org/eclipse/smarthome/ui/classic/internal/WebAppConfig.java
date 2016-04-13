@@ -29,7 +29,7 @@ public class WebAppConfig {
     public void applyConfig(Map<String, Object> configProps) {
         String configIconType = (String) configProps.get("iconType");
         String configDefaultSitemap = (String) configProps.get("defaultSitemap");
-        String configHtmlCacheDisabled = configProps.get("disableHtmlCache").toString();
+        Object configHtmlCacheDisabled = configProps.get("disableHtmlCache");
 
         if (configDefaultSitemap == null) {
             configDefaultSitemap = DEFAULT_SITEMAP;
@@ -41,7 +41,7 @@ public class WebAppConfig {
             configIconType = DEFAULT_ICON_TYPE;
         }
 
-        if ("true".equalsIgnoreCase(configHtmlCacheDisabled)) {
+        if (configHtmlCacheDisabled != null && "true".equalsIgnoreCase(configHtmlCacheDisabled.toString())) {
             htmlCacheDisabled = true;
         }
 
