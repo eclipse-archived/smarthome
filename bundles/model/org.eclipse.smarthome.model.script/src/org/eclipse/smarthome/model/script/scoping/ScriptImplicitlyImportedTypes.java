@@ -24,7 +24,7 @@ import org.eclipse.smarthome.model.script.actions.ScriptExecution;
 import org.eclipse.smarthome.model.script.engine.IActionServiceProvider;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
 import org.eclipse.smarthome.model.script.lib.NumberExtensions;
-import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedTypes;
+import org.eclipse.xtext.xbase.scoping.batch.ImplicitlyImportedFeatures;
 import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
@@ -42,7 +42,7 @@ import com.google.inject.Singleton;
 
 @SuppressWarnings({ "restriction", "deprecation" })
 @Singleton
-public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedTypes {
+public class ScriptImplicitlyImportedTypes extends ImplicitlyImportedFeatures {
 
     private List<Class<?>> actionClasses = null;
 
