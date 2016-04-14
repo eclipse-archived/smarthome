@@ -26,6 +26,7 @@ public class LifxBindingConstants {
 
     // config property for the LIFX device id
     public static final String CONFIG_PROPERTY_DEVICE_ID = "deviceId";
+    public static final String CONFIG_PROPERTY_FADETIME = "fadetime";
 
     // config property for the interface to listen for broadcast UDP traffic
     public static final String CONFIG_PROPERTY_INTERFACE_ID = "interface";
