@@ -222,7 +222,8 @@ public class RuntimeRule extends Rule {
             case BOOLEAN:
                 return configValue instanceof Boolean;
             case INTEGER:
-                return configValue instanceof BigDecimal || configValue instanceof Integer;
+                return configValue instanceof BigDecimal || configValue instanceof Integer
+                        || configValue instanceof Double && ((Double) configValue).intValue() == (double) configValue;
             case DECIMAL:
                 return configValue instanceof BigDecimal || configValue instanceof Double;
         }
