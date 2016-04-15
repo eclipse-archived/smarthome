@@ -109,6 +109,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         if ($scope.expertMode) {
             $scope.configuration = configService.getConfigAsObject($scope.configArray);
         }
+        $scope.configuration = configService.replaceEmptyValues($scope.configuration);
         bindingService.updateConfig({
             id : bindingId
         }, $scope.configuration, function() {
@@ -584,6 +585,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             thing.item = {};
         }
         if (JSON.stringify(originalThing.configuration) !== JSON.stringify(thing.configuration)) {
+            thing.configuration = configService.replaceEmptyValues(thing.configuration);
             thingService.updateConfig({
                 thingUID : thing.UID
             }, thing.configuration, function() {
