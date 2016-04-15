@@ -37,7 +37,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private RuleEngine ruleEngine;
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
-    private boolean hasManagedRuleProvider;
 
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
@@ -49,9 +48,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     protected synchronized void addProvider(Provider<Rule> provider) {
-        if (provider instanceof ManagedRuleProvider) {
-            hasManagedRuleProvider = true;
-        }
         Collection<Rule> rules = provider.getAll();
         for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
             Rule rule = it.next();
@@ -81,9 +77,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
             if (disabledRulesStorage != null) {
                 disabledRulesStorage.remove(uid);
             }
-        }
-        if (provider instanceof ManagedRuleProvider) {
-            hasManagedRuleProvider = false;
         }
         super.removeProvider(provider);
     }
