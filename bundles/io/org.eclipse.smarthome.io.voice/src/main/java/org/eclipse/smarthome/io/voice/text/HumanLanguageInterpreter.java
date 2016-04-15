@@ -28,10 +28,26 @@ public interface HumanLanguageInterpreter {
     String interpret(Locale locale, String text) throws InterpretationException;
 
     /**
+     * Gets the grammar of all commands of a given {@link Locale} of the interpreter
+     *
+     * @param locale language of the commands (given by a {@link Locale})
+     * @param format the grammar format
+     * @return a grammar of the specified format
+     */
+    String getGrammar(Locale locale, String format);
+
+    /**
      * Gets all supported languages of the interpreter by their {@link Locale}s
      *
      * @return Set of supported languages (each given by a {@link Locale})
      */
     Set<Locale> getSupportedLocales();
+
+    /**
+     * Gets all supported grammar format specifiers
+     *
+     * @return Set of supported grammars (each given by a short name)
+     */
+    Set<String> getSupportedGrammarFormats();
 
 }
