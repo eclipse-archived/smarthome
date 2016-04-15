@@ -70,7 +70,7 @@ public class PortableBase64 {
 
     public static void initialize() {
         if (isInitialized) {
-            logInfo("PortableBase64 class already initialized");
+            logDebug("PortableBase64 class already initialized");
             return;
         }
 
@@ -82,7 +82,7 @@ public class PortableBase64 {
             // not found, so we run on JavaSE 7 or older
             isJava8OrNewer = false;
         }
-        logInfo("PortableBase64 class is running on JavaSE " + (isJava8OrNewer ? ">=8" : "<=7"));
+        logDebug("PortableBase64 class is running on JavaSE " + (isJava8OrNewer ? ">=8" : "<=7"));
 
         try {
             if (isJava8OrNewer) {
@@ -167,9 +167,9 @@ public class PortableBase64 {
         l.error(msg, ex);
     }
 
-    private static void logInfo(String msg) {
+    private static void logDebug(String msg) {
         Logger l = LoggerFactory.getLogger(PortableBase64.class);
-        l.info(msg);
+        l.debug(msg);
     }
 
     // PortablBase64 implementation
@@ -188,8 +188,9 @@ public class PortableBase64 {
     public static class Encoder {
         public String encode(byte[] base64) {
             try {
-                if (!isInitialized)
+                if (!isInitialized) {
                     throw new IllegalStateException("PortableBase64 is not initialized");
+                }
                 Object res = encodeMethod.invoke(encoderInstance, base64);
                 return (String) res;
             } catch (IllegalStateException ise) {
@@ -204,8 +205,9 @@ public class PortableBase64 {
     public static class Decoder {
         public byte[] decode(String s) {
             try {
-                if (!isInitialized)
+                if (!isInitialized) {
                     throw new IllegalStateException("PortableBase64 is not initialized");
+                }
                 Object res = decodeMethod.invoke(decoderInstance, s);
                 byte[] b = (byte[]) res;
                 // System.out.println("'" + new String(b) + "'");
