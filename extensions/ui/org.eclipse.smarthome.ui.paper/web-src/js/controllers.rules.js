@@ -212,6 +212,7 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
 
     $scope.saveRule = function() {
         sharedProperties.resetParams();
+        $scope.configuration = configService.replaceEmptyValues($scope.configuration);
         var rule = {
             templateUID : $scope.templateData[$scope.templateIndex].uid,
             name : $scope.name,
