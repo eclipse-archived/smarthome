@@ -17,4 +17,4 @@ bundles/model/antlr-generator-3.2.0-patch.jar
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.p
 bundles/storage/org.eclipse.smarthome.storage.mapdb.test/userdata/mapdb/storage.mapdb.t
-features/karaf/src/main/history
+features/karaf*/src/main/history

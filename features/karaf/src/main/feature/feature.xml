@@ -3,14 +3,9 @@
 
   <feature name="esh-base" description="ESH" version="${project.version}">
     <details>ESH base bundles</details>
-
-    <feature>esh-tp-base</feature>
-
-    <feature dependency="true">esh-tp-commons</feature>
-
-    <feature dependency="true">esh-tp-xtext</feature>
+    <feature dependency="true">esh-tp</feature>
     <requirement>esh.tp;filter:="(&amp;(feature=xtext)(version&gt;=2.9.2)(!(version&gt;=2.9.3)))"</requirement>
-
+    <requirement>esh.tp;filter:="(feature=jax-rs)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.core/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.discovery/${project.version}</bundle>
     <bundle>mvn:org.eclipse.smarthome.config/org.eclipse.smarthome.config.dispatch/${project.version}</bundle>
@@ -152,21 +147,18 @@
 
   <feature name="esh-io-transport-mdns" version="${project.version}">
     <feature>esh-base</feature>
-    <feature dependency="true">esh-tp-jmdns</feature>
     <requirement>esh.tp;filter:="(feature=jmdns)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mdns/${project.version}</bundle>
   </feature>
 
   <feature name="esh-io-transport-mqtt" version="${project.version}">
     <feature>esh-base</feature>
-    <feature dependency="true">esh-tp-paho</feature>
     <requirement>esh.tp;filter:="(feature=paho)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.mqtt/${project.version}</bundle>
   </feature>
 
   <feature name="esh-io-transport-upnp" version="${project.version}">
     <feature>esh-base</feature>
-    <feature dependency="true">esh-tp-jupnp</feature>
     <requirement>esh.tp;filter:="(feature=jupnp)"</requirement>
     <bundle>mvn:org.eclipse.smarthome.io/org.eclipse.smarthome.io.transport.upnp/${project.version}</bundle>
   </feature>
