@@ -92,19 +92,19 @@ public class NtpHandler extends BaseThingHandler {
     public void initialize() {
 
         try {
-            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID());
+            logger.debug("Initializing NTP handler for '{}'.", getThing().getUID().toString());
 
             Configuration config = getThing().getConfiguration();
-            this.hostname = (String) config.get(PROPERTY_NTP_SERVER);
-            this.refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
-            this.refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
-            this.refreshNtpCount = 0;
+            hostname = (String) config.get(PROPERTY_NTP_SERVER);
+            refreshInterval = (BigDecimal) config.get(PROPERTY_REFRESH_INTERVAL);
+            refreshNtp = (BigDecimal) config.get(PROPERTY_REFRESH_NTP);
+            refreshNtpCount = 0;
 
             try {
                 timeZone = TimeZone.getTimeZone((String) config.get(PROPERTY_TIMEZONE));
             } catch (Exception e) {
                 timeZone = TimeZone.getDefault();
-                logger.debug("using default TZ: {}", timeZone);
+                logger.debug("{} using default TZ: {}", getThing().getUID().toString(), timeZone);
             }
 
             try {
@@ -112,9 +112,12 @@ public class NtpHandler extends BaseThingHandler {
                 locale = new Locale(localeString);
             } catch (Exception e) {
                 locale = Locale.getDefault();
-                logger.debug("using default locale: {}", locale);
+                logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
+            logger.debug(
+                    "Initialized NTP handler '{}' with configuration: host '{}', refresh interval {}, timezone {}, locale {}.",
+                    getThing().getUID().toString(), hostname, refreshInterval, timeZone, locale);
             startAutomaticRefresh();
 
         } catch (Exception ex) {
@@ -152,7 +155,7 @@ public class NtpHandler extends BaseThingHandler {
         if (refreshNtpCount <= 0) {
             networkTimeInMillis = getTime(hostname);
             timeOffset = networkTimeInMillis - System.currentTimeMillis();
-            logger.debug("delta system time: {}", timeOffset);
+            logger.debug("{} delta system time: {}", getThing().getUID().toString(), timeOffset);
             refreshNtpCount = refreshNtp.intValue();
         } else {
             networkTimeInMillis = System.currentTimeMillis() + timeOffset;
@@ -168,7 +171,7 @@ public class NtpHandler extends BaseThingHandler {
     /**
      * Queries the given timeserver <code>hostname</code> and returns the time
      * in milliseconds.
-     * 
+     *
      * @param hostname
      *            the timeserver to query
      * @return the time in milliseconds or the current time of the system if an
@@ -182,17 +185,18 @@ public class NtpHandler extends BaseThingHandler {
             InetAddress inetAddress = InetAddress.getByName(hostname);
             TimeInfo timeInfo = timeClient.getTime(inetAddress);
 
-            logger.debug("Got time update from: {}", hostname, SDF.format(new Date(timeInfo.getReturnTime())));
+            logger.debug("{} Got time update from: {}", getThing().getUID().toString(), hostname,
+                    SDF.format(new Date(timeInfo.getReturnTime())));
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             return timeInfo.getReturnTime();
         } catch (UnknownHostException uhe) {
-            String msg = "the given hostname '" + hostname
-                    + "' of the timeserver is unknown -> returning current sytem time instead";
+            String msg = getThing().getUID().toString() + " the given hostname '" + hostname
+                    + "' of the timeserver is unknown -> returning current sytem time instead.";
             logger.warn(msg);
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         } catch (IOException ioe) {
-            String msg = "couldn't establish network connection [host '" + hostname
-                    + "'] -> returning current sytem time instead";
+            String msg = getThing().getUID().toString() + " couldn't establish network connection [host '" + hostname
+                    + "'] -> returning current sytem time instead.";
             logger.warn(msg);
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.COMMUNICATION_ERROR, msg);
         }
