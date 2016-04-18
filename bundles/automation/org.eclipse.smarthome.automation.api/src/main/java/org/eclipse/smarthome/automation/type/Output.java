@@ -78,7 +78,7 @@ public class Output {
      * The value of this field takes place when there is no runtime value for this {@code Output}. Type of the default
      * value must be the type of the {@code Output}.
      */
-    private Object defaultValue;
+    private String defaultValue;
 
     /**
      * Default constructor for deserialization e.g. by Gson.
@@ -120,7 +120,7 @@ public class Output {
      *            must be the type of the {@code Output}.
      */
     public Output(String name, String type, String label, String description, Set<String> tags, String reference,
-            Object defaultValue) {
+            String defaultValue) {
         if (name == null) {
             throw new IllegalArgumentException("The name of the input must not be NULL!");
         }
@@ -204,7 +204,7 @@ public class Output {
      *
      * @return the default value of this {@code Output}.
      */
-    public Object getDefaultValue() {
+    public String getDefaultValue() {
         return defaultValue;
     }
 

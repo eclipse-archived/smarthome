@@ -239,7 +239,7 @@
 										"type":"string"
 									},
 									"defaultValue":{
-										"type":"object"
+										"type":"string"
 									},
 									"reference":{
 										"type":"string"
@@ -476,7 +476,7 @@
 										"type":"string"
 									},
 									"defaultValue":{
-										"type":"object"
+										"type":"string"
 									},
 									"description":{
 										"type":"string"
@@ -725,7 +725,7 @@
 										"description":"Specifies whether the value is required."
 									},
 									"defaultValue":{
-										"type":"object",
+										"type":"string",
 										"title":"Input Default Value",
 										"description":"Specifies the value if the Input is not required and is missing."
 									},
@@ -770,7 +770,7 @@
 										"type":"string"
 									},
 									"defaultValue":{
-										"type":"object"
+										"type":"string"
 									},
 									"reference":{
 										"type":"string"

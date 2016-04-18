@@ -18,7 +18,7 @@ public class ReferenceResolverUtilTest {
     private static final String CONTEXT_PROPERTY3 = "contextProperty3";
     private static final String CONTEXT_PROPERTY4 = "contextProperty4";
 
-    private static final Map<String, Object> context = new HashMap<>();;
+    private static final Map<String, Object> context = new HashMap<String, Object>();
     private static final Map<String, Object> moduleConfiguration = new HashMap<String, Object>();
     private static final Map<String, Object> expectedModuleConfiguration = new HashMap<String, Object>();
     private static final Map<String, String> compositeChildModuleInputsReferences = new HashMap<String, String>();
