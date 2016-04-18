@@ -9,8 +9,7 @@
 
 -->
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.action.transformation.action">
-	<implementation class="org.eclipse.smarthome.core.transform.internal.TransformationActionService" />
-
+	<implementation class="org.eclipse.smarthome.model.script.internal.engine.action.TransformationActionService" />
 	<service>
 		<provide interface="org.eclipse.smarthome.model.script.engine.action.ActionService" />
 	</service>
