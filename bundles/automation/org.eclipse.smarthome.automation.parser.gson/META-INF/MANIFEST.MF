@@ -13,4 +13,3 @@ Import-Package: com.google.gson,
  org.eclipse.smarthome.automation.type,
  org.eclipse.smarthome.config.core,
  org.osgi.framework
-Bundle-ActivationPolicy: lazy
