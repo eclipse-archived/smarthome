@@ -33,7 +33,7 @@
         <executions>
           <execution>
             <id>verify-esh</id>
-            <phase>process-resources</phase>
+            <!--<phase>process-resources</phase>-->
             <goals>
               <goal>verify</goal>
             </goals>
