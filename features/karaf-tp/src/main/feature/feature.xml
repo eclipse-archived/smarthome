@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
+
+  <feature name="esh-tp" description="Eclipse SmartHome Target Platform" version="${project.version}">
+    <feature>scr</feature>
+    <feature>eventadmin</feature>
+
+    <feature dependency="true">esh-tp-apache-commons</feature>
+    <feature dependency="true">esh-tp-httpclient</feature>
+    <feature dependency="true">esh-tp-jax-rs</feature>
+    <feature dependency="true">esh-tp-jax-rs-provider-swagger</feature>
+    <feature dependency="true">esh-tp-jupnp</feature>
+    <feature dependency="true">esh-tp-jmdns</feature>
+    <feature dependency="true">esh-tp-paho</feature>
+    <feature dependency="true">esh-tp-xtext</feature>
+
+    <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.5</bundle>
+  </feature>
+
+  <feature name="esh-tp-apache-commons" version="${project.version}">
+    <bundle dependency="true">mvn:commons-codec/commons-codec/1.6</bundle>
+    <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-collections4/4.1</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-exec/1.1</bundle>
+    <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/3.1_7</bundle>
+    <bundle dependency="true">mvn:commons-io/commons-io/2.2</bundle>
+    <bundle dependency="true">mvn:commons-lang/commons-lang/2.6</bundle>
+    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.4</bundle>
+    <bundle dependency="true">mvn:commons-net/commons-net/3.2</bundle>
+  </feature>
+
+  <feature name="esh-tp-httpclient" version="${project.version}">
+    <capability>esh.tp;feature=httpclient;version=4.2.3</capability>
+    <bundle dependency="true">mvn:org.apache.httpcomponents/httpcore-osgi/4.2.3</bundle>
+    <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/4.2.3</bundle>
+  </feature>
+
+  <feature name="esh-tp-jax-rs" version="${project.version}">
+    <capability>esh.tp;feature=jax-rs;version=5.3</capability>
+    <feature>esh-tp-jax-rs-min</feature>
+    <feature>esh-tp-jax-rs-provider-gson</feature>
+  </feature>
+
+  <feature name="esh-tp-jax-rs-min" version="${project.version}">
+    <capability>esh.tp;feature=jax-rs-min;version=5.3</capability>
+
+    <feature dependency="true">http</feature>
+    <bundle dependency="true">mvn:com.eclipsesource.jaxrs/jersey-min/2.22.1</bundle>
+    <bundle>mvn:com.eclipsesource.jaxrs/publisher/5.3</bundle>
+  </feature>
+
+  <feature name="esh-tp-jax-rs-provider-gson" version="${project.version}">
+    <capability>esh.tp;feature=jax-rs-provider-gson;version=2.3</capability>
+    <feature dependency="true">esh-tp-jax-rs-min</feature>
+    <bundle dependency="true">mvn:com.google.code.gson/gson/2.3.1</bundle>
+    <bundle>mvn:com.eclipsesource.jaxrs/provider-gson/2.3</bundle>
+  </feature>
+
+  <feature name="esh-tp-jax-rs-provider-swagger" version="${project.version}">
+    <capability>esh.tp;feature=jax-rs-provider-swagger;version=2.3</capability>
+    <feature dependency="true">esh-tp-jax-rs-min</feature>
+    <bundle>mvn:de.maggu2810.thirdparty.modified.com.eclipsesource.jaxrs/swagger-all/1.5.5.sp1</bundle>
+    <bundle>mvn:com.eclipsesource.jaxrs/provider-swagger/1.1</bundle>
+  </feature>
+
+  <feature name="esh-tp-jupnp" description=" UPnP/DLNA library for Java" version="${project.version}">
+    <capability>esh.tp;feature=jupnp;version=2.2.0</capability>
+
+    <feature dependency="true">http</feature>
+    <feature dependency="true">esh-tp-httpclient</feature>
+    <bundle>mvn:org.jupnp/org.jupnp/2.2.0</bundle>
+  </feature>
+
+  <feature name="esh-tp-jmdns" description="An implemenation of multi-cast DNS in Java." version="${project.version}">
+    <capability>esh.tp;feature=jmdns;version=3.5.0</capability>
+
+    <bundle>mvn:org.jmdns/jmdns/3.5.0</bundle>
+  </feature>
+
+  <feature name="esh-tp-paho" description="MQTT v3 Client" version="${project.version}">
+    <capability>esh.tp;feature=paho;version=1.0.2</capability>
+
+    <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
+  </feature>
+
+  <feature name="esh-tp-xtext" description="Xtext - Language Engineering Made Easy" version="${project.version}">
+    <capability>esh.tp;feature=xtext;version=2.9.2</capability>
+
+    <bundle>mvn:org.eclipse.xtext/org.eclipse.xtext/2.9.2</bundle>
+
+    <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.common/2.11.0-v20150805-0538</bundle>
+    <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore/2.11.1-v20150805-0538</bundle>
+    <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore.xmi/2.11.1-v20150805-0538</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.common.types/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.lib/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.smap/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.util/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib/2.9.2</bundle>
+    <bundle dependency="true">mvn:org.eclipse.xtend/org.eclipse.xtend.lib.macro/2.9.2</bundle>
+
+    <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject/1_2</bundle>
+
+    <!--<bundle dependency="true">mvn:com.google.inject/guice/3.0</bundle>-->
+    <!--<bundle dependency="true">mvn:com.google.guava/guava/14.0.1</bundle>-->
+    <!--<bundle dependency="true">wrap:mvn:org.antlr/antlr-runtime/3.2</bundle>-->
+    <!--<bundle dependency="true">wrap:mvn:aopalliance/aopalliance/1.0</bundle>-->
+
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/com.google.inject/3.0.0.v201312141243</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/com.google.guava/10.0.1.v201203051515</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.antlr.runtime/3.2.0.v201101311130</bundle>
+
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.common/3.7.0.v20150402-1709</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.registry/3.6.0.v20150318-1503</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.p2redist/org.eclipse.equinox.supplement/1.6.0.v20141009-1504</bundle>
+
+    <!-- Add ASM package -->
+    <!-- org.eclipse.xtext.common.types is using Require-Bundle -->
+    <bundle dependency="true">mvn:de.maggu2810.requirebundle.fix/org.objectweb.asm/5.0.2</bundle>
+    <bundle dependency="true" start-level="20">mvn:org.ow2.asm/asm-all/5.0.2</bundle>
+  </feature>
+
+</features>
