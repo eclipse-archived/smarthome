@@ -142,17 +142,18 @@ public class ModelRepositoryImpl implements ModelRepository {
     @Override
     public Iterable<String> getAllModelNamesOfType(final String modelType) {
         synchronized (resourceSet) {
-            Iterable<Resource> matchingResources = Iterables.filter(resourceSet.getResources(),
-                    new Predicate<Resource>() {
-                        @Override
-                        public boolean apply(Resource input) {
-                            if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
-                                return modelType.equalsIgnoreCase(input.getURI().fileExtension());
-                            } else {
-                                return false;
-                            }
-                        }
-                    });
+            // Make a copy to avoid ConcurrentModificationException
+            List<Resource> resourceListCopy = new ArrayList<Resource>(resourceSet.getResources());
+            Iterable<Resource> matchingResources = Iterables.filter(resourceListCopy, new Predicate<Resource>() {
+                @Override
+                public boolean apply(Resource input) {
+                    if (input != null && input.getURI().lastSegment().contains(".") && input.isLoaded()) {
+                        return modelType.equalsIgnoreCase(input.getURI().fileExtension());
+                    } else {
+                        return false;
+                    }
+                }
+            });
             return Lists.newArrayList(Iterables.transform(matchingResources, new Function<Resource, String>() {
                 @Override
                 public String apply(Resource from) {
