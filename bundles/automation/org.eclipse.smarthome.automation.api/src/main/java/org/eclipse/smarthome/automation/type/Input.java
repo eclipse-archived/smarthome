@@ -59,7 +59,7 @@ public class Input {
     private boolean required = false;
     private Set<String> tags;
     private String reference;
-    private Object defaultValue;
+    private String defaultValue;
 
     /**
      * Default constructor for deserialization e.g. by Gson.
@@ -100,7 +100,7 @@ public class Input {
      *            must be the type the Input.
      */
     public Input(String name, String type, String label, String description, Set<String> tags, boolean required,
-            String reference, Object defaultValue) {
+            String reference, String defaultValue) {
         if (name == null) {
             throw new IllegalArgumentException("The name of the input must not be NULL!");
         }
@@ -191,7 +191,7 @@ public class Input {
      *
      * @return default Input value
      */
-    public Object getDefaultValue() {
+    public String getDefaultValue() {
         return defaultValue;
     }
 

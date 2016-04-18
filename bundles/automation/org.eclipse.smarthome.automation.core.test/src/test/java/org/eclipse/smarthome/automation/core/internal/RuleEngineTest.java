@@ -310,7 +310,7 @@ public class RuleEngineTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        Map<String, String> inputs = new HashMap<>(11);
+        Map<String, String> inputs = new HashMap<String, String>(11);
         String ouputModuleId = "triggerId";
         String outputName = "triggerOutput";
         String inputName = "conditionInput";
@@ -325,7 +325,7 @@ public class RuleEngineTest {
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
-        Map<String, String> inputs = new HashMap<>(11);
+        Map<String, String> inputs = new HashMap<String, String>(11);
         String ouputModuleId = "triggerId";
         String outputName = "triggerOutput";
         String inputName = "actionInput";

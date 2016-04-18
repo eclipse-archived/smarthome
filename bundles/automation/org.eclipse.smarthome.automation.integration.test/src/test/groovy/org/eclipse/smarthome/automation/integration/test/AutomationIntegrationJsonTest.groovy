@@ -21,8 +21,12 @@ import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.RuleStatusInfo
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
+import org.eclipse.smarthome.automation.type.ActionType
+import org.eclipse.smarthome.automation.type.Input
 import org.eclipse.smarthome.automation.type.ModuleType
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
+import org.eclipse.smarthome.automation.type.Output
+import org.eclipse.smarthome.automation.type.TriggerType
 import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -151,6 +155,44 @@ class AutomationIntegrationJsonTest extends OSGiTest{
 
     protected void registerVolatileStorageService() {
         registerService(VOLATILE_STORAGE_SERVICE);
+    }
+
+    @Test
+    public void 'assert that module type inputs and outputs from json file are parsed correctly' () {
+        logger.info("assert that module type inputs and outputs from json file are parsed correctly");
+
+        //WAIT until module type resources are parsed
+        waitForAssert({
+            assertThat moduleTypeRegistry.getAll(TriggerType.class).isEmpty(), is(false)
+            assertThat moduleTypeRegistry.getAll(ActionType.class).isEmpty(), is(false)
+
+            def moduleType1 = moduleTypeRegistry.get("CustomTrigger1") as TriggerType
+            def moduleType2 = moduleTypeRegistry.get("CustomTrigger2") as TriggerType
+            def moduleType3 = moduleTypeRegistry.get("CustomAction1") as ActionType
+            def moduleType4 = moduleTypeRegistry.get("CustomAction2") as ActionType
+
+            assertThat moduleType1.getOutputs(), is(notNullValue())
+            def output1 = moduleType1.getOutputs().find{it.name == "customTriggerOutput1"} as Output
+            assertThat output1, is(notNullValue())
+            assertThat output1.defaultValue, is("true")
+
+            assertThat moduleType2.getOutputs(), is(notNullValue())
+            def output2 = moduleType2.getOutputs().find{it.name == "customTriggerOutput2"} as Output
+            assertThat output2, is(notNullValue())
+            assertThat output2.defaultValue, is("event")
+
+            assertThat moduleType4.getInputs(), is(notNullValue())
+            def input = moduleType4.getInputs().find{it.name == "customActionInput"} as Input
+            assertThat input, is(notNullValue())
+            assertThat input.defaultValue, is("5")
+
+            assertThat moduleType3.getOutputs(), is(notNullValue())
+            def output3 = moduleType3.getOutputs().find{it.name == "customActionOutput3"} as Output
+            assertThat output3, is(notNullValue())
+            assertThat output3.defaultValue, is("{\"command\":\"OFF\"}")
+
+        }, 10000, 200)
+
     }
 
     @Test
