@@ -283,7 +283,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, linkService, channelTypeService) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, linkService, channelTypeService, configService) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -432,8 +432,21 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             for (c_i = 0, c_l = $scope.channelTypes.length; c_i < c_l; ++c_i) {
                 c = $scope.channelTypes[c_i];
                 c.advanced = false;
-                var id = c.UID.split(':', 2)
+                var id = c.UID.split(':', 2);
                 if (id[1] == channelId) {
+                    return c;
+                }
+            }
+        }
+        return;
+    };
+
+    $scope.getChannelFromChannelTypes = function(channelUID) {
+        if ($scope.channelTypes) {
+            var c = {}, c_i, c_l;
+            for (c_i = 0, c_l = $scope.channelTypes.length; c_i < c_l; ++c_i) {
+                c = $scope.channelTypes[c_i];
+                if (c.UID == channelUID) {
                     return c;
                 }
             }
@@ -537,6 +550,22 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         }
         $scope.refreshChannels(false);
     });
+
+    $scope.configChannel = function(channel, thing) {
+        var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
+
+        $mdDialog.show({
+            controller : 'ChannelConfigController',
+            templateUrl : 'partials/dialog.channelconfig.html',
+            targetEvent : event,
+            hasBackdrop : true,
+            locals : {
+                channelType : channelType,
+                channel : channel,
+                thing : thing
+            }
+        });
+    };
 }).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingSetupService, thing) {
     $scope.thing = thing;
     $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
@@ -659,4 +688,28 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         }, refresh);
     }
     $scope.getThing(false);
+}).controller('ChannelConfigController', function($scope, $mdDialog, toastService, thingRepository, thingService, configService, channelType, channel, thing) {
+    $scope.parameters = configService.getRenderingModel(channelType.parameters, channelType.parameterGroups);
+    $scope.configuration = channel.configuration;
+    $scope.channel = channel;
+    $scope.thing = thing;
+    $scope.close = function() {
+        $mdDialog.cancel();
+    }
+    $scope.save = function() {
+        var updated = false;
+        for (var i = 0; !updated && i < $scope.thing.channels.length; i++) {
+            if ($scope.thing.channels[i].uid == $scope.channel.uid) {
+                $scope.thing.channels[i].configuration = $scope.configuration;
+                updated = true;
+            }
+        }
+        thingService.update({
+            thingUID : thing.UID
+        }, $scope.thing, function() {
+            thingRepository.update($scope.thing);
+            $mdDialog.hide();
+            toastService.showDefaultToast('Channel updated');
+        });
+    }
 });
