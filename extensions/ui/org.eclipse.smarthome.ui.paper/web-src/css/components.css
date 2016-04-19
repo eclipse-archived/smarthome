@@ -98,7 +98,7 @@ md-tabs md-tab {
 	background-color: #01324D;
 }
 
-md-tabs.md-default-theme md-ink-bar {
+md-tabs md-ink-bar {
 	color: #ffff85;
 	background: white;
 }
@@ -154,7 +154,7 @@ md-radio-button.md-default-theme.md-checked .md-ink-ripple, md-switch.md-default
 }
 
 /* Checkbox */
-md-checkbox.md-default-theme.md-checked .material-icons {
+md-checkbox.md-default-theme.md-checked .md-icon, md-checkbox.md-default-theme.md-checked .material-icons {
 	background-color: #4CAF50;
 }
 
@@ -671,14 +671,44 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	cursor: pointer;
 }
 
-md-input-container textarea.md-input.scriptArea, md-input-container textarea.md-input.ng-invalid.ng-dirty,
-	md-input-container textarea.md-input-focused .md-input {
-	max-width: 550px;
-	max-height: 250px;
-	overflow: scroll;
-	border: 1px solid #ccc;
-	padding-left: 5px;
-	font-family: monospace;
-	font-size: 12px;
-	line-height: 1.2;
+textarea.scriptArea {
+    max-width: 550px;
+    width:100%;
+    max-height: 250px;
+    overflow: scroll;
+    border: 1px solid #ccc;
+    padding-left: 5px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.2;
+    outline: none;
+}
+
+.configContainer {
+    margin-top: 0px;
+    padding-left: 0px;
+}
+
+.ruleNameDesc {
+    margin-top: 3%;
+    margin-left: 10px;
+}
+
+.customMessage {
+    color: rgb(221, 44, 0);
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 5px;
+}
+
+.hint.noMargin, .noMargin {
+	margin-top: 0px;
+}
+
+.noPadding {
+	padding: 0px;
+}
+
+md-input-container .md-errors-spacer {
+	min-height: 0px;
 }

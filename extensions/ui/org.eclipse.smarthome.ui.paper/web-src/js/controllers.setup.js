@@ -14,7 +14,7 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         if ($scope.thingTypes && Object.keys($scope.thingTypes).length != 0) {
             return $scope.thingTypes[key].label;
         } else {
-            getThingTypes();
+            thingTypeRepository.setDirty(false);
         }
     };
     getThingTypes();
