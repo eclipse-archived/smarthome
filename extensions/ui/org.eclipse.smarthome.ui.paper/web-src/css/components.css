@@ -98,7 +98,7 @@ md-tabs md-tab {
 	background-color: #01324D;
 }
 
-md-tabs.md-default-theme md-ink-bar {
+md-tabs md-ink-bar {
 	color: #ffff85;
 	background: white;
 }
@@ -154,7 +154,7 @@ md-radio-button.md-default-theme.md-checked .md-ink-ripple, md-switch.md-default
 }
 
 /* Checkbox */
-md-checkbox.md-default-theme.md-checked .material-icons {
+md-checkbox.md-default-theme.md-checked .md-icon, md-checkbox.md-default-theme.md-checked .material-icons {
 	background-color: #4CAF50;
 }
 
@@ -705,6 +705,10 @@ textarea.scriptArea {
 	margin-top: 0px;
 }
 
-.noPadding{
-	 padding: 0px;
+.noPadding {
+	padding: 0px;
+}
+
+md-input-container .md-errors-spacer {
+	min-height: 0px;
 }

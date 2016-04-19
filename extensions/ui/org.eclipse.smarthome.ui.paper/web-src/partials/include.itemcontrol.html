@@ -7,7 +7,7 @@
 				</p>
 			</div>
 			<div flex="60" layout="row" layout-align="end center" class="switch-widget">
-				<md-switch ng-disabled="isReadOnly(item)" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
+				<md-switch class="md-default-theme" ng-disabled="isReadOnly(item)" ng-model="item.state" ng-change="setOn(item.state)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
 			</div>
 		</div>
 	</div>
@@ -22,13 +22,13 @@
 				<h2>{{item.state}}%</h2>
 			</div>
 		</div>
-		<md-slider style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
+		<md-slider class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
 		<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="!isHideSwitch(item.category)">
 			<div flex="40">
 				<p>Off/On</p>
 			</div>
 			<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-				<md-switch ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
+				<md-switch class="md-default-theme" ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
 			</div>
 		</div>
 	</div>
@@ -41,7 +41,7 @@
 			</div>
 			<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
 
-				<md-slider class="hue" flex min="0" max="360" ng-model="hue" ng-change="setHue(hue)" aria-label="{{item.label}} hue"></md-slider>
+				<md-slider class="hue md-default-theme" flex min="0" max="360" ng-model="hue" ng-change="setHue(hue)" aria-label="{{item.label}} hue"></md-slider>
 			</div>
 		</div>
 		<div layout="row" layout-align="start center" class="dimmer-widget">
@@ -49,7 +49,7 @@
 				<p class="">Brightness</p>
 			</div>
 			<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-				<md-slider flex min="0" max="100" ng-model="brightness" ng-change="setBrightness(brightness)" aria-label="{{item.label}} brightness"></md-slider>
+				<md-slider class="md-default-theme" flex min="0" max="100" ng-model="brightness" ng-change="setBrightness(brightness)" aria-label="{{item.label}} brightness"></md-slider>
 			</div>
 		</div>
 		<div layout="row" layout-align="start center" class="dimmer-widget">
@@ -57,7 +57,7 @@
 				<p class="">Saturation</p>
 			</div>
 			<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
-				<md-slider flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)" aria-label="{{item.label}} saturation"></md-slider>
+				<md-slider class="md-default-theme" flex min="0" max="100" ng-model="saturation" ng-change="setSaturation(saturation)" aria-label="{{item.label}} saturation"></md-slider>
 			</div>
 		</div>
 	</div>
@@ -83,7 +83,7 @@
 		</div>
 		<div ng-if="shouldRenderSlider(item)" layout="row" layout-align="start center" class="number-control-widget">
 			<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
-			<md-slider flex="70" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-if="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
+			<md-slider class="md-default-theme" flex="70" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-if="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
 			<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>
 		</div>
 	</div>
