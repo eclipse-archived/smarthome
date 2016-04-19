@@ -228,6 +228,7 @@ public class ReferenceResolverUtil {
             } else {
                 // remain as it is: value is null
                 sb.append(reference.substring(start, end + 1));
+                logger.warn("Cannot find reference for ${ {} } , it will remain the same.", referencedKey);
             }
         }
         sb.append(reference.substring(previous));
