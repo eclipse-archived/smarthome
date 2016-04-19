@@ -4,7 +4,6 @@ Bundle-Name: Eclipse SmartHome Thing Editor UI
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.thing.ui; singleton:=true
-Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.smarthome.model.thing;visibility:=reexport,
  org.eclipse.xtext.ui,
  org.eclipse.ui.editors;bundle-version="3.5.0",

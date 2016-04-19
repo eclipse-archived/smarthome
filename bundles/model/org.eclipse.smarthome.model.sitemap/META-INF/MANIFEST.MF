@@ -4,7 +4,6 @@ Bundle-Name: Eclipse SmartHome Sitemap Model
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.sitemap;singleton:=true
-Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.xtext,
  org.eclipse.xtext.generator;resolution:=optional,
  org.eclipse.xtext.util,

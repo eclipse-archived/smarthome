@@ -25,6 +25,5 @@ Import-Package: com.google.common.base,
  org.osgi.framework,
  org.osgi.service.cm,
  org.slf4j
-Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/folderobserver.xml, OSGI-INF/modelrepository.xml
 Export-Package: org.eclipse.smarthome.model.core

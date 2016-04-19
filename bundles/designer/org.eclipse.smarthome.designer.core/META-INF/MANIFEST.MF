@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.google.guava,
  org.eclipse.xtext.xbase.lib
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.smarthome.designer.core,org.eclipse.smarth
  ome.designer.core.config
 Import-Package: org.eclipse.smarthome.config.core,

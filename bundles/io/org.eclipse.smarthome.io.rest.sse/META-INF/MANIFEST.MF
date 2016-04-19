@@ -40,6 +40,5 @@ Import-Package: com.google.common.collect,
  org.osgi.service.event,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.smarthome.io.rest.sse,
  org.eclipse.smarthome.io.rest.sse.beans

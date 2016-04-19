@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.navigator,
  org.eclipse.ui.navigator.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.common.registry,
