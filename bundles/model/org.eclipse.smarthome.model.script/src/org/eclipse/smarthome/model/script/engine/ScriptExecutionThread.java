@@ -41,7 +41,7 @@ public class ScriptExecutionThread extends Thread {
         try {
             result = script.execute(context);
         } catch (ScriptExecutionException e) {
-            String msg = e.getCause().getMessage();
+            String msg = e.getMessage();
             if (msg == null) {
                 logger.error("Error during the execution of rule '{}'", getName(), e.getCause());
             } else {
