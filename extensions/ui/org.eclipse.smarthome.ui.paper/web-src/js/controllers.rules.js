@@ -257,15 +257,16 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
 }).directive('scriptarea', function() {
     return {
         restrict : 'A',
-        require : '^ngModel',
-        link : function(scope, elem, attrs) {
+        require : 'ngModel',
+        link : function(scope, elem, attrs, ngModel) {
             elem.ready(function() {
                 setTimeout(function() {
                     elem[0].style.cssText = 'height:auto;';
                     elem[0].style.cssText = 'height:' + elem[0].scrollHeight + 'px';
                 }, 500);
             });
-
+            var localAttrs = attrs;
+            var element = elem;
             var resizeHandler = function(event) {
                 elem[0].style.cssText = 'height:auto;';
                 if (elem[0].value.length < 1) {
@@ -273,11 +274,27 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
                 } else {
                     elem[0].style.cssText = 'height:' + elem[0].scrollHeight + 'px';
                 }
+                validateAtrribute();
             };
             elem[0].addEventListener("keydown", resizeHandler, true);
             elem[0].addEventListener("input", resizeHandler, true);
             elem[0].addEventListener("cut", resizeHandler);
-
+            elem[0].addEventListener("blur", function() {
+                validateAtrribute();
+            });
+            function validateAtrribute() {
+                var modelArr = document.getElementsByName(attrs.name);
+                if (modelArr && modelArr.length > 0) {
+                    var modelValue = modelArr[0].value;
+                    if (modelValue && (modelValue.length < localAttrs.ngMinlength || modelValue.length > localAttrs.ngMaxlength)) {
+                        element.addClass('border-invalid');
+                    } else if ((modelValue === undefined || modelValue == "") && localAttrs.ngRequired) {
+                        element.addClass('border-invalid');
+                    } else {
+                        element.removeClass('border-invalid');
+                    }
+                }
+            }
         }
     }
 });
