@@ -40,19 +40,14 @@ public class ScriptExecutionThread extends Thread {
         super.run();
         try {
             result = script.execute(context);
-        } catch (ScriptExecutionException e) {
-            String msg = e.getCause().getMessage();
-            if (msg == null) {
-                logger.error("Error during the execution of rule '{}'", getName(), e.getCause());
-            } else {
-                logger.error("Error during the execution of rule '{}': {}", new Object[] { getName(), msg });
-            }
+        } catch (final ScriptExecutionException ex) {
+            logger.error("Error during the execution of rule '{}'.", getName(), ex);
         }
     }
 
     /**
      * Returns the script evaluation result (or null, if thread is still active)
-     * 
+     *
      * @return the script evaluation result
      */
     public Object getResult() {
