@@ -80,7 +80,7 @@
 					<span class="side-menu">Extensions</span>
 				</a>
 			</li>
-			<li ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
+			<li ng-show="ruleEnabled" ng-class="{active: isActive('rules')}">
 				<a href="#rules">
 					<span class="icon material-icons">movie_creation</span>
 					<span class="side-menu">Rules</span>
