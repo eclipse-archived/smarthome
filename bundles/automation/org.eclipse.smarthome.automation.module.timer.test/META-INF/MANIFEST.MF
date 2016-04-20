@@ -43,4 +43,3 @@ Require-Bundle: org.junit;bundle-version="4.0.0",
  org.eclipse.smarthome.automation.providers,
  org.eclipse.smarthome.automation.module.timer,
  org.eclipse.smarthome.automation.parser.gson
-Bundle-ActivationPolicy: lazy

@@ -48,5 +48,4 @@ Import-Package: com.google.common.base,
 Export-Package: org.eclipse.smarthome.io.rest.core.item,
  org.eclipse.smarthome.io.rest.core.thing
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.smarthome.io.rest.core.internal.RESTCoreActivator

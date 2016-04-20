@@ -12,4 +12,3 @@ Import-Package: org.apache.karaf.shell.api.console;version="4.0.0",
  org.osgi.framework,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy

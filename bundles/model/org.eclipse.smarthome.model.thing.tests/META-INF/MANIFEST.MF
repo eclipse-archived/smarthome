@@ -4,7 +4,6 @@ Bundle-Name: Eclipse SmartHome Thing Model Tests
 Bundle-Vendor: Eclipse.org/SmartHome
 Bundle-Version: 0.8.0.qualifier
 Bundle-SymbolicName: org.eclipse.smarthome.model.thing.tests; singleton:=true
-Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime
 Import-Package: groovy.lang,
  org.apache.log4j,

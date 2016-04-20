@@ -23,5 +23,4 @@ Import-Package: org.apache.commons.collections,
 Export-Package: org.eclipse.smarthome.io.voice.text,
  org.eclipse.smarthome.io.voice.tts
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.smarthome.io.voice.internal.VoiceActivator

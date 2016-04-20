@@ -51,7 +51,7 @@
                 <type>eclipse-plugin</type>
                 <id>ch.qos.logback.slf4j</id>
                 <versionRange>0.0.0</versionRange>
-              </requirement>          
+              </requirement>
             </extraRequirements>
           </dependency-resolution>
         </configuration>
@@ -74,6 +74,11 @@
             <bundle>
               <id>org.eclipse.smarthome.core</id>
               <level>3</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
+              <id>org.eclipse.smarthome.config.core</id>
+              <level>4</level>
               <autoStart>true</autoStart>
             </bundle>
           </bundleStartLevel>

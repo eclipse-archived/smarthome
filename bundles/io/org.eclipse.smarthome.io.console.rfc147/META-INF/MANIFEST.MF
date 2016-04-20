@@ -12,4 +12,3 @@ Import-Package: org.eclipse.smarthome.io.console,
  org.osgi.service.component,
  org.slf4j
 Service-Component: OSGI-INF/*.xml
-Bundle-ActivationPolicy: lazy
