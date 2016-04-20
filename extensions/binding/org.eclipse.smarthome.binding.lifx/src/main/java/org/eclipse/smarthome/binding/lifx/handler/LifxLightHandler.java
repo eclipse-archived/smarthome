@@ -73,13 +73,13 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Nobel - Initial contribution
  * @author Stefan Bußweiler - Added new thing status handling
  * @author Karel Goderis - Rewrite for Firmware V2, and remove dependency on external libraries
+ * @author Kai Kreuzer - Added configurable transition time and small fixes
  */
 public class LifxLightHandler extends BaseThingHandler {
 
     private Logger logger = LoggerFactory.getLogger(LifxLightHandler.class);
 
     private static final double INCREASE_DECREASE_STEP = 0.10;
-    private static final long DEFAULT_FADE_TIME = 100;
     private final int BROADCAST_PORT = 56700;
     private static long NETWORK_INTERVAL = 50;
     private static int ECHO_POLLING_INTERVAL = 15;
@@ -91,6 +91,7 @@ public class LifxLightHandler extends BaseThingHandler {
     private long source;
     private int service;
     private int port;
+    private long fadeTime = 300L;
     private MACAddress macAddress = null;
     private MACAddress broadcastAddress = new MACAddress("000000000000", true);
     private int sequenceNumber = 1;
@@ -160,6 +161,16 @@ public class LifxLightHandler extends BaseThingHandler {
         try {
             macAddress = new MACAddress((String) getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_DEVICE_ID), true);
             logger.debug("Initializing the LIFX handler for bulb '{}'.", this.macAddress.getHex());
+
+            Object fadeCfg = getConfig().get(LifxBindingConstants.CONFIG_PROPERTY_FADETIME);
+            if (fadeCfg != null) {
+                try {
+                    fadeTime = Long.parseLong(fadeCfg.toString());
+                } catch (NumberFormatException e) {
+                    logger.warn("Invalid value '{}' for transition time, using default instead.",
+                            fadeCfg.toString());
+                }
+            }
 
             if (networkJob == null || networkJob.isCancelled()) {
                 networkJob = scheduler.scheduleWithFixedDelay(networkRunnable, 0, NETWORK_INTERVAL,
@@ -254,7 +265,7 @@ public class LifxLightHandler extends BaseThingHandler {
         SetColorRequest packet = new SetColorRequest((int) (currentColorState.getHue().floatValue() / 360 * 65535.0f),
                 (int) (currentColorState.getSaturation().floatValue() / 100 * 65535.0f),
                 (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
-                toKelvin(temperature.intValue()), DEFAULT_FADE_TIME);
+                toKelvin(temperature.intValue()), fadeTime);
         packet.setResponseRequired(false);
         sendPacket(packet);
 
@@ -268,7 +279,7 @@ public class LifxLightHandler extends BaseThingHandler {
         SetColorRequest packet = new SetColorRequest((int) (hsbType.getHue().floatValue() / 360 * 65535.0f),
                 (int) (hsbType.getSaturation().floatValue() / 100 * 65535.0f),
                 (int) (hsbType.getBrightness().floatValue() / 100 * 65535.0f), toKelvin(currentTempState.intValue()),
-                DEFAULT_FADE_TIME);
+                fadeTime);
         packet.setResponseRequired(false);
         sendPacket(packet);
 
@@ -599,6 +610,7 @@ public class LifxLightHandler extends BaseThingHandler {
                             }
                         } catch (Exception e) {
                             logger.error("An exception occurred while writing data : '{}'", e.getMessage());
+                            break;
                         }
                     }
                 }
