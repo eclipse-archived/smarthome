@@ -23,4 +23,3 @@ Import-Package: io.swagger.annotations;resolution:=optional,
  org.eclipse.smarthome.ui.items,
  org.slf4j
 Service-Component: OSGI-INF/sitemaprest.xml
-Bundle-ActivationPolicy: lazy

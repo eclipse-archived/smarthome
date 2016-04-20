@@ -21,4 +21,3 @@ Import-Package: org.apache.commons.codec.net,
 Bundle-ClassPath: .
 Export-Package: org.eclipse.smarthome.io.net.exec,
  org.eclipse.smarthome.io.net.http
-Bundle-ActivationPolicy: lazy

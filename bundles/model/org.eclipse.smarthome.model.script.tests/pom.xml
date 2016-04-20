@@ -59,6 +59,11 @@
               <autoStart>true</autoStart>
             </bundle>
             <bundle>
+              <id>org.eclipse.smarthome.model.script</id>
+              <level>4</level>
+              <autoStart>true</autoStart>
+            </bundle>
+            <bundle>
               <id>org.eclipse.smarthome.model.script.runtime</id>
               <level>5</level>
               <autoStart>true</autoStart>

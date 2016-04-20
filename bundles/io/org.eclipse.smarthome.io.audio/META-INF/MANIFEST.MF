@@ -8,5 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .
 Import-Package: org.slf4j
 Export-Package: org.eclipse.smarthome.io.audio
-Bundle-ActivationPolicy: lazy
 

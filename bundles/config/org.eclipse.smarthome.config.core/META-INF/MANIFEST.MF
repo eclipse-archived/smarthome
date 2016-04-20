@@ -22,6 +22,5 @@ Export-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.config.core.status,
  org.eclipse.smarthome.config.core.status.events,
  org.eclipse.smarthome.config.core.validation
-Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/*.xml
 Bundle-Activator: org.eclipse.smarthome.config.core.internal.Activator
