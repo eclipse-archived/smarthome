@@ -74,13 +74,13 @@
 					</li>
 				</ul>
 			</li>
-			<li ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
+			<li ng-show="extensionEnabled" ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
 				<a href="#extensions">
 					<span class="icon material-icons">extension</span>
 					<span class="side-menu">Extensions</span>
 				</a>
 			</li>
-			<li ng-show="ruleEnabled" ng-class="{active: isActive('rules')}">
+			<li ng-show="ruleEnabled" ng-class="{active: isActive('rules'), hidden: isHidden('rules')}">
 				<a href="#rules">
 					<span class="icon material-icons">movie_creation</span>
 					<span class="side-menu">Rules</span>

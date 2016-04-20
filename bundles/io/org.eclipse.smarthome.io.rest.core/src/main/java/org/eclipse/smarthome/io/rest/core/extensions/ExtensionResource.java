@@ -49,7 +49,7 @@ public class ExtensionResource implements RESTResource {
 
     private static final String THREAD_POOL_NAME = "extensionService";
 
-    public static final String PATH_EXTENSIONS = "/extensions";
+    public static final String PATH_EXTENSIONS = "extensions";
 
     private final Logger logger = LoggerFactory.getLogger(ExtensionResource.class);
 

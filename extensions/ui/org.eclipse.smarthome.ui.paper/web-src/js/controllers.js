@@ -120,6 +120,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     }
 }).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig) {
     $scope.opened = null;
+    $scope.extensionEnabled;
     $scope.ruleEnabled;
     $scope.open = function(viewLocation) {
         $scope.opened = viewLocation;
@@ -141,10 +142,13 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         $scope.opened = null;
     });
     $http.get(restConfig.restPath).then(function(response) {
+        $scope.extensionEnabled = false;
         $scope.ruleEnabled = false;
         if (response.data && response.data.links) {
             for (var i = 0; i < response.data.links.length; i++) {
-                if (response.data.links[i].type === 'rules') {
+                if (response.data.links[i].type === 'extensions') {
+                    $scope.extensionEnabled = true;
+                } else if (response.data.links[i].type === 'rules') {
                     $scope.ruleEnabled = true;
                 }
             }
