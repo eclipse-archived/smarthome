@@ -118,8 +118,9 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     $scope.getSelected = function(property) {
         return $('select#' + property + ' option:selected').val();
     }
-}).controller('NavController', function($scope, $location, moduleConfig) {
+}).controller('NavController', function($scope, $location, $http, restConfig, moduleConfig) {
     $scope.opened = null;
+    $scope.ruleEnabled;
     $scope.open = function(viewLocation) {
         $scope.opened = viewLocation;
     }
@@ -138,5 +139,15 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         $('body').removeClass('sml-open');
         $('.mask').remove();
         $scope.opened = null;
+    });
+    $http.get(restConfig.restPath).then(function(response) {
+        $scope.ruleEnabled = false;
+        if (response.data && response.data.links) {
+            for (var i = 0; i < response.data.links.length; i++) {
+                if (response.data.links[i].type === 'rules') {
+                    $scope.ruleEnabled = true;
+                }
+            }
+        }
     });
 });
