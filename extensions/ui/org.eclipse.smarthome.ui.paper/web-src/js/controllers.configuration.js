@@ -529,8 +529,8 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             return thing.UID === thingUID;
         }, function(thing) {
             $scope.thing = thing;
-            $scope.refreshChannels(false);
             $scope.thingTypeUID = thing.thingTypeUID;
+            getThingType();
             if (thing.item) {
                 $scope.setTitle(thing.label);
             } else {
@@ -540,16 +540,18 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.getThing(true);
 
-    thingTypeRepository.getOne(function(thingType) {
-        return thingType.UID === $scope.thingTypeUID;
-    }, function(thingType) {
-        $scope.thingType = thingType;
-        if (thingType) {
-            $scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels : thingType.channelGroups;
-            $scope.setHeaderText(thingType.description);
-        }
-        $scope.refreshChannels(false);
-    });
+    function getThingType() {
+        thingTypeRepository.getOne(function(thingType) {
+            return thingType.UID === $scope.thingTypeUID;
+        }, function(thingType) {
+            $scope.thingType = thingType;
+            if (thingType) {
+                $scope.thingTypeChannels = thingType.channels && thingType.channels.length > 0 ? thingType.channels : thingType.channelGroups;
+                $scope.setHeaderText(thingType.description);
+            }
+            $scope.refreshChannels(false);
+        });
+    }
 
     $scope.configChannel = function(channel, thing) {
         var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
