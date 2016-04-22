@@ -22,5 +22,7 @@
    <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
    <reference bind="setConfigStatusService" cardinality="1..1" interface="org.eclipse.smarthome.config.core.status.ConfigStatusService" name="ConfigStatusService" policy="static" unbind="unsetConfigStatusService"/>
+   <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
+   <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static"/>
    
 </scr:component>
