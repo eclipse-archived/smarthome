@@ -8,9 +8,9 @@
 package org.eclipse.smarthome.ui.basic.internal.render;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,18 +134,18 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     }
 
     /**
-     * Escapes the path part of a URL as defined in RFC2396. This means, that for example the
-     * path "/hello world" gets escaped to "/hello%20world".
+     * Escapes parts of a URL. This means, that for example the
+     * path "/hello world" gets escaped to "/hello+world".
      *
-     * @param path The path of the URL that has to be escaped
-     * @return The escaped path
+     * @param string The string that has to be escaped
+     * @return The escaped string
      */
-    protected String escapeURLPath(String path) {
+    protected String escapeURL(String string) {
         try {
-            return new URI(null, null, path, null).toString();
-        } catch (URISyntaxException use) {
-            logger.warn("Cannot escape path '{}' in URL. Returning unmodified path.", path);
-            return path;
+            return URLEncoder.encode(string, "UTF-8");
+        } catch (UnsupportedEncodingException use) {
+            logger.warn("Cannot escape string '{}'. Returning unmodified string.", string);
+            return string;
         }
     }
 
@@ -181,14 +181,14 @@ abstract public class AbstractWidgetRenderer implements WidgetRenderer {
     }
 
     protected String getCategory(Widget w) {
-        String category = escapeURLPath(itemUIRegistry.getCategory(w));
+        String category = escapeURL(itemUIRegistry.getCategory(w));
         return category;
     }
 
     protected String getState(Widget w) {
         State state = itemUIRegistry.getState(w);
         if (state != null) {
-            return escapeURLPath(state.toString());
+            return escapeURL(state.toString());
         } else {
             return "NULL";
         }
