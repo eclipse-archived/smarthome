@@ -170,7 +170,7 @@ public class LightStateConverter {
      * @return percent type representing the color temperature
      */
     public static PercentType toColorTemperaturePercentType(State lightState) {
-        int percent = (lightState.getColorTemperature() - MIN_COLOR_TEMPERATURE) / COLOR_TEMPERATURE_RANGE;
+        int percent = (int) Math.round(((lightState.getColorTemperature() - MIN_COLOR_TEMPERATURE) * 100.0 )/ COLOR_TEMPERATURE_RANGE);
         return new PercentType(restrictToBounds(percent));
     }
 

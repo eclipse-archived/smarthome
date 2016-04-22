@@ -44,3 +44,4 @@ Here is a sample _good_ Git commit log message:
 
 Finally, a contribution is not a good contribution unless it comes with unit tests, integration tests and
 documentation.
+
