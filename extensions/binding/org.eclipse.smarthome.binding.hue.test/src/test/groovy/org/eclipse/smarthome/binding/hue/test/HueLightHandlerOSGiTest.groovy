@@ -52,6 +52,10 @@ import org.junit.Test
  */
 class HueLightHandlerOSGiTest extends OSGiTest {
 
+    private static final int MIN_COLOR_TEMPERATURE = 153;
+    private static final int MAX_COLOR_TEMPERATURE = 500;
+    private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
+
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
     final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LCT001")
     final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "LWB004")
@@ -194,6 +198,24 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     void 'assert command for color temperature channel: 100%'() {
         def expectedReply = '{"ct" : 500}'
         assertSendCommandForColorTemp(new PercentType(100), new HueLightState(), expectedReply)
+    }
+
+    @Test
+    void 'assert percentage value of color temperature when ct: 153'() {
+        def expectedReply = 0
+        asserttoColorTemperaturePercentType(153, expectedReply)
+    }
+
+    @Test
+    void 'assert percentage value of color temperature when ct: 326'() {
+        def expectedReply = 50
+        asserttoColorTemperaturePercentType(326, expectedReply)
+    }
+
+    @Test
+    void 'assert percentage value of color temperature when ct: 500'() {
+        def expectedReply = 100
+        asserttoColorTemperaturePercentType(500, expectedReply)
     }
 
     @Test
@@ -384,6 +406,11 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
     private void assertSendCommandForColorTemp(Command command, HueLightState currentState, String expectedReply) {
         assertSendCommand(CHANNEL_COLORTEMPERATURE, command, COLOR_LIGHT_THING_TYPE_UID, currentState, expectedReply)
+    }
+
+    private void asserttoColorTemperaturePercentType(int ctValue, int expectedPercent) {
+        int percent = (int) Math.round(((ctValue - MIN_COLOR_TEMPERATURE) * 100.0 )/ COLOR_TEMPERATURE_RANGE);
+        assertThat expectedPercent, is(percent)
     }
 
     private void assertSendCommandForBrightness(Command command, HueLightState currentState, String expectedReply) {
