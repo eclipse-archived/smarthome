@@ -37,6 +37,8 @@ import org.eclipse.smarthome.core.items.events.ItemCommandEvent;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.items.events.ItemStateEvent;
 import org.eclipse.smarthome.core.thing.Bridge;
+import org.eclipse.smarthome.core.thing.BundleProcessor;
+import org.eclipse.smarthome.core.thing.BundleProcessor.BundleProcessorListener;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ManagedThingProvider;
@@ -59,6 +61,7 @@ import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentContext;
@@ -66,6 +69,10 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 
 /**
  * {@link ThingManager} tracks all things in the {@link ThingRegistry} and
@@ -82,11 +89,16 @@ import org.slf4j.LoggerFactory;
  *         refactorings thing life cycle
  * @author Simon Kaufmann - Added remove handling
  */
-public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker {
+public class ThingManager extends AbstractItemEventSubscriber implements ThingTracker, BundleProcessorListener {
 
     private static final String FORCEREMOVE_THREADPOOL_NAME = "forceRemove";
 
     private static final String THING_MANAGER_THREADPOOL_NAME = "thingManager";
+
+    private final Multimap<Bundle, Object> initializerVetoes = Multimaps
+            .synchronizedListMultimap(LinkedListMultimap.<Bundle, Object> create());
+    private final Multimap<String, ThingHandler> initializerQueue = Multimaps
+            .synchronizedListMultimap(LinkedListMultimap.<String, ThingHandler> create());
 
     private final class ThingHandlerTracker extends ServiceTracker<ThingHandler, ThingHandler> {
 
@@ -192,7 +204,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 // update status of child-things
                 updateThingStatus(thingStatus, bridge);
                 // notify child-things about bridge status change, if bridge status is ONLINE/OFFLINE
-                if(!oldStatusInfo.equals(thingStatus)) {
+                if (!oldStatusInfo.equals(thingStatus)) {
                     notifyThingsAboutBridgeStatusChange(thingStatus, bridge);
                 }
             }
@@ -306,6 +318,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private Set<ThingUID> registerHandlerLock = new HashSet<>();
 
     private Set<ThingUID> thingUpdatedLock = new HashSet<>();
+
+    private Set<BundleProcessor> bundleProcessors = new HashSet<>();
 
     /**
      * Method is called when a {@link ThingHandler} is added.
@@ -604,7 +618,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         if (isInitializable(thing)) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
             setThingStatus(thing, statusInfo);
-            initializeHandler(thing, thing.getHandler());
+            initializeHandler(thing.getHandler());
         } else {
             logger.debug("Thing '{}' not initializable, check required configuration parameters.", thing.getUID());
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
@@ -650,11 +664,31 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         return requiredParameters;
     }
 
-    private void initializeHandler(final Thing thing, final ThingHandler thingHandler) {
+    private void initializeHandler(final ThingHandler thingHandler) {
+        Bundle bundle = null;
+        for (BundleProcessor proc : bundleProcessors) {
+            bundle = proc.isFinishedLoading(thingHandler);
+            if (bundle != null) {
+                logger.debug("##### Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
+                initializerVetoes.put(bundle, proc);
+                if (!initializerQueue.containsEntry(bundle, thingHandler)) {
+                    logger.debug("##### Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
+                    initializerQueue.put(bundle.getSymbolicName(), thingHandler);
+                }
+            }
+        }
+        if (bundle != null) {
+            logger.debug(
+                    "##### Meta-data of bundle '{}' is not fully loaded ({}), deferring handler initialization for thing '{}'",
+                    bundle.getSymbolicName(), initializerVetoes.get(bundle), thingHandler.getThing().getUID());
+            return;
+        }
+        logger.debug("##### All data has been loaded, going to initialize '{}'.", thingHandler.getThing().getUID());
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                logger.debug("Calling initialize handler for thing '{}' at '{}'.", thing.getUID(), thingHandler);
+                logger.debug("##### Calling initialize handler for thing '{}' at '{}'.",
+                        thingHandler.getThing().getUID(), thingHandler);
                 try {
                     SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                         @Override
@@ -664,18 +698,35 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                         }
                     });
                 } catch (TimeoutException ex) {
-                    logger.warn("Initializing handler for thing '{}' takes more than {}ms.", thing.getUID(),
-                            SafeMethodCaller.DEFAULT_TIMEOUT);
+                    logger.warn("Initializing handler for thing '{}' takes more than {}ms.",
+                            thingHandler.getThing().getUID(), SafeMethodCaller.DEFAULT_TIMEOUT);
                 } catch (Exception ex) {
                     ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.UNINITIALIZED,
                             ThingStatusDetail.HANDLER_INITIALIZING_ERROR,
                             ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage());
-                    setThingStatus(thing, statusInfo);
-                    logger.error("Exception occured while initializing handler of thing '" + thing.getUID() + "': "
-                            + ex.getMessage(), ex);
+                    setThingStatus(thingHandler.getThing(), statusInfo);
+                    logger.error("Exception occured while initializing handler of thing '"
+                            + thingHandler.getThing().getUID() + "': " + ex.getMessage(), ex);
                 }
             }
         }, 0, TimeUnit.NANOSECONDS);
+    }
+
+    @Override
+    public void bundleFinished(BundleProcessor context, Bundle bundle) {
+        logger.debug("##### '{}' finished loading meta-data of bundle '{}'", context, bundle.getSymbolicName());
+        initializerVetoes.remove(bundle, context);
+        logger.debug("##### '{}' still vetoed by '{}'", bundle.getSymbolicName(), initializerVetoes.get(bundle));
+        logger.debug("##### '{}' queued '{}'", bundle.getSymbolicName(),
+                initializerQueue.get(bundle.getSymbolicName()));
+        if (initializerVetoes.get(bundle).isEmpty()) {
+            synchronized (initializerQueue) {
+                for (ThingHandler thingHandler : initializerQueue.removeAll(bundle.getSymbolicName())) {
+                    logger.debug("##### Going to initialize '{}'", thingHandler.getThing().getUID());
+                    initializeHandler(thingHandler);
+                }
+            }
+        }
     }
 
     private boolean isInitialized(Thing thing) {
@@ -806,7 +857,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             }
         }
     }
-    
+
     private void notifyThingsAboutBridgeStatusChange(final ThingStatusInfo bridgeStatus, final Bridge bridge) {
         if (bridgeStatus.getStatus() == ThingStatus.ONLINE || bridgeStatus.getStatus() == ThingStatus.OFFLINE) {
 
@@ -1006,6 +1057,16 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
         this.thingTypeRegistry = null;
+    }
+
+    protected void setBundleProcessor(BundleProcessor bundleProcessor) {
+        bundleProcessors.add(bundleProcessor);
+        bundleProcessor.registerListener(this);
+    }
+
+    protected void unsetBundleProcessor(BundleProcessor bundleProcessor) {
+        bundleProcessor.unregisterListener(this);
+        bundleProcessors.remove(bundleProcessor);
     }
 
 }

@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.config.xml.osgi;
 
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -19,7 +21,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.smarthome.core.thing.BundleProcessor;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
 import org.osgi.util.tracker.BundleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 
-public abstract class AbstractAsyncBundleProcessor {
+public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(AbstractAsyncBundleProcessor.class);
 
@@ -54,6 +58,8 @@ public abstract class AbstractAsyncBundleProcessor {
     private final Queue<Bundle> queue = new ConcurrentLinkedQueue<>();
 
     private static final Set<AbstractAsyncBundleProcessor> ALL_PROCESSORS = new CopyOnWriteArraySet<>();
+
+    private Set<BundleProcessorListener> listeners = new CopyOnWriteArraySet<>();
 
     /**
      * This method creates a list where all resources are contained
@@ -163,8 +169,32 @@ public abstract class AbstractAsyncBundleProcessor {
         }
     }
 
-    private boolean isFinishedLoading(Bundle bundle) {
-        return !queue.contains(bundle);
+    @Override
+    public Bundle isFinishedLoading(Object object) {
+        Bundle bundle = getBundle(object.getClass());
+        if (queue.contains(bundle)) {
+            logger.debug("##### Bundle {} is still loading", bundle.getSymbolicName());
+            return bundle;
+        } else {
+            logger.debug("##### Bundle {} is not currently loading", bundle.getSymbolicName());
+            return null;
+        }
+    }
+
+    private Bundle getBundle(final Class<?> classFromBundle) {
+        ClassLoader classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+            @Override
+            public ClassLoader run() {
+                return classFromBundle.getClassLoader();
+            }
+        });
+
+        if (classLoader instanceof BundleReference) {
+            Bundle bundle = ((BundleReference) classLoader).getBundle();
+            logger.debug("##### Bundle of {} is {}", classFromBundle, bundle.getSymbolicName());
+            return bundle;
+        }
+        return null;
     }
 
     /**
@@ -179,7 +209,7 @@ public abstract class AbstractAsyncBundleProcessor {
      */
     public static boolean isBundleFinishedLoading(Bundle bundle) {
         for (AbstractAsyncBundleProcessor processor : ALL_PROCESSORS) {
-            if (!processor.isFinishedLoading(bundle)) {
+            if (processor.queue.contains(bundle)) {
                 return false;
             }
         }
@@ -223,11 +253,29 @@ public abstract class AbstractAsyncBundleProcessor {
                 // remove bundle from queue
                 if (bundle != null) {
                     queue.remove(bundle);
+                    informListeners(bundle);
                 }
             }
             AbstractAsyncBundleProcessor.this.logger.trace("Terminating gracefully");
             ALL_PROCESSORS.remove(this);
         }
+
+    };
+
+    private void informListeners(Bundle bundle) {
+        for (BundleProcessorListener listener : listeners) {
+            listener.bundleFinished(this, bundle);
+        }
+    }
+
+    @Override
+    public void registerListener(BundleProcessorListener listener) {
+        listeners.add(listener);
+    };
+
+    @Override
+    public void unregisterListener(BundleProcessorListener listener) {
+        listeners.remove(listener);
     };
 
 }

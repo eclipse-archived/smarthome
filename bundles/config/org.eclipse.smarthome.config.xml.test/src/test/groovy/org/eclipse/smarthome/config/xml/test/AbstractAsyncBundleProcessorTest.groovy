@@ -13,8 +13,9 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.config.xml.osgi.AbstractAsyncBundleProcessor
+import org.eclipse.smarthome.core.thing.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
-import org.junit.Before;
+import org.junit.Before
 import org.junit.Test
 import org.osgi.framework.Bundle
 
@@ -120,5 +121,27 @@ class AbstractAsyncBundleProcessorTest {
 
         SyntheticBundleInstaller.waitUntilLoadingFinished(b1)
         SyntheticBundleInstaller.waitUntilLoadingFinished(b2)
+    }
+
+    @Test
+    void 'assert listeners informed when loading completed'() {
+        def List<String> called = new ArrayList<String>()
+        AbstractAsyncBundleProcessor acl = new AbstractAsyncBundleProcessor() {
+                    @Override
+                    protected void processBundle(Bundle bundle) {
+                        Thread.sleep(1000)
+                        called.add(bundle.getSymbolicName())
+                    }
+                };
+        acl.registerListener([
+            "bundleFinished": {context, Bundle bundle ->
+                called.add(bundle.getSymbolicName())
+            }
+        ] as BundleProcessorListener)
+
+        acl.addingBundle b1
+        assertFalse called.contains("b1")
+        SyntheticBundleInstaller.waitUntilLoadingFinished(b1)
+        assertTrue called.contains("b1");
     }
 }
