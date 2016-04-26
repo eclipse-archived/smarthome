@@ -48,12 +48,13 @@ public class ThreadPoolManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
 
-    private static final int DEFAULT_THREAD_POOL_MAX_SIZE = 10;
-    private static final int DEFAULT_THREAD_POOL_CORE_SIZE = 5;
+    protected static final int DEFAULT_THREAD_POOL_MAX_SIZE = 10;
+    protected static final int DEFAULT_THREAD_POOL_CORE_SIZE = 5;
 
-    private static final long THREAD_TIMEOUT = 65L;
+    protected static final long THREAD_TIMEOUT = 65L;
+    protected static final long THREAD_MONITOR_SLEEP = 60000;
 
-    static private Map<String, ExecutorService> pools = new WeakHashMap<>();
+    static protected Map<String, ExecutorService> pools = new WeakHashMap<>();
 
     static private Map<String, int[]> configs = new ConcurrentHashMap<>();
 
@@ -64,8 +65,9 @@ public class ThreadPoolManager {
     protected void modified(Map<String, Object> properties) {
         for (Entry<String, Object> entry : properties.entrySet()) {
             if (entry.getKey().equals("service.pid") || entry.getKey().equals("component.id")
-                    || entry.getKey().equals("component.name"))
+                    || entry.getKey().equals("component.name")) {
                 continue;
+            }
             String poolName = entry.getKey();
             Object config = entry.getValue();
             if (config == null) {
@@ -175,7 +177,7 @@ public class ThreadPoolManager {
         return pool;
     }
 
-    private static int[] getConfig(String poolName) {
+    protected static int[] getConfig(String poolName) {
         int[] cfg = configs.get(poolName);
         return (cfg != null) ? cfg : new int[] { DEFAULT_THREAD_POOL_CORE_SIZE, DEFAULT_THREAD_POOL_MAX_SIZE };
     }
@@ -220,13 +222,15 @@ public class ThreadPoolManager {
     /**
      * This is a normal thread factory, which adds a named prefix to all created threads.
      */
-    private static class NamedThreadFactory implements ThreadFactory {
+    protected static class NamedThreadFactory implements ThreadFactory {
 
         protected final ThreadGroup group;
         protected final AtomicInteger threadNumber = new AtomicInteger(1);
         protected final String namePrefix;
+        protected final String name;
 
         public NamedThreadFactory(String threadPool) {
+            this.name = threadPool;
             this.namePrefix = "ESH-" + threadPool + "-";
             SecurityManager s = System.getSecurityManager();
             group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
@@ -235,12 +239,18 @@ public class ThreadPoolManager {
         @Override
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-            if (!t.isDaemon())
+            if (!t.isDaemon()) {
                 t.setDaemon(true);
-            if (t.getPriority() != Thread.NORM_PRIORITY)
+            }
+            if (t.getPriority() != Thread.NORM_PRIORITY) {
                 t.setPriority(Thread.NORM_PRIORITY);
+            }
 
             return t;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 
