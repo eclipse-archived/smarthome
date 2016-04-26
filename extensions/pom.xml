@@ -19,6 +19,7 @@
     <module>binding</module>
     <module>transform</module>
     <module>ui</module>
+    <module>voice</module>
   </modules>
 
   <build>

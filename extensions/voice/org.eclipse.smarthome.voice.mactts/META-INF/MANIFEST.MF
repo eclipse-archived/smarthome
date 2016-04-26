@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MacOS Text-to-Speech
+Bundle-SymbolicName: org.eclipse.smarthome.voice.mactts;singleton:=true
+Bundle-Vendor: Eclipse.org/SmartHome
+Bundle-Version: 0.8.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .
+Import-Package: org.eclipse.smarthome.io.voice.tts,
+ org.slf4j
+Service-Component: OSGI-INF/*.xml
