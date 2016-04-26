@@ -168,17 +168,6 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             }
         });
     }
-    $scope.remove = function(serviceId, event) {
-        var confirm = $mdDialog.confirm().title('Remove configuration').content('Would you like to remove the service configurarion for the service ' + serviceId + '?').ariaLabel('Remove Service Configuration').ok('Remove').cancel('Cancel').targetEvent(event);
-        $mdDialog.show(confirm).then(function() {
-            serviceConfigService.deleteConfig({
-                id : serviceId
-            }, function() {
-                toastService.showDefaultToast('Service config deleted.');
-                $scope.refresh();
-            });
-        });
-    }
     $scope.refresh();
 }).controller('ConfigureServiceDialogController', function($scope, $mdDialog, configService, serviceConfigService, configDescriptionService, toastService, serviceId, configDescriptionURI) {
 

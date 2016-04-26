@@ -45,7 +45,7 @@
 								</div>
 							</div>
 							<div ng-switch-when="switch">
-								<md-switch ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
+								<md-switch class="md-default-theme" ng-model="configuration[parameter.name]" aria-label="parameter.label">{{parameter.label}}</md-switch>
 								<p class="hint">
 									<small ng-bind-html="parameter.description"></small>
 								</p>
