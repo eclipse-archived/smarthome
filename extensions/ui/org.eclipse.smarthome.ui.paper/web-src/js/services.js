@@ -164,11 +164,27 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             });
             return configArray;
         },
-        getConfigAsObject : function(configArray) {
+        getConfigAsObject : function(configArray, paramGroups) {
             var config = {};
-            angular.forEach(configArray, function(configEntry) {
+
+            for (var i = 0; configArray && i < configArray.length; i++) {
+                var configEntry = configArray[i];
+                var param = getParameter(configEntry.name);
+                if (param !== null && param.type.toUpperCase() == "BOOLEAN") {
+                    configEntry.value = String(configEntry.value).toUpperCase() == "TRUE";
+                }
                 config[configEntry.name] = configEntry.value;
-            });
+            }
+            function getParameter(itemName) {
+                for (var i = 0; i < paramGroups.length; i++) {
+                    for (var j = 0; paramGroups[i].parameters && j < paramGroups[i].parameters.length; j++) {
+                        if (paramGroups[i].parameters[j].name == itemName) {
+                            return paramGroups[i].parameters[j]
+                        }
+                    }
+                }
+                return null;
+            }
             return config;
         },
         setDefaults : function(thing, thingType) {
@@ -193,28 +209,18 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         setConfigDefaults : function(configuration, groups) {
             for (var i = 0; i < groups.length; i++) {
                 $.each(groups[i].parameters, function(i, parameter) {
-                    if (parameter.defaultValue !== 'null') {
-                        if (configuration[parameter.name] == null || configuration[parameter.name] == "") {
-                            if (parameter.type === 'TEXT') {
-                                configuration[parameter.name] = parameter.defaultValue
-                            } else if (parameter.type === 'BOOLEAN') {
-                                if (typeof (configuration[parameter.name]) !== 'boolean') {
-                                    configuration[parameter.name] = new Boolean(parameter.defaultValue);
-                                }
-                            } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
-                                configuration[parameter.name] = parseInt(parameter.defaultValue);
-                            } else {
-                                configuration[parameter.name] = parameter.defaultValue;
-                            }
-                        } else {
-                            if (!configuration[parameter.name]) {
-                                configuration[parameter.name] = null;
-                            }
+                    var hasValue = configuration[parameter.name] != null && String(configuration[parameter.name]).length > 0;
+                    if (!hasValue && parameter.type === 'TEXT') {
+                        configuration[parameter.name] = parameter.defaultValue
+                    } else if (parameter.type === 'BOOLEAN') {
+                        var value = hasValue ? configuration[parameter.name] : parameter.defaultValue;
+                        if (String(value).length > 0) {
+                            configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                         }
-                    } else {
-                        if (!configuration[parameter.name]) {
-                            configuration[parameter.name] = null;
-                        }
+                    } else if (!hasValue && parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                        configuration[parameter.name] = parseInt(parameter.defaultValue);
+                    } else if (!hasValue) {
+                        configuration[parameter.name] = parameter.defaultValue;
                     }
                 });
             }
