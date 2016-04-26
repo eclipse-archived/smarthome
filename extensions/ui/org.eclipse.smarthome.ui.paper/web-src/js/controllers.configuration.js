@@ -117,7 +117,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.save = function() {
         if ($scope.expertMode) {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray);
+            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
         $scope.configuration = configService.replaceEmptyValues($scope.configuration);
         bindingService.updateConfig({
@@ -131,7 +131,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         if ($scope.expertMode) {
             $scope.configArray = configService.getConfigAsArray($scope.configuration);
         } else {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray);
+            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
     });
 }).controller('ServicesController', function($scope, $mdDialog, serviceConfigService, toastService) {
@@ -225,7 +225,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.save = function() {
         if ($scope.expertMode) {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray);
+            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
         $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
         serviceConfigService.updateConfig({
@@ -239,7 +239,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         if ($scope.expertMode) {
             $scope.configArray = configService.getConfigAsArray($scope.configuration);
         } else {
-            $scope.configuration = configService.getConfigAsObject($scope.configArray);
+            $scope.configuration = configService.getConfigAsObject($scope.configArray, $scope.parameters);
         }
     });
 }).controller('AddGroupDialogController', function($scope, $mdDialog) {

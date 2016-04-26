@@ -164,11 +164,27 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             });
             return configArray;
         },
-        getConfigAsObject : function(configArray) {
+        getConfigAsObject : function(configArray, paramGroups) {
             var config = {};
-            angular.forEach(configArray, function(configEntry) {
+
+            for (var i = 0; configArray && i < configArray.length; i++) {
+                var configEntry = configArray[i];
+                var param = getParameter(configEntry.name);
+                if (param !== null && param.type.toUpperCase() == "BOOLEAN") {
+                    configEntry.value = String(configEntry.value).toUpperCase() == "TRUE";
+                }
                 config[configEntry.name] = configEntry.value;
-            });
+            }
+            function getParameter(itemName) {
+                for (var i = 0; i < paramGroups.length; i++) {
+                    for (var j = 0; paramGroups[i].parameters && j < paramGroups[i].parameters.length; j++) {
+                        if (paramGroups[i].parameters[j].name == itemName) {
+                            return paramGroups[i].parameters[j]
+                        }
+                    }
+                }
+                return null;
+            }
             return config;
         },
         setDefaults : function(thing, thingType) {
