@@ -66,10 +66,7 @@ public class SayConsoleCommandExtension extends AbstractConsoleCommandExtension 
         }
 
         BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-        TTSService ttsService = getTTSService(context, System.getProperty("osgi.os"));
-        if (ttsService == null) {
-            ttsService = getTTSService(context, "any");
-        }
+        TTSService ttsService = getTTSService(context);
         if (ttsService != null) {
             ttsService.say(msg.toString(), null, null);
             console.println("Said: " + msg);
@@ -91,14 +88,12 @@ public class SayConsoleCommandExtension extends AbstractConsoleCommandExtension 
      * for a given platform.
      *
      * @param context the bundle context to access the OSGi service registry
-     * @param os a valid osgi.os string value or "any" if service should be platform-independent
      * @return a service instance or null, if none could be found
      */
-    static private TTSService getTTSService(BundleContext context, String os) {
+    static private TTSService getTTSService(BundleContext context) {
         if (context != null) {
-            String filter = os != null ? "(os=" + os + ")" : null;
             try {
-                Collection<ServiceReference<TTSService>> refs = context.getServiceReferences(TTSService.class, filter);
+                Collection<ServiceReference<TTSService>> refs = context.getServiceReferences(TTSService.class, null);
                 if (refs != null && refs.size() > 0) {
                     return context.getService(refs.iterator().next());
                 } else {
