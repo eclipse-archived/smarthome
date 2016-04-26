@@ -315,4 +315,9 @@
     <bundle>mvn:org.eclipse.smarthome.extension.ui.iconset/org.eclipse.smarthome.ui.iconset.classic/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-voice-mactts" description="MacOS Text-to-Speech" version="${project.version}">
+    <feature>esh-base</feature>
+    <bundle>mvn:org.eclipse.smarthome.voice/org.eclipse.smarthome.voice.mactts/${project.version}</bundle>
+  </feature>
+
 </features>

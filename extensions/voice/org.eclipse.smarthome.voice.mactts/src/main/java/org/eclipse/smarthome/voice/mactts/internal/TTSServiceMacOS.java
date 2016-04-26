@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.io.voice.internal.tts;
+package org.eclipse.smarthome.voice.mactts.internal;
 
 import java.io.IOException;
 import java.util.ArrayList;
