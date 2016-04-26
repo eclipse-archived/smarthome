@@ -209,28 +209,18 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         setConfigDefaults : function(configuration, groups) {
             for (var i = 0; i < groups.length; i++) {
                 $.each(groups[i].parameters, function(i, parameter) {
-                    if (parameter.defaultValue !== 'null') {
-                        if (configuration[parameter.name] == null || configuration[parameter.name] == "") {
-                            if (parameter.type === 'TEXT') {
-                                configuration[parameter.name] = parameter.defaultValue
-                            } else if (parameter.type === 'BOOLEAN') {
-                                if (typeof (configuration[parameter.name]) !== 'boolean') {
-                                    configuration[parameter.name] = new Boolean(parameter.defaultValue);
-                                }
-                            } else if (parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
-                                configuration[parameter.name] = parseInt(parameter.defaultValue);
-                            } else {
-                                configuration[parameter.name] = parameter.defaultValue;
-                            }
-                        } else {
-                            if (!configuration[parameter.name]) {
-                                configuration[parameter.name] = null;
-                            }
+                    var hasValue = configuration[parameter.name] != null && String(configuration[parameter.name]).length > 0;
+                    if (!hasValue && parameter.type === 'TEXT') {
+                        configuration[parameter.name] = parameter.defaultValue
+                    } else if (parameter.type === 'BOOLEAN') {
+                        var value = hasValue ? configuration[parameter.name] : parameter.defaultValue;
+                        if (String(value).length > 0) {
+                            configuration[parameter.name] = String(value).toUpperCase() == "TRUE";
                         }
-                    } else {
-                        if (!configuration[parameter.name]) {
-                            configuration[parameter.name] = null;
-                        }
+                    } else if (!hasValue && parameter.type === 'INTEGER' || parameter.type === 'DECIMAL') {
+                        configuration[parameter.name] = parseInt(parameter.defaultValue);
+                    } else if (!hasValue) {
+                        configuration[parameter.name] = parameter.defaultValue;
                     }
                 });
             }
