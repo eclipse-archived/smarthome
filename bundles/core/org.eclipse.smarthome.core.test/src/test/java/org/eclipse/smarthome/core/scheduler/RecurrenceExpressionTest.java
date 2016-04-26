@@ -1,4 +1,4 @@
-package org.eclipse.smarthome.core.common;
+package org.eclipse.smarthome.core.scheduler;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.smarthome.core.scheduler.RecurrenceExpression;
 import org.junit.Test;
 
 public class RecurrenceExpressionTest {
