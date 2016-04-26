@@ -56,7 +56,7 @@ public class ConfigDescriptionDTOMapper {
                     configDescriptionParameter.getStepSize(), configDescriptionParameter.getPattern(),
                     configDescriptionParameter.isRequired(), configDescriptionParameter.isReadOnly(),
                     configDescriptionParameter.isMultiple(), configDescriptionParameter.getContext(),
-                    String.valueOf(configDescriptionParameter.getDefault()), configDescriptionParameter.getLabel(),
+                    configDescriptionParameter.getDefault(), configDescriptionParameter.getLabel(),
                     configDescriptionParameter.getDescription(), mapOptions(configDescriptionParameter.getOptions()),
                     mapFilterCriteria(configDescriptionParameter.getFilterCriteria()),
                     configDescriptionParameter.getGroupName(), configDescriptionParameter.isAdvanced(),
