@@ -3,7 +3,7 @@
 	Configure {{service.label}} <small>{{service.id}}</small>
 </h1>
 <h1 ng-show="newConfig">New Configuration</h1>
-<md-input-container class="col-md-12 col-sm-12 noPadding" ng-show="newConfig"> <label>Service ID</label> <input ng-model="serviceId" type="text"> </md-input-container>
+<md-input-container class="col-md-12 col-sm-12 col-xs-12 noPadding" ng-show="newConfig"> <label>Service ID</label> <input ng-model="serviceId" type="text"> </md-input-container>
 
 <div ng-init="form={}">
 	<div ng-include="'partials/include.config.html'"></div>

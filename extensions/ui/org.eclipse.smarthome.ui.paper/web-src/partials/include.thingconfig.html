@@ -1,9 +1,9 @@
 <form name="form.thingform">
 	<div class="container" ng-if="thing.item">
 		<div class="thingName">
-			<md-input-container class="col-md-12 col-sm-12 noPadding"> <label>Name</label> <input ng-model="thing.label"> </md-input-container>
+			<md-input-container class="col-md-12 col-sm-12 col-xs-12 noPadding"> <label>Name</label> <input ng-model="thing.label"> </md-input-container>
 
-			<md-input-container class="col-md-12 col-sm-12 noPadding" ng-if="!isEditing"> <label>Thing ID</label> <input ng-model="thing.ID" required>
+			<md-input-container class="col-md-12 col-sm-12 col-xs-12 noPadding" ng-if="!isEditing"> <label>Thing ID</label> <input ng-model="thing.ID" required>
 			<div ng-messages="form.thingform.uid.$error">
 				<div ng-message="pattern">ID is required</div>
 			</div>
