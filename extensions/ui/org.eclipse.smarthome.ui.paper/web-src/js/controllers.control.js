@@ -75,7 +75,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.masonry();
     });
     $scope.refresh();
-}).controller('ControlController', function($scope, $timeout, itemService) {
+}).controller('ControlController', function($scope, $timeout, $filter, itemService) {
     $scope.getItemName = function(itemName) {
         return itemName.replace(/_/g, ' ');
     }
@@ -86,7 +86,10 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         }
         var state = item.type === 'NumberItem' ? parseFloat(item.state) : item.state;
 
-        if (!item.stateDescription || !item.stateDescription.pattern) {
+        if (item.type === 'DateTimeItem') {
+            var date = new Date(item.state);
+            return $filter('date')(date, "dd.MM.yyyy hh:mm:ss");
+        } else if (!item.stateDescription || !item.stateDescription.pattern) {
             return state;
         } else {
             return sprintf(item.stateDescription.pattern, state);
