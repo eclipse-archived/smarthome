@@ -93,7 +93,7 @@
     <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore/2.11.1-v20150805-0538</bundle>
     <bundle dependency="true">mvn:org.eclipse.emf/org.eclipse.emf.ecore.xmi/2.11.1-v20150805-0538</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.common.types/2.9.2</bundle>
-    <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase/2.9.2</bundle>
+    <bundle dependency="true">mvn:de.maggu2810.thirdparty.modified.org.eclipse.xtext/org.eclipse.xtext.xbase/2.9.2.sp1</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.xbase.lib/2.9.2</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.smap/2.9.2</bundle>
     <bundle dependency="true">mvn:org.eclipse.xtext/org.eclipse.xtext.util/2.9.2</bundle>
