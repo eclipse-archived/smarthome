@@ -487,11 +487,15 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     };
 
     function checkAdvance(channels) {
-        angular.forEach(channels, function(value) {
-            if (value.advanced) {
-                return true;
+        if (channels) {
+            for (var i = 0, len = channels.length; i < len; i++) {
+                var channel = channels[i];
+                var channelType = $scope.getChannelTypeById(channel.id);
+                if (channelType && channelType.advanced) {
+                    return true;
+                }
             }
-        });
+        }
         return false;
     }
 
