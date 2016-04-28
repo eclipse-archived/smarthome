@@ -86,11 +86,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         }
         var state = item.type === 'NumberItem' ? parseFloat(item.state) : item.state;
 
-        if (!item.stateDescription || !item.stateDescription.pattern) {
-            return state;
-        } else if (item.type === 'DateTimeItem') {
+        if (item.type === 'DateTimeItem') {
             var date = new Date(item.state);
             return $filter('date')(date, "dd.MM.yyyy hh:mm:ss");
+        } else if (!item.stateDescription || !item.stateDescription.pattern) {
+            return state;
         } else {
             return sprintf(item.stateDescription.pattern, state);
         }
