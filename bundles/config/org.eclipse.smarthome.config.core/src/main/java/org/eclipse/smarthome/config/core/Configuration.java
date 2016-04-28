@@ -110,7 +110,7 @@ public class Configuration {
         return fields;
     }
 
-    public Object get(Object key) {
+    public Object get(String key) {
         synchronized (this) {
             return properties.get(key);
         }
@@ -122,7 +122,7 @@ public class Configuration {
         }
     }
 
-    public Object remove(Object key) {
+    public Object remove(String key) {
         synchronized (this) {
             return properties.remove(key);
         }
