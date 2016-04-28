@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="sonos"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+	<!-- Amplifier CONNECT:AMP Thing Type -->
+	<thing-type id="CONNECTAMP" listed="false">
+		<!-- Label without column (:) because of device pairing name restrictions -->
+		<label>CONNECT AMP</label>
+		<description>Represents SONOS CONNECT:AMP amplifier</description>
+
+		<channels>
+			<channel id="add" typeId="add" />
+			<channel id="alarm" typeId="alarm" />
+			<channel id="alarmproperties" typeId="alarmproperties" />
+			<channel id="alarmrunning" typeId="alarmrunning" />
+			<channel id="control" typeId="control" />
+			<channel id="currentalbum" typeId="currentalbum" />
+			<channel id="currentartist" typeId="currentartist" />
+			<channel id="currenttitle" typeId="currenttitle" />
+			<channel id="currenttrack" typeId="currenttrack" />
+			<channel id="favorite" typeId="favorite" />
+			<channel id="led" typeId="led" />
+			<channel id="localcoordinator" typeId="localcoordinator" />
+			<channel id="mute" typeId="mute" />
+			<channel id="notificationsound" typeId="notificationsound" />
+			<channel id="notificationvolume" typeId="notificationvolume" />
+			<channel id="playlist" typeId="playlist" />
+			<channel id="playqueue" typeId="playqueue" />			
+			<channel id="playtrack" typeId="playtrack" />			
+			<channel id="playuri" typeId="playuri" />
+			<channel id="publicaddress" typeId="publicaddress" />
+			<channel id="radio" typeId="radio" />
+			<channel id="remove" typeId="remove" />
+			<channel id="restore" typeId="restore" />
+			<channel id="restoreall" typeId="restoreall" />
+			<channel id="save" typeId="save" />
+			<channel id="saveall" typeId="saveall" />
+			<channel id="snooze" typeId="snooze" />
+			<channel id="standalone" typeId="standalone" />
+			<channel id="state" typeId="state" />
+			<channel id="stop" typeId="stop" />
+			<channel id="volume" typeId="volume" />
+			<channel id="zonegroup" typeId="zonegroup" />
+			<channel id="zonegroupid" typeId="zonegroupid" />
+			<channel id="zonename" typeId="zonename" />
+			<channel id="coordinator" typeId="coordinator" />
+			<!-- Extended SONOS channels (PLAY5, CONNECT & CONNECT:AMP only) -->
+			<channel id="linein" typeId="linein" />
+	        <channel id="playlinein" typeId="playlinein" />
+		</channels>
+		
+		<properties>
+        	<property name="vendor">SONOS</property>
+        	<property name="modelId">CONNECT:AMP</property>
+        </properties>
+
+		<config-description>
+			<parameter name="udn" type="text">
+				<label>Unique Device Name</label>
+				<description>The UDN identifies the Zone Player.</description>
+				<required>true</required>
+			</parameter>
+
+			<parameter name="refresh" type="integer">
+				<label>Refresh interval</label>
+				<description>Specifies the refresh interval in seconds</description>
+				<default>60</default>
+			</parameter>
+		</config-description>
+	</thing-type>
+</thing:thing-descriptions>

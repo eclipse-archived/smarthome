@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.sonos.SonosBindingConstants;
 import org.eclipse.smarthome.binding.sonos.internal.SonosAlarm;
 import org.eclipse.smarthome.binding.sonos.internal.SonosEntry;
 import org.eclipse.smarthome.binding.sonos.internal.SonosMetaData;
@@ -55,6 +56,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
+import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.UnDefType;
@@ -75,8 +77,6 @@ import com.google.common.collect.Lists;
  */
 public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOParticipant, DiscoveryListener {
 
-    private static final String ESH_PREFIX = "openHAB-";
-
     private Logger logger = LoggerFactory.getLogger(ZonePlayerHandler.class);
 
     private UpnpIOService service;
@@ -87,8 +87,28 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private final static Collection<String> SERVICE_SUBSCRIPTIONS = Lists.newArrayList("DeviceProperties",
             "AVTransport", "ZoneGroupTopology", "GroupManagement", "RenderingControl", "AudioIn");
-    protected final static int SUBSCRIPTION_DURATION = 600;
+    protected final static int SUBSCRIPTION_DURATION = 1800;
     private static final int SOCKET_TIMEOUT = 5000;
+
+    /**
+     * Default notification timeout
+     */
+    private static final int NOTIFICATION_TIMEOUT = 20000;
+
+    /**
+     * Intrinsic lock used to synchronize the execution of notification sounds
+     */
+    private final Object notificationLock = new Object();
+
+    /**
+     * Separate sound volume used for the notification
+     */
+    private String notificationSoundVolume = null;
+
+    /**
+     * {@link ThingHandler} instance of the coordinator speaker used for control delegation
+     */
+    private ZonePlayerHandler coordinatorHandler;
 
     /**
      * The default refresh interval when not specified in channel configuration.
@@ -96,6 +116,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     private static final int DEFAULT_REFRESH_INTERVAL = 60;
 
     private Map<String, String> stateMap = Collections.synchronizedMap(new HashMap<String, String>());
+
+    private final Object upnpLock = new Object();
+
+    private final Object stateLock = new Object();
 
     private Runnable pollingRunnable = new Runnable() {
 
@@ -106,6 +130,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 updateRunningAlarmProperties();
                 updateLed();
                 updateMediaInfo();
+                updatePlayerState();
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
             }
@@ -118,7 +143,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             DiscoveryServiceRegistry discoveryServiceRegistry, String opmlUrl) {
         super(thing);
         this.opmlUrl = opmlUrl;
-
         logger.debug("Creating a ZonePlayerHandler for thing '{}'", getThing().getUID());
         if (upnpIOService != null) {
             this.service = upnpIOService;
@@ -149,12 +173,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
         if (configuration.get("udn") != null) {
             this.discoveryServiceRegistry.addDiscoveryListener(this);
-            onSubscription();
+            this.notificationSoundVolume = getVolume();
             onUpdate();
             super.initialize();
         } else {
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
         }
+
+        handleThingTypeRecreation();
     }
 
     @Override
@@ -164,7 +190,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 logger.debug("Discovered UDN '{}' for thing '{}'", result.getProperties().get(UDN),
                         getThing().getUID());
                 updateStatus(ThingStatus.ONLINE);
-                onSubscription();
                 onUpdate();
             }
         }
@@ -185,13 +210,19 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 this.setLed(command);
                 break;
             case MUTE:
-                this.setMute(command);
+                setMute(command);
+                break;
+            case NOTIFICATIONSOUND:
+                scheduleNotificationSound(command);
+                break;
+            case NOTIFICATIONVOLUME:
+                setNotificationSoundVolume(command);
                 break;
             case STOP:
-                stop();
+                getCoordinatorHandler().stop();
                 break;
             case VOLUME:
-                setVolume(command);
+                setVolumeForGroup(command);
                 break;
             case ADD:
                 addMember(command);
@@ -247,16 +278,16 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             case CONTROL:
                 if (command instanceof PlayPauseType) {
                     if (command == PlayPauseType.PLAY) {
-                        play();
+                        getCoordinatorHandler().play();
                     } else if (command == PlayPauseType.PAUSE) {
-                        pause();
+                        getCoordinatorHandler().pause();
                     }
                 }
                 if (command instanceof NextPreviousType) {
                     if (command == NextPreviousType.NEXT) {
-                        next();
+                        getCoordinatorHandler().next();
                     } else if (command == NextPreviousType.PREVIOUS) {
-                        previous();
+                        getCoordinatorHandler().previous();
                     }
                 }
                 if (command instanceof RewindFastforwardType) {
@@ -290,12 +321,17 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     @Override
-    public synchronized void onValueReceived(String variable, String value, String service) {
+    public void onValueReceived(String variable, String value, String service) {
 
         if (getThing().getStatus() == ThingStatus.ONLINE) {
 
             logger.trace("Received pair '{}':'{}' (service '{}') for thing '{}'",
                     new Object[] { variable, value, service, this.getThing().getUID() });
+
+            String oldValue = this.stateMap.get(variable);
+            if (shouldIgnoreVariableUpdate(variable, value, oldValue)) {
+                return;
+            }
 
             this.stateMap.put(variable, value);
 
@@ -317,16 +353,31 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             // update the appropriate channel
             switch (variable) {
                 case "TransportState": {
-                    updateState(new ChannelUID(getThing().getUID(), STATE), (stateMap.get("TransportState") != null)
-                            ? new StringType(stateMap.get("TransportState")) : UnDefType.UNDEF);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), STATE),
+                            (stateMap.get("TransportState") != null) ? new StringType(stateMap.get("TransportState"))
+                                    : UnDefType.UNDEF);
                     if (stateMap.get("TransportState").equals("PLAYING")) {
-                        updateState(new ChannelUID(getThing().getUID(), CONTROL), PlayPauseType.PLAY);
+                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CONTROL),
+                                PlayPauseType.PLAY);
                     }
                     if (stateMap.get("TransportState").equals("STOPPED")) {
-                        updateState(new ChannelUID(getThing().getUID(), CONTROL), PlayPauseType.PAUSE);
+                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CONTROL),
+                                PlayPauseType.PAUSE);
                     }
                     if (stateMap.get("TransportState").equals("PAUSED_PLAYBACK")) {
-                        updateState(new ChannelUID(getThing().getUID(), CONTROL), PlayPauseType.PAUSE);
+                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CONTROL),
+                                PlayPauseType.PAUSE);
+                    }
+
+                    if (isCoordinator()) {
+                        // update member states
+                        for (String member : getOtherZoneGroupMembers()) {
+                            ZonePlayerHandler memberHandler = getHandlerByName(member);
+                            if (memberHandler != null && memberHandler.getThing() != null
+                                    && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                                memberHandler.onValueReceived("TransportState", value, service);
+                            }
+                        }
                     }
                     break;
                 }
@@ -339,20 +390,25 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             newState = OnOffType.OFF;
                         }
                     }
-                    updateState(new ChannelUID(getThing().getUID(), LED), newState);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), LED), newState);
                     break;
                 }
                 case "CurrentZoneName": {
-                    updateState(new ChannelUID(getThing().getUID(), ZONENAME), (stateMap.get("CurrentZoneName") != null)
-                            ? new StringType(stateMap.get("CurrentZoneName")) : UnDefType.UNDEF);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), ZONENAME),
+                            (stateMap.get("CurrentZoneName") != null) ? new StringType(stateMap.get("CurrentZoneName"))
+                                    : UnDefType.UNDEF);
                 }
                 case "ZoneGroupState": {
-                    updateState(new ChannelUID(getThing().getUID(), ZONEGROUP), (stateMap.get("ZoneGroupState") != null)
-                            ? new StringType(stateMap.get("ZoneGroupState")) : UnDefType.UNDEF);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), ZONEGROUP),
+                            (stateMap.get("ZoneGroupState") != null) ? new StringType(stateMap.get("ZoneGroupState"))
+                                    : UnDefType.UNDEF);
+
+                    // Update coordinator after a change is made to the grouping of Sonos players
+                    updateGroupCoordinator();
                     break;
                 }
                 case "LocalGroupUUID": {
-                    updateState(new ChannelUID(getThing().getUID(), ZONEGROUPID),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), ZONEGROUPID),
                             (stateMap.get("LocalGroupUUID") != null) ? new StringType(stateMap.get("LocalGroupUUID"))
                                     : UnDefType.UNDEF);
                     break;
@@ -366,12 +422,14 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             newState = OnOffType.OFF;
                         }
                     }
-                    updateState(new ChannelUID(getThing().getUID(), LOCALCOORDINATOR), newState);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), LOCALCOORDINATOR),
+                            newState);
                     break;
                 }
                 case "VolumeMaster": {
-                    updateState(new ChannelUID(getThing().getUID(), VOLUME), (stateMap.get("VolumeMaster") != null)
-                            ? new PercentType(stateMap.get("VolumeMaster")) : UnDefType.UNDEF);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), VOLUME),
+                            (stateMap.get("VolumeMaster") != null) ? new PercentType(stateMap.get("VolumeMaster"))
+                                    : UnDefType.UNDEF);
                     break;
                 }
                 case "MuteMaster": {
@@ -383,7 +441,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             newState = OnOffType.OFF;
                         }
                     }
-                    updateState(new ChannelUID(getThing().getUID(), MUTE), newState);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), MUTE), newState);
                     break;
                 }
                 case "LineInConnected": {
@@ -395,7 +453,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             newState = OnOffType.OFF;
                         }
                     }
-                    updateState(new ChannelUID(getThing().getUID(), LINEIN), newState);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), LINEIN), newState);
                     break;
                 }
                 case "AlarmRunning": {
@@ -407,35 +465,36 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                             newState = OnOffType.OFF;
                         }
                     }
-                    updateState(new ChannelUID(getThing().getUID(), ALARMRUNNING), newState);
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), ALARMRUNNING),
+                            newState);
                     break;
                 }
                 case "RunningAlarmProperties": {
-                    updateState(new ChannelUID(getThing().getUID(), ALARMPROPERTIES),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), ALARMPROPERTIES),
                             (stateMap.get("RunningAlarmProperties") != null)
                                     ? new StringType(stateMap.get("RunningAlarmProperties")) : UnDefType.UNDEF);
                     break;
                 }
                 case "CurrentURIFormatted": {
-                    updateState(new ChannelUID(getThing().getUID(), CURRENTTRACK),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CURRENTTRACK),
                             (stateMap.get("CurrentURIFormatted") != null)
                                     ? new StringType(stateMap.get("CurrentURIFormatted")) : UnDefType.UNDEF);
                     break;
                 }
                 case "CurrentTitle": {
-                    updateState(new ChannelUID(getThing().getUID(), CURRENTTITLE),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CURRENTTITLE),
                             (stateMap.get("CurrentTitle") != null) ? new StringType(stateMap.get("CurrentTitle"))
                                     : UnDefType.UNDEF);
                     break;
                 }
                 case "CurrentArtist": {
-                    updateState(new ChannelUID(getThing().getUID(), CURRENTARTIST),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CURRENTARTIST),
                             (stateMap.get("CurrentArtist") != null) ? new StringType(stateMap.get("CurrentArtist"))
                                     : UnDefType.UNDEF);
                     break;
                 }
                 case "CurrentAlbum": {
-                    updateState(new ChannelUID(getThing().getUID(), CURRENTALBUM),
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), CURRENTALBUM),
                             (stateMap.get("CurrentAlbum") != null) ? new StringType(stateMap.get("CurrentAlbum"))
                                     : UnDefType.UNDEF);
                     break;
@@ -452,37 +511,83 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
-    private synchronized void onSubscription() {
-        // Set up GENA Subscriptions
-        if (service.isRegistered(this)) {
-            for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
-            }
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        if (channelUID.getId().equalsIgnoreCase(COORDINATOR)) {
+            updateGroupCoordinator();
         }
     }
 
-    private synchronized void removeSubscription() {
-        // Set up GENA Subscriptions
-        if (service.isRegistered(this)) {
-            for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                service.removeSubscription(this, subscription);
-            }
-            service.unregisterParticipant(this);
-        }
+    /**
+     * CurrentURI will not change, but will trigger change of CurrentURIFormated
+     * CurrentTrackMetaData will not change, but will trigger change of Title, Artist, Album
+     */
+    private boolean shouldIgnoreVariableUpdate(String variable, String value, String oldValue) {
+        return !hasValueChanged(value, oldValue) && !isQueueEvent(variable) && !"CurrentURI".equals(variable)
+                && !"CurrentTrackMetaData".equals(variable);
     }
 
-    private synchronized void onUpdate() {
-        if (service.isRegistered(this)) {
-            if (pollingJob == null || pollingJob.isCancelled()) {
-                Configuration config = getThing().getConfiguration();
-                // use default if not specified
-                int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-                Object refreshConfig = config.get("refresh");
-                if (refreshConfig != null) {
-                    refreshInterval = ((BigDecimal) refreshConfig).intValue();
+    private boolean hasValueChanged(String value, String oldValue) {
+        return oldValue != null ? !oldValue.equals(value) : value != null;
+    }
+
+    /**
+     * Similar to the AVTransport eventing, the Queue events its state variables
+     * as sub values within a synthesized LastChange state variable.
+     */
+    private boolean isQueueEvent(String variable) {
+        return "LastChange".equals(variable);
+    }
+
+    private void updateGroupCoordinator() {
+        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), COORDINATOR),
+                new StringType(getCoordinator()));
+        coordinatorHandler = getHandlerByName(getCoordinator());
+    }
+
+    private void removeSubscription() {
+        synchronized (upnpLock) {
+            // Set up GENA Subscriptions
+            if (service.isRegistered(this)) {
+                for (String subscription : SERVICE_SUBSCRIPTIONS) {
+                    service.removeSubscription(this, subscription);
                 }
-                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+                service.unregisterParticipant(this);
             }
+        }
+    }
+
+    private void onUpdate() {
+        synchronized (upnpLock) {
+            if (service.isRegistered(this)) {
+                for (String subscription : SERVICE_SUBSCRIPTIONS) {
+                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+                }
+
+                if (pollingJob == null || pollingJob.isCancelled()) {
+                    Configuration config = getThing().getConfiguration();
+                    // use default if not specified
+                    int refreshInterval = DEFAULT_REFRESH_INTERVAL;
+                    Object refreshConfig = config.get("refresh");
+                    if (refreshConfig != null) {
+                        refreshInterval = ((BigDecimal) refreshConfig).intValue();
+                    }
+                    pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+                }
+            }
+        }
+    }
+
+    private void updatePlayerState() {
+        Map<String, String> result = service.invokeAction(this, "DeviceProperties", "GetZoneInfo", null);
+        if (result.isEmpty()) {
+            logger.debug("Sonos player " + getThing().getProperties().get(Thing.PROPERTY_MODEL_ID)
+                    + " is not available in local network");
+            updateStatus(ThingStatus.OFFLINE);
+        } else if (!ThingStatus.ONLINE.equals(getThing().getStatus())) {
+            logger.debug("Sonos player " + getThing().getProperties().get(Thing.PROPERTY_MODEL_ID)
+                    + " has been found in local network");
+            updateStatus(ThingStatus.ONLINE);
         }
     }
 
@@ -580,8 +685,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     protected void updateTrackMetaData() {
 
-        String coordinator = getCoordinator();
-        ZonePlayerHandler coordinatorHandler = getHandlerByName(coordinator);
+        ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
         SonosMetaData currentTrack = getTrackMetadata();
 
         if (coordinatorHandler != null && coordinatorHandler != this) {
@@ -589,40 +693,40 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             currentTrack = coordinatorHandler.getTrackMetadata();
         }
 
+        String artist = null;
+        String title = null;
+        String album = null;
         if (currentTrack != null) {
-
-            String artist = null;
             if (currentTrack.getAlbumArtist().equals("")) {
                 artist = currentTrack.getCreator();
             } else {
                 artist = currentTrack.getAlbumArtist();
             }
 
-            String album = currentTrack.getAlbum();
-            String title = null;
             if (!currentTrack.getTitle().contains("x-sonosapi-stream")) {
                 title = currentTrack.getTitle();
             }
-
-            // update individual variables
-            this.onValueReceived("CurrentArtist", (artist != null) ? artist : "", "AVTransport");
-            if (title != null) {
-                this.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
-            }
-            this.onValueReceived("CurrentAlbum", (album != null) ? album : "", "AVTransport");
-
-            updateMediaInfo();
-
+            album = currentTrack.getAlbum();
         }
 
+        // update individual variables
+        for (String member : getZoneGroupMembers()) {
+            ZonePlayerHandler memberHandler = getHandlerByName(member);
+            if (memberHandler != null && memberHandler.getThing() != null
+                    && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                memberHandler.onValueReceived("CurrentArtist", (artist != null) ? artist : "", "AVTransport");
+                memberHandler.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
+                memberHandler.onValueReceived("CurrentAlbum", (album != null) ? album : "", "AVTransport");
+            }
+        }
+        updateMediaInfo();
     }
 
     protected void updateCurrentURIFormatted(String URI) {
 
         String currentURI = URI;
         SonosMetaData currentTrack = null;
-        String coordinator = getCoordinator();
-        ZonePlayerHandler coordinatorHandler = getHandlerByName(coordinator);
+        ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
 
         if (coordinatorHandler != null && coordinatorHandler != this) {
             if (currentURI.contains("x-rincon-stream")) {
@@ -697,7 +801,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             if (!currentURI.contains("x-rincon-mp3") && !currentURI.contains("x-rincon-stream")
                     && !currentURI.contains("x-sonosapi")) {
-                if (currentTrack != null) {
+                if (currentTrack == null) {
+                    resultString = null;
+                    title = null;
+                } else {
                     if (currentTrack.getAlbumArtist().equals("")) {
                         resultString = currentTrack.getCreator() + " - " + currentTrack.getAlbum() + " - "
                                 + currentTrack.getTitle();
@@ -705,14 +812,20 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                         resultString = currentTrack.getAlbumArtist() + " - " + currentTrack.getAlbum() + " - "
                                 + currentTrack.getTitle();
                     }
-
-                    needsUpdating = true;
                 }
+                needsUpdating = true;
             }
 
             if (needsUpdating) {
-                this.onValueReceived("CurrentURIFormatted", (resultString != null) ? resultString : "", "AVTransport");
-                this.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
+                for (String member : getZoneGroupMembers()) {
+                    ZonePlayerHandler memberHandler = getHandlerByName(member);
+                    if (memberHandler != null && memberHandler.getThing() != null
+                            && ThingStatus.ONLINE.equals(memberHandler.getThing().getStatus())) {
+                        memberHandler.onValueReceived("CurrentURIFormatted", (resultString != null) ? resultString : "",
+                                "AVTransport");
+                        memberHandler.onValueReceived("CurrentTitle", (title != null) ? title : "", "AVTransport");
+                    }
+                }
             }
         }
     }
@@ -753,6 +866,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     public SonosMetaData getEnqueuedTransportURIMetaData() {
+
         if (stateMap.get("EnqueuedTransportURIMetaData") != null
                 && !stateMap.get("EnqueuedTransportURIMetaData").isEmpty()) {
             return SonosXMLParser.getMetaDataFromXML(stateMap.get("EnqueuedTransportURIMetaData"));
@@ -860,8 +974,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         List<SonosEntry> resultList = null;
 
         Map<String, String> result = service.invokeAction(this, "ContentDirectory", "Browse", inputs);
-        Long totalMatches = Long.valueOf(result.get("TotalMatches"));
-        Long initialNumberReturned = Long.valueOf(result.get("NumberReturned"));
+
+        long totalMatches = getResultEntry(result, "TotalMatches", type, filter);
+        long initialNumberReturned = getResultEntry(result, "NumberReturned", type, filter);
+
         String initialResult = result.get("Result");
 
         resultList = SonosXMLParser.getEntriesFromString(initialResult);
@@ -874,7 +990,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             // Execute this action synchronously
             String nextResult = result.get("Result");
-            Long numberReturned = Long.valueOf(result.get("NumberReturned"));
+            long numberReturned = getResultEntry(result, "NumberReturned", type, filter);
 
             resultList.addAll(SonosXMLParser.getEntriesFromString(nextResult));
 
@@ -885,13 +1001,37 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     }
 
     /**
+     * Handles value searching in a SONOS result map (called by {@link #getEntries(String, String)})
+     * 
+     * @param resultInput - the map to be examined for the requestedKey
+     * @param requestedKey - the key to be sought in the resultInput map
+     * @param entriesType - the 'type' argument of {@link #getEntries(String, String)} method used for logging
+     * @param entriesFilter - the 'filter' argument of {@link #getEntries(String, String)} method used for logging
+     * 
+     * @return 0 as long or the value corresponding to the requiredKey if found
+     */
+    private Long getResultEntry(Map<String, String> resultInput, String requestedKey, String entriesType,
+            String entriesFilter) {
+        long result = 0;
+
+        try {
+            result = Long.valueOf(resultInput.get(requestedKey));
+        } catch (NumberFormatException ex) {
+            logger.warn("Could not fetch " + requestedKey + " result for type: " + entriesType + " and filter: "
+                    + entriesFilter + ". Using default value '0': " + ex.getMessage(), ex);
+        }
+
+        return result;
+    }
+
+    /**
      * Save the state (track, position etc) of the Sonos Zone player.
      *
      * @return true if no error occurred.
      */
     protected void saveState() {
 
-        synchronized (this) {
+        synchronized (stateLock) {
 
             savedState = new SonosZonePlayerState();
             String currentURI = getCurrentURI();
@@ -901,11 +1041,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             if (currentURI != null) {
 
-                if (currentURI.contains("x-sonosapi-stream:")) {
+                if (isPlayingStream(currentURI)) {
                     // we are streaming music
                     SonosMetaData track = getTrackMetadata();
                     SonosMetaData current = getCurrentURIMetadata();
-                    if (track != null) {
+                    if (track != null && current != null) {
                         savedState.entry = new SonosEntry("", current.getTitle(), "", "", track.getAlbumArtUri(), "",
                                 current.getUpnpClass(), currentURI);
                     }
@@ -915,7 +1055,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 } else if (currentURI.contains("x-rincon-stream:")) {
                     // we are streaming from the Line In connection
                     savedState.entry = new SonosEntry("", "", "", "", "", "", "", currentURI);
-                } else if (currentURI.contains("x-rincon-queue:")) {
+                } else if (isPlayingQueue(currentURI)) {
                     // we are playing something that sits in the queue
                     SonosMetaData queued = getEnqueuedTransportURIMetaData();
                     if (queued != null) {
@@ -985,7 +1125,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     protected void restoreState() {
 
-        synchronized (this) {
+        synchronized (stateLock) {
             if (savedState != null) {
                 // put settings back
                 if (savedState.volume != null) {
@@ -1072,6 +1212,84 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                     this.onValueReceived(variable, result.get(variable), "RenderingControl");
                 }
             }
+        }
+    }
+
+    /**
+     * Set the VOLUME command specific to the current grouping according to the Sonos behaviour.
+     * AdHoc groups handles the volume specifically for each player.
+     * Bonded groups delegate the volume to the coordinator which applies the same level to all group members. 
+     */
+    public void setVolumeForGroup(Command command) {
+        if (isAdHocGroup() || isStandalonePlayer()) {
+            setVolume(command);  
+        } else {
+            getCoordinatorHandler().setVolume(command);
+        }
+    }
+
+    /**
+     * Checks if the player receiving the command is part of a group that
+     * consists of randomly added players or contains bonded players
+     * 
+     * @return boolean
+     */
+    private boolean isAdHocGroup() {
+        SonosZoneGroup currentZoneGroup = getCurrentZoneGroup();
+        if (currentZoneGroup != null) {
+            List<String> zoneGroupMemberNames = currentZoneGroup.getMemberZoneNames();
+
+            if (zoneGroupMemberNames != null) {
+                for (String zoneName : zoneGroupMemberNames) {
+                    if (!zoneName.equals(zoneGroupMemberNames.get(0))) {
+                        // At least one "ZoneName" differs so we have an AdHoc group
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the player receiving the command is a standalone player
+     * 
+     * @return boolean
+     */
+    private boolean isStandalonePlayer() {
+        return getCurrentZoneGroup() != null ? getCurrentZoneGroup().getMembers().size() == 1 : true;
+    }
+
+    /**
+     * Returns the current zone group
+     * (of which the player receiving the command is part)
+     * 
+     * @return {@link SonosZoneGroup}
+     */
+    private SonosZoneGroup getCurrentZoneGroup() {
+        String zoneGroupState = stateMap.get("ZoneGroupState");
+        if (zoneGroupState != null) {
+            Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(zoneGroupState);
+
+            for (SonosZoneGroup zoneGroup : zoneGroups) {
+                if (zoneGroup.getMembers().contains(getThing().getConfiguration().get(UDN))) {
+                    return zoneGroup;
+                }
+            }
+        }
+        logger.warn("Could not fetch Sonos group state information");
+        return null;
+    }
+
+    /**
+     * Sets the volume level for a notification sound
+     * (initializes {@link #notificationSoundVolume})
+     * 
+     * @param command
+     */
+    public void setNotificationSoundVolume(Command command) {
+        if (command != null) {
+            notificationSoundVolume = command.toString();
         }
     }
 
@@ -1210,8 +1428,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         if (command != null && command instanceof StringType) {
 
             String remotePlayerName = command.toString();
-            String coordinatorUDN = getCoordinator();
-            ZonePlayerHandler coordinatorHandler = getHandlerByName(coordinatorUDN);
+            ZonePlayerHandler coordinatorHandler = getCoordinatorHandler();
             ZonePlayerHandler remoteHandler = getHandlerByName(remotePlayerName);
 
             if (coordinatorHandler != null && remoteHandler != null) {
@@ -1231,25 +1448,67 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         }
     }
 
+    private ZonePlayerHandler getCoordinatorHandler() {
+        if (coordinatorHandler == null) {
+            coordinatorHandler = getHandlerByName(getCoordinator());
+        }
+        return coordinatorHandler;
+    }
+
+    /**
+     * Returns a list of all zone group members this particular player is member of
+     * Or empty list if the players is not assigned to any group
+     * 
+     * @return a list of Strings containing the UDNs of other group members
+     */
+    protected List<String> getZoneGroupMembers() {
+        List<String> result = new ArrayList<>();
+
+        if (stateMap.get("ZoneGroupState") != null) {
+            Collection<SonosZoneGroup> zoneGroups = SonosXMLParser.getZoneGroupFromXML(stateMap.get("ZoneGroupState"));
+
+            for (SonosZoneGroup zg : zoneGroups) {
+                if (zg.getMembers().contains(getThing().getConfiguration().get(UDN))) {
+                    result.addAll(zg.getMembers());
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns a list of other zone group members this particular player is member of
+     * Or empty list if the players is not assigned to any group
+     * 
+     * @return a list of Strings containing the UDNs of other group members
+     */
+    protected List<String> getOtherZoneGroupMembers() {
+        List<String> zoneGroupMembers = getZoneGroupMembers();
+        zoneGroupMembers.remove(getThing().getConfiguration().get(UDN));
+        return zoneGroupMembers;
+    }
+
     protected ZonePlayerHandler getHandlerByName(String remotePlayerName) {
-
         if (thingRegistry != null) {
-            Thing thing = thingRegistry.get(new ThingUID(ZONEPLAYER_THING_TYPE_UID, remotePlayerName));
+            for (ThingTypeUID supportedThingType : SonosBindingConstants.SUPPORTED_THING_TYPES_UIDS) {
+                Thing thing = thingRegistry.get(new ThingUID(supportedThingType, remotePlayerName));
 
-            if (thing == null) {
-                Collection<Thing> allThings = thingRegistry.getAll();
-                for (Thing aThing : allThings) {
-                    if (aThing.getThingTypeUID().equals(this.getThing().getThingTypeUID())) {
-                        if (aThing.getConfiguration().get(UDN).equals(remotePlayerName)) {
-                            thing = aThing;
-                            break;
+                if (thing == null) {
+                    Collection<Thing> allThings = thingRegistry.getAll();
+                    for (Thing aThing : allThings) {
+                        if (aThing.getThingTypeUID().equals(this.getThing().getThingTypeUID())) {
+                            if (aThing.getConfiguration().get(UDN).equals(remotePlayerName)) {
+                                thing = aThing;
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            if (thing != null) {
-                return (ZonePlayerHandler) thing.getHandler();
+                if (thing != null) {
+                    return (ZonePlayerHandler) thing.getHandler();
+                }
             }
         }
         return null;
@@ -1370,12 +1629,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             for (SonosAlarm anAlarm : sonosAlarms) {
                 SimpleDateFormat durationFormat = new SimpleDateFormat("HH:mm:ss");
                 durationFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                final Date durationDate;
+                Date durationDate = null;
                 try {
                     durationDate = durationFormat.parse(anAlarm.getDuration());
                 } catch (ParseException e) {
                     logger.error("An exception occurred while parsing a date : '{}'", e.getMessage());
-                    continue;
                 }
 
                 long duration = durationDate.getTime();
@@ -1485,7 +1743,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             }
 
             // set the URI of the group to the line-in
-            ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+            ZonePlayerHandler coordinator = getCoordinatorHandler();
             SonosEntry entry = new SonosEntry("", "", "", "", "", "", "", "x-rincon-stream:" + getUDN());
             coordinator.setCurrentURI(entry);
             coordinator.play();
@@ -1511,7 +1769,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             String url = command.toString();
 
-            ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+            ZonePlayerHandler coordinator = getCoordinatorHandler();
 
             // stop whatever is currently playing
             coordinator.stop();
@@ -1539,8 +1797,220 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     }
 
+    private void scheduleNotificationSound(final Command command) {
+        scheduler.schedule(new Runnable() {
+
+            @Override
+            public void run() {
+                synchronized (notificationLock) {
+                    playNotificationSoundURI(command);
+                }
+            }
+        }, 0, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Play a given notification sound
+     * 
+     * @param url in the format of //host/folder/filename.mp3
+     */
+    public void playNotificationSoundURI(Command notificationURL) {
+
+        if (notificationURL != null && notificationURL instanceof StringType) {
+            ZonePlayerHandler coordinator = getCoordinatorHandler();
+            String currentURI = coordinator.getCurrentURI();
+
+            if (isPlayingStream(currentURI)) {
+                handleRadioStream(currentURI, notificationURL, coordinator);
+            } else if (isPlayingQueue(currentURI)) {
+                handleSharedQueue(notificationURL, coordinator);
+            } else if (isPlaylistEmpty(coordinator)) {
+                handleEmptyQueue(notificationURL, coordinator);
+            }
+        }
+        synchronized (notificationLock) {
+            notificationLock.notify();
+        }
+    }
+
+    private boolean isPlaylistEmpty(ZonePlayerHandler coordinator) {
+        return coordinator.getQueue().isEmpty();
+    }
+
+    private boolean isPlayingQueue(String currentURI) {
+        return currentURI.contains("x-rincon-queue:");
+    }
+
+    private boolean isPlayingStream(String currentURI) {
+        return currentURI.contains("x-sonosapi-stream:");
+    }
+
+    /**
+     * Does a chain of predefined actions when a Notification sound is played by
+     * {@link ZonePlayerHandler#playNotificationSoundURI(Command)} in case
+     * radio streaming is currently loaded
+     * 
+     * @param currentStreamURI - the currently loaded stream's URI
+     * @param notificationURL - the notification url in the format of //host/folder/filename.mp3
+     * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
+     */
+    private void handleRadioStream(String currentStreamURI, Command notificationURL, ZonePlayerHandler coordinator) {
+        String nextAction = coordinator.getTransportState();
+        SonosMetaData track = coordinator.getTrackMetadata();
+        SonosMetaData currentURI = coordinator.getCurrentURIMetadata();
+
+        if (track != null && currentURI != null) {
+            handleNotificationSound(notificationURL, coordinator);
+            coordinator.setCurrentURI(new SonosEntry("", currentURI.getTitle(), "", "", track.getAlbumArtUri(), "",
+                    currentURI.getUpnpClass(), currentStreamURI));
+
+            restoreLastTransportState(coordinator, nextAction);
+        }
+    }
+
+    /**
+     * Does a chain of predefined actions when a Notification sound is played by
+     * {@link ZonePlayerHandler#playNotificationSoundURI(Command)} in case
+     * shared queue is currently loaded
+     * 
+     * @param notificationURL - the notification url in the format of //host/folder/filename.mp3
+     * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
+     */
+    private void handleSharedQueue(Command notificationURL, ZonePlayerHandler coordinator) {
+        String nextAction = coordinator.getTransportState();
+        String trackPosition = coordinator.getPosition();
+        long currentTrackNumber = coordinator.getCurrenTrackNr();
+
+        handleNotificationSound(notificationURL, coordinator);
+        coordinator.setPositionTrack(currentTrackNumber);
+        coordinator.setPosition(trackPosition);
+
+        restoreLastTransportState(coordinator, nextAction);
+    }
+
+    /**
+     * Handle the execution of the notification sound by sequentially executing the required steps.
+     * 
+     * @param notificationURL - the notification url in the format of //host/folder/filename.mp3
+     * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
+     */
+    private void handleNotificationSound(Command notificationURL, ZonePlayerHandler coordinator) {
+        String originalVolume = coordinator.getVolume();
+        coordinator.stop();
+        applyNotificationSoundVolume();
+        int notificationPosition = coordinator.getQueue().size()+1;
+        coordinator.setCurrentURI("x-rincon-queue:" + getUDN() + "#0", "");
+        coordinator.addURIToQueue(notificationURL.toString(), "", notificationPosition, false);
+        coordinator.setPositionTrack(notificationPosition);
+        coordinator.play();
+        waitForFinishedNotification();
+        setVolumeForGroup(DecimalType.valueOf(originalVolume));
+        coordinator.removeRangeOfTracksFromQueue(new StringType(Integer.toString(notificationPosition) + ",1"));
+    }
+
+    private void restoreLastTransportState(ZonePlayerHandler coordinator, String nextAction) {
+        switch (nextAction) {
+            case "PLAYING":
+                coordinator.play();
+                waitForTransportState("PLAYING");
+                break;
+            case "PAUSED_PLAYBACK":
+                coordinator.pause();
+                break;
+        }
+    }
+
+    /**
+     * Does a chain of predefined actions when a Notification sound is played by
+     * {@link ZonePlayerHandler#playNotificationSoundURI(Command)} in case
+     * empty queue is currently loaded
+     * 
+     * @param notificationURL - the notification url in the format of //host/folder/filename.mp3
+     * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
+     */
+    private void handleEmptyQueue(Command notificationURL, ZonePlayerHandler coordinator) {
+        String originalVolume = coordinator.getVolume();
+        coordinator.applyNotificationSoundVolume();
+        coordinator.playURI(notificationURL);
+        waitForFinishedNotification();
+        coordinator.removeAllTracksFromQueue();
+        coordinator.setVolume(DecimalType.valueOf(originalVolume));
+    }
+
+    /**
+     * Applies the volume level set for {@link #notificationSoundVolume}
+     * by {@link ZonePlayerHandler#setNotificationSoundVolume(Command)} (if not null)
+     * 
+     * @param coordinator - {@link ZonePlayerHandler} coordinator for the SONOS device(s)
+     */
+    private void applyNotificationSoundVolume() {
+        if (notificationSoundVolume != null) {
+            setVolumeForGroup(DecimalType.valueOf(notificationSoundVolume));
+        }
+    }
+
+    private void waitForFinishedNotification() {
+        waitForTransportState("PLAYING");
+
+        // check Sonos state events to determine the end of the notification sound
+        String notificationTitle = stateMap.get("CurrentTitle");
+        long playstart = System.currentTimeMillis();
+        while (System.currentTimeMillis() - playstart < NOTIFICATION_TIMEOUT) {
+            try {
+                Thread.sleep(50);
+                if (!stateMap.get("CurrentTitle").equals(notificationTitle)
+                        || !stateMap.get("TransportState").equals("PLAYING")) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+                logger.error("InterruptedException during playing a notification sound");
+            }
+        }
+    }
+
+    private void waitForTransportState(String state) {
+        long start = System.currentTimeMillis();
+        while (!stateMap.get("TransportState").equals(state)) {
+            try {
+                Thread.sleep(50);
+                if (System.currentTimeMillis() - start > NOTIFICATION_TIMEOUT) {
+                    break;
+                }
+            } catch (InterruptedException e) {
+                logger.error("InterruptedException during playing a notification sound");
+            }
+        }
+    }
+
+    /**
+     * Removes a range of tracks from the queue.
+     * (<x,y> will remove y songs started by the song number x)
+     * 
+     * @param command - must be in the format <startIndex, numberOfSongs>
+     */
+    public void removeRangeOfTracksFromQueue(Command command) {
+        if (command != null && command instanceof StringType) {
+            Map<String, String> inputs = new HashMap<String, String>();
+            String[] rangeInputSplit = command.toString().split(",");
+
+            // If range input is incorrect, remove the first song by default
+            String startIndex = rangeInputSplit[0] != null ? rangeInputSplit[0] : "1";
+            String numberOfTracks = rangeInputSplit[1] != null ? rangeInputSplit[1] : "1";
+
+            inputs.put("InstanceID", "0");
+            inputs.put("StartingIndex", startIndex);
+            inputs.put("NumberOfTracks", numberOfTracks);
+
+            Map<String, String> result = service.invokeAction(this, "AVTransport", "RemoveTrackRangeFromQueue", inputs);
+
+            for (String variable : result.keySet()) {
+                this.onValueReceived(variable, result.get(variable), "AVTransport");
+            }
+        }
+    }
+
     public void playQueue(Command command) {
-        ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+        ZonePlayerHandler coordinator = getCoordinatorHandler();
 
         // set the current playlist to our new queue
         coordinator.setCurrentURI("x-rincon-queue:" + getUDN() + "#0", "");
@@ -1619,7 +2089,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             // set the URI of the group coordinator
             if (theEntry != null) {
-                ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+                ZonePlayerHandler coordinator = getCoordinatorHandler();
                 coordinator.setCurrentURI(theEntry);
                 coordinator.play();
             }
@@ -1651,7 +2121,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
             // set the URI of the group coordinator
             if (theEntry != null) {
-                ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+                ZonePlayerHandler coordinator = getCoordinatorHandler();
 
                 /**
                  * If this is a playlist we need to treat it as such
@@ -1678,7 +2148,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     public void playTrack(Command command) {
 
         if (command != null && command instanceof DecimalType) {
-            ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+            ZonePlayerHandler coordinator = getCoordinatorHandler();
 
             String trackNumber = command.toString();
 
@@ -1713,7 +2183,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
             // set the URI of the group coordinator
             if (theEntry != null) {
 
-                ZonePlayerHandler coordinator = getHandlerByName(getCoordinator());
+                ZonePlayerHandler coordinator = getCoordinatorHandler();
                 // coordinator.setCurrentURI(theEntry);
                 coordinator.addURIToQueue(theEntry);
 
@@ -1777,4 +2247,29 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return null;
     }
 
+    private String getModelNameFromDescriptor() {
+        String sonosModelDescription = SonosXMLParser.parseModelDescription(service.getDescriptorURL(this));
+        return SonosXMLParser.extractModelName(sonosModelDescription);
+    }
+
+    private void handleThingTypeRecreation() {
+        if (getThing().getThingTypeUID().equals(ZONEPLAYER_THING_TYPE_UID)) {
+            String modelName = getModelNameFromDescriptor();
+            if (isSupportedModel(modelName)) {
+                updateSonosThingType(modelName);
+            }
+        }
+    }
+
+    private boolean isSupportedModel(String modelName) {
+        for (ThingTypeUID thingTypeUID : SUPPORTED_KNOWN_THING_TYPES_UIDS) {
+            if (thingTypeUID.getId().equalsIgnoreCase(modelName))
+                return true;
+        }
+        return false;
+    }
+
+    private void updateSonosThingType(String newThingTypeID) {
+        changeThingType(new ThingTypeUID(SonosBindingConstants.BINDING_ID, newThingTypeID), getConfig());
+    }
 }

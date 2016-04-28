@@ -20,8 +20,8 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public class SonosEntry implements Serializable {
 
-	private static final long serialVersionUID = -4543607156929701588L;
-	private final String id;
+    private static final long serialVersionUID = -4543607156929701588L;
+    private final String id;
     private final String title;
     private final String parentId;
     private final String upnpClass;
@@ -31,106 +31,106 @@ public class SonosEntry implements Serializable {
     private final String creator;
     private final int originalTrackNumber;
     private final SonosResourceMetaData resourceMetaData;
-    
-    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, 
-            String creator, String upnpClass, String res) {
-    	this(id, title, parentId, album, albumArtUri, creator, upnpClass, res, -1);
+
+    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, String creator,
+            String upnpClass, String res) {
+        this(id, title, parentId, album, albumArtUri, creator, upnpClass, res, -1);
     }
-    
-    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, 
-        String creator, String upnpClass, String res, int originalTrackNumber) {
-    	this(id, title, parentId, album, albumArtUri, creator, upnpClass, res, originalTrackNumber,null);
+
+    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, String creator,
+            String upnpClass, String res, int originalTrackNumber) {
+        this(id, title, parentId, album, albumArtUri, creator, upnpClass, res, originalTrackNumber, null);
     }
-    
-    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, 
-            String creator, String upnpClass, String res, int originalTrackNumber, SonosResourceMetaData resourceMetaData) {
-      this.id = id;
-      this.title=title;
-      this.parentId = parentId;
-      this.album = album;
-      this.albumArtUri = albumArtUri;
-      this.creator = creator;
-      this.upnpClass = upnpClass;
-      this.res = res;
-      this.originalTrackNumber = originalTrackNumber;
-      this.resourceMetaData = resourceMetaData;
+
+    public SonosEntry(String id, String title, String parentId, String album, String albumArtUri, String creator,
+            String upnpClass, String res, int originalTrackNumber, SonosResourceMetaData resourceMetaData) {
+        this.id = id;
+        this.title = title;
+        this.parentId = parentId;
+        this.album = album;
+        this.albumArtUri = albumArtUri;
+        this.creator = creator;
+        this.upnpClass = upnpClass;
+        this.res = res;
+        this.originalTrackNumber = originalTrackNumber;
+        this.resourceMetaData = resourceMetaData;
     }
-    
+
     /**
      * @return the title of the entry.
      */
     @Override
     public String toString() {
-      return title;
+        return title;
     }
-    
+
     /**
      * @return the unique identifier of this entry.
      */
     public String getId() {
-      return id;
+        return id;
     }
-    
+
     /**
      * @return the title of the entry.
      */
     public String getTitle() {
-      return title;
+        return title;
     }
-    
+
     /**
      * @return the unique identifier of the parent of this entry.
      */
     public String getParentId() {
-      return parentId;
+        return parentId;
     }
 
     /**
      * @return a URI of this entry.
      */
     public String getRes() {
-      return res;
+        return res;
     }
 
     /**
      * @return the UPnP classname for this entry.
      */
     public String getUpnpClass() {
-      return upnpClass;
+        return upnpClass;
     }
 
     /**
      * @return the name of the album.
      */
     public String getAlbum() {
-      return album;
+        return album;
     }
 
     /**
      * @return the URI for the album art.
      */
     public String getAlbumArtUri() {
-      return StringEscapeUtils.unescapeXml(albumArtUri);
+        return StringEscapeUtils.unescapeXml(albumArtUri);
     }
 
     /**
      * @return the name of the artist who created the entry.
      */
     public String getCreator() {
-      return creator;
+        return creator;
     }
-    
+
     public int getOriginalTrackNumber() {
-    	return originalTrackNumber;
+        return originalTrackNumber;
     }
-    
+
     /**
-     * The resourceMetaData field from the ResMD parent, this will be login info for 
+     * The resourceMetaData field from the ResMD parent, this will be login info for
      * streaming accounts to use in favorites
+     * 
      * @return
      */
-    public SonosResourceMetaData getResourceMetaData(){
-    	return resourceMetaData;
+    public SonosResourceMetaData getResourceMetaData() {
+        return resourceMetaData;
     }
 }
-

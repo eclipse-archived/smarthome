@@ -16,76 +16,75 @@ package org.eclipse.smarthome.binding.sonos.internal;
  */
 public class SonosMetaData {
 
-	  private final String id;
-	  private final String parentId;
-	  private final String resource;
-	  private final String streamContent;
-	  private final String albumArtUri;
-	  private final String title;
-	  private final String upnpClass;
-	  private final String creator;
-	  private final String album;
-	  private final String albumArtist;
-	  
-	  public SonosMetaData(String id, String parentId, String res, String streamContent, 
-	      String albumArtUri, String title, String upnpClass, String creator, String album, 
-	      String albumArtist) {
-	    this.id = id;
-	    this.parentId = parentId;
-	    this.resource = res;
-	    this.streamContent = streamContent;
-	    this.albumArtUri = albumArtUri;
-	    this.title = title;
-	    this.upnpClass = upnpClass;
-	    this.creator = creator;
-	    this.album = album;
-	    this.albumArtist = albumArtist;
-	  }
-	  
-	  @Override
-	  public String toString() {
-		  return "SonosMetaData [id=" + id + ", parentID=" + parentId + ", resource="+resource+" ,streamContent="+
-	  streamContent+", arturi="+albumArtUri+", title="+title+", upnpclass="+upnpClass+", creator="+creator+
-	  ", album="+album+", albumtartist="+albumArtist+"]";
-	  }
+    private final String id;
+    private final String parentId;
+    private final String resource;
+    private final String streamContent;
+    private final String albumArtUri;
+    private final String title;
+    private final String upnpClass;
+    private final String creator;
+    private final String album;
+    private final String albumArtist;
 
-	  public String getAlbum() {
-	    return album;
-	  }
+    public SonosMetaData(String id, String parentId, String res, String streamContent, String albumArtUri, String title,
+            String upnpClass, String creator, String album, String albumArtist) {
+        this.id = id;
+        this.parentId = parentId;
+        this.resource = res;
+        this.streamContent = streamContent;
+        this.albumArtUri = albumArtUri;
+        this.title = title;
+        this.upnpClass = upnpClass;
+        this.creator = creator;
+        this.album = album;
+        this.albumArtist = albumArtist;
+    }
 
-	  public String getAlbumArtist() {
-	    return albumArtist;
-	  }
+    @Override
+    public String toString() {
+        return "SonosMetaData [id=" + id + ", parentID=" + parentId + ", resource=" + resource + " ,streamContent="
+                + streamContent + ", arturi=" + albumArtUri + ", title=" + title + ", upnpclass=" + upnpClass
+                + ", creator=" + creator + ", album=" + album + ", albumtartist=" + albumArtist + "]";
+    }
 
-	  public String getAlbumArtUri() {
-	    return albumArtUri;
-	  }
+    public String getAlbum() {
+        return album;
+    }
 
-	  public String getCreator() {
-	    return creator;
-	  }
+    public String getAlbumArtist() {
+        return albumArtist;
+    }
 
-	  public String getResource() {
-	    return resource;
-	  }
+    public String getAlbumArtUri() {
+        return albumArtUri;
+    }
 
-	  public String getStreamContent() {
-	    return streamContent;
-	  }
+    public String getCreator() {
+        return creator;
+    }
 
-	  public String getTitle() {
-	    return title;
-	  }
+    public String getResource() {
+        return resource;
+    }
 
-	  public String getUpnpClass() {
-	    return upnpClass;
-	  }
+    public String getStreamContent() {
+        return streamContent;
+    }
 
-	  public String getId() {
-	    return id;
-	  }
+    public String getTitle() {
+        return title;
+    }
 
-	  public String getParentId() {
-	    return parentId;
-	  }	
+    public String getUpnpClass() {
+        return upnpClass;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getParentId() {
+        return parentId;
+    }
 }
