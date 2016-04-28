@@ -37,6 +37,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private RuleEngine ruleEngine;
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
+    private boolean hasManagedRuleProvider;
 
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
@@ -47,7 +48,10 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    protected synchronized void addProvider(Provider<Rule> provider) {
+    protected void addProvider(Provider<Rule> provider) {
+        if (provider instanceof ManagedRuleProvider) {
+            hasManagedRuleProvider = true;
+        }
         Collection<Rule> rules = provider.getAll();
         for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
             Rule rule = it.next();
@@ -66,7 +70,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    protected synchronized void removeProvider(Provider<Rule> provider) {
+    protected void removeProvider(Provider<Rule> provider) {
         Collection<Rule> rules = provider.getAll();
         for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
             Rule rule = it.next();
@@ -78,11 +82,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
                 disabledRulesStorage.remove(uid);
             }
         }
+        if (provider instanceof ManagedRuleProvider) {
+            hasManagedRuleProvider = false;
+        }
         super.removeProvider(provider);
     }
 
     @Override
-    public synchronized Rule add(Rule element) {
+    public Rule add(Rule element) {
         if (element == null) {
             throw new IllegalArgumentException("The added rule must not be null!");
         }
@@ -99,7 +106,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public synchronized Rule remove(String key) {
+    public Rule remove(String key) {
         Rule rule = super.remove(key);
         if (ruleEngine.removeRule(key)) {
             postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
@@ -111,7 +118,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
-    public synchronized Rule update(Rule element) {
+    public Rule update(Rule element) {
         Rule old = null;
         if (element != null) {
             old = super.update(element); // update storage with new rule and return old rule
