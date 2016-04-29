@@ -233,7 +233,15 @@ public class WelcomeHomeCommands extends AbstractConsoleCommandExtension {
                 return;
             }
         }
-        rulesProvider.update(WelcomeHomeRulesProvider.AC_UID, AirConditionerRuleTemplate.UID, config);
+        if (params.length == 3 && params[2] != null) {
+            if (rulesProvider.rules.get(params[2]) == null) {
+                rulesProvider.add(params[2], AirConditionerRuleTemplate.UID, config);
+            } else {
+                rulesProvider.update(params[2], AirConditionerRuleTemplate.UID, config);
+            }
+        } else {
+            rulesProvider.update(WelcomeHomeRulesProvider.AC_UID, AirConditionerRuleTemplate.UID, config);
+        }
         console.println("SUCCESS");
     }
 
