@@ -96,8 +96,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
     }
 
     /**
-     * This method is used to update the provided rules configuration and to inform all listeners, interested about
-     * changing of the rules.
+     * This method is used to update the provided rules configuration.
      *
      * @param uid
      *            specifies the rule for updating by UID
@@ -116,27 +115,6 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         // inform all listeners, interested about changing of the rules
         for (ProviderChangeListener<Rule> listener : listeners) {
             listener.updated(this, oldelement, element);
-        }
-    }
-
-    /**
-     * This method is used to add the new rules into provider and to inform all listeners, interested about adding of
-     * the new rules.
-     *
-     * @param uid
-     *            specifies the new rule UID
-     * @param template
-     *            specifies the rule template by UID
-     * @param config
-     *            gives the new configuration of the new rule
-     */
-    public void add(String ruleUID, String template, Map<String, Object> config) {
-        Rule element = new Rule(ruleUID, template, config);
-        rules.put(ruleUID, element);
-
-        // inform all listeners, interested about adding of the new rule
-        for (ProviderChangeListener<Rule> listener : listeners) {
-            listener.added(this, element);
         }
     }
 
