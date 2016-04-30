@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.handler.RuleEngineCallback;
  * rule's {@link Trigger}s.
  *
  * @author Yordan Mihaylov - Initial Contribution
+ * @author Kai Kreuzer - improved stability
  */
 public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
@@ -41,7 +42,11 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
 
     @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
-        feature = executor.submit(new TriggerData(trigger, outputs));
+        if (executor != null) {
+            synchronized (executor) {
+                feature = executor.submit(new TriggerData(trigger, outputs));
+            }
+        }
     }
 
     public Rule getRule() {
@@ -78,8 +83,10 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     }
 
     public void dispose() {
-        executor.shutdownNow();
-        executor = null;
+        synchronized (executor) {
+            executor.shutdownNow();
+            executor = null;
+        }
         r = null;
     }
 
