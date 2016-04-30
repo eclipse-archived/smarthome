@@ -166,12 +166,10 @@ The demo provides two commands that enable the user to have control over the set
 #### Welcomehome Commands Description
 
 ##### Command `settings`
-Parameters: `<mode> <temperature> <ruleUID>`
-
-Parameter `<ruleUID>` is optional. When it is present and the provided UID is not added before into the Automation Engine, a new rule will be created. If the provided UID exists into Automation Engine, referred rule will be updated.
+Parameters: `<mode> <temperature>`
 
 Description:
-	Serves to configure air conditioner's mode(cooling/heating) and target temperature by updating the configuration of the `AirConditionerSwitchOnRule` rule or for demonstration of how to be plugged additional rules into the Rule Provider and to be updated after that.
+	Serves to configure air conditioner's mode(cooling/heating) and target temperature by updating the `AirConditionerSwitchOnRule` rule configuration
 
 ##### Command `activateAC`
 Parameters: `<currentState> <currentTemperature>`
