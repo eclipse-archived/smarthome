@@ -44,7 +44,9 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
         if (executor != null) {
             synchronized (executor) {
-                feature = executor.submit(new TriggerData(trigger, outputs));
+                if (executor != null) {
+                    feature = executor.submit(new TriggerData(trigger, outputs));
+                }
             }
         }
     }
