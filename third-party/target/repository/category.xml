@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <category-def name="all" label="Maven osgi-bundles"/>
+    <iu>
+        <category name="all"/>
+        <query>
+            <expression type="match">providedCapabilities.exists(p | p.namespace == 'osgi.bundle')</expression>
+        </query>
+    </iu>
+</site>

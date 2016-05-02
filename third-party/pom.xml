@@ -1,0 +1,100 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.eclipse.smarthome.thirdpartyrepo</groupId>
+  <artifactId>p2-site</artifactId>
+  <version>0.8.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Eclipse SmartHome :: 3rd party reposiory :: p2 site</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.reficio</groupId>
+          <artifactId>p2-maven-plugin</artifactId>
+          <version>1.2.0-SNAPSHOT</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.reficio</groupId>
+        <artifactId>p2-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-cli</id>
+            <phase>package</phase>
+            <goals>
+              <goal>site</goal>
+            </goals>
+            <configuration>
+              <!--<compressSite>false</compressSite>-->
+              <additionalArgs>-metadataRepositoryName esh.thirdparty.repo.metadata -artifactRepositoryName esh.thirdparty.repo.artifact</additionalArgs>
+              <artifacts>
+                <artifact>
+                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
+                  <id>com.jayway.jsonpath:json-path:2.0.0</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
+                  <id>net.minidev:asm:1.0.2</id>
+                  <transitive>false</transitive>
+                </artifact>
+                <artifact>
+                  <!-- used by: org.eclipse.smarthome.transform.jsonpath -->
+                  <id>net.minidev:json-smart:2.1.1</id>
+                  <transitive>false</transitive>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>9.3.8.v20160314</version>
+        <configuration>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <webAppSourceDirectory>${project.build.directory}/repository/</webAppSourceDirectory>
+          <webApp>
+            <contextPath>/site</contextPath>
+          </webApp>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>reficio</id>
+      <url>http://repo.reficio.org/maven/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <repositories>
+    <repository>
+      <id>esh.bundled-local-repo</id>
+      <url>file://${project.basedir}/m2-repo</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+
+  </repositories>
+
+</project>
