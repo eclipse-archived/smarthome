@@ -253,6 +253,9 @@
   <feature name="esh-transform-jsonpath" description="JSONPath Transformation" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.transform/org.eclipse.smarthome.transform.jsonpath/${project.version}</bundle>
+    <bundle dependency="true">mvn:com.jayway.jsonpath/json-path/2.0.0</bundle>
+    <bundle dependency="true">mvn:net.minidev/asm/1.0.2</bundle>
+    <bundle dependency="true">mvn:net.minidev/json-smart/2.1.1</bundle>
   </feature>
 
   <feature name="esh-transform-map" description="Map Transformation" version="${project.version}">
