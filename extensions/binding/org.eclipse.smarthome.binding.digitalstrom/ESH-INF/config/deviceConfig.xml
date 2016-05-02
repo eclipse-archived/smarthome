@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config-description:config-descriptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:config-description="http://eclipse.org/smarthome/schemas/config-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/config-description/v1.0.0
+        http://eclipse.org/smarthome/schemas/config-description-1.0.0.xsd"
+>
+
+    <!-- yellow/black Device -->
+    <config-description uri="binding:digitalstrom:device">
+        <parameter-group name="devInfo">
+            <label>@text/DS_DEVICE_PARM_GROUP_INFO_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_GROUP_INFO_DESC</description>
+        </parameter-group>
+        <parameter-group name="sensorSetup">
+            <label>@text/DS_DEVICE_PARM_GROUP_SENSOR_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_GROUP_SENSOR_DESC</description>
+        </parameter-group>
+        <parameter name="deviceName" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_NAME_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_NAME_DESC</description>
+        </parameter>
+        <!--deviceName -->
+        <parameter name="activePowerRefreshPriority" type="text" groupName='sensorSetup'>
+            <label>@text/DS_DEVICE_PARM_ACTIVE_POWER_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_ACTIVE_POWER_DESC</description>
+            <options>
+                <option value="never">@text/DS_SENSOR_OPTION1</option>
+                <option value="high">@text/DS_SENSOR_OPTION4</option>
+                <option value="medium">@text/DS_SENSOR_OPTION3</option>
+                <option value="low">@text/DS_SENSOR_OPTION2</option>
+            </options>
+            <default>never</default>
+            <required>false</required>
+        </parameter>
+        <parameter name="electricMeterRefreshPriority" type="text" groupName='sensorSetup'>
+            <label>@text/DS_DEVICE_PARM_ELECTRIC_METER_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_ELECTRIC_METER_DESC</description>
+            <options>
+                <option value="never">@text/DS_SENSOR_OPTION1</option>
+                <option value="high">@text/DS_SENSOR_OPTION4</option>
+                <option value="medium">@text/DS_SENSOR_OPTION3</option>
+                <option value="low">@text/DS_SENSOR_OPTION2</option>
+            </options>
+            <default>never</default>
+            <required>false</required>
+        </parameter>
+        <parameter name="outputCurrentRefreshPriority" type="text" groupName='sensorSetup'>
+            <label>@text/DS_DEVICE_PARM_OUTPUT_CURRENT_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_OUTPUT_CURRENT_DESC</description>
+            <options>
+                <option value="never">@text/DS_SENSOR_OPTION1</option>
+                <option value="high">@text/DS_SENSOR_OPTION4</option>
+                <option value="medium">@text/DS_SENSOR_OPTION3</option>
+                <option value="low">@text/DS_SENSOR_OPTION2</option>
+            </options>
+            <default>never</default>
+            <required>false</required>
+        </parameter>
+        <!--deviceUID -->
+        <parameter name="dSUID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_DSUID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_DSUID_DESC</description>
+            <required>true</required>
+        </parameter>
+        <!--deviceID -->
+        <parameter name="dSID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_DSID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_DSID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--meterID -->
+        <parameter name="meterDSID" type="text" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_METER_DSID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_METER_DSID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--device hwInfo -->
+        <parameter name="hwInfo" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_HW_INFO_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_HW_INFO_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--zone id -->
+        <parameter name="zoneID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_ZONE_ID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_ZONE_ID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--groups id -->
+        <parameter name="groups" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_GROUP_ID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_GROUP_ID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--outputmode -->
+        <parameter name="outputmode" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_OUTPUTMODE_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_OUTPUTMODE_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--funcColorGroup -->
+        <parameter name="funcColorGroup" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_FUNC_COLOR_GROUP_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_FUNC_COLOR_GROUP_DESC</description>
+            <required>false</required>
+        </parameter>
+    </config-description>
+    <!-- gray Device -->
+    <config-description uri="binding:digitalstrom:grayDevice">
+        <parameter-group name="devInfo">
+            <label>@text/DS_DEVICE_PARM_GROUP_INFO_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_GROUP_INFO_DESC</description>
+        </parameter-group>
+        <parameter name="deviceName" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_NAME_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_NAME_DESC</description>
+        </parameter>
+        <!--deviceUID -->
+        <parameter name="dSUID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_DSUID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_DSUID_DESC</description>
+            <required>true</required>
+        </parameter>
+        <!--deviceID -->
+        <parameter name="dSID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_DSID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_DSID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--meterID -->
+        <parameter name="meterDSID" type="text" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_METER_DSID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_METER_DSID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--device hwInfo -->
+        <parameter name="hwInfo" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_HW_INFO_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_HW_INFO_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--zone id -->
+        <parameter name="zoneID" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_ZONE_ID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_ZONE_ID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--groups id -->
+        <parameter name="groups" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_GROUP_ID_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_GROUP_ID_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--outputmode -->
+        <parameter name="outputmode" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_OUTPUTMODE_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_OUTPUTMODE_DESC</description>
+            <required>false</required>
+        </parameter>
+        <!--funcColorGroup -->
+        <parameter name="funcColorGroup" type="text" readOnly="true" groupName="devInfo">
+            <label>@text/DS_DEVICE_PARM_FUNC_COLOR_GROUP_LABEL</label>
+            <description>@text/DS_DEVICE_PARM_FUNC_COLOR_GROUP_DESC</description>
+            <required>false</required>
+        </parameter>
+    </config-description>
+</config-description:config-descriptions>

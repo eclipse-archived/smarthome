@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="digitalstrom" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+    xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd"
+>
+    <thing-type id="appScene">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="dssBridge" />
+        </supported-bridge-type-refs>
+        <label>@text/DS_APP_SCENE_LABEL</label>
+        <description>@text/DS_APP_SCENE_DESC</description>
+
+        <channels>
+            <channel id="scene" typeId="scene" />
+        </channels>
+
+        <config-description>
+            <!--sceneName -->
+            <parameter name="sceneName" type="text">
+                <label>@text/DS_SCENE_PARM_SCENE_NAME_LABEL</label>
+                <description>@text/DS_SCENE_PARM_SCENE_NAME_DESC</description>
+            </parameter>
+            <!--scene id -->
+            <parameter name="sceneID" type="text" readOnly="true">
+                <label>@text/DS_SCENE_PARM_SCENE_ID_LABEL</label>
+                <description>@text/DS_SCENE_PARM_SCENE_ID_DESC</description>
+                <required>true</required>
+                <options>
+                    <option value="ABSENT">@text/ABSENT</option>
+                    <option value="PRESENT">@text/PRESENT</option>
+                    <option value="DOOR_BELL">@text/DOOR_BELL</option>
+                    <option value="PANIC">@text/PANIC</option>
+                    <option value="FIRE">@text/FIRE</option>
+                    <option value="ALARM_1">@text/ALARM_1</option>
+                    <option value="ALARM_2">@text/ALARM_2</option>
+                    <option value="ALARM_3">@text/ALARM_3</option>
+                    <option value="ALARM_4">@text/ALARM_4</option>
+                    <option value="WIND">@text/WIND</option>
+                    <option value="NO_WIND">@text/NO_WIND</option>
+                    <option value="RAIN">@text/RAIN</option>
+                    <option value="NO_RAIN">@text/NO_RAIN</option>
+                    <option value="HAIL">@text/HAIL</option>
+                    <option value="NO_HAIL">@text/NO_HAIL</option>
+                </options>
+            </parameter>
+        </config-description>
+    </thing-type>
+</thing:thing-descriptions>
