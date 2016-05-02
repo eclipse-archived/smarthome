@@ -110,6 +110,14 @@ public class Configuration {
         return fields;
     }
 
+    /**
+     * @deprecated Use {@link #get(String)} instead.
+     */
+    @Deprecated
+    public Object get(Object key) {
+        return this.get((String) key);
+    }
+
     public Object get(String key) {
         synchronized (this) {
             return properties.get(key);
@@ -120,6 +128,14 @@ public class Configuration {
         synchronized (this) {
             return properties.put(key, value);
         }
+    }
+
+    /**
+     * @deprecated Use {@link #remove(String)} instead.
+     */
+    @Deprecated
+    public Object remove(Object key) {
+        return remove((String) key);
     }
 
     public Object remove(String key) {
