@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.smarthome.config.core.normalization.INormalizer;
+import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
+
 /**
  * This class provides some useful static methods for handling configurations
  *
@@ -43,7 +46,41 @@ public class ConfigUtil {
      * @return corresponding value as a valid type
      */
     public static Object normalizeType(Object value) {
-        return value instanceof Double ? new BigDecimal((Double) value) : value;
+        return value instanceof Double ? BigDecimal.valueOf((Double) value) : value;
+    }
+
+    /**
+     * Normalizes the given configuration according to their config description.
+     *
+     * By doing so, it tries to convert types on a best-effort basis. The result will contain
+     * BigDecimals, Strings and Booleans wherever a conversion of similar types was possible.
+     *
+     * However, it does not check for general correctness of types. This can be done using the
+     * ConfigDescriptionValidator.
+     *
+     * @param configuration
+     * @param configDescription
+     * @return
+     */
+    public static Map<String, Object> normalizeTypes(Map<String, Object> configuration,
+            ConfigDescription configDescription) {
+        if (configuration == null) {
+            return null;
+        }
+        Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
+        Map<String, ConfigDescriptionParameter> configParams = configDescription.toParametersMap();
+        for (Entry<String, ?> parameter : configuration.entrySet()) {
+            String name = parameter.getKey();
+            Object value = parameter.getValue();
+            ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
+            if (configDescriptionParameter != null) {
+                INormalizer normalizer = NormalizerFactory.getNormalizer(configDescriptionParameter);
+                convertedConfiguration.put(name, normalizer.normalize(value));
+            } else {
+                convertedConfiguration.put(name, value);
+            }
+        }
+        return convertedConfiguration;
     }
 
 }

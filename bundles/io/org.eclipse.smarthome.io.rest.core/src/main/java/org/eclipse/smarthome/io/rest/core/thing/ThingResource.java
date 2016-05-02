@@ -35,6 +35,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
 import org.eclipse.smarthome.config.core.status.ConfigStatusService;
@@ -58,6 +61,8 @@ import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider;
+import org.eclipse.smarthome.core.thing.type.ThingType;
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.eclipse.smarthome.core.thing.util.ThingHelper;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.LocaleUtil;
@@ -101,6 +106,8 @@ public class ThingResource implements RESTResource {
     private ManagedThingProvider managedThingProvider;
     private ThingRegistry thingRegistry;
     private ConfigStatusService configStatusService;
+    private ConfigDescriptionRegistry configDescRegistry;
+    private ThingTypeRegistry thingTypeRegistry;
 
     @Context
     private UriInfo uriInfo;
@@ -141,7 +148,7 @@ public class ThingResource implements RESTResource {
         }
 
         // turn the ThingDTO's configuration into a Configuration
-        Configuration configuration = new Configuration(thingBean.configuration);
+        Configuration configuration = new Configuration(normalizeConfiguration(thingBean.configuration, thingTypeUID));
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
                 configuration);
@@ -378,6 +385,9 @@ public class ThingResource implements RESTResource {
                     "Cannot update Thing " + thingUID + ". Maybe it is not managed.");
         }
 
+        // check configuration
+        thingBean.configuration = normalizeConfiguration(thingBean.configuration, thing.getThingTypeUID());
+
         thing = ThingHelper.merge(thing, thingBean);
 
         // update, returns null in case Thing cannot be found
@@ -435,7 +445,8 @@ public class ThingResource implements RESTResource {
             // note that we create a Configuration instance here in order to
             // have normalized types
             thingRegistry.updateConfiguration(thingUIDObject,
-                    new Configuration(configurationParameters).getProperties());
+                    new Configuration(normalizeConfiguration(configurationParameters, thing.getThingTypeUID()))
+                            .getProperties());
         } catch (ConfigValidationException ex) {
             logger.debug("Config description validation exception occured for thingUID {} - Messages: {}", thingUID,
                     ex.getValidationMessages());
@@ -595,6 +606,40 @@ public class ThingResource implements RESTResource {
         for (String parameterName : configuration.keySet()) {
             thing.getConfiguration().put(parameterName, configuration.get(parameterName));
         }
+    }
+
+    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = configDescriptionRegistry;
+    }
+
+    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = null;
+    }
+
+    protected void setThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = thingTypeRegistry;
+    }
+
+    protected void unsetThingTypeRegistry(ThingTypeRegistry thingTypeRegistry) {
+        this.thingTypeRegistry = null;
+    }
+
+    private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, ThingTypeUID thingTypeUID) {
+        if (properties == null || properties.isEmpty()) {
+            return properties;
+        }
+
+        ThingType thingType = thingTypeRegistry.getThingType(thingTypeUID);
+        if (thingType == null) {
+            return properties;
+        }
+
+        ConfigDescription configDesc = configDescRegistry.getConfigDescription(thingType.getConfigDescriptionURI());
+        if (configDesc == null) {
+            return properties;
+        }
+
+        return ConfigUtil.normalizeTypes(properties, configDesc);
     }
 
 }
