@@ -209,21 +209,7 @@ public class RuleEngine
      * @return UID of added rule.
      */
     public Rule addRule(Rule rule, boolean isEnabled) {
-        return addRule(rule, isEnabled, getScopeIdentifier());
-    }
-
-    /**
-     * This method add a new rule into rule engine to scope of rules defined by the scope's identity. The rule engine
-     * must
-     * check permission of the caller if he can put rules into this scope.
-     *
-     * @param rule a rule which has to be added.
-     * @param isEnabled
-     * @return UID of added rule.
-     */
-    public Rule addRule(Rule rule, boolean isEnabled, String identity) {
-        // TODO check permissions
-        return addRule0(rule, isEnabled, identity);
+        return addRule0(rule, isEnabled);
     }
 
     /**
@@ -232,10 +218,9 @@ public class RuleEngine
      *
      * @param rule a rule which has to be added
      * @param isEnabled
-     * @param identity identity of the scope where the rule belongs to.
      * @throws IllegalArgumentException when the rule with the same UID is already added.
      */
-    private Rule addRule0(Rule rule, boolean isEnabled, String identity) {
+    private Rule addRule0(Rule rule, boolean isEnabled) {
         List<Module> modules = rule.getModules(null);
         validateModules(modules);
 
@@ -256,8 +241,6 @@ public class RuleEngine
             }
 
             r1 = new RuntimeRule(ruleWithUID);
-            r1.setScopeIdentifier(identity);
-
             rules.put(rUID, r1);
         }
         logger.debug("Added rule '{}'", rUID);
@@ -1219,29 +1202,6 @@ public class RuleEngine
     public synchronized RuleStatusInfo getRuleStatusInfo(String rUID) {
         RuleStatusInfo info = statusMap.get(rUID);
         return info;
-    }
-
-    protected String getScopeIdentifier() {
-        // TODO get the caller scope id.
-        return null;
-    }
-
-    /**
-     * Get all scope indentities
-     *
-     * @return
-     */
-    public synchronized Collection<String> getScopeIdentifiers() {
-        // TODO check permissions
-        Set<String> result = new HashSet<String>(10);
-        for (Iterator<RuntimeRule> it = rules.values().iterator(); it.hasNext();) {
-            RuntimeRule r = it.next();
-            String id = r.getScopeIdentifier();
-            if (id != null) {
-                result.add(id);
-            }
-        }
-        return result;
     }
 
     protected String getUniqueId() {
