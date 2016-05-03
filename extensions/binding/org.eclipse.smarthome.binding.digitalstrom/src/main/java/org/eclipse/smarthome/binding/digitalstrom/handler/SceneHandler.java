@@ -112,7 +112,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     }
 
     @Override
-    protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
         if (thingHandler instanceof BridgeHandler) {
             this.bridgeHandler = (BridgeHandler) thingHandler;
 

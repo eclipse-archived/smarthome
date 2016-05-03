@@ -146,7 +146,7 @@ public class DeviceHandler extends BaseThingHandler implements DeviceStatusListe
     }
 
     @Override
-    protected void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
+    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
         if (dSID != null) {
             if (thingHandler instanceof BridgeHandler) {
                 this.dssBridgeHandler = (BridgeHandler) thingHandler;
