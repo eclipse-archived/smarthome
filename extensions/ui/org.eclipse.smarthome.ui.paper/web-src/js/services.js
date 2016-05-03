@@ -134,6 +134,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         for (var k = 0; k < parameter.options.length; k++) {
                             parameter.options[k].value = parseInt(parameter.options[k].value);
                         }
+                        if (parameter.defaultValue) {
+                            parameter.defaultValue = parseInt(parameter.defaultValue);
+                        }
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'number';
@@ -248,7 +251,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         },
         replaceEmptyValues : function(configurations) {
             angular.forEach(configurations, function(value, name) {
-                if (!configurations[name]) {
+                if (configurations[name] === undefined || configurations[name] == null || configurations[name] === '') {
                     configurations[name] = null;
                 }
             });
