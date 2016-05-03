@@ -160,7 +160,7 @@ public class RuleEngine
      */
     private Map<String, RuleStatusInfo> statusMap = new HashMap<String, RuleStatusInfo>();
 
-    private Logger logger;
+    protected Logger logger;
 
     private StatusInfoCallback statusInfoCallback;
 

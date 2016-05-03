@@ -43,6 +43,7 @@ public class RuleEngineCallbackImpl implements RuleEngineCallback {
     @Override
     public void triggered(Trigger trigger, Map<String, ?> outputs) {
         if (executor != null) {
+            re.logger.debug("The trigger '{}' of rule '{}' is triggred.", trigger.getId(), r.getUID());
             synchronized (executor) {
                 if (executor != null) {
                     feature = executor.submit(new TriggerData(trigger, outputs));
