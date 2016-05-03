@@ -111,6 +111,18 @@ public class Configuration {
     }
 
     /**
+     * Check if the given key is present in the configuration.
+     *
+     * @param key the key that existence should be checked
+     * @return true if the key is part of the configuration, false if not
+     */
+    public boolean containsKey(String key) {
+        synchronized (this) {
+            return properties.containsKey(key);
+        }
+    }
+
+    /**
      * @deprecated Use {@link #get(String)} instead.
      */
     @Deprecated
