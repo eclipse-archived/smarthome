@@ -94,6 +94,12 @@
     <bundle>mvn:org.eclipse.smarthome.automation/org.eclipse.smarthome.automation.rest/${project.version}</bundle>
   </feature>
 
+  <feature name="esh-binding-digitalstrom" version="${project.version}">
+    <feature>esh-base</feature>
+    <feature>esh-io-transport-jmdns</feature>
+    <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.digitalstrom/${project.version}</bundle>
+  </feature>
+
   <feature name="esh-binding-hue" version="${project.version}">
     <feature>esh-base</feature>
     <feature>esh-io-transport-upnp</feature>
