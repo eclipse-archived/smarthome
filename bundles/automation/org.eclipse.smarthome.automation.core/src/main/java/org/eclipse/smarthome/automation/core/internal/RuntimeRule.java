@@ -102,10 +102,6 @@ public class RuntimeRule extends Rule {
         return moduleMap;
     }
 
-    protected void setScopeIdentifier(String scopeId) {
-        this.scopeId = scopeId;
-    }
-
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
