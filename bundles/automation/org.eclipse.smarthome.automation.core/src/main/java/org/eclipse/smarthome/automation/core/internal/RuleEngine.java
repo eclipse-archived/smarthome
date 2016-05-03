@@ -782,13 +782,9 @@ public class RuleEngine
             RuntimeRule r = it.next();
             if (tags != null) {
                 Set<String> rTags = r.getTags();
-                if (tags != null) {
-                    for (Iterator<String> i = rTags.iterator(); i.hasNext();) {
-                        String tag = i.next();
-                        if (tags.contains(tag)) {
-                            result.add(r.getRuleCopy());
-                            break;
-                        }
+                if (rTags != null) {
+                    if (rTags.containsAll(tags)) {
+                        result.add(r.getRuleCopy());
                     }
                 }
             } else {
@@ -796,6 +792,7 @@ public class RuleEngine
             }
         }
         return result;
+
     }
 
     /**
