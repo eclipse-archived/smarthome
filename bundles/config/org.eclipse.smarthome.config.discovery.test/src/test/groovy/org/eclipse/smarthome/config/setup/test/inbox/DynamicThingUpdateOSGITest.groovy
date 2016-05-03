@@ -20,7 +20,6 @@ import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingStatus
-import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -45,7 +44,7 @@ import org.junit.Test
  * has to figure out if the configuration must be updated or not and triggers a further process
  * chain to update the {@link Thing} at the according {@link ThingHandler} if needed.
  * A dummy {@link ThingHandler} and {@link ThingHandlerFactory} is used to detect an updated event.
- * 
+ *
  * @author Michael Grammling - Initial Contribution
  * @author Thomas Höfer - Added representation
  */
@@ -103,9 +102,7 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
                 this.thingUpdated = true
                 this.updatedThing = updatedThing
             },
-            setCallback: {callbackArg -> 
-                callback = callbackArg 
-            },
+            setCallback: {callbackArg -> callback = callbackArg },
         ] as ThingHandler )
 
         return thingHandler
@@ -141,22 +138,27 @@ class DynamicThingUpdateOSGITest extends OSGiTest {
     void 'assert that an already existing Thing with another configuration is updated'() {
         assertThat inbox.getAll().size(), is(0)
 
+        final String CFG_IP_ADDRESS_KEY = "ipAddress";
+        final String CFG_IP_ADDRESS_VALUE = "127.0.0.1";
+
         ThingHandlerFactory thingHandlerFactory = createThingHandlerFactory()
         registerService(thingHandlerFactory, ThingHandlerFactory.class.name)
 
         Thing thing = ThingBuilder.create(THING_TYPE_UID, THING_ID).build()
+        thing.getConfiguration().put(CFG_IP_ADDRESS_KEY, null);
         managedThingProvider.add thing
         callback.statusUpdated(thing, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
-        
-        Hashtable discoveryResultProps = [ "ipAddress" : "127.0.0.1" ]
-        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "ipAddress", "DummyLabel1", DEFAULT_TTL)
+
+        final Map<String, Object> discoveryResultProps = new HashMap<>();
+        discoveryResultProps.put(CFG_IP_ADDRESS_KEY, CFG_IP_ADDRESS_VALUE);
+        DiscoveryResult discoveryResult = new DiscoveryResultImpl(THING_UID, null, discoveryResultProps, "DummyRepr", "DummyLabel1", DEFAULT_TTL)
 
         inbox.add discoveryResult
 
         assertThat inbox.getAll().size(), is(0)
         assertThat thingUpdated, is(true)
         assertThat updatedThing, not(null)
-        assertThat updatedThing.configuration.get('ipAddress'), is('127.0.0.1')
+        assertThat updatedThing.configuration.get(CFG_IP_ADDRESS_KEY), is(CFG_IP_ADDRESS_VALUE)
 
         unregisterService(thingHandlerFactory)
     }
