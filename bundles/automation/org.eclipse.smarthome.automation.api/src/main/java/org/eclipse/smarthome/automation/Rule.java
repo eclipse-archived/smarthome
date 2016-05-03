@@ -39,7 +39,6 @@ public class Rule {
     protected List<Trigger> triggers;
     protected List<Condition> conditions;
     protected List<Action> actions;
-    protected String scopeId;
     protected Map<String, ?> configuration;
     protected List<ConfigDescriptionParameter> configDescriptions;
     protected String templateUID;
@@ -384,18 +383,6 @@ public class Rule {
             result = (List<T>) getActions();
         }
         return result != null ? result : Collections.<T> emptyList();
-    }
-
-    /**
-     * This method is used to get the identity scope of this Rule. The identity
-     * defines a scope where the rule belongs to. It is set automatically by the
-     * RuleEngine and is based on identity of rule creator.<br>
-     * For example the identity can be application name or user name of creator.
-     *
-     * @return Rule's identity.
-     */
-    public String getScopeIdentifier() {
-        return scopeId;
     }
 
     @Override
