@@ -126,9 +126,11 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
     $scope.saveUserRule = function() {
 
         var rule = $scope.getRuleJSON(sharedProperties, null, $scope.name, $scope.description);
-        ruleService.add(rule);
-        toastService.showDefaultToast('Rule added.');
-        $scope.navigateTo('');
+        ruleService.add(rule).$promise.then(function() {
+            toastService.showDefaultToast('Rule added.');
+            $scope.navigateTo('');
+        });
+
     };
 
     $scope.updateUserRule = function() {
@@ -136,9 +138,10 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
         var rule = $scope.getRuleJSON(sharedProperties, $scope.path[3], $scope.name, $scope.description);
         ruleService.update({
             ruleUID : $scope.path[3]
-        }, rule);
-        toastService.showDefaultToast('Rule updated.');
-        $scope.navigateTo('');
+        }, rule).$promise.then(function() {
+            toastService.showDefaultToast('Rule updated.');
+            $scope.navigateTo('');
+        });
     };
 
     $scope.openNewModuleDialog = function(event, type) {
@@ -219,10 +222,12 @@ angular.module('PaperUI.controllers.rules', []).controller('RulesPageController'
             description : $scope.description,
             configuration : $scope.configuration
         };
-        ruleService.add(rule);
-        toastService.showDefaultToast('Rule added.');
-        $mdDialog.hide();
-        $location.path('rules/');
+        ruleService.add(rule).$promise.then(function() {
+            toastService.showDefaultToast('Rule added.');
+            $mdDialog.hide();
+            $location.path('rules/');
+        });
+
     };
 
     $scope.close = function() {
