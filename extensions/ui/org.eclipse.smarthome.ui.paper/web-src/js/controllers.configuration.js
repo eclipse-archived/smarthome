@@ -12,7 +12,11 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.getThingTypeLabel = function(key) {
         if ($scope.thingTypes && Object.keys($scope.thingTypes).length != 0) {
-            return $scope.thingTypes[key].label;
+            if ($scope.thingTypes[key]) {
+                return $scope.thingTypes[key].label;
+            } else {
+                return '';
+            }
         } else {
             thingTypeRepository.setDirty(false);
         }
