@@ -656,10 +656,6 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin-right: 3%;
 }
 
-.no-padding {
-	padding: 0px;
-}
-
 .drag-handle {
 	position: absolute;
 	top: 0px;

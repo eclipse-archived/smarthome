@@ -9,7 +9,7 @@
 							<div ng-switch-when="input">
 								<div ng-if="parameter.type=='INTEGER'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-md-12 col-sm-12 col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
 										<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
@@ -27,7 +27,7 @@
 								</div>
 								<div ng-if="parameter.type=='TEXT'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-md-12 col-sm-12 col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
 										<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
@@ -52,7 +52,7 @@
 							</div>
 							<div ng-switch-when="select">
 								<label class="config-textInput">{{parameter.label}}</label>
-								<md-input-container class="col-md-12 col-sm-12 col-xs-12 configContainer"> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
+								<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="option.value?option.value:option.name" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
 									{{ option.label?option.label:option.name }}
 									<span class="md-caption" style="color: grey;">({{ option.name?option.name:'' }}) </span>
 								</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
@@ -70,9 +70,9 @@
 								</span> </md-input-container>
 							</div>
 						</div>
-						<div class="parameter col-sm-12 col-xs-12" ng-switch-when="textarea">
+						<div class="parameter col-xs-12" ng-switch-when="textarea">
 							<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-							<div class="col-md-12 col-sm-12 col-xs-12 configContainer">
+							<div class="col-xs-12 configContainer">
 								<textarea scriptarea class="scriptArea" ng-minlength="parameter.min" ng-maxlength="parameter.max" rows="2" wrap="off" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" ng-focus="focus=true" ng-blur="focus=false"></textarea>
 								<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 									<p ng-message="minlength" class="customMessage">Minimum length is {{parameter.min}}</p>

@@ -7,14 +7,14 @@
 
 	<form name="myForm">
 
-		<md-input-container class="col-md-12 col-sm-12 col-xs-12 moduleContainer" ng-show="step==2"> <label>Name</label> <input ng-model="name"> </md-input-container>
+		<md-input-container class="col-xs-12 noPadding" ng-show="step==2"> <label>Name</label> <input ng-model="name"> </md-input-container>
 		<input type="hidden" ng-value="id">
 
 		<md-select ng-invalid="" required ng-show="step==1" placeholder="{{type}} type" aria-label="Select module" ng-model="module"> <md-option ng-repeat="item in moduleData" value="{{item.uid}}"> {{item.label}} </md-option> </md-select>
 	</form>
 	<div>
 		<div ng-show="step==2">
-			<md-input-container class="col-md-12 col-sm-12 col-xs-12 moduleContainer" style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
+			<md-input-container class="col-xs-12 noPadding" style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 		</div>
 	</div>
 	<div ng-show="step==2">
