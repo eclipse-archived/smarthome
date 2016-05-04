@@ -51,21 +51,21 @@
 
   <feature name="esh-kat.cpy-jersey-min-2.22.2" version="${project.version}">
     <feature>http</feature>
-    <bundle start-level="30">mvn:org.glassfish.jersey.containers/jersey-container-servlet/2.22.2</bundle>
-    <bundle start-level="30">mvn:org.glassfish.jersey.media/jersey-media-sse/2.22.2</bundle>
-    <bundle start-level="30">mvn:org.glassfish.jersey.media/jersey-media-multipart/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.containers/jersey-container-servlet-core/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.core/jersey-common/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.core/jersey-server/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.core/jersey-client/2.22.2</bundle>
-    <bundle start-level="30" dependency="true">mvn:org.glassfish.jersey.media/jersey-media-jaxb/2.22.2</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-api/2.4.0-b34</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-locator/2.4.0-b34</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/hk2-utils/2.4.0-b34</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.4.0-b34</bundle>
-    <bundle dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.4.0-b34</bundle>
+    <bundle start-level="36">mvn:org.glassfish.jersey.containers/jersey-container-servlet/2.22.2</bundle>
+    <bundle start-level="36">mvn:org.glassfish.jersey.media/jersey-media-sse/2.22.2</bundle>
+    <bundle start-level="36">mvn:org.glassfish.jersey.media/jersey-media-multipart/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.containers/jersey-container-servlet-core/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.core/jersey-common/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.bundles.repackaged/jersey-guava/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.core/jersey-server/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.core/jersey-client/2.22.2</bundle>
+    <bundle start-level="36" dependency="true">mvn:org.glassfish.jersey.media/jersey-media-jaxb/2.22.2</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2/hk2-api/2.4.0-b34</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2/hk2-locator/2.4.0-b34</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2/hk2-utils/2.4.0-b34</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2/osgi-resource-locator/1.0.1</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.4.0-b34</bundle>
+    <bundle start-level="33" dependency="true">mvn:org.glassfish.hk2.external/aopalliance-repackaged/2.4.0-b34</bundle>
     <bundle dependency="true">mvn:javax.annotation/javax.annotation-api/1.2</bundle>
     <bundle dependency="true">mvn:javax.validation/validation-api/1.1.0.Final</bundle>
     <bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/2.0.1</bundle>
