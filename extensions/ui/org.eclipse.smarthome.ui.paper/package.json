@@ -18,6 +18,7 @@
     "gulp": "^3.9.0",
     "gulp-angular-filesort": "~1.1.1",
     "gulp-concat": "^2.6.0",
+    "gulp-inject": "^4.0.0",
     "gulp-ng-annotate": "~1.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-uglify": "^1.5.1",
