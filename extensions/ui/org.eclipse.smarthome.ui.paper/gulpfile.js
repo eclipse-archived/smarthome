@@ -184,8 +184,24 @@ gulp.task('inject', ['build'], function () {
         }
     else
     {
-        files = ['./web-src/js/*.js']
-    }
+        files = [
+                     './web-src/js/app.js',
+                     './web-src/js/constants.js',
+                     './web-src/js/controllers.configuration.js',
+                     './web-src/js/controllers.control.js',
+                     './web-src/js/controllers.extension.js',
+                     './web-src/js/controllers.js',
+                     './web-src/js/controllers.rules.js',
+                     './web-src/js/controllers.module.js',
+                     './web-src/js/controllers.setup.js',
+                     './web-src/js/extensions.js',
+                     './web-src/js/main.js',
+                     './web-src/js/services.js',
+                     './web-src/js/services.repositories.js',
+                     './web-src/js/services.rest.js',
+                     './web-src/js/shared.properties.js'
+                     ]
+    }    
     var sources = gulp.src(files, {read: false});
    
     return target.pipe(inject(sources,{
