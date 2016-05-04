@@ -274,8 +274,6 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
      * Returns the {@link File} object for the given filename. <br />
      * It must be contained in the configuration folder
      * 
-     * @param configDispatcher
-     *            the configuration dispatcher service
      * @param filename
      *            the file name to get the {@link File} for
      * @return the corresponding {@link File}
