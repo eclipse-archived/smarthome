@@ -116,13 +116,9 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
                 for (Iterator<ModuleType> it = moduleTypes.iterator(); it.hasNext();) {
                     ModuleType mt = it.next();
                     if (tags != null) {
-                        Collection<String> rTags = mt.getTags();
-                        for (Iterator<String> itt = rTags.iterator(); itt.hasNext();) {
-                            String tag = itt.next();
-                            if (tags.contains(tag)) {
-                                result.add((T) createCopy(mt));
-                                break;
-                            }
+                        Collection<String> mtTags = mt.getTags();
+                        if (mtTags.containsAll(tags)) {
+                            result.add((T) createCopy(mt));
                         }
                     } else {
                         result.add((T) createCopy(mt));
