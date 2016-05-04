@@ -13,13 +13,17 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.builder.BridgeBuilder;
+import org.eclipse.smarthome.core.thing.binding.builder.GenericThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTO;
 import org.eclipse.smarthome.core.thing.dto.ChannelDTOMapper;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
+import org.eclipse.smarthome.core.thing.internal.BridgeImpl;
 import org.eclipse.smarthome.core.thing.internal.ThingImpl;
 
 import com.google.common.base.Joiner;
@@ -102,7 +106,13 @@ public class ThingHelper {
      */
     public static Thing merge(Thing thing, ThingDTO updatedContents) {
 
-        ThingBuilder builder = ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
+        GenericThingBuilder<?> builder;
+
+        if (thing instanceof Bridge) {
+            builder = BridgeBuilder.create(thing.getThingTypeUID(), thing.getUID());
+        } else {
+            builder = ThingBuilder.create(thing.getThingTypeUID(), thing.getUID());
+        }
 
         // Update the label
         if (updatedContents.label != null) {
@@ -141,6 +151,17 @@ public class ThingHelper {
             builder.withChannels(thing.getChannels());
         }
 
-        return builder.build();
+        Thing mergedThing = builder.build();
+
+        // keep all child things in place on a merged bridge
+        if (mergedThing instanceof BridgeImpl && thing instanceof Bridge) {
+            Bridge bridge = (Bridge) thing;
+            BridgeImpl mergedBridge = (BridgeImpl) mergedThing;
+            for (Thing child : bridge.getThings()) {
+                mergedBridge.addThing(child);
+            }
+        }
+
+        return mergedThing;
     }
 }
