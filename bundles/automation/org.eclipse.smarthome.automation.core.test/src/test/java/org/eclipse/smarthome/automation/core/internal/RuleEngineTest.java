@@ -148,6 +148,39 @@ public class RuleEngineTest {
     }
 
     /**
+     * test get rules by tags
+     */
+    @Test
+    public void testGetRuleByTags() {
+        RuleEngine ruleEngine = createRuleEngine();
+
+        Rule rule1 = new Rule("rule1", null, null, null, null, null);
+        Set<String> ruleTags = new LinkedHashSet<String>();
+        ruleTags.add("tag1");
+        rule1.setTags(ruleTags);
+        ruleEngine.addRule(rule1, true);
+
+        Rule rule2 = new Rule("rule2", null, null, null, null, null);
+        Set<String> ruleTags2 = new LinkedHashSet<String>();
+        ruleTags2.add("tag1");
+        ruleTags2.add("tag2");
+        rule2.setTags(ruleTags2);
+        ruleEngine.addRule(rule2, true);
+
+        Collection<Rule> rules = ruleEngine.getRulesByTags(null);
+        Assert.assertNotNull("Cannot find rule by set of tags: <tag1> ", rules);
+        Assert.assertEquals("Collection of rules doesn't contains both rules.", 2, rules.size());
+
+        rules = ruleEngine.getRulesByTags(ruleTags);
+        Assert.assertNotNull("Cannot find rule by set of tags: <tag1> ", rules);
+        Assert.assertEquals("Collection of rules doesn't contains both rules.", 2, rules.size());
+
+        rules = ruleEngine.getRulesByTags(ruleTags2);
+        Assert.assertNotNull("Cannot find rule by set of tags: <tag1, tag2> ", rules);
+        Assert.assertEquals("Collection of rules has to contain only rule2.", 1, rules.size());
+    }
+
+    /**
      * test rule configurations with null
      */
     @Test

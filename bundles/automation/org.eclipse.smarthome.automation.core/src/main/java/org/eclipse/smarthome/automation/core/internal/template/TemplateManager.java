@@ -99,14 +99,10 @@ public class TemplateManager implements ServiceTrackerCustomizer {
                 for (Iterator<T> it = templates.iterator(); it.hasNext();) {
                     T t = it.next();
                     if (tags != null) {
-                        Collection<String> rTags = t.getTags();
-                        if (rTags != null) {
-                            for (Iterator<String> itt = rTags.iterator(); itt.hasNext();) {
-                                String tag = itt.next();
-                                if (tags.contains(tag)) {
-                                    result.add(t);
-                                    break;
-                                }
+                        Collection<String> tTags = t.getTags();
+                        if (tTags != null) {
+                            if (tTags.containsAll(tags)) {
+                                result.add(t);
                             }
                         }
                     } else {
