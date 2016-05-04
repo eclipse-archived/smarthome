@@ -79,7 +79,7 @@ var paths = {
 
 
 gulp.task('default', ['build','inject']);
-gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs', 'copyStatic', 'copyPartials']);
+gulp.task('build', ['uglify', 'concat', 'copyCSSLibs', 'copyFontLibs', 'copyJSLibs','copyJQUI', 'copyStatic', 'copyPartials']);
 
 gulp.task('uglify', function () {
     return gulp.src(paths.scripts)
