@@ -96,7 +96,7 @@
 
   <feature name="esh-binding-digitalstrom" version="${project.version}">
     <feature>esh-base</feature>
-    <feature>esh-io-transport-jmdns</feature>
+    <feature>esh-io-transport-mdns</feature>
     <bundle>mvn:org.eclipse.smarthome.binding/org.eclipse.smarthome.binding.digitalstrom/${project.version}</bundle>
   </feature>
 
