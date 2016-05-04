@@ -10,11 +10,16 @@ package org.eclipse.smarthome.binding.sonos.internal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +33,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
 /**
  * The {@link SonosXMLParser} is a class of helper functions
  * to parse XML data returned by the Zone Players
- *
- * @author David Wheeler - Initial contribution
+ * 
+ * @author Karel Goderis - Initial contribution
  */
 public class SonosXMLParser {
 
@@ -114,7 +119,7 @@ public class SonosXMLParser {
     /**
      * Returns the meta data which is needed to play Pandora
      * (and others?) favorites
-     *
+     * 
      * @param xml
      * @return The value of the desc xml tag
      * @throws SAXException
@@ -311,9 +316,6 @@ public class SonosXMLParser {
                 case RESMD:
                     desc.append(ch, start, length);
                     break;
-                case DESC:
-                    desc.append(ch, start, length);
-                    break;
                 // no default
             }
         }
@@ -402,6 +404,7 @@ public class SonosXMLParser {
                     break;
                 case DESC:
                     desc.append(ch, start, length);
+                    ;
                     break;
                 default:
                     break;
@@ -507,6 +510,7 @@ public class SonosXMLParser {
 
         private final List<SonosZoneGroup> groups = new ArrayList<SonosZoneGroup>();
         private final List<String> currentGroupPlayers = new ArrayList<String>();
+        private final List<String> currentGroupPlayerZones = new ArrayList<String>();
         private String coordinator;
         private String groupId;
 
@@ -518,19 +522,38 @@ public class SonosXMLParser {
                 coordinator = attributes.getValue("Coordinator");
             } else if (qName.equals("ZoneGroupMember")) {
                 currentGroupPlayers.add(attributes.getValue("UUID"));
+                String zoneName = attributes.getValue("ZoneName");
+                if (zoneName != null) {
+                    currentGroupPlayerZones.add(zoneName);
+                }
+                String htInfoSet = attributes.getValue("HTSatChanMapSet");
+                if (htInfoSet != null) {
+                    currentGroupPlayers.addAll(getAllHomeTheaterMembers(htInfoSet));
+                }
             }
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             if (qName.equals("ZoneGroup")) {
-                groups.add(new SonosZoneGroup(groupId, coordinator, currentGroupPlayers));
+                groups.add(new SonosZoneGroup(groupId, coordinator, currentGroupPlayers, currentGroupPlayerZones));
                 currentGroupPlayers.clear();
+                currentGroupPlayerZones.clear();
             }
         }
 
         public List<SonosZoneGroup> getGroups() {
             return groups;
+        }
+
+        private Set<String> getAllHomeTheaterMembers(String homeTheaterDescription) {
+            Set<String> homeTheaterMembers = new HashSet<String>();
+            Matcher matcher = Pattern.compile("(RINCON_\\w+)").matcher(homeTheaterDescription);
+            while (matcher.find()) {
+                String member = matcher.group();
+                homeTheaterMembers.add(member);
+            }
+            return homeTheaterMembers;
         }
     }
 
@@ -560,7 +583,7 @@ public class SonosXMLParser {
         private final List<String> textFields = new ArrayList<String>();
         private String textField;
         private String type;
-        // private String logo;
+        private String logo;
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -738,9 +761,6 @@ public class SonosXMLParser {
                     case albumArtist:
                         albumArtist.append(ch, start, length);
                         break;
-                    case desc:
-                        break;
-                    // no default
                 }
             }
         }
@@ -798,6 +818,100 @@ public class SonosXMLParser {
             return changes;
         }
 
+    }
+
+    public static String getRoomName(String descriptorXML) {
+        RoomNameHandler roomNameHandler = new RoomNameHandler();
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(roomNameHandler);
+            URL url = new URL(descriptorXML);
+            reader.parse(new InputSource(url.openStream()));
+        } catch (IOException | SAXException e) {
+            logger.error("Could not parse Sonos room name from string '{}", descriptorXML);
+        }
+        return roomNameHandler.getRoomName();
+    }
+
+    static private class RoomNameHandler extends DefaultHandler {
+
+        private String roomName;
+        private boolean roomNameTag;
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            if ("roomName".equalsIgnoreCase(localName)) {
+                roomNameTag = true;
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (roomNameTag) {
+                roomName = new String(ch, start, length);
+                roomNameTag = false;
+            }
+        }
+
+        public String getRoomName() {
+            return roomName;
+        }
+    }
+
+    public static String parseModelDescription(URL descriptorURL) {
+        ModelNameHandler modelNameHandler = new ModelNameHandler();
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(modelNameHandler);
+            URL url = new URL(descriptorURL.toString());
+            reader.parse(new InputSource(url.openStream()));
+        } catch (IOException | SAXException e) {
+            logger.error("Could not parse Sonos model name from string '{}", descriptorURL.toString());
+        }
+        return modelNameHandler.getModelName();
+    }
+
+    static private class ModelNameHandler extends DefaultHandler {
+
+        private String modelName;
+        private boolean modelNameTag;
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            if ("modelName".equalsIgnoreCase(localName)) {
+                modelNameTag = true;
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (modelNameTag) {
+                modelName = new String(ch, start, length);
+                modelNameTag = false;
+            }
+        }
+
+        public String getModelName() {
+            return modelName;
+        }
+    }
+
+    /**
+     * The model name provided by upnp is formated like in the example form "Sonos PLAY:1" or "Sonos PLAYBAR"
+     * 
+     * @param sonosModelName Sonos model name provided via upnp device
+     * @return the extracted players model name without column (:) character used for ThingType creation
+     */
+    public static String extractModelName(String sonosModelName) {
+        //
+        Matcher matcher = Pattern.compile("\\s(.*)").matcher(sonosModelName);
+        if (matcher.find()) {
+            sonosModelName = matcher.group(1);
+        }
+        if (sonosModelName.contains(":")) {
+            sonosModelName = sonosModelName.replace(":", "");
+        }
+        return sonosModelName;
     }
 
     public static String compileMetadataString(SonosEntry entry) {

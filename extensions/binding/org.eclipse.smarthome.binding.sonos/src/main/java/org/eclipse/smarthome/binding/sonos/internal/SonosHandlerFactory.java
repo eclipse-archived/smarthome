@@ -29,47 +29,44 @@ import org.eclipse.smarthome.io.transport.upnp.UpnpIOService;
 
 import com.google.common.collect.Lists;
 
-
 /**
- * The {@link SonosHandlerFactory} is responsible for creating things and thing 
+ * The {@link SonosHandlerFactory} is responsible for creating things and thing
  * handlers.
  * 
  * @author Karel Goderis - Initial contribution
  */
 public class SonosHandlerFactory extends BaseThingHandlerFactory {
-	
-	private Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
-    
-	private UpnpIOService upnpIOService;
-	private DiscoveryServiceRegistry discoveryServiceRegistry;
 
-	// optional OPML URL that can be configured through configuration admin 
-	private String opmlUrl = null;
-	
-    private final static Collection<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = Lists.newArrayList(ZONEPLAYER_THING_TYPE_UID);
-    
+    private Logger logger = LoggerFactory.getLogger(SonosHandlerFactory.class);
+
+    private UpnpIOService upnpIOService;
+    private DiscoveryServiceRegistry discoveryServiceRegistry;
+
+    // optional OPML URL that can be configured through configuration admin
+    private String opmlUrl = null;
+
     protected void activate(ComponentContext componentContext) {
-    	super.activate(componentContext);
-    	Dictionary<String, Object> properties = componentContext.getProperties();
-		opmlUrl = (String) properties.get("opmlUrl");
+        super.activate(componentContext);
+        Dictionary<String, Object> properties = componentContext.getProperties();
+        opmlUrl = (String) properties.get("opmlUrl");
     };
-    
-    @Override
-    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration,
-            ThingUID thingUID, ThingUID bridgeUID) {
 
-        if (ZONEPLAYER_THING_TYPE_UID.equals(thingTypeUID)) {
-            ThingUID sonosPlayerUID = getPlayerUID(thingTypeUID, thingUID, configuration);
-            logger.debug("Creating a sonos zone player thing with ID '{}'",sonosPlayerUID);
-            return super.createThing(thingTypeUID, configuration, sonosPlayerUID,null);
+    @Override
+    public Thing createThing(ThingTypeUID thingTypeUID, Configuration configuration, ThingUID thingUID,
+            ThingUID bridgeUID) {
+
+        if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
+            ThingUID sonosDeviceUID = getPlayerUID(thingTypeUID, thingUID, configuration);
+            logger.debug("Creating a sonos thing with ID '{}'", sonosDeviceUID);
+            return super.createThing(thingTypeUID, configuration, sonosDeviceUID, null);
         }
-        throw new IllegalArgumentException("The thing type " + thingTypeUID
-                + " is not supported by the sonos binding.");
+        throw new IllegalArgumentException(
+                "The thing type " + thingTypeUID + " is not supported by the sonos binding.");
     }
-    
-    
+
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
     }
 
@@ -78,43 +75,40 @@ public class SonosHandlerFactory extends BaseThingHandlerFactory {
 
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
-        if (thingTypeUID.equals(ZONEPLAYER_THING_TYPE_UID)) {
-        	logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'",thing.getUID(),thing.getConfiguration().get(UDN));
+        if (SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID)) {
+            logger.debug("Creating a ZonePlayerHandler for thing '{}' with UDN '{}'", thing.getUID(),
+                    thing.getConfiguration().get(UDN));
             return new ZonePlayerHandler(thing, upnpIOService, discoveryServiceRegistry, opmlUrl);
         }
 
         return null;
     }
-    
-    
-    private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID,
-            Configuration configuration) {
-    	
+
+    private ThingUID getPlayerUID(ThingTypeUID thingTypeUID, ThingUID thingUID, Configuration configuration) {
+
         String udn = (String) configuration.get(UDN);
 
         if (thingUID == null) {
             thingUID = new ThingUID(thingTypeUID, udn);
         }
-        
+
         return thingUID;
     }
-    
-	protected void setUpnpIOService(UpnpIOService upnpIOService) {
-		this.upnpIOService = upnpIOService;
-	}
 
-	protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
-		this.upnpIOService = null;
-	}
-    
+    protected void setUpnpIOService(UpnpIOService upnpIOService) {
+        this.upnpIOService = upnpIOService;
+    }
+
+    protected void unsetUpnpIOService(UpnpIOService upnpIOService) {
+        this.upnpIOService = null;
+    }
+
     protected void setDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
         this.discoveryServiceRegistry = discoveryServiceRegistry;
     }
-    
+
     protected void unsetDiscoveryServiceRegistry(DiscoveryServiceRegistry discoveryServiceRegistry) {
-    	this.discoveryServiceRegistry = null;
+        this.discoveryServiceRegistry = null;
     }
 
-
 }
-

@@ -10,16 +10,16 @@ package org.eclipse.smarthome.binding.sonos.internal;
 
 /**
  * The {@link SonosZoneGroup} is data structure to describe
- * state of a Zone Player 
+ * state of a Zone Player
  * 
  * @author Karel Goderis - Initial contribution
  */
 public class SonosZonePlayerState {
 
-	public String transportState;
-	public String volume;
-	public String relTime;
-	public SonosEntry entry;
-	public long track;
-	
+    public String transportState;
+    public String volume;
+    public String relTime;
+    public SonosEntry entry;
+    public long track;
+
 }
