@@ -264,7 +264,8 @@ public class ConfigDispatcher extends AbstractWatchService {
             if (configuration != null) {
                 Dictionary configProperties = configMap.get(configuration);
                 if (configProperties == null) {
-                    configProperties = new Properties();
+                    configProperties = configuration.getProperties() != null ? configuration.getProperties()
+                            : new Properties();
                     configMap.put(configuration, configProperties);
                 }
                 if (!value.equals(configProperties.get(property))) {
