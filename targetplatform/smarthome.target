@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="SmartHome" sequenceNumber="95">
+<?pde version="3.8"?><target name="SmartHome" sequenceNumber="96">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.inject" version="3.0.0.v201312141243"/>
@@ -139,7 +139,7 @@
 <unit id="com.jayway.jsonpath.json-path" version="2.0.0"/>
 <unit id="net.minidev.asm" version="1.0.2"/>
 <unit id="net.minidev.json-smart" version="2.1.1"/>
-<repository location="https://eclipse.github.io/smarthome/third-party/target/repository"/>
+<repository location="http://eclipse.github.io/smarthome/third-party/target/repository"/>
 </location>
 </locations>
 </target>
