@@ -53,7 +53,7 @@ class InboxResourceOSGITest extends OSGiTest {
             approve :{ thingUID, label -> return testThing }
         ] as Inbox
         resource.setInbox(inbox)
-        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel, false)
+        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel)
         assertTrue reponse.getStatusInfo() == Status.OK
     }
 
@@ -65,7 +65,7 @@ class InboxResourceOSGITest extends OSGiTest {
             }
         ] as Inbox
         resource.setInbox(inbox)
-        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel, false)
+        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel)
         assertTrue reponse.getStatusInfo() == Status.NOT_FOUND
     }
 }

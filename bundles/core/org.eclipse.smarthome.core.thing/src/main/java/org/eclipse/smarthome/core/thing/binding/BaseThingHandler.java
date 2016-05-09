@@ -528,7 +528,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected boolean isLinked(String channelId) {
         Channel channel = thing.getChannel(channelId);
         if (channel != null) {
-            return !linkRegistry.getLinks(channel.getUID()).isEmpty();
+            return linkRegistry != null ? !linkRegistry.getLinks(channel.getUID()).isEmpty() : false;
         } else {
             throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
         }
