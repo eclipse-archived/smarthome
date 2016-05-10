@@ -56,7 +56,6 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
-import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
@@ -192,7 +191,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
                 // update status of child-things
                 updateThingStatus(thingStatus, bridge);
                 // notify child-things about bridge status change, if bridge status is ONLINE/OFFLINE
-                if(!oldStatusInfo.equals(thingStatus)) {
+                if (!oldStatusInfo.equals(thingStatus)) {
                     notifyThingsAboutBridgeStatusChange(thingStatus, bridge);
                 }
             }
@@ -601,7 +600,13 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     }
 
     private void initializeHandler(final Thing thing) {
-        if (isInitializable(thing)) {
+        ThingType thingType = thingTypeRegistry.getThingType(thing.getThingTypeUID());
+        if (thingType != null) {
+            ThingFactoryHelper.applyDefaultConfiguration(thing.getConfiguration(), thingType,
+                    configDescriptionRegistry);
+        }
+
+        if (isInitializable(thing, thingType)) {
             ThingStatusInfo statusInfo = buildStatusInfo(ThingStatus.INITIALIZING, ThingStatusDetail.NONE);
             setThingStatus(thing, statusInfo);
             initializeHandler(thing, thing.getHandler());
@@ -613,10 +618,8 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         }
     }
 
-    private boolean isInitializable(Thing thing) {
+    private boolean isInitializable(Thing thing, ThingType thingType) {
         // determines if all 'required' configuration parameters are available in the configuration
-
-        ThingType thingType = TypeResolver.resolve(thing.getThingTypeUID());
         if (thingType == null) {
             return true;
         }
@@ -806,7 +809,7 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
             }
         }
     }
-    
+
     private void notifyThingsAboutBridgeStatusChange(final ThingStatusInfo bridgeStatus, final Bridge bridge) {
         if (bridgeStatus.getStatus() == ThingStatus.ONLINE || bridgeStatus.getStatus() == ThingStatus.OFFLINE) {
 
