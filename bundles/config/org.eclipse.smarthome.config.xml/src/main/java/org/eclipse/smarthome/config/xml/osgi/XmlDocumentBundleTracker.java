@@ -14,9 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
+import org.eclipse.smarthome.core.thing.BundleProcessor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.BundleTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,10 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     private final AbstractAsyncBundleProcessor asyncLoader;
 
+    private BundleContext bundleContext;
+
+    private ServiceRegistration asyncLoaderRegistration;
+
     /**
      * Creates a new instance of this class with the specified parameters.
      *
@@ -71,6 +77,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
                     throws IllegalArgumentException {
 
         super(bundleContext, Bundle.ACTIVE, null);
+        this.bundleContext = bundleContext;
 
         if (bundleContext == null) {
             throw new IllegalArgumentException("The BundleContext must not be null!");
@@ -141,12 +148,17 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
     @Override
     public final synchronized void open() {
         super.open();
+        asyncLoaderRegistration = bundleContext.registerService(BundleProcessor.class.getName(), asyncLoader, null);
     }
 
     @Override
     public final synchronized void close() {
         super.close();
         this.bundleDocumentProviderMap.clear();
+        if (asyncLoaderRegistration != null) {
+            asyncLoaderRegistration.unregister();
+            asyncLoaderRegistration = null;
+        }
     }
 
     private XmlDocumentProvider<T> acquireXmlDocumentProvider(Bundle bundle) {
