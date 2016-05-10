@@ -12,7 +12,7 @@
             <xs:sequence>
                 <xs:element name="name" type="xs:string"/>
                 <xs:element name="description" type="xs:string" minOccurs="0"/>
-                <xs:element name="author" type="xs:string"/>
+                <xs:element name="author" type="xs:string" minOccurs="0"/>
                 <xs:element name="service-id" type="xs:string" minOccurs="0"/>
                 <xs:choice minOccurs="0">
                     <xs:element name="config-description" type="config-description:configDescription"/>

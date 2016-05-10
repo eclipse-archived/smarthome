@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * This converter converts {@code binding} XML tags.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Andre Fuechsel - Made author tag optional
  */
 public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResult> {
 
@@ -90,7 +91,7 @@ public class BindingInfoConverter extends GenericUnmarshaller<BindingInfoXmlResu
 
         String name = (String) nodeIterator.nextValue("name", true);
         String description = (String) nodeIterator.nextValue("description", false);
-        String author = (String) nodeIterator.nextValue("author", true);
+        String author = (String) nodeIterator.nextValue("author", false);
         String serviceId = (String) nodeIterator.nextValue("service-id", false);
 
         URI configDescriptionURI = readConfigDescriptionURI(nodeIterator);
