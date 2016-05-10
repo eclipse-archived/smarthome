@@ -18,6 +18,7 @@ import java.net.URI;
  * <b>Hint:</b> This class is immutable.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Andre Fuechsel - Made author tag optional
  */
 public class BindingInfo {
 
@@ -53,10 +54,6 @@ public class BindingInfo {
 
         if ((name == null) || (name.isEmpty())) {
             throw new IllegalArgumentException("The name must neither be null nor empty!");
-        }
-
-        if ((author == null) || (author.isEmpty())) {
-            throw new IllegalArgumentException("The author must neither be null nor empty!");
         }
 
         this.id = id;
@@ -98,7 +95,7 @@ public class BindingInfo {
     /**
      * Returns the author of the binding (e.g. "Max Mustermann").
      *
-     * @return the author of the binding (neither null, nor empty)
+     * @return the author of the binding (could be null or empty)
      */
     public String getAuthor() {
         return this.author;
