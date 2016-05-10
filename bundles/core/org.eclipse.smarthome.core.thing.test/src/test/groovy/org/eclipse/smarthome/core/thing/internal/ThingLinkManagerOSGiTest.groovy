@@ -36,6 +36,7 @@ import org.eclipse.smarthome.core.thing.type.ChannelType
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID
 import org.eclipse.smarthome.core.thing.type.ThingType
+import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.StateDescription
 import org.eclipse.smarthome.core.types.StateOption
@@ -167,6 +168,7 @@ class ThingLinkManagerOSGiTest extends OSGiTest{
             thingManger.setThingRegistry(getService(ThingRegistry))
             thingManger.setItemChannelLinkRegistry(getService(ItemChannelLinkRegistry))
             thingManger.setItemThingLinkRegistry(getService(ItemThingLinkRegistry))
+            thingManger.setThingTypeRegistry(getService(ThingTypeRegistry))
             thingManger.activate(componentContext)
 
             def channels = thing.getChannels()
