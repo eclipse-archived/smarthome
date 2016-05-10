@@ -61,7 +61,7 @@
               <goal>gulp</goal>
             </goals>
             <configuration>
-              <arguments>build</arguments>
+              <arguments>default</arguments>
             </configuration>
           </execution>
 
