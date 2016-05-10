@@ -142,7 +142,11 @@ public interface ThingHandler {
      *            thing handler of the bridge
      * @param bridge
      *            bridge
+     *
+     * @deprecated This method will be removed soon. Please use
+     *             {@link ThingHandler#bridgeStatusChanged(ThingStatusInfo)} instead.
      */
+    @Deprecated
     void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge);
 
     /**
@@ -154,7 +158,11 @@ public interface ThingHandler {
      *            thing handler of the bridge
      * @param bridge
      *            bridge
+     *
+     * @deprecated This method will be removed soon. Please use
+     *             {@link ThingHandler#bridgeStatusChanged(ThingStatusInfo)} instead.
      */
+    @Deprecated
     void bridgeHandlerDisposed(ThingHandler thingHandler, Bridge bridge);
 
     /**
