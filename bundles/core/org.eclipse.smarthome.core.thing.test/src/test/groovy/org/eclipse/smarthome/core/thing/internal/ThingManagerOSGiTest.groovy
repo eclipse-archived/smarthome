@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.thing.BundleProcessor
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
@@ -36,6 +37,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingStatusInfo
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
+import org.eclipse.smarthome.core.thing.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -58,6 +60,7 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.framework.Bundle
 import org.osgi.service.component.ComponentContext
 
 import com.google.common.collect.Sets
@@ -669,7 +672,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: { callbackArg -> callback = callbackArg },
             initialize: { initializedCalled = true},
-            dispose: {}
+            getThing: {-> return thing},
+            dispose: {
+            }
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -704,7 +709,65 @@ class ThingManagerOSGiTest extends OSGiTest {
         // ThingHandler.initialize() called, thing status is ONLINE.NONE
         waitForAssert({
         assertThat initializedCalled, is(true)
+            assertThat initializedCalled, is(true)
+            assertThat thing.getStatusInfo(), is(statusInfo)
+        }, 4000)
+    }
+
+    @Test
+    void 'ThingManager waits with initialize until bundle processing is finished'() {
+        registerThingTypeProvider()
+
+        ThingHandlerCallback callback;
+        def initializedCalled = false;
+        def thing = ThingBuilder.create(new ThingUID("binding:type:thingId")).build()
+        def thingHandler = [
+            setCallback: { callbackArg -> callback = callbackArg },
+            initialize: { initializedCalled = true},
+            getThing: {-> return thing},
+            dispose: {
+            }
+        ] as ThingHandler
+
+        def thingHandlerFactory = [
+            supportsThingType: {ThingTypeUID thingTypeUID -> true},
+            registerHandler: {thingArg, handlerCallback ->
+                registerService(thingHandler,[
+                    (ThingHandler.SERVICE_PROPERTY_THING_ID): thing.getUID(),
+                    (ThingHandler.SERVICE_PROPERTY_THING_TYPE): thing.getThingTypeUID()
+                ] as Hashtable)},
+            unregisterHandler: {},
+            removeThing: {
+            }
+        ] as ThingHandlerFactory
+        registerService(thingHandlerFactory)
+
+        boolean finished = false;
+        BundleProcessorListener listener = null;
+        Bundle bundle = ["getSymbolicName": {-> return "test"}] as Bundle;
+        def bundleProcessor = [
+            "isFinishedLoading": { object -> if (finished) return null else return bundle },
+            "registerListener": {l -> listener = l},
+            "unregisterListener": {l -> listener = null}
+        ] as BundleProcessor
+        registerService(bundleProcessor)
+
+        def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build()
         assertThat thing.getStatusInfo(), is(statusInfo)
+
+        managedThingProvider.add(thing)
+
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+        assertThat initializedCalled, is(false)
+        assertThat thing.getStatusInfo(), is(statusInfo)
+
+        finished = true;
+        listener.bundleFinished(bundleProcessor, bundle)
+
+        // ThingHandler.initialize() called, thing status is ONLINE.NONE
+        waitForAssert({
+            assertThat initializedCalled, is(true)
+            assertThat thing.getStatusInfo(), is(statusInfo)
         }, 4000)
     }
 
