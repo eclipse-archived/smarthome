@@ -97,7 +97,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.getMinText = function(item) {
-        if (!item.stateDescription || !item.stateDescription.minimum) {
+        if (!item.stateDescription || isNaN(item.stateDescription.minimum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
             return item.stateDescription.minimum;
@@ -107,7 +107,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.getMaxText = function(item) {
-        if (!item.stateDescription || !item.stateDescription.maximum) {
+        if (!item.stateDescription || isNaN(item.stateDescription.maximum)) {
             return '';
         } else if (!item.stateDescription.pattern) {
             return item.stateDescription.maximum;
