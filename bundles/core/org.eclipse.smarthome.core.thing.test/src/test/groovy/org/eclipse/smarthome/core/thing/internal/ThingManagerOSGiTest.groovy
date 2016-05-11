@@ -127,7 +127,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandlerFactory = [
             supportsThingType: {ThingTypeUID thingTypeUID -> true},
             registerHandler: { Thing thing, ThingHandlerCallback callback ->
-                def thingHandler = {setCallback: {}} as ThingHandler
+                def thingHandler = [
+                    setCallback: {},
+                    getThing: {return THING}
+                ] as ThingHandler
                 registerService(thingHandler,[
                     (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
                     (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
@@ -203,7 +206,9 @@ class ThingManagerOSGiTest extends OSGiTest {
             thingUpdated: { thingUpdatedWasCalled = true },
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            },
+            getThing: {return THING}
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -323,6 +328,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             setCallback: {},
             initialize: {},
             dispose: {},
+            getThing: {return THING}
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -340,12 +346,16 @@ class ThingManagerOSGiTest extends OSGiTest {
         assertThat THING.statusInfo, is(statusInfo)
 
         managedThingProvider.add(THING)
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
-        assertThat THING.statusInfo, is(statusInfo)
+        waitForAssert({
+            statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
+            assertThat THING.statusInfo, is(statusInfo)
+        })
 
         unregisterService(THING.getHandler())
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
-        assertThat THING.statusInfo, is(statusInfo)
+        waitForAssert({
+            statusInfo = ThingStatusInfoBuilder.create(ThingStatus.UNINITIALIZED, ThingStatusDetail.HANDLER_MISSING_ERROR).build()
+            assertThat THING.statusInfo, is(statusInfo)
+        })
     }
 
     @Test
@@ -536,7 +546,9 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            },
+            getThing: {return THING}
         ] as ThingHandler
 
         def thingHandlerFactory = [
