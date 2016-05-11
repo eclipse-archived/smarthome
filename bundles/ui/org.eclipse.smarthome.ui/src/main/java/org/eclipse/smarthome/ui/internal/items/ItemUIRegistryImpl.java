@@ -25,6 +25,7 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.library.items.CallItem;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
@@ -223,6 +224,9 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
             return SitemapFactory.eINSTANCE.createText();
         }
         if (itemType.equals(LocationItem.class)) {
+            return SitemapFactory.eINSTANCE.createText();
+        }
+        if (itemType.equals(CallItem.class)) {
             return SitemapFactory.eINSTANCE.createText();
         }
         if (itemType.equals(DimmerItem.class)) {
