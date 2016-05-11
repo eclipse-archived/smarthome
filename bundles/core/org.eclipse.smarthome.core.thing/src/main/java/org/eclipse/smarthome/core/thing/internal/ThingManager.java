@@ -672,26 +672,26 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         for (BundleProcessor proc : bundleProcessors) {
             bundle = proc.isFinishedLoading(thingHandler);
             if (bundle != null) {
-                logger.debug("##### Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
+                logger.trace("Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
                 initializerVetoes.put(bundle, proc);
                 if (!initializerQueue.containsEntry(bundle, thingHandler)) {
-                    logger.debug("##### Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
+                    logger.trace("Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
                     initializerQueue.put(bundle.getSymbolicName(), thingHandler);
                 }
             }
         }
         if (bundle != null) {
             logger.debug(
-                    "##### Meta-data of bundle '{}' is not fully loaded ({}), deferring handler initialization for thing '{}'",
+                    "Meta-data of bundle '{}' is not fully loaded ({}), deferring handler initialization for thing '{}'",
                     bundle.getSymbolicName(), initializerVetoes.get(bundle), thingHandler.getThing().getUID());
             return;
         }
-        logger.debug("##### All data has been loaded, going to initialize '{}'.", thingHandler.getThing().getUID());
+        logger.debug("All data has been loaded, going to initialize '{}'.", thingHandler.getThing().getUID());
         scheduler.schedule(new Runnable() {
             @Override
             public void run() {
-                logger.debug("##### Calling initialize handler for thing '{}' at '{}'.",
-                        thingHandler.getThing().getUID(), thingHandler);
+                logger.debug("Calling initialize handler for thing '{}' at '{}'.", thingHandler.getThing().getUID(),
+                        thingHandler);
                 try {
                     SafeMethodCaller.call(new SafeMethodCaller.ActionWithException<Void>() {
                         @Override
@@ -717,15 +717,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
 
     @Override
     public void bundleFinished(BundleProcessor context, Bundle bundle) {
-        logger.debug("##### '{}' finished loading meta-data of bundle '{}'", context, bundle.getSymbolicName());
+        logger.debug("'{}' finished loading meta-data of bundle '{}'", context, bundle.getSymbolicName());
         initializerVetoes.remove(bundle, context);
-        logger.debug("##### '{}' still vetoed by '{}'", bundle.getSymbolicName(), initializerVetoes.get(bundle));
-        logger.debug("##### '{}' queued '{}'", bundle.getSymbolicName(),
-                initializerQueue.get(bundle.getSymbolicName()));
+        logger.trace("'{}' still vetoed by '{}'", bundle.getSymbolicName(), initializerVetoes.get(bundle));
+        logger.trace("'{}' queued '{}'", bundle.getSymbolicName(), initializerQueue.get(bundle.getSymbolicName()));
         if (initializerVetoes.get(bundle).isEmpty()) {
             synchronized (initializerQueue) {
                 for (ThingHandler thingHandler : initializerQueue.removeAll(bundle.getSymbolicName())) {
-                    logger.debug("##### Going to initialize '{}'", thingHandler.getThing().getUID());
+                    logger.trace("Going to initialize '{}'", thingHandler.getThing().getUID());
                     initializeHandler(thingHandler);
                 }
             }

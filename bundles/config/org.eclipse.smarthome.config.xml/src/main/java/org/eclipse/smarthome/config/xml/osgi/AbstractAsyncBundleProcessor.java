@@ -173,10 +173,10 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
     public Bundle isFinishedLoading(Object object) {
         Bundle bundle = getBundle(object.getClass());
         if (queue.contains(bundle)) {
-            logger.debug("##### Bundle {} is still loading", bundle.getSymbolicName());
+            logger.trace("Bundle {} is still loading", bundle.getSymbolicName());
             return bundle;
         } else {
-            logger.debug("##### Bundle {} is not currently loading", bundle.getSymbolicName());
+            logger.trace("Bundle {} is not currently loading", bundle.getSymbolicName());
             return null;
         }
     }
@@ -191,7 +191,7 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
 
         if (classLoader instanceof BundleReference) {
             Bundle bundle = ((BundleReference) classLoader).getBundle();
-            logger.debug("##### Bundle of {} is {}", classFromBundle, bundle.getSymbolicName());
+            logger.trace("Bundle of {} is {}", classFromBundle, bundle.getSymbolicName());
             return bundle;
         }
         return null;
