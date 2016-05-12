@@ -1,4 +1,4 @@
-angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService) {
+angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).controller('ExtensionPageController', function($scope, extensionService, bindingRepository, thingTypeRepository, eventService, toastService, $filter) {
     $scope.navigateTo = function(path) {
         $location.path('extensions/' + path);
     };
@@ -20,6 +20,9 @@ angular.module('PaperUI.controllers.extension', [ 'PaperUI.constants' ]).control
                     if (extensionType !== undefined) {
                         extensionType.extensions.push(extension);
                     }
+                });
+                angular.forEach($scope.extensionTypes, function(extensionType) {
+                    extensionType.extensions = $filter('orderBy')(extensionType.extensions, "label")
                 });
             });
         });
