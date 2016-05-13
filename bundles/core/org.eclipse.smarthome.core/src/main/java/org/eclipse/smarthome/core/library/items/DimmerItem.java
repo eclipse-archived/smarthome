@@ -51,7 +51,7 @@ public class DimmerItem extends SwitchItem {
         super(CoreItemFactory.DIMMER, name);
     }
 
-    /* package */DimmerItem(String type, String name) {
+    /* package */ DimmerItem(String type, String name) {
         super(type, name);
     }
 
@@ -79,6 +79,8 @@ public class DimmerItem extends SwitchItem {
             super.setState(PercentType.ZERO);
         } else if (state == OnOffType.ON) {
             super.setState(PercentType.HUNDRED);
+        } else if (state.getClass() == DecimalType.class) {
+            super.setState(new PercentType(((DecimalType) state).toBigDecimal().multiply(new BigDecimal(100))));
         } else {
             super.setState(state);
         }
@@ -96,8 +98,8 @@ public class DimmerItem extends SwitchItem {
             return state.equals(PercentType.ZERO) ? OnOffType.OFF : OnOffType.ON;
         } else if (typeClass == DecimalType.class) {
             if (state instanceof PercentType) {
-                return new DecimalType(((PercentType) state).toBigDecimal().divide(new BigDecimal(100), 8,
-                        RoundingMode.UP));
+                return new DecimalType(
+                        ((PercentType) state).toBigDecimal().divide(new BigDecimal(100), 8, RoundingMode.UP));
             }
         } else if (typeClass == PercentType.class) {
             if (state instanceof DecimalType) {
