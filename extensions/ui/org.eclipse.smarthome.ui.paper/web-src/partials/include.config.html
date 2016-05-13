@@ -7,9 +7,9 @@
 					<div ng-switch="parameter.element">
 						<div class="parameter col-sm-6 col-xs-12">
 							<div ng-switch-when="input">
-								<div ng-if="parameter.type=='INTEGER'">
+								<div ng-if="parameter.type=='INTEGER' || parameter.type=='DECIMAL'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" step="{{parameter.stepsize}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
 										<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
