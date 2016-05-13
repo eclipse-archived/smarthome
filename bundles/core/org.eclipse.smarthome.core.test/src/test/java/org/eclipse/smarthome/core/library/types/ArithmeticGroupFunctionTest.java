@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.library.types;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,7 @@ import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupFunction;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.library.items.DimmerItem;
+import org.eclipse.smarthome.core.library.items.NumberItem;
 import org.eclipse.smarthome.core.library.items.SwitchItem;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
@@ -201,6 +203,44 @@ public class ArithmeticGroupFunctionTest {
         assertEquals(new DecimalType("234.95"), state);
     }
 
+    @Test
+    public void testAvgFunction_dimmers() {
+        DimmerItem dimmer1 = new DimmerItem("TestDimmer1");
+        dimmer1.setState(new PercentType(100));
+        DimmerItem dimmer2 = new DimmerItem("TestDimmer2");
+        dimmer2.setState(new PercentType(0));
+
+        items.add(dimmer1);
+        items.add(dimmer2);
+
+        function = new ArithmeticGroupFunction.Avg();
+        State decimalState = function.getStateAs(items, DecimalType.class);
+
+        assertEquals(new DecimalType("50"), decimalState);
+    }
+
+    @Test
+    public void testAvgFunction_numbers() {
+        NumberItem number1 = new NumberItem("TestNumber1");
+        number1.setState(new DecimalType(0));
+        NumberItem number2 = new NumberItem("TestNumber2");
+        number2.setState(new DecimalType(25));
+        NumberItem number3 = new NumberItem("TestNumber3");
+        number3.setState(new DecimalType(75));
+        NumberItem number4 = new NumberItem("TestNumber4");
+        number4.setState(new DecimalType(100));
+
+        items.add(number1);
+        items.add(number2);
+        items.add(number3);
+        items.add(number4);
+
+        function = new ArithmeticGroupFunction.Avg();
+        State decimalState = function.getStateAs(items, DecimalType.class);
+
+        assertEquals(new DecimalType("50"), decimalState);
+    }
+
     class TestItem extends GenericItem {
 
         public TestItem(String name, State state) {
@@ -210,7 +250,7 @@ public class ArithmeticGroupFunctionTest {
 
         @Override
         public List<Class<? extends State>> getAcceptedDataTypes() {
-            return null;
+            return new ArrayList<Class<? extends State>>();
         }
 
         @Override
