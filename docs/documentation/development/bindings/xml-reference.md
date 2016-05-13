@@ -150,7 +150,7 @@ The following code gives an example for one configuration description.
 
 ## Binding Definitions
 
-Every binding has to provide meta information such as author or description. The meta information of all bindings is accessible through the `org.eclipse.smarthome.core.binding.BindingInfoRegistry` service.
+Every binding has to provide meta information such as binding id or name. The meta information of all bindings is accessible through the `org.eclipse.smarthome.core.binding.BindingInfoRegistry` service.
 
 Although binding definitions are usually specified in a declarative way (as described in this section), they can also be provided as `org.eclipse.smarthome.core.binding.BindingInfo`.
 Any `BindingInfo` must be registered as service at the *OSGi* service registry. The full Java API for binding definitions can be found in the Java package `org.eclipse.smarthome.core.binding`.
@@ -186,7 +186,7 @@ Binding definitions must be placed as XML file(s) (with the ending `.xml`) in th
   <tr><td>binding.id</td><td>An identifier for the binding (mandatory).</td></tr>
   <tr><td>name</td><td>A human-readable name for the binding (mandatory).</td></tr>
   <tr><td>description</td><td>A human-readable description for the binding (optional).</td></tr>
-  <tr><td>author</td><td>The author of the binding (mandatory).</td></tr>
+  <tr><td>author</td><td>The author of the binding (optional).</td></tr>
   <tr><td>service-id</td><td>The ID (service.pid or component.name) of the main binding service, which can be configured through OSGi configuration admin service. Should only be used in combination with a config description definition (optional).</td></tr>
   <tr><td>config-description</td><td>The configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
   <tr><td>config-description-ref</td><td>The reference to a configuration description for the binding within the ConfigDescriptionRegistry (optional).</td></tr>
