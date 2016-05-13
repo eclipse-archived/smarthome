@@ -47,6 +47,9 @@
     <feature dependency="true">http</feature>
     <feature dependency="true">esh-kat.cpy-jersey-min-2.22.2</feature>
     <bundle>mvn:com.eclipsesource.jaxrs/publisher/5.3.1</bundle>
+    <config name="com.eclipsesource.jaxrs.connector">
+        root=/rest
+    </config>
   </feature>
 
   <feature name="esh-kat.cpy-jersey-min-2.22.2" version="${project.version}">
@@ -73,13 +76,13 @@
     <bundle dependency="true">mvn:org.jvnet.mimepull/mimepull/1.9.6</bundle>
   </feature>
 
-  <feature name="esh-kat.cpy-swagger-jersey2-1.5.7" version="${project.version}">
+  <feature name="esh-kat.cpy-swagger-jersey2-1.5.8" version="${project.version}">
     <feature dependency="true">esh-kat.cpy-jersey-min-2.22.2</feature>
-    <bundle>mvn:de.maggu2810.thirdparty.modified.io.swagger/swagger-jersey2-jaxrs/1.5.7.v20160429-1435</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.7</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-core/1.5.7</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-jaxrs/1.5.7</bundle>
-    <bundle dependency="true">mvn:io.swagger/swagger-models/1.5.7</bundle>
+    <bundle>mvn:de.maggu2810.thirdparty.modified.io.swagger/swagger-jersey2-jaxrs/1.5.8.v20160511-1038</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-annotations/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-core/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-jaxrs/1.5.8</bundle>
+    <bundle dependency="true">mvn:io.swagger/swagger-models/1.5.8</bundle>
     <bundle dependency="true">mvn:de.maggu2810.thirdparty.modified.org.reflections/reflections/0.9.10.v20160429-1435</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.5</bundle>
     <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.4.5</bundle>
@@ -92,6 +95,7 @@
     <bundle dependency="true">mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/2.4.5</bundle>
     <bundle dependency="true">mvn:com.google.code.findbugs/annotations/2.0.1</bundle>
     <bundle dependency="true">mvn:com.google.guava/guava/18.0</bundle>
+    <bundle dependency="true">mvn:javax.validation/validation-api/1.1.0.Final</bundle>
     <bundle dependency="true">mvn:joda-time/joda-time/2.2</bundle>
     <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.2.1</bundle>
     <bundle dependency="true">mvn:org.codehaus.woodstox/stax2-api/3.1.4</bundle>
@@ -110,8 +114,13 @@
   <feature name="esh-tp-jax-rs-provider-swagger" version="${project.version}">
     <capability>esh.tp;feature=jax-rs-provider-swagger;version=1.1.1</capability>
     <feature dependency="true">esh-tp-jax-rs-min</feature>
-    <feature>esh-kat.cpy-swagger-jersey2-1.5.7</feature>
-    <bundle>mvn:com.eclipsesource.jaxrs/provider-swagger/1.1.1</bundle>
+    <feature>esh-kat.cpy-swagger-jersey2-1.5.8</feature>
+
+    <bundle>mvn:de.maggu2810.thirdparty.modified.com.eclipsesource.jaxrs/provider-swagger/1.1.1.201605111122</bundle>
+    <config name="com.eclipsesource.jaxrs.swagger.config">
+        swagger.basePath=/rest
+        swagger.info.title=Eclipse SmartHome REST API
+    </config>
   </feature>
 
   <feature name="esh-tp-jupnp" description=" UPnP/DLNA library for Java" version="${project.version}">
