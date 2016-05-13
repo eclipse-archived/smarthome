@@ -172,4 +172,39 @@
 			</div>
 		</div>
 	</div>
+
+	<div class="things white-bg" ng-if="page === 'items' && advancedMode" ng-controller="ItemSetupController">
+		<div class="header-toolbar">
+			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button class="md-fab" ng-click="navigateTo('item/create')" aria-label="Add Item"> <i class="material-icons">add</i></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<p class="text-center" ng-show="items.length == 0">
+				No items defined.
+				<button class="md-button" ng-click="navigateTo('item/create')">Add Items</button>
+			</p>
+			<div class="things">
+				<div class="clickable" ng-repeat="item in items | orderBy:'label'">
+					<div class="thing fab-item text-left">
+						<div class="circle"><img width="40" ng-src="{{getSrcURL(item.category,item.type)}}" onerror="this.style.display='none';this.className='itemIcon'"/><span class="itemIcon-text">{{item.label?item.label.substring(0,1).toUpperCase():item.name.substring(0,1).toUpperCase()}}</span></div>
+						<div class="cbody item-content">
+							<h3>{{item.label}}</h3>
+							<p>{{item.name}}</p>
+							<div class="actions">
+								<md-button ng-click="navigateTo('item/edit/' + item.name)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
+								<md-button ng-click="remove(item, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
+							</div>
+						</div>
+						<hr class="border-line" ng-show="!$last" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>

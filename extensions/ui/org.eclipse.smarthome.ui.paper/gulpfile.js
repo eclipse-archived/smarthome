@@ -188,6 +188,7 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/app.js',
                      './web-src/js/constants.js',
                      './web-src/js/controllers.configuration.js',
+                     './web-src/js/controllers.items.js',
                      './web-src/js/controllers.control.js',
                      './web-src/js/controllers.extension.js',
                      './web-src/js/controllers.js',

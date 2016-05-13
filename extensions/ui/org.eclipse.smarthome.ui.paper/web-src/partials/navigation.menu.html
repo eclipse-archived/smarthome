@@ -32,6 +32,9 @@
                     <li ng-class="{active: isSubActive('things')}">
                         <a href="#configuration/things">Things</a>
                     </li>
+                    <li ng-if="advancedMode" ng-class="{active: isSubActive('items')}">
+                        <a href="#configuration/items">Items</a>
+                    </li>
                 </ul>
             </li>
             <li ng-show="extensionEnabled" ng-class="{active: isActive('extensions'), hidden: isHidden('extensions')}">
