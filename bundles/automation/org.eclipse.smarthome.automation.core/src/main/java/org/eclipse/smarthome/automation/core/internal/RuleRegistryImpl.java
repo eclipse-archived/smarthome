@@ -8,7 +8,6 @@
 package org.eclipse.smarthome.automation.core.internal;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
@@ -37,7 +36,6 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     private RuleEngine ruleEngine;
     private Logger logger;
     private Storage<Boolean> disabledRulesStorage;
-    private boolean hasManagedRuleProvider;
 
     private static final String SOURCE = RuleRegistryImpl.class.getSimpleName();
 
@@ -49,84 +47,55 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     protected void addProvider(Provider<Rule> provider) {
-        if (provider instanceof ManagedRuleProvider) {
-            hasManagedRuleProvider = true;
-        }
-        Collection<Rule> rules = provider.getAll();
-        for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
-            Rule rule = it.next();
-            try {
-                String rUID = rule.getUID();
-                if (rUID != null && disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
-                    ruleEngine.addRule(rule, false);
-                } else {
-                    ruleEngine.addRule(rule, true);
-                }
-            } catch (Exception e) {
-                logger.error("Can't add rule: " + rule.getUID() + " into rule engine from provider " + provider, e);
-            }
-        }
+        logger.info("Rule provider: {} is added.", provider);
         super.addProvider(provider);
     }
 
     @Override
     protected void removeProvider(Provider<Rule> provider) {
-        Collection<Rule> rules = provider.getAll();
-        for (Iterator<Rule> it = rules.iterator(); it.hasNext();) {
-            Rule rule = it.next();
-            String uid = rule.getUID();
-            if (ruleEngine.removeRule(uid)) {
-                postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
-            }
-            if (disabledRulesStorage != null) {
-                disabledRulesStorage.remove(uid);
-            }
-        }
-        if (provider instanceof ManagedRuleProvider) {
-            hasManagedRuleProvider = false;
-        }
+        logger.info("Rule provider: {} is removed.", provider);
         super.removeProvider(provider);
     }
 
     @Override
-    public Rule add(Rule element) {
-        if (element == null) {
+    public Rule add(Rule rule) {
+        if (rule == null) {
             throw new IllegalArgumentException("The added rule must not be null!");
         }
-        String rUID = element.getUID();
-        Rule ruleToPersist;
-        if (rUID != null && disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
-            ruleToPersist = ruleEngine.addRule(element, false);
-        } else {
-            ruleToPersist = ruleEngine.addRule(element, true);
-        }
-        super.add(ruleToPersist);
-        postEvent(RuleEventFactory.createRuleAddedEvent(ruleToPersist, SOURCE));
-        return ruleToPersist;
+        String rUID = rule.getUID();
+        Rule ruleWithUID = (rUID == null) ? ruleEngine.initRuleId(rule) : rule;
+
+        super.add(ruleWithUID);
+        return ruleWithUID;
     }
 
     @Override
-    public Rule remove(String key) {
-        Rule rule = super.remove(key);
-        if (ruleEngine.removeRule(key)) {
+    protected void onAddElement(Rule rule) throws IllegalArgumentException {
+        try {
+            String rUID = rule.getUID();
+            if (rUID != null && disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
+                ruleEngine.addRule(rule, false);
+            } else {
+                ruleEngine.addRule(rule, true);
+            }
+            super.onAddElement(rule);
+            postEvent(RuleEventFactory.createRuleAddedEvent(rule, SOURCE));
+
+        } catch (Exception e) {
+            logger.error("Can't add rule: {}", rule.getUID(), e);
+        }
+    }
+
+    @Override
+    protected void onRemoveElement(Rule rule) {
+        String uid = rule.getUID();
+        if (ruleEngine.removeRule(uid)) {
             postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
         }
         if (disabledRulesStorage != null) {
-            disabledRulesStorage.remove(key);
+            disabledRulesStorage.remove(uid);
         }
-        return rule;
-    }
-
-    @Override
-    public Rule update(Rule element) {
-        Rule old = null;
-        if (element != null) {
-            old = super.update(element); // update storage with new rule and return old rule
-            if (old != null) {
-                onUpdateElement(old, element); // update memory map
-            }
-        }
-        return old;
+        super.onRemoveElement(rule);
     }
 
     @Override
