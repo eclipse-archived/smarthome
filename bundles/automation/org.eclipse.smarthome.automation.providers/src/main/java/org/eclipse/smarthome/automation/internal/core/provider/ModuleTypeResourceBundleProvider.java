@@ -183,8 +183,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                 ModuleType defModuleType = i.next();
                 if (defModuleType != null) {
                     ModuleType mt = getPerLocale(defModuleType, locale);
-                    if (mt != null)
+                    if (mt != null) {
                         moduleTypesList.add(mt);
+                    }
                 }
             }
         }
@@ -233,8 +234,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                 ModuleType providedObject = i.next();
                 if (providedObject != null) {
                     String uid = providedObject.getUID();
-                    if (checkExistence(uid))
+                    if (checkExistence(uid)) {
                         continue;
+                    }
                     if (portfolio != null) {
                         portfolio.add(uid);
                     }
@@ -245,9 +247,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
             }
             Dictionary<String, Object> properties = new Hashtable<String, Object>();
             properties.put(REG_PROPERTY_MODULE_TYPES, providedObjectsHolder.keySet());
-            if (mtpReg == null)
+            if (mtpReg == null) {
                 mtpReg = bc.registerService(ModuleTypeProvider.class.getName(), this, properties);
-            else {
+            } else {
                 mtpReg.setProperties(properties);
             }
         }
@@ -263,9 +265,8 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      */
     private boolean checkExistence(String uid) {
         if (moduleTypeRegistry.get(uid) != null) {
-            logger.error(
-                    "Module Type with UID \"" + uid + "\" already exists! Failed to create a second with the same UID!",
-                    new IllegalArgumentException());
+            logger.error("Module Type with UID \"{}\" already exists! Failed to create a second with the same UID!",
+                    uid, new IllegalArgumentException());
             return true;
         }
         return false;
@@ -279,8 +280,9 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
      * @return the localized {@link ModuleType}.
      */
     private ModuleType getPerLocale(ModuleType defModuleType, Locale locale) {
-        if (locale == null)
+        if (locale == null) {
             return defModuleType;
+        }
         String uid = defModuleType.getUID();
         Bundle bundle = getBundle(uid);
         String llabel = ModuleTypeI18nUtil.getLocalizedModuleTypeLabel(i18nProvider, bundle, uid,

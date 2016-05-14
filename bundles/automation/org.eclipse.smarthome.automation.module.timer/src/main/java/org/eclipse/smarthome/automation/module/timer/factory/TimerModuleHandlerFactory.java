@@ -54,10 +54,10 @@ public class TimerModuleHandlerFactory extends BaseModuleHandlerFactory {
             if (timerTriggerHandler == null) {
                 timerTriggerHandler = new TimerTriggerHandler((Trigger) module);
                 handlers.put(ruleUID + module.getId(), timerTriggerHandler);
-                return timerTriggerHandler;
-            } else {
-                logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
             }
+            return timerTriggerHandler;
+        } else {
+            logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
         }
         return null;
     }
