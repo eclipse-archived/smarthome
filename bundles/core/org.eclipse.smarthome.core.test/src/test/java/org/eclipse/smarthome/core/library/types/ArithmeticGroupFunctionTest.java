@@ -78,7 +78,7 @@ public class ArithmeticGroupFunctionTest {
     @Test
     public void testOrFunction_differntTypes() {
         DimmerItem dimmer1 = new DimmerItem("TestDimmer1");
-        dimmer1.setState(new DecimalType("42"));
+        dimmer1.setState(new PercentType("42"));
         DimmerItem dimmer2 = new DimmerItem("TestDimmer2");
         dimmer2.setState(new DecimalType("0"));
         SwitchItem switch1 = new SwitchItem("TestSwitch1");
