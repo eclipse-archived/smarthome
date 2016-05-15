@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.automation.integration.test;
+package org.eclipse.smarthome.automation.integration.test
 
 
 import static org.junit.Assert.*
@@ -38,6 +38,7 @@ import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.automation.type.TriggerType
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type
+import org.eclipse.smarthome.core.common.registry.ManagedProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -75,10 +76,11 @@ class AutomationIntegrationTest extends OSGiTest{
     def RuleRegistry ruleRegistry
     def ModuleTypeRegistry moduleTypeRegistry
     def TemplateRegistry templateRegistry
+    def ManagedProvider<Rule, String> ruleManagedProvider
 
     @Before
     void before() {
-        logger.info('@Before.begin');
+        logger.info('@Before.begin')
 
         getService(ItemRegistry)
         def itemProvider = [
@@ -120,6 +122,7 @@ class AutomationIntegrationTest extends OSGiTest{
         ruleRegistry = getService(RuleRegistry)
         moduleTypeRegistry = getService(ModuleTypeRegistry)
         templateRegistry = getService(TemplateRegistry)
+        ruleManagedProvider = getService(RuleProvider)
         waitForAssert ({
             assertThat eventPublisher, is(notNullValue())
             assertThat storageService, is(notNullValue())
@@ -127,22 +130,23 @@ class AutomationIntegrationTest extends OSGiTest{
             assertThat ruleRegistry, is(notNullValue())
             assertThat moduleTypeRegistry, is(notNullValue())
             assertThat templateRegistry, is(notNullValue())
+            assertThat ruleManagedProvider, is(notNullValue())
         }, 9000)
-        logger.info('@Before.finish');
+        logger.info('@Before.finish')
     }
 
     @After
     void after() {
-        logger.info('@After');
+        logger.info('@After')
     }
 
     protected void registerVolatileStorageService() {
-        registerService(AutomationIntegrationJsonTest.VOLATILE_STORAGE_SERVICE);
+        registerService(AutomationIntegrationJsonTest.VOLATILE_STORAGE_SERVICE)
     }
 
     @Test
     public void 'assert that a rule can be added, updated and removed by the api' () {
-        logger.info('assert that a rule can be added, updated and removed by the api');
+        logger.info('assert that a rule can be added, updated and removed by the api')
         def ruleEvent = null
 
         def ruleEventHandler = [
@@ -205,7 +209,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a rule with connections is executed' () {
-        logger.info('assert that a rule with connections is executed');
+        logger.info('assert that a rule with connections is executed')
         def triggerConfig = [eventSource:"myMotionItem3", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [topic:"smarthome/*"]
         def actionConfig = [itemName:"myLampItem3", command:"ON"]
@@ -253,7 +257,7 @@ class AutomationIntegrationTest extends OSGiTest{
     }
     @Test
     public void 'assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED' () {
-        logger.info('assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED');
+        logger.info('assert that a rule with non existing moduleTypeHandler is added to the ruleRegistry in state NOT_INITIALIZED')
         def triggerConfig = [eventSource:"myMotionItem", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [topic:"smarthome/*"]
         def actionConfig = [itemName:"myLampItem3", command:"ON"]
@@ -274,7 +278,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again' (){
-        logger.info('assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again');
+        logger.info('assert that a rule switches from IDLE to NOT_INITIALIZED if a moduleHanlder disappears and back to IDLE if it appears again')
         def Rule rule = createSimpleRule()
         ruleRegistry.add(rule)
         assertThat ruleRegistry.getStatus(rule.UID).getStatus(), is(RuleStatus.IDLE)
@@ -297,7 +301,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a module types and templates are disappeared when the providers was uninstalled' (){
-        logger.info('assert that a module types and templates are disappeared when the providers was uninstalled');
+        logger.info('assert that a module types and templates are disappeared when the providers was uninstalled')
 
         waitForAssert({
             logger.info("RuleStatus: {}", moduleTypeRegistry.get('SampleTrigger'))
@@ -309,8 +313,8 @@ class AutomationIntegrationTest extends OSGiTest{
 
         bundleContext.bundles.find {
             if(it.symbolicName == "org.eclipse.smarthome.automation.sample.extension.json") {
-                it.uninstall();
-                return true;
+                it.uninstall()
+                return true
             }
         }
 
@@ -446,7 +450,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert a rule added by api is executed as expected'() {
-        logger.info('assert a rule added by api is executed as expected');
+        logger.info('assert a rule added by api is executed as expected')
         //Creation of RULE
         def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
@@ -459,7 +463,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
         rule.name="RuleByJAVA_API"
         def tags = ["myRule21"] as Set
-        rule.tags = tags;
+        rule.tags = tags
 
         logger.info("Rule created: "+rule.getUID())
 
@@ -516,7 +520,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a rule can be added by a ruleProvider' () {
-        logger.info('assert that a rule can be added by a ruleProvider');
+        logger.info('assert that a rule can be added by a ruleProvider')
         def rule = createSimpleRule()
         def ruleProvider = [
             getAll:{ [rule]},
@@ -529,11 +533,18 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat ruleRegistry.getAll().find{it.UID==rule.UID}, is(notNullValue())
         unregisterService(ruleProvider)
         assertThat ruleRegistry.getAll().find{it.UID==rule.UID}, is(nullValue())
+
+        def rule2 = createSimpleRule()
+        assertThat ruleRegistry.getAll().find{it.UID==rule2.UID}, is(nullValue())
+        ruleManagedProvider.add(rule2)
+        assertThat ruleRegistry.getAll().find{it.UID==rule2.UID}, is(notNullValue())
+        ruleManagedProvider.remove(rule2.UID)
+        assertThat ruleRegistry.getAll().find{it.UID==rule2.UID}, is(nullValue())
     }
 
     @Test
     public void 'assert that a rule created from a template is executed as expected' () {
-        logger.info('assert that a rule created from a template is executed as expected');
+        logger.info('assert that a rule created from a template is executed as expected')
         def templateRegistry = getService(TemplateRegistry)
         assertThat templateRegistry, is(notNullValue())
         def template = null
@@ -562,7 +573,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'assert that a rule created from a more complex template is executed as expected' () {
-        logger.info('assert that a rule created from a more complex template is executed as expected');
+        logger.info('assert that a rule created from a more complex template is executed as expected')
         def templateRegistry = getService(TemplateRegistry)
         assertThat templateRegistry, is(notNullValue())
         def template = null
@@ -594,7 +605,7 @@ class AutomationIntegrationTest extends OSGiTest{
 
     @Test
     public void 'test ModuleTypeProvider and TemplateProvider'(){
-        logger.info('test ModuleTypeProvider and TemplateProvider');
+        logger.info('test ModuleTypeProvider and TemplateProvider')
         def templateRegistry = getService(TemplateRegistry)
         def moduleTypeRegistry = getService(ModuleTypeRegistry)
         def templateUID = 'testTemplate1'
@@ -617,7 +628,7 @@ class AutomationIntegrationTest extends OSGiTest{
                 if (UID == templateUID){
                     return template
                 }else{
-                    return null;
+                    return null
                 }
             },
 
@@ -681,7 +692,7 @@ class AutomationIntegrationTest extends OSGiTest{
     @Test
     public void 'assert a rule with generic condition works'() {
         def random = new Random().nextInt(100000)
-        logger.info('assert a rule with generic condition works');
+        logger.info('assert a rule with generic condition works')
         //Creation of RULE
         def triggerConfig = [eventSource:"myMotionItem5", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
         def condition1Config = [operator:"matches", right:".*ON.*", inputproperty:"payload"]
@@ -695,7 +706,7 @@ class AutomationIntegrationTest extends OSGiTest{
         def rule = new Rule("myRule_"+random,triggers, conditions, actions, null, null)
         rule.name="RuleByJAVA_API"+random
         def tags = ["myRule_"+random] as Set
-        rule.tags = tags;
+        rule.tags = tags
 
         logger.info("Rule created: "+rule.getUID())
 
