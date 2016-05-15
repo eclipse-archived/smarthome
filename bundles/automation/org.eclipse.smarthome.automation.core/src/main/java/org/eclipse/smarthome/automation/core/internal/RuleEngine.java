@@ -221,14 +221,30 @@ public class RuleEngine
      * @throws IllegalArgumentException when the rule with the same UID is already added.
      */
     private Rule addRule0(Rule rule, boolean isEnabled) {
-        List<Module> modules = rule.getModules(null);
-        validateModules(modules);
-
-        RuntimeRule r1;
+        RuntimeRule rr;
         Rule ruleWithUID;
         String rUID = rule.getUID();
-        synchronized (this) {
-            if (rUID == null) {
+        ruleWithUID = (rUID == null) ? initRuleId(rule) : rule;
+        rr = new RuntimeRule(ruleWithUID);
+        rules.put(rUID, rr);
+        logger.debug("Added rule '{}'", rUID);
+
+        setRuleEnabled(rUID, isEnabled);
+
+        return rules.get(rUID).getRuleCopy();
+    }
+
+    /**
+     * Set an rule id if it is not exists.
+     *
+     * @param rule the rule
+     * @return
+     */
+    Rule initRuleId(Rule rule) {
+        String rUID = rule.getUID();
+        Rule ruleWithUID;
+        if (rUID == null) {
+            synchronized (this) {
                 rUID = getRuleUID(rUID);
                 ruleWithUID = new Rule(rUID, rule.getTriggers(), rule.getConditions(), rule.getActions(),
                         rule.getConfigurationDescriptions(), rule.getConfiguration(), rule.getTemplateUID(),
@@ -236,18 +252,11 @@ public class RuleEngine
                 ruleWithUID.setName(rule.getName());
                 ruleWithUID.setTags(rule.getTags());
                 ruleWithUID.setDescription(rule.getDescription());
-            } else {
-                ruleWithUID = rule;
             }
-
-            r1 = new RuntimeRule(ruleWithUID);
-            rules.put(rUID, r1);
+        } else {
+            ruleWithUID = rule;
         }
-        logger.debug("Added rule '{}'", rUID);
-
-        setRuleEnabled(rUID, isEnabled);
-
-        return rules.get(rUID).getRuleCopy();
+        return ruleWithUID;
     }
 
     /**
@@ -263,7 +272,6 @@ public class RuleEngine
                 throw new IllegalArgumentException("Invalid module uid: " + mId != null ? mId
                         : "null" + ". It must not be null or not fit to the pattern: [A-Za-z0-9_-]*");
             }
-            setDefaultConfigurationValues(m);
         }
     }
 
@@ -275,7 +283,7 @@ public class RuleEngine
      * @return a new unique id of the rule.
      * @throws IllegalArgumentException when the rule with the same UID already exists.
      */
-    private String getRuleUID(String rUID) {
+    String getRuleUID(String rUID) {
         if (rUID != null) {
             if (hasRule(rUID)) {
                 throw new IllegalArgumentException("Rule '" + rUID + "' already exists.");
@@ -389,29 +397,14 @@ public class RuleEngine
 
         autoMapConnections(r);
 
-        String errMessage;
-        List<Condition> conditions = r.getConditions();
-        if (conditions != null) {
-            errMessage = setModuleHandler(rUID, conditions);
-            if (errMessage != null) {
-                errMsgs = errMessage;
-            }
-        }
-
-        errMessage = setModuleHandler(rUID, r.getActions());
-        if (errMessage != null) {
-            errMsgs = errMsgs + "\n" + errMessage;
-        }
-
-        errMessage = setModuleHandler(rUID, r.getTriggers());
-        if (errMessage != null) {
-            errMsgs = errMsgs + "\n" + errMessage;
-        }
+        List<Module> modules = r.getModules(null);
+        errMsgs = setModuleHandler(rUID, modules);
 
         if (errMsgs == null) {
             try {
-                validateModules(r.getModules(null));
+                validateModules(modules);
                 ConnectionValidator.validateConnections(r);
+                setDefaultConfigurationValues(modules);
             } catch (IllegalArgumentException e) {
                 unregister(r);
                 errMsgs = "\n Validation of rule " + rUID + " has failed! " + e.getMessage();
@@ -446,7 +439,7 @@ public class RuleEngine
 
             // change state to NOTINITIALIZED
             setRuleStatusInfo(rUID, new RuleStatusInfo(RuleStatus.NOT_INITIALIZED,
-                    RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMessage));
+                    RuleStatusDetail.HANDLER_INITIALIZING_ERROR, errMsgs));
         }
     }
 
@@ -1384,40 +1377,44 @@ public class RuleEngine
      * rule
      * definition but have default values defined in module type definition.
      *
+     * @param modules
+     *
      * @param module checked module
      * @throws IllegalArgumentException when passed module has a required configuration property and it is not specified
      *             in rule definition nor in the module's module type definition.
      */
-    private void setDefaultConfigurationValues(Module module) {
-        String type = module.getTypeUID();
-        if (mtManager != null) {
-            Map<String, Object> mConfig = module.getConfiguration();
-            if (mConfig == null) {
-                mConfig = new HashMap<String, Object>(11);
-            }
-            ModuleType mt = mtManager.get(type);
-            if (mt != null) {
-                List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescription();
-                for (ConfigDescriptionParameter cftDesc : configDescriptions) {
-                    String parameterName = cftDesc.getName();
-                    if (mConfig.get(parameterName) == null) {
-                        String strValue = cftDesc.getDefault();
-                        if (strValue != null) {
-                            Type t = cftDesc.getType();
-                            Object defValue = getDefaultValue(t, strValue);
-                            mConfig.put(parameterName, defValue);
-                        } else {
-                            if (cftDesc.isRequired()) {
-                                throw new RuntimeException(
-                                        "Missing required parameter: " + parameterName + " of type " + type);
+    private void setDefaultConfigurationValues(List<Module> modules) {
+        for (Module module : modules) {
+            String type = module.getTypeUID();
+            if (mtManager != null) {
+                Map<String, Object> mConfig = module.getConfiguration();
+                if (mConfig == null) {
+                    mConfig = new HashMap<String, Object>(11);
+                }
+                ModuleType mt = mtManager.get(type);
+                if (mt != null) {
+                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescription();
+                    for (ConfigDescriptionParameter cftDesc : configDescriptions) {
+                        String parameterName = cftDesc.getName();
+                        if (mConfig.get(parameterName) == null) {
+                            String strValue = cftDesc.getDefault();
+                            if (strValue != null) {
+                                Type t = cftDesc.getType();
+                                Object defValue = getDefaultValue(t, strValue);
+                                mConfig.put(parameterName, defValue);
+                            } else {
+                                if (cftDesc.isRequired()) {
+                                    throw new RuntimeException(
+                                            "Missing required parameter: " + parameterName + " of type " + type);
+                                }
                             }
                         }
                     }
                 }
+                module.setConfiguration(mConfig);
+            } else {
+                logger.warn("Can't get module type definition for:" + type + ". Missing ModuleTypeManager");
             }
-            module.setConfiguration(mConfig);
-        } else {
-            logger.warn("Can't get module type definition for:" + type + ". Missing ModuleTypeManager");
         }
     }
 
