@@ -106,10 +106,11 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
 
                 @Override
                 public void removedService(ServiceReference reference, Object service) {
-                    if (service == templateRegistry)
+                    if (service == templateRegistry) {
                         templateRegistry = null;
-                    else
+                    } else {
                         moduleTypeRegistry = null;
+                    }
                 }
             });
         } catch (InvalidSyntaxException notPossible) {
@@ -195,8 +196,9 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                 Template defTemplate = i.next();
                 if (defTemplate != null) {
                     Template t = getPerLocale(defTemplate, locale);
-                    if (t != null)
+                    if (t != null) {
                         templatesList.add(t);
+                    }
                 }
             }
         }
@@ -236,13 +238,14 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         try {
             providedObjects = parser.parse(inputStreamReader);
         } catch (ParsingException e) {
-            logger.error("Template parsing of vendor " + vendor + " is faild!", e);
+            logger.error("Template parsing of vendor {} is faild!", vendor, e);
         }
         if (providedObjects != null && !providedObjects.isEmpty()) {
             for (Template ruleT : providedObjects) {
                 String uid = ruleT.getUID();
-                if (checkExistence(uid))
+                if (checkExistence(uid)) {
                     continue;
+                }
                 if (portfolio != null) {
                     portfolio.add(uid);
                 }
@@ -252,9 +255,9 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             }
             Dictionary<String, Object> properties = new Hashtable<String, Object>();
             properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-            if (tpReg == null)
+            if (tpReg == null) {
                 tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-            else {
+            } else {
                 tpReg.setProperties(properties);
             }
         }
@@ -271,9 +274,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     private boolean checkExistence(String uid) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            logger.error(
-                    "Rule Template with UID \"" + uid
-                            + "\" already exists! Failed to create a second with the same UID!",
+            logger.error("Rule Template with UID \"{}\" already exists! Failed to create a second with the same UID!", uid,
                     new IllegalArgumentException());
             return true;
         }
@@ -288,8 +289,9 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      * @return the localized {@link Template}.
      */
     private Template getPerLocale(Template defTemplate, Locale locale) {
-        if (locale == null)
+        if (locale == null) {
             return defTemplate;
+        }
         String uid = defTemplate.getUID();
         Bundle bundle = getBundle(uid);
         if (defTemplate instanceof RuleTemplate) {
