@@ -556,7 +556,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
             dispose: {
-            }
+            },
+            getThing: {return THING}
         ] as ThingHandler
 
         def thingHandlerFactory = [
