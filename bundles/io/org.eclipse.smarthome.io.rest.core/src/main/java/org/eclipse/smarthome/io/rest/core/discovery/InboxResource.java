@@ -7,22 +7,18 @@
  */
 package org.eclipse.smarthome.io.rest.core.discovery;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,9 +33,7 @@ import org.eclipse.smarthome.config.discovery.dto.DiscoveryResultDTOMapper;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.rest.JSONResponse;
-import org.eclipse.smarthome.io.rest.LocaleUtil;
 import org.eclipse.smarthome.io.rest.RESTResource;
 
 import io.swagger.annotations.Api;
@@ -53,7 +47,7 @@ import io.swagger.annotations.ApiResponses;
  * Jersey servlet.
  *
  * @author Dennis Nobel - Initial contribution
- * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector
+ * @author Kai Kreuzer - refactored for using the OSGi JAX-RS connector and removed ThingSetupManager
  * @author Yordan Zhelev - Added Swagger annotations
  * @author Chris Jackson - Updated to use JSONResponse. Fixed null response from approve.
  */
@@ -64,7 +58,6 @@ public class InboxResource implements RESTResource {
     /** The URI path to this resource */
     public static final String PATH_INBOX = "inbox";
 
-    private ThingSetupManager thingSetupManager;
     private Inbox inbox;
 
     protected void setInbox(Inbox inbox) {
@@ -73,14 +66,6 @@ public class InboxResource implements RESTResource {
 
     protected void unsetInbox(Inbox inbox) {
         this.inbox = null;
-    }
-
-    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
-        this.thingSetupManager = thingSetupManager;
-    }
-
-    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
-        this.thingSetupManager = null;
     }
 
     @Context
@@ -95,9 +80,7 @@ public class InboxResource implements RESTResource {
             @ApiResponse(code = 409, message = "No binding found that supports this thing.") })
     public Response approve(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) @ApiParam(value = "language") String language,
             @PathParam("thingUID") @ApiParam(value = "thingUID", required = true) String thingUID,
-            @ApiParam(value = "thing label") String label,
-            @QueryParam("enableChannels") @DefaultValue("true") @ApiParam(value = "enable channels", required = false) boolean enableChannels) {
-        final Locale locale = LocaleUtil.getLocale(language);
+            @ApiParam(value = "thing label") String label) {
         ThingUID thingUIDObject = new ThingUID(thingUID);
         String notEmptyLabel = label != null && !label.isEmpty() ? label : null;
         Thing thing = null;
@@ -112,11 +95,6 @@ public class InboxResource implements RESTResource {
             return JSONResponse.createErrorResponse(Status.CONFLICT, "No binding found that can create the thing");
         }
 
-        thingSetupManager.createGroupItems(notEmptyLabel, new ArrayList<String>(), thing, thing.getThingTypeUID(),
-                locale);
-        if (enableChannels) {
-            thingSetupManager.enableChannels(thing, thing.getThingTypeUID(), locale);
-        }
         return Response.ok().build();
     }
 

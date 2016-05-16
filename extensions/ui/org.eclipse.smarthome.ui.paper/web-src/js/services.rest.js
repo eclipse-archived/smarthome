@@ -277,66 +277,6 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             url : restConfig.restPath + '/things/:thingUID/channels/:channelId/link',
         }
     });
-}).factory('thingSetupService', function($resource, restConfig) {
-    return $resource(restConfig.restPath + '/setup/things', {}, {
-        add : {
-            method : 'POST',
-            headers : {
-                'Content-Type' : 'application/json'
-            }
-        },
-        update : {
-            method : 'PUT',
-            headers : {
-                'Content-Type' : 'application/json'
-            }
-        },
-        getAll : {
-            method : 'GET',
-            isArray : true
-        },
-        remove : {
-            method : 'DELETE',
-            params : {
-                thingUID : '@thingUID'
-            },
-            url : restConfig.restPath + '/setup/things/:thingUID'
-        },
-        enableChannel : {
-            method : 'PUT',
-            params : {
-                channelUID : '@channelUID'
-            },
-            url : restConfig.restPath + '/setup/things/channels/:channelUID'
-        },
-        disableChannel : {
-            method : 'DELETE',
-            params : {
-                channelUID : '@channelUID'
-            },
-            url : restConfig.restPath + '/setup/things/channels/:channelUID'
-        },
-        setLabel : {
-            method : 'PUT',
-            params : {
-                thingUID : '@thingUID'
-            },
-            headers : {
-                'Content-Type' : 'text/plain'
-            },
-            url : restConfig.restPath + '/setup/labels/:thingUID'
-        },
-        setGroups : {
-            method : 'PUT',
-            params : {
-                thingUID : '@thingUID'
-            },
-            headers : {
-                'Content-Type' : 'application/json'
-            },
-            url : restConfig.restPath + '/setup/things/:thingUID/groups'
-        }
-    });
 }).factory('serviceConfigService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/services', {}, {
         getAll : {

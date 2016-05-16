@@ -112,8 +112,8 @@ angular.module('PaperUI.services.repositories', []).factory('bindingRepository',
         }
     });
     return repository;
-}).factory('thingRepository', function($q, $rootScope, thingSetupService, eventService) {
-    var repository = new Repository($q, $rootScope, thingSetupService, 'things')
+}).factory('thingRepository', function($q, $rootScope, thingService, eventService) {
+    var repository = new Repository($q, $rootScope, thingService, 'things')
     $rootScope.data.things = [];
 
     var itemNameToThingUID = function(itemName) {

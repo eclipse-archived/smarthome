@@ -9,14 +9,12 @@ package org.eclipse.smarthome.io.rest.core.thing;
 
 import java.net.URI;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.smarthome.core.items.GroupItem;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.dto.ThingDTO;
 import org.eclipse.smarthome.core.thing.dto.ThingDTOMapper;
-import org.eclipse.smarthome.io.rest.core.item.EnrichedGroupItemDTO;
-import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTO;
-import org.eclipse.smarthome.io.rest.core.item.EnrichedItemDTOMapper;
 
 /**
  * The {@link EnrichedThingDTOMapper} is an utility class to map things into enriched thing data transfer objects
@@ -31,16 +29,10 @@ public class EnrichedThingDTOMapper extends ThingDTOMapper {
      * @param uri the uri
      * @return the enriched thing DTO object
      */
-    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale) {
+    public static EnrichedThingDTO map(Thing thing, URI uri, Locale locale, Map<String, Set<String>> linkedItemsMap) {
 
         ThingDTO thingDTO = ThingDTOMapper.map(thing);
 
-        GroupItem groupItem = thing.getLinkedItem();
-        EnrichedItemDTO groupItemDTO = groupItem != null ? EnrichedItemDTOMapper.map(groupItem, true, uri, locale)
-                : null;
-
-        String link = null != uri ? uri.toASCIIString() + ThingResource.PATH_THINGS + "/" + thingDTO.UID : null;
-
-        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), (EnrichedGroupItemDTO) groupItemDTO, link);
+        return new EnrichedThingDTO(thingDTO, thing.getStatusInfo(), linkedItemsMap);
     }
 }

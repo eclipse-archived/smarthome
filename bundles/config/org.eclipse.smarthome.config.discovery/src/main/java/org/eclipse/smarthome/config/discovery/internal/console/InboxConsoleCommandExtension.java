@@ -7,7 +7,6 @@
  */
 package org.eclipse.smarthome.config.discovery.internal.console;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -18,13 +17,16 @@ import org.eclipse.smarthome.config.discovery.DiscoveryResultFlag;
 import org.eclipse.smarthome.config.discovery.inbox.Inbox;
 import org.eclipse.smarthome.config.discovery.inbox.InboxFilterCriteria;
 import org.eclipse.smarthome.config.discovery.internal.PersistentInbox;
-import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager;
 import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.AbstractConsoleCommandExtension;
 
+/**
+ * This class provides console commands around the inbox functionality
+ * 
+ * @author Kai Kreuzer - Initial contribution and API
+ */
 public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtension {
 
     private static final String SUBCMD_APPROVE = "approve";
@@ -33,7 +35,6 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     private static final String SUBCMD_CLEAR = "clear";
 
     private Inbox inbox;
-    private ThingSetupManager thingSetupManager;
 
     public InboxConsoleCommandExtension() {
         super("inbox", "Manage your inbox.");
@@ -45,34 +46,21 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
             final String subCommand = args[0];
             switch (subCommand) {
                 case SUBCMD_APPROVE:
-                    if (args.length > 1) {
-                        boolean fullSetup = false;
-                        if (args.length > 2) {
-                            fullSetup = Boolean.parseBoolean(args[2]);
-                        }
-                        if (thingSetupManager != null) {
-                            try {
-                                ThingUID thingUID = new ThingUID(args[1]);
-                                List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
-                                if (results.isEmpty()) {
-                                    console.println("No matching inbox entry could be found.");
-                                    return;
-                                }
-                                DiscoveryResult result = results.get(0);
-                                Thing thing = inbox.approve(thingUID, null);
-                                if (fullSetup) {
-                                    thingSetupManager.createGroupItems(null, new ArrayList<String>(), thing,
-                                            result.getThingTypeUID(), null);
-                                }
-                            } catch (Exception e) {
-                                console.println(e.getMessage());
+                    if (args.length > 2) {
+                        String label = args[2];
+                        try {
+                            ThingUID thingUID = new ThingUID(args[1]);
+                            List<DiscoveryResult> results = inbox.get(new InboxFilterCriteria(thingUID, null));
+                            if (results.isEmpty()) {
+                                console.println("No matching inbox entry could be found.");
+                                return;
                             }
-                        } else {
-                            console.println("Cannot approve thing as setup manager is missing.");
+                            inbox.approve(thingUID, label);
+                        } catch (Exception e) {
+                            console.println(e.getMessage());
                         }
                     } else {
-                        console.println(
-                                "Specify thing id to approve: inbox approve <thingUID> <fullSetup - true|false>");
+                        console.println("Specify thing id to approve: inbox approve <thingUID> <label>");
                     }
                     break;
                 case SUBCMD_IGNORE:
@@ -148,8 +136,7 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
     public List<String> getUsages() {
         return Arrays.asList(new String[] { buildCommandUsage("lists all current inbox entries"),
                 buildCommandUsage(SUBCMD_LIST_IGNORED, "lists all ignored inbox entries"),
-                buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <fullSetup - true|false>",
-                        "creates a thing for an inbox entry"),
+                buildCommandUsage(SUBCMD_APPROVE + " <thingUID> <label>", "creates a thing for an inbox entry"),
                 buildCommandUsage(SUBCMD_CLEAR, "clears all current inbox entries"),
                 buildCommandUsage(SUBCMD_IGNORE + " <thingUID>", "ignores an inbox entry permanently") });
     }
@@ -162,11 +149,4 @@ public class InboxConsoleCommandExtension extends AbstractConsoleCommandExtensio
         this.inbox = null;
     }
 
-    protected void setThingSetupManager(ThingSetupManager thingSetupManager) {
-        this.thingSetupManager = thingSetupManager;
-    }
-
-    protected void unsetThingSetupManager(ThingSetupManager thingSetupManager) {
-        this.thingSetupManager = null;
-    }
 }

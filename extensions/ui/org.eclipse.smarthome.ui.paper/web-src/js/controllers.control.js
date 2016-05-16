@@ -1,7 +1,8 @@
-angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository) {
+angular.module('PaperUI.controllers.control', []).controller('ControlPageController', function($scope, $routeParams, $location, $timeout, itemRepository, thingService, thingTypeService, channelTypeService, thingConfigService) {
     $scope.items = [];
     $scope.selectedIndex = 0;
     $scope.tabs = [];
+    $scope.things = [];
 
     $scope.next = function() {
         var newIndex = $scope.selectedIndex + 1;
@@ -37,6 +38,48 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }, true);
     }
+    $scope.channelTypes = [];
+    $scope.thingTypes = [];
+    $scope.thingChannels = [];
+    $scope.isLoadComplete = false;
+    function getThings() {
+        thingService.getAll().$promise.then(function(things) {
+            $scope.things = things;
+            $scope.isLoadComplete = false;
+            thingTypeService.getAll().$promise.then(function(thingTypes) {
+                $scope.thingTypes = thingTypes;
+                channelTypeService.getAll().$promise.then(function(channels) {
+                    $scope.channelTypes = channels;
+                    for (var i = 0; i < $scope.things.length;) {
+                        var thingType = $.grep($scope.thingTypes, function(thingType, j) {
+                            return thingType.UID == $scope.things[i].thingTypeUID;
+                        })[0];
+                        $scope.things[i].thingChannels = thingConfigService.getThingChannels($scope.things[i], thingType, $scope.channelTypes, true);
+                        angular.forEach($scope.things[i].thingChannels, function(value, key) {
+                            $scope.things[i].thingChannels[key].channels = $.grep($scope.things[i].thingChannels[key].channels, function(channel, i) {
+                                return channel.linkedItems.length > 0;
+                            });
+                        });
+                        if (!thingHasChannels(i)) {
+                            $scope.things.splice(i, 1);
+                        } else {
+                            i++;
+                        }
+                    }
+                    $scope.isLoadComplete = true;
+                });
+            });
+
+        });
+    }
+    function thingHasChannels(index) {
+        for (var i = 0; i < $scope.things[index].thingChannels.length; i++) {
+            if ($scope.things[index].thingChannels[i].channels && $scope.things[index].thingChannels[i].channels.length > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     $scope.getItem = function(itemName) {
         for (var int = 0; int < $scope.data.items.length; int++) {
@@ -46,6 +89,10 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }
         return null;
+    }
+
+    $scope.getThingsForTab = function(tabName) {
+        $scope.things = thingService.getAll();
     }
 
     $scope.getItemsForTab = function(tabName) {
@@ -75,7 +122,10 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         $scope.masonry();
     });
     $scope.refresh();
+    getThings();
+
 }).controller('ControlController', function($scope, $timeout, $filter, itemService) {
+
     $scope.getItemName = function(itemName) {
         return itemName.replace(/_/g, ' ');
     }

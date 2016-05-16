@@ -10,6 +10,7 @@ package org.eclipse.smarthome.io.rest.core.thing;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -504,7 +505,8 @@ public class ThingResource implements RESTResource {
      * @return Response
      */
     private Response getThingResponse(Status status, Thing thing, Locale locale, String errormessage) {
-        Object entity = null != thing ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale) : null;
+        Object entity = null != thing
+                ? EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale, getLinkedItemsMap(thing)) : null;
         return JSONResponse.createResponse(status, entity, errormessage);
     }
 
@@ -575,10 +577,20 @@ public class ThingResource implements RESTResource {
     private Set<EnrichedThingDTO> convertToListBean(Collection<Thing> things, Locale locale) {
         Set<EnrichedThingDTO> thingBeans = new LinkedHashSet<>();
         for (Thing thing : things) {
-            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale);
+            EnrichedThingDTO thingBean = EnrichedThingDTOMapper.map(thing, uriInfo.getBaseUri(), locale,
+                    getLinkedItemsMap(thing));
             thingBeans.add(thingBean);
         }
         return thingBeans;
+    }
+
+    private Map<String, Set<String>> getLinkedItemsMap(Thing thing) {
+        Map<String, Set<String>> linkedItemsMap = new HashMap<>();
+        for (Channel channel : thing.getChannels()) {
+            Set<String> linkedItems = itemChannelLinkRegistry.getLinkedItems(channel.getUID());
+            linkedItemsMap.put(channel.getUID().getId(), linkedItems);
+        }
+        return linkedItemsMap;
     }
 
     private Channel findChannel(String channelId, Thing thing) {

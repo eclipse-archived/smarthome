@@ -13,11 +13,8 @@ import static org.junit.Assert.*
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.thing.ChannelUID
-import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.link.events.ItemChannelLinkAddedEvent
 import org.eclipse.smarthome.core.thing.link.events.ItemChannelLinkRemovedEvent
-import org.eclipse.smarthome.core.thing.link.events.ItemThingLinkAddedEvent
-import org.eclipse.smarthome.core.thing.link.events.ItemThingLinkRemovedEvent
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
@@ -33,18 +30,16 @@ class LinkEventOSGiTest extends OSGiTest {
 
 
     ItemChannelLinkRegistry itemChannelLinkRegistry
-    ItemThingLinkRegistry itemThingLinkRegistry
     Event lastReceivedEvent = null
 
     @Before
     void setup() {
         registerVolatileStorageService()
         itemChannelLinkRegistry = getService(ItemChannelLinkRegistry)
-        itemThingLinkRegistry = getService(ItemThingLinkRegistry)
         def eventSubscriber = [
             getSubscribedEventTypes: {
                 Sets.newHashSet(ItemChannelLinkAddedEvent.TYPE,
-                        ItemChannelLinkRemovedEvent.TYPE, ItemThingLinkAddedEvent.TYPE, ItemThingLinkRemovedEvent.TYPE)
+                        ItemChannelLinkRemovedEvent.TYPE)
             },
             getEventFilter: { null },
             receive: { event -> lastReceivedEvent = event }
@@ -64,19 +59,5 @@ class LinkEventOSGiTest extends OSGiTest {
         itemChannelLinkRegistry.remove(link.ID)
         waitForAssert { assertThat lastReceivedEvent.type, is(ItemChannelLinkRemovedEvent.TYPE) }
         assertThat lastReceivedEvent.topic, is("smarthome/links/item-a:b:c:d/removed")
-    }
-
-    @Test
-    void 'assert item thing link events are sent'() {
-        def link = new ItemThingLink("item", new ThingUID("a:b:c"))
-
-        itemThingLinkRegistry.add(link)
-        waitFor { lastReceivedEvent != null }
-        waitForAssert { assertThat lastReceivedEvent.type, is(ItemThingLinkAddedEvent.TYPE) }
-        assertThat lastReceivedEvent.topic, is("smarthome/links/item-a:b:c/added")
-
-        itemThingLinkRegistry.remove(link.ID)
-        waitForAssert { assertThat lastReceivedEvent.type, is(ItemThingLinkRemovedEvent.TYPE) }
-        assertThat lastReceivedEvent.topic, is("smarthome/links/item-a:b:c/removed")
     }
 }
