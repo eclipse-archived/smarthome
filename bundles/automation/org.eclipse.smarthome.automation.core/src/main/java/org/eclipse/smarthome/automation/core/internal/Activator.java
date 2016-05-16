@@ -106,7 +106,6 @@ public class Activator implements BundleActivator {
                         Storage<Boolean> storageDisabledRules = storage.getStorage("automation_rules_disabled",
                                 this.getClass().getClassLoader());
                         ruleRegistry.setDisabledRuleStorage(storageDisabledRules);
-                        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
                         final ManagedRuleProvider managedRuleProvider = new ManagedRuleProvider(storage);
                         ruleEngine.setManagedRuleProvider(managedRuleProvider);
                         managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), managedRuleProvider, null);
@@ -115,6 +114,9 @@ public class Activator implements BundleActivator {
                 } else if (service instanceof RuleProvider) {
                     RuleProvider rp = (RuleProvider) service;
                     ruleRegistry.addProvider(rp);
+                    if (rp instanceof ManagedRuleProvider) {
+                        ruleRegistryReg = bc.registerService(RuleRegistry.class.getName(), ruleRegistry, null);
+                    }
                     return rp;
                 } else if (service instanceof EventPublisher) {
                     EventPublisher ep = (EventPublisher) service;

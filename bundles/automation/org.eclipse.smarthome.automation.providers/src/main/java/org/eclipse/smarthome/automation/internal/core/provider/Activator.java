@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation
  *
  */
-public class Activator<T extends ModuleTypeProvider, S extends TemplateProvider> implements BundleActivator {
+public class Activator implements BundleActivator {
 
     private AutomationResourceBundlesEventQueue queue;
 

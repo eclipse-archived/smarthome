@@ -174,8 +174,8 @@ public class RuleResourceBundleImporter extends AbstractResourceBundleProvider<R
         try {
             urlEnum = bundle.findEntries(path, null, false);
         } catch (IllegalStateException e) {
-            logger.debug("Can't read from resource of bundle with ID " + bundle.getBundleId()
-                    + ". The bundle is uninstalled.", e);
+            logger.debug("Can't read from resource of bundle with ID {}. The bundle is uninstalled.",
+                    bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);
         }
         if (urlEnum == null) {

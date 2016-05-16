@@ -284,8 +284,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
     protected void processAutomationProvider(Bundle bundle) {
         synchronized (providerPortfolio) {
             for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorSymbolicName().equals(bundle.getSymbolicName())
-                        && !vendor.getVendorVersion().equals(bundle.getVersion().toString())) {
+                if (vendor.getVendorSymbolicName().equals(bundle.getSymbolicName())) {
                     List<String> portfolio = providerPortfolio.remove(vendor);
                     if (portfolio != null && !portfolio.isEmpty()) {
                         for (String uid : portfolio) {
@@ -300,10 +299,10 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
         }
         Enumeration<URL> urlEnum = null;
         try {
-            urlEnum = bundle.findEntries(path, null, false);
+            urlEnum = bundle.findEntries(path, null, true);
         } catch (IllegalStateException e) {
-            logger.debug("Can't read from resource of bundle with ID " + bundle.getBundleId()
-                    + ". The bundle is uninstalled.", e);
+            logger.debug("Can't read from resource of bundle with ID {}. The bundle is uninstalled.",
+                    bundle.getBundleId(), e);
             processAutomationProviderUninstalled(bundle);
         }
         if (urlEnum == null) {
@@ -324,7 +323,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
                     try {
                         importData(vendor, parser, reader = new InputStreamReader(url.openStream()));
                     } catch (IOException e) {
-                        logger.error("Can't read from resource of bundle with ID " + bundle.getBundleId(), e);
+                        logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
                         processAutomationProviderUninstalled(bundle);
                     } finally {
                         if (reader != null) {
@@ -366,7 +365,7 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
 
     /**
      * This method provides common functionality for {@link ModuleTypeProvider} and {@link TemplateProvider} to process
-     * the bundles. For {@link RuleResourceBundleImporter} this method is overridden.
+     * uninstalling the bundles. For {@link RuleResourceBundleImporter} this method is overridden.
      * <p>
      * When some of the bundles that provides automation objects is uninstalled, this method will remove it from
      * {@link #waitingProviders}, if it is still there or from {@link #providerPortfolio} in the other case.
