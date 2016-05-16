@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Grammling - Added dynamic configuration update
  * @author Thomas Höfer - Added thing properties and config description validation
  * @author Stefan Bußweiler - Added new thing status handling, refactorings thing life cycle
+ * @author Kai Kreuzer - Refactored isLinked method to not use deprecated functions anymore
  */
 public abstract class BaseThingHandler implements ThingHandler {
 
@@ -59,12 +61,15 @@ public abstract class BaseThingHandler implements ThingHandler {
             .getScheduledPool(THING_HANDLER_THREADPOOL_NAME);
 
     protected ThingRegistry thingRegistry;
+    protected ItemChannelLinkRegistry linkRegistry;
     protected BundleContext bundleContext;
 
     protected Thing thing;
 
     @SuppressWarnings("rawtypes")
     private ServiceTracker thingRegistryServiceTracker;
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker linkRegistryServiceTracker;
 
     private ThingHandlerCallback callback;
 
@@ -96,6 +101,22 @@ public abstract class BaseThingHandler implements ThingHandler {
             }
         };
         thingRegistryServiceTracker.open();
+        linkRegistryServiceTracker = new ServiceTracker(this.bundleContext, ItemChannelLinkRegistry.class.getName(),
+                null) {
+            @Override
+            public Object addingService(final ServiceReference reference) {
+                linkRegistry = (ItemChannelLinkRegistry) bundleContext.getService(reference);
+                return linkRegistry;
+            }
+
+            @Override
+            public void removedService(final ServiceReference reference, final Object service) {
+                synchronized (BaseThingHandler.this) {
+                    linkRegistry = null;
+                }
+            }
+        };
+        linkRegistryServiceTracker.open();
     }
 
     public void unsetBundleContext(final BundleContext bundleContext) {
@@ -507,7 +528,7 @@ public abstract class BaseThingHandler implements ThingHandler {
     protected boolean isLinked(String channelId) {
         Channel channel = thing.getChannel(channelId);
         if (channel != null) {
-            return channel.isLinked();
+            return linkRegistry != null ? !linkRegistry.getLinks(channel.getUID()).isEmpty() : false;
         } else {
             throw new IllegalArgumentException("Channel with ID '" + channelId + "' does not exists.");
         }

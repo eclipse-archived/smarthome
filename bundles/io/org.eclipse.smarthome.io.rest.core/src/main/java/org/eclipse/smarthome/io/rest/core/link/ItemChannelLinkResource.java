@@ -26,15 +26,11 @@ import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.link.ItemThingLink;
-import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
+import org.eclipse.smarthome.core.thing.link.ThingLinkManager;
 import org.eclipse.smarthome.core.thing.link.dto.AbstractLinkDTO;
 import org.eclipse.smarthome.core.thing.link.dto.ItemChannelLinkDTO;
-import org.eclipse.smarthome.core.thing.link.dto.ItemThingLinkDTO;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
-
-import com.google.common.collect.Iterables;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +43,7 @@ import io.swagger.annotations.ApiResponses;
  *
  * @author Dennis Nobel - Initial contribution
  * @author Yordan Zhelev - Added Swagger annotations
+ * @author Kai Kreuzer - Removed Thing links and added auto link url
  */
 @Path(ItemChannelLinkResource.PATH_LINKS)
 @Api(value = ItemChannelLinkResource.PATH_LINKS)
@@ -56,7 +53,7 @@ public class ItemChannelLinkResource implements RESTResource {
     public static final String PATH_LINKS = "links";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
-    private ItemThingLinkRegistry itemThingLinkRegistry;
+    private ThingLinkManager thingLinkManager;
 
     @Context
     UriInfo uriInfo;
@@ -67,8 +64,16 @@ public class ItemChannelLinkResource implements RESTResource {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
     public Response getAll() {
         Collection<ItemChannelLink> channelLinks = itemChannelLinkRegistry.getAll();
-        Collection<ItemThingLink> thingLinks = itemThingLinkRegistry.getAll();
-        return Response.ok(toBeans(Iterables.concat(channelLinks, thingLinks))).build();
+        return Response.ok(toBeans(channelLinks)).build();
+    }
+
+    @GET
+    @Path("/auto")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Tells whether automatic link mode is active or not", response = Boolean.class)
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    public Response isAutomatic() {
+        return Response.ok(thingLinkManager.isAutoLinksEnabled()).build();
     }
 
     @PUT
@@ -106,6 +111,14 @@ public class ItemChannelLinkResource implements RESTResource {
         }
     }
 
+    protected void setThingLinkManager(ThingLinkManager thingLinkManager) {
+        this.thingLinkManager = thingLinkManager;
+    }
+
+    protected void unsetThingLinkManager(ThingLinkManager thingLinkManager) {
+        this.thingLinkManager = null;
+    }
+
     protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = itemChannelLinkRegistry;
     }
@@ -114,25 +127,11 @@ public class ItemChannelLinkResource implements RESTResource {
         this.itemChannelLinkRegistry = null;
     }
 
-    protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = itemThingLinkRegistry;
-    }
-
-    protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = null;
-    }
-
-    private Collection<AbstractLinkDTO> toBeans(Iterable<AbstractLink> links) {
+    private Collection<AbstractLinkDTO> toBeans(Iterable<ItemChannelLink> links) {
         Collection<AbstractLinkDTO> beans = new ArrayList<>();
         for (AbstractLink link : links) {
-            if (link instanceof ItemChannelLink) {
-                ItemChannelLinkDTO bean = new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
-                beans.add(bean);
-            } else {
-                ItemThingLinkDTO bean = new ItemThingLinkDTO(link.getItemName(), link.getUID().toString());
-                beans.add(bean);
-            }
-
+            ItemChannelLinkDTO bean = new ItemChannelLinkDTO(link.getItemName(), link.getUID().toString());
+            beans.add(bean);
         }
         return beans;
     }

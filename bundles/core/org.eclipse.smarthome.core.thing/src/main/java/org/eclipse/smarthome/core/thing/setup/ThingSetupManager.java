@@ -12,14 +12,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
-import org.eclipse.smarthome.core.events.EventFilter;
-import org.eclipse.smarthome.core.events.TopicEventFilter;
 import org.eclipse.smarthome.core.items.ActiveItem;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.GroupItem;
@@ -38,13 +35,9 @@ import org.eclipse.smarthome.core.thing.UID;
 import org.eclipse.smarthome.core.thing.binding.ThingFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder;
-import org.eclipse.smarthome.core.thing.events.ThingRemovedEvent;
 import org.eclipse.smarthome.core.thing.internal.ThingManager;
-import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
-import org.eclipse.smarthome.core.thing.link.ItemThingLink;
-import org.eclipse.smarthome.core.thing.link.ItemThingLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -55,15 +48,14 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
-
 /**
  * The {@link ThingSetupManager} provides various method to manage things. In
  * contrast to the {@link ThingRegistry}, the {@link ThingManager} also creates
  * Items and Links automatically and removes it, when the according thing is
  * removed.
  *
- * @deprecated This class is not considered to be an official API and will be removed soon.</p>
+ * @deprecated This class is not considered to be an official API and will be removed soon.
+ *             </p>
  *             You can use the {@link ThingBuilder} to create a Thing by yourself or you can use the
  *             {@link ThingFactory} to delegate the creation to {@link ThingHandlerFactory}s. Created
  *             Things can be added to the {@link ThingRegistry} (if required). To create links you can
@@ -84,14 +76,10 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
     private List<ItemFactory> itemFactories = new CopyOnWriteArrayList<>();
     private ItemRegistry itemRegistry;
-    private ItemThingLinkRegistry itemThingLinkRegistry;
     private final Logger logger = LoggerFactory.getLogger(ThingSetupManager.class);
     private List<ThingHandlerFactory> thingHandlerFactories = new CopyOnWriteArrayList<>();
     private ThingRegistry thingRegistry;
     private ThingTypeRegistry thingTypeRegistry;
-
-    private final Set<String> subscribedEventTypes = ImmutableSet.of(ThingRemovedEvent.TYPE);
-    private final EventFilter eventFiter = new TopicEventFilter("smarthome/things/.*/removed");
 
     /**
      * Adds a group to the system with the a 'home-group' tag.
@@ -308,14 +296,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
                 String itemName = toItemName(channelUID);
                 GenericItem item = itemFactory.createItem(itemType, itemName);
                 if (item != null) {
-                    String thingGroupItemName = getThingGroupItemName(channelUID);
-                    if (thingGroupItemName != null) {
-                        if (!channelUID.isInGroup()) {
-                            item.addGroupName(thingGroupItemName);
-                        } else {
-                            item.addGroupName(getChannelGroupItemName(thingGroupItemName, channelUID.getGroupId()));
-                        }
-                    }
                     item.addTags(channelType.getTags());
                     item.setCategory(channelType.getCategory());
 
@@ -326,7 +306,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
                         item.setLabel(channelType.getLabel());
                     }
                     addItemSafely(item);
-                    addItemChannelLinkSafely(new ItemChannelLink(itemName, channelUID));
                 }
             }
         } else {
@@ -458,16 +437,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
             thing.setLabel(label);
             thingRegistry.update(thing);
         }
-        GroupItem groupItem = thing.getLinkedItem();
-        if (groupItem != null) {
-            if (label != null && label.equals(groupItem.getLabel())) {
-                return;
-            }
-            groupItem.setLabel(label);
-            itemRegistry.update(groupItem);
-        } else {
-            throw new IllegalArgumentException("No item is linked with thing '" + thingUID.toString() + "'.");
-        }
     }
 
     /**
@@ -533,10 +502,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
         this.itemRegistry = itemRegistry;
     }
 
-    protected void setItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = itemThingLinkRegistry;
-    }
-
     protected void setThingRegistry(ThingRegistry thingRegistry) {
         this.thingRegistry = thingRegistry;
     }
@@ -555,10 +520,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
 
     protected void unsetItemRegistry(ItemRegistry itemRegistry) {
         this.itemRegistry = null;
-    }
-
-    protected void unsetItemThingLinkRegistry(ItemThingLinkRegistry itemThingLinkRegistry) {
-        this.itemThingLinkRegistry = null;
     }
 
     protected void unsetThingRegistry(ThingRegistry thingRegistry) {
@@ -618,18 +579,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
         itemRegistry.add(item);
     }
 
-    private void addItemThingLinkSafely(ItemThingLink itemThingLink) {
-        if (itemThingLinkRegistry.get(itemThingLink.getID()) == null) {
-            itemThingLinkRegistry.add(itemThingLink);
-        }
-    }
-
-    private void addItemChannelLinkSafely(ItemChannelLink itemChannelLink) {
-        if (this.itemChannelLinkRegistry.get(itemChannelLink.getID()) == null) {
-            this.itemChannelLinkRegistry.add(itemChannelLink);
-        }
-    }
-
     private String getChannelGroupItemName(String itemName, String channelGroupId) {
         return itemName + "_" + toItemName(channelGroupId);
     }
@@ -647,16 +596,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
         return null;
     }
 
-    private String getThingGroupItemName(ChannelUID channelUID) {
-        Collection<ItemThingLink> links = this.itemThingLinkRegistry.getAll();
-        for (ItemThingLink link : links) {
-            if (link.getUID().equals(channelUID.getThingUID())) {
-                return link.getItemName();
-            }
-        }
-        return null;
-    }
-
     private String toItemName(final UID uid) {
         return toItemName(uid.getAsString());
     }
@@ -667,11 +606,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
     }
 
     private String getFirstLinkedItem(UID uid) {
-        for (ItemThingLink link : itemThingLinkRegistry.getAll()) {
-            if (link.getUID().equals(uid)) {
-                return link.getItemName();
-            }
-        }
         return null;
     }
 
@@ -717,7 +651,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
         groupItem.setLabel(label);
         groupItem.addGroupNames(groupNames);
         addItemSafely(groupItem);
-        addItemThingLinkSafely(new ItemThingLink(itemName, thing.getUID()));
         if (thingType != null) {
             List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
             for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
@@ -752,7 +685,6 @@ public class ThingSetupManager implements ProviderChangeListener<Thing> {
         if (itemRegistry.get(itemName) != null) {
             try {
                 itemRegistry.remove(itemName, true);
-                itemThingLinkRegistry.remove(AbstractLink.getIDFor(itemName, thingUID));
                 itemChannelLinkRegistry.removeLinksForThing(thingUID);
             } catch (Exception ex) {
                 logger.error("Coud not remove items and links for removed thing: " + ex.getMessage(), ex);

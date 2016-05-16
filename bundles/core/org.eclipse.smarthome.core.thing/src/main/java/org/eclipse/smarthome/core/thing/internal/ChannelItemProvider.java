@@ -1,0 +1,285 @@
+/**
+ * Copyright (c) 2014-2015 openHAB UG (haftungsbeschraenkt) and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.eclipse.smarthome.core.thing.internal;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
+import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.items.GenericItem;
+import org.eclipse.smarthome.core.items.Item;
+import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.items.ItemProvider;
+import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.thing.Channel;
+import org.eclipse.smarthome.core.thing.ChannelUID;
+import org.eclipse.smarthome.core.thing.Thing;
+import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
+import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.TypeResolver;
+
+/**
+ * This class dynamically provides items for all links that point to non-existing items.
+ *
+ * @author Kai Kreuzer
+ *
+ */
+public class ChannelItemProvider implements ItemProvider {
+
+    private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
+
+    private ThingRegistry thingRegistry;
+    private ItemChannelLinkRegistry linkRegistry;
+    private ItemRegistry itemRegistry;
+    private Set<ItemFactory> itemFactories = new HashSet<>();
+    private Map<String, Item> items = null;
+
+    private boolean enabled = true;
+
+    @Override
+    public Collection<Item> getAll() {
+        if (!enabled) {
+            return Collections.emptySet();
+        } else {
+            synchronized (this) {
+                if (items == null) {
+                    items = new HashMap<>();
+                    for (ItemChannelLink link : linkRegistry.getAll()) {
+                        createItemForLink(link);
+                    }
+                }
+            }
+            return items.values();
+        }
+    }
+
+    @Override
+    public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
+        listeners.add(listener);
+        for (Item item : getAll()) {
+            listener.added(this, item);
+        }
+    }
+
+    @Override
+    public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
+        listeners.remove(listener);
+
+    }
+
+    protected void addItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.add(itemFactory);
+    }
+
+    protected void removeItemFactory(ItemFactory itemFactory) {
+        this.itemFactories.remove(itemFactory);
+    }
+
+    protected void setThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = thingRegistry;
+    }
+
+    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
+        this.thingRegistry = null;
+    }
+
+    protected void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
+    }
+
+    protected void setItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
+        this.linkRegistry = linkRegistry;
+    }
+
+    protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry linkRegistry) {
+        this.linkRegistry = null;
+    }
+
+    protected void activate(Map<String, Object> properties) {
+        if (properties != null) {
+            String enabled = (String) properties.get("enabled");
+            if ("false".equalsIgnoreCase(enabled)) {
+                this.enabled = false;
+            }
+        }
+        if (enabled) {
+            for (ProviderChangeListener<Item> listener : listeners) {
+                for (Item item : getAll()) {
+                    listener.added(this, item);
+                }
+            }
+            this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
+            this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
+            this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
+        } else {
+            for (ProviderChangeListener<Item> listener : listeners) {
+                for (Item item : getAll()) {
+                    listener.removed(this, item);
+                }
+            }
+        }
+    }
+
+    protected void deactivate() {
+        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
+        this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
+        this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
+        synchronized (this) {
+            items = null;
+        }
+    }
+
+    private void createItemForLink(ItemChannelLink link) {
+        if (itemRegistry.get(link.getItemName()) != null) {
+            // there is already an item, we do not need to create one
+            return;
+        }
+        Channel channel = thingRegistry.getChannel(link.getUID());
+        if (channel != null) {
+            Item item = null;
+            for (ItemFactory itemFactory : itemFactories) {
+                item = itemFactory.createItem(channel.getAcceptedItemType(), link.getItemName());
+                if (item != null) {
+                    break;
+                }
+            }
+            if (item != null) {
+                if (item instanceof GenericItem) {
+                    GenericItem gItem = (GenericItem) item;
+                    gItem.setLabel(getLabel(channel));
+                    gItem.setCategory(getCategory(channel));
+                    gItem.addTags(channel.getDefaultTags());
+                }
+            }
+            if (item != null) {
+                items.put(item.getName(), item);
+                for (ProviderChangeListener<Item> listener : listeners) {
+                    listener.added(this, item);
+                }
+            }
+        }
+    }
+
+    private String getCategory(Channel channel) {
+        ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID());
+        if (channelType != null) {
+            return channelType.getCategory();
+        } else {
+            return null;
+        }
+    }
+
+    private String getLabel(Channel channel) {
+        if (channel.getLabel() != null) {
+            return channel.getLabel();
+        } else {
+            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID());
+            if (channelType != null) {
+                return channelType.getLabel();
+            }
+        }
+        return null;
+    }
+
+    private void removeItem(String key) {
+        if (!enabled) {
+            return;
+        }
+        Item item = items.get(key);
+        if (item != null) {
+            items.remove(key);
+            for (ProviderChangeListener<Item> listener : listeners) {
+                listener.removed(this, item);
+            }
+            items.remove(key);
+        }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    RegistryChangeListener<Thing> thingRegistryListener = new RegistryChangeListener<Thing>() {
+
+        @Override
+        public void added(Thing element) {
+            for (Channel channel : element.getChannels()) {
+                for (ItemChannelLink link : linkRegistry.getLinks(channel.getUID())) {
+                    createItemForLink(link);
+                }
+            }
+        }
+
+        @Override
+        public void removed(Thing element) {
+            removeItem(element.getUID().toString());
+        }
+
+        @Override
+        public void updated(Thing oldElement, Thing element) {
+            removed(oldElement);
+            added(element);
+        }
+    };
+
+    RegistryChangeListener<ItemChannelLink> linkRegistryListener = new RegistryChangeListener<ItemChannelLink>() {
+
+        @Override
+        public void added(ItemChannelLink element) {
+            createItemForLink(element);
+        }
+
+        @Override
+        public void removed(ItemChannelLink element) {
+            removeItem(element.getItemName());
+        }
+
+        @Override
+        public void updated(ItemChannelLink oldElement, ItemChannelLink element) {
+            removed(oldElement);
+            added(element);
+        }
+    };
+
+    RegistryChangeListener<Item> itemRegistryListener = new RegistryChangeListener<Item>() {
+
+        @Override
+        public void added(Item element) {
+            if (!items.values().contains(element)) {
+                // it is from some other provider, so remove ours, if we have one
+                items.remove(element.getName());
+            }
+        }
+
+        @Override
+        public void removed(Item element) {
+            for (ChannelUID uid : linkRegistry.getBoundChannels(element.getName())) {
+                for (ItemChannelLink link : linkRegistry.getLinks(uid)) {
+                    if (itemRegistry.get(link.getItemName()) == null) {
+                        createItemForLink(link);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void updated(Item oldElement, Item element) {
+        }
+    };
+}

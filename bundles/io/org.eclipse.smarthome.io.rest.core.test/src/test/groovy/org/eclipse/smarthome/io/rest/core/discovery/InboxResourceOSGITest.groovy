@@ -13,15 +13,11 @@ import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.*
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry
-import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.config.discovery.inbox.Inbox
-import org.eclipse.smarthome.core.items.GroupItem
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
-import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.builder.ThingBuilder
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
@@ -57,14 +53,7 @@ class InboxResourceOSGITest extends OSGiTest {
             approve :{ thingUID, label -> return testThing }
         ] as Inbox
         resource.setInbox(inbox)
-        ThingSetupManager thingSetupManager = new ThingSetupManager(){
-                    public void enableChannels(Thing thing, ThingTypeUID thingTypeUID, Locale locale) {
-                    }
-                    public void createGroupItems(String label, List<String> groupNames, Thing thing, ThingTypeUID typeUID, Locale locale) {
-                    }
-                }
-        resource.setThingSetupManager(thingSetupManager)
-        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel, false)
+        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel)
         assertTrue reponse.getStatusInfo() == Status.OK
     }
 
@@ -76,7 +65,7 @@ class InboxResourceOSGITest extends OSGiTest {
             }
         ] as Inbox
         resource.setInbox(inbox)
-        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel, false)
+        Response reponse = resource.approve(null, testThing.getUID().toString(), testThingLabel)
         assertTrue reponse.getStatusInfo() == Status.NOT_FOUND
     }
 }

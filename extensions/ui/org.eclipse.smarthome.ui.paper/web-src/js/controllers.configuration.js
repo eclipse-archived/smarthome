@@ -255,7 +255,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.add = function(label) {
         $mdDialog.hide(label);
     }
-}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingSetupService, toastService) {
+}).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
     $scope.refresh = function() {
@@ -276,7 +276,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, linkService, channelTypeService, configService) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -288,6 +288,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.channelTypes;
     channelTypeService.getAll().$promise.then(function(channels) {
         $scope.channelTypes = channels;
+        $scope.refreshChannels(false);
     });
     $scope.edit = function(thing, event) {
         $mdDialog.show({
@@ -316,27 +317,32 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
 
     $scope.enableChannel = function(thingUID, channelID, event) {
+        var channel = $scope.getChannelById(channelID);
         if ($scope.advancedMode) {
             $scope.linkChannel(channelID, event);
         } else {
-            thingSetupService.enableChannel({
-                channelUID : thingUID + ':' + channelID
+            linkService.link({
+                itemName : $scope.thing.UID.replace(/:/g, "_") + '_' + channelID.replace(/#/g, "_"),
+                channelUID : $scope.thing.UID + ':' + channelID
             }, function() {
                 $scope.getThing(true);
-                toastService.showDefaultToast('Channel enabled');
+                toastService.showDefaultToast('Channel linked');
             });
         }
     };
 
     $scope.disableChannel = function(thingUID, channelID, event) {
+        var channel = $scope.getChannelById(channelID);
+        var linkedItem = channel.linkedItems[0];
         if ($scope.advancedMode) {
             $scope.unlinkChannel(channelID, event);
         } else {
-            thingSetupService.disableChannel({
-                channelUID : thingUID + ':' + channelID
+            linkService.unlink({
+                itemName : $scope.thing.UID.replace(/:/g, "_") + '_' + channelID.replace(/#/g, "_"),
+                channelUID : $scope.thing.UID + ':' + channelID
             }, function() {
                 $scope.getThing(true);
-                toastService.showDefaultToast('Channel disabled');
+                toastService.showDefaultToast('Channel unlinked');
             });
         }
     };
@@ -381,7 +387,6 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             });
         });
     }
-
     $scope.getChannelById = function(channelId) {
         if (!$scope.thing) {
             return;
@@ -392,103 +397,27 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
 
     $scope.getChannelTypeById = function(channelId) {
-        if ($scope.thingType) {
-            var cid_part = channelId.split('#', 2)
-            if (cid_part.length == 1) {
-                var c, c_i, c_l;
-                for (c_i = 0, c_l = $scope.thingType.channels.length; c_i < c_l; ++c_i) {
-                    c = $scope.thingType.channels[c_i];
-                    if (c.id == channelId) {
-                        return c;
-                    }
-                }
-            } else if (cid_part.length == 2) {
-                var cg, cg_i, cg_l;
-                var c, c_i, c_l;
-                for (cg_i = 0, cg_l = $scope.thingType.channelGroups.length; cg_i < cg_l; ++cg_i) {
-                    cg = $scope.thingType.channelGroups[cg_i];
-                    if (cg.id == cid_part[0]) {
-                        for (c_i = 0, c_l = cg.channels.length; c_i < c_l; ++c_i) {
-                            c = cg.channels[c_i];
-                            if (c.id == cid_part[1]) {
-                                return c;
-                            }
-                        }
-                    }
-                }
-            } else {
-                return;
-            }
-        }
-        if ($scope.channelTypes) {
-            var c = {}, c_i, c_l;
-            for (c_i = 0, c_l = $scope.channelTypes.length; c_i < c_l; ++c_i) {
-                c = $scope.channelTypes[c_i];
-                c.advanced = false;
-                var id = c.UID.split(':', 2);
-                if (id[1] == channelId) {
-                    return c;
-                }
-            }
-        }
-        return;
+        return thingConfigService.getChannelTypeById($scope.thingType, $scope.channelTypes, channelId);
     };
 
     $scope.getChannelFromChannelTypes = function(channelUID) {
-        if ($scope.channelTypes) {
-            var c = {}, c_i, c_l;
-            for (c_i = 0, c_l = $scope.channelTypes.length; c_i < c_l; ++c_i) {
-                c = $scope.channelTypes[c_i];
-                if (c.UID == channelUID) {
-                    return c;
-                }
-            }
+        if (!$scope.channelTypes) {
+            return;
         }
-        return;
+        thingConfigService.getChannelFromChannelTypes($scope.channelTypes, channelUID);
     };
 
     var getChannels = function(advanced) {
 
-        if (!$scope.thingType || !$scope.thing) {
+        if (!$scope.thingType || !$scope.thing || !$scope.channelTypes) {
             return;
         }
-        var thingChannels = [];
-        var includedChannels = [];
         $scope.isAdvanced = checkAdvance($scope.thing.channels);
-        if ($scope.thingType.channelGroups && $scope.thingType.channelGroups.length > 0) {
-            for (var i = 0; i < $scope.thingType.channelGroups.length; i++) {
-                var group = {};
-                group.name = $scope.thingType.channelGroups[i].label;
-                group.description = $scope.thingType.channelGroups[i].description;
-                group.channels = matchGroup($scope.thing.channels, $scope.thingType.channelGroups[i].id);
-                group.channels = advanced ? group.channels : filterAdvance(group.channels, false);
-                includedChannels = includedChannels.concat(group.channels);
-                thingChannels.push(group);
-            }
-            var group = {
-                "name" : "Others",
-                "description" : "Other channels",
-                "channels" : []
-            };
-            for (var i = 0; i < $scope.thing.channels.length; i++) {
-                if (includedChannels.indexOf($scope.thing.channels[i]) == -1) {
-                    group.channels.push($scope.thing.channels[i]);
-                }
-            }
-            if (group.channels && group.channels.length > 0) {
-                thingChannels.push(group);
-            }
-        } else {
-            var group = {};
-            group.channels = advanced ? $scope.thing.channels : filterAdvance($scope.thing.channels, advanced);
-            thingChannels.push(group);
-        }
-
-        return thingChannels;
+        return thingConfigService.getThingChannels($scope.thing, $scope.thingType, $scope.channelTypes, advanced);
     };
     $scope.refreshChannels = function(showAdvanced) {
         $scope.thingChannels = getChannels(showAdvanced);
-    };
+    }
 
     function checkAdvance(channels) {
         if (channels) {
@@ -500,27 +429,8 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
                 }
             }
         }
-        return false;
     }
 
-    function filterAdvance(channels, advanced) {
-        return $.grep(channels, function(channel, i) {
-            var channelType = $scope.getChannelTypeById(channel.id);
-            return channelType ? advanced == channelType.advanced : true;
-        });
-    }
-    function matchGroup(arr, id) {
-        var matched = [];
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i].id) {
-                var sub = arr[i].id.split("#");
-                if (sub[0] && sub[0] == id) {
-                    matched.push(arr[i]);
-                }
-            }
-        }
-        return matched;
-    }
     $scope.getThing = function(refresh) {
         thingRepository.getOne(function(thing) {
             return thing.UID === thingUID;
@@ -565,7 +475,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
             }
         });
     };
-}).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingSetupService, thing) {
+}).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingService, thing) {
     $scope.thing = thing;
     $scope.isRemoving = thing.statusInfo.status === 'REMOVING';
     $scope.close = function() {
@@ -573,7 +483,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     }
     $scope.remove = function(thingUID) {
         var forceRemove = $scope.isRemoving ? true : false;
-        thingSetupService.remove({
+        thingService.remove({
             thingUID : thing.UID,
             force : forceRemove
         }, function() {
@@ -605,8 +515,7 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
     $scope.unlink = function() {
         $mdDialog.hide();
     }
-}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingSetupService, configService, thingService) {
-
+}).controller('EditThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, configService, thingService) {
     $scope.setHeaderText('Click the \'Save\' button to apply the changes.');
 
     var thingUID = $scope.path[4];

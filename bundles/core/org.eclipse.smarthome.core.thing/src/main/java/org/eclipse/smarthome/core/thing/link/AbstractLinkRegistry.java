@@ -63,6 +63,22 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
         return linkedItems;
     }
 
+    /**
+     * Returns all links for a given UID.
+     *
+     * @param uid a channel UID
+     * @return a set of links for the given UID
+     */
+    public Set<L> getLinks(UID uid) {
+        Set<L> links = new LinkedHashSet<>();
+        for (L link : getAll()) {
+            if (link.getUID().equals(uid)) {
+                links.add(link);
+            }
+        }
+        return links;
+    }
+
     @Override
     public L get(String key) {
         Collection<L> links = getAll();

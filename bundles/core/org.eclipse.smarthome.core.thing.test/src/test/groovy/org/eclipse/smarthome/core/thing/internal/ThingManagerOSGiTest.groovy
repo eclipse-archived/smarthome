@@ -52,6 +52,7 @@ import org.eclipse.smarthome.core.thing.events.ThingStatusInfoChangedEvent
 import org.eclipse.smarthome.core.thing.events.ThingStatusInfoEvent
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink
 import org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider
+import org.eclipse.smarthome.core.thing.link.ThingLinkManager
 import org.eclipse.smarthome.core.thing.type.ThingType
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry
 import org.eclipse.smarthome.core.types.Command
@@ -71,6 +72,7 @@ import com.google.common.collect.Sets
 class ThingManagerOSGiTest extends OSGiTest {
 
     ManagedThingProvider managedThingProvider
+    ThingLinkManager thingLinkManager
 
     ManagedItemChannelLinkProvider managedItemChannelLinkProvider
 
@@ -89,6 +91,8 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Before
     void setUp() {
         registerVolatileStorageService()
+        thingLinkManager = getService ThingLinkManager
+        thingLinkManager.deactivate()
         managedItemChannelLinkProvider = getService(ManagedItemChannelLinkProvider)
         managedThingProvider = getService(ManagedThingProvider)
         eventPublisher = getService(EventPublisher)
@@ -99,6 +103,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedThingProvider.getAll().each {
             managedThingProvider.remove(it.getUID())
         }
+        thingLinkManager.activate(null)
     }
 
     @Test
@@ -139,7 +144,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             unregisterHandler: {Thing thing -> unregisterHandlerCalled = true},
             removeThing: { ThingUID thingUID -> removeThingCalled = true},
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandlerFactory
 
         registerService(thingHandlerFactory)
@@ -155,7 +161,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Test
     void 'ThingManager does not delegate update events to its source'() {
         registerThingTypeProvider()
-        
+
         def itemName = "name"
         def handleUpdateWasCalled = false
         def callback
@@ -166,11 +172,10 @@ class ThingManagerOSGiTest extends OSGiTest {
             handleUpdate: { ChannelUID channelUID, State newState ->
                 handleUpdateWasCalled = true
             },
-            setCallback: {callbackArg ->
-                callback = callbackArg
-            },
+            setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -179,7 +184,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         ] as Hashtable)
 
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
-        
+
         // event should be delivered
         eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10)))
         waitForAssert { assertThat handleUpdateWasCalled, is(true) }
@@ -215,7 +220,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): THING.getThingTypeUID()
         ] as Hashtable)
-        
+
         callback.statusUpdated(THING, ThingStatusInfoBuilder.create(ThingStatus.ONLINE).build())
 
         Event receivedEvent = null
@@ -267,7 +272,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -303,7 +309,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -323,7 +330,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Test
     void 'ThingManager handles thing status updates uninitialized and initializing correctly'() {
         registerThingTypeProvider()
-        
+
         def thingHandler = [
             setCallback: {},
             initialize: {},
@@ -365,7 +372,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: {},
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -479,7 +487,8 @@ class ThingManagerOSGiTest extends OSGiTest {
             setCallback: {callbackArg -> callback = callbackArg },
             thingUpdated: {},
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         registerService(thingHandler,[
@@ -539,7 +548,7 @@ class ThingManagerOSGiTest extends OSGiTest {
     @Test
     void 'ThingManager posts thing status events if the status of a thing is updated'() {
         registerThingTypeProvider()
-        
+
         ThingHandlerCallback callback
         ThingStatusInfoEvent receivedEvent
 
@@ -547,8 +556,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
             dispose: {
-            },
-            getThing: {return THING}
+            }
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -622,7 +630,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
 
         def thingHandlerFactory = [
@@ -671,7 +680,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         Thread.sleep(100)
         assertThat receivedEvent, is(null)
     }
-    
+
     @Test
     void 'ThingManager calls initialize for added Thing correctly'() {
         // register ThingTypeProvider & ConfigurationDescriptionProvider with 'required' parameter
@@ -697,7 +706,8 @@ class ThingManagerOSGiTest extends OSGiTest {
                     (ThingHandler.SERVICE_PROPERTY_THING_TYPE): thing.getThingTypeUID()
                 ] as Hashtable)},
             unregisterHandler: {},
-            removeThing: {}
+            removeThing: {
+            }
         ] as ThingHandlerFactory
         registerService(thingHandlerFactory)
 
@@ -820,23 +830,24 @@ class ThingManagerOSGiTest extends OSGiTest {
             waitForAssert({assertThat bridgeInitCalled, is(true)})
         }, 4000)
     }
-    
+
     @Test
     void 'ThingManager calls bridgeStatusChanged on ThingHandler correctly'() {
         ThingHandlerCallback callback;
         def bridgeStatusChangedCalled = false
-        
+
         def bridge = BridgeBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:bridgeUID-1")).build()
         def bridgeHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
             initialize: {},
-            dispose: {}
+            dispose: {
+            }
         ] as ThingHandler
         registerService(bridgeHandler,[
             (ThingHandler.SERVICE_PROPERTY_THING_ID): bridge.getUID(),
             (ThingHandler.SERVICE_PROPERTY_THING_TYPE): bridge.getThingTypeUID()
         ] as Hashtable)
-    
+
         def thing = ThingBuilder.create(new ThingTypeUID("binding:type"), new ThingUID("binding:type:thingUID-1")).withBridge(bridge.getUID()).build()
         def thingHandler = [
             setCallback: {},
@@ -851,9 +862,9 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         managedThingProvider.add(bridge)
         managedThingProvider.add(thing)
-        
+
         assertThat bridgeStatusChangedCalled, is(false)
-        
+
         def statusInfo = ThingStatusInfoBuilder.create(ThingStatus.ONLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(bridge, statusInfo)
         waitForAssert({assertThat bridgeStatusChangedCalled, is(true)})
@@ -861,17 +872,17 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         callback.statusUpdated(bridge, statusInfo)
         waitForAssert({assertThat bridgeStatusChangedCalled, is(false)})
-        
+
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.OFFLINE, ThingStatusDetail.NONE).build()
         callback.statusUpdated(bridge, statusInfo)
         waitForAssert({assertThat bridgeStatusChangedCalled, is(true)})
         bridgeStatusChangedCalled = false;
-        
+
         statusInfo = ThingStatusInfoBuilder.create(ThingStatus.REMOVED, ThingStatusDetail.NONE).build()
         callback.statusUpdated(bridge, statusInfo)
         waitForAssert({assertThat bridgeStatusChangedCalled, is(false)})
     }
-    
+
     class SomeThingHandlerFactory extends BaseThingHandlerFactory {
 
         @Override
