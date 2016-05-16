@@ -20,5 +20,5 @@ Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
 Bundle-DocURL: http://www.openhab.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
- lib/mapdb-1.0.2.jar
+ lib/mapdb-1.0.9.jar
 Service-Component: OSGI-INF/*.xml
