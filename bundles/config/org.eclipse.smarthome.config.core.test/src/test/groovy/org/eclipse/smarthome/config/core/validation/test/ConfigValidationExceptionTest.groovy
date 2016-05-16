@@ -64,6 +64,9 @@ class ConfigValidationExceptionTest {
     void setUp() {
         Activator.i18nProvider = [
             getText: { bundle, key, defaultText, locale, params ->
+                if(locale == null) {
+                    locale = Locale.ENGLISH;
+                }
                 if(MessageKey.PARAMETER_REQUIRED.key.equals(key)) {
                     if(DE.equals(locale)) {
                         TXT_DE1
@@ -79,14 +82,10 @@ class ConfigValidationExceptionTest {
                 }
             }
         ] as I18nProvider
-
-        defaultLocale = Locale.getDefault()
-        Locale.setDefault(Locale.ENGLISH)
     }
 
     @After
     void tearDown(){
-        Locale.setDefault(defaultLocale)
     }
 
     @Test

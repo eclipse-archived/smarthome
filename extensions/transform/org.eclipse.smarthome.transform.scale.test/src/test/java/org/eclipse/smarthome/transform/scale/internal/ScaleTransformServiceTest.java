@@ -9,6 +9,8 @@ package org.eclipse.smarthome.transform.scale.internal;
 
 import static org.junit.Assert.fail;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.core.transform.TransformationException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,7 +24,12 @@ public class ScaleTransformServiceTest {
 
     @Before
     public void init() {
-        processor = new ScaleTransformationService();
+        processor = new ScaleTransformationService() {
+            @Override
+            protected Locale getLocale() {
+                return Locale.US;
+            }
+        };
     }
 
     @Test

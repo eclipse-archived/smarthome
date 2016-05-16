@@ -28,6 +28,11 @@
             <extraRequirements>
               <requirement>
                 <type>eclipse-plugin</type>
+                <id>org.eclipse.equinox.cm</id>
+                <versionRange>0.0.0</versionRange>
+              </requirement>
+              <requirement>
+                <type>eclipse-plugin</type>
                 <id>org.eclipse.equinox.ds</id>
                 <versionRange>0.0.0</versionRange>
               </requirement>
@@ -45,6 +50,11 @@
         <artifactId>tycho-surefire-plugin</artifactId>
         <configuration>
           <bundleStartLevel>
+            <bundle>
+              <id>org.eclipse.equinox.cm</id>
+              <level>1</level>
+              <autoStart>true</autoStart>
+            </bundle>
             <bundle>
               <id>org.eclipse.equinox.ds</id>
               <level>1</level>

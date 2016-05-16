@@ -17,6 +17,7 @@ import org.eclipse.smarthome.config.core.status.events.ConfigStatusInfoEvent;
 import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Thomas Höfer - Initial contribution
  * @author Chris Jackson - Allow null messages
+ * @author Markus Rathgeb - Add locale provider support
  */
 public final class ConfigStatusService implements ConfigStatusCallback {
 
@@ -36,6 +38,7 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     private final List<ConfigStatusProvider> configStatusProviders = new CopyOnWriteArrayList<>();
     private EventPublisher eventPublisher;
+    private LocaleProvider localeProvider;
     private I18nProvider i18nProvider;
 
     private final ExecutorService executorService = ThreadPoolManager
@@ -55,12 +58,12 @@ public final class ConfigStatusService implements ConfigStatusCallback {
      *
      * @throws IllegalArgumentException if given entityId is null or empty
      */
-    public ConfigStatusInfo getConfigStatus(String entityId, Locale locale) {
+    public ConfigStatusInfo getConfigStatus(String entityId, final Locale locale) {
         if (entityId == null || entityId.equals("")) {
             throw new IllegalArgumentException("EntityId must not be null or empty");
         }
 
-        Locale loc = locale != null ? locale : Locale.getDefault();
+        final Locale loc = locale != null ? locale : localeProvider.getLocale();
 
         for (ConfigStatusProvider configStatusProvider : configStatusProviders) {
             if (configStatusProvider.supportsEntity(entityId)) {
@@ -141,6 +144,14 @@ public final class ConfigStatusService implements ConfigStatusCallback {
 
     protected void unsetEventPublisher(EventPublisher eventPublisher) {
         this.eventPublisher = null;
+    }
+
+    protected void setLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 
     protected void setI18nProvider(I18nProvider i18nProvider) {

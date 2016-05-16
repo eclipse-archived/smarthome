@@ -168,9 +168,13 @@ To programmatically resolve texts for certain languages Eclipse SmartHome provid
 String text = i18nProvider.getText(bundleContext.getBundle(), "my.key", "DefaultValue", Locale.GERMAN);
 ```
 
+## Locale Provider
+
+To programmatically fetch the locale used by the Eclipse SmartHome system an OSGi service `LocaleProvider` is offered. The service contains a `getLocale()` method that can be used to choose a configurable locale.
+
 ## Getting Thing Types and Binding Definitions in different languages
 
-Thing types can be retrieved through the `ThingTypeRegistry` OSGi service. Every method takes a `Locale` as last argument. If no locale is specified the thing types are returned for the default locale which is determined by `Locale.getDefault()`, or the default text, which is specified in the XML file, if no language file for the default locale exists.
+Thing types can be retrieved through the `ThingTypeRegistry` OSGi service. Every method takes a `Locale` as last argument. If no locale is specified the thing types are returned for the default locale which is determined by using the `LocaleProvider`, or the default text, which is specified in the XML file, if no language file for the default locale exists.
 
 The following snippet shows how to retrieve the list of Thing Types for the German locale:
 

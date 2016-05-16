@@ -56,6 +56,8 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
 
     @Test
     void 'assert getConfigurableServices works'() {
+        def num = configurableServiceResource.getAll().size()
+
         def configurableService  = {} as SomeServiceInterface
         registerService(configurableService, [
             "service.pid": "pid",
@@ -65,15 +67,19 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
         ] as Hashtable)
 
         def configurableServices = configurableServiceResource.getAll()
-        assertThat configurableServices.size(), is(1)
-        assertThat configurableServices[0].id, is(equalTo("pid"))
-        assertThat configurableServices[0].configDescriptionURI, is(equalTo("someuri"))
-        assertThat configurableServices[0].label, is(equalTo("label"))
-        assertThat configurableServices[0].category, is(equalTo("category"))
+        assertThat configurableServices.size(), is(num + 1)
+
+        def idLast = configurableServices.size() - 1
+        assertThat configurableServices[idLast].id, is(equalTo("pid"))
+        assertThat configurableServices[idLast].configDescriptionURI, is(equalTo("someuri"))
+        assertThat configurableServices[idLast].label, is(equalTo("label"))
+        assertThat configurableServices[idLast].category, is(equalTo("category"))
     }
 
     @Test
     void 'assert component name fallback works'() {
+        def num = configurableServiceResource.getAll().size()
+
         def configurableService  = {} as SomeServiceInterface
         registerService(configurableService, [
             "component.name": "component.name",
@@ -81,8 +87,8 @@ class ConfigurableServiceResourceOSGiTest extends OSGiTest {
         ] as Hashtable)
 
         def configurableServices = configurableServiceResource.getAll()
-        assertThat configurableServices.size(), is(1)
-        assertThat configurableServices[0].id, is(equalTo("component.name"))
+        assertThat configurableServices.size(), is(num + 1)
+        assertThat configurableServices[configurableServices.size() - 1].id, is(equalTo("component.name"))
     }
 
     @Test

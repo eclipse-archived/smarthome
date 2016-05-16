@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marcel Verpaalen - Initial contribution OH2 ntp binding
  * @author Thomas.Eichstaedt-Engelen OH1 ntp binding (getTime routine)
+ * @author Markus Rathgeb - Add locale provider
  */
 
 public class NtpHandler extends BaseThingHandler {
@@ -56,6 +58,8 @@ public class NtpHandler extends BaseThingHandler {
 
     /** for logging purposes */
     private final DateFormat SDF = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.FULL, SimpleDateFormat.FULL);
+
+    private final LocaleProvider localeProvider;
 
     ScheduledFuture<?> refreshJob;
 
@@ -77,8 +81,9 @@ public class NtpHandler extends BaseThingHandler {
 
     private ChannelUID dateTimeChannelUID;
 
-    public NtpHandler(Thing thing) {
+    public NtpHandler(final Thing thing, final LocaleProvider localeProvider) {
         super(thing);
+        this.localeProvider = localeProvider;
     }
 
     @Override
@@ -111,7 +116,7 @@ public class NtpHandler extends BaseThingHandler {
                 String localeString = (String) config.get(PROPERTY_LOCALE);
                 locale = new Locale(localeString);
             } catch (Exception e) {
-                locale = Locale.getDefault();
+                locale = localeProvider.getLocale();
                 logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
