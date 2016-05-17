@@ -539,14 +539,20 @@ angular.module('PaperUI.controllers.configuration', []).controller('Configuratio
                 thingRepository.update(thing);
             });
         }
-
+        var dict = {};
+        var update = false;
         if (originalThing.label !== thing.label) {
+            dict.label = thing.label;
+            update = true;
+        }
+        if (originalThing.bridgeUID !== thing.bridgeUID) {
+            dict.bridgeUID = thing.bridgeUID
+            update = true;
+        }
+        if (update) {
             thingService.update({
                 thingUID : thing.UID
-            }, {
-                label : thing.label,
-                configuration : {}
-            });
+            }, dict);
         }
         toastService.showDefaultToast('Thing updated');
         $scope.navigateTo('things/view/' + thing.UID);
