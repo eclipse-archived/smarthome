@@ -12,13 +12,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.smarthome.config.core.normalization.INormalizer;
+import org.eclipse.smarthome.config.core.normalization.Normalizer;
 import org.eclipse.smarthome.config.core.normalization.NormalizerFactory;
+import org.eclipse.smarthome.config.core.validation.ConfigDescriptionValidator;
+
+import com.google.common.base.Preconditions;
 
 /**
  * This class provides some useful static methods for handling configurations
  *
  * @author Kai Kreuzer - Initial API and implementation
+ * @author Thomas Höfer - Minor changes for type normalization based on config description
  */
 public class ConfigUtil {
 
@@ -56,17 +60,21 @@ public class ConfigUtil {
      * BigDecimals, Strings and Booleans wherever a conversion of similar types was possible.
      *
      * However, it does not check for general correctness of types. This can be done using the
-     * ConfigDescriptionValidator.
+     * {@link ConfigDescriptionValidator}.
      *
-     * @param configuration
-     * @param configDescription
-     * @return
+     * @param configuration the configuration to be normalized (can be null)
+     * @param configDescription the configuration description (must not be null)
+     * @return the normalized configuration or null if given configuration was null
+     * @throws NullPointerException if given config description is null
      */
     public static Map<String, Object> normalizeTypes(Map<String, Object> configuration,
             ConfigDescription configDescription) {
+        Preconditions.checkNotNull(configDescription, "Config description must not be null.");
+
         if (configuration == null) {
             return null;
         }
+
         Map<String, Object> convertedConfiguration = new HashMap<String, Object>(configuration.size());
         Map<String, ConfigDescriptionParameter> configParams = configDescription.toParametersMap();
         for (Entry<String, ?> parameter : configuration.entrySet()) {
@@ -74,7 +82,7 @@ public class ConfigUtil {
             Object value = parameter.getValue();
             ConfigDescriptionParameter configDescriptionParameter = configParams.get(name);
             if (configDescriptionParameter != null) {
-                INormalizer normalizer = NormalizerFactory.getNormalizer(configDescriptionParameter);
+                Normalizer normalizer = NormalizerFactory.getNormalizer(configDescriptionParameter);
                 convertedConfiguration.put(name, normalizer.normalize(value));
             } else {
                 convertedConfiguration.put(name, value);
