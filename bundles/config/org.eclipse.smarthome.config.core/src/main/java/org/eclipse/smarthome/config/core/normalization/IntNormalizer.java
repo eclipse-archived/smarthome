@@ -10,16 +10,16 @@ package org.eclipse.smarthome.config.core.normalization;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+
 /**
- * Normalizer for the Integer type.
+ * The normalizer for {@link ConfigDescriptionParameter.Type#INTEGER}. All different number formats will get converted
+ * to BigDecimal, not allowing any fractions. Also, {@link String}s will be converted if possible.
  *
- * All different number formats will get converted to BigDecimal, not allowing any fractions.
- * Also, {@link String}s will be converted if possible.
- * 
  * @author Simon Kaufmann - initial contribution and API.
- *
+ * @author Thomas Höfer - made class final and minor javadoc changes
  */
-class IntNormalizer extends AbstractNormalizer {
+final class IntNormalizer extends AbstractNormalizer {
 
     @Override
     public Object doNormalize(Object value) {
