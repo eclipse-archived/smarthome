@@ -13,7 +13,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             targetEvent : event,
             hasBackdrop : true,
             locals : {
-                itemName : item.name
+                item : item
             }
         }).then(function() {
             $scope.refresh();
@@ -74,8 +74,8 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         });
     }
 
-}).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemName) {
-    $scope.itemName = itemName;
+}).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, item) {
+    $scope.item = item;
     $scope.remove = function(itemName) {
         itemService.remove({
             itemName : itemName
