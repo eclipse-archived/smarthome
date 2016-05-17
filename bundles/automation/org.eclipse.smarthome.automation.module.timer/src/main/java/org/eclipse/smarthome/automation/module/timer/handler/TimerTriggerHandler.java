@@ -59,11 +59,11 @@ public class TimerTriggerHandler extends BaseModuleHandler<Trigger>implements Tr
         this.callback = ruleCallback;
         this.job = JobBuilder.newJob(CallbackJob.class).withIdentity(MODULE_TYPE_ID + UUID.randomUUID().toString())
                 .build();
+        this.job.getJobDataMap().put(CALLBACK_CONTEXT_NAME, this.callback);
+        this.job.getJobDataMap().put(MODULE_CONTEXT_NAME, this.module);
         try {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
-            scheduler.getContext().put(CALLBACK_CONTEXT_NAME, this.callback);
-            scheduler.getContext().put(MODULE_CONTEXT_NAME, this.module);
             scheduler.scheduleJob(job, trigger);
         } catch (SchedulerException e) {
             logger.error("Error while scheduling Job: {}", e.getMessage());
