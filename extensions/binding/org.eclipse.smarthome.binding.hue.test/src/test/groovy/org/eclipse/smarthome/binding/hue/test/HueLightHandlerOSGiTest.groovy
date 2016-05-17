@@ -14,11 +14,11 @@ import static org.junit.matchers.JUnitMatchers.*
 import nl.q42.jue.MockedHttpClient
 import nl.q42.jue.HttpClient.Result
 
-import org.eclipse.smarthome.binding.hue.HueBindingConstants
 import org.eclipse.smarthome.binding.hue.handler.HueBridgeHandler
 import org.eclipse.smarthome.binding.hue.handler.HueLightHandler
 import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.EventPublisher
+import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.types.HSBType
 import org.eclipse.smarthome.core.library.types.IncreaseDecreaseType
@@ -26,6 +26,7 @@ import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.library.types.PercentType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
+import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.Thing
 import org.eclipse.smarthome.core.thing.ThingRegistry
 import org.eclipse.smarthome.core.thing.ThingStatus
@@ -34,7 +35,8 @@ import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
 import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder
-import org.eclipse.smarthome.core.thing.setup.ThingSetupManager
+import org.eclipse.smarthome.core.thing.link.ItemChannelLink
+import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry
 import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.test.AsyncResultWrapper
 import org.eclipse.smarthome.test.OSGiTest
@@ -62,14 +64,19 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "PAR16_50_TW")
 
     ThingRegistry thingRegistry
+    ItemChannelLinkRegistry linkRegistry
+    ItemRegistry itemRegistry
     VolatileStorageService volatileStorageService = new VolatileStorageService()
-
 
     @Before
     void setUp() {
         registerService(volatileStorageService)
         thingRegistry = getService(ThingRegistry, ThingRegistry)
         assertThat thingRegistry, is(notNullValue())
+        linkRegistry = getService(ItemChannelLinkRegistry, ItemChannelLinkRegistry)
+        assertThat linkRegistry, is(notNullValue())
+        itemRegistry = getService(ItemRegistry, ItemRegistry)
+        assertThat itemRegistry, is(notNullValue())
     }
 
     Bridge createBridge() {
@@ -104,6 +111,13 @@ class HueLightHandlerOSGiTest extends OSGiTest {
 
         assertThat hueLight, is(notNullValue())
         thingRegistry.add(hueLight)
+
+        for(Channel c : hueLight.getChannels()) {
+            def item = hueLight.getUID().toString().replace(":", "_") + "_" + c.getUID().id
+            if(linkRegistry.getBoundChannels(item).size()==0) {
+                linkRegistry.add(new ItemChannelLink(item, c.getUID()))
+            }
+        }
 
         return hueLight
     }
@@ -459,7 +473,6 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             installHttpClientMock(hueLightHandler.getHueBridgeHandler(), mockedHttpClient)
 
             assertBridgeOnline(hueLightHandler.getBridge())
-            enableHueLightChannels(hueLight)
             hueLightHandler.initialize()
             postCommand(hueLight, channel, command)
 
@@ -485,17 +498,13 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         }, 10000)
     }
 
-    private enableHueLightChannels(Thing hueLight){
-        ThingSetupManager thingSetupManager = getService(ThingSetupManager)
-
-        hueLight.getChannels().each {
-            thingSetupManager.enableChannel(it.UID, null)
-        }
-    }
-
     private postCommand(Thing hueLight, String channel, Command command){
 
         def item = hueLight.getUID().toString().replace(":", "_") + "_" + channel
+
+        waitForAssert {
+            assertThat itemRegistry.get(item), is(notNullValue())
+        }
 
         EventPublisher eventPublisher = getService(EventPublisher)
         assertThat eventPublisher, is(notNullValue())
