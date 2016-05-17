@@ -7,15 +7,16 @@
  */
 package org.eclipse.smarthome.config.core.normalization;
 
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+
 /**
- * Normalizer for the Text type.
- * 
- * It basically ensures that the given value will turned into its {@link String} representation.
- * 
- * @author Simon Kaufmann - initial contribution and API.
+ * The normalizer for the {@link ConfigDescriptionParameter.Type#TEXT}. It basically ensures that the given value will
+ * turned into its {@link String} representation.
  *
+ * @author Simon Kaufmann - initial contribution and API.
+ * @author Thomas Höfer - made class final and minor javadoc changes
  */
-class TextNormalizer extends AbstractNormalizer {
+final class TextNormalizer extends AbstractNormalizer {
 
     @Override
     public Object doNormalize(Object value) {

@@ -14,7 +14,7 @@ public class NormalizerTest {
 
     @Test
     public void testBooleanNormalizer() {
-        INormalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.BOOLEAN));
+        Normalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.BOOLEAN));
 
         assertThat normalizer.normalize(null), is(nullValue())
         assertThat normalizer.normalize(true), is(equalTo(true))
@@ -33,7 +33,7 @@ public class NormalizerTest {
         assertThat normalizer.normalize("0"), is(equalTo(false))
         assertThat normalizer.normalize("True"), is(equalTo(true))
         assertThat normalizer.normalize("TRUE"), is(equalTo(true))
-        assertThat normalizer.normalize(["toString": {-> "true"}] as INormalizer), is(equalTo(true))
+        assertThat normalizer.normalize(["toString": {-> "true"}] as Normalizer), is(equalTo(true))
 
         // no chance -> leaving it untouched
         assertThat normalizer.normalize(""), is(equalTo(""))
@@ -43,7 +43,7 @@ public class NormalizerTest {
 
     @Test
     public void testIntNormalizer() {
-        INormalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.INTEGER));
+        Normalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.INTEGER));
 
         assertThat normalizer.normalize(null), is(nullValue())
         assertThat normalizer.normalize(42), is(equalTo(new BigDecimal(42)))
@@ -69,7 +69,7 @@ public class NormalizerTest {
 
     @Test
     public void testDecimalNormalizer() {
-        INormalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.DECIMAL));
+        Normalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.DECIMAL));
 
         assertThat normalizer.normalize(null), is(nullValue())
         assertThat normalizer.normalize(42), is(equalTo(new BigDecimal("42.0")))
@@ -97,7 +97,7 @@ public class NormalizerTest {
 
     @Test
     public void testTextNormalizer() {
-        INormalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.TEXT));
+        Normalizer normalizer = NormalizerFactory.getNormalizer(new ConfigDescriptionParameter("test", Type.TEXT));
 
         assertThat normalizer.normalize(null), is(nullValue())
         assertThat normalizer.normalize(""), is(equalTo(""))
@@ -118,7 +118,7 @@ public class NormalizerTest {
 
     @Test
     public void testListNormalizer() {
-        INormalizer normalizer = NormalizerFactory.getNormalizer(["getType": {-> Type.BOOLEAN}, "isMultiple": {-> true}] as ConfigDescriptionParameter);
+        Normalizer normalizer = NormalizerFactory.getNormalizer(["getType": {-> Type.BOOLEAN}, "isMultiple": {-> true}] as ConfigDescriptionParameter);
 
         assertThat normalizer.normalize(null), is(nullValue())
         assertThat normalizer.normalize([true, false, true]), is(equalTo([true, false, true]))
