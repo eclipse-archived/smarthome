@@ -264,8 +264,10 @@ public class ChannelItemProvider implements ItemProvider {
             if (!items.values().contains(element)) {
                 // it is from some other provider, so remove ours, if we have one
                 Item oldElement = items.remove(element.getName());
-                for (ProviderChangeListener<Item> listener : listeners) {
-                    listener.removed(ChannelItemProvider.this, oldElement);
+                if (oldElement != null) {
+                    for (ProviderChangeListener<Item> listener : listeners) {
+                        listener.removed(ChannelItemProvider.this, oldElement);
+                    }
                 }
             }
         }
