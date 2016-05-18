@@ -131,6 +131,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 updateLed();
                 updateMediaInfo();
                 updatePlayerState();
+                updateSleepTimerDuration();
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
             }
@@ -293,6 +294,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 if (command instanceof RewindFastforwardType) {
                     // Rewind and Fast Forward are currently not implemented by the binding
                 }
+                break;
+            case SLEEPTIMER:
+                setSleepTimer(command);
                 break;
             default:
                 break;
@@ -505,6 +509,21 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
                 case "CurrentURI": {
                     updateCurrentURIFormatted(value);
+                    break;
+                }
+
+                case "SleepTimerGeneration": {
+                    if (value.equals("0")) {
+                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
+                                new StringType("OFF"));
+                    }
+                    break;
+                }
+
+                case "RemainingSleepTimerDuration": {
+                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
+                            (stateMap.get("RemainingSleepTimerDuration") != null)
+                                    ? new StringType(stateMap.get("RemainingSleepTimerDuration")) : UnDefType.UNDEF);
                     break;
                 }
             }
@@ -2272,5 +2291,32 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private void updateSonosThingType(String newThingTypeID) {
         changeThingType(new ThingTypeUID(SonosBindingConstants.BINDING_ID, newThingTypeID), getConfig());
+    }
+
+    /*
+     * Set the sleeptimer duration
+     * Use String command of format "HH:MM:SS" to set the timer to the desired duration
+     * Use empty String "" to switch the sleep timer off
+     */
+    public void setSleepTimer(Command command) {
+        if (command != null) {
+            if (command instanceof StringType) {
+
+                Map<String, String> inputs = new HashMap<String, String>();
+                inputs.put("InstanceID", "0");
+                inputs.put("NewSleepTimerDuration", command.toString());
+
+                Map<String, String> result = this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer",
+                        inputs);
+
+            }
+        }
+    }
+
+    protected void updateSleepTimerDuration() {
+        Map<String, String> result = service.invokeAction(this, "AVTransport", "GetRemainingSleepTimerDuration", null);
+        for (String variable : result.keySet()) {
+            this.onValueReceived(variable, result.get(variable), "DeviceProperties");
+        }
     }
 }

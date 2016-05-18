@@ -246,4 +246,9 @@
 		<description>Play the Line-in of the the Zone Player corresponding to the given UIN</description>
 	</channel-type>
 
+    <channel-type id="sleeptimer" advanced="true">
+        <item-type>String</item-type>
+        <label>Sleep Timer</label>
+        <description>Set/show the duration of the Sleeptimer</description>
+    </channel-type> 
 </thing:thing-descriptions>
