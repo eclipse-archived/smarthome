@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.smarthome.links" immediate="true">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" modified="modified" name="org.eclipse.smarthome.links">
    <implementation class="org.eclipse.smarthome.core.thing.link.ThingLinkManager"/>
    <reference bind="setItemChannelLinkRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry" name="ItemChannelLinkRegistry" policy="static" unbind="unsetItemChannelLinkRegistry"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
@@ -7,4 +7,8 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.thing.link.ThingLinkManager"/>
    </service>
+   <property name="service.config.description.uri" type="String" value="system:links"/>
+   <property name="service.config.label" type="String" value="Item Linking"/>
+   <property name="service.config.category" type="String" value="system"/>
+   <property name="service.pid" type="String" value="org.eclipse.smarthome.links"/>
 </scr:component>
