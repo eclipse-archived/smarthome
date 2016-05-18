@@ -46,17 +46,17 @@ public class ThingLinkManager {
     private boolean autoLinks = true;
 
     protected void activate(ComponentContext context) {
+        modified(context);
+        itemChannelLinkRegistry.addRegistryChangeListener(itemChannelLinkRegistryChangeListener);
+        managedThingProvider.addProviderChangeListener(managedThingProviderListener);
+    }
 
+    protected void modified(ComponentContext context) {
         // check whether we want to enable the automatic link creation or not
         if (context != null) {
             Object value = context.getProperties().get("autoLinks");
-            if ("false".equals(value)) {
-                autoLinks = false;
-            }
+            autoLinks = value == null || !value.toString().equals("false");
         }
-
-        itemChannelLinkRegistry.addRegistryChangeListener(itemChannelLinkRegistryChangeListener);
-        managedThingProvider.addProviderChangeListener(managedThingProviderListener);
     }
 
     protected void deactivate() {
@@ -139,14 +139,16 @@ public class ThingLinkManager {
         }
 
         private void createLinkIfNotAdvanced(Channel channel) {
-            if (channel.getChannelTypeUID() != null) {
-                ChannelType type = TypeResolver.resolve(channel.getChannelTypeUID());
-                if (type != null && type.isAdvanced()) {
-                    return;
+            if (autoLinks) {
+                if (channel.getChannelTypeUID() != null) {
+                    ChannelType type = TypeResolver.resolve(channel.getChannelTypeUID());
+                    if (type != null && type.isAdvanced()) {
+                        return;
+                    }
                 }
+                ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
+                itemChannelLinkRegistry.add(link);
             }
-            ItemChannelLink link = new ItemChannelLink(deriveItemName(channel.getUID()), channel.getUID());
-            itemChannelLinkRegistry.add(link);
         }
 
         @Override
