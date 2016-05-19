@@ -734,10 +734,19 @@ md-input-container .md-errors-spacer {
 	margin-top: 20px;
 }
 
-.itemIcon-text{
-	display:none;
+.itemIcon-text {
+	display: none;
 }
 
-.itemIcon + .itemIcon-text{
-	display:block;
+.itemIcon+.itemIcon-text {
+	display: block;
+}
+
+.thing-properties {
+	margin-left: -5px;
+	padding-left: 5px;
+}
+
+.thing-properties+table {
+	width: 0%;
 }
