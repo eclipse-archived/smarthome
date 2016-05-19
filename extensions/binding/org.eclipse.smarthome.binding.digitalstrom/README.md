@@ -105,7 +105,7 @@ The digitalSTROM-Server thing has the following configuration parameter groups *
 
 At the thing file, a manual configuration looks e.g. like
 ```
-Bridge digitalstrom:dssBridge:dssBridge1 [ ipAddress="dss.local.",  userName=”dssadmin”, password=“dssadmin”, sensorDataUpdateIntervall=”180”]
+Bridge digitalstrom:dssBridge:dssBridge1 [ ipAddress="dss.local.",  userName="dssadmin", password=“dssadmin", sensorDataUpdateIntervall="180"]
 ```
 
 ### digitalSTROM-Devices: 
@@ -154,7 +154,7 @@ Usually the discovery works reliable, so that a manual configuration is not need
 However, at the thing file, a manual configuration looks e.g. like 
 
 ```
-Thing digitalstrom:GE:GE-KM200 [ dSID="´3504175fe0000000000043d4",  activePowerRefreshPriority=”low”, electricMeterRefreshPriority=“medium”, outputCurrentRefreshPriority=”high”]
+Thing digitalstrom:GE:GE-KM200 [ dSID="´3504175fe0000000000043d4",  activePowerRefreshPriority="low", electricMeterRefreshPriority=“medium", outputCurrentRefreshPriority="high"]
 
 Thing digitalstrom:GR:GR-KM200 [ dSID="3504175fe0000000000043d5"]
 ```
