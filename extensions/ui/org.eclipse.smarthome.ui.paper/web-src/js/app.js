@@ -52,6 +52,17 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',
         title : 'Configuration'
+    }).when('/configuration/items', {
+        templateUrl : 'partials/configuration.html',
+        controller : 'ConfigurationPageController',
+        title : 'Configuration'
+    }).when('/configuration/item/edit/:itemName', {
+        templateUrl : 'partials/item.config.html',
+        controller : 'ItemSetupController'
+    }).when('/configuration/item/create', {
+        templateUrl : 'partials/item.config.html',
+        controller : 'ItemSetupController',
+        title : 'Create item'
     }).when('/configuration/things/view/:thingUID', {
         templateUrl : 'partials/configuration.html',
         controller : 'ConfigurationPageController',

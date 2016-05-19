@@ -152,7 +152,7 @@ function browserSyncInit(baseDir) {
         index: "index.html"
     };
 
-    server.middleware = proxyMiddleware(['/rest'], {target: 'http://localhost:8080'});
+    server.middleware = proxyMiddleware(['/rest','/icon'], {target: 'http://localhost:8080'});
 
     browserSync.instance = browserSync.init({
         startPath: '/',
@@ -188,6 +188,7 @@ gulp.task('inject', ['build'], function () {
                      './web-src/js/app.js',
                      './web-src/js/constants.js',
                      './web-src/js/controllers.configuration.js',
+                     './web-src/js/controllers.items.js',
                      './web-src/js/controllers.control.js',
                      './web-src/js/controllers.extension.js',
                      './web-src/js/controllers.js',
