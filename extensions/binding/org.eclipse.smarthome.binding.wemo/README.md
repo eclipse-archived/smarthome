@@ -26,7 +26,7 @@ The binding does not need any special configuration
 For manual Thing configuration, one needs to know the UUID of a certain WeMo device.
 In the thing file, this looks e.g. like
 ```
-[wemo:Socket-1-0-xxxxxx:Socket]
+wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
 ```
 
 ## Channels
@@ -53,18 +53,18 @@ Devices support some of the following channels:
 
 demo.things:
 ```
-wemo:socket:11111111111
+wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
 ```
 
 demo.items:
 ```
-Switch DemoSwitch    { channel="wemo:socket:1234567:state" }
-Switch LightSwitch   { channel="wemo:lightswitch:1234567:state" }
-Switch MotionSensor  { channel="wemo:Motion:1234567:state" }
-Number InsightPower  { channel="wemo:insight:1234567:currentpower" }
-Number InsightLastOn { channel="wemo:insight:1234567:lastOnFor" }
-Number InsightToday  { channel="wemo:insight:1234567:onToday" }
-Number InsightTotal  { channel="wemo:insight:1234567:onTotal" }
+Switch DemoSwitch    { channel="wemo:socket:Switch1:state" }
+Switch LightSwitch   { channel="wemo:lightswitch:Lightswitch1:state" }
+Switch MotionSensor  { channel="wemo:Motion:Sensor1:state" }
+Number InsightPower  { channel="wemo:insight:Insight1:currentPower" }
+Number InsightLastOn { channel="wemo:insight:Insight1:lastOnFor" }
+Number InsightToday  { channel="wemo:insight:Insight1:onToday" }
+Number InsightTotal  { channel="wemo:insight:Insight1:onTotal" }
 ```
 
 demo.sitemap:
