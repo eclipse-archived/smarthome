@@ -105,7 +105,7 @@ public class PageRenderer extends AbstractWidgetRenderer {
             EObject firstChild = children.get(0);
             EObject parent = firstChild.eContainer();
             if (!(firstChild instanceof Frame || parent instanceof Frame || parent instanceof Sitemap
-                    || parent instanceof List)) {
+                    || parent instanceof org.eclipse.smarthome.model.sitemap.List)) {
                 String frameSnippet = getSnippet("frame");
                 frameSnippet = StringUtils.replace(frameSnippet, "%label%", "");
                 frameSnippet = StringUtils.replace(frameSnippet, "%frame_class%", "mdl-form--no-label");
