@@ -1,4 +1,4 @@
-<section id="main">
+<section ng-class="{'configMain':page!=='services'}">
 	<div class="bindings tab-panel content" ng-if="page === 'bindings'" ng-controller="BindingController">
 		<div class="header-toolbar">
 			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
@@ -24,27 +24,22 @@
 			</div>
 		</div>
 	</div>
-	<div class="services tab-panel content" ng-if="page === 'services'" ng-controller="ServicesController">
-		<div class="header-toolbar">
-			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
-		</div>
-		<div class="section-header">
-			<div class="container">
-				<div class="toolbar">
-					<md-button class="md-fab" ng-click="add()" aria-label="Add Configuration"> <i class="material-icons">add</i></md-button>
-				</div>
-			</div>
-		</div>
+	<div class="services" ng-if="page === 'services'" ng-controller="ServicesController">
+
+		<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex" >
+		 <md-tab ng-repeat="tab in tabs | orderBy:'-category'" label="{{tab.category}}" layout-fill> 
+		 <md-tab-content layout-fill="">
+		
 		<div class="container">
 			<div class="services row">
-				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in services">
+				<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="service in tab">
 					<div class="card text-left" data-service-id="{{service.id}}">
 						<div class="clabel">
 							<h3 class="md-title">
-								{{service.label}} <small>{{service.id}}</small>
+								{{service.label}}
 							</h3>
 
-							<p class="text-left">{{service.category}}</p>
+							<p class="text-left">{{service.id}}</p>
 							<div class="text-right">
 								<md-button aria-label="Configure" ng-click="configure(service.id, service.configDescriptionURI, $event)">Configure</md-button>
 							</div>
@@ -57,6 +52,7 @@
 				<button class="md-button" title="Add Configuration" ng-click="add()">Add Service Configurarion</button>
 			</p>
 		</div>
+		</md-tab-content></md-tab></md-tabs>
 	</div>
 	<div class="things white-bg" ng-if="page === 'things' && !path[3]" ng-controller="ThingController">
 		<div class="header-toolbar">
