@@ -1,9 +1,14 @@
-angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, itemService, toastService, sharedProperties) {
+angular.module('PaperUI.controllers.configuration').controller('ItemSetupController', function($scope, $timeout, $mdDialog, $filter, itemService, toastService, sharedProperties) {
     $scope.setSubtitle([ 'Items' ]);
     $scope.setHeaderText('Shows all configured Items.');
     $scope.items = [];
     $scope.refresh = function() {
-        $scope.items = itemService.getNonRecursiveAll();
+        itemService.getNonRecursiveAll(function(items) {
+            $scope.items = $filter('filter')(items, {
+                type : '!GroupItem'
+            })
+        });
+
     };
     $scope.remove = function(item, event) {
         event.stopImmediatePropagation();
@@ -20,17 +25,18 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         });
     }
     $scope.getSrcURL = function(category, type) {
-        return category ? 'icon/' + category.toLowerCase() : type ? 'icon/' + type.toLowerCase().replace('item', '') : '';
+        return category ? '../icon/' + category.toLowerCase() : type ? '../icon/' + type.toLowerCase().replace('item', '') : '';
     }
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository) {
     $scope.items = [];
     $scope.oldCategory;
+    $scope.types = itemConfig.types;
     var itemName;
+    var originalItem = {};
     if ($scope.path && $scope.path.length > 4) {
         itemName = $scope.path[4];
     }
-
     itemService.getNonRecursiveAll(function(items) {
         $scope.items = items;
         if (itemName) {
@@ -39,10 +45,12 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             });
             if (items.length > 0) {
                 $scope.item = items[0];
+                angular.copy($scope.item, originalItem);
                 $scope.configMode = "edit";
                 $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
                 $scope.oldCategory = $scope.item.category;
-                $scope.setTitle('Edit item: ' + ($scope.item.label ? $scope.item.label : $scope.item.name));
+                $scope.setTitle('Edit ' + $scope.item.name);
+                $scope.setSubtitle([]);
             }
         } else {
             $scope.item = {};
@@ -53,11 +61,6 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
 
     });
 
-    $scope.types = itemConfig.types;
-    $scope.close = function() {
-        $mdDialog.cancel();
-    }
-
     $scope.update = function() {
         putItem("Item updated.");
     }
@@ -66,12 +69,14 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
     }
 
     function putItem(text) {
-        itemService.create({
-            itemName : $scope.item.name
-        }, $scope.item).$promise.then(function() {
-            toastService.showDefaultToast(text);
-            $location.path('configuration/items');
-        });
+        if (JSON.stringify($scope.item) !== JSON.stringify(originalItem)) {
+            itemService.create({
+                itemName : $scope.item.name
+            }, $scope.item).$promise.then(function() {
+                toastService.showDefaultToast(text);
+            });
+        }
+        $location.path('configuration/items');
     }
 
     $scope.renderIcon = function() {
