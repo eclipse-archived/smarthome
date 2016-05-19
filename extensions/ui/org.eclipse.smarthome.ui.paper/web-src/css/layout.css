@@ -322,7 +322,7 @@ header a.open-menu {
 }
 
 /* Section / Toolbar */
-section#main {
+section.configMain {
 	padding: 0px;
 	margin-top: 40px;
 }
