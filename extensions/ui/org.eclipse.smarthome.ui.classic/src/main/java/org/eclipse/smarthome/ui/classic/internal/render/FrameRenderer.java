@@ -45,6 +45,6 @@ public class FrameRenderer extends AbstractWidgetRenderer {
         snippet = processColor(w, snippet);
 
         sb.append(snippet);
-        return ((Frame) w).getChildren();
+        return itemUIRegistry.getChildren((Frame) w);
     }
 }

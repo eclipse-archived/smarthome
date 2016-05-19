@@ -15,7 +15,7 @@ Widget:
 	(LinkableWidget | NonLinkableWidget);
 
 NonLinkableWidget:
-	Switch | Selection | Slider | List | Setpoint | Video | Chart | Webview | Colorpicker | Mapview;
+	Switch | Selection | Slider | List | Setpoint | Video | Chart | Webview | Colorpicker | Mapview | Default;
 
 LinkableWidget:
 	(Text | Group | Image | Frame)
@@ -112,6 +112,13 @@ Setpoint:
 
 Colorpicker:
 	'Colorpicker' (('item=' item=ItemRef) & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? & ('sendFrequency=' frequency=INT)? & 
+		('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
+		('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
+		('visibility=[' (Visibility+=VisibilityRule (',' Visibility+=VisibilityRule)* ']'))?);
+
+Default:
+	'Default' (('item=' item=ItemRef) & ('label=' label=(ID | STRING))? & ('icon=' icon=Icon)? & 
+		('height=' height=INT)? &
 		('labelcolor=[' (LabelColor+=ColorArray (',' LabelColor+=ColorArray)* ']'))? &
 		('valuecolor=[' (ValueColor+=ColorArray (',' ValueColor+=ColorArray)* ']'))? &
 		('visibility=[' (Visibility+=VisibilityRule (',' Visibility+=VisibilityRule)* ']'))?);
