@@ -515,7 +515,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "SleepTimerGeneration": {
                     if (value.equals("0")) {
                         updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
-                                new StringType("OFF"));
+                                new DecimalType(0));
                     }
                     break;
                 }
@@ -523,7 +523,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 case "RemainingSleepTimerDuration": {
                     updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
                             (stateMap.get("RemainingSleepTimerDuration") != null)
-                                    ? new StringType(stateMap.get("RemainingSleepTimerDuration")) : UnDefType.UNDEF);
+                                    ? new DecimalType(
+                                            sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
+                                    : UnDefType.UNDEF);
                     break;
                 }
             }
@@ -2300,11 +2302,11 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
      */
     public void setSleepTimer(Command command) {
         if (command != null) {
-            if (command instanceof StringType) {
+            if (command instanceof DecimalType) {
 
                 Map<String, String> inputs = new HashMap<String, String>();
                 inputs.put("InstanceID", "0");
-                inputs.put("NewSleepTimerDuration", command.toString());
+                inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(Integer.parseInt(command.toString())));
 
                 Map<String, String> result = this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer",
                         inputs);
@@ -2318,5 +2320,30 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         for (String variable : result.keySet()) {
             this.onValueReceived(variable, result.get(variable), "DeviceProperties");
         }
+    }
+
+    private String sleepSecondsToTimeStr(long sleepSeconds) {
+        if (sleepSeconds == 0) {
+            return "";
+        } else if (sleepSeconds < 68400) {
+            long hours = TimeUnit.SECONDS.toHours(sleepSeconds);
+            sleepSeconds -= TimeUnit.HOURS.toSeconds(hours);
+            long minutes = TimeUnit.SECONDS.toMinutes(sleepSeconds);
+            sleepSeconds -= TimeUnit.MINUTES.toSeconds(minutes);
+            long seconds = TimeUnit.SECONDS.toSeconds(sleepSeconds);
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            logger.error("Sonos SleepTimer: Invalid sleep time set. sleep time must be >=0 and < 68400s (24h)");
+            return "ERR";
+        }
+
+    }
+
+    private long sleepStrTimeToSeconds(String sleepTime) {
+        String[] units = sleepTime.split(":");
+        int hours = Integer.parseInt(units[0]);
+        int minutes = Integer.parseInt(units[1]);
+        int seconds = Integer.parseInt(units[2]);
+        return 3600 * hours + 60 * minutes + seconds;
     }
 }

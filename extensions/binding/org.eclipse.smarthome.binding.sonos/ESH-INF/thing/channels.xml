@@ -247,8 +247,8 @@
 	</channel-type>
 
     <channel-type id="sleeptimer" advanced="true">
-        <item-type>String</item-type>
+        <item-type>Number</item-type>
         <label>Sleep Timer</label>
-        <description>Set/show the duration of the Sleeptimer</description>
+        <description>Set/show the duration of the SleepTimer in seconds</description>
     </channel-type> 
 </thing:thing-descriptions>
