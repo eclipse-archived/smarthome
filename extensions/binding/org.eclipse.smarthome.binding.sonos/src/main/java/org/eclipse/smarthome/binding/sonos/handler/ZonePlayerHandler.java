@@ -169,6 +169,10 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
     @Override
     public void initialize() {
 
+    	if (handleThingTypeRecreation()) {
+    		return;
+    	}
+    	
         Configuration configuration = getConfig();
 
         if (configuration.get("udn") != null) {
@@ -179,8 +183,6 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         } else {
             logger.warn("Cannot initalize the zoneplayer. UDN not set.");
         }
-
-        handleThingTypeRecreation();
     }
 
     @Override
@@ -2252,13 +2254,15 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
         return SonosXMLParser.extractModelName(sonosModelDescription);
     }
 
-    private void handleThingTypeRecreation() {
+    private boolean handleThingTypeRecreation() {
         if (getThing().getThingTypeUID().equals(ZONEPLAYER_THING_TYPE_UID)) {
             String modelName = getModelNameFromDescriptor();
             if (isSupportedModel(modelName)) {
                 updateSonosThingType(modelName);
+                return true;
             }
         }
+        return false;
     }
 
     private boolean isSupportedModel(String modelName) {
