@@ -20,7 +20,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
         });
     }
     $scope.getSrcURL = function(category, type) {
-        return category ? 'http://localhost:8080/icon/' + category.toLowerCase() : type ? 'http://localhost:8080/icon/' + type.toLowerCase().replace('item', '') : '';
+        return category ? 'icon/' + category.toLowerCase() : type ? 'icon/' + type.toLowerCase().replace('item', '') : '';
     }
     $scope.refresh();
 }).controller('ItemConfigController', function($scope, $mdDialog, $filter, $location, toastService, itemService, itemConfig, itemRepository) {
@@ -40,7 +40,7 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             if (items.length > 0) {
                 $scope.item = items[0];
                 $scope.configMode = "edit";
-                $scope.srcURL = $scope.item.category ? 'http://localhost:8080/icon/' + $scope.item.category.toLowerCase() : $scope.item.type ? 'http://localhost:8080/icon/' + $scope.item.type.toLowerCase().replace('item', '') : ''
+                $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
                 $scope.oldCategory = $scope.item.category;
                 $scope.setTitle('Edit item: ' + ($scope.item.label ? $scope.item.label : $scope.item.name));
             }
@@ -72,6 +72,11 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
             toastService.showDefaultToast(text);
             $location.path('configuration/items');
         });
+    }
+
+    $scope.renderIcon = function() {
+        $scope.oldCategory = $scope.item.category;
+        $scope.srcURL = $scope.getSrcURL($scope.item.category, $scope.item.type);
     }
 
 }).controller('ItemRemoveController', function($scope, $mdDialog, $filter, $location, toastService, itemService, item) {

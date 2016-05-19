@@ -174,6 +174,6 @@ angular.module('PaperUI.constants').constant('itemConfig', {
         value : "Player"
     }, {
         name : "LocationItem",
-        value : "LocationItem"
+        value : "Location"
     } ]
 });

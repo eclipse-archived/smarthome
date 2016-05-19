@@ -152,7 +152,7 @@ function browserSyncInit(baseDir) {
         index: "index.html"
     };
 
-    server.middleware = proxyMiddleware(['/rest'], {target: 'http://localhost:8080'});
+    server.middleware = proxyMiddleware(['/rest','/icon'], {target: 'http://localhost:8080'});
 
     browserSync.instance = browserSync.init({
         startPath: '/',
