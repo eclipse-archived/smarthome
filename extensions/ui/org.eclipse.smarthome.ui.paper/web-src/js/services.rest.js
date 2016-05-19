@@ -34,10 +34,7 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
             params : {
                 itemName : '@itemName'
             },
-            url : restConfig.restPath + '/items/:itemName',
-            headers : {
-                'Content-Type' : 'text/plain'
-            }
+            url : restConfig.restPath + '/items/:itemName'
         },
         updateState : {
             method : 'PUT',
@@ -90,7 +87,12 @@ angular.module('PaperUI.services.rest', [ 'PaperUI.constants' ]).config(function
                 tag : '@tag'
             },
             url : restConfig.restPath + '/items/:itemName/tags/:tag'
-        }
+        },
+        getNonRecursiveAll : {
+            method : 'GET',
+            isArray : true,
+            url : restConfig.restPath + '/items?recursive=false'
+        },
     });
 }).factory('bindingService', function($resource, restConfig) {
     return $resource(restConfig.restPath + '/bindings', {}, {

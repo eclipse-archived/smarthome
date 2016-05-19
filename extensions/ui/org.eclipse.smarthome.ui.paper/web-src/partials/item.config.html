@@ -1,0 +1,58 @@
+<section>
+	<div class="item-edit white-bg" ng-if="advancedMode" ng-controller="ItemConfigController">
+		<div class="header-toolbar">
+			<md-button ng-click="refresh()" aria-label="Refresh"> <i class="material-icons">refresh</i></md-button>
+		</div>
+		<div class="section-header">
+			<div class="container">
+				<div class="toolbar">
+					<md-button class="md-fab" ng-if="configMode=='edit'" class="md-primary" ng-click="update(item)"> <i class="material-icons">check</i></md-button>
+					<md-button class="md-fab" ng-disabled="form.itemForm.$invalid" ng-if="configMode=='create'" class="md-primary" ng-click="create(item,true)"> <i class="material-icons">add</i></md-button>
+				</div>
+			</div>
+		</div>
+		<div class="container content">
+			<div aria-label="Configure item">
+				<form name="form.itemForm">
+					<div class="row" ng-if="configMode=='create'">
+						<div class="parameter col-xs-12">
+							<label for="itemaName" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Name</label>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-init="focus=false" required itemname name="itemName" ng-model="item.name" ng-focus="focus=true" />
+							<div ng-messages="form.itemForm.itemName.$error" ng-show="(form.itemForm.itemName.$error && focus) || (form.itemForm.itemName.$dirty && focus)">
+								<div ng-message="nameValidator">Item name already exists</div>
+								<div ng-message="required">Field is required</div>
+							</div>
+							</md-input-container>
+						</div>
+					</div>
+					<div class="row">
+						<div class="parameter col-sm-6 col-xs-12">
+							<label for="itemLabel" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Label</label>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <input name="itemLabel" ng-model="item.label"> </md-input-container>
+						</div>
+						<div class="row parameter col-sm-6 col-xs-12">
+							<div class="col-xs-11">
+								<label for="itemCategory" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Category</label>
+								<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-blur="renderIcon()" name="itemCategory" ng-model="item.category"> </md-input-container>
+							</div>
+							<div class="col-xs-1">
+								<img width="48" onload="this.className=''" ng-src="{{srcURL}}" onerror="this.className='itemIcon-text'" />
+							</div>
+						</div>
+					</div>
+					<div class="row">
+
+						<div class="parameter col-sm-6 col-xs-12">
+							<label for="itemType" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Type</label>
+							<md-input-container class="col-xs-12 noPadding noMargin"> <md-select placeholder="select" isrequired="true" required name="itemType" ng-model="item.type"> <md-option ng-value="option.name" ng-repeat="option in types"> <span style="display: inline-block;"> {{option.value}} </span> </md-option> </md-select>
+							<div ng-messages="form.itemForm.itemType.$error">
+								<div ng-message="required">Field is required</div>
+							</div>
+							</md-input-container>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>

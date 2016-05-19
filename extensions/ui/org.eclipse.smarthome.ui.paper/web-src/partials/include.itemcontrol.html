@@ -81,7 +81,7 @@
 				</div>
 			</div>
 		</div>
-		<div ng-if="shouldRenderSlider(item)" layout="row" layout-align="start center" class="number-control-widget">
+		<div layout="row" layout-align="start center" class="number-control-widget">
 			<span flex="15" class="text-left" ng-if="getMinText(item)">{{getMinText(item)}}</span>
 			<md-slider class="md-default-theme" flex="70" min="{{item.stateDescription.minimum}}" max="{{item.stateDescription.maximum}}" step="{{item.stateDescription.step}}" ng-model="item.state" md-discrete="true" ng-if="getMinText(item) && getMaxText(item)" ng-change="sendCommand(item.state)" aria-label={{item.label}}></md-slider>
 			<span flex="15" class="text-right" ng-if="getMaxText(item)">{{getMaxText(item)}}</span>

@@ -720,3 +720,24 @@ md-input-container .md-errors-spacer {
 .no-margin {
 	margin: 0px;
 }
+
+.itemChannel {
+	padding: 15px;
+	padding-bottom: 0px;
+}
+
+.italic {
+	font-style:italic;
+}
+
+.item-edit {
+	margin-top: 20px;
+}
+
+.itemIcon-text{
+	display:none;
+}
+
+.itemIcon + .itemIcon-text{
+	display:block;
+}

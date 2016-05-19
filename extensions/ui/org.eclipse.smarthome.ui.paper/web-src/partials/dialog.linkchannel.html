@@ -2,11 +2,27 @@
 <h1>Link channel</h1>
 <p>Please select the item to link:</p>
 <form name="linkForm">
-	<md-input-container class="col-xs-12 noPadding"> <label>Item</label> <md-select required="true" ng-model="itemName"> <md-option ng-repeat="item in items | orderBy: 'name'" value="{{item.name}}" ng-show="acceptedItemType === item.type"> {{item.name}} </md-option> </md-select> </md-input-container>
+	<md-input-container class="col-xs-12 noPadding"> <label>Item</label> <md-select name="itemName" md-on-close="checkCreateOption()" required="true" ng-model="itemName"> <md-option ng-repeat="item in items" ng-value="item.name"> <span ng-class="{italic:$last}">{{$last?'+ Create new item...':item.name}}</span> </md-option> </md-select> </md-input-container>
+	<div class="row" ng-show="itemFormVisible">
+		<div class="parameter col-sm-6 col-xs-12">
+			<label for="newItemName" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Item name</label>
+			<md-input-container class="col-xs-12 noPadding noMargin"> <input ng-init="focus=false" required itemname name="newItemName" ng-model="newItemName" ng-focus="focus=true" />
+			<div ng-messages="linkForm.newItemName.$error" ng-show="(linkForm.newItemName.$error && focus) || (linkForm.newItemName.$dirty && focus)">
+				<div ng-message="nameValidator">Item name already exists</div>
+				<div ng-message="required">Field is required</div>
+			</div>
+			</md-input-container>
+		</div>
+		<div class="parameter col-sm-6 col-xs-12">
+			<label for="itemLabel" class="config-textInput" style="vertical-align: super; margin-bottom: 0px;">Item label</label>
+			<md-input-container class="col-xs-12 noPadding noMargin"> <input name="itemLabel" ng-model="itemLabel"> </md-input-container>
+		</div>
+	</div>
 </form>
 </md-dialog-content>
 <div class="md-actions" layout="row">
 	<md-button ng-click="close()">Cancel</md-button>
-	<md-button ng-disabled="linkForm.$invalid" ng-click="link(itemName)">Link</md-button>
+	<md-button ng-show="!itemFormVisible" ng-disabled="linkForm.itemName.$invalid" ng-click="link(itemName)">Link</md-button>
+    <md-button ng-show="itemFormVisible" ng-disabled="linkForm.$invalid" ng-click="createAndLink()">Link</md-button>
 </div>
 </md-dialog>
