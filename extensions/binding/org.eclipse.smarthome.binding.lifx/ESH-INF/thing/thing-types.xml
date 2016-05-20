@@ -53,6 +53,9 @@
         <label>Color</label>
         <description>Selects the color of the light</description>
         <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
     </channel-type>
     
     <channel-type id="temperature">
@@ -67,6 +70,9 @@
         <label>Brightness</label>
         <description>Sets the brightness of the light</description>
         <category>DimmableLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
     </channel-type>
 
 </thing:thing-descriptions>
