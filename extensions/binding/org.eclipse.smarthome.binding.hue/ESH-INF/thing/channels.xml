@@ -12,6 +12,9 @@
             It is also possible to dim values and switch the light on and off.
         </description>
         <category>ColorLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
     </channel-type>
 
     <!-- Brightness Channel -->
@@ -22,6 +25,9 @@
             It is also possible to switch the light on and off.
         </description>
         <category>DimmableLight</category>
+        <tags>
+            <tag>Lighting</tag>
+        </tags>
     </channel-type>
 
     <!-- Color Temperature Channel -->
