@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.library.CoreItemFactory;
 import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.eclipse.smarthome.core.library.types.GeoHashType;
 import org.eclipse.smarthome.core.library.types.PointType;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
@@ -34,11 +35,13 @@ public class LocationItem extends GenericItem {
     private static List<Class<? extends Command>> acceptedCommandTypes = new ArrayList<Class<? extends Command>>();
 
     static {
+        acceptedDataTypes.add(GeoHashType.class);
         acceptedDataTypes.add(PointType.class);
         acceptedDataTypes.add(UnDefType.class);
 
         acceptedCommandTypes.add(RefreshType.class);
         acceptedCommandTypes.add(PointType.class);
+        acceptedCommandTypes.add(GeoHashType.class);
     }
 
     public LocationItem(String name) {
@@ -47,6 +50,28 @@ public class LocationItem extends GenericItem {
 
     public void send(PointType command) {
         internalSend(command);
+    }
+
+    public void send(GeoHashType command) {
+        internalSend(command);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public State getStateAs(Class<? extends State> typeClass) {
+        if (typeClass == PointType.class) {
+            if (state instanceof GeoHashType) {
+                return ((GeoHashType) state).toPointType();
+            }
+        } else if (typeClass == GeoHashType.class) {
+            if (state instanceof PointType) {
+                return new GeoHashType((PointType) state, new DecimalType(GeoHashType.PRECISION_MAX));
+            }
+        }
+
+        return super.getStateAs(typeClass);
     }
 
     @Override
@@ -60,19 +85,30 @@ public class LocationItem extends GenericItem {
     }
 
     /**
-     * Compute the distance with another Point type,
-     * http://stackoverflow.com/questions/837872/calculate-distance-in-meters-when-you-know-longitude-and-latitude-in-
-     * java
+     * Compute the distance with another LocationItem,
      *
      * @param away : the point to calculate the distance with
      * @return distance between the two points in meters
      */
     public DecimalType distanceFrom(LocationItem awayItem) {
-        if (awayItem != null && awayItem.state instanceof PointType && this.state instanceof PointType) {
-            PointType thisPoint = (PointType) this.state;
-            PointType awayPoint = (PointType) awayItem.state;
-            return thisPoint.distanceFrom(awayPoint);
+        if (awayItem != null) {
+            PointType thisPoint = castIfLegit(this.state);
+            PointType awayPoint = castIfLegit(awayItem.state);
+
+            if (thisPoint != null && awayPoint != null) {
+                return thisPoint.distanceFrom(awayPoint);
+            }
         }
         return new DecimalType(-1);
+    }
+
+    private PointType castIfLegit(State state) {
+        if (state instanceof PointType) {
+            return (PointType) state;
+        } else if (state instanceof GeoHashType) {
+            return ((GeoHashType) state).toPointType();
+        } else {
+            return null;
+        }
     }
 }
