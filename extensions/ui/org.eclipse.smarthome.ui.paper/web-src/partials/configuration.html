@@ -115,6 +115,15 @@
 				</span>
 				<span>{{thing.statusInfo.description}}</span>
 			</p>
+			<div ng-init="details=false" ng-if="hasProperties(thing.properties)">
+            <md-button class="thing-properties"  ng-click="details=!details">{{details?'hide':'show'}} properties</md-button>
+                 <table class="table table-bordered">
+                <tr ng-show="details" ng-repeat="(key,value) in thing.properties">                  
+                        <td >{{key}}</td>
+                        <td>{{value}}</td>
+                    </tr>
+                </table>
+            </div>
 			<h2 class="inline" ng-show="thing.channels.length > 0">Channels</h2>
 			<md-button class="showmore no-margin"  ng-click="refreshChannels(showAdvanced=!showAdvanced)" ng-show="isAdvanced">{{showAdvanced ? 'show less' : 'show more'}}</md-button>
 			<div class="channels">
