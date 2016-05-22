@@ -19,6 +19,7 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.ThingTypeRegistry;
 import org.osgi.framework.BundleContext;
@@ -33,7 +34,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * @author Dennis Nobel - Initial contribution
  * @author Benedikt Niehues - fix for Bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=445137 considering
  *         default values
- * @author Thomas Höfer - added config status provider service registration
+ * @author Thomas Höfer - added config status provider and firmware update handler service registration
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
@@ -41,6 +42,7 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
     private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
     private Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new HashMap<>();
+    private Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new HashMap<>();
 
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
     private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
@@ -78,10 +80,16 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                 serviceRegistration.unregister();
             }
         }
+        for (ServiceRegistration<FirmwareUpdateHandler> serviceRegistration : firmwareUpdateHandlers.values()) {
+            if (serviceRegistration != null) {
+                serviceRegistration.unregister();
+            }
+        }
         thingTypeRegistryServiceTracker.close();
         configDescriptionRegistryServiceTracker.close();
         this.thingHandlers.clear();
         this.configStatusProviders.clear();
+        this.firmwareUpdateHandlers.clear();
         this.bundleContext = null;
     }
 
@@ -96,6 +104,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
                 .remove(thing.getUID().getAsString());
         if (configStatusProviderServiceRegistration != null) {
             configStatusProviderServiceRegistration.unregister();
+        }
+        ServiceRegistration<FirmwareUpdateHandler> firmwareUpdateHandlerServiceRegistration = firmwareUpdateHandlers
+                .remove(thing.getUID().getAsString());
+        if (firmwareUpdateHandlerServiceRegistration != null) {
+            firmwareUpdateHandlerServiceRegistration.unregister();
         }
     }
 
@@ -127,9 +140,15 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         thingHandlers.put(thing.getUID().toString(), thingHandlderServiceRegistration);
 
         if (thingHandler instanceof ConfigStatusProvider) {
-            ServiceRegistration<ConfigStatusProvider> configStatusProviderServiceRegistration = registerConfigValidatorAsService(
+            ServiceRegistration<ConfigStatusProvider> configStatusProviderServiceRegistration = registerConfigStatusProviderAsService(
                     thingHandler);
             configStatusProviders.put(thing.getUID().getAsString(), configStatusProviderServiceRegistration);
+        }
+
+        if (thingHandler instanceof FirmwareUpdateHandler) {
+            ServiceRegistration<FirmwareUpdateHandler> firmwareUpdateHandlerServiceRegistration = registerFirmwareUpdateHandlerAsService(
+                    thingHandler);
+            firmwareUpdateHandlers.put(thing.getUID().getAsString(), firmwareUpdateHandlerServiceRegistration);
         }
     }
 
@@ -143,10 +162,18 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         return serviceRegistration;
     }
 
-    private ServiceRegistration<ConfigStatusProvider> registerConfigValidatorAsService(ThingHandler thingHandler) {
+    private ServiceRegistration<ConfigStatusProvider> registerConfigStatusProviderAsService(ThingHandler thingHandler) {
         @SuppressWarnings("unchecked")
         ServiceRegistration<ConfigStatusProvider> serviceRegistration = (ServiceRegistration<ConfigStatusProvider>) bundleContext
                 .registerService(ConfigStatusProvider.class.getName(), thingHandler, null);
+        return serviceRegistration;
+    }
+
+    private ServiceRegistration<FirmwareUpdateHandler> registerFirmwareUpdateHandlerAsService(
+            ThingHandler thingHandler) {
+        @SuppressWarnings("unchecked")
+        ServiceRegistration<FirmwareUpdateHandler> serviceRegistration = (ServiceRegistration<FirmwareUpdateHandler>) bundleContext
+                .registerService(FirmwareUpdateHandler.class.getName(), thingHandler, null);
         return serviceRegistration;
     }
 
