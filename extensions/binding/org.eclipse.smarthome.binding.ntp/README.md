@@ -41,10 +41,12 @@ The ntp binding has only one channel  `dateTime`
 ## Full Example
  
 Things:
+
 ```
 ntp:ntp:demo  [ hostname="nl.pool.ntp.org", refreshInterval=60, refreshNtp=30 ]
 ```
 Items:
+
 ```
 DateTime Date  "Date [%1$tA, %1$td.%1$tm.%1$tY %1$tH:%1$tM]"  { channel="ntp:ntp:demo:dateTime" }
 ```
