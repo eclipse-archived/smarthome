@@ -514,14 +514,13 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
                 case "SleepTimerGeneration": {
                     if (value.equals("0")) {
-                        updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
-                                new DecimalType(0));
+                        updateState(SLEEPTIMER, new DecimalType(0));
                     }
                     break;
                 }
 
                 case "RemainingSleepTimerDuration": {
-                    updateState(new ChannelUID(getThing().getThingTypeUID(), getThing().getUID(), SLEEPTIMER),
+                    updateState(SLEEPTIMER,
                             (stateMap.get("RemainingSleepTimerDuration") != null)
                                     ? new DecimalType(
                                             sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
