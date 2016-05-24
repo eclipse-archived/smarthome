@@ -9,7 +9,7 @@ Functional and technical descriptions:
 
 Tree
 ----
-    .
+
     - org.eclipse.smarthome.protocols.enocean.eeps.basic
                                        ; This bundle is an OSGi EnOcean bundle that contained the
                                        ; three EEPs (i.e. A5-02-05, D5-00-01, and F6-02-01) that 
@@ -80,7 +80,7 @@ START LEVEL 1
 Note
 ----
 Using the example app/bundle (org.eclipse.smarthome.protocols.enocean.sample.client) requires to 
-put the following lines in the enocean_config.txt configuration file of ``org.eclipse.smarthome.
+put the following lines in the enocean_config.txt configuration file of ```org.eclipse.smarthome.
 protocols.enocean.basedriver.impl```:
 
 ```
