@@ -250,5 +250,6 @@
         <item-type>Number</item-type>
         <label>Sleep Timer</label>
         <description>Set/show the duration of the SleepTimer in seconds</description>
+        <state min="0" max="68399" step="1" readOnly="false"> </state>
     </channel-type> 
 </thing:thing-descriptions>

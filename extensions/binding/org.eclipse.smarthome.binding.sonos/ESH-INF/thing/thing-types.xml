@@ -273,6 +273,7 @@
     <channel-type id="sleeptimer" advanced="true">
         <item-type>Number</item-type>
         <label>Sleep Timer</label>
+        <state min="0" max="68399" step="1" readOnly="false"> </state>
         <description>Set/show the duration of the SleepTimer in seconds</description>
     </channel-type> 
 
