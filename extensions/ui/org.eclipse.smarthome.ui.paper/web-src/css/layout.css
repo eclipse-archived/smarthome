@@ -409,3 +409,7 @@ md-tabs.section-tabs {
 .side-menu {
 	margin-left: 4%;
 }
+
+md-toast {
+	position: fixed;
+}
