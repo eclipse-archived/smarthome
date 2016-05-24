@@ -33,16 +33,19 @@ The weather information that is retrieved is available as these channels:
 ## Full Example
 
 demo.things:
+
 ```
 yahooweather:weather:berlin [ location="638242" ]
 ```
 
 demo.items:
+
 ```
 Number Temperature 	"Outside Temperature" { channel="yahooweather:weather:berlin:temperature" }
 ```
 
 demo.sitemap:
+
 ```
 sitemap demo label="Main Menu"
 {

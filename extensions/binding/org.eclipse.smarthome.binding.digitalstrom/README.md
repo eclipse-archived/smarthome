@@ -71,7 +71,7 @@ If you only want to discover one of the thing types, you can start a discovery s
 ### digitalSTROM-Server:
 The digitalSTROM-Server thing has the following configuration parameter groups *Connection configuration*, *Server information* and *General configurations*.
 
-####Connection configuration:  
+#### Connection configuration:  
  If the digitalSTROM-Server isn’t found automatically, e.g. because the server isn’t placed at the local network or the mDNS-service is deactivated, you have to insert the network address or URL and the authentication data manually through the graphical user interface or type it into the \*.thing with textual configuration.
 
 | Parameter Label | Parameter ID | Description  | Required | Advanced 
@@ -185,6 +185,7 @@ All devices support some of the following channels:
 ## Full Example
 
 demo.things:
+
 ```
 Bridge digitalstrom:dssBridge:1 [ ipAddress="dss.local.",  userName="dssadmin", password="dssadmin", sensorDataUpdateIntervall=180] {
     GE GE-KM200 [ dSID="3504175fe0000000000043d4",  ActivePowerRefreshPriority="low", ElectricMeterRefreshPriority="medium", OutputCurrentRefreshPriority="high"]
@@ -194,6 +195,7 @@ Bridge digitalstrom:dssBridge:1 [ ipAddress="dss.local.",  userName="dssadmin", 
 ```
 
 demo.items:
+
 ```
 Dimmer Brightness { channel="digitalstrom:GE:GE-KM200-1:brightness" }
 Number ActivePower { channel="digitalstrom:GE:GE-KM200-1:activePower" }
@@ -210,6 +212,7 @@ Switch Scene { channel="digitalstrom:namedScene:scene1:scene" }
 ```
 
 demo.sitemap:
+
 ```
 sitemap demo label="Main Menu"
 {

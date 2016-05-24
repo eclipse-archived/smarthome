@@ -12,6 +12,7 @@ Eclipse SmartHome provides a modular rule engine than can be easily extended.
 
 
 In general this rule engine aims to support rules defined with syntax similar to:
+
 ```
 ON item_id state changed IF item_id.state == desired_value THEN item_id2.state = desired_value2 
 ```
