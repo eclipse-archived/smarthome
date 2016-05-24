@@ -289,7 +289,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
     $scope.refresh();
-}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService) {
+}).controller('ViewThingController', function($scope, $mdDialog, toastService, thingTypeRepository, thingRepository, thingService, linkService, channelTypeService, configService, thingConfigService, util) {
 
     var thingUID = $scope.path[4];
     $scope.thingTypeUID = null;
@@ -492,10 +492,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
     };
 
     $scope.hasProperties = function(properties) {
-        if (properties) {
-            return Object.keys(properties).length > 0;
-        }
-        return false;
+        return util.hasProperties(properties);
     }
 }).controller('RemoveThingDialogController', function($scope, $mdDialog, toastService, thingService, thing) {
     $scope.thing = thing;
