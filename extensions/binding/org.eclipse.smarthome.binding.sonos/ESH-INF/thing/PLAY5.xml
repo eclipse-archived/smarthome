@@ -49,6 +49,7 @@
 			<!-- Extended SONOS channels (PLAY5, CONNECT & CONNECT:AMP only) -->
 			<channel id="linein" typeId="linein" />
 	        <channel id="playlinein" typeId="playlinein" />
+	        <channel id="sleeptimer" typeId="sleeptimer" />
 		</channels>
 		
 		<properties>
