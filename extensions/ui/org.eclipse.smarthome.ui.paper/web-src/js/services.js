@@ -370,4 +370,17 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             return matched;
         }
     }
+}).factory('util', function() {
+    return {
+        hasProperties : function(object) {
+            if (typeof jQuery !== 'undefined') {
+                return !jQuery.isEmptyObject(object);
+            } else {
+                if (object) {
+                    return Object.keys(object).length > 0;
+                }
+                return false;
+            }
+        }
+    }
 });
