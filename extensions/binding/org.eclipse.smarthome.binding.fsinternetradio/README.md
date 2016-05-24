@@ -63,11 +63,13 @@ The radio mode depends on the internet radio model (and probably its firmware ve
 ## Full Example
 
 demo.things:
+
 ```
 fsinternetradio:radio:radioInKitchen [ ip="192.168.0.42" ]
 ```
 
 demo.items:
+
 ```
 Switch RadioPower "Radio Power" { channel="fsinternetradio:radio:radioInKitchen:power" }
 Switch RadioMute "Radio Mute" { channel="fsinternetradio:radio:radioInKitchen:mute" }
@@ -79,6 +81,7 @@ String RadioInfo2 "Radio Info2" { channel="fsinternetradio:radio:radioInKitchen:
 ```
 
 demo.sitemap:
+
 ```
 sitemap demo label="Main Menu"
 {

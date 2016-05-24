@@ -42,16 +42,19 @@ The bulb only supports the color channel:
 ## Full Example
 
 demo.things:
+
 ```
 Thing lifx:light:light1 [ deviceId="D073D5010E20" ]
 ```
 
 demo.items:
+
 ```
 Color Light { channel="lifx:light:light1:color" }
 ```
 
 demo.sitemap:
+
 ```
 sitemap demo label="Main Menu"
 {

@@ -52,11 +52,13 @@ Devices support some of the following channels:
 ## Full Example
 
 demo.things:
+
 ```
 wemo:socket:Switch1 [udn="Socket-1_0-221242K11xxxxx"]
 ```
 
 demo.items:
+
 ```
 Switch DemoSwitch    { channel="wemo:socket:Switch1:state" }
 Switch LightSwitch   { channel="wemo:lightswitch:Lightswitch1:state" }
@@ -68,6 +70,7 @@ Number InsightTotal  { channel="wemo:insight:Insight1:onTotal" }
 ```
 
 demo.sitemap:
+
 ```
 sitemap demo label="Main Menu"
 {
