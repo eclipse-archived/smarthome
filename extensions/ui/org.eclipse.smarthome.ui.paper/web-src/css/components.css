@@ -558,6 +558,10 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	min-height: 80px;
 }
 
+.parameter>div md-select-value>span:first-child, .parameter>div md-select-value .md-text>span:first-child{
+    max-width: 100%;
+}
+
 .parameter md-input-container {
 	padding-bottom: 5px;
 }
