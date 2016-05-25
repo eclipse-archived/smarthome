@@ -173,7 +173,6 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
         notifyListeners(oldElement, element, EventType.UPDATED);
     }
 
-    @SuppressWarnings("unchecked")
     protected void addProvider(Provider<E> provider) {
         // only add this provider if it does not already exist
         if (!elementMap.containsKey(provider)) {
@@ -191,10 +190,11 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
                 }
             }
             logger.debug("Provider '{}' has been added.", provider.getClass().getName());
-            if (provider instanceof ManagedProvider) {
-                this.managedProvider = (ManagedProvider<E, K>) provider;
-            }
         }
+    }
+
+    protected void setManagedProvider(ManagedProvider<E, K> provider) {
+        managedProvider = provider;
     }
 
     /**
@@ -264,11 +264,11 @@ public abstract class AbstractRegistry<E, K> implements ProviderChangeListener<E
             provider.removeProviderChangeListener(this);
 
             logger.debug("Provider '{}' has been removed.", provider.getClass().getSimpleName());
-
-            if (this.managedProvider == provider) {
-                this.managedProvider = null;
-            }
         }
+    }
+
+    protected void removeManagedProvider(ManagedProvider<E, K> managedProvider) {
+        this.managedProvider = null;
     }
 
     protected void setEventPublisher(EventPublisher eventPublisher) {
