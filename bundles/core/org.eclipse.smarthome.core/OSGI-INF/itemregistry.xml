@@ -11,6 +11,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.core.itemregistry">
    <implementation class="org.eclipse.smarthome.core.internal.items.ItemRegistryImpl"/>
    <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.items.ItemProvider" name="ItemProvider" policy="dynamic" unbind="removeProvider"/>
+   <reference bind="setManagedProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.items.ManagedItemProvider" name="ManagedItemProvider" policy="dynamic" unbind="removeManagedProvider"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.items.ItemRegistry"/>
    </service>

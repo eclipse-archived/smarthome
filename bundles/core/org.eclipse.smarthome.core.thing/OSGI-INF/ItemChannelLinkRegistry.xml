@@ -14,6 +14,7 @@
       <provide interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry"/>
    </service>
    <reference bind="addProvider" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.link.ItemChannelLinkProvider" name="ItemChannelLinkProvider" policy="dynamic" unbind="removeProvider"/>
+   <reference bind="setManagedProvider" cardinality="0..1" interface="org.eclipse.smarthome.core.thing.link.ManagedItemChannelLinkProvider" name="ManagedItemChannelLinkProvider" policy="dynamic" unbind="removeManagedProvider"/>
    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry"/>
    <reference bind="setEventPublisher" cardinality="0..1" interface="org.eclipse.smarthome.core.events.EventPublisher" name="EventPublisher" policy="dynamic" unbind="unsetEventPublisher"/>
 </scr:component>
