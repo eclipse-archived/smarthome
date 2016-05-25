@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 /**
  * The {@link SonosBinding} class defines common constants, which are
  * used across the whole binding.
- * 
+ *
  * @author Karel Goderis - Initial contribution
  */
 public class SonosBindingConstants {
@@ -87,5 +87,6 @@ public class SonosBindingConstants {
     public final static String ZONENAME = "zonename";
     public final static String COORDINATOR = "coordinator";
     public final static String MODELID = "modelId";
+    public final static String SLEEPTIMER = "sleeptimer";
 
 }

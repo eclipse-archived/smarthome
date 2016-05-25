@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="sonos"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="sonos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -26,8 +25,8 @@
 			<channel id="mute" typeId="mute" />
 			<channel id="playlinein" typeId="playlinein" />
 			<channel id="playlist" typeId="playlist" />
-			<channel id="playqueue" typeId="playqueue" />			
-			<channel id="playtrack" typeId="playtrack" />			
+			<channel id="playqueue" typeId="playqueue" />
+			<channel id="playtrack" typeId="playtrack" />
 			<channel id="playuri" typeId="playuri" />
 			<channel id="publicaddress" typeId="publicaddress" />
 			<channel id="radio" typeId="radio" />
@@ -44,6 +43,7 @@
 			<channel id="zonegroup" typeId="zonegroup" />
 			<channel id="zonegroupid" typeId="zonegroupid" />
 			<channel id="zonename" typeId="zonename" />
+			<channel id="sleeptimer" typeId="sleeptimer" />
 		</channels>
 
 		<config-description>
@@ -92,8 +92,8 @@
 		<description>Control the Zone Player, e.g. start/stop/next/previous/ffward/rewind</description>
 		<category>Player</category>
 	</channel-type>
-	
-		<channel-type id="currentalbum">
+
+	<channel-type id="currentalbum">
 		<item-type>String</item-type>
 		<label>Current Album</label>
 		<description>Name of the album currently playing</description>
@@ -122,7 +122,7 @@
 		<label>Favorite</label>
 		<description>Play the given favorite entry. The favorite entry has to be predefined in the Sonos Controller app</description>
 	</channel-type>
-	
+
 	<channel-type id="led" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Led</label>
@@ -169,8 +169,8 @@
 		<item-type>Number</item-type>
 		<label>Play Track</label>
 		<description>Play the given track number from the current queue</description>
-	</channel-type>	
-	
+	</channel-type>
+
 	<channel-type id="playuri" advanced="true">
 		<item-type>String</item-type>
 		<label>Play URI</label>
@@ -267,6 +267,15 @@
 		<item-type>String</item-type>
 		<label>Zone Name</label>
 		<description>Name of the Zone Group the Zone Player belongs to</description>
+	</channel-type>
+
+	<channel-type id="sleeptimer" advanced="true">
+		<item-type>Number</item-type>
+		<label>Sleep Timer</label>
+		<description>Set/show the duration of the SleepTimer in seconds</description>
+		<state min="0" max="68399" step="1" readOnly="false">
+		</state>
+
 	</channel-type>
 
 </thing:thing-descriptions>
