@@ -17,6 +17,7 @@ import org.eclipse.smarthome.automation.RuleStatusInfo;
 import org.eclipse.smarthome.automation.StatusInfoCallback;
 import org.eclipse.smarthome.automation.events.RuleEventFactory;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
+import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
@@ -52,9 +53,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     }
 
     @Override
+    protected void setManagedProvider(ManagedProvider<Rule, String> provider) {
+        super.setManagedProvider(provider);
+        logger.info("Rule Managed Provider: {} is added.", provider);
+    }
+
+    @Override
     protected void removeProvider(Provider<Rule> provider) {
         logger.info("Rule provider: {} is removed.", provider);
         super.removeProvider(provider);
+    }
+
+    @Override
+    protected void removeManagedProvider(ManagedProvider<Rule, String> provider) {
+        super.removeManagedProvider(provider);
+        logger.info("Rule Managed provider: {} is removed.", provider);
     }
 
     @Override
@@ -177,4 +190,5 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     public void dispose() {
     }
+
 }
