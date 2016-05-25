@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<thing:thing-descriptions bindingId="sonos"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<thing:thing-descriptions bindingId="sonos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
 	xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
 
@@ -37,7 +36,7 @@
 		<description>Control the Zone Player, e.g. start/stop/next/previous/ffward/rewind</description>
 		<category>Player</category>
 	</channel-type>
-	
+
 	<channel-type id="currentalbum">
 		<item-type>String</item-type>
 		<label>Current Album</label>
@@ -67,7 +66,7 @@
 		<label>Favorite</label>
 		<description>Play the given favorite entry. The favorite entry has to be predefined in the Sonos Controller app</description>
 	</channel-type>
-	
+
 	<channel-type id="led" advanced="true">
 		<item-type>Switch</item-type>
 		<label>Led</label>
@@ -88,13 +87,13 @@
 		<description>Set or get the mute state of the master volume of the Zone Player</description>
 		<category>Switch</category>
 	</channel-type>
-	
+
 	<channel-type id="notificationsound" advanced="true">
 		<item-type>String</item-type>
 		<label>Notification Sound</label>
 		<description>Play a notification sound by a given URI</description>
 	</channel-type>
-	
+
 	<channel-type id="notificationvolume" advanced="true">
 		<item-type>Dimmer</item-type>
 		<label>Notification Sound Volume</label>
@@ -119,8 +118,8 @@
 		<item-type>Number</item-type>
 		<label>Play Track</label>
 		<description>Play the given track number from the current queue</description>
-	</channel-type>	
-	
+	</channel-type>
+
 	<channel-type id="playuri" advanced="true">
 		<item-type>String</item-type>
 		<label>Play URI</label>
@@ -214,7 +213,7 @@
 		<description>XML formatted string with the current zonegroup configuration</description>
 	</channel-type>
 
-	<channel-type id="zonegroupid"  advanced="true">
+	<channel-type id="zonegroupid" advanced="true">
 		<item-type>String</item-type>
 		<label>Zone Group ID</label>
 		<description>Id of the Zone Group the Zone Player belongs to</description>
@@ -225,13 +224,13 @@
 		<label>Zone Name</label>
 		<description>Name of the Zone Group the Zone Player belongs to</description>
 	</channel-type>
-	
+
 	<channel-type id="coordinator" advanced="true">
 		<item-type>String</item-type>
 		<label>Coordinator</label>
 		<description>UDN of the coordinator for the current group</description>
-	</channel-type>	
-	
+	</channel-type>
+
 	<!-- Extended channels (for SONOS PLAY5, CONNECT & CONNECT:AMP only) -->
 	<channel-type id="linein" advanced="true">
 		<item-type>Switch</item-type>
@@ -239,11 +238,18 @@
 		<description>Indicator set to ON when the line-in of the Zone Player is connected</description>
 		<category>Switch</category>
 	</channel-type>
-	
+
 	<channel-type id="playlinein" advanced="true">
 		<item-type>String</item-type>
 		<label>Play Line-in</label>
 		<description>Play the Line-in of the the Zone Player corresponding to the given UIN</description>
 	</channel-type>
 
+	<channel-type id="sleeptimer" advanced="true">
+		<item-type>Number</item-type>
+		<label>Sleep Timer</label>
+		<description>Set/show the duration of the SleepTimer in seconds</description>
+		<state min="0" max="68399" step="1" readOnly="false">
+		</state>
+	</channel-type>
 </thing:thing-descriptions>

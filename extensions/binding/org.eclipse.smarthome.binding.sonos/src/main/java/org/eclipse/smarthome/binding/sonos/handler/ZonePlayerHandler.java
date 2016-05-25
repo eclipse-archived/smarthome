@@ -132,6 +132,7 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 updateLed();
                 updateMediaInfo();
                 updatePlayerState();
+                updateSleepTimerDuration();
             } catch (Exception e) {
                 logger.debug("Exception during poll : {}", e);
             }
@@ -297,6 +298,9 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 if (command instanceof RewindFastforwardType) {
                     // Rewind and Fast Forward are currently not implemented by the binding
                 }
+                break;
+            case SLEEPTIMER:
+                setSleepTimer(command);
                 break;
             default:
                 break;
@@ -509,6 +513,22 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
                 }
                 case "CurrentURI": {
                     updateCurrentURIFormatted(value);
+                    break;
+                }
+
+                case "SleepTimerGeneration": {
+                    if (value.equals("0")) {
+                        updateState(SLEEPTIMER, new DecimalType(0));
+                    }
+                    break;
+                }
+
+                case "RemainingSleepTimerDuration": {
+                    updateState(SLEEPTIMER,
+                            (stateMap.get("RemainingSleepTimerDuration") != null)
+                                    ? new DecimalType(
+                                            sleepStrTimeToSeconds(stateMap.get("RemainingSleepTimerDuration")))
+                                    : UnDefType.UNDEF);
                     break;
                 }
             }
@@ -2283,5 +2303,57 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private void updateSonosThingType(String newThingTypeID) {
         changeThingType(new ThingTypeUID(SonosBindingConstants.BINDING_ID, newThingTypeID), getConfig());
+    }
+
+    /*
+     * Set the sleeptimer duration
+     * Use String command of format "HH:MM:SS" to set the timer to the desired duration
+     * Use empty String "" to switch the sleep timer off
+     */
+    public void setSleepTimer(Command command) {
+        if (command != null) {
+            if (command instanceof DecimalType) {
+
+                Map<String, String> inputs = new HashMap<String, String>();
+                inputs.put("InstanceID", "0");
+                inputs.put("NewSleepTimerDuration", sleepSecondsToTimeStr(Integer.parseInt(command.toString())));
+
+                Map<String, String> result = this.service.invokeAction(this, "AVTransport", "ConfigureSleepTimer",
+                        inputs);
+
+            }
+        }
+    }
+
+    protected void updateSleepTimerDuration() {
+        Map<String, String> result = service.invokeAction(this, "AVTransport", "GetRemainingSleepTimerDuration", null);
+        for (String variable : result.keySet()) {
+            this.onValueReceived(variable, result.get(variable), "DeviceProperties");
+        }
+    }
+
+    private String sleepSecondsToTimeStr(long sleepSeconds) {
+        if (sleepSeconds == 0) {
+            return "";
+        } else if (sleepSeconds < 68400) {
+            long hours = TimeUnit.SECONDS.toHours(sleepSeconds);
+            sleepSeconds -= TimeUnit.HOURS.toSeconds(hours);
+            long minutes = TimeUnit.SECONDS.toMinutes(sleepSeconds);
+            sleepSeconds -= TimeUnit.MINUTES.toSeconds(minutes);
+            long seconds = TimeUnit.SECONDS.toSeconds(sleepSeconds);
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            logger.error("Sonos SleepTimer: Invalid sleep time set. sleep time must be >=0 and < 68400s (24h)");
+            return "ERR";
+        }
+
+    }
+
+    private long sleepStrTimeToSeconds(String sleepTime) {
+        String[] units = sleepTime.split(":");
+        int hours = Integer.parseInt(units[0]);
+        int minutes = Integer.parseInt(units[1]);
+        int seconds = Integer.parseInt(units[2]);
+        return 3600 * hours + 60 * minutes + seconds;
     }
 }
