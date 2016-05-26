@@ -419,7 +419,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         if (!$scope.channelTypes) {
             return;
         }
-        thingConfigService.getChannelFromChannelTypes($scope.channelTypes, channelUID);
+        return thingConfigService.getChannelFromChannelTypes($scope.channelTypes, channelUID);
     };
 
     var getChannels = function(advanced) {
