@@ -13,4 +13,5 @@
    <service>
       <provide interface="org.eclipse.smarthome.core.i18n.I18nProvider"/>
    </service>
+   <reference bind="setLocaleProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.i18n.LocaleProvider" name="LocaleProvider" policy="static"/>
 </scr:component>

@@ -9,11 +9,14 @@ package org.eclipse.smarthome.io.rest;
 
 import java.util.Locale;
 
+import org.eclipse.smarthome.io.rest.internal.RESTActivator;
+
 /**
  * {@link LocaleUtil} provides helper method for working with locales in REST
  * resources.
  *
  * @author Dennis Nobel - Initial contribution
+ * @author Markus Rathgeb - Use locale provider
  */
 public class LocaleUtil {
 
@@ -26,7 +29,7 @@ public class LocaleUtil {
      *         header is not set or can not be parsed.
      */
     public static Locale getLocale(String acceptLanguageHttpHeader) {
-        Locale locale = Locale.getDefault();
+        Locale locale = RESTActivator.getLocale();
         if (acceptLanguageHttpHeader != null) {
             String[] split = acceptLanguageHttpHeader.split("-");
             if (split.length == 2) {

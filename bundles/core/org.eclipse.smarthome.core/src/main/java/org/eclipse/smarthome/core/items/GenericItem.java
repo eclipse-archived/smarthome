@@ -283,38 +283,51 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GenericItem other = (GenericItem) obj;
         if (category == null) {
-            if (other.category != null)
+            if (other.category != null) {
                 return false;
-        } else if (!category.equals(other.category))
+            }
+        } else if (!category.equals(other.category)) {
             return false;
+        }
         if (label == null) {
-            if (other.label != null)
+            if (other.label != null) {
                 return false;
-        } else if (!label.equals(other.label))
+            }
+        } else if (!label.equals(other.label)) {
             return false;
+        }
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         if (tags == null) {
-            if (other.tags != null)
+            if (other.tags != null) {
                 return false;
-        } else if (!tags.equals(other.tags))
+            }
+        } else if (!tags.equals(other.tags)) {
             return false;
+        }
         if (type == null) {
-            if (other.type != null)
+            if (other.type != null) {
                 return false;
-        } else if (!type.equals(other.type))
+            }
+        } else if (!type.equals(other.type)) {
             return false;
+        }
         return true;
     }
 
@@ -375,7 +388,7 @@ abstract public class GenericItem implements ActiveItem {
 
     @Override
     public StateDescription getStateDescription() {
-        return getStateDescription(Locale.getDefault());
+        return getStateDescription(null);
     }
 
     @Override

@@ -84,8 +84,6 @@ public final class ConfigValidationException extends RuntimeException {
      *         delivered)
      */
     public Map<String, String> getValidationMessages(Locale locale) {
-        Locale loc = locale != null ? locale : Locale.getDefault();
-
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         for (ConfigValidationMessage configValidationMessage : configValidationMessages) {
             if (Activator.getI18nProvider() == null) {
@@ -96,7 +94,7 @@ public final class ConfigValidationException extends RuntimeException {
                         MessageFormat.format(configValidationMessage.defaultMessage, configValidationMessage.content));
             } else {
                 String text = Activator.getI18nProvider().getText(bundle, configValidationMessage.messageKey,
-                        configValidationMessage.defaultMessage, loc, configValidationMessage.content);
+                        configValidationMessage.defaultMessage, locale, configValidationMessage.content);
                 builder.put(configValidationMessage.parameterName, text);
             }
         }

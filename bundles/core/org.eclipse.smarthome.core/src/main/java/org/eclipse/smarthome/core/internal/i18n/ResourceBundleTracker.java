@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.smarthome.core.common.osgi.ResolvedBundleTracker;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -24,14 +25,17 @@ import org.osgi.framework.BundleContext;
  * This tracker must be started by calling {@link #open()} and stopped by calling {@link #close()}.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Markus Rathgeb - Add locale provider support
  */
 public class ResourceBundleTracker extends ResolvedBundleTracker {
 
+    private LocaleProvider localeProvider;
     private Map<Bundle, LanguageResourceBundleManager> bundleLanguageResourceMap;
 
-    public ResourceBundleTracker(BundleContext bundleContext) throws IllegalArgumentException {
+    public ResourceBundleTracker(BundleContext bundleContext, LocaleProvider localeProvider)
+            throws IllegalArgumentException {
         super(bundleContext); // can throw an IllegalArgumentException
-
+        this.localeProvider = localeProvider;
         this.bundleLanguageResourceMap = new LinkedHashMap<Bundle, LanguageResourceBundleManager>();
     }
 
@@ -49,7 +53,7 @@ public class ResourceBundleTracker extends ResolvedBundleTracker {
     @Override
     public synchronized boolean addingBundle(Bundle bundle) {
         if (!this.bundleLanguageResourceMap.containsKey(bundle)) {
-            LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(bundle);
+            LanguageResourceBundleManager languageResource = new LanguageResourceBundleManager(localeProvider, bundle);
 
             if (languageResource.containsResources()) {
                 this.bundleLanguageResourceMap.put(bundle, languageResource);

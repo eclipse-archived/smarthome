@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 import java.util.ResourceBundle.Control;
 
 import org.eclipse.smarthome.core.common.osgi.ResourceBundleClassLoader;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.osgi.framework.Bundle;
 
 /**
@@ -29,6 +30,7 @@ import org.osgi.framework.Bundle;
  * URLs which the Java {@link ResourceBundle} can handle.
  *
  * @author Michael Grammling - Initial Contribution
+ * @author Markus Rathgeb - Add locale provider support
  */
 public class LanguageResourceBundleManager {
 
@@ -38,19 +40,19 @@ public class LanguageResourceBundleManager {
     /** The file pattern to filter out resource files. */
     private static final String RESOURCE_FILE_PATTERN = "*.properties";
 
+    private LocaleProvider localeProvider;
     private Bundle bundle;
     private ClassLoader resourceClassLoader;
     private List<String> resourceNames;
 
-    public LanguageResourceBundleManager(Bundle bundle) {
+    public LanguageResourceBundleManager(LocaleProvider localeProvider, Bundle bundle) {
         if (bundle == null) {
             throw new IllegalArgumentException("The Bundle must not be null!");
         }
 
+        this.localeProvider = localeProvider;
         this.bundle = bundle;
-
         this.resourceClassLoader = new ResourceBundleClassLoader(bundle, RESOURCE_DIRECTORY, RESOURCE_FILE_PATTERN);
-
         this.resourceNames = determineResourceNames();
     }
 
@@ -131,7 +133,7 @@ public class LanguageResourceBundleManager {
     public String getText(String resource, String key, Locale locale) {
         if ((key != null) && (!key.isEmpty())) {
             if (locale == null) {
-                locale = Locale.getDefault();
+                locale = localeProvider.getLocale();
             }
 
             if (resource != null) {
