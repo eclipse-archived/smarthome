@@ -48,25 +48,33 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             LocalizedChannelTypeKey other = (LocalizedChannelTypeKey) obj;
-            if (!getOuterType().equals(other.getOuterType()))
+            if (!getOuterType().equals(other.getOuterType())) {
                 return false;
+            }
             if (locale == null) {
-                if (other.locale != null)
+                if (other.locale != null) {
                     return false;
-            } else if (!locale.equals(other.locale))
+                }
+            } else if (!locale.equals(other.locale)) {
                 return false;
+            }
             if (uid == null) {
-                if (other.uid != null)
+                if (other.uid != null) {
                     return false;
-            } else if (!uid.equals(other.uid))
+                }
+            } else if (!uid.equals(other.uid)) {
                 return false;
+            }
             return true;
         }
 
@@ -173,6 +181,7 @@ public class XmlChannelTypeProvider implements ChannelTypeProvider {
                     }
                 }
             }
+        } else {
         }
         return null;
     }

@@ -9,7 +9,10 @@ package org.eclipse.smarthome.binding.ntp.internal;
 
 import static org.eclipse.smarthome.binding.ntp.NtpBindingConstants.*;
 
+import java.util.Locale;
+
 import org.eclipse.smarthome.binding.ntp.handler.NtpHandler;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
@@ -18,25 +21,45 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 /**
  * The {@link NtpHandlerFactory} is responsible for creating things and thing
  * handlers.
- * 
+ *
  * @author Marcel Verpaalen - Initial contribution
+ * @author Markus Rathgeb - Add locale provider support
  */
 public class NtpHandlerFactory extends BaseThingHandlerFactory {
 
-	@Override
-	public boolean supportsThingType(ThingTypeUID thingTypeUID) {
-		return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
-	}
+    private class LocaleProviderHolder implements LocaleProvider {
+        private LocaleProvider localeProvider;
 
-	@Override
-	protected ThingHandler createHandler(Thing thing) {
+        @Override
+        public Locale getLocale() {
+            return localeProvider.getLocale();
+        }
+    }
 
-		ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+    private final LocaleProviderHolder localeProviderHolder = new LocaleProviderHolder();
 
-		if (thingTypeUID.equals(THING_TYPE_NTP)) {
-			return new NtpHandler(thing);
-		}
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        localeProviderHolder.localeProvider = localeProvider;
+    }
 
-		return null;
-	}
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        localeProviderHolder.localeProvider = null;
+    }
+
+    @Override
+    public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+    }
+
+    @Override
+    protected ThingHandler createHandler(Thing thing) {
+
+        ThingTypeUID thingTypeUID = thing.getThingTypeUID();
+
+        if (thingTypeUID.equals(THING_TYPE_NTP)) {
+            return new NtpHandler(thing, localeProviderHolder);
+        }
+
+        return null;
+    }
 }

@@ -11,11 +11,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener;
+import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
@@ -34,12 +36,14 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
  * This class dynamically provides items for all links that point to non-existing items.
  *
  * @author Kai Kreuzer
+ * @author Markus Rathgeb - Add locale provider support
  *
  */
 public class ChannelItemProvider implements ItemProvider {
 
     private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
+    private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
     private ItemChannelLinkRegistry linkRegistry;
     private ItemRegistry itemRegistry;
@@ -76,7 +80,14 @@ public class ChannelItemProvider implements ItemProvider {
     @Override
     public void removeProviderChangeListener(ProviderChangeListener<Item> listener) {
         listeners.remove(listener);
+    }
 
+    protected void setLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = localeProvider;
+    }
+
+    protected void unsetLocaleProvider(final LocaleProvider localeProvider) {
+        this.localeProvider = null;
     }
 
     protected void addItemFactory(ItemFactory itemFactory) {
@@ -177,7 +188,7 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     private String getCategory(Channel channel) {
-        ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID());
+        ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
         if (channelType != null) {
             return channelType.getCategory();
         } else {
@@ -189,7 +200,8 @@ public class ChannelItemProvider implements ItemProvider {
         if (channel.getLabel() != null) {
             return channel.getLabel();
         } else {
-            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID());
+            final Locale locale = localeProvider.getLocale();
+            final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
             if (channelType != null) {
                 return channelType.getLabel();
             }

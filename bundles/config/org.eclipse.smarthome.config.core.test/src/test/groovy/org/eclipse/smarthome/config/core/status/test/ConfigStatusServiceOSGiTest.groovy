@@ -19,6 +19,7 @@ import org.eclipse.smarthome.config.core.status.ConfigStatusProvider
 import org.eclipse.smarthome.config.core.status.ConfigStatusService
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Before
 import org.junit.Test
@@ -88,6 +89,7 @@ class ConfigStatusServiceOSGiTest extends OSGiTest {
         registerService([post:{ event->
             }] as EventPublisher)
 
+        registerService([getLocale: {return new Locale("en", "US")}] as LocaleProvider)
         registerI18nProvider()
 
         configStatusService = getService(ConfigStatusService)

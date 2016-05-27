@@ -12,6 +12,7 @@ import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
 import org.eclipse.smarthome.core.i18n.I18nProvider
+import org.eclipse.smarthome.core.i18n.LocaleProvider
 import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
@@ -60,15 +61,18 @@ class I18nProviderOSGiTest extends OSGiTest {
 
     @Before
     void setUp() {
-        defaultLocale = Locale.getDefault();
-        Locale.setDefault(Locale.GERMAN);
         i18nProvider = getService(I18nProvider)
         assertThat i18nProvider, is(notNullValue())
+
+        LocaleProviderImpl localeProvider = getService(LocaleProvider,LocaleProviderImpl)
+        Map<String,String> localeCfg = new HashMap<>();
+        localeCfg.putAt("language", "de");
+        localeCfg.putAt("country", "DE");
+        localeProvider.modified(localeCfg);
     }
 
     @After
     void after() {
-        Locale.setDefault(defaultLocale)
     }
 
     @Test

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" enabled="true" modified="modified" name="org.eclipse.smarthome.core.localeprovider">
+   <implementation class="org.eclipse.smarthome.core.internal.i18n.LocaleProviderImpl"/>
+   <service>
+      <provide interface="org.eclipse.smarthome.core.i18n.LocaleProvider"/>
+   </service>
+   <property name="service.config.description.uri" type="String" value="system:locale"/>
+   <property name="service.config.label" type="String" value="Locale"/>
+   <property name="service.config.category" type="String" value="system"/>
+</scr:component>
