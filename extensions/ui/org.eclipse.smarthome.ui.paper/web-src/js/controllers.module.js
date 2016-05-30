@@ -21,7 +21,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     $scope.step = 1;
     $scope.editMode = false;
     $scope.configuration = {};
-
+    var originalConfiguration = {};
     function setConfigurations() {
         if ($scope.moduleData) {
             var params = filterByUid($scope.moduleData, $scope.module);
@@ -33,6 +33,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
             var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
             if (index != -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
+                angular.copy($scope.configuration, originalConfiguration);
                 $scope.configArray = configService.getConfigAsArray($scope.configuration);
             }
         }
@@ -51,6 +52,10 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
     $scope.close = function() {
         sharedProperties.resetParams();
+        var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
+        if (index != -1) {
+            sharedProperties.getModuleArray(type)[index].configuration = originalConfiguration;
+        }
         $mdDialog.hide();
     };
 
