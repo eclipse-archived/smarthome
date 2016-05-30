@@ -257,12 +257,18 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.filter = function(discoveryResult) {
         return $scope.showIgnored || discoveryResult.flag === 'NEW';
     }
-}).controller('SetupWizardBindingsController', function($scope, bindingRepository) {
+}).controller('SetupWizardBindingsController', function($scope, bindingRepository, discoveryService) {
     $scope.setSubtitle([ 'Choose Binding' ]);
     $scope.setHeaderText('Choose a Binding for which you want to add new things.');
     bindingRepository.getAll();
     $scope.selectBinding = function(bindingId) {
-        $scope.navigateTo('setup/search/' + bindingId);
+        discoveryService.getAll(function(supportedBindings) {
+            if (supportedBindings.indexOf(bindingId) >= 0) {
+                $scope.navigateTo('setup/search/' + bindingId);
+            } else {
+                $scope.navigateTo('setup/thing-types/' + bindingId);
+            }
+        });
     }
 }).controller('SetupWizardSearchBindingController', function($scope, discoveryResultRepository, discoveryService, thingTypeRepository, bindingRepository) {
     $scope.showIgnored = false;
@@ -281,8 +287,6 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
         if (supportedBindings.indexOf($scope.bindingId) >= 0) {
             $scope.discoverySupported = true;
             $scope.scan($scope.bindingId);
-        } else {
-            $scope.discoverySupported = false;
         }
     });
 
