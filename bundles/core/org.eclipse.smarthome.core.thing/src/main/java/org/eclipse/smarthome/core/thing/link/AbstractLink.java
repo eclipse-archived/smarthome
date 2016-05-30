@@ -39,9 +39,7 @@ public abstract class AbstractLink {
      * @throws IllegalArgumentException if the item name is invalid
      */
     public AbstractLink(String itemName) {
-        if (!ItemUtil.isValidItemName(itemName)) {
-            throw new IllegalArgumentException(String.format("Invalid item name '%s'", itemName));
-        }
+        ItemUtil.assertValidItemName(itemName);
         this.itemName = itemName;
     }
 
