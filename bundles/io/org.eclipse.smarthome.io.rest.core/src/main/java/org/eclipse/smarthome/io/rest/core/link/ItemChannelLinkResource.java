@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.link.AbstractLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
@@ -53,6 +54,7 @@ public class ItemChannelLinkResource implements RESTResource {
     public static final String PATH_LINKS = "links";
 
     private ItemChannelLinkRegistry itemChannelLinkRegistry;
+    private ItemRegistry itemRegistry;
     private ThingLinkManager thingLinkManager;
 
     @Context
@@ -80,9 +82,13 @@ public class ItemChannelLinkResource implements RESTResource {
     @Path("/{itemName}/{channelUID}")
     @ApiOperation(value = "Links item to a channel.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
-            @ApiResponse(code = 400, message = "Item already linked to the channel.") })
+            @ApiResponse(code = 400, message = "Item already linked to the channel."),
+            @ApiResponse(code = 405, message = "Item name invalid.") })
     public Response link(@PathParam("itemName") @ApiParam(value = "itemName") String itemName,
             @PathParam("channelUID") @ApiParam(value = "channelUID") String channelUid) {
+        if (!itemRegistry.isValidItemName(itemName)) {
+            return Response.status(Status.METHOD_NOT_ALLOWED).build();
+        }
         itemChannelLinkRegistry.add(new ItemChannelLink(itemName, new ChannelUID(channelUid)));
         return Response.ok().build();
     }
@@ -125,6 +131,14 @@ public class ItemChannelLinkResource implements RESTResource {
 
     protected void unsetItemChannelLinkRegistry(ItemChannelLinkRegistry itemChannelLinkRegistry) {
         this.itemChannelLinkRegistry = null;
+    }
+
+    protected void setItemRegistry(final ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(final ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
 
     private Collection<AbstractLinkDTO> toBeans(Iterable<ItemChannelLink> links) {
