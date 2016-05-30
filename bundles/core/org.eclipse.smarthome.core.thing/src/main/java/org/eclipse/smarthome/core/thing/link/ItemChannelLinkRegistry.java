@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
@@ -26,6 +27,7 @@ import org.eclipse.smarthome.core.thing.link.events.LinkEventFactory;
  */
 public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLink> {
 
+    private ItemRegistry itemRegistry;
     private ThingRegistry thingRegistry;
 
     /**
@@ -46,6 +48,21 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         }
 
         return channelUIDs;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException if the item name is invalid
+     */
+    @Override
+    public ItemChannelLink add(ItemChannelLink element) {
+        if (!itemRegistry.isValidItemName(element.getItemName())) {
+            throw new IllegalArgumentException(
+                    String.format("The item name '%s' for the item-channel-link is not valid.", element.getItemName()));
+        }
+
+        return super.add(element);
     }
 
     /**
@@ -79,6 +96,14 @@ public class ItemChannelLinkRegistry extends AbstractLinkRegistry<ItemChannelLin
         }
 
         return things;
+    }
+
+    protected void setItemRegistry(final ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
+    }
+
+    protected void unsetItemRegistry(final ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
 
     protected void setThingRegistry(ThingRegistry thingRegistry) {
