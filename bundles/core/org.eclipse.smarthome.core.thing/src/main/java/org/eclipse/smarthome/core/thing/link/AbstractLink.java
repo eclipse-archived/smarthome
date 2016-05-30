@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.core.thing.link;
 
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.thing.UID;
 
 /**
@@ -31,7 +32,16 @@ public abstract class AbstractLink {
 
     private final String itemName;
 
+    /**
+     * Constructor.
+     *
+     * @param itemName the item name for the link
+     * @throws IllegalArgumentException if the item name is invalid
+     */
     public AbstractLink(String itemName) {
+        if (!ItemUtil.isValidItemName(itemName)) {
+            throw new IllegalArgumentException(String.format("Invalid item name '%s'", itemName));
+        }
         this.itemName = itemName;
     }
 

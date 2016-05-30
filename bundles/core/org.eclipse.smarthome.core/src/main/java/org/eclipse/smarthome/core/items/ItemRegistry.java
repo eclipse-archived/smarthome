@@ -68,16 +68,6 @@ public interface ItemRegistry extends Registry<Item, String> {
     public Collection<Item> getItems(String pattern);
 
     /**
-     * Checks whether itemName matches the item name conventions.
-     * Item names must only consist out of alpha-numerical characters and
-     * underscores (_).
-     *
-     * @param itemName the item name to validate
-     * @return true, if the name is valid
-     */
-    public boolean isValidItemName(String itemName);
-
-    /**
      * Returns list of items which contains all of the given tags.
      *
      * @param tags

@@ -657,18 +657,6 @@ public class ItemUIRegistryImpl implements ItemUIRegistry {
      * {@inheritDoc}
      */
     @Override
-    public boolean isValidItemName(String itemName) {
-        if (itemRegistry != null) {
-            return itemRegistry.isValidItemName(itemName);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void addRegistryChangeListener(RegistryChangeListener<Item> listener) {
         if (itemRegistry != null) {
             itemRegistry.addRegistryChangeListener(listener);
