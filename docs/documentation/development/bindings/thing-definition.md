@@ -153,6 +153,7 @@ The channel type definition allows to specify a category. Together with the defi
 | Motion        | R               | Switch                 |
 | MoveControl   | RW              | String                 |
 | Player        | RW              | Player                 |
+| Power         | R               | Number                 |
 | PowerOutlet   | RW              | Switch                 |
 | Pressure      | R               | Number                 |
 | QualityOfService      | R       | Number                 |
