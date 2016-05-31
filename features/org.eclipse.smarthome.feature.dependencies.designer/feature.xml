@@ -19,7 +19,7 @@
    </description>
 
    <copyright>
-      Copyright (C) 2014 openHAB UG (haftungsbeschränkt) and others
+      Copyright (C) 2016 by the respective copyright owners
    </copyright>
 
    <license url="%licenseURL">
@@ -79,6 +79,7 @@
          version="0.0.0"/>
 
    <requires>
+      <import plugin="com.google.gson" version="2.2.4.v201311231704" match="perfect" />
       <import plugin="org.apache.commons.lang"/>
       <import plugin="org.eclipse.osgi"/>
       <import plugin="org.eclipse.osgi.services"/>
