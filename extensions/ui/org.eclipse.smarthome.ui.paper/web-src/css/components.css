@@ -754,3 +754,41 @@ md-input-container .md-errors-spacer {
 .thing-properties+table {
 	width: 0%;
 }
+
+md-chips .md-chip-remove-container {
+	display: none;
+}
+
+.md-chips:not(.md-readonly) .md-chip:not(.md-readonly) {
+	padding-right: 4px;
+	margin-right: 3px;
+}
+
+md-chips strong {
+	font-weight: normal;
+}
+
+.scriptChips .md-chip {
+	font-size: 13px;
+	line-height: 19px;
+	height: 19px;
+	padding: 0 4px 0px 8px;
+}
+
+.scriptChips md-chips-wrap {
+	padding-bottom: 0px;
+	margin-right: 15px;
+}
+
+.scriptChips .md-chip-input-container, .scriptChips .md-chip-input-container:not(:first-child) {
+	height: 20px;
+	margin-top: 0px;
+}
+
+.scriptChips .md-chips .md-chip {
+	margin: 0 0 4px 0;
+}
+
+.scriptfield {
+	border: 1px solid #e5e5e5;
+}
