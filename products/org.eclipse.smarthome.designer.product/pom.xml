@@ -38,6 +38,7 @@
           </execution>
           <execution>
             <id>archive-products</id>
+            <phase>verify</phase>
             <goals>
               <goal>archive-products</goal>
             </goals>
@@ -53,6 +54,38 @@
               </rootFolders>
             </product>
           </products>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>name.abuchen</groupId>
+        <artifactId>fix-info-plist-maven-plugin</artifactId>
+        <version>1.0</version>
+        <executions>
+          <execution>
+            <id>fix-info-plist</id>
+            <phase>package</phase>
+            <goals>
+              <goal>fix-info-plist</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <productId>org.eclipse.smarthome.designer.product</productId>
+          <appName>Eclipse SmartHome Designer.app</appName>
+          <properties>
+            <property>
+              <name>CFBundleGetInfoString</name>
+              <value>Copyright 2016 by the respective copyright owners.</value>
+            </property>
+              <property>
+                <name>CFBundleLocalizations</name>
+                <value>en</value>
+            </property>
+            <property>
+              <name>Eclipse</name>
+              <value>--launcher.ini,$APP_PACKAGE/Contents/Eclipse/SmartHome-Designer.ini</value>
+            </property>
+          </properties>
         </configuration>
       </plugin>
     </plugins>
