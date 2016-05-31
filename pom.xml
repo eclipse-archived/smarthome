@@ -454,6 +454,11 @@
       <id>cbi-releases</id>
       <url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
     </pluginRepository>
+    <pluginRepository>
+      <id>buchen-maven-repo</id>
+      <url>http://buchen.github.io/maven-repo</url>
+      <layout>default</layout>
+    </pluginRepository>
   </pluginRepositories>
 
   <repositories>
