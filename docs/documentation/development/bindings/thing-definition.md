@@ -57,7 +57,7 @@ The following XML snippet shows a thing type definition with 2 channels and one 
     <tags>
       <tag>weather</tag>
     </tags>
-    <state min="12" max="30" step="0.5" pattern="%d °C" readOnly="false">
+    <state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false">
     </state>
 </channel-type>
 ```
@@ -109,7 +109,7 @@ The XML definition of a ThingType allows to assign default tags to channels. All
 The state description allows to specify restrictions and additional information for the state of an item, that is linked to the channel. Some configuration options are only valid for specific item types. The following XML snippet shows the definition for a temperature actuator channel:
 
 ```xml 
-<state min="12" max="30" step="0.5" pattern="%d °C" readOnly="false"></state>
+<state min="12" max="30" step="0.5" pattern="%.1f °C" readOnly="false"></state>
 ```
 
 The attributes `min` and `max` can only be declared for channel with the item type `Number`. It defines the range of the numeric value. The Java data type is a BigDecimal. For example user interfaces can create sliders with an appropriate scale based on this information. The `step` attribute can be declared for `Number` and `Dimmer` items and defines what is the minimal step size that can be used. The `readonly` attribute can be used for all item types and defines if the state of an item can be changed. For all sensors the `readonly` attribute should be set to `true`. The `pattern` attribute can be used for `Number` and  `String` items. It gives user interface a hint how to render the item. The format of the pattern must be compliant to the [Java Number Format](http://docs.oracle.com/javase/tutorial/java/data/numberformat.html). The pattern can be localized (see also [Internationalization](../../features/internationalization.html))
