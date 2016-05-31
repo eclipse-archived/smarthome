@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.items.ItemNotFoundException;
 import org.eclipse.smarthome.core.items.ItemNotUniqueException;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemUtil;
 import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.items.ManagedItemProvider;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
@@ -222,11 +223,6 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
         return matchedItems;
     }
 
-    @Override
-    public boolean isValidItemName(String name) {
-        return name.matches("[a-zA-Z0-9_]*");
-    }
-
     private void addToGroupItems(Item item, List<String> groupItemNames) {
         for (String groupName : groupItemNames) {
             try {
@@ -245,30 +241,26 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
      * injected and its implementation is notified that it has just been
      * created, so it can perform any task it needs to do after its creation.
      *
-     * @param item
-     *            the item to initialize
+     * @param item the item to initialize
      * @throws IllegalArgumentException if the item has no valid name
      */
     private void initializeItem(Item item) throws IllegalArgumentException {
-        if (isValidItemName(item.getName())) {
-            if (item instanceof GenericItem) {
-                GenericItem genericItem = (GenericItem) item;
-                genericItem.setEventPublisher(eventPublisher);
-                genericItem.setStateDescriptionProviders(stateDescriptionProviders);
-                genericItem.initialize();
-            }
+        ItemUtil.assertValidItemName(item.getName());
 
-            if (item instanceof GroupItem) {
-                // fill group with its members
-                addMembersToGroupItem((GroupItem) item);
-            }
-
-            // add the item to all relevant groups
-            addToGroupItems(item, item.getGroupNames());
-        } else {
-            throw new IllegalArgumentException(
-                    "Ignoring item '" + item.getName() + "' as it does not comply with" + " the naming convention.");
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.setEventPublisher(eventPublisher);
+            genericItem.setStateDescriptionProviders(stateDescriptionProviders);
+            genericItem.initialize();
         }
+
+        if (item instanceof GroupItem) {
+            // fill group with its members
+            addMembersToGroupItem((GroupItem) item);
+        }
+
+        // add the item to all relevant groups
+        addToGroupItems(item, item.getGroupNames());
     }
 
     private void addMembersToGroupItem(GroupItem groupItem) {

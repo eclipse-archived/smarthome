@@ -335,7 +335,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.linkChannel(channelID, event);
         } else {
             linkService.link({
-                itemName : $scope.thing.UID.replace(/:/g, "_") + '_' + channelID.replace(/#/g, "_"),
+                itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
                 channelUID : $scope.thing.UID + ':' + channelID
             }, function() {
                 $scope.getThing(true);
@@ -351,7 +351,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             $scope.unlinkChannel(channelID, event);
         } else {
             linkService.unlink({
-                itemName : $scope.thing.UID.replace(/:/g, "_") + '_' + channelID.replace(/#/g, "_"),
+                itemName : $scope.thing.UID.replace(/[^a-zA-Z0-9_]/g, "_") + '_' + channelID.replace(/[^a-zA-Z0-9_]/g, "_"),
                 channelUID : $scope.thing.UID + ':' + channelID
             }, function() {
                 $scope.getThing(true);

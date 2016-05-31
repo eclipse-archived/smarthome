@@ -39,8 +39,8 @@ public class ItemUtil {
      *
      * @return true if the specified name is a valid item name, otherwise false
      */
-    public static boolean isValidItemName(String itemName) {
-        if ((itemName != null) && (!itemName.isEmpty())) {
+    public static boolean isValidItemName(final String itemName) {
+        if (itemName != null && !itemName.isEmpty()) {
             return itemName.matches("[a-zA-Z0-9_]*");
         }
 
