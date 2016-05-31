@@ -245,25 +245,22 @@ public class ItemRegistryImpl extends AbstractRegistry<Item, String>implements I
      * @throws IllegalArgumentException if the item has no valid name
      */
     private void initializeItem(Item item) throws IllegalArgumentException {
-        if (ItemUtil.isValidItemName(item.getName())) {
-            if (item instanceof GenericItem) {
-                GenericItem genericItem = (GenericItem) item;
-                genericItem.setEventPublisher(eventPublisher);
-                genericItem.setStateDescriptionProviders(stateDescriptionProviders);
-                genericItem.initialize();
-            }
+        ItemUtil.assertValidItemName(item.getName());
 
-            if (item instanceof GroupItem) {
-                // fill group with its members
-                addMembersToGroupItem((GroupItem) item);
-            }
-
-            // add the item to all relevant groups
-            addToGroupItems(item, item.getGroupNames());
-        } else {
-            throw new IllegalArgumentException(
-                    "Ignoring item '" + item.getName() + "' as it does not comply with" + " the naming convention.");
+        if (item instanceof GenericItem) {
+            GenericItem genericItem = (GenericItem) item;
+            genericItem.setEventPublisher(eventPublisher);
+            genericItem.setStateDescriptionProviders(stateDescriptionProviders);
+            genericItem.initialize();
         }
+
+        if (item instanceof GroupItem) {
+            // fill group with its members
+            addMembersToGroupItem((GroupItem) item);
+        }
+
+        // add the item to all relevant groups
+        addToGroupItems(item, item.getGroupNames());
     }
 
     private void addMembersToGroupItem(GroupItem groupItem) {
