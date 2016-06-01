@@ -146,7 +146,7 @@
 									<p ng-if="getChannelById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
 									<p ng-if="!getChannelById(channel.id).description && getChannelTypeById(channel.id).description" ng-bind-html="getChannelTypeById(channel.id).description"></p>
 									<div class="actions">
-										<md-button ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
+										<md-button ng-if="getChannelFromChannelTypes(channel.channelTypeUID).parameters && getChannelFromChannelTypes(channel.channelTypeUID).parameters.length > 0" ng-click="configChannel(channel,thing,$event)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
 									</div>
 								</div>
 								<hr class="border-line" />

@@ -475,7 +475,7 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         });
     }
 
-    $scope.configChannel = function(channel, thing) {
+    $scope.configChannel = function(channel, thing, event) {
         var channelType = this.getChannelFromChannelTypes(channel.channelTypeUID);
 
         $mdDialog.show({
