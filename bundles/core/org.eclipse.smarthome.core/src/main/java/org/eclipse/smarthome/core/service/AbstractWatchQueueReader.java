@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * Base class for watch queue readers
  *
  * @author Fabio Marini
+ * @author Dimitar Ivanov - use complete path in watch event
  *
  */
 public abstract class AbstractWatchQueueReader implements Runnable {
@@ -87,10 +88,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
                         continue;
                     }
 
-                    // Context for directory entry event is the file name of
-                    // entry
-                    WatchEvent<Path> ev = cast(event);
-                    Path path = ev.context();
+                    Path path = resolveToPath(key, event);
 
                     processWatchEvent(event, kind, path);
                 }
@@ -103,6 +101,19 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
             return;
         }
+    }
+
+    private Path resolveToPath(WatchKey key, WatchEvent<?> event) {
+        WatchEvent<Path> ev = cast(event);
+        // Context for directory entry event is the file name of
+        // entry
+        Path contextPath = ev.context();
+
+        Path directoryWatched = (Path) key.watchable();
+        // Resolve the relative file name against the watched directory
+        Path path = directoryWatched.resolve(contextPath);
+
+        return path;
     }
 
     /**
