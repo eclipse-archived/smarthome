@@ -39,17 +39,17 @@ The DSL also supports the definition of bridges and contained things. The follow
 
 ```
 Bridge hue:bridge:mybridge [ ipAddress="192.168.3.123" ] {
-	Thing LCT001 bulb1 [ lightId="1" ]
-	Thing LCT001 bulb2 [ lightId="2" ]
+	Thing extended_color_light bulb1 [ lightId="1" ]
+	Thing extended_color_light bulb2 [ lightId="2" ]
 }
 ```
 
-Within the curly brackets things can be defined, that should be members of the bridge. For the contained thing only the thing type ID and thing ID must be defined (e.g. `LCT001 bulb1`). So the syntax is `Thing <thingTypeId> <thingId> []`. The resulting UID of the thing is `hue:LCT001:mybridge:bulb1`.
+Within the curly brackets things can be defined, that should be members of the bridge. For the contained thing only the thing type ID and thing ID must be defined (e.g. `extended_color_light bulb1`). So the syntax is `Thing <thingTypeId> <thingId> []`. The resulting UID of the thing is `hue:extended_color_light:mybridge:bulb1`.
 
 Bridges that are defined somewhere else can also be referenced in the DSL:
 
 ```
-Thing hue:LCT001:mybridge:bulb (hue:bridge:mybridge) [lightId="3"]
+Thing hue:extended_color_light:mybridge:bulb (hue:bridge:mybridge) [lightId="3"]
 ```
 
 The referenced bridge is specified in the parentheses. Please notice that the UID of the thing also contains the bridge ID as third segment. For the contained notation of things the UID will be inherited and the bridge ID is automatically taken as part of the resulting thing UID.

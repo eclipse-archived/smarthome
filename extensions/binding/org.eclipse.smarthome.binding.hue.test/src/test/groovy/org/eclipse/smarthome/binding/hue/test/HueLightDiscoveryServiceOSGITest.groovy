@@ -43,6 +43,7 @@ import org.junit.Test
  *
  * @author Kai Kreuzer - Initial contribution
  * @author Andre Fuechsel - added test 'assert start search is called()'
+ *                        - modified tests after introducing the generic thing types
  */
 class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
@@ -114,6 +115,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         FullLight light = FullLight.class.newInstance()
         light.id = "1"
         light.modelid = "LCT001"
+        light.type = "extended_color_light"
 
         def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
         registerDiscoveryListener( [
@@ -134,7 +136,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         resultWrapper.wrappedObject.with {
             assertThat flag, is (DiscoveryResultFlag.NEW)
             assertThat thingUID.toString(), is("hue:LCT001:testBridge:" + light.id)
-            assertThat thingTypeUID, is (THING_TYPE_LCT001)
+            assertThat thingTypeUID, is (THING_TYPE_EXTENDED_COLOR_LIGHT)
             assertThat bridgeUID, is(hueBridge.getUID())
             assertThat properties.get(LIGHT_ID), is (light.id)
         }
