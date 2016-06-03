@@ -61,9 +61,9 @@ g! lb
 START LEVEL 1
    ID|State      |Level|Name
     0|Active     |    0|System Bundle (4.4.1)
-    1|Active     |    1|org.eclipse.smarthome.protocols.enocean.eeps.basic (0.8.0)
-    2|Active     |    1|org.eclipse.smarthome.protocols.enocean.basedriver.impl (0.8.0)
-    3|Active     |    1|org.eclipse.smarthome.protocols.enocean.sample.client (0.8.0)
+    1|Active     |    1|org.eclipse.smarthome.protocols.enocean.eeps.basic (0.9.0)
+    2|Active     |    1|org.eclipse.smarthome.protocols.enocean.basedriver.impl (0.9.0)
+    3|Active     |    1|org.eclipse.smarthome.protocols.enocean.sample.client (0.9.0)
     4|Active     |    1|Apache Felix Bundle Repository (2.0.2)
     5|Active     |    1|Apache Felix EventAdmin (1.3.2)
     6|Active     |    1|Apache Felix Gogo Command (0.14.0)
