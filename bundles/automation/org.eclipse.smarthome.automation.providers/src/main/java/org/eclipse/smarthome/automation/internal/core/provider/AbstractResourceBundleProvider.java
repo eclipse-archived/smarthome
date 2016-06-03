@@ -404,10 +404,12 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      */
     protected Bundle getBundle(String uid) {
         String symbolicName = null;
-        for (Entry<Vendor, List<String>> entry : providerPortfolio.entrySet()) {
-            if (entry.getValue().contains(uid)) {
-                symbolicName = entry.getKey().getVendorSymbolicName();
-                break;
+        synchronized (providerPortfolio) {
+            for (Entry<Vendor, List<String>> entry : providerPortfolio.entrySet()) {
+                if (entry.getValue().contains(uid)) {
+                    symbolicName = entry.getKey().getVendorSymbolicName();
+                    break;
+                }
             }
         }
         Bundle[] bundles = bc.getBundles();
