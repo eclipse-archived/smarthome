@@ -1,6 +1,6 @@
 {
   "name": "org.eclipse.smarthome.ui.basic",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Eclipse Smarthome BasicUI",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
