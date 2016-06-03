@@ -9,6 +9,7 @@ package org.eclipse.smarthome.core.library;
 
 import org.eclipse.smarthome.core.items.GenericItem;
 import org.eclipse.smarthome.core.items.ItemFactory;
+import org.eclipse.smarthome.core.library.items.CallItem;
 import org.eclipse.smarthome.core.library.items.ColorItem;
 import org.eclipse.smarthome.core.library.items.ContactItem;
 import org.eclipse.smarthome.core.library.items.DateTimeItem;
@@ -40,36 +41,51 @@ public class CoreItemFactory implements ItemFactory {
     public static final String IMAGE = "Image";
     public static final String PLAYER = "Player";
     public static final String LOCATION = "Location";
+    public static final String CALL = "Call";
 
     /**
      * @{inheritDoc
      */
     @Override
     public GenericItem createItem(String itemTypeName, String itemName) {
-        if (itemTypeName.equals(SWITCH))
+        if (itemTypeName.equals(SWITCH)) {
             return new SwitchItem(itemName);
-        if (itemTypeName.equals(ROLLERSHUTTER))
+        }
+        if (itemTypeName.equals(ROLLERSHUTTER)) {
             return new RollershutterItem(itemName);
-        if (itemTypeName.equals(CONTACT))
+        }
+        if (itemTypeName.equals(CONTACT)) {
             return new ContactItem(itemName);
-        if (itemTypeName.equals(STRING))
+        }
+        if (itemTypeName.equals(STRING)) {
             return new StringItem(itemName);
-        if (itemTypeName.equals(NUMBER))
+        }
+        if (itemTypeName.equals(NUMBER)) {
             return new NumberItem(itemName);
-        if (itemTypeName.equals(DIMMER))
+        }
+        if (itemTypeName.equals(DIMMER)) {
             return new DimmerItem(itemName);
-        if (itemTypeName.equals(DATETIME))
+        }
+        if (itemTypeName.equals(DATETIME)) {
             return new DateTimeItem(itemName);
-        if (itemTypeName.equals(COLOR))
+        }
+        if (itemTypeName.equals(COLOR)) {
             return new ColorItem(itemName);
-        if (itemTypeName.equals(IMAGE))
+        }
+        if (itemTypeName.equals(IMAGE)) {
             return new ImageItem(itemName);
-        if (itemTypeName.equals(PLAYER))
+        }
+        if (itemTypeName.equals(PLAYER)) {
             return new PlayerItem(itemName);
-        if (itemTypeName.equals(LOCATION))
+        }
+        if (itemTypeName.equals(LOCATION)) {
             return new LocationItem(itemName);
-        else
+        }
+        if (itemTypeName.equals(CALL)) {
+            return new CallItem(itemName);
+        } else {
             return null;
+        }
     }
 
     /**
@@ -78,7 +94,7 @@ public class CoreItemFactory implements ItemFactory {
     @Override
     public String[] getSupportedItemTypes() {
         return new String[] { SWITCH, ROLLERSHUTTER, CONTACT, STRING, NUMBER, DIMMER, DATETIME, COLOR, IMAGE, PLAYER,
-                LOCATION };
+                LOCATION, CALL };
     }
 
 }
