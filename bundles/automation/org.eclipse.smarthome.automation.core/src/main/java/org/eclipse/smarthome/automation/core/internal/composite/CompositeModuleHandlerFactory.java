@@ -97,7 +97,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
     public ModuleHandler internalCreate(Module module, String ruleUID) {
         ModuleHandler handler = null;
         if (module != null) {
-            logger.debug("create composite module:" + module + ", of rule: " + ruleUID);
+            logger.debug("create composite module:" + module.getId() + ", of rule: " + ruleUID);
             String moduleType = module.getTypeUID();
             ModuleType mt = mtManager.get(moduleType);
             if (mt instanceof CompositeTriggerType) {
@@ -127,7 +127,8 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
             }
         }
 
-        logger.debug("Set handler to composite module:" + module + " -> " + handler);
+        logger.debug("Set handler to child module: {}  -> {}.", module,
+                handler != null ? handler.getClass().getSimpleName() : "null");
         return handler;
     }
 

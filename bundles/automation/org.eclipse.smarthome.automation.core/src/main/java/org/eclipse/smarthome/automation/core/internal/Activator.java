@@ -77,8 +77,7 @@ public class Activator implements BundleActivator {
         props.put(Constants.SERVICE_PID, "smarthome.rule.configuration");
         configReg = bc.registerService(ManagedService.class.getName(), ruleEngine, props);
 
-        this.tManager = new TemplateManager(bc, ruleEngine);
-        ruleEngine.setTemplateManager(tManager);
+        this.tManager = new TemplateManager(bc);
         mtManager = new ModuleTypeManager(bc, ruleEngine);
         ruleEngine.setModuleTypeManager(mtManager);
         ruleEngine.setCompositeModuleFactory(new CompositeModuleHandlerFactory(bc, mtManager, ruleEngine));
@@ -91,7 +90,7 @@ public class Activator implements BundleActivator {
         ruleEventFactory = new RuleEventFactory();
         ruleEventFactoryReg = bc.registerService(EventFactory.class.getName(), ruleEventFactory, null);
 
-        ruleRegistry = new RuleRegistryImpl(ruleEngine);
+        ruleRegistry = new RuleRegistryImpl(ruleEngine, tManager, bc);
 
         Filter filter = bc.createFilter("(|(" + Constants.OBJECTCLASS + "=" + StorageService.class.getName() + ")("
                 + Constants.OBJECTCLASS + "=" + RuleProvider.class.getName() + ")(" + Constants.OBJECTCLASS + "="
@@ -109,7 +108,6 @@ public class Activator implements BundleActivator {
                                 this.getClass().getClassLoader());
                         ruleRegistry.setDisabledRuleStorage(storageDisabledRules);
                         final ManagedRuleProvider managedRuleProvider = new ManagedRuleProvider(storage);
-                        ruleEngine.setManagedRuleProvider(managedRuleProvider);
                         ruleRegistry.setManagedProvider(managedRuleProvider);
                         managedRuleProviderReg = bc.registerService(RuleProvider.class.getName(), managedRuleProvider,
                                 null);

@@ -19,7 +19,6 @@ import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 
@@ -31,11 +30,6 @@ import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
  *
  */
 public class RuntimeRule extends Rule {
-    /**
-     * Module configuration properties can have reference to Rule configuration properties.
-     * This symbol is put as prefix to the name of the Rule configuration property.
-     */
-    private static final char REFERENCE_SYMBOL = '$';
 
     private Map<String, Module> moduleMap;
 
@@ -46,16 +40,6 @@ public class RuntimeRule extends Rule {
      */
     public RuntimeRule(String ruleTemplateUID, Map<String, ?> configurations) {
         super(ruleTemplateUID, configurations);
-    }
-
-    public RuntimeRule(Rule rule, RuleTemplate template) {
-        super(rule.getUID(), getRuntimeTriggersCopy(template.getTriggers()),
-                getRuntimeConditionsCopy(template.getConditions()), getRuntimeActionsCopy(template.getActions()), null,
-                null, template.getVisibility());
-        validateConfiguration(template.getConfigurationDescription(), rule.getConfiguration());
-        setName(rule.getName());
-        setTags(template.getTags());
-        setDescription(template.getDescription());
     }
 
     /**
@@ -100,30 +84,6 @@ public class RuntimeRule extends Rule {
             moduleMap.put(m.getId(), m);
         }
         return moduleMap;
-    }
-
-    /**
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof RuntimeRule && getUID() != null) {
-            RuntimeRule r = (RuntimeRule) obj;
-            return getUID().equals(r.getUID());
-        }
-        return super.equals(obj);
-    }
-
-    /**
-     *
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        if (getUID() != null) {
-            return getUID().hashCode();
-        }
-        return super.hashCode();
     }
 
     /**
@@ -248,37 +208,11 @@ public class RuntimeRule extends Rule {
         uid = rUID;
     }
 
-    private static List<Action> getActionsCopy(List<Action> actions) {
-        List<Action> res = new ArrayList<Action>();
-        if (actions != null) {
-            for (Action a : actions) {
-                Action action = new Action(a.getId(), a.getTypeUID(), a.getConfiguration(), a.getInputs());
-                action.setLabel(a.getLabel());
-                action.setDescription(a.getDescription());
-                res.add(action);
-            }
-        }
-        return res;
-    }
-
     private static List<Action> getRuntimeActionsCopy(List<Action> actions) {
         List<Action> res = new ArrayList<Action>();
         if (actions != null) {
             for (Action action : actions) {
                 res.add(new RuntimeAction(action));
-            }
-        }
-        return res;
-    }
-
-    private static List<Condition> getConditionsCopy(List<Condition> conditions) {
-        List<Condition> res = new ArrayList<Condition>(11);
-        if (conditions != null) {
-            for (Condition c : conditions) {
-                Condition condition = new Condition(c.getId(), c.getTypeUID(), c.getConfiguration(), c.getInputs());
-                condition.setLabel(c.getLabel());
-                condition.setDescription(c.getDescription());
-                res.add(condition);
             }
         }
         return res;
@@ -294,19 +228,6 @@ public class RuntimeRule extends Rule {
         return res;
     }
 
-    private static List<Trigger> getTriggersCopy(List<Trigger> triggers) {
-        List<Trigger> res = new ArrayList<Trigger>(11);
-        if (triggers != null) {
-            for (Trigger t : triggers) {
-                Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), t.getConfiguration());
-                trigger.setLabel(t.getLabel());
-                trigger.setDescription(t.getDescription());
-                res.add(trigger);
-            }
-        }
-        return res;
-    }
-
     private static List<Trigger> getRuntimeTriggersCopy(List<Trigger> triggers) {
         List<Trigger> res = new ArrayList<Trigger>(11);
         if (triggers != null) {
@@ -317,13 +238,4 @@ public class RuntimeRule extends Rule {
         return res;
     }
 
-    protected Rule getRuleCopy() {
-        Rule rule = new Rule(getUID(), getTriggersCopy(getTriggers()), getConditionsCopy(getConditions()),
-                getActionsCopy(getActions()), getConfigurationDescriptions(), getConfiguration(), getTemplateUID(),
-                getVisibility());
-        rule.setName(getName());
-        rule.setTags(getTags());
-        rule.setDescription(getDescription());
-        return rule;
-    }
 }
