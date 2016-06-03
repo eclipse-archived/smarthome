@@ -71,6 +71,25 @@
             </configuration>
           </execution>
           <execution>
+            <id>copy-ui-docs</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/documentation/features/ui</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../extensions/ui/</directory>
+                  <includes>
+                    <include>org.eclipse.smarthome.ui.*/README.md</include>
+                    <include>org.eclipse.smarthome.ui.*/doc/**</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
             <id>copy-javadoc</id>
             <phase>process-resources</phase>
             <goals>
@@ -148,6 +167,36 @@
                 if(readme.exists()) {
                 println readme
                 readme.renameTo(new File(simpleIconsetNameDir.path, 'readme.md'))
+                }
+                }
+                }
+              </source>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rename-ui-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <source>
+                def uis = new File(project.basedir, 'documentation/features/ui')
+
+                uis.eachFile
+                {
+                def name = it.name
+                if(!name.contains('iconset')) {
+                def uiId =
+                it.name.replace('org.eclipse.smarthome.ui.', '')
+                def simpleUINameDir = new
+                File(uis.path, uiId)
+                it.renameTo(simpleUINameDir)
+                def readme = new
+                File(simpleUINameDir.path, 'README.md')
+                if(readme.exists()) {
+                println readme
+                readme.renameTo(new File(simpleUINameDir.path, 'readme.md'))
                 }
                 }
                 }
