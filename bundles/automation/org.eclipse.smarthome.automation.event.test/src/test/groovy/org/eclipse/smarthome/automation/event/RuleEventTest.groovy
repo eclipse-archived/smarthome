@@ -18,13 +18,12 @@ import org.eclipse.smarthome.automation.Action
 import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
-import org.eclipse.smarthome.automation.RuleStatus;
+import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
-import org.eclipse.smarthome.core.autoupdate.AutoUpdateBindingConfigProvider
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -48,7 +47,7 @@ import com.google.common.collect.Sets
 
 /**
  * This tests events of rules
- * 
+ *
  * @author Benedikt Niehues - initial contribution
  *
  */
@@ -103,18 +102,18 @@ class RuleEventTest extends OSGiTest{
         def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
         def condition2Config = [itemName:"myMotionItem2"]
         def actionConfig = [itemName:"myLampItem2", command:"ON"]
-        def triggers = [
-            new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)
-        ]
+        def triggers = [new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)]
         def conditions = [
             new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),
             new Condition("ItemStateCondition4", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger2.event"])
         ]
-        def actions = [
-            new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)
-        ]
+        def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
         rule.name="RuleEventTestingRule"
 
         logger.info("Rule created: "+rule.getUID())
@@ -126,7 +125,7 @@ class RuleEventTest extends OSGiTest{
         waitForAssert({
             assertThat ruleRegistry.getStatus(rule.UID).status, is (RuleStatus.IDLE)
         })
-        
+
         //TEST RULE
 
         def EventPublisher eventPublisher = getService(EventPublisher)
@@ -134,7 +133,7 @@ class RuleEventTest extends OSGiTest{
         SwitchItem myMotionItem = itemRegistry.getItem("myMotionItem2")
         Command commandObj = TypeParser.parseCommand(myMotionItem.getAcceptedCommandTypes(), "ON")
         eventPublisher.post(ItemEventFactory.createCommandEvent("myPresenceItem2", commandObj))
-        
+
         Event itemEvent = null
 
         def itemEventHandler = [
@@ -190,6 +189,6 @@ class RuleEventTest extends OSGiTest{
         waitForAssert({
             assertThat ruleRemovedEvent, is(notNullValue())
             assertThat ruleRemovedEvent.topic, is(equalTo("smarthome/rules/myRule21/removed"))
-        })		
+        })
     }
 }

@@ -123,7 +123,7 @@ public class RuleEngineTest {
     public void testRuleTags() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule2 = new Rule("rule2", null, null, null, null, null);
+        Rule rule2 = new Rule("rule2");
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         ruleTags.add("tag2");
@@ -154,13 +154,13 @@ public class RuleEngineTest {
     public void testGetRuleByTags() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule1 = new Rule("rule1", null, null, null, null, null);
+        Rule rule1 = new Rule("rule1");
         Set<String> ruleTags = new LinkedHashSet<String>();
         ruleTags.add("tag1");
         rule1.setTags(ruleTags);
         ruleEngine.addRule(rule1, true);
 
-        Rule rule2 = new Rule("rule2", null, null, null, null, null);
+        Rule rule2 = new Rule("rule2");
         Set<String> ruleTags2 = new LinkedHashSet<String>();
         ruleTags2.add("tag1");
         ruleTags2.add("tag2");
@@ -187,11 +187,12 @@ public class RuleEngineTest {
     public void testRuleConfigNull() {
         RuleEngine ruleEngine = createRuleEngine();
 
-        Rule rule3 = new Rule("rule3", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                null, null);
+        Rule rule3 = new Rule("rule3");
+        rule3.setTriggers(createTriggers("typeUID"));
+        rule3.setConditions(createConditions("typeUID"));
+        rule3.setActions(createActions("typeUID"));
         ruleEngine.addRule(rule3, true);
         Rule rule3Get = ruleEngine.getRule("rule3");
-        Assert.assertNotNull("Rule configuration description is null", rule3Get.getConfigurationDescriptions());
         Assert.assertNotNull("Rule configuration is null", rule3Get.getConfiguration());
     }
 
@@ -206,8 +207,12 @@ public class RuleEngineTest {
         Map<String, Object> configurations = new HashMap<String, Object>();
         configurations.put("config1", 5);
 
-        Rule rule4 = new Rule("rule4", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                configDescriptions, configurations);
+        Rule rule4 = new Rule("rule4");
+        rule4.setTriggers(createTriggers("typeUID"));
+        rule4.setConditions(createConditions("typeUID"));
+        rule4.setActions(createActions("typeUID"));
+        rule4.setConfigurationDescriptions(configDescriptions);
+        rule4.setConfiguration(configurations);
         ruleEngine.addRule(rule4, true);
         Rule rule4Get = ruleEngine.getRule("rule4");
         Map<String, ?> rule4cfg = rule4Get.getConfiguration();
@@ -313,18 +318,20 @@ public class RuleEngineTest {
     }
 
     private Rule createRule() {
-        List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
-        Map<String, Object> configurations = null;// new HashMap<String, Object>();
-        return new Rule("rule1", createTriggers("typeUID"), createConditions("typeUID"), createActions("typeUID"),
-                configDescriptions, configurations);
+        Rule rule = new Rule("rule1");
+        rule.setTriggers(createTriggers("typeUID"));
+        rule.setConditions(createConditions("typeUID"));
+        rule.setActions(createActions("typeUID"));
+        return rule;
     }
 
     private Rule createAutoMapRule() {
-        List<ConfigDescriptionParameter> configDescriptions = null;// new LinkedHashSet<ConfigDescriptionParameter>();
-        Map<String, Object> configurations = null;// new HashMap<String, Object>();
-        return new Rule("rule1", createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE),
-                createConditions(ModuleTypeManagerMockup.CONDITION_TYPE),
-                createActions(ModuleTypeManagerMockup.ACTION_TYPE), configDescriptions, configurations);
+        Rule rule = new Rule("rule1");
+        rule.setTriggers(createTriggers(ModuleTypeManagerMockup.TRIGGER_TYPE));
+        rule.setConditions(createConditions(ModuleTypeManagerMockup.CONDITION_TYPE));
+        rule.setActions(createActions(ModuleTypeManagerMockup.ACTION_TYPE));
+        return rule;
+
     }
 
     private List<Trigger> createTriggers(String type) {
