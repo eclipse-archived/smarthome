@@ -4,34 +4,31 @@ layout: documentation
 
 {% include base.html %}
 
-# About Eclipse SmartHome
+# Concepts
 
-## Background
-Since the emergence of broadband internet connections, smartphones and tablets the smart home market shows a remarkable upsurge. This has led to a very fragmented market, which makes it difficult for customers to "bet on the right horse". In fact, there is not one system, protocol or standard that could possibly fulfill all potential requirements. There is hence a need for platforms that allow the integration of different systems, protocols or standards and that provide a uniform way of user interaction and higher level services.
+Eclipse SmartHome strictly differentiates between the physical view and the functional view on the system.
+While the physical view is required for setup, configuration, troubleshooting, etc., the functional side covers the information that matter to applications, such as user interfaces and automation logic.
 
-## How does Eclipse SmartHome help?
+## Things, Channels, Items and Links
 
-The goals of the Eclipse SmartHome project can be summarized as:
+**Things** are the entities that can be physically added to a system and which can potentially provide many functionalities at once. It is important to note that things do not have to be devices, but they can also represent a web service or any other manageable source of information and functionality.
+Things provide their functionality through a set of **Channels**. Channels are "passive" and can be regarded as a declaration of a Thing, what it can offer. It is up to the individual setup, which of the Channels are actively used through Items (see below).
 
-* Provide a flexible framework for smart home and ambient assisted living (AAL) solutions. This framework focuses on the use cases of this domain, e.g. on easy automation and visualization aspects.
-* Specify extension points for integration possibilities and higher-level services. Extending and thus customizing the solution must be as simple as possible and this requires concise and dedicated interfaces.
-* Provide implementations of extensions for relevant systems, protocols or standards. Many of them can be useful to many smart home solutions, so this project will provide a set of extensions that can be included if desired. They can also be in the shape of a general Java library or an OSGi bundle, so that these implementations can be used independently of the rest of the project as well.
-* Provide a development environment and tools to foster implementations of extensions. The right tooling can support the emergence of further extensions and thus stimulate future contributions to the project.
-* Create a packaging and demo setups. Although the focus is on the framework, it needs to be shown how to package a real solution from it, which can be used as a starting point and for demo purposes.
-Description
-* The Eclipse SmartHome project is a framework that allows building smart home solutions that have a strong focus on heterogeneous environments, i.e. solutions that deal with the integration of different protocols or standards. Its purpose is to provide a uniform access to devices and information and to facilitate different kinds of interactions with them. This framework consists out of a set of OSGi bundles that can be deployed on an OSGi runtime and which defines OSGi services as extension points.
+**Items** represent (fine-grained) functionality that is used by applications - as user interfaces or automation logic. Items have a state and they can receive commands.
 
-The stack is meant to be usable on any kind of system that can run an OSGi stack - be it a multi-core server, a residential gateway or a Raspberry Pi.
+The glue between Things and Items are **Links**. Links are associations between exactly one Thing Channel and one Item.
+If a Channel is linked to an Item, it is "enabled", which means that the functionality that the Item represents is handled through the given Channel.
+Channels can be linked to multiple Items and Items can be linked to multiple Channels.
 
-The project focuses on services and APIs for the following topics:
+To illustrate these concepts, take a two-channel actuator that controls two lights:
 
-1. _Data Handling_: This includes a basic but extensible type system for smart home data and commands that provides a common ground for an abstracted data and device access as well as event mechanisms to send this information around. It is the most important topic for integrating with other systems, which is done through so called bindings, which are a special type of extension.
-1. _Rule Engines_: A flexible rule engine that allows changing rules during runtime and which defines extension types that allow breaking down rules into smaller pieces like triggers, actions, logic modules and templates.
-1. _Declarative User Interfaces_: A framework with extensions for describing user interface content in a declarative way. This includes widgets, icons, charts etc.
-1. _Persistence Management_: Infrastructure that allows automatic data processing based on a simple and unified configuration. Persistence services are pluggable extensions, which can be anything from a log writer to an IoT cloud service.
+![](images/thing-devices-1.png)
 
-Besides the runtime framework and implementation, the Eclipse SmartHome project also provides different kinds of tools and samples:
+The actuator is the _Thing_. This might be installed in the electrical cabinet, it has a physical address and needs to be setup and configured in order to be used.
+The user is instead interested in the two lights, which are located at different locations in his home. These lights are the desired functionality, thus the _Items_ and they are linked to the _Channels_ of the actuator.
+A _Link_ can be regarded like a physical wire in this example.
 
-* Eclipse editors for editing configuration models and rules. These provide full IDE support, such as content assist and syntax validation.
-* Maven archetypes to easily create skeletons for extensions
-* Demo packaging with other Eclipse IoT projects
+
+
+
+
