@@ -35,7 +35,7 @@ ModelNormalItem :
 ;
 
 ModelItemType :
-	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' |  ID
+	'Switch' | 'Rollershutter' | 'Number' | 'String' | 'Dimmer' | 'Contact' | 'DateTime' | 'Color' | 'Player' | 'Location' | 'Call' | ID
 ;
 
 ModelBinding:
