@@ -72,3 +72,4 @@ Export-Package: org.eclipse.smarthome.model.script,
  org.eclipse.smarthome.model.script.validation
 Bundle-Activator: org.eclipse.smarthome.model.script.internal.ScriptActivator
 Bundle-ClassPath: .
+Bundle-ActivationPolicy: lazy

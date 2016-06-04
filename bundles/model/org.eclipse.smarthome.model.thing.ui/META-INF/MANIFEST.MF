@@ -25,3 +25,4 @@ Export-Package: org.eclipse.smarthome.model.thing.ui.quickfix,
  org.eclipse.smarthome.model.thing.ui.internal,
  org.eclipse.smarthome.model.thing.ui.contentassist.antlr.internal
 Bundle-Activator: org.eclipse.smarthome.model.thing.ui.internal.ThingActivator
+Bundle-ActivationPolicy: lazy
