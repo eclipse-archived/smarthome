@@ -22,3 +22,4 @@ Import-Package: org.apache.commons.lang,
  org.eclipse.smarthome.designer.ui,
  org.slf4j
 Export-Package: org.eclipse.smarthome.designer.ui
+Bundle-ActivationPolicy: lazy

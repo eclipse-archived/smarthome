@@ -42,3 +42,4 @@ Export-Package: org.eclipse.smarthome.model.script.ui.contentassist,
  org.eclipse.smarthome.model.script.ui.quickfix,
  org.eclipse.smarthome.model.script.ui.contentassist.antlr.internal
 Bundle-Activator: org.eclipse.smarthome.model.script.ui.internal.ScriptUIActivator
+Bundle-ActivationPolicy: lazy
