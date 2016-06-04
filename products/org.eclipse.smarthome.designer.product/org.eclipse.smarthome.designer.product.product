@@ -117,6 +117,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </features>
 
    <configurations>
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="1" />
       <plugin id="org.eclipse.equinox.cm" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
@@ -128,10 +129,19 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <plugin id="org.eclipse.smarthome.config.core" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.core" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.core.thing" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.smarthome.designer.core" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.smarthome.designer.ui" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="3" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
