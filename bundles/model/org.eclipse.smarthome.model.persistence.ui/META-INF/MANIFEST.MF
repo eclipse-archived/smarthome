@@ -29,3 +29,4 @@ Export-Package: org.eclipse.smarthome.model.persistence.ui.contentassist,
  org.eclipse.smarthome.model.persistence.ui.quickfix,
  org.eclipse.smarthome.model.persistence.ui.contentassist.antlr.internal
 Bundle-Activator: org.eclipse.smarthome.model.persistence.ui.internal.PersistenceActivator
+Bundle-ActivationPolicy: lazy

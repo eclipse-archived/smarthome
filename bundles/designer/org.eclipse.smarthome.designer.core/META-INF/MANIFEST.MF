@@ -18,3 +18,4 @@ Import-Package: org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.model.script.engine.action,
  org.osgi.service.cm,
  org.slf4j
+Bundle-ActivationPolicy: lazy
