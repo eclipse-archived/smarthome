@@ -6,11 +6,13 @@ This binding integrates the [Sonos Multi-Room Audio system](http://www.sonos.com
 
 All available Sonos (playback) devices are supported by this binding. This includes the Play:1, Play:3, Play:5, Connect, Connect:Amp, Playbar, and Sub. The Bridge and Boost are not supported, but these devices do only have an auxiliary role in the Sonos network and do not have any playback capability.
 
-When being defined in a *.things file, the specific thing types PLAY1, PLAY3, PLAY5, PLAYBAR, CONNECT and CONNECTAMP should be used.
+When being defined in a \*.things file, the specific thing types PLAY1, PLAY3, PLAY5, PLAYBAR, CONNECT and CONNECTAMP should be used.
+
+Please note that these thing types are case sensitive (you need to define them in uppper case).
 
 ## Discovery
 
-The Sonos devices are discovered through UPnP in the local network and all devices are put in the Inbox. Beware that all Sonos devices have to added to the local Sonos installation as described in the Sonos setup procedure, e.g. through the Sonos Controller software or smartphone app. 
+The Sonos devices are discovered through UPnP in the local network and all devices are put in the Inbox. Beware that all Sonos devices have to added to the local Sonos installation as described in the Sonos setup procedure, e.g. through the Sonos Controller software or smartphone app.
 
 ## Binding Configuration
 
@@ -26,29 +28,66 @@ Thing sonos:PLAY1:1 [ udn="RINCON_000E58D8403A0XXXX", refresh=60]
 
 ## Channels
 
-All devices support the following channels (non-exhaustive):
+The devices support the following channels:
 
-| Channel Type ID | Item Type    | Description  |
-|-----------------|------------------------|--------------|----------------- |------------- |
-| currenttrack | String       | This channel indicates the name of the track or radio station currently playing |
-| playlinein | String       | This channel supports playing the audio source connected to the line-in of the zoneplayer identified by the Thing UID or UPnP UDN provided by the String. |
-| volume | Dimmer       | This channel supports setting the master volume of the zoneplayer |
-| control | Player       | This channel supports controlling the zoneplayer, e.g. start/stop/next/previous |
+| Channel Type ID | Item Type    | Description  | Thing types |
+|-----------------|------------------------|--------------|----------------- |------------- |---|
+| add | String | Add a Zone Player to the group of the given Zone Player | all |
+| alarm | Switch | Set the first occurring alarm either ON or OFF. Alarms have first have to be defined through the Sonos Controller app | all |
+| alarmproperties | String | Properties of the alarm currently running | all |
+| alarmrunning | Switch | Set to ON if the alarm was triggered | all |
+| control | Player       | This channel supports controlling the zoneplayer, e.g. start/stop/next/previous | all |
+| coordinator | String | UDN of the coordinator for the current group | all |
+| currentalbum | String | Name of the album currently playing | all |
+| currentartist | String | Name of the artist currently playing | all |
+| currenttitle | String | Title of the song currently playing | all |
+| currenttrack | String       | This channel indicates the name of the track or radio station currently playing | all |
+| favorite | String | Play the given favorite entry. The favorite entry has to be predefined in the Sonos Controller app | all |
+| led | Switch | Set or get the status of the white led on the front of the Zone Player | all |
+| localcoordinator | Switch | Indicator set to ON if the this Zone Player is the Zone Group Coordinator | all |
+| mute | Switch | Set or get the mute state of the master volume of the Zone Player | all |
+| notificationsound | String | Play a notification sound by a given URI | all |
+| notificationvolume | Dimmer | Set the volume applied to a notification sound | all |
+| playlinein | String       | This channel supports playing the audio source connected to the line-in of the zoneplayer identified by the Thing UID or UPnP UDN provided by the String. | PLAY5, CONNECT, CONNECTAMP |
+| playlist | String | Play the given playlist. The playlist has to predefined in the Sonos Controller app | all |
+| playqueue | Switch | Play the songs from the current queue | all |
+| playtrack | Number | Play the given track number from the current queue | all |
+| playuri | String | Play the given URI | all |
+| publicaddress | Switch | Put all Zone Players in one group, and stream audio from the line-in from the Zone Player that triggered the command | PLAY5, CONNECT, CONNECTAMP |
+| radio | String | Play the given radio station. The radio station has to be predefined in the Sonos Controller app | all |
+| remove | String | Remove the given Zone Player to the group of this Zone Player | all |
+| restore | Switch | Restore the state of the Zone Player | all |
+| restoreall | Switch | Restore the state of all the Zone Players | all |
+| volume | Dimmer       | This channel supports setting the master volume of the zoneplayer | all |
+| save | Switch | Save the state of the Zone Player | all |
+| saveall | Switch | Save the state of all the Zone Players | all |
+| snooze | Switch | Snooze the running alarm, if any, with the given number of minutes | all |
+| standalone | Switch | Make the Zone Player leave its Group and become a standalone Zone Player | all |
+| state | String | The State channel contains state of the Zone Player, e.g. PLAYING, STOPPED,... | all |
+| stop | Switch | Stop the Zone Player | all |
+| zonegroup | String | XML formatted string with the current zonegroup configuration | all |
+| zonegroupid | String | Id of the Zone Group the Zone Player belongs to | all |
+| zonename | String | Name of the Zone Group the Zone Player belongs to | all |
 
 ## Full Example
 
 demo.things:
 
 ```
-Thing sonos:PLAY3:1 [ udn="RINCON_000E58D8403A0XXXX", refresh=60]
+Thing sonos:PLAY1:living [ udn="RINCON_000E58D8403A0XXXX", refresh=60]
 ```
 
 demo.items:
 
 ```
-Dimmer Volume {channel="sonos:PLAY3:1:volume"}
-String LineInUDN {channel="sonos:PLAY3:1:playlinein"}
-Player Controller (controllerGroup) {channel="sonos:PLAY3:1:control"}
+Group Sonos <player>
+
+Player Sonos_Controller   "Controller"                          (Sonos) {channel="sonos:PLAY1:living:control"}
+Dimmer Sonos_Volume       "Volume [%.1f %%]" <soundvolume>      (Sonos) {channel="sonos:PLAY1:living:volume"}
+Switch Sonos_Mute         "Mute"             <soundvolume_mute> (Sonos) {channel="sonos:PLAY1:living:mute"}
+Switch Sonos_LED          "LED"              <switch>           (Sonos) {channel="sonos:PLAY1:living:led"}
+String Sonos_CurrentTrack "Now playing [%s]" <text>             (Sonos) {channel="sonos:PLAY1:living:currenttrack"}
+String Sonos_State        "Status [%s]"      <text>             (Sonos) {channel="sonos:PLAY1:living:state"}
 ```
 
 demo.sitemap:
@@ -57,9 +96,12 @@ demo.sitemap:
 sitemap demo label="Main Menu"
 {
 		Frame label="Sonos" {
-			Group item=controllerGroup label="Sonos" icon="settings"
-			Slider item=Volume  label="Sonos - Volume [%.1f %%]" 
-			Text item=CurrentTrack label="Sonos - Current Track  [%s]"				
+			Default item=Sonos_Controller
+			Slider  item=Sonos_Volume
+			Switch  item=Sonos_Mute
+			Switch  item=Sonos_LED
+			Text    item=Sonos_CurrentTrack		
+			Text    item=Sonos_State
 		}
 }
 ```
