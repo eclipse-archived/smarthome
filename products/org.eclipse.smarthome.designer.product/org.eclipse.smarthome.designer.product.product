@@ -28,7 +28,6 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
 
@@ -131,10 +130,11 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <plugin id="org.eclipse.smarthome.core.thing" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.designer.core" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.smarthome.designer.ui" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.smarthome.model.core" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.item" autoStart="true" startLevel="3" />
       <plugin id="org.eclipse.smarthome.model.rule" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.smarthome.model.sitemap" autoStart="true" startLevel="0" />
-      <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="3" />
+      <plugin id="org.eclipse.smarthome.model.thing" autoStart="true" startLevel="0" />
    </configurations>
 
    <preferencesInfo>
