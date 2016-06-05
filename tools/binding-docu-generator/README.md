@@ -9,7 +9,7 @@ The plugin will automatically download the templates files into the `src/main/re
 If you want to reset the templates files or update them, simply delete them. The plugin will download the latest ones.
 
 ## Data model
-To use Mustache without problems it was necessary to implement a strong data model. Since I did not want to extend the generated classes from JAXB, I created another data model. This also empowers us to change the way we parse our XML files later if necessary.
+To use Mustache without problems it was necessary to implement a strong data model. Since I did not want to extend the generated classes from JAXB, I created another data model. This also empowers us to change the way we parse our XML files later if necessary. 
 
 ## Generating the XML schema classes
 **This is only necessary when the .xsd-files change. This should not happen very often.** You need to regenerate the schema classes. To do this, please download the new `binding-description-x.x.x.xsd`, `thing-description-x.x.x.xsd` and `config-description-x.x.x.xsd` and modify the corresponding paths in the XML schemas. (Exchange the paths to the .xsd-files with your local paths.)
