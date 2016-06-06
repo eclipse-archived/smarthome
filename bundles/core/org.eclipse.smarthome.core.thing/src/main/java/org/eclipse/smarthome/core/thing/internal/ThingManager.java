@@ -658,13 +658,14 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
     private void initializeHandler(final ThingHandler thingHandler) {
         Bundle bundle = null;
         for (BundleProcessor proc : bundleProcessors) {
-            bundle = proc.isFinishedLoading(thingHandler);
-            if (bundle != null) {
-                logger.trace("Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
+            Bundle b = proc.isFinishedLoading(thingHandler);
+            if (b != null) {
+                bundle = b;
+                logger.trace("Marking '{}' vetoed by '{}'", b.getSymbolicName(), proc);
                 initializerVetoes.put(bundle, proc);
                 if (!initializerQueue.containsEntry(bundle, thingHandler)) {
-                    logger.trace("Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
-                    initializerQueue.put(bundle.getSymbolicName(), thingHandler);
+                    logger.trace("Queueing '{}' in bundle '{}'", thingHandler, b.getSymbolicName());
+                    initializerQueue.put(b.getSymbolicName(), thingHandler);
                 }
             }
         }
