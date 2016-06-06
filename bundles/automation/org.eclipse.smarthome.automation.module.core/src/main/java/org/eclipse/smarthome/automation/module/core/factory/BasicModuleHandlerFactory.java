@@ -186,58 +186,74 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    protected ModuleHandler internalCreate(Module module, String ruleUID) {
+    protected ModuleHandler internalCreate(final Module module, final String ruleUID) {
         logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
-        ModuleHandler handler = handlers.get(ruleUID + module.getId());
-        String moduleTypeUID = module.getTypeUID();
-        if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID) && module instanceof Trigger) {
-            GenericEventTriggerHandler triggerHandler = handler != null && handler instanceof GenericEventTriggerHandler
-                    ? (GenericEventTriggerHandler) handler : null;
-            if (triggerHandler == null) {
-                triggerHandler = new GenericEventTriggerHandler((Trigger) module, this.bundleContext);
-                handlers.put(ruleUID + module.getId(), triggerHandler);
+
+        final ModuleHandler handler = handlers.get(ruleUID + module.getId());
+        final String moduleTypeUID = module.getTypeUID();
+
+        if (module instanceof Trigger) {
+            // Handle triggers
+
+            if (GenericEventTriggerHandler.MODULE_TYPE_ID.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof GenericEventTriggerHandler) {
+                    return handler;
+                } else {
+                    final GenericEventTriggerHandler triggerHandler = new GenericEventTriggerHandler((Trigger) module,
+                            this.bundleContext);
+                    handlers.put(ruleUID + module.getId(), triggerHandler);
+                    return triggerHandler;
+                }
             }
-            return triggerHandler;
-        } else
-            if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID) && module instanceof Condition) {
-            ItemStateConditionHandler conditionHandler = handler != null && handler instanceof ItemStateConditionHandler
-                    ? (ItemStateConditionHandler) handler : null;
-            if (conditionHandler == null) {
-                conditionHandler = new ItemStateConditionHandler((Condition) module);
-                conditionHandler.setItemRegistry(itemRegistry);
-                handlers.put(ruleUID + module.getId(), conditionHandler);
+        } else if (module instanceof Condition) {
+            // Handle conditions
+
+            if (ItemStateConditionHandler.ITEM_STATE_CONDITION.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof ItemStateConditionHandler) {
+                    return handler;
+                } else {
+                    final ItemStateConditionHandler conditionHandler = new ItemStateConditionHandler(
+                            (Condition) module);
+                    conditionHandler.setItemRegistry(itemRegistry);
+                    handlers.put(ruleUID + module.getId(), conditionHandler);
+                    return conditionHandler;
+                }
+            } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof EventConditionHandler) {
+                    return handler;
+                } else {
+                    final EventConditionHandler eventConditionHandler = new EventConditionHandler((Condition) module);
+                    handlers.put(ruleUID + module.getId(), eventConditionHandler);
+                    return eventConditionHandler;
+                }
+            } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof CompareConditionHandler) {
+                    return handler;
+                } else {
+                    final CompareConditionHandler compareConditionHandler = new CompareConditionHandler(
+                            (Condition) module);
+                    handlers.put(ruleUID + module.getId(), compareConditionHandler);
+                    return compareConditionHandler;
+                }
             }
-            return conditionHandler;
-        } else if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(moduleTypeUID)
-                && module instanceof Action) {
-            ItemPostCommandActionHandler postCommandActionHandler = handler != null
-                    && handler instanceof ItemPostCommandActionHandler ? (ItemPostCommandActionHandler) handler : null;
-            if (postCommandActionHandler == null) {
-                postCommandActionHandler = new ItemPostCommandActionHandler((Action) module);
-                postCommandActionHandler.setEventPublisher(eventPublisher);
-                postCommandActionHandler.setItemRegistry(itemRegistry);
-                handlers.put(ruleUID + module.getId(), postCommandActionHandler);
+        } else if (module instanceof Action) {
+            // Handle actions
+
+            if (ItemPostCommandActionHandler.ITEM_POST_COMMAND_ACTION.equals(moduleTypeUID)) {
+                if (handler != null && handler instanceof ItemPostCommandActionHandler) {
+                    return handler;
+                } else {
+                    final ItemPostCommandActionHandler postCommandActionHandler = new ItemPostCommandActionHandler(
+                            (Action) module);
+                    postCommandActionHandler.setEventPublisher(eventPublisher);
+                    postCommandActionHandler.setItemRegistry(itemRegistry);
+                    handlers.put(ruleUID + module.getId(), postCommandActionHandler);
+                    return postCommandActionHandler;
+                }
             }
-            return postCommandActionHandler;
-        } else if (EventConditionHandler.MODULETYPE_ID.equals(moduleTypeUID) && module instanceof Condition) {
-            EventConditionHandler eventConditionHandler = handler != null && handler instanceof EventConditionHandler
-                    ? (EventConditionHandler) handler : null;
-            if (eventConditionHandler == null) {
-                eventConditionHandler = new EventConditionHandler((Condition) module);
-                handlers.put(ruleUID + module.getId(), eventConditionHandler);
-            }
-            return eventConditionHandler;
-        } else if (CompareConditionHandler.MODULE_TYPE.equals(moduleTypeUID) && module instanceof Condition) {
-            CompareConditionHandler compareConditionHandler = handler != null
-                    && handler instanceof CompareConditionHandler ? (CompareConditionHandler) handler : null;
-            if (compareConditionHandler == null) {
-                compareConditionHandler = new CompareConditionHandler((Condition) module);
-                handlers.put(ruleUID + module.getId(), compareConditionHandler);
-            }
-            return compareConditionHandler;
-        } else {
-            logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
         }
+
+        logger.error("The ModuleHandler is not supported:" + moduleTypeUID);
         return null;
     }
 }
