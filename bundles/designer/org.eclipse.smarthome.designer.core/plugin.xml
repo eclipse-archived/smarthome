@@ -23,7 +23,23 @@
                name="aboutImage"
                value="icons/esh400.png">
          </property>
-      </product>
+         <property
+               name="aboutText"
+               value="">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="7F7F7F">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="5,398,570,15">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="0,414,580,12">
+         </property>
+   </product>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
