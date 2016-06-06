@@ -34,7 +34,7 @@ public class OSGiConsole implements Console {
 
     @Override
     public void printUsage(final String s) {
-        System.out.println(String.format("Usage: %s %s", scope, s));
+        System.out.println(String.format("Usage: %s:%s", scope, s));
     }
 
 }
