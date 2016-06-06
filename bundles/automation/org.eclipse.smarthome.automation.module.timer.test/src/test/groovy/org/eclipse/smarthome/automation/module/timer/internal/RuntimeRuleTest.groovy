@@ -78,21 +78,18 @@ class RuntimeRuleTest extends OSGiTest{
         def testItemName = "myLampItem"
 
         def triggerConfig = [cronExpression:testExpression]
-        def triggers = [
-            new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)
-        ]
+        def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
 
         def actionConfig = [itemName:testItemName, command:"ON"]
-        def actions = [
-            new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)
-        ]
+        def actions = [new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)]
 
         def conditionConfig = [operator:"=", itemName:testItemName, state:"OFF"]
-        def conditions = [
-            new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)
-        ]
+        def conditions = [new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)]
 
-        def rule = new Rule("MyRule"+new Random().nextInt(),triggers, conditions, actions, null, null)
+        def rule = new Rule("MyRule"+new Random().nextInt())
+        rule.triggers = triggers
+        rule.conditions =  conditions
+        rule.actions = actions
         rule.name="MyTimerTriggerTestRule"
         logger.info("Rule created: "+rule.getUID())
 

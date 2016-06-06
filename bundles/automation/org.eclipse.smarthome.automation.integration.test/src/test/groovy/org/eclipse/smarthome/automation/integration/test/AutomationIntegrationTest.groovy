@@ -221,7 +221,11 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("EventCondition_2", "EventCondition", condition1Config, inputs)]
         def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21_ConnectionTest",triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21_ConnectionTest")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
         rule.name="RuleByJAVA_API"+new Random().nextInt()
 
         ruleRegistry.add(rule)
@@ -268,7 +272,11 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("EventCondition_2", "EventCondition", condition1Config, inputs)]
         def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21_UNINITIALIZED",triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21_UNINITIALIZED")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
         rule.name="RuleByJAVA_API"+new Random().nextInt()
 
         ruleRegistry.add(rule)
@@ -339,7 +347,10 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition5", "ItemStateEventCondition", condition1Config, eventInputs), new Condition("ItemStateCondition6", "ItemStateCondition", condition2Config, null)]
         def actions = [new Action("ItemPostCommandAction3", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
         rule.name="RuleByJAVA_API_WIthCompositeTrigger"
 
         logger.info("Rule created: "+rule.getUID())
@@ -398,7 +409,10 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition7", "ItemStateEvent_ON_Condition", condition1Config, eventInputs), new Condition("ItemStateCondition8", "ItemStateCondition", condition2Config, null)]
         def actions = [new Action("ItemPostCommandAction4", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
         rule.name="RuleByJAVA_API_ChainedComposite"
 
         logger.info("Rule created: "+rule.getUID())
@@ -460,7 +474,11 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition4", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger2.event"])]
         def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21",triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
         rule.name="RuleByJAVA_API"
         def tags = ["myRule21"] as Set
         rule.tags = tags
@@ -555,7 +573,9 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags, is(notNullValue())
         assertThat template.tags.size(), is(not(0))
         def configs = [onItem:"templ_MotionItem", ifState: "ON", updateItem:"templ_LampItem", updateCommand:"ON"]
-        def templateRule = new Rule("templateRuleUID", "SimpleTestTemplate", configs)
+        def templateRule = new Rule("templateRuleUID")
+        templateRule.templateUID = "SimpleTestTemplate"
+        templateRule.configuration = configs
         ruleRegistry.add(templateRule)
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
 
@@ -584,7 +604,10 @@ class AutomationIntegrationTest extends OSGiTest{
         assertThat template.tags, is(notNullValue())
         assertThat template.tags.size(), is(not(0))
         def configs = [onItem:"xtempl_MotionItem", ifState: ".*ON.*", updateItem:"xtempl_LampItem", updateCommand:"ON"]
-        def templateRule = new Rule("xtemplateRuleUID", "TestTemplateWithCompositeModules", configs)
+        def templateRule = new Rule("xtemplateRuleUID")
+        templateRule.templateUID = "TestTemplateWithCompositeModules"
+        templateRule.configuration = configs
+
         ruleRegistry.add(templateRule)
         assertThat ruleRegistry.getAll().find{it.UID==templateRule.UID}, is(notNullValue())
         waitForAssert {
@@ -681,7 +704,10 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition_"+rand, "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition1_"+rand, "ItemStateEvent_ON_Condition", condition2Config, [event:triggerUID+".event"])]
         def actions = [new Action("ItemPostCommandAction_"+rand, "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule_"+rand,triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule_"+rand)
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
         rule.name="RuleByJAVA_API_"+rand
 
         logger.info("Rule created: "+rule.getUID())
@@ -703,7 +729,11 @@ class AutomationIntegrationTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition"+random, "GenericCompareCondition", condition1Config, [input:triggerId+".event"]), new Condition("ItemStateCondition"+(random+1), "GenericCompareCondition", condition2Config, [input:triggerId+".event"])]
         def actions = [new Action("ItemPostCommandAction"+random, "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule_"+random,triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule_"+random)
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
+
         rule.name="RuleByJAVA_API"+random
         def tags = ["myRule_"+random] as Set
         rule.tags = tags

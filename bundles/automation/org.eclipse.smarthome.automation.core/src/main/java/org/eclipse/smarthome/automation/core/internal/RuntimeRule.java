@@ -34,15 +34,6 @@ public class RuntimeRule extends Rule {
     private Map<String, Module> moduleMap;
 
     /**
-     * @param ruleTemplateUID
-     * @param configurations
-     * @throws Exception
-     */
-    public RuntimeRule(String ruleTemplateUID, Map<String, ?> configurations) {
-        super(ruleTemplateUID, configurations);
-    }
-
-    /**
      * Utility constructor creating copy of the Rule or create a new empty instance.
      *
      * @param rule a rule which has to be copied or null when an empty instance of rule

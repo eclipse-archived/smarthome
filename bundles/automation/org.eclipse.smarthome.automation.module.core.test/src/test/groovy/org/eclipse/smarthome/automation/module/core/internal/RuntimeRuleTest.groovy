@@ -19,11 +19,10 @@ import org.eclipse.smarthome.automation.Condition
 import org.eclipse.smarthome.automation.Rule
 import org.eclipse.smarthome.automation.RuleRegistry
 import org.eclipse.smarthome.automation.RuleStatus
-import org.eclipse.smarthome.automation.RuleStatusInfo
 import org.eclipse.smarthome.automation.Trigger
-import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
-import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler;
+import org.eclipse.smarthome.automation.module.core.handler.CompareConditionHandler
+import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -36,7 +35,6 @@ import org.eclipse.smarthome.core.items.events.ItemUpdatedEvent
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.OnOffType
 import org.eclipse.smarthome.core.types.Command
-import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.TypeParser
 import org.eclipse.smarthome.test.OSGiTest
 import org.eclipse.smarthome.test.storage.VolatileStorageService
@@ -50,7 +48,7 @@ import com.google.common.collect.Sets
 
 /**
  * this tests the RuleEngine
- * 
+ *
  * @author Benedikt Niehues - initial contribution
  *
  */
@@ -135,7 +133,10 @@ class RuntimeRuleTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition4", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger2.event"])]
         def actions = [new Action("ItemPostCommandAction2", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21"+new Random().nextInt(),triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21"+new Random().nextInt())
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
         // I would expect the factory to create the UID of the rule and the name to be in the list of parameters.
         rule.name="RuleByJAVA_API"
 
@@ -276,7 +277,10 @@ class RuntimeRuleTest extends OSGiTest{
         def conditions = [new Condition("ItemStateCondition5", "ItemStateCondition", condition1Config, null), new Condition("ItemStateCondition6", "ItemStateEvent_ON_Condition", condition2Config, [event:"ItemStateChangeTrigger3.event"])]
         def actions = [new Action("ItemPostCommandAction3", "ItemPostCommandAction", actionConfig, null)]
 
-        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE", triggers, conditions, actions, null, null)
+        def rule = new Rule("myRule21"+new Random().nextInt()+ "_COMPOSITE")
+        rule.triggers = triggers
+        rule.conditions = conditions
+        rule.actions = actions
         rule.name="RuleByJAVA_API_WithCompositeTrigger"
 
         logger.info("Rule created: "+rule.getUID())
