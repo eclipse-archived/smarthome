@@ -109,7 +109,9 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
         // specific for this application
         Rule oldelement = rules.get(uid);
-        Rule element = new Rule(uid, template, config);
+        Rule element = new Rule(uid);
+        element.setTemplateUID(template);
+        element.setConfiguration(config);
         rules.put(uid, element);
 
         // inform all listeners, interested about changing of the rules
@@ -148,7 +150,10 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
         config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
         config.put(AirConditionerRuleTemplate.CONFIG_OPERATION, TemperatureConditionType.OPERATOR_HEATING);
-        return new Rule(AC_UID, AirConditionerRuleTemplate.UID, config);
+        Rule rule = new Rule(AC_UID);
+        rule.setTemplateUID(AirConditionerRuleTemplate.UID);
+        rule.setConfiguration(config);
+        return rule;
     }
 
     /**
@@ -198,7 +203,11 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         config.put(CONFIG_EXPECTED_RESULT, "The lights are switched on.");
 
         // create the rule
-        Rule lightsSwitchOn = new Rule(L_UID, triggers, conditions, actions, configDescriptions, config);
+        Rule lightsSwitchOn = new Rule(L_UID);
+        lightsSwitchOn.setTriggers(triggers);
+        lightsSwitchOn.setConfigurationDescriptions(configDescriptions);
+        lightsSwitchOn.setConditions(conditions);
+        lightsSwitchOn.setActions(actions);
 
         // initialize the tags
         Set<String> tags = new HashSet<String>();
