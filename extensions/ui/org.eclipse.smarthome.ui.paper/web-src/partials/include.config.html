@@ -27,7 +27,7 @@
 								</div>
 								<div ng-if="parameter.type=='TEXT'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input step="1" ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
 										<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>

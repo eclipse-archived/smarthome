@@ -83,10 +83,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
         }, function(configDescription) {
             if (configDescription) {
                 $scope.parameters = configService.getRenderingModel(configDescription.parameters, configDescription.parameterGroups);
-                if (!jQuery.isEmptyObject($scope.configuration)) {
-                    $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-                    $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
-                }
+                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+                $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
             }
         });
     }
@@ -100,10 +98,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             id : bindingId
         }).$promise.then(function(config) {
             $scope.configuration = configService.convertValues(config);
-            if ($scope.parameters && $scope.parameters.length > 0) {
-                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
-                $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
-            }
+            $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
+            $scope.configArray = configService.getConfigAsArray($scope.configuration, $scope.parameters);
 
         }, function(failed) {
             $scope.configuration = {};

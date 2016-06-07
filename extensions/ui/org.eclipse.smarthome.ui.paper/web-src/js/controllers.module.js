@@ -53,7 +53,8 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
             $scope.parameters = configService.getRenderingModel(params[0].configDescriptions);
             var hasScript = false;
-            angular.forEach($scope.parameter, function(value) {
+            angular.forEach($scope.parameters, function(value) {
+
                 sharedProperties.updateParams(value);
                 hasScript = $.grep(value.parameters, function(parameter) {
                     return parameter.context == 'script';
@@ -63,8 +64,8 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
             var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
             if (index != -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
-                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
                 angular.copy($scope.configuration, originalConfiguration);
+                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             }
             if (hasScript && type != 'trigger') {
                 var triggers = sharedProperties.getModuleArray('trigger');

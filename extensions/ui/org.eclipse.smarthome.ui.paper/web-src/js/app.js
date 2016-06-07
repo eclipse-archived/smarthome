@@ -109,7 +109,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         if (!date) {
             return null;
         }
-        return (date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear());
+        return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate());
     };
 
     $mdDateLocaleProvider.parseDate = function(date) {
@@ -118,7 +118,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         }
         var dateParts = date.split(/[\s\/,.:-]+/);
         if (dateParts.length > 2) {
-            return new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
+            return new Date(dateParts[1] + '.' + dateParts[2] + '.' + dateParts[0]);
         }
     };
 } ]).directive('editableitemstate', function() {

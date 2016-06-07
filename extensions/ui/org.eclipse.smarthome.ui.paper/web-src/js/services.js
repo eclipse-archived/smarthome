@@ -205,9 +205,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     var date = Date.parse(value);
                     if (param !== null && param.context && !isNaN(date)) {
                         if (param.context.toUpperCase() === 'TIME') {
-                            value = value.getHours() + ':' + value.getMinutes()
+                            value = value.getHours() + ':' + value.getMinutes() + ':' + value.getSeconds();
                         } else if (param.context.toUpperCase() === 'DATE') {
-                            value = (value.getDate() + '.' + (value.getMonth() + 1) + '.' + value.getFullYear());
+                            value = (value.getFullYear() + '-' + (value.getMonth() + 1) + '-' + value.getDate());
                         }
                     }
                 }
@@ -230,14 +230,14 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (param.context.toUpperCase() === 'TIME') {
                         var time = configEntry.value ? configEntry.value.split(/[\s\/,.:-]+/) : [];
                         if (time.length > 1) {
-                            configEntry.value = new Date(1970, 0, 1, time[0], time[1]);
+                            configEntry.value = new Date(1970, 0, 1, time[0], time[1], time.length > 2 ? time[2] : 0);
                         } else {
                             configEntry.value = null;
                         }
                     } else if (param.context.toUpperCase() === 'DATE') {
                         var dateParts = configEntry.value ? configEntry.value.split(/[\s\/,.:-]+/) : [];
                         if (dateParts.length > 2) {
-                            configEntry.value = new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
+                            configEntry.value = new Date(dateParts[1] + '.' + dateParts[2] + '.' + dateParts[0]);
                         } else {
                             configEntry.value = null;
                         }
@@ -287,22 +287,22 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         if (date) {
                             if (typeof sending !== "undefined" && sending) {
                                 if (parameter.context.toUpperCase() === 'DATE') {
-                                    configuration[parameter.name] = date instanceof Date ? (date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()) : date;
+                                    configuration[parameter.name] = date instanceof Date ? (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()) : date;
                                 } else {
-                                    configuration[parameter.name] = date instanceof Date ? date.getHours() + ':' + date.getMinutes() : date;
+                                    configuration[parameter.name] = date instanceof Date ? date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() : date;
                                 }
                             } else {
                                 if (parameter.context.toUpperCase() === 'TIME') {
                                     var time = date.split(/[\s\/,.:-]+/);
                                     if (time.length > 1) {
-                                        configuration[parameter.name] = new Date(1970, 0, 1, time[0], time[1]);
+                                        configuration[parameter.name] = new Date(1970, 0, 1, time[0], time[1], time.length > 2 ? time[2] : 0);
                                     } else {
                                         configuration[parameter.name] = null;
                                     }
                                 } else {
                                     var dateParts = date.split(/[\s\/,.:-]+/);
                                     if (dateParts.length > 2) {
-                                        configuration[parameter.name] = new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
+                                        configuration[parameter.name] = new Date(dateParts[1] + '-' + dateParts[2] + '-' + dateParts[0]);
                                     } else {
                                         configuration[parameter.name] = null;
                                     }
@@ -310,6 +310,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             }
                         }
 
+                    } else if (parameter.context && (parameter.context.toUpperCase() === 'COLOR')) {
+                        configuration[parameter.name] = "#ffffff";
                     } else if (!hasValue && parameter.type === 'TEXT') {
                         configuration[parameter.name] = parameter.defaultValue
                     } else if (parameter.type === 'BOOLEAN') {
