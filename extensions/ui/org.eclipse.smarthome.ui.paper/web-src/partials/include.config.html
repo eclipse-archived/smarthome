@@ -53,9 +53,9 @@
 							<div ng-switch-when="select">
 								<label class="config-textInput">{{parameter.label}}</label>
 
-								<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'?option.name:option.value" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item'">
+								<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing'">
 									{{ option.label?option.label:option.name }}
-									<span class="md-caption" style="color: grey;">({{ option.name?option.name:'' }}) </span>
+									<span class="md-caption" style="color: grey;">({{ option.name?option.name: parameter.context=='thing'?option.UID:'' }}) </span>
 								</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
 								<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 									<div ng-message="required">Field is required</div>
@@ -69,6 +69,25 @@
 										<small ng-bind-html="parameter.description"></small>
 									</p>
 								</span> </md-input-container>
+							</div>
+							<div ng-switch-when="date">
+								<label class="config-textInput">{{parameter.label}}</label>
+								<div class="col-xs-12 configContainer">
+									<md-datepicker ng-init="focus=false;initial=true;" ng-class="{noerror: initial}" custom-focus md-no-float class="config-select datePicker" name="{{parameter.name}}" ng-model="configuration[parameter.name]" md-placeholder="date" ng-required="true"> </md-datepicker>
+									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
+										<div ng-message="required" class="customMessage">Field is required</div>
+									</div>
+									<span ng-show="focus">
+										<p class="hint">
+											<small>&nbsp;</small>
+										</p>
+									</span>
+									<span ng-show="!focus">
+										<p class="hint">
+											<small ng-bind-html="parameter.description"></small>
+										</p>
+									</span>
+								</div>
 							</div>
 						</div>
 						<div class="parameter col-xs-12 scriptfield" ng-switch-when="textarea">

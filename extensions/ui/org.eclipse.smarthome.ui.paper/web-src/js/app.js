@@ -1,4 +1,4 @@
-angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', function($routeProvider, httpProvider, globalConfig) {
+angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control', 'PaperUI.controllers.setup', 'PaperUI.controllers.configuration', 'PaperUI.controllers.extension', 'PaperUI.controllers.rules', 'PaperUI.services', 'PaperUI.services.rest', 'PaperUI.services.repositories', 'PaperUI.extensions', 'ngRoute', 'ngResource', 'ngMaterial', 'ngMessages', 'ngSanitize', 'ui.sortable' ]).config([ '$routeProvider', '$httpProvider', 'globalConfig', '$mdDateLocaleProvider', function($routeProvider, httpProvider, globalConfig, $mdDateLocaleProvider) {
     $routeProvider.when('/control', {
         templateUrl : 'partials/control.html',
         controller : 'ControlPageController',
@@ -105,6 +105,22 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             redirectTo : '/control'
         });
     }
+    $mdDateLocaleProvider.formatDate = function(date) {
+        if (!date) {
+            return null;
+        }
+        return (date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear());
+    };
+
+    $mdDateLocaleProvider.parseDate = function(date) {
+        if (!date) {
+            return null;
+        }
+        var dateParts = date.split(/[\s\/,.:-]+/);
+        if (dateParts.length > 2) {
+            return new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
+        }
+    };
 } ]).directive('editableitemstate', function() {
     return function($scope, $element) {
         $element.context.addEventListener('focusout', function(e) {
@@ -137,6 +153,25 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                     }
                 });
             });
+
+        }
+    };
+}).directive('customFocus', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs, ngModel) {
+
+            if (element[0] && element[0].childNodes && element[0].childNodes.length > 1 && element[0].children[1].childNodes && element[0].childNodes[1].childNodes.length > 0) {
+                element[0].childNodes[1].childNodes[0].addEventListener('focus', function() {
+                    scope.focus = true;
+                    scope.initial = false;
+                    scope.$apply();
+                });
+                element[0].childNodes[1].childNodes[0].addEventListener('blur', function() {
+                    scope.focus = false;
+                    scope.$apply();
+                });
+            }
 
         }
     };
