@@ -13,6 +13,7 @@ import org.apache.karaf.shell.api.console.Command;
 import org.apache.karaf.shell.api.console.Completer;
 import org.apache.karaf.shell.api.console.Parser;
 import org.apache.karaf.shell.api.console.Session;
+import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.ConsoleInterpreter;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 
@@ -47,7 +48,15 @@ public class CommandWrapper implements Command {
             args[i] = str;
         }
 
-        ConsoleInterpreter.execute(new OSGiConsole(getScope()), command, args);
+        final Console console = new OSGiConsole(getScope());
+
+        if (args.length == 1 && "--help".equals(args[0])) {
+            for (final String usage : command.getUsages()) {
+                console.printUsage(usage);
+            }
+        } else {
+            ConsoleInterpreter.execute(console, command, args);
+        }
         return null;
     }
 
