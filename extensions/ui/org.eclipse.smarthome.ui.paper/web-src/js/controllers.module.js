@@ -4,14 +4,31 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
     var objectFilter = $filter('filter');
     $scope.moduleData;
-    moduleTypeService.getAll().$promise.then(function(data) {
-        $scope.moduleData = objectFilter(data, {
-            visibility : 'VISIBLE'
+    $scope.triggerData;
+
+    getModulesByType(type, type == 'trigger' ? setConfigurations : null);
+
+    function getModulesByType(mtype, callback) {
+        moduleTypeService.getByType({
+            mtype : mtype
+        }).$promise.then(function(data) {
+            var modules = objectFilter(data, {
+                visibility : 'VISIBLE'
+            });
+            if (mtype != 'trigger' || type == 'trigger') {
+                $scope.moduleData = modules;
+            }
+            if (callback) {
+                $scope.triggerData = modules;
+                if ($scope.module) {
+                    callback();
+                }
+            } else {
+                getModulesByType('trigger', setConfigurations);
+            }
+
         });
-        if ($scope.id) {
-            setConfigurations();
-        }
-    });
+    }
     $scope.id = module.id;
     $scope.type = type;
     $scope.description = '';
@@ -29,7 +46,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         $scope.configuration[textAreaName] = textBefore + chip.name + textAfter;
     }
 
-    function setConfigurations() {
+    var setConfigurations = function() {
         if ($scope.moduleData) {
             var params = filterByUid($scope.moduleData, $scope.module);
             var res = configService.getRenderingModel(params[0].configDescriptions);
@@ -47,16 +64,18 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
 
                 angular.copy($scope.configuration, originalConfiguration);
                 $scope.configArray = configService.getConfigAsArray($scope.configuration);
-                if (hasScript && type != 'trigger') {
-                    var triggers = sharedProperties.getModuleArray('trigger');
-                    angular.forEach(triggers, function(trigger, i) {
-                        var moduleType = filterByUid($scope.moduleData, trigger.type);
-                        $scope.items = $scope.items.concat(moduleType[0].outputs);
-                    });
-                    if (type == 'action') {
-                        var actions = sharedProperties.getModuleArray('action');
-                        for (var i = 0; i < sharedProperties.searchArray(actions, $scope.id); i++) {
-                            var moduleType = filterByUid($scope.moduleData, actions[i].type);
+            }
+            if (hasScript && type != 'trigger') {
+                var triggers = sharedProperties.getModuleArray('trigger');
+                angular.forEach(triggers, function(trigger, i) {
+                    var moduleType = filterByUid($scope.triggerData, trigger.type);
+                    $scope.items = $scope.items.concat(moduleType[0].outputs);
+                });
+                if (type == 'action') {
+                    var actions = sharedProperties.getModuleArray('action');
+                    for (var i = 0; i < sharedProperties.searchArray(actions, $scope.id); i++) {
+                        var moduleType = filterByUid($scope.moduleData, actions[i].type);
+                        if (moduleType[0] && moduleType[0].outputs && moduleType[0].outputs.length > 0) {
                             $scope.items = $scope.items.concat(moduleType[0].outputs);
                         }
                     }
