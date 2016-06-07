@@ -392,6 +392,7 @@ Bundles that provide rules in json format should have the following folder struc
 Rule templates can simplify the definition of rules with similar behavior by providing additional configuration properties. Then rule instance definition only refers the rule template and provides the values of the configuration properties. The rule template is used only once when the rule is imported in the Rule Engine. After that the reference from the rule instance to the rule template is removed and a given rule may exist even if the rule template is removed or modified - this will not have any impact on the already imported rules.
 
  * **Sample rule instance referencing rule template:**
+
 ```
   {  
     "uid": "sample.rulebytemplate",
@@ -409,6 +410,7 @@ Rule templates can simplify the definition of rules with similar behavior by pro
 ```
 
  * **Sample rule template:**
+
 ```
   {  
     "uid":"SampleRuleTemplate",
