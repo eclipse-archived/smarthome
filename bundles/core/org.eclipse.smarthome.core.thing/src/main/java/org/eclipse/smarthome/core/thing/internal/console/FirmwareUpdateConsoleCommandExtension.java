@@ -46,7 +46,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
     public void execute(String[] args, Console console) {
         int numberOfArguments = args.length;
         if (numberOfArguments < 1) {
-            console.println("No firmare subcommand given.");
+            console.println("No firmware subcommand given.");
             printUsage(console);
             return;
         }
