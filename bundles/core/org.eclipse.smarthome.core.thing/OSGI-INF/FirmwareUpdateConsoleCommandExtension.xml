@@ -18,6 +18,6 @@
 
     <reference bind="setFirmwareUpdateService" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService" name="FirmwareUpdateService" policy="static" unbind="unsetFirmwareUpdateService" />
     <reference bind="setFirmwareRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry" name="FirmwareRegistry" policy="static" unbind="unsetFirmwareRegistry" />
-    <reference bind="setThingRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ThingRegistry" name="ThingRegistry" policy="static" unbind="unsetThingRegistry" />
+    <reference bind="addFirmwareUpdateHandler" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler" name="FirmwareUpdateHandler" policy="dynamic" unbind="removeFirmwareUpdateHandler"/>
 
 </scr:component>
