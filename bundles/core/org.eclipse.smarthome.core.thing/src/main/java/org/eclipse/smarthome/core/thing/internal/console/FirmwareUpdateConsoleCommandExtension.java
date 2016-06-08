@@ -10,13 +10,13 @@ package org.eclipse.smarthome.core.thing.internal.console;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingRegistry;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.firmware.Firmware;
 import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUID;
+import org.eclipse.smarthome.core.thing.binding.firmware.FirmwareUpdateHandler;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareRegistry;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareStatusInfo;
 import org.eclipse.smarthome.core.thing.firmware.FirmwareUpdateService;
@@ -36,7 +36,7 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
 
     private FirmwareUpdateService firmwareUpdateService;
     private FirmwareRegistry firmwareRegistry;
-    private ThingRegistry thingRegistry;
+    private final List<FirmwareUpdateHandler> firmwareUpdateHandlers = new CopyOnWriteArrayList<>();
 
     public FirmwareUpdateConsoleCommandExtension() {
         super("firmware", "Manage your things' firmwares.");
@@ -108,6 +108,9 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
             }
 
             console.println(sb.toString());
+        } else {
+            console.println(
+                    String.format("The firmware status for thing with UID %s could not be determined.", thingUID));
         }
     }
 
@@ -119,12 +122,25 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
         }
 
         ThingUID thingUID = new ThingUID(args[1]);
-        Thing thing = thingRegistry.get(thingUID);
-        FirmwareUID firmwareUID = new FirmwareUID(thing.getThingTypeUID(), args[2]);
+        FirmwareUpdateHandler firmwareUpdateHandler = getFirmwareUpdateHandler(thingUID);
 
+        if (firmwareUpdateHandler == null) {
+            console.println(String.format("No firmware update handler available for thing with UID %s.", thingUID));
+            return;
+        }
+
+        FirmwareUID firmwareUID = new FirmwareUID(firmwareUpdateHandler.getThing().getThingTypeUID(), args[2]);
         firmwareUpdateService.updateFirmware(thingUID, firmwareUID, null);
-
         console.println("Firmware update started.");
+    }
+
+    private FirmwareUpdateHandler getFirmwareUpdateHandler(ThingUID thingUID) {
+        for (FirmwareUpdateHandler firmwareUpdateHandler : firmwareUpdateHandlers) {
+            if (thingUID.equals(firmwareUpdateHandler.getThing().getUID())) {
+                return firmwareUpdateHandler;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -154,11 +170,11 @@ public final class FirmwareUpdateConsoleCommandExtension extends AbstractConsole
         this.firmwareRegistry = null;
     }
 
-    protected void setThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = thingRegistry;
+    protected void addFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        firmwareUpdateHandlers.add(firmwareUpdateHandler);
     }
 
-    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = null;
+    protected void removeFirmwareUpdateHandler(FirmwareUpdateHandler firmwareUpdateHandler) {
+        firmwareUpdateHandlers.remove(firmwareUpdateHandler);
     }
 }
