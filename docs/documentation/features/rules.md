@@ -77,22 +77,12 @@ A given **Module type** has the following elements:
     reference - which means the property value can be specified as a reference to configuration parameter or input parameter
     tags - shows how a given value should be considered (e.g. as a Temperature)
 
-**Supported Java Types**
-The java types supported in the **input/output** objects are:
+**Supported Types**
+The types supported in the **input/output** objects can be any string and the following validation is performed:
 
-- Integer
-- Short
-- Long
-- Byte
-- Float
-- Double
-- Boolean
-- Character
-- String
-- StringBuffer
-- Array of the above types
-- List of the above types
-- HashMap (keys are String)
+- if the input type and the output type are equal as string the connection is valid
+- if the input type is "*" and the output type is any the connection is valid
+- if the input type and the output type are strings representing full qualified names which can be loaded and the input type is assignable from output type the connection is valid
 
 The types in the **Configuration** object are restricted to the following:
 
@@ -397,7 +387,7 @@ Rule templates can simplify the definition of rules with similar behavior by pro
   {  
     "uid": "sample.rulebytemplate",
     "name": "RuleByTemplate",
-    "template.uid": "SampleRuleTemplate",
+    "templateUID": "SampleRuleTemplate",
     "tags": [  
       "rule",
       "template"
@@ -414,53 +404,64 @@ Rule templates can simplify the definition of rules with similar behavior by pro
 ```
   {  
     "uid":"SampleRuleTemplate",
-    "description":"Sample Rule Template.",
+    "description":"Sample Rule Template",
     "tags":[  
       "sample",
       "rule",
       "template"
     ],
-    "configuration":{  
-        "condition_operator": {
+    "configDescriptions":[  
+         {
+          "name":"condition_operator",              
           "type": "TEXT",
           "description": "Valid operators are =,>,<,!=",
           "required": true
         },
-        "condition_constraint": {
+         {
+          "name":"condition_constraint",              
           "type": "TEXT",
           "description": "Right operand which is compared with the input.",
           "required": true
         }
-    },
+    ],
     "triggers": [  
       {  
-        "id": "CustomSampleTriggerTemplateID",
-        "type": "SampleTrigger:CustomTrigger"
+        "id": "CompositeSampleTriggerTemplateID",
+        "type": "CompositeSampleTrigger",
+        "label": "Sample Trigger",
+        "description": "This is a sample composite trigger"
       }
     ],
     "conditions": [
       {
         "id": "SampleConditionTemplateID",
         "type": "SampleCondition",
+        "label": "Sample Condition",
+        "description": "This is a sample condition",
         "configuration": {
           "operator": "$condition_operator",
           "constraint": "$condition_constraint"
         },
-        "input": {
-          "conditionInput": "CustomSampleTriggerTemplateID.customTriggerOutput"
+        "inputs": {
+          "conditionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }
       }
     ],
     "actions": [
       {  
-        "id": "CustomActionTemplateID",
-        "type": "SampleAction:CustomAction",
-        "input": {  
-          "customActionInput": "CustomSampleTriggerTemplateID.customTriggerOutput"
+        "id": "CompositeActionTemplateID",
+        "type": "CompositeSampleAction",
+        "label": "Sample Action",
+        "description": "This is a sample action",
+        "configuration": {
+          "compositeMessage": "Hello World!!!"
+        },
+        "inputs": {  
+          "compositeActionInput": "CompositeSampleTriggerTemplateID.compositeTriggerOutput"
         }
       }
     ]
-  } 
+  }
 ```
 
 The above example uses two rule configuration properties: "condition_operator" and "condition_constraint" that update the configuration of the "SampleCondition".
@@ -538,7 +539,7 @@ The value to be compared can be specified either as an input or as a configurati
           "required":true
         },
         {
-            "name":"operator",
+          "name":"operator",
           "type":"TEXT",
           "description":"the compare operator, allowed are <, >, =",
           "required":true,
@@ -547,11 +548,11 @@ The value to be compared can be specified either as an input or as a configurati
       ],
         "inputs": [
             {
-        "name":"input",
+              "name":"input",
               "type": "java.lang.Object",
               "label": "input",
               "description": "The input which will be compared.",
-        "required":true
+              "required":true
             }
     ]
     }
