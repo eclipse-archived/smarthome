@@ -8,10 +8,10 @@
 package org.eclipse.smarthome.core.thing.binding;
 
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -26,6 +26,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link BaseThingHandlerFactory} provides a base implementation for the {@link ThingHandlerFactory} interface. It
@@ -38,11 +40,12 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
 
+    private Logger logger = LoggerFactory.getLogger(BaseThingHandlerFactory.class);
     protected BundleContext bundleContext;
 
-    private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new HashMap<>();
-    private Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new HashMap<>();
-    private Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new HashMap<>();
+    private Map<String, ServiceRegistration<ThingHandler>> thingHandlers = new ConcurrentHashMap<>();
+    private Map<String, ServiceRegistration<ConfigStatusProvider>> configStatusProviders = new ConcurrentHashMap<>();
+    private Map<String, ServiceRegistration<FirmwareUpdateHandler>> firmwareUpdateHandlers = new ConcurrentHashMap<>();
 
     private ServiceTracker<ThingTypeRegistry, ThingTypeRegistry> thingTypeRegistryServiceTracker;
     private ServiceTracker<ConfigDescriptionRegistry, ConfigDescriptionRegistry> configDescriptionRegistryServiceTracker;
@@ -98,7 +101,11 @@ public abstract class BaseThingHandlerFactory implements ThingHandlerFactory {
         ServiceRegistration<ThingHandler> thingHandlerServiceRegistration = thingHandlers
                 .remove(thing.getUID().toString());
         if (thingHandlerServiceRegistration != null) {
+            logger.debug("Removing service registration for handler of thing '{}'.", thing.getUID().getAsString());
             unregisterHandler(thingHandlerServiceRegistration);
+        } else {
+            logger.error("There is no service registration for a thing handler of thing '{}'.",
+                    thing.getUID().getAsString());
         }
         ServiceRegistration<ConfigStatusProvider> configStatusProviderServiceRegistration = configStatusProviders
                 .remove(thing.getUID().getAsString());
