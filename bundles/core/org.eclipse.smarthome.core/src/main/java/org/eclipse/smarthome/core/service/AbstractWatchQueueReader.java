@@ -15,6 +15,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.text.MessageFormat;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Base class for watch queue readers
  *
  * @author Fabio Marini
- * @author Dimitar Ivanov - use complete path in watch event
+ * @author Dimitar Ivanov - use relative path in watch events. Added option to watch directory events or not
  *
  */
 public abstract class AbstractWatchQueueReader implements Runnable {
@@ -35,7 +36,11 @@ public abstract class AbstractWatchQueueReader implements Runnable {
 
     protected WatchService watchService;
 
-    protected Path dir;
+    protected Path baseWatchedDir;
+
+    private Map<WatchKey, Path> registeredKeys;
+
+    private boolean watchingDirectoryChanges;
 
     /**
      * Perform a simple cast of given event to WatchEvent
@@ -50,15 +55,45 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     }
 
     /**
+     * Build the object with the given parameters. The directory changes will be watched by default, e.g.
+     * watchingDirectoryChanges will be set to <code>true</code> (see {@link #setWatchingDirectoryChanges(boolean)})
+     * 
+     * @param watchService
+     *            the watch service
+     * 
+     * @param watchedDir - the base directory, watched by the watch service
+     * 
+     * @param registeredKeys - a mapping between the {@link WatchKey}s and their corresponding directories, registered
+     *            in the watch service.
+     */
+    public AbstractWatchQueueReader(WatchService watchService, Path watchedDir, Map<WatchKey, Path> registeredKeys) {
+        this.watchService = watchService;
+        this.baseWatchedDir = watchedDir;
+        this.registeredKeys = registeredKeys;
+        setWatchingDirectoryChanges(true);
+    }
+
+    /**
      * Build the object with the given parameters
      * 
      * @param watchService
      *            the watch service
-     * @param dir
+     * 
+     * @param watchedDir - the base directory, watched by the watch service
+     * 
+     * @param registeredKeys - a mapping between the {@link WatchKey}s and their corresponding directories, registered
+     *            in the watch service.
+     * 
+     * @param watchingDirectoryChanges - whether the queue reader will be watching the directory changes, when the watch
+     *            events are processed (for more information see
+     *            {@link AbstractWatchQueueReader#setWatchingDirectoryChanges(boolean)}).
      */
-    public AbstractWatchQueueReader(WatchService watchService, Path dir) {
+    public AbstractWatchQueueReader(WatchService watchService, Path watchedDir, Map<WatchKey, Path> registeredKeys,
+            boolean watchingDirectoryChanges) {
         this.watchService = watchService;
-        this.dir = dir;
+        this.baseWatchedDir = watchedDir;
+        this.registeredKeys = registeredKeys;
+        setWatchingDirectoryChanges(watchingDirectoryChanges);
     }
 
     /*
@@ -88,36 +123,56 @@ public abstract class AbstractWatchQueueReader implements Runnable {
                         continue;
                     }
 
-                    Path path = resolveToPath(key, event);
-
-                    processWatchEvent(event, kind, path);
+                    Path relativePath = resolveToRelativePath(key, event);
+                    if (relativePath != null) {
+                        // Process the event only when a relative path to it is resolved
+                        processWatchEvent(event, kind, relativePath);
+                    }
                 }
 
                 key.reset();
             }
         } catch (ClosedWatchServiceException ecx) {
-            logger.debug("ClosedWatchServiceException catched! {}. \n{} Stopping ", ecx.getLocalizedMessage(), Thread
-                    .currentThread().getName());
+            logger.debug("ClosedWatchServiceException catched! {}. \n{} Stopping ", ecx.getLocalizedMessage(),
+                    Thread.currentThread().getName());
 
             return;
         }
     }
 
-    private Path resolveToPath(WatchKey key, WatchEvent<?> event) {
+    private Path resolveToRelativePath(WatchKey key, WatchEvent<?> event) {
         WatchEvent<Path> ev = cast(event);
         // Context for directory entry event is the file name of
-        // entry
+        // entry.
         Path contextPath = ev.context();
 
-        Path directoryWatched = (Path) key.watchable();
-        // Resolve the relative file name against the watched directory
-        Path path = directoryWatched.resolve(contextPath);
+        Path registeredPath = registeredKeys.get(key);
+        if (registeredPath != null) {
+            // If the path has been registered in the watch service it relative path can be resolved
 
-        return path;
+            // The context path is resolved by its already registered parent path
+            Path resolvedContextPath = registeredPath.resolve(contextPath);
+
+            // Relativize the resolved context to the directory watched (Build the relative path)
+            Path path = baseWatchedDir.relativize(resolvedContextPath);
+
+            // As the modification of file in subdirectory is considered a modification on the subdirectory itself, we
+            // will consider the defined behavior to watch the directory changes
+            if (!isWatchingDirectoryChanges() && baseWatchedDir.resolve(path).toFile().isDirectory()) {
+                // As we have found a directory event and do not want to track directory changes - we will skip it
+                return null;
+            }
+            return path;
+        }
+
+        logger.warn(
+                "Detected invalid WatchEvent '{}' and key '{}' for entry '{}' in not registered file or directory of '{}'",
+                event, key, contextPath, baseWatchedDir);
+        return null;
     }
 
     /**
-     * Processes the given watch event
+     * Processes the given watch event. Note that there is
      * 
      * @param event
      *            the watch event to perform
@@ -127,4 +182,27 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      *            the path of event
      */
     protected abstract void processWatchEvent(WatchEvent<?> event, WatchEvent.Kind<?> kind, Path path);
+
+    /**
+     * If the queue reader is watching the directory changes, all the watch events will be processed. Otherwise the
+     * events for directories will be skipped.
+     * 
+     * @return <code>true</code> if the directory events will be processed and <code>false</code> otherwise
+     */
+    public boolean isWatchingDirectoryChanges() {
+        return watchingDirectoryChanges;
+    }
+
+    /**
+     * If the queue reader is watching the directory changes, all the watch events will be processed. Otherwise the
+     * events for changed directories will be skipped. For example, on some platforms an event for modified directory is
+     * generated when a new file is created within the directory. However, this behavior could vary a lot, depending on
+     * the platform (for more information see "Platform dependencies" section in the {@link WatchService} documentation)
+     * 
+     * @param watchDirectoryChanges - set to <code>true</code> if the directory events have to be processed and
+     *            <code>false</code> otherwise
+     */
+    public void setWatchingDirectoryChanges(boolean watchDirectoryChanges) {
+        this.watchingDirectoryChanges = watchDirectoryChanges;
+    }
 }
