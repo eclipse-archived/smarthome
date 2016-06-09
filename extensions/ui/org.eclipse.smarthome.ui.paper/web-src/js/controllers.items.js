@@ -74,9 +74,11 @@ angular.module('PaperUI.controllers.configuration').controller('ItemSetupControl
                 itemName : $scope.item.name
             }, $scope.item).$promise.then(function() {
                 toastService.showDefaultToast(text);
+                $location.path('configuration/items');
+            }, function(failed) {
+                $location.path('configuration/items');
             });
         }
-        $location.path('configuration/items');
     }
 
     $scope.renderIcon = function() {
