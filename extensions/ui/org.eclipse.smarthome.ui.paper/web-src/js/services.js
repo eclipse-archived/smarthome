@@ -112,8 +112,10 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 }, true);
                 if (parameter.context && parameter.context.toUpperCase() === 'ITEM') {
                     parameter.element = 'select';
-                    itemsList = itemsList === undefined ? itemService.getAll() : itemsList;
-                    parameter.options = itemsList;
+                    var self = this;
+                    itemService.getAll().$promise.then(function(items) {
+                        parameter.options = self.filterByAttributes(items, parameter.filterCriteria)
+                    });
                 } else if (parameter.context && parameter.context.toUpperCase() === 'SCRIPT') {
                     parameter.element = 'textarea';
                     parameter.inputType = 'text';
@@ -155,6 +157,29 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 }
             }
             return parameters;
+        },
+        filterByAttributes : function(arr, filters) {
+            if (!filters) {
+                return arr;
+            }
+            return $.grep(arr, function(element, i) {
+                return $.grep(filters, function(filter) {
+                    if (arr[i].hasOwnProperty(filter.name) && filter.value != "" && filter.value != null) {
+                        var filterValues = filter.value.split(',');
+                        return $.grep(filterValues, function(filterValue) {
+                            if (Array.isArray(arr[i][filter.name])) {
+                                return $.grep(arr[i][filter.name], function(arrValue) {
+                                    return arrValue.toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
+                                }).length > 0;
+                            } else {
+                                return arr[i][filter.name].toUpperCase().indexOf(filterValue.toUpperCase()) != -1;
+                            }
+                        }).length > 0
+                    } else {
+                        return false;
+                    }
+                }).length == filters.length;
+            });
         },
         getConfigAsArray : function(config) {
             var configArray = [];
