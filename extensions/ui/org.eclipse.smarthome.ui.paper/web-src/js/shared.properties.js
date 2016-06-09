@@ -133,15 +133,7 @@ angular.module('PaperUI.controllers').service('sharedProperties', function() {
 
         setModuleTypes : function(mTypes) {
             moduleTypes = mTypes;
-        },
-
-        areItemsDirty : function() {
-            return isDirty;
-        },
-        setItemsDirty : function(value) {
-            isDirty = value;
         }
-
     }
 });
 angular.module('PaperUI.constants').constant('itemConfig', {
