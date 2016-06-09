@@ -83,6 +83,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
 
     def specificInits = 0;
     def genericInits = 0;
+    def unregisterHandlerDelay = 0;
 
 
     @Before
@@ -189,6 +190,12 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
                 return new SpecificThingHandler(thing)
             }
         }
+
+        @Override
+        public void unregisterHandler(Thing thing) {
+            Thread.sleep(unregisterHandlerDelay);
+            super.unregisterHandler(thing);
+        }
     }
 
     class GenericThingHandler extends BaseThingHandler {
@@ -277,6 +284,21 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
     }
 
     @Test
+    void 'assert changing thing type within initialize works even if service deregistration is slow'() {
+        println "[ChangeThingTypeOSGiTest] ======== assert changing thing type within initialize works even if service deregistration is slow"
+        selfChanging = true
+        unregisterHandlerDelay = 6000
+        println "[ChangeThingTypeOSGiTest] Create thing"
+        def thing = ThingFactory.createThing(thingTypeGeneric, new ThingUID("testBinding", "testThing"), new Configuration(), null, configDescriptionRegistry)
+        thing.setProperty("universal", "survives")
+        println "[ChangeThingTypeOSGiTest] Add thing to managed thing provider"
+        managedThingProvider.add(thing)
+
+        println "[ChangeThingTypeOSGiTest] Wait for thing changed"
+        assertThingWasChanged(thing)
+    }
+
+    @Test
     void 'assert loading specialized thing type works directly'() {
         println "[ChangeThingTypeOSGiTest] ======== assert loading specialized thing type works directly"
         clearProviders()
@@ -323,7 +345,7 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         // Ensure that the ThingHandler has been registered as an OSGi service correctly
         waitForAssert({
             assertThat thing.getHandler(), isA(SpecificThingHandler)
-        }, 4000, 100)
+        }, 30000, 100)
         def handlerOsgiService2 = getService(ThingHandler, {
             it.getProperty(ThingHandler.SERVICE_PROPERTY_THING_ID).toString() == "testBinding::testThing"
         })
