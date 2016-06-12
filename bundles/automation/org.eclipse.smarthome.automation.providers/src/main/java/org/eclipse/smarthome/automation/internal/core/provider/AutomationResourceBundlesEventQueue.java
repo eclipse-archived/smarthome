@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @SuppressWarnings("deprecation")
-class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer<Object> {
+public class AutomationResourceBundlesEventQueue implements Runnable, BundleTrackerCustomizer<Object> {
 
     /**
      * This static field serves as criteria for recognizing bundles providing automation resources. If these bundles

@@ -18,6 +18,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
+import org.eclipse.smarthome.automation.RuleProvider;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.RuleStatus;
 import org.eclipse.smarthome.automation.RuleStatusInfo;
@@ -34,6 +35,7 @@ import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.storage.Storage;
+import org.eclipse.smarthome.core.storage.StorageService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -43,6 +45,41 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This is the main implementation of the {@link RuleRegistry}, which is registered as a service.
+ * The {@link RuleRegistryImpl} provides basic functionality for managing {@link Rule}s.
+ * It can be used to
+ * <ul>
+ * <li>Add Rules with the {@link #add(Rule)}, {@link #added(Provider, Rule)}, {@link #addProvider(RuleProvider)}
+ * methods.</li>
+ * <li>Get the existing rules with the {@link #get(String)}, {@link #getAll()}, {@link #getByTag(String)},
+ * {@link #getByTags(String[])} methods.</li>
+ * <li>Update the existing rules with the {@link #update(Rule)}, {@link #updated(Provider, Rule, Rule)} methods.</li>
+ * <li>Remove Rules with the {@link #remove(String)} method.</li>
+ * </ul>
+ * <p>
+ * This class also persists the rules into the {@link StorageService} service and restores
+ * them when the system is restarted.
+ * <p>
+ * The {@link RuleRegistry} manages the state (<b>enabled</b> or <b>disabled</b>) of the Rules:
+ * <ul>
+ * <li>A newly added Rule is always <b>enabled</b>.</li>
+ * <li>To check a Rule's state, use the {@link #isEnabled(String)} method.</li>
+ * <li>To change a Rule's state, use the {@link #setEnabled(String, boolean)} method.</li>
+ * </ul>
+ * <p>
+ * The {@link RuleRegistry} manages the status of the Rules:
+ * <ul>
+ * <li>To check a Rule's status info, use the {@link #getStatus(String)} method.</li>
+ * <li>The status of a newly added Rule, or a Rule enabled with {@link #setEnabled(String, boolean)}, or an updated
+ * Rule, is first set to {@link RuleStatus#NOT_INITIALIZED}.</li>
+ * <li>After a Rule is added or enabled, or updated, a verification procedure is initiated. If the verification of the
+ * modules IDs, connections between modules and configuration values of the modules is successful, and the module
+ * handlers are correctly set, the status is set to {@link RuleStatus#IDLE}.</li>
+ * <li>If some of the module handlers disappear, the Rule will become {@link RuleStatus#NOT_INITIALIZED} again.</li>
+ * <li>If one of the Rule's Triggers is triggered, the Rule becomes {@link RuleStatus#RUNNING}.
+ * When the execution is complete, it will become {@link RuleStatus#IDLE} again.</li>
+ * <li>If a Rule is disabled with {@link #setEnabled(String, boolean)}, it's status is set to
+ * {@link RuleStatus#DISABLED}.</li>
+ * </ul>
  *
  * @author Yordan Mihaylov - Initial Contribution
  * @author Ana Dimova - Persistence implementation & updating rules from providers
@@ -97,6 +134,18 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     }
 
+    /**
+     * This method is used to register all {@link Rule}s provided via the {@link RuleProvider}, into the
+     * {@link RuleEngine}.
+     *
+     * @param provider a provider of {@link Rule}s.
+     * @throws RuntimeException
+     *             when passed module has a required configuration property and it is not specified in rule definition
+     *             nor
+     *             in the module's module type definition.
+     * @throws IllegalArgumentException
+     *             when a module id contains dot or when the rule with the same UID already exists.
+     */
     @Override
     protected void addProvider(Provider<Rule> provider) {
         logger.info("Rule provider: {} is added.", provider);
@@ -121,6 +170,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         logger.info("Rule Managed provider: {} is removed.", provider);
     }
 
+    /**
+     * This method is used to register a {@link Rule} into the {@link RuleEngine}. First the {@link Rule} become
+     * {@link RuleStatus#NOT_INITIALIZED}.
+     * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
+     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     *
+     * @param rule a {@link Rule} instance which have to be added into the {@link RuleEngine}.
+     * @return a copy of the added {@link Rule}
+     * @throws RuntimeException
+     *             when passed module has a required configuration property and it is not specified in rule definition
+     *             nor
+     *             in the module's module type definition.
+     * @throws IllegalArgumentException
+     *             when a module id contains dot or when the rule with the same UID already exists.
+     */
     @Override
     public Rule add(Rule rule) {
         if (rule == null) {
@@ -139,6 +203,21 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         return ruleWithUID;
     }
 
+    /**
+     * This method is used to register a {@link Rule} into the RuleEngine. The {@link Rule} comes from Rule provider.
+     * First the Rule become {@link RuleStatus#NOT_INITIALIZED}.
+     * Then verification procedure will be done and the Rule become {@link RuleStatus#IDLE}.
+     * If the verification fails, the Rule will stay {@link RuleStatus#NOT_INITIALIZED}.
+     *
+     * @param provider a provider of the {@link Rule}.
+     * @param element a {@link Rule} instance which have to be added into the RuleEngine.
+     * @throws RuntimeException
+     *             when passed module has a required configuration property and it is not specified in rule definition
+     *             nor
+     *             in the module's module type definition.
+     * @throws IllegalArgumentException
+     *             when a module id contains dot or when the rule with the same UID already exists.
+     */
     @Override
     protected void onAddElement(Rule r) throws IllegalArgumentException {
         Rule rule = resolveTemplate(r); // can be called from any provider.
@@ -184,6 +263,23 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         super.onRemoveElement(rule);
     }
 
+    /**
+     * This method is used to update an existing {@link Rule} in the {@link RuleEngine}. First the {@link Rule} become
+     * {@link RuleStatus#NOT_INITIALIZED}.
+     * Then verification procedure will be done and the {@link Rule} become {@link RuleStatus#IDLE}.
+     * If the verification fails, the {@link Rule} will stay {@link RuleStatus#NOT_INITIALIZED}.
+     *
+     * @param oldElement a {@link Rule} instance that have to be replaced with value of the parameter
+     *            <code>element</code>.
+     * @param rule a {@link Rule} instance which have to be used for update of the {@link Rule} into {@link RuleEngine}.
+     * @return a copy of the old value of the updated rule
+     * @throws RuntimeException
+     *             when passed module has a required configuration property and it is not specified in rule definition
+     *             nor
+     *             in the module's module type definition.
+     * @throws IllegalArgumentException
+     *             when module id contains dot.
+     */
     @Override
     protected void onUpdateElement(Rule oldElement, Rule element) throws IllegalArgumentException {
         postEvent(RuleEventFactory.createRuleUpdatedEvent(element, oldElement, SOURCE));
@@ -270,7 +366,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     /**
      * The method checks if the rule has to be resolved by tempalte or not. If it does not contain tempateUID the
-     * retruns same rule, otherwise it tried to resolves the rule created from template. If the template is available
+     * returns same rule, otherwise it tried to resolves the rule created from template. If the template is available
      * the method create a new rule
      * based on trigger conditions and actions from template. If the template is not available returns null.
      *
