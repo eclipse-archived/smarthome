@@ -23,10 +23,12 @@ import org.eclipse.smarthome.core.items.Item;
 import org.eclipse.smarthome.core.items.ItemFactory;
 import org.eclipse.smarthome.core.items.ItemProvider;
 import org.eclipse.smarthome.core.items.ItemRegistry;
+import org.eclipse.smarthome.core.items.ItemsChangeListener;
 import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingRegistry;
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
@@ -41,7 +43,7 @@ import org.eclipse.smarthome.core.thing.type.TypeResolver;
  */
 public class ChannelItemProvider implements ItemProvider {
 
-    private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
+    private Set<ItemsChangeListener> listeners = new HashSet<>();
 
     private LocaleProvider localeProvider;
     private ThingRegistry thingRegistry;
@@ -50,7 +52,7 @@ public class ChannelItemProvider implements ItemProvider {
     private Set<ItemFactory> itemFactories = new HashSet<>();
     private Map<String, Item> items = null;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     @Override
     public Collection<Item> getAll() {
@@ -71,7 +73,7 @@ public class ChannelItemProvider implements ItemProvider {
 
     @Override
     public void addProviderChangeListener(ProviderChangeListener<Item> listener) {
-        listeners.add(listener);
+        listeners.add((ItemsChangeListener) listener);
         for (Item item : getAll()) {
             listener.added(this, item);
         }
@@ -122,12 +124,29 @@ public class ChannelItemProvider implements ItemProvider {
         this.linkRegistry = null;
     }
 
+    protected void addThingTypeProvider(ThingTypeProvider provider) {
+        // only if the service is already activated
+        if (enabled) {
+            synchronized (this) {
+                Set<String> oldItemNames = items.keySet();
+                items = null;
+                for (ItemsChangeListener listener : listeners) {
+                    listener.allItemsChanged(this, oldItemNames);
+                }
+            }
+        }
+    }
+
+    protected void removeThingTypeProvider(ThingTypeProvider provider) {
+    }
+
     protected void activate(Map<String, Object> properties) {
         if (properties != null) {
             String enabled = (String) properties.get("enabled");
-            if ("false".equalsIgnoreCase(enabled)) {
-                this.enabled = false;
-            }
+            this.enabled = !"false".equalsIgnoreCase(enabled);
+        } else {
+            // configuration is optional, by default we enable this service
+            this.enabled = true;
         }
         if (enabled) {
             for (ProviderChangeListener<Item> listener : listeners) {
@@ -148,6 +167,7 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     protected void deactivate() {
+        enabled = false;
         this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
         this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
         this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
