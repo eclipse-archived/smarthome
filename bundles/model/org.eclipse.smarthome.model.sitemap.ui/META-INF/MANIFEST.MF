@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Sitemap Editor UI
 Bundle-Vendor: Eclipse.org/SmartHome
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0
 Bundle-SymbolicName: org.eclipse.smarthome.model.sitemap.ui;singleton:=true
 Require-Bundle: org.eclipse.smarthome.model.sitemap;visibility:=reexport,
  org.eclipse.xtext.ui,

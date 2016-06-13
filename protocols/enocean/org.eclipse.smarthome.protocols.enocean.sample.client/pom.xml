@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.eclipse.smarthome.protocols.enocean</groupId>
     <artifactId>org.eclipse.smarthome.protocols.enocean.parent</artifactId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
   </parent>
 
   <artifactId>org.eclipse.smarthome.protocols.enocean.sample.client</artifactId>

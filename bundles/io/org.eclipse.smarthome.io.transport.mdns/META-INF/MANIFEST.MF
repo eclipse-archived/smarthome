@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse SmartHome Bonjour/MDS Service Discovery Bundle
 Bundle-SymbolicName: org.eclipse.smarthome.io.transport.mdns
-Bundle-Version: 0.8.0.qualifier
+Bundle-Version: 0.8.0
 Bundle-Activator: org.eclipse.smarthome.io.transport.mdns.internal.MDNSActivator
 Service-Component: OSGI-INF/*.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
