@@ -17,13 +17,13 @@ import org.osgi.framework.Bundle;
 /**
  * This class is used as utility for resolving the localized {@link RuleTemplate}s. It automatically infers the key if
  * the default text is not a constant with the assistance of {@link I18nProvider}.
- * 
+ *
  * @author Ana Dimova - Initial Contribution
  *
  */
 public class RuleTemplateI18nUtil {
 
-    public static final String RULE_TEMPLATE = "rule-template.";
+    public static final String RULE_TEMPLATE = "rule-template";
 
     public static String getLocalizedRuleTemplateLabel(I18nProvider i18nProvider, Bundle bundle, String ruleTemplateUID,
             String defaultLabel, Locale locale) {
@@ -40,7 +40,7 @@ public class RuleTemplateI18nUtil {
     }
 
     private static String inferRuleTemplateKey(String ruleTemplateUID, String lastSegment) {
-        return RULE_TEMPLATE + ruleTemplateUID + "." + lastSegment;
+        return RULE_TEMPLATE + "." + ruleTemplateUID + "." + lastSegment;
     }
 
 }

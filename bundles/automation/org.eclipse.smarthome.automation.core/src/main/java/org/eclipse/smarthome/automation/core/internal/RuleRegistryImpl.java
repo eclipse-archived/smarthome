@@ -113,14 +113,14 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
                     @Override
                     public Object addingService(ServiceReference reference) {
-                        TemplateProvider provider = bc.getService(reference);
+                        TemplateProvider provider = (TemplateProvider) bc.getService(reference);
                         templateUpdated(provider.getTemplates(null));
                         return provider;
                     }
 
                     @Override
                     public void modifiedService(ServiceReference reference, Object service) {
-                        TemplateProvider provider = bc.getService(reference);
+                        TemplateProvider provider = (TemplateProvider) bc.getService(reference);
                         templateUpdated(provider.getTemplates(null));
 
                     }
