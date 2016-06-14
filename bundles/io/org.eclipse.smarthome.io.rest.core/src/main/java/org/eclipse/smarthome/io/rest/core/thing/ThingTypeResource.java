@@ -127,7 +127,7 @@ public class ThingTypeResource implements RESTResource {
     private ThingTypeDTO convertToThingTypeDTO(ThingType thingType, Locale locale) {
 
         final ConfigDescription configDescription;
-        if (thingType.hasConfigDescriptionURI()) {
+        if (thingType.getConfigDescriptionURI() != null) {
             configDescription = this.configDescriptionRegistry.getConfigDescription(thingType.getConfigDescriptionURI(),
                     locale);
         } else {
