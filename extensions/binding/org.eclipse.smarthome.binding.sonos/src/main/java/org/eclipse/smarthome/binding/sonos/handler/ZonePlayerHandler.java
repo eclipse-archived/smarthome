@@ -583,21 +583,19 @@ public class ZonePlayerHandler extends BaseThingHandler implements UpnpIOPartici
 
     private void onUpdate() {
         synchronized (upnpLock) {
-            if (service.isRegistered(this)) {
-                for (String subscription : SERVICE_SUBSCRIPTIONS) {
-                    service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
-                }
+            for (String subscription : SERVICE_SUBSCRIPTIONS) {
+                service.addSubscription(this, subscription, SUBSCRIPTION_DURATION);
+            }
 
-                if (pollingJob == null || pollingJob.isCancelled()) {
-                    Configuration config = getThing().getConfiguration();
-                    // use default if not specified
-                    int refreshInterval = DEFAULT_REFRESH_INTERVAL;
-                    Object refreshConfig = config.get("refresh");
-                    if (refreshConfig != null) {
-                        refreshInterval = ((BigDecimal) refreshConfig).intValue();
-                    }
-                    pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
+            if (pollingJob == null || pollingJob.isCancelled()) {
+                Configuration config = getThing().getConfiguration();
+                // use default if not specified
+                int refreshInterval = DEFAULT_REFRESH_INTERVAL;
+                Object refreshConfig = config.get("refresh");
+                if (refreshConfig != null) {
+                    refreshInterval = ((BigDecimal) refreshConfig).intValue();
                 }
+                pollingJob = scheduler.scheduleAtFixedRate(pollingRunnable, 0, refreshInterval, TimeUnit.SECONDS);
             }
         }
     }
