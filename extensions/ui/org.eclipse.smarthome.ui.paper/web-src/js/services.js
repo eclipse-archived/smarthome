@@ -76,10 +76,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             self.showToast('success', text, actionText, actionUrl);
         }
     };
-}).factory('configService', function(itemService, thingService, $filter) {
+}).factory('configService', function(itemService, thingService, $filter, itemRepository) {
     return {
         getRenderingModel : function(configParameters, configGroups) {
             var parameters = [];
+            var indexArray = [];
             if (!configGroups) {
                 configGroups = [];
             }
@@ -87,7 +88,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 "name" : "_default",
                 "label" : "Others"
             });
-            var indexArray = [];
+
             for (var j = 0; j < configGroups.length; j++) {
                 indexArray[configGroups[j].name] = j;
             }
@@ -99,7 +100,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 groupsList[j] = {};
                 groupsList[j].parameters = [];
             }
-            var itemsList, thingList;
+            var thingList;
             for (var i = 0; i < configParameters.length; i++) {
                 var parameter = configParameters[i];
 
@@ -114,10 +115,6 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         parameter.element = 'select';
-                        var self = this;
-                        itemService.getAll().$promise.then(function(items) {
-                            parameter.options = self.filterByAttributes(items, parameter.filterCriteria)
-                        });
                     } else if (parameter.context.toUpperCase() === 'DATE') {
                         parameter.element = 'date';
                     } else if (parameter.context.toUpperCase() === 'THING') {
@@ -128,11 +125,11 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.element = 'input';
                         parameter.input = "TEXT";
                         parameter.inputType = parameter.context;
+                    } else if (parameter.context.toUpperCase() === 'SCRIPT') {
+                        parameter.element = 'textarea';
+                        parameter.inputType = 'text';
+                        parameter.label = parameter.label && parameter.label.length > 0 ? parameter.label : 'Script';
                     }
-                } else if (parameter.context && parameter.context.toUpperCase() === 'SCRIPT') {
-                    parameter.element = 'textarea';
-                    parameter.inputType = 'text';
-                    parameter.label = parameter.label && parameter.label.length > 0 ? parameter.label : 'Script';
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
                     if (parameter.options && parameter.options.length > 0) {
                         parameter.element = 'select';
@@ -169,10 +166,24 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     parameters.push(groupsList[j]);
                 }
             }
-            return parameters;
+            return this.getItemConfigs(parameters);
+        },
+        getItemConfigs : function(configParameters) {
+            var self = this;
+            var parameterItems = $.grep(configParameters[0].parameters, function(value) {
+                return value.context && value.context.toUpperCase() == "ITEM";
+            });
+            if (parameterItems.length > 0) {
+                itemRepository.getAll(function(items) {
+                    for (var i = 0; i < parameterItems.length; i++) {
+                        parameterItems[i].options = self.filterByAttributes(items, parameterItems[i].filterCriteria);
+                    }
+                });
+            }
+            return configParameters;
         },
         filterByAttributes : function(arr, filters) {
-            if (!filters) {
+            if (!filters || filters.length == 0) {
                 return arr;
             }
             return $.grep(arr, function(element, i) {
