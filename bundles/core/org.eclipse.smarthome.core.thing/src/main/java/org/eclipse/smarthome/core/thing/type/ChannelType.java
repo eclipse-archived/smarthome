@@ -64,7 +64,7 @@ public class ChannelType extends AbstractDescriptionType {
      */
     public ChannelType(ChannelTypeUID uid, boolean advanced, String itemType, String label, String description,
             String category, Set<String> tags, StateDescription state, URI configDescriptionURI)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
 
         super(uid, label, description);
 
@@ -112,16 +112,6 @@ public class ChannelType extends AbstractDescriptionType {
     @Override
     public String toString() {
         return super.getUID().toString();
-    }
-
-    /**
-     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}.
-     *
-     * @return true if a link to a concrete ConfigDescription exists, otherwise false
-     */
-    public boolean hasConfigDescriptionURI() {
-        return (this.configDescriptionURI != null);
     }
 
     /**

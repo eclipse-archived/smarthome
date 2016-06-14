@@ -102,16 +102,6 @@ public class BindingInfo {
     }
 
     /**
-     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}.
-     *
-     * @return true if a link to a concrete ConfigDescription exists, otherwise false
-     */
-    public boolean hasConfigDescriptionURI() {
-        return (this.configDescriptionURI != null);
-    }
-
-    /**
      * Returns the service ID of the bindings main service, that can be configured.
      *
      * @return service ID or null if no service is configured

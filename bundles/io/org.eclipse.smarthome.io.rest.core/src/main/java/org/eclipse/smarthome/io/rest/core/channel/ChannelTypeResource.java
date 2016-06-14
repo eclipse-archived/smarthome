@@ -110,7 +110,7 @@ public class ChannelTypeResource implements RESTResource {
 
     private ChannelTypeDTO convertToChannelTypeDTO(ChannelType channelType, Locale locale) {
         final ConfigDescription configDescription;
-        if (channelType.hasConfigDescriptionURI()) {
+        if (channelType.getConfigDescriptionURI() != null) {
             configDescription = this.configDescriptionRegistry
                     .getConfigDescription(channelType.getConfigDescriptionURI(), locale);
         } else {

@@ -202,16 +202,6 @@ public class ThingType extends AbstractDescriptionType {
     }
 
     /**
-     * Returns {@code true} if a link to a concrete {@link ConfigDescription} exists,
-     * otherwise {@code false}.
-     *
-     * @return true if a link to a concrete ConfigDescription exists, otherwise false
-     */
-    public boolean hasConfigDescriptionURI() {
-        return (this.configDescriptionURI != null);
-    }
-
-    /**
      * Returns the link to a concrete {@link ConfigDescription}.
      *
      * @return the link to a concrete ConfigDescription (could be null)
@@ -267,12 +257,15 @@ public class ThingType extends AbstractDescriptionType {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
 
         ThingType other = (ThingType) obj;
 

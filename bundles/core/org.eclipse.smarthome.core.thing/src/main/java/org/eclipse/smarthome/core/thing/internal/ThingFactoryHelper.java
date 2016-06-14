@@ -179,7 +179,7 @@ public class ThingFactoryHelper {
             ConfigDescriptionRegistry configDescriptionRegistry) {
         if (configDescriptionRegistry != null && configuration != null) {
             // Set default values to thing-configuration
-            if (thingType.hasConfigDescriptionURI()) {
+            if (thingType.getConfigDescriptionURI() != null) {
                 ConfigDescription thingConfigDescription = configDescriptionRegistry
                         .getConfigDescription(thingType.getConfigDescriptionURI());
                 if (thingConfigDescription != null) {
