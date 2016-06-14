@@ -45,8 +45,7 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     /**
      * Perform a simple cast of given event to WatchEvent
      * 
-     * @param event
-     *            the event to cast
+     * @param event the event to cast
      * @return the casted event
      */
     @SuppressWarnings("unchecked")
@@ -58,12 +57,11 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      * Build the object with the given parameters. The directory changes will be watched by default, e.g.
      * watchingDirectoryChanges will be set to <code>true</code> (see {@link #setWatchingDirectoryChanges(boolean)})
      * 
-     * @param watchService
-     *            the watch service
+     * @param watchService the watch service
      * 
-     * @param watchedDir - the base directory, watched by the watch service
+     * @param watchedDir the base directory, watched by the watch service
      * 
-     * @param registeredKeys - a mapping between the {@link WatchKey}s and their corresponding directories, registered
+     * @param registeredKeys a mapping between the {@link WatchKey}s and their corresponding directories, registered
      *            in the watch service.
      */
     public AbstractWatchQueueReader(WatchService watchService, Path watchedDir, Map<WatchKey, Path> registeredKeys) {
@@ -76,15 +74,14 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     /**
      * Build the object with the given parameters
      * 
-     * @param watchService
-     *            the watch service
+     * @param watchService the watch service
      * 
-     * @param watchedDir - the base directory, watched by the watch service
+     * @param watchedDir the base directory, watched by the watch service
      * 
-     * @param registeredKeys - a mapping between the {@link WatchKey}s and their corresponding directories, registered
+     * @param registeredKeys a mapping between the {@link WatchKey}s and their corresponding directories, registered
      *            in the watch service.
      * 
-     * @param watchingDirectoryChanges - whether the queue reader will be watching the directory changes, when the watch
+     * @param watchingDirectoryChanges whether the queue reader will be watching the directory changes, when the watch
      *            events are processed (for more information see
      *            {@link AbstractWatchQueueReader#setWatchingDirectoryChanges(boolean)}).
      */
@@ -199,10 +196,10 @@ public abstract class AbstractWatchQueueReader implements Runnable {
      * generated when a new file is created within the directory. However, this behavior could vary a lot, depending on
      * the platform (for more information see "Platform dependencies" section in the {@link WatchService} documentation)
      * 
-     * @param watchDirectoryChanges - set to <code>true</code> if the directory events have to be processed and
+     * @param watchDirectoryChanges set to <code>true</code> if the directory events have to be processed and
      *            <code>false</code> otherwise
      */
-    public void setWatchingDirectoryChanges(boolean watchDirectoryChanges) {
+    public final void setWatchingDirectoryChanges(boolean watchDirectoryChanges) {
         this.watchingDirectoryChanges = watchDirectoryChanges;
     }
 }
