@@ -755,7 +755,6 @@ md-input-container .md-errors-spacer {
 	width: 0%;
 }
 
-<<<<<<< HEAD
 md-chips .md-chip-remove-container {
 	display: none;
 }
@@ -793,11 +792,10 @@ md-chips strong {
 .scriptfield {
 	border: 1px solid #e5e5e5;
 }
-=======
+
 .datePicker > div {
     width:77%;
 }
 .noerror>div{
 	border-bottom-color: rgb(224,224,224) !important;
 }
->>>>>>> support date,time color and thing
