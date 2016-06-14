@@ -78,7 +78,7 @@ public enum FunctionalColorGroupEnum {
      * @param modeID
      * @return mode
      */
-    public static FunctionalColorGroupEnum getMode(Integer functionalColorGroupID) {
+    public static FunctionalColorGroupEnum getColorGroup(Integer functionalColorGroupID) {
         return colorGroups.get(functionalColorGroupID);
     }
 

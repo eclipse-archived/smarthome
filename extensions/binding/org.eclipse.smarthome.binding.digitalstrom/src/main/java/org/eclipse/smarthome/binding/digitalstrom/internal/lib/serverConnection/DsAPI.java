@@ -109,7 +109,7 @@ public interface DsAPI {
     public boolean turnDeviceOff(String sessionToken, DSID dSID, String deviceName);
 
     /**
-     * Sets the output value of device
+     * Sets the output value of device.
      *
      * @param dSID needs either dSID or name
      * @param deviceName needs either dSID or name
@@ -337,16 +337,18 @@ public interface DsAPI {
 
     /**
      * Returns the configured scene output value for the given sceneId of the digitalSTROM-Device with the given dSID.
+     * <br>
+     * At array position 0 is the output value and at position 1 the angle value, if the device is a blind.
      *
      * @param sessionToken required
      * @param dSID required
      * @param sceneId required
-     * @return scene value
+     * @return scene value at array position 0 and angle at position 1
      *
      * @author Michael Ochel
      * @author Matthias Siegele
      */
-    public int getSceneValue(String sessionToken, DSID dSID, short sceneId);
+    public int[] getSceneValue(String sessionToken, DSID dSID, short sceneId);
 
     /**
      * Calls the INC scene on the digitalSTROM-Device with the given dSID and returns true if the request was success.

@@ -38,20 +38,20 @@ public enum FunctionalNameAndColorGroupEnum {
      * | n/a | Access | Green | Access related functions, door bell |
      *
      */
-    LIGHTS(1, FunctionalColorGroupEnum.getMode(1)),
-    BLINDS(2, FunctionalColorGroupEnum.getMode(2)),
-    CURTAINS(12, FunctionalColorGroupEnum.getMode(12)),
-    HEATING(3, FunctionalColorGroupEnum.getMode(3)),
-    COOLING(9, FunctionalColorGroupEnum.getMode(9)),
-    VENTILATION(10, FunctionalColorGroupEnum.getMode(10)),
-    WINDOW(11, FunctionalColorGroupEnum.getMode(11)),
-    TEMPERATION_CONTROL(48, FunctionalColorGroupEnum.getMode(48)),
-    AUDIO(4, FunctionalColorGroupEnum.getMode(4)),
-    VIDEO(5, FunctionalColorGroupEnum.getMode(5)),
-    JOKER(8, FunctionalColorGroupEnum.getMode(8)),
-    SINGLE_DEVICE(-1, FunctionalColorGroupEnum.getMode(-1)),
-    SECURITY(-2, FunctionalColorGroupEnum.getMode(-2)),
-    ACCESS(-3, FunctionalColorGroupEnum.getMode(-3));
+    LIGHTS(1, FunctionalColorGroupEnum.getColorGroup(1)),
+    BLINDS(2, FunctionalColorGroupEnum.getColorGroup(2)),
+    CURTAINS(12, FunctionalColorGroupEnum.getColorGroup(12)),
+    HEATING(3, FunctionalColorGroupEnum.getColorGroup(3)),
+    COOLING(9, FunctionalColorGroupEnum.getColorGroup(9)),
+    VENTILATION(10, FunctionalColorGroupEnum.getColorGroup(10)),
+    WINDOW(11, FunctionalColorGroupEnum.getColorGroup(11)),
+    TEMPERATION_CONTROL(48, FunctionalColorGroupEnum.getColorGroup(48)),
+    AUDIO(4, FunctionalColorGroupEnum.getColorGroup(4)),
+    VIDEO(5, FunctionalColorGroupEnum.getColorGroup(5)),
+    JOKER(8, FunctionalColorGroupEnum.getColorGroup(8)),
+    SINGLE_DEVICE(-1, FunctionalColorGroupEnum.getColorGroup(-1)),
+    SECURITY(-2, FunctionalColorGroupEnum.getColorGroup(-2)),
+    ACCESS(-3, FunctionalColorGroupEnum.getColorGroup(-3));
 
     private final int colorGroup;
     private final FunctionalColorGroupEnum color;

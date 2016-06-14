@@ -85,8 +85,8 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     @Override
     public void initialize() {
         logger.debug("Initializing SceneHandler");
-        if (bridgeHandler != null) {
-            bridgeHandlerInitialized(bridgeHandler, this.getBridge());
+        if (getBridge() != null) {
+            bridgeStatusChanged(getBridge().getStatusInfo());
         }
     }
 
@@ -112,47 +112,43 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
     }
 
     @Override
-    public void bridgeHandlerInitialized(ThingHandler thingHandler, Bridge bridge) {
-        if (thingHandler instanceof BridgeHandler) {
-            this.bridgeHandler = (BridgeHandler) thingHandler;
-
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
-                    "waiting for listener registration");
-            logger.debug("Set status on {}", getThing().getStatus());
-
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.getStatus().equals(ThingStatus.ONLINE)) {
+            if (getBridgeHandler() != null) {
+                String sceneID = getSceneID(getConfig(), bridgeHandler);
+                switch (sceneID) {
+                    case SCENE_WRONG:
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                "Configured scene '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ID)
+                                        + "' does not exist or cannot be used, please check the configuration.");
+                        break;
+                    case ZONE_WRONG:
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                "Configured zone '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ZONE_ID)
+                                        + "' does not exist, please check the configuration.");
+                        break;
+                    case GROUP_WRONG:
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
+                                "Configured group '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_GROUP_ID)
+                                        + "' does not exist, please check the configuration.");
+                        break;
+                    case NO_STRUC_MAN:
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                                "Waiting for building digitalSTROM model.");
+                        break;
+                    case NO_SCENE:
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No Scene-ID is set!");
+                        break;
+                    default:
+                        this.sceneThingID = sceneID;
+                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                                "Waiting for listener registration");
+                        logger.debug("Set status on {}", getThing().getStatus());
+                        this.bridgeHandler.registerSceneStatusListener(this);
+                }
+            }
         } else {
-            return;
-        }
-        String sceneID = getSceneID(getConfig(), bridgeHandler);
-        switch (sceneID) {
-            case SCENE_WRONG:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Configured scene '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ID)
-                                + "' does not exist or cannot be used, please check the configuration.");
-                break;
-            case ZONE_WRONG:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Configured zone '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_ZONE_ID)
-                                + "' does not exist, please check the configuration.");
-                break;
-            case GROUP_WRONG:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                        "Configured group '" + getConfig().get(DigitalSTROMBindingConstants.SCENE_GROUP_ID)
-                                + "' does not exist, please check the configuration.");
-                break;
-            case NO_STRUC_MAN:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
-                        "Waiting for building digitalSTROM model.");
-                break;
-            case NO_SCENE:
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No Scene-ID is set!");
-                break;
-            default:
-                this.sceneThingID = sceneID;
-                updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
-                        "Waiting for listener registration");
-                logger.debug("Set status on {}", getThing().getStatus());
-                this.bridgeHandler.registerSceneStatusListener(this);
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
         }
     }
 
@@ -312,6 +308,13 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
         } else {
             updateState(new ChannelUID(getThing().getUID(), DigitalSTROMBindingConstants.CHANNEL_ID_SCENE),
                     OnOffType.OFF);
+        }
+    }
+
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        if (scene != null && channelUID.getId().equals(DigitalSTROMBindingConstants.CHANNEL_ID_SCENE)) {
+            onSceneStateChanged(scene.isActive());
         }
     }
 

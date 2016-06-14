@@ -14,7 +14,6 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdateImpl;
-import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.OutputModeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +39,8 @@ public class DeviceOutputValueSensorJob implements SensorJob {
      */
     public DeviceOutputValueSensorJob(Device device) {
         this.device = device;
-        if (device.getOutputMode() == OutputModeEnum.POSITION_CON_US) {
-            this.index = DeviceConstants.DEVICE_SENSOR_SLAT_OUTPUT;
+        if (device.isShade()) {
+            this.index = DeviceConstants.DEVICE_SENSOR_SLAT_POSITION_OUTPUT;
         } else {
             this.index = DeviceConstants.DEVICE_SENSOR_OUTPUT;
         }
@@ -51,8 +50,8 @@ public class DeviceOutputValueSensorJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        int value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, this.index);
-        logger.debug("DeviceOutputValue on Demand : " + value + ", DSID: " + this.device.getDSID().getValue());
+        int value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null, index);
+        logger.debug("Device output value on Demand : " + value + ", dSID: " + this.device.getDSID().getValue());
 
         if (value != 1) {
             switch (this.index) {
@@ -60,9 +59,19 @@ public class DeviceOutputValueSensorJob implements SensorJob {
                     this.device.updateInternalDeviceState(
                             new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, value));
                     return;
-                case 4:
+                case 2:
                     this.device.updateInternalDeviceState(
                             new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, value));
+                    if (device.isBlind()) {
+                        value = digitalSTROM.getDeviceOutputValue(token, this.device.getDSID(), null,
+                                DeviceConstants.DEVICE_SENSOR_SLAT_ANGLE_OUTPUT);
+                        logger.debug("Device angle output value on Demand : " + value + ", dSID: "
+                                + this.device.getDSID().getValue());
+                        if (value != 1) {
+                            this.device.updateInternalDeviceState(
+                                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, value));
+                        }
+                    }
                     return;
                 default:
                     return;
@@ -103,5 +112,16 @@ public class DeviceOutputValueSensorJob implements SensorJob {
     @Override
     public void setInitalisationTime(long time) {
         this.initalisationTime = time;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "DeviceOutputValueSensorJob [deviceDSID : " + device.getDSID().getValue() + ", meterDSID=" + meterDSID
+                + ", initalisationTime=" + initalisationTime + "]";
     }
 }

@@ -120,7 +120,6 @@ public class SceneDiscoveryService extends AbstractDiscoveryService {
             case STOP:
             case MINIMUM:
             case MAXIMUM:
-            case AUTO_OFF:
             case DEVICE_ON:
             case DEVICE_OFF:
             case DEVICE_STOP:

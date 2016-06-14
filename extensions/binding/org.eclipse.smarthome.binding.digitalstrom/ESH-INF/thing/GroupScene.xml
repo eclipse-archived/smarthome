@@ -48,6 +48,7 @@
                     <option value="AREA_4_OFF">@text/AREA_4_OFF</option>
                     <option value="AREA_4_ON">@text/AREA_4_ON</option>
                     <option value="PRESET_0">@text/PRESET_0</option>
+                    <option value="PRESET_1">@text/PRESET_1</option>
                     <option value="PRESET_2">@text/PRESET_2</option>
                     <option value="PRESET_3">@text/PRESET_3</option>
                     <option value="PRESET_4">@text/PRESET_4</option>
@@ -71,6 +72,7 @@
                     <option value="PRESET_42">@text/PRESET_42</option>
                     <option value="PRESET_43">@text/PRESET_43</option>
                     <option value="PRESET_44">@text/PRESET_44</option>
+                    <option value="AUTO_OFF">@text/AUTO_OFF</option>
                 </options>
             </parameter>
         </config-description>

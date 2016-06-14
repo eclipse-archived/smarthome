@@ -30,6 +30,7 @@ public class InternalScene {
     private String SceneName;
     private final String INTERNAL_SCENE_ID;
     private boolean active = false;
+    private boolean deviceHasChanged = false;
     private String sceneType = SceneTypes.GROUP_SCENE;
 
     private List<Device> devices = Collections.synchronizedList(new LinkedList<Device>());
@@ -82,11 +83,14 @@ public class InternalScene {
      * Activates this Scene.
      */
     public void activateScene() {
-        this.active = true;
-        informListener();
-        if (this.devices != null) {
-            for (Device device : this.devices) {
-                device.callInternalScene(this);
+        if (!active) {
+            this.active = true;
+            deviceHasChanged = false;
+            informListener();
+            if (this.devices != null) {
+                for (Device device : this.devices) {
+                    device.callInternalScene(this);
+                }
             }
         }
     }
@@ -95,11 +99,51 @@ public class InternalScene {
      * Deactivates this Scene.
      */
     public void deactivateScene() {
-        this.active = false;
-        informListener();
-        if (this.devices != null) {
-            for (Device device : this.devices) {
-                device.undoInternalScene();
+        if (active) {
+            this.active = false;
+            deviceHasChanged = false;
+            informListener();
+            if (this.devices != null) {
+                for (Device device : this.devices) {
+                    device.undoInternalScene(this);
+                }
+            }
+        }
+    }
+
+    /**
+     * Will be called by a device, if an undo call of an other scene activated this scene.
+     */
+    public void activateSceneByDevice() {
+        if (!active && !deviceHasChanged) {
+            this.active = true;
+            deviceHasChanged = false;
+            informListener();
+        }
+    }
+
+    /**
+     * Will be called by a device, if an call of an other scene deactivated this scene.
+     */
+    public void deactivateSceneByDevice() {
+        if (active) {
+            this.active = false;
+            deviceHasChanged = false;
+            informListener();
+        }
+    }
+
+    /**
+     * This method has a device to call, if this scene was activated and the device state has changed.
+     *
+     * @param sceneNumber
+     */
+    public void deviceSceneChanged(short sceneNumber) {
+        if (this.SCENE_ID != sceneNumber) {
+            if (active) {
+                deviceHasChanged = true;
+                active = false;
+                informListener();
             }
         }
     }
@@ -210,20 +254,6 @@ public class InternalScene {
         if (!this.devices.equals(deviceList)) {
             this.devices.clear();
             addDevices(deviceList);
-        }
-    }
-
-    /**
-     * This method has a device to call, if this scene was activated and the device state has changed.
-     *
-     * @param sceneNumber
-     */
-    public void deviceSceneChanged(short sceneNumber) {
-        if (this.SCENE_ID != sceneNumber) {
-            if (active) {
-                active = false;
-                informListener();
-            }
         }
     }
 

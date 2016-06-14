@@ -45,12 +45,16 @@ public class SceneOutputValueReadingJob implements SensorJob {
 
     @Override
     public void execute(DsAPI digitalSTROM, String token) {
-        int sceneValue = digitalSTROM.getSceneValue(token, this.device.getDSID(), this.sceneID);
+        int[] sceneValue = digitalSTROM.getSceneValue(token, this.device.getDSID(), this.sceneID);
 
-        if (sceneValue != -1) {
-            this.device.setSceneOutputValue(this.sceneID, sceneValue);
+        if (sceneValue[0] != -1) {
+            if (device.isBlind()) {
+                device.setSceneOutputValue(this.sceneID, sceneValue[0], sceneValue[1]);
+            } else {
+                device.setSceneOutputValue(this.sceneID, sceneValue[0]);
+            }
             logger.debug("UPDATED sceneOutputValue for dsid: " + this.device.getDSID() + ", sceneID: " + sceneID
-                    + ", value: " + sceneValue);
+                    + ", value: " + sceneValue[0] + ", angle: " + sceneValue[1]);
         }
     }
 
@@ -87,5 +91,16 @@ public class SceneOutputValueReadingJob implements SensorJob {
     @Override
     public void setInitalisationTime(long time) {
         this.initalisationTime = time;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "SceneOutputValueReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()
+                + ", meterDSID=" + meterDSID + ", initalisationTime=" + initalisationTime + "]";
     }
 }
