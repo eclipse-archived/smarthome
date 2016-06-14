@@ -36,6 +36,7 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     $scope.step = 1;
     $scope.editMode = false;
     $scope.configuration = {};
+    $scope.parameters = [];
     var originalConfiguration = {};
     $scope.items = [];
 
@@ -49,9 +50,11 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
     var setConfigurations = function() {
         if ($scope.moduleData) {
             var params = filterByUid($scope.moduleData, $scope.module);
-            var res = configService.getRenderingModel(params[0].configDescriptions);
+
+            $scope.parameters = configService.getRenderingModel(params[0].configDescriptions);
             var hasScript = false;
-            angular.forEach(res, function(value) {
+            angular.forEach($scope.parameters, function(value) {
+
                 sharedProperties.updateParams(value);
                 hasScript = $.grep(value.parameters, function(parameter) {
                     return parameter.context == 'script';
@@ -61,9 +64,8 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
             var index = sharedProperties.searchArray(sharedProperties.getModuleArray(type), $scope.id);
             if (index != -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
-
                 angular.copy($scope.configuration, originalConfiguration);
-                $scope.configArray = configService.getConfigAsArray($scope.configuration);
+                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             }
             if (hasScript && type != 'trigger') {
                 var triggers = sharedProperties.getModuleArray('trigger');
@@ -108,13 +110,14 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
         var tempModule = filterByUid($scope.moduleData, $scope.module);
         if (tempModule != null && tempModule.length > 0) {
             tempModule[0].label = $scope.name;
-            $scope.configuration = configService.replaceEmptyValues($scope.configuration);
+            var configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters, true);
+            configuration = configService.replaceEmptyValues(configuration);
             var obj = {
                 id : $scope.id,
                 label : $scope.name,
                 description : $scope.description,
                 type : tempModule[0].uid,
-                configuration : $scope.configuration
+                configuration : configuration
             };
             sharedProperties.updateModule($scope.type, obj);
         }
