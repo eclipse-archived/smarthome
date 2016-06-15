@@ -21,6 +21,7 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.SceneMana
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.manager.StructureManager;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.impl.JSONResponseHandler;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.FunctionalColorGroupEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.ApartmentSceneEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.ZoneSceneEnum;
@@ -268,13 +269,16 @@ public class SceneDiscovery {
                                                 groupIdInter = null;
                                             }
                                             if (groupID != null) {
+                                                if (FunctionalColorGroupEnum.getColorGroup((int) groupID)
+                                                        .equals(FunctionalColorGroupEnum.YELLOW)) {
+                                                    discoverScene(SceneEnum.AUTO_OFF.getSceneNumber(), groupID);
+                                                }
                                                 String response = connectionManager.getHttpTransport()
                                                         .execute(reachableScenesQuery + zoneID + "&groupID=" + groupID
                                                                 + "&token=" + connectionManager.getSessionToken());
                                                 if (response == null) {
                                                     scenesGenerated[3] = '2';
                                                     sceneManager.scenesGenerated(scenesGenerated);
-                                                    logger.debug(String.valueOf(scenesGenerated) + "!!!!!");
                                                     return;
                                                 } else {
                                                     JsonObject responsJsonObj = JSONResponseHandler
@@ -290,42 +294,7 @@ public class SceneDiscovery {
                                                                             .getKey());
                                                             if (scenes != null) {
                                                                 for (int i = 0; i < scenes.size(); i++) {
-                                                                    short sceneNumber = scenes.get(i).getAsShort();
-                                                                    String sceneName = null;
-                                                                    if (SceneEnum.getScene(sceneNumber) != null) {
-                                                                        if (structureManager.getZoneName(zoneID) != null
-                                                                                && !structureManager.getZoneName(zoneID)
-                                                                                        .isEmpty()) {
-                                                                            sceneName = "Zone: " + structureManager
-                                                                                    .getZoneName(zoneID);
-
-                                                                        } else {
-                                                                            sceneName = "Zone: " + zoneID;
-                                                                        }
-                                                                        if (structureManager.getZoneGroupName(zoneID,
-                                                                                groupID) != null
-                                                                                && !structureManager.getZoneGroupName(
-                                                                                        zoneID, groupID).isEmpty()) {
-                                                                            sceneName = sceneName + " Group: "
-                                                                                    + structureManager.getZoneGroupName(
-                                                                                            zoneID, groupID);
-                                                                        } else {
-                                                                            sceneName = sceneName + " Group: "
-                                                                                    + groupID;
-                                                                        }
-                                                                        sceneName = sceneName + " Scene: "
-                                                                                + SceneEnum.getScene(sceneNumber)
-                                                                                        .toString().toLowerCase()
-                                                                                        .replace("_", " ");
-                                                                    }
-                                                                    InternalScene scene = new InternalScene(zoneID,
-                                                                            groupID, sceneNumber, sceneName);
-
-                                                                    if (genList) {
-                                                                        namedScenes.add(scene);
-                                                                    } else {
-                                                                        sceneDiscoverd(scene);
-                                                                    }
+                                                                    discoverScene(scenes.get(i).getAsShort(), groupID);
                                                                 }
                                                             }
                                                         }
@@ -339,6 +308,35 @@ public class SceneDiscovery {
                                         }
                                     }
                                 }
+                            }
+                        }
+
+                        private void discoverScene(short sceneNumber, short groupID) {
+                            String sceneName = null;
+                            if (SceneEnum.getScene(sceneNumber) != null) {
+                                if (structureManager.getZoneName(zoneID) != null
+                                        && !structureManager.getZoneName(zoneID).isEmpty()) {
+                                    sceneName = "Zone: " + structureManager.getZoneName(zoneID);
+
+                                } else {
+                                    sceneName = "Zone: " + zoneID;
+                                }
+                                if (structureManager.getZoneGroupName(zoneID, groupID) != null
+                                        && !structureManager.getZoneGroupName(zoneID, groupID).isEmpty()) {
+                                    sceneName = sceneName + " Group: "
+                                            + structureManager.getZoneGroupName(zoneID, groupID);
+                                } else {
+                                    sceneName = sceneName + " Group: " + groupID;
+                                }
+                                sceneName = sceneName + " Scene: "
+                                        + SceneEnum.getScene(sceneNumber).toString().toLowerCase().replace("_", " ");
+                            }
+                            InternalScene scene = new InternalScene(zoneID, groupID, sceneNumber, sceneName);
+
+                            if (genList) {
+                                namedScenes.add(scene);
+                            } else {
+                                sceneDiscoverd(scene);
                             }
                         }
                     }, 0, 500, TimeUnit.MILLISECONDS);
@@ -393,9 +391,9 @@ public class SceneDiscovery {
                 if (!isStandardScene(scene.getSceneID())) {
                     if (this.discovery != null) {
                         this.discovery.onSceneAdded(scene);
-                        logger.debug("Inform scene discovery aboud added scene with id: " + scene.getID());
+                        logger.debug("Inform scene discovery about added scene with id: " + scene.getID());
                     } else {
-                        logger.debug("Can't inform scene discovery aboud added scene with id: " + scene.getID()
+                        logger.debug("Can't inform scene discovery about added scene with id: " + scene.getID()
                                 + " because scene discovery is disabled");
                     }
                 }

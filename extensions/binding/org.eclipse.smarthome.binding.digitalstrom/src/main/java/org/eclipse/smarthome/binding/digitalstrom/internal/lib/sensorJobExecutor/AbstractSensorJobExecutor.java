@@ -54,10 +54,10 @@ public abstract class AbstractSensorJobExecutor {
 
     private List<CircuitScheduler> circuitSchedulerList = new LinkedList<CircuitScheduler>();
 
-    private class ExecuterRunnable implements Runnable {
+    private class ExecutorRunnable implements Runnable {
         private CircuitScheduler circuit;
 
-        public ExecuterRunnable(CircuitScheduler circuit) {
+        public ExecutorRunnable(CircuitScheduler circuit) {
             this.circuit = circuit;
         }
 
@@ -113,7 +113,7 @@ public abstract class AbstractSensorJobExecutor {
             if (pollingSchedulers.get(circuit.getMeterDSID()) == null
                     || pollingSchedulers.get(circuit.getMeterDSID()).isCancelled()) {
                 pollingSchedulers.put(circuit.getMeterDSID(),
-                        scheduler.scheduleAtFixedRate(new ExecuterRunnable(circuit), circuit.getNextExecutionDelay(),
+                        scheduler.scheduleAtFixedRate(new ExecutorRunnable(circuit), circuit.getNextExecutionDelay(),
                                 config.getSensorReadingWaitTime(), TimeUnit.MILLISECONDS));
             }
         }

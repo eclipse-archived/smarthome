@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceStatusListener;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.serverConnection.constants.JSONApiResponseKeysEnum;
@@ -26,6 +28,7 @@ import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdate;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.DeviceStateUpdateImpl;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.FunctionalColorGroupEnum;
+import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.JSONDeviceSceneSpecImpl;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices.deviceParameters.OutputModeEnum;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.InternalScene;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.scene.constants.SceneEnum;
@@ -67,14 +70,49 @@ public class JSONDeviceImpl implements Device {
     private short maxOutputValue = DeviceConstants.DEFAULT_MAX_OUTPUTVALUE;
     private short minOutputValue = 0;
 
+    private short slatAngle = 0;
+    private short maxSlatAngle = DeviceConstants.MAX_SLAT_ANGLE;
+    private short minSlatAngle = DeviceConstants.MIN_SLAT_ANGLE;
+
     private int slatPosition = 0;
-    private int maxSlatPosition = DeviceConstants.MAX_SLAT_POSITION;
-    private int minSlatPosition = DeviceConstants.MIN_SLAT_POSITION;
+    private int maxSlatPosition = DeviceConstants.MAX_ROLLERSHUTTER;
+    private int minSlatPosition = DeviceConstants.MIN_ROLLERSHUTTER;
 
     private int activePower = 0;
     private int outputCurrent = 0;
     private int electricMeter = 0;
+
+    // for scenes
     private short activeSceneNumber = -1;
+    private InternalScene activeScene = null;
+    private InternalScene lastScene = null;
+    private int outputValueBeforeSceneCall = 0;
+    private short slatAngleBeforeSceneCall = 0;
+    private boolean lastCallWasUndo = false;
+
+    private Map<Short, DeviceSceneSpec> sceneConfigMap = Collections
+            .synchronizedMap(new HashMap<Short, DeviceSceneSpec>());
+    private Map<Short, Integer[]> sceneOutputMap = Collections.synchronizedMap(new HashMap<Short, Integer[]>());
+
+    // saves outstanding commands
+    private List<DeviceStateUpdate> deviceStateUpdates = Collections
+            .synchronizedList(new LinkedList<DeviceStateUpdate>());
+
+    // save the last update time of the sensor data
+    private long lastElectricMeterUpdate = System.currentTimeMillis();
+    private long lastOutputCurrentUpdate = System.currentTimeMillis();
+    private long lastActivePowerUpdate = System.currentTimeMillis();
+
+    // this flags are true, if a sensorJob is initiated to add it to the sensorJobExecuter by the deviceStateUpdates
+    // list.
+    private boolean electricMeterUpdateInitiated = false;
+    private boolean outputCurrentUpdateInitiated = false;
+    private boolean activePowerUpdateInitiated = false;
+
+    // sensor data refresh priorities
+    private String activePowerRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
+    private String electricMeterRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
+    private String outputCurrentRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
 
     /*
      * Cache the last MeterValues to get MeterData directly
@@ -82,11 +120,6 @@ public class JSONDeviceImpl implements Device {
      * electricMeter, 2 =EnergyMeter)
      */
     private Map<Short, Integer[]> cachedSensorMeterData = Collections.synchronizedMap(new HashMap<Short, Integer[]>());
-
-    private Map<Short, DeviceSceneSpec> sceneConfigMap = Collections
-            .synchronizedMap(new HashMap<Short, DeviceSceneSpec>());
-
-    private Map<Short, Integer> sceneOutputMap = Collections.synchronizedMap(new HashMap<Short, Integer>());
 
     /**
      * Creates a new {@link JSONDeviceImpl} from the given DigitalSTROM-Device {@link JsonObject}.
@@ -112,7 +145,11 @@ public class JSONDeviceImpl implements Device {
             this.hwInfo = object.get(JSONApiResponseKeysEnum.DEVICE_HW_INFO.getKey()).getAsString();
         }
         if (object.get(JSONApiResponseKeysEnum.DEVICE_ON.getKey()) != null) {
-            this.isOn = object.get(JSONApiResponseKeysEnum.DEVICE_ON.getKey()).getAsBoolean();
+            if (!isShade()) {
+                this.isOn = object.get(JSONApiResponseKeysEnum.DEVICE_ON.getKey()).getAsBoolean();
+            } else {
+                this.isOpen = object.get(JSONApiResponseKeysEnum.DEVICE_ON.getKey()).getAsBoolean();
+            }
         }
         if (object.get(JSONApiResponseKeysEnum.DEVICE_IS_PRESENT.getKey()) != null) {
             this.isPresent = object.get(JSONApiResponseKeysEnum.DEVICE_IS_PRESENT.getKey()).getAsBoolean();
@@ -132,9 +169,9 @@ public class JSONDeviceImpl implements Device {
                     if (tmp != -1) {
                         this.groupList.add(tmp);
                         if (FunctionalColorGroupEnum.containsColorGroup((int) tmp)) {
-                            if (this.functionalGroup == null || !FunctionalColorGroupEnum.getMode((int) tmp)
+                            if (this.functionalGroup == null || !FunctionalColorGroupEnum.getColorGroup((int) tmp)
                                     .equals(FunctionalColorGroupEnum.BLACK)) {
-                                this.functionalGroup = FunctionalColorGroupEnum.getMode((int) tmp);
+                                this.functionalGroup = FunctionalColorGroupEnum.getColorGroup((int) tmp);
                             }
                         }
                     }
@@ -156,7 +193,7 @@ public class JSONDeviceImpl implements Device {
         if (groupList.contains((short) 1)) {
             maxOutputValue = DeviceConstants.MAX_OUTPUT_VALUE_LIGHT;
             if (this.isDimmable()) {
-                minOutputValue = DeviceConstants.MIN_DIMM_VALUE;
+                minOutputValue = DeviceConstants.MIN_DIM_VALUE;
             }
         } else {
             maxOutputValue = DeviceConstants.DEFAULT_MAX_OUTPUTVALUE;
@@ -286,14 +323,20 @@ public class JSONDeviceImpl implements Device {
     public synchronized void setIsOpen(boolean flag) {
         if (flag) {
             this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE, 1));
+            if (isBlind()) {
+                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE_ANGLE, 1));
+            }
         } else {
             this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE, -1));
+            if (isBlind()) {
+                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE_ANGLE, -1));
+            }
         }
     }
 
     @Override
     public synchronized void setOutputValue(short value) {
-        if (!isRollershutter()) {
+        if (!isShade()) {
             if (value <= 0) {
                 this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, -1));
 
@@ -302,51 +345,17 @@ public class JSONDeviceImpl implements Device {
             } else {
                 this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, value));
             }
-        } else {
-            if (value <= 0) {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, -1));
-            } else if (value > maxOutputValue) {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, 1));
-            } else {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, value));
-            }
         }
     }
 
     @Override
     public synchronized boolean isDimmable() {
-        if (outputMode == null) {
-            return false;
-        }
-        switch (this.outputMode) {
-            case RMS_DIMMER:
-            case RMS_DIMMER_CC:
-            case PC_DIMMER:
-            case PC_DIMMER_CC:
-            case RPC_DIMMER:
-            case RPC_DIMMER_CC:
-                return true;
-            default:
-                return false;
-        }
+        return OutputModeEnum.outputModeIsDimmable(outputMode);
     }
 
     @Override
     public synchronized boolean isSwitch() {
-        if (outputMode == null) {
-            return false;
-        }
-        switch (this.outputMode) {
-            case SWITCHED:
-            case SWITCH:
-            case COMBINED_SWITCH:
-            case SINGLE_SWITCH:
-            case WIPE:
-            case POWERSAVE:
-                return true;
-            default:
-                return false;
-        }
+        return OutputModeEnum.outputModeIsSwitch(outputMode);
     }
 
     @Override
@@ -383,27 +392,12 @@ public class JSONDeviceImpl implements Device {
     @Override
     public synchronized void increase() {
         if (isDimmable()) {
-
-            if (outputValue == maxOutputValue) {
-                return;
-            }
-            if ((outputValue + getDimmStep()) > maxOutputValue) {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, 1));
-            } else {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE,
-                        outputValue + getDimmStep()));
-            }
+            deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE, 0));
         }
-        if (isRollershutter()) {
-            if (slatPosition == maxSlatPosition) {
-                return;
-            }
-            if ((slatPosition + getDimmStep()) > slatPosition) {
-                this.deviceStateUpdates
-                        .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, maxSlatPosition));
-            } else {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_INCREASE,
-                        slatPosition + getDimmStep()));
+        if (isShade()) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_INCREASE, 0));
+            if (isBlind()) {
+                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE, 0));
             }
         }
     }
@@ -411,31 +405,27 @@ public class JSONDeviceImpl implements Device {
     @Override
     public synchronized void decrease() {
         if (isDimmable()) {
-            if (outputValue == minOutputValue) {
-                return;
-            }
-
-            if ((outputValue - getDimmStep()) <= minOutputValue) {
-
-                if (isOn) {
-                    this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, -1));
-                }
-            } else {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE,
-                        outputValue - getDimmStep()));
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE, 0));
+        }
+        if (isShade()) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_DECREASE, 0));
+            if (isBlind()) {
+                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE, 0));
             }
         }
-        if (isRollershutter()) {
-            if (slatPosition == minSlatPosition) {
-                return;
-            }
-            if ((slatPosition + getDimmStep()) < slatPosition) {
-                this.deviceStateUpdates
-                        .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, minSlatPosition));
-            } else {
-                this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_DECREASE,
-                        slatPosition - getDimmStep()));
-            }
+    }
+
+    @Override
+    public synchronized void increaseSlatAngle() {
+        if (isBlind()) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE, 1));
+        }
+    }
+
+    @Override
+    public synchronized void decreaseSlatAngle() {
+        if (isBlind()) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE, 1));
         }
     }
 
@@ -450,16 +440,42 @@ public class JSONDeviceImpl implements Device {
     }
 
     @Override
-    public boolean isRollershutter() {
-        if (outputMode == null) {
-            return false;
-        }
-        return outputMode.equals(OutputModeEnum.POSITION_CON) || outputMode.equals(OutputModeEnum.POSITION_CON_US);
+    public short getMinOutputValue() {
+        return minOutputValue;
+    }
+
+    @Override
+    public boolean isShade() {
+        return OutputModeEnum.outputModeIsShade(outputMode);
+    }
+
+    @Override
+    public boolean isBlind() {
+        return outputMode.equals(OutputModeEnum.POSITION_CON_US);
     }
 
     @Override
     public synchronized int getSlatPosition() {
         return slatPosition;
+    }
+
+    @Override
+    public synchronized short getAnglePosition() {
+        return slatAngle;
+    }
+
+    @Override
+    public synchronized void setAnglePosition(int angle) {
+        if (angle == slatAngle) {
+            return;
+        }
+        if (angle < minSlatAngle) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, minSlatAngle));
+        } else if (angle > this.maxSlatPosition) {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, maxSlatAngle));
+        } else {
+            this.deviceStateUpdates.add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, angle));
+        }
     }
 
     @Override
@@ -564,8 +580,8 @@ public class JSONDeviceImpl implements Device {
 
     private short getDimmStep() {
         if (isDimmable()) {
-            return DeviceConstants.DIMM_STEP_LIGHT;
-        } else if (isRollershutter()) {
+            return DeviceConstants.DIM_STEP_LIGHT;
+        } else if (isShade()) {
             return DeviceConstants.MOVE_STEP_ROLLERSHUTTER;
         } else {
             return DeviceConstants.DEFAULT_MOVE_STEP;
@@ -582,21 +598,29 @@ public class JSONDeviceImpl implements Device {
         return minSlatPosition;
     }
 
-    /* Begin-Scenes */
+    @Override
+    public int getMaxSlatAngle() {
+        return maxSlatAngle;
+    }
 
-    private InternalScene activeScene = null;
-    private InternalScene lastScene = null;
-    private int outputValueBeforeSceneCall = 0;
+    @Override
+    public int getMinSlatAngle() {
+        return minSlatAngle;
+    }
+
+    /* Begin-Scenes */
 
     @Override
     public synchronized void callInternalScene(InternalScene scene) {
-        if (isRollershutter()) {
-            this.outputValueBeforeSceneCall = this.slatPosition;
-        } else {
-            this.outputValueBeforeSceneCall = this.outputValue;
+        if (lastCallWasUndo) {
+            lastScene = null;
+            if (activeScene != null) {
+                activeScene.deactivateSceneByDevice();
+            }
+            activeScene = null;
         }
         internalCallScene(scene.getSceneID());
-        this.activeScene = scene;
+        activeScene = scene;
         lastCallWasUndo = false;
     }
 
@@ -604,34 +628,36 @@ public class JSONDeviceImpl implements Device {
     public void checkSceneConfig(Short sceneNumber, int prio) {
         if (isDeviceWithOutput()) {
             if (!containsSceneConfig(sceneNumber)) {
-                this.deviceStateUpdates
+                deviceStateUpdates
                         .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_CONFIG, prio + sceneNumber));
 
             }
             if (sceneOutputMap.get(sceneNumber) == null) {
-                this.deviceStateUpdates
+                deviceStateUpdates
                         .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_OUTPUT, prio + sceneNumber));
             }
         }
     }
 
-    boolean lastCallWasUndo = false;
-
     @Override
-    public synchronized void undoInternalScene() {
-        if (lastCallWasUndo) {
-            this.lastScene = null;
-            return;
+    public synchronized void undoInternalScene(InternalScene scene) {
+        logger.debug("undo Scene {} dSID {}", scene.getSceneID(), dsid.getValue());
+        if (activeScene != null && activeScene.equals(scene)) {
+            if (lastCallWasUndo) {
+                lastScene = null;
+                return;
+            }
+            if (this.lastScene != null && !lastScene.equals(activeScene)) {
+                activeScene = lastScene;
+                lastScene = null;
+                activeScene.activateSceneByDevice();
+            } else {
+                internalUndoScene();
+                logger.debug("internalUndo Scene dSID " + dsid.getValue());
+                this.activeScene = null;
+            }
+            lastCallWasUndo = true;
         }
-        if (this.lastScene != null && !lastScene.equals(activeScene)) {
-            this.activeScene = this.lastScene;
-            this.lastScene = null;
-            activeScene.activateScene();
-        } else {
-            internalUndoScene();
-            this.activeScene = null;
-        }
-        lastCallWasUndo = true;
     }
 
     @Override
@@ -641,36 +667,45 @@ public class JSONDeviceImpl implements Device {
 
     @Override
     public synchronized void internalCallScene(Short sceneNumber) {
+        logger.debug("call Scene id {} dSID {}", sceneNumber, dsid.getValue());
         if (isDeviceWithOutput()) {
-            if (checkSceneNumber(sceneNumber)) {
-                return;
-            }
-            if (containsSceneConfig(sceneNumber)) {
-                if (doIgnoreScene(sceneNumber)) {
-                    return;
-                }
-            } else {
-                this.deviceStateUpdates
-                        .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_CONFIG, sceneNumber));
-            }
-            if (sceneOutputMap.get(sceneNumber) != null) {
-                if (!isRollershutter()) {
-                    this.outputValueBeforeSceneCall = this.outputValue;
-                    this.outputValue = sceneOutputMap.get(sceneNumber).shortValue();
-                    updateInternalDeviceState(
-                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, this.outputValue));
-                } else {
-                    this.outputValueBeforeSceneCall = this.slatPosition;
-                    this.slatPosition = sceneOutputMap.get(sceneNumber);
-                    updateInternalDeviceState(
-                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, this.slatPosition));
-                }
-            } else {
-                this.deviceStateUpdates
-                        .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_OUTPUT, sceneNumber));
-            }
             activeSceneNumber = sceneNumber;
             informLastSceneAboutSceneCall(sceneNumber);
+            if (!isShade()) {
+                outputValueBeforeSceneCall = this.outputValue;
+            } else {
+                outputValueBeforeSceneCall = this.slatPosition;
+                if (isBlind()) {
+                    slatAngleBeforeSceneCall = this.slatAngle;
+                }
+            }
+            if (!checkSceneNumber(sceneNumber)) {
+                if (containsSceneConfig(sceneNumber)) {
+                    if (doIgnoreScene(sceneNumber)) {
+                        return;
+                    }
+                } else {
+                    this.deviceStateUpdates
+                            .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_CONFIG, sceneNumber));
+                }
+                if (sceneOutputMap.get(sceneNumber) != null) {
+                    if (!isShade()) {
+                        updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS,
+                                sceneOutputMap.get(sceneNumber)[0]));
+                    } else {
+                        updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION,
+                                sceneOutputMap.get(sceneNumber)[0]));
+                        if (isBlind()) {
+                            updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE,
+                                    sceneOutputMap.get(sceneNumber)[1]));
+                        }
+                    }
+                } else {
+                    this.deviceStateUpdates
+                            .add(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SCENE_OUTPUT, sceneNumber));
+                }
+            }
+
         }
     }
 
@@ -719,20 +754,28 @@ public class JSONDeviceImpl implements Device {
             // on scenes
             case DEVICE_ON:
             case MAXIMUM:
-                if (!isRollershutter()) {
+                if (!isShade()) {
                     this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, 1));
                 } else {
                     this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE, 1));
+                    if (isBlind()) {
+                        this.updateInternalDeviceState(
+                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE_ANGLE, 1));
+                    }
                 }
                 return true;
             // off scenes
             case MINIMUM:
             case DEVICE_OFF:
             case AUTO_OFF:
-                if (!isRollershutter()) {
+                if (!isShade()) {
                     this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, -1));
                 } else {
                     this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE, -1));
+                    if (isBlind()) {
+                        this.updateInternalDeviceState(
+                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_OPEN_CLOSE_ANGLE, -1));
+                    }
                 }
                 return true;
             // increase scenes
@@ -745,23 +788,21 @@ public class JSONDeviceImpl implements Device {
                     if (outputValue == maxOutputValue) {
                         return true;
                     }
-                    if ((outputValue + getDimmStep()) > maxOutputValue) {
-                        this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, 1));
-                    } else {
-                        this.updateInternalDeviceState(new DeviceStateUpdateImpl(
-                                DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE, outputValue + getDimmStep()));
-                    }
+                    this.updateInternalDeviceState(
+                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE, 0));
                 }
-                if (isRollershutter()) {
+                if (isShade()) {
                     if (slatPosition == maxSlatPosition) {
                         return true;
                     }
-                    if ((slatPosition + getDimmStep()) > maxSlatPosition) {
-                        this.updateInternalDeviceState(
-                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, maxSlatPosition));
-                    } else {
-                        this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_INCREASE,
-                                slatPosition + getDimmStep()));
+                    this.updateInternalDeviceState(
+                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_INCREASE, 0));
+                    if (isBlind()) {
+                        if (slatAngle == maxSlatAngle) {
+                            return true;
+                        }
+                        updateInternalDeviceState(
+                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_INCREASE, 0));
                     }
                 }
                 return true;
@@ -775,28 +816,20 @@ public class JSONDeviceImpl implements Device {
                     if (outputValue == minOutputValue) {
                         return true;
                     }
-                    if ((outputValue - getDimmStep()) <= minOutputValue) {
-                        if (isOn) {
-                            this.updateInternalDeviceState(
-                                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_ON_OFF, -1));
-                        }
-                    } else {
-                        this.updateInternalDeviceState(new DeviceStateUpdateImpl(
-                                DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE, outputValue - getDimmStep()));
-                    }
+                    updateInternalDeviceState(
+                            new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE, 0));
                 }
-                if (isRollershutter()) {
+                if (isShade()) {
                     if (slatPosition == minSlatPosition) {
                         return true;
                     }
-                    logger.info("slatpostition = " + slatPosition + " - " + getDimmStep() + "("
-                            + (slatPosition - getDimmStep()) + ") < " + slatPosition);
-                    if ((slatPosition - getDimmStep()) < minSlatPosition) {
+                    updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_DECREASE, 0));
+                    if (isBlind()) {
+                        if (slatAngle == minSlatAngle) {
+                            return true;
+                        }
                         this.updateInternalDeviceState(
-                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, minSlatPosition));
-                    } else {
-                        this.updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_DECREASE,
-                                slatPosition - getDimmStep()));
+                                new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_INCREASE, 0));
                     }
                 }
                 return true;
@@ -818,9 +851,41 @@ public class JSONDeviceImpl implements Device {
         }
     }
 
+    private Integer[] getStandartSceneOutput(short sceneNumber) {
+        switch (SceneEnum.getScene(sceneNumber)) {
+            case DEVICE_ON:
+            case MAXIMUM:
+                if (!isShade()) {
+                    return new Integer[] { (int) maxOutputValue, -1 };
+                } else {
+                    if (isBlind()) {
+                        return new Integer[] { (int) maxSlatPosition, (int) maxSlatAngle };
+                    } else {
+                        return new Integer[] { (int) maxSlatPosition, -1 };
+                    }
+                }
+                // off scenes
+            case MINIMUM:
+            case DEVICE_OFF:
+            case AUTO_OFF:
+                if (!isShade()) {
+                    return new Integer[] { (int) 0, -1 };
+                } else {
+                    if (isBlind()) {
+                        return new Integer[] { (int) 0, 0 };
+                    } else {
+                        return new Integer[] { (int) 0, -1 };
+                    }
+                }
+            default:
+                break;
+        }
+        return null;
+    }
+
     private void informLastSceneAboutSceneCall(short sceneNumber) {
         if (this.activeScene != null && this.activeScene.getSceneID() != sceneNumber) {
-            this.activeScene.deviceSceneChanged(sceneNumber);
+            this.activeScene.deactivateSceneByDevice();
             this.lastScene = this.activeScene;
             this.activeScene = null;
         }
@@ -834,17 +899,16 @@ public class JSONDeviceImpl implements Device {
 
     @Override
     public synchronized void internalUndoScene() {
-        if (!isRollershutter()) {
-            this.outputValue = (short) this.outputValueBeforeSceneCall;
-            updateInternalDeviceState(new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, this.outputValue));
-        } else {
-            this.slatPosition = this.outputValueBeforeSceneCall;
+        if (!isShade()) {
             updateInternalDeviceState(
-                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, this.slatPosition));
-        }
-
-        if (this.activeScene != null) {
-            informLastSceneAboutSceneCall((short) -1);
+                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS, this.outputValueBeforeSceneCall));
+        } else {
+            updateInternalDeviceState(
+                    new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLATPOSITION, this.outputValueBeforeSceneCall));
+            if (isBlind()) {
+                updateInternalDeviceState(
+                        new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE, this.slatAngleBeforeSceneCall));
+            }
         }
 
         if (activeSceneNumber != -1) {
@@ -858,19 +922,29 @@ public class JSONDeviceImpl implements Device {
     }
 
     @Override
-    public int getSceneOutputValue(short sceneId) {
+    public Integer[] getSceneOutputValue(short sceneId) {
         synchronized (sceneOutputMap) {
             if (sceneOutputMap.containsKey(sceneId)) {
                 return sceneOutputMap.get(sceneId);
             }
         }
-        return -1;
+        return new Integer[] { -1, -1 };
     }
 
     @Override
     public void setSceneOutputValue(short sceneId, int value) {
         synchronized (sceneOutputMap) {
-            sceneOutputMap.put(sceneId, value);
+            sceneOutputMap.put(sceneId, new Integer[] { value, -1 });
+            if (listener != null) {
+                listener.onSceneConfigAdded(sceneId);
+            }
+        }
+    }
+
+    @Override
+    public void setSceneOutputValue(short sceneId, int value, int angle) {
+        synchronized (sceneOutputMap) {
+            sceneOutputMap.put(sceneId, new Integer[] { value, angle });
             if (listener != null) {
                 listener.onSceneConfigAdded(sceneId);
             }
@@ -936,43 +1010,23 @@ public class JSONDeviceImpl implements Device {
         return this.getDSID().hashCode();
     }
 
-    // for ESH
-    private List<DeviceStateUpdate> deviceStateUpdates = Collections
-            .synchronizedList(new LinkedList<DeviceStateUpdate>());
-
-    // save the last update time of the sensor data
-    private long lastElectricMeterUpdate = System.currentTimeMillis();
-    private long lastOutputCurrentUpdate = System.currentTimeMillis();
-    private long lastActivePowerUpdate = System.currentTimeMillis();
-
-    // this flags are true, if a sensorJob is initiated to add it to the sensorJobExecuter by the deviceStateUpdates
-    // list.
-    private boolean electricMeterUpdateInitiated = false;
-    private boolean outputCurrentUpdateInitiated = false;
-    private boolean activePowerUpdateInitiated = false;
-
-    // sensor data refresh priorities
-    private String activePowerRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
-    private String electricMeterRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
-    private String outputCurrentRefreshPriority = Config.REFRESH_PRIORITY_NEVER;
-
     @Override
     public boolean isActivePowerUpToDate() {
-        return (outputMode.equals(OutputModeEnum.WIPE) && !isOn) || (isOn && !isRollershutter())
-                && !this.activePowerRefreshPriority.contains(Config.REFRESH_PRIORITY_NEVER)
+        return (outputMode.equals(OutputModeEnum.WIPE) && !isOn)
+                || (isOn && !isShade()) && !this.activePowerRefreshPriority.contains(Config.REFRESH_PRIORITY_NEVER)
                         ? checkSensorRefreshTime(lastActivePowerUpdate) : true;
     }
 
     @Override
     public boolean isElectricMeterUpToDate() {
-        return (isOn || this.electricMeter == 0) && !isRollershutter()
+        return (isOn || this.electricMeter == 0) && !isShade()
                 && !this.electricMeterRefreshPriority.contains(Config.REFRESH_PRIORITY_NEVER)
                         ? checkSensorRefreshTime(lastElectricMeterUpdate) : true;
     }
 
     @Override
     public boolean isOutputCurrentUpToDate() {
-        return isOn && !isRollershutter() && !this.outputCurrentRefreshPriority.contains(Config.REFRESH_PRIORITY_NEVER)
+        return isOn && !isShade() && !this.outputCurrentRefreshPriority.contains(Config.REFRESH_PRIORITY_NEVER)
                 ? checkSensorRefreshTime(lastOutputCurrentUpdate) : true;
     }
 
@@ -1066,50 +1120,99 @@ public class JSONDeviceImpl implements Device {
         return !this.deviceStateUpdates.isEmpty() ? this.deviceStateUpdates.remove(0) : null;
     }
 
+    private int internalSetOutputValue(int value) {
+        if (isShade()) {
+            slatPosition = value;
+            if (slatPosition <= 0) {
+                this.slatPosition = 0;
+                this.isOpen = false;
+            } else {
+                this.isOpen = true;
+            }
+            return slatPosition;
+        } else {
+            outputValue = (short) value;
+            if (outputValue <= 0) {
+                this.isOn = false;
+                setActivePower(0);
+                setOutputCurrent(0);
+                electricMeterUpdateInitiated = false;
+            } else {
+                this.isOn = true;
+                setCachedMeterData();
+            }
+            return outputValue;
+        }
+    }
+
+    private short internalSetAngleValue(int value) {
+        if (value < 0) {
+            slatAngle = 0;
+        }
+        if (value > maxSlatAngle) {
+            slatAngle = maxSlatAngle;
+        } else {
+            slatAngle = (short) value;
+        }
+        return slatAngle;
+    }
+
     @Override
     public synchronized void updateInternalDeviceState(DeviceStateUpdate deviceStateUpdate) {
         if (deviceStateUpdate != null) {
             switch (deviceStateUpdate.getType()) {
                 case DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_DECREASE,
+                            internalSetOutputValue(outputValue - getDimmStep()));
+                    break;
                 case DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_BRIGHTNESS_INCREASE,
+                            internalSetOutputValue(outputValue + getDimmStep()));
+                    break;
                 case DeviceStateUpdate.UPDATE_BRIGHTNESS:
-                    this.outputValue = (short) deviceStateUpdate.getValue();
-                    if (this.outputValue <= 0) {
-                        this.isOn = false;
-                        setActivePower(0);
-                        setOutputCurrent(0);
-                        electricMeterUpdateInitiated = false;
-                    } else {
-                        this.isOn = true;
-                        setCachedMeterData();
-                    }
+                    internalSetOutputValue(deviceStateUpdate.getValue());
                     break;
                 case DeviceStateUpdate.UPDATE_ON_OFF:
                     if (deviceStateUpdate.getValue() < 0) {
-                        this.outputValue = 0;
-                        this.isOn = false;
-                        setActivePower(0);
-                        setOutputCurrent(0);
-                        electricMeterUpdateInitiated = false;
+                        internalSetOutputValue(0);
                     } else {
-                        this.outputValue = this.maxOutputValue;
-                        this.isOn = true;
-                        setCachedMeterData();
+                        internalSetOutputValue(maxOutputValue);
                     }
                     break;
                 case DeviceStateUpdate.UPDATE_OPEN_CLOSE:
                     if (deviceStateUpdate.getValue() < 0) {
-                        this.slatPosition = 0;
-                        this.isOpen = false;
+                        internalSetOutputValue(0);
                     } else {
-                        this.outputValue = this.maxOutputValue;
-                        this.isOpen = true;
+                        internalSetOutputValue(maxSlatPosition);
+                    }
+                    break;
+                case DeviceStateUpdate.UPDATE_OPEN_CLOSE_ANGLE:
+                    if (deviceStateUpdate.getValue() < 0) {
+                        internalSetAngleValue(0);
+                    } else {
+                        internalSetAngleValue(maxSlatAngle);
                     }
                     break;
                 case DeviceStateUpdate.UPDATE_SLAT_DECREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_DECREASE,
+                            internalSetOutputValue(slatPosition - getDimmStep()));
+                    break;
                 case DeviceStateUpdate.UPDATE_SLAT_INCREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_INCREASE,
+                            internalSetOutputValue(slatPosition + getDimmStep()));
                 case DeviceStateUpdate.UPDATE_SLATPOSITION:
-                    this.slatPosition = deviceStateUpdate.getValue();
+                    internalSetOutputValue(deviceStateUpdate.getValue());
+                    break;
+                case DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_DECREASE,
+                            internalSetAngleValue(slatAngle - DeviceConstants.ANGLE_STEP_SLAT));
+                    break;
+                case DeviceStateUpdate.UPDATE_SLAT_ANGLE_INCREASE:
+                    deviceStateUpdate = new DeviceStateUpdateImpl(DeviceStateUpdate.UPDATE_SLAT_ANGLE_INCREASE,
+                            internalSetAngleValue(slatAngle + DeviceConstants.ANGLE_STEP_SLAT));
+                    break;
+                case DeviceStateUpdate.UPDATE_SLAT_ANGLE:
+                    internalSetAngleValue(deviceStateUpdate.getValue());
                     break;
                 case DeviceStateUpdate.UPDATE_ELECTRIC_METER:
                     setElectricMeter(deviceStateUpdate.getValue());
@@ -1129,24 +1232,38 @@ public class JSONDeviceImpl implements Device {
                 default:
                     return;
             }
-            if (this.activeScene != null) {
-                if (sceneOutputMap.get(activeScene.getSceneID()) != null) {
-                    if (isRollershutter()) {
-                        if (sceneOutputMap.get(activeScene.getSceneID()) != slatPosition) {
-                            this.activeScene.deviceSceneChanged((short) -1);
-                            lastScene = activeScene;
-                            activeScene = null;
+            if (activeScene != null) {
+                Integer[] sceneOutput = getStandartSceneOutput(activeScene.getSceneID());
+                if (sceneOutput == null) {
+                    sceneOutput = sceneOutputMap.get(activeScene.getSceneID());
+                }
+                if (sceneOutput != null) {
+                    boolean outputChanged = false;
+                    if (isShade()) {
+                        if (isBlind() && sceneOutput[1] != slatAngle) {
+                            logger.debug("Scene output angle: {} setted output value {}", sceneOutput[1], slatAngle);
+                            outputChanged = true;
+                        }
+                        if (sceneOutput[0] != slatPosition) {
+                            logger.debug("Scene output value: {} setted output value {}", sceneOutput[0], slatPosition);
+                            outputChanged = true;
                         }
                     } else {
-                        if (sceneOutputMap.get(activeScene.getSceneID()) != outputValue) {
-                            this.activeScene.deviceSceneChanged((short) -1);
-                            lastScene = activeScene;
-                            activeScene = null;
+                        if (sceneOutput[0] != outputValue) {
+                            outputChanged = true;
                         }
                     }
+                    if (outputChanged) {
+                        logger.debug("Device output from Device with dSID {} changed deactivate scene {}",
+                                dsid.getValue(), activeScene.getID());
+                        activeScene.deviceSceneChanged((short) -1);
+                        lastScene = null;
+                        activeScene = null;
+                    }
+
+                } else {
+                    lastScene = null;
                 }
-            } else {
-                lastScene = null;
             }
             informListenerAboutStateUpdate(deviceStateUpdate);
         }
@@ -1176,7 +1293,7 @@ public class JSONDeviceImpl implements Device {
     }
 
     private void setCachedMeterData() {
-        logger.debug("load cached sensor data");
+        logger.debug("load cached sensor data device with dsid {}", dsid.getValue());
         Integer[] cachedSensorData = this.cachedSensorMeterData.get(this.getOutputValue());
         if (cachedSensorData != null) {
             if (cachedSensorData[0] != null
@@ -1205,6 +1322,61 @@ public class JSONDeviceImpl implements Device {
             logger.debug("Inform listener about device state changed: type: " + deviceStateUpdate.getType()
                     + ", value: " + deviceStateUpdate.getValue());
             listener.onDeviceStateChanged(deviceStateUpdate);
+        }
+    }
+
+    @SuppressWarnings("null")
+    @Override
+    public void saveConfigSceneSpecificationIntoDevice(Map<String, String> propertries) {
+        if (propertries != null) {
+            String sceneSave;
+            for (short i = 0; i < 128; i++) {
+                sceneSave = propertries.get(DigitalSTROMBindingConstants.DEVICE_SCENE + i);
+                if (StringUtils.isNotBlank(sceneSave)) {
+                    logger.debug("Find saved scene configuration for device with dSID {} and sceneID {}", dsid, i);
+                    String[] sceneParm = sceneSave.replace(" ", "").split(",");
+                    JSONDeviceSceneSpecImpl sceneSpecNew = null;
+                    int sceneValue = -1;
+                    int sceneAngle = -1;
+                    for (int j = 0; j < sceneParm.length; j++) {
+                        String[] sceneParmSplit = sceneParm[j].split(":");
+                        switch (sceneParmSplit[0]) {
+                            case "Scene":
+                                sceneSpecNew = new JSONDeviceSceneSpecImpl(sceneParmSplit[1]);
+                                break;
+                            case "dontcare":
+                                sceneSpecNew.setDontcare(Boolean.parseBoolean(sceneParmSplit[1]));
+                                break;
+                            case "localPrio":
+                                sceneSpecNew.setLocalPrio(Boolean.parseBoolean(sceneParmSplit[1]));
+                                break;
+                            case "specialMode":
+                                sceneSpecNew.setSpecialMode(Boolean.parseBoolean(sceneParmSplit[1]));
+                                break;
+                            case "sceneValue":
+                                sceneValue = Integer.parseInt(sceneParmSplit[1]);
+                                break;
+                            case "sceneAngle":
+                                sceneAngle = Integer.parseInt(sceneParmSplit[1]);
+                                break;
+                        }
+                    }
+                    if (sceneValue > -1) {
+                        logger.debug("Saved sceneValue {}, sceneAngle {} for scene id {} into device with dsid {}",
+                                sceneValue, sceneAngle, i, getDSID().getValue());
+                        synchronized (sceneOutputMap) {
+                            sceneOutputMap.put(i, new Integer[] { sceneValue, sceneAngle });
+                        }
+                    }
+                    if (sceneSpecNew != null) {
+                        logger.debug("Saved sceneConfig: [{}] for scene id {} into device with dsid {}",
+                                sceneSpecNew.toString(), i, getDSID().getValue());
+                        synchronized (sceneConfigMap) {
+                            sceneConfigMap.put(i, sceneSpecNew);
+                        }
+                    }
+                }
+            }
         }
     }
 

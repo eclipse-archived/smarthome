@@ -8,6 +8,7 @@
 package org.eclipse.smarthome.binding.digitalstrom.internal.lib.structure.devices;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.config.Config;
 import org.eclipse.smarthome.binding.digitalstrom.internal.lib.listener.DeviceStatusListener;
@@ -152,7 +153,7 @@ public interface Device {
      *
      * @return is shade (true = yes | false = no)
      */
-    public boolean isRollershutter();
+    public boolean isShade();
 
     /**
      * Returns true, if the device output mode isn't disabled.
@@ -312,12 +313,13 @@ public interface Device {
     public void setGroups(List<Short> newGroupList);
 
     /**
-     * Returns the scene output value of this device of the given scene id
-     * or -1 if this scene id isn't read yet.
+     * Returns the scene output value of this device of the given scene id as {@link Integer} array. The first field is
+     * the output value and the second is the angle value or -1 if no angle value exists.
+     * If the method returns null, this scene id isn't read yet.
      *
-     * @return scene output value or -1
+     * @return scene output value and scene angle value or null, if it isn't read out yet
      */
-    public int getSceneOutputValue(short sceneID);
+    public Integer[] getSceneOutputValue(short sceneID);
 
     /**
      * Sets the scene output value of this device for the given scene id and scene output value.
@@ -458,8 +460,10 @@ public interface Device {
 
     /**
      * Undo the given {@link InternalScene} on this {@link Device} and updates it.
+     *
+     * @param scene to undo
      */
-    public void undoInternalScene();
+    public void undoInternalScene(InternalScene scene);
 
     /**
      * Initial a call scene for the given scene number.
@@ -549,4 +553,81 @@ public interface Device {
      * @param config
      */
     public void setConfig(Config config);
+
+    /**
+     * Returns the current angle position of the {@link Device}.
+     *
+     * @return current angle position
+     */
+    public short getAnglePosition();
+
+    /**
+     * Adds an set angle value command as {@link DeviceStateUpdate} with the given angle value to the list of
+     * outstanding commands.
+     *
+     * @param angle
+     */
+    public void setAnglePosition(int angle);
+
+    /**
+     * Sets the scene output value and scene output angle of this device for the given scene id, scene output value and
+     * scene output angle.
+     *
+     * @param sceneId
+     * @param value
+     * @param angle
+     */
+    public void setSceneOutputValue(short sceneId, int value, int angle);
+
+    /**
+     * Returns the max angle value of the slat.
+     *
+     * @return max slat angle
+     */
+    public int getMaxSlatAngle();
+
+    /**
+     * Returns the min angle value of the slat.
+     *
+     * @return min slat angle
+     */
+    public int getMinSlatAngle();
+
+    /**
+     * Returns true, if it is a blind device.
+     *
+     * @return is blind (true = yes | false = no
+     */
+    public boolean isBlind();
+
+    /**
+     * Saves scene configurations from the given sceneProperties in the {@link Device]. <br>
+     * The {@link Map} has to be like the following format:
+     * <ul>
+     * <li><b>Key:</b> scene[sceneID]</li>
+     * <li><b>Value:</b> {Scene: [sceneID], dontcare: [don't care flag], localPrio: [local prio flag], specialMode:
+     * [special mode flag]}(0..1),
+     * {sceneValue: [sceneValue]{, sceneAngle: [scene angle]}(0..1)}(0..1)</li>
+     * </ul>
+     *
+     * @param sceneProperties
+     */
+    public void saveConfigSceneSpecificationIntoDevice(Map<String, String> sceneProperties);
+
+    /**
+     * Returns the min output value.
+     *
+     * @return min output value
+     */
+    public short getMinOutputValue();
+
+    /**
+     * Adds a slat increase command as {@link DeviceStateUpdate} to the list of outstanding commands.
+     */
+    public void increaseSlatAngle();
+
+    /**
+     * Adds a slat decrease command as {@link DeviceStateUpdate} to the list of outstanding commands.
+     */
+    public void decreaseSlatAngle();
 }

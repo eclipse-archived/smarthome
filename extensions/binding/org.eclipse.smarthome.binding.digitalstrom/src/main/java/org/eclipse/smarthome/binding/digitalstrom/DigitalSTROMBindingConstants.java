@@ -74,6 +74,10 @@ public class DigitalSTROMBindingConstants {
 
     // shade
     public static final String CHANNEL_ID_SHADE = "shade";
+    public static final String CHANNEL_ID_SHADE_ANGLE = "shadeAngle";
+
+    public static final ChannelTypeUID CHANNEL_TYPE_SHADE_ANGLE = new ChannelTypeUID(BINDING_ID,
+            CHANNEL_ID_SHADE_ANGLE);
 
     // scene
     public static final String CHANNEL_ID_SCENE = "scene";

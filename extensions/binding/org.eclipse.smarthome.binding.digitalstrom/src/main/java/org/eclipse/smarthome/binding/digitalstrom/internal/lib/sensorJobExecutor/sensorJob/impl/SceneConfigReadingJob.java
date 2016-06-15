@@ -89,4 +89,15 @@ public class SceneConfigReadingJob implements SensorJob {
     public void setInitalisationTime(long time) {
         this.initalisationTime = time;
     }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "SceneConfigReadingJob [sceneID: " + sceneID + ", deviceDSID : " + device.getDSID().getValue()
+                + ", meterDSID=" + meterDSID + ", initalisationTime=" + initalisationTime + "]";
+    }
 }

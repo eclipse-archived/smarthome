@@ -46,6 +46,7 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
+import org.eclipse.smarthome.core.thing.binding.builder.ThingStatusInfoBuilder;
 import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.RefreshType;
 import org.slf4j.Logger;
@@ -166,7 +167,7 @@ public class BridgeHandler extends BaseBridgeHandler
     @Override
     public void initialize() {
         logger.debug("Initializing digitalSTROM-BridgeHandler");
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING, "Checking configuration...");
+        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING, "Checking configuration...");
         // Start an extra thread to readout the configuration and check the connection, because it takes sometimes more
         // than 5000 milliseconds and the handler will suspend (ThingStatus.UNINITIALIZED).
         Config config = loadAndCheckConfig();
@@ -273,13 +274,13 @@ public class BridgeHandler extends BaseBridgeHandler
                     "The connection to the digitalSTROM-Server can't established, because the host address is missing. Please set the host address.");
             return null;
         }
-        if (StringUtils.isNotBlank((String) thingConfig.get(USER_NAME))) {
+        if (thingConfig.get(USER_NAME) != null) {
             config.setUserName(thingConfig.get(USER_NAME).toString());
         }
-        if (StringUtils.isNotBlank((String) thingConfig.get(PASSWORD))) {
+        if (thingConfig.get(PASSWORD) != null) {
             config.setPassword(thingConfig.get(PASSWORD).toString());
         }
-        if (StringUtils.isNotBlank((String) thingConfig.get(APPLICATION_TOKEN))) {
+        if (thingConfig.get(APPLICATION_TOKEN) != null) {
             config.setAppToken(thingConfig.get(APPLICATION_TOKEN).toString());
         }
 
@@ -323,6 +324,10 @@ public class BridgeHandler extends BaseBridgeHandler
 
     @Override
     public void handleRemoval() {
+        for (Thing thing : getThing().getThings()) {
+            // Inform Thing-Child's about removed bridge.
+            thing.getHandler().bridgeStatusChanged(ThingStatusInfoBuilder.create(ThingStatus.REMOVED).build());
+        }
         if (StringUtils.isNotBlank((String) super.getConfig().get(APPLICATION_TOKEN))) {
             if (connMan == null) {
                 Config config = loadAndCheckConnectionData(this.getConfig());
@@ -528,7 +533,8 @@ public class BridgeHandler extends BaseBridgeHandler
             switch (reason) {
                 case WRONG_APP_TOKEN:
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
-                            "User defined Application-Token is wrong.");
+                            "User defined Application-Token is wrong. "
+                                    + "Please set user name and password to generate an Application-Token or set an valide Application-Token.");
                     break;
                 case WRONG_USER_OR_PASSWORD:
                     updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
@@ -562,7 +568,9 @@ public class BridgeHandler extends BaseBridgeHandler
             }
             // reset connection timeout counter
             connectionTimeoutCounter = 0;
-            devStatMan.stop();
+            if (devStatMan != null) {
+                devStatMan.stop();
+            }
         }
 
     }
@@ -647,7 +655,7 @@ public class BridgeHandler extends BaseBridgeHandler
                     break;
                 case STOPPED:
                     if (!getThing().getStatusInfo().equals(ThingStatusDetail.COMMUNICATION_ERROR)
-                            || !getThing().getStatusInfo().equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
+                            && !getThing().getStatusInfo().equals(ThingStatusDetail.CONFIGURATION_ERROR)) {
                         updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, "DeviceStatusManager is stopped.");
                     }
                     break;

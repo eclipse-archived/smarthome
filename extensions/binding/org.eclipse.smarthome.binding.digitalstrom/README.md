@@ -29,6 +29,7 @@ The following table shows all tested digitalSTROM-Devices with their output-mode
 | GE-KM200 |     switched, dimmed | yellow |
 | GE-TKM210    | switched, dimmed | yellow |
 | GE-SDM200 | switched, dimmed | yellow |
+| GE-UMV200 | 1-10V dimmed | yellow |
 | GR-KL200    | standard output-mode | grey |    
 | GR-KL210    | standard output-mode| grey |
 | GR-KL220    | standard output-mode | grey |
@@ -169,7 +170,8 @@ All devices support some of the following channels:
 | lightSwitch | Switch | The light switch channel allows to turn a light device on or off. | GE, SW | 
 | combined2StageSwitch | String| The 2 stage light switch channel allows to turn both light devices on or off or switch only 1 of the both light device on or off. | SW-UMR200 | 
 | combined3StageSwitch | String | The 3 stage light switch channel allows to turn both light devices on or off or switch both light devices separated from each other on or off. | SW-UMR200 | 
-| shade | Rollershutter | The shade control channel allows to control shade device e.g. a roller shutter or awnings. | GR | 
+| shade | Rollershutter | The shade control channel allows to control shade device e.g. a roller shutter or awnings. | GR |
+| shadeAngle | Dimmer | The slat control channel allows to control the relative slat position in percent of blinds. | GR | 
 | generalDimm | Dimmer | The device power control channel allows to control the power of a device e.g. a ceiling fan. | SW | 
 | generalSwitch | Switch | The device switch channel allows to turn a device on or off e.g. a HIFI-System. | SW | 
 | generalCombined3StageSwitch  | String | The 2 stage device switch channel allows to turn both relais of the device on or off or switch only 1 of the both relais on or off. | SW-UMR200 | 
@@ -181,6 +183,13 @@ All devices support some of the following channels:
 | totalElectricMeter | Number | The total electric meter channel indicates the current electric meter value in killowatt hours of all connected circuits to the digitalSTROM-System. | dssBridge  | 
 | scene | Switch | The scene channel allows to call or undo a scene from digitalSTROM. | Scene | 
 
+**Notes:**  
+ *Channels with accepted command type increase and decrease:*  
+  * digitalSTROM will only evaluate increase and decrease commands, if a scene was called before which turn the device on. 
+   
+ *Blinds:*  
+ * Increase, decrease and up, down commands of the shade channel changes the angle in digitalSTROM, too. If you want to set only the position, you have to set the value directly.
+ * To protect the slats digitalSTROM changes the position by setting the angle, too, if the position is very high or low. So if you want to see the correct position, you have to send a refresh or stop command, if the blind is ready. 
 
 ## Full Example
 
