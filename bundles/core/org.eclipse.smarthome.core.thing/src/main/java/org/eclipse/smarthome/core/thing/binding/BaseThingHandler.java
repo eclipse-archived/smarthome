@@ -32,6 +32,7 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.eclipse.smarthome.core.types.State;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -192,6 +193,9 @@ public abstract class BaseThingHandler implements ThingHandler {
     @Override
     public void channelLinked(ChannelUID channelUID) {
         // can be overridden by subclasses
+        // standard behavior is to refresh the linked channel,
+        // so the newly linked items will receive a state update.
+        handleCommand(channelUID, RefreshType.REFRESH);
     }
 
     @Override
