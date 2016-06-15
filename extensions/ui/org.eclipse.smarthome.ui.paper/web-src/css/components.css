@@ -793,9 +793,44 @@ md-chips strong {
 	border: 1px solid #e5e5e5;
 }
 
+
 .datePicker > div {
     width:77%;
 }
 .noerror>div{
 	border-bottom-color: rgb(224,224,224) !important;
+}
+
+.thingContainer {
+	padding-left: 0px;
+}
+
+.things .thing {
+	padding-left: 15px
+}
+
+.things>.new {
+	border-top: 1px solid #e6ffe6;
+	background-color: #e6ffe6;
+	box-shadow: 0 0 10px #e6e6e6;
+}
+
+.things>.new.lastThing {
+    padding-bottom: 1px;
+}
+
+.things .actions.new {
+	background-color: #e6ffe6;
+}
+
+.thing.fab-item:focus {
+	outline: 0;
+}
+
+.thing .cbody {
+	margin-bottom: 10px;
+}
+
+.fab-item hr.border-line {
+	margin: 0px;
 }

@@ -65,13 +65,13 @@
 				</div>
 			</div>
 		</div>
-		<div class="container">
+		<div class="container thingContainer">
 			<p class="text-center" ng-show="data.things.length == 0">
 				No things configured yet.
 				<button class="md-button" ng-click="$location.path('inbox/setup')">Add Things</button>
 			</p>
 			<div class="things">
-				<div class="clickable" ng-repeat="thing in data.things | filter:search">
+				<div class="clickable" ng-class="{'new':newThingUID==thing.UID,'lastThing':$last}" ng-repeat="thing in data.things | filter:search | orderBy:'label'">
 					<div class="thing fab-item text-left" data-thing-uid="{{thing.UID}}" ng-click="navigateTo('things/view/' + thing.UID)">
 						<div class="circle">{{thing.UID.split(':')[1].substring(0,1).toUpperCase()}}</div>
 						<div class="cbody item-content">
@@ -80,7 +80,7 @@
 							</h3>
 							<p>{{getThingTypeLabel(thing.thingTypeUID)}}</p>
 							<p>{{thing.UID}}</p>
-							<div class="actions">
+							<div class="actions" ng-class="{'new':newThingUID==thing.UID}">
 								<md-button ng-click="navigateTo('things/edit/' + thing.UID)" aria-label="Edit"> <i class="material-icons">edit</i></md-button>
 								<md-button ng-click="remove(thing, $event)" aria-label="Delete"> <i class="material-icons">delete</i></md-button>
 							</div>
