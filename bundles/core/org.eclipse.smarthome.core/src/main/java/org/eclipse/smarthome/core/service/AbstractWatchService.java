@@ -114,6 +114,9 @@ public abstract class AbstractWatchService {
         }
     }
 
+    /**
+     * This method will close the {@link #watchService}.
+     */
     protected void stopWatchService() {
         if (watchService != null) {
             try {
@@ -139,16 +142,17 @@ public abstract class AbstractWatchService {
             Map<WatchKey, Path> registredWatchKeys);
 
     /**
-     * 
-     * @return
+     * @return the path to be watched as a {@link String}. The returned path should be applicable for creating a
+     *         {@link Path} with the {@link Paths#get(String, String...)} method.
      */
     protected abstract String getSourcePath();
 
     /**
-     * Determines whether the subdirectories of the root path will be watched or not.
+     * Determines whether the subdirectories of the source path (determined by the {@link #getSourcePath()}) will be
+     * watched or not.
      * 
-     * @return <code>true</code> if the subdirectories will be watched and <code>false</code> if only the root directory
-     *         will be watched
+     * @return <code>true</code> if the subdirectories will be watched and <code>false</code> if only the source path
+     *         (determined by the {@link #getSourcePath()}) will be watched
      */
     protected abstract boolean watchSubDirectories();
 

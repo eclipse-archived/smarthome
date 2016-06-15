@@ -22,10 +22,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base class for watch queue readers
- *
+ * 
  * @author Fabio Marini
  * @author Dimitar Ivanov - use relative path in watch events. Added option to watch directory events or not
- *
  */
 public abstract class AbstractWatchQueueReader implements Runnable {
 
@@ -54,13 +53,13 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     }
 
     /**
-     * Build the object with the given parameters. The directory changes will be watched by default, e.g.
-     * watchingDirectoryChanges will be set to <code>true</code> (see {@link #setWatchingDirectoryChanges(boolean)})
+     * Build the {@link AbstractWatchQueueReader} object with the given parameters. The directory changes will be
+     * watched by default, e.g. watchingDirectoryChanges will be set to <code>true</code> (see
+     * {@link #setWatchingDirectoryChanges(boolean)})
      * 
-     * @param watchService the watch service
-     * 
-     * @param watchedDir the base directory, watched by the watch service
-     * 
+     * @param watchService the watch service. Available to subclasses as {@link #watchService}
+     * @param watchedDir the base directory, watched by the watch service. Available to subclasses as
+     *            {@link #baseWatchedDir}
      * @param registeredKeys a mapping between the {@link WatchKey}s and their corresponding directories, registered
      *            in the watch service.
      */
@@ -72,18 +71,18 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     }
 
     /**
-     * Build the object with the given parameters
+     * Build the {@link AbstractWatchQueueReader} object with the given parameters. The directory changes will be
+     * watched by default, e.g. watchingDirectoryChanges will be set to <code>true</code> (see
+     * {@link #setWatchingDirectoryChanges(boolean)})
      * 
      * @param watchService the watch service
-     * 
-     * @param watchedDir the base directory, watched by the watch service
-     * 
+     * @param watchedDir the base directory, watched by the watch service. Available to subclasses as
+     *            {@link #baseWatchedDir}
      * @param registeredKeys a mapping between the {@link WatchKey}s and their corresponding directories, registered
      *            in the watch service.
-     * 
-     * @param watchingDirectoryChanges whether the queue reader will be watching the directory changes, when the watch
+     * @param watchingDirectoryChanges whether this queue reader will be watching the directory changes when the watch
      *            events are processed (for more information see
-     *            {@link AbstractWatchQueueReader#setWatchingDirectoryChanges(boolean)}).
+     *            {@link #setWatchingDirectoryChanges(boolean)}).
      */
     public AbstractWatchQueueReader(WatchService watchService, Path watchedDir, Map<WatchKey, Path> registeredKeys,
             boolean watchingDirectoryChanges) {
@@ -169,14 +168,12 @@ public abstract class AbstractWatchQueueReader implements Runnable {
     }
 
     /**
-     * Processes the given watch event. Note that there is
+     * Processes the given watch event. Note that the kind and the number of the events for the watched directory is a
+     * platform dependent (see the "Platform dependencies" sections of {@link WatchService}).
      * 
-     * @param event
-     *            the watch event to perform
-     * @param kind
-     *            the event's kind
-     * @param name
-     *            the path of event
+     * @param event the watch event to be handled
+     * @param kind the event's kind
+     * @param path the path of the event (relative to the {@link #baseWatchedDir}
      */
     protected abstract void processWatchEvent(WatchEvent<?> event, WatchEvent.Kind<?> kind, Path path);
 
