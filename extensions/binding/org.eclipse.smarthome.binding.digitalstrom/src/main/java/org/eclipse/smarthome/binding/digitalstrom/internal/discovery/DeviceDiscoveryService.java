@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.smarthome.binding.digitalstrom.DigitalSTROMBindingConstants;
 import org.eclipse.smarthome.binding.digitalstrom.handler.BridgeHandler;
 import org.eclipse.smarthome.binding.digitalstrom.handler.DeviceHandler;
@@ -64,7 +65,7 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
      */
     @Override
     public void deactivate() {
-        logger.debug("deactivate discovery service for device type " + deviceType + " thing tyspes are: "
+        logger.debug("deactivate discovery service for device type " + deviceType + " thing types are: "
                 + super.getSupportedThingTypes().toString());
         removeOlderResults(new Date().getTime());
     }
@@ -103,22 +104,25 @@ public class DeviceDiscoveryService extends AbstractDiscoveryService {
                 properties.put(DigitalSTROMBindingConstants.DEVICE_FUNCTIONAL_COLOR_GROUP,
                         device.getFunctionalColorGroup());
                 properties.put(DigitalSTROMBindingConstants.DEVICE_METER_ID, device.getMeterDSID().getValue());
-                if (device.getName() != null) {
-                    properties.put(DEVICE_NAME, device.getName());
+                String deviceName = null;
+                if (StringUtils.isNotBlank(device.getName())) {
+                    deviceName = device.getName();
                 } else {
-                    properties.put(DEVICE_NAME, device.getDSID().getValue());
+                    // if no name is set, the dSID will be used as name
+                    deviceName = device.getDSID().getValue();
                 }
+                properties.put(DEVICE_NAME, deviceName);
                 DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withProperties(properties)
-                        .withBridge(bridgeUID).withLabel(device.getName()).build();
+                        .withBridge(bridgeUID).withLabel(deviceName).build();
 
                 thingDiscovered(discoveryResult);
             } else {
-                logger.debug("discovered unsupported device hardware type '{}' with uid {}", device.getHWinfo(),
+                logger.debug("Discovered unsupported device hardware type '{}' with uid {}", device.getHWinfo(),
                         device.getDSUID());
             }
         } else {
             logger.debug(
-                    "discovered device without output value, don't add to inbox. "
+                    "Discovered device with disabled or no output mode. Device was not added to inbox. "
                             + "Device information: hardware info: {}, dSUID: {}, device-name: {}, output value: {}",
                     device.getHWinfo(), device.getDSUID(), device.getName(), device.getOutputMode());
         }

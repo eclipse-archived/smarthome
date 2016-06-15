@@ -30,9 +30,13 @@ public interface DeviceStateUpdate {
 
     // shades
     public final static String UPDATE_SLATPOSITION = "slatposition";
+    public static final String UPDATE_SLAT_ANGLE = "slatAngle";
     public final static String UPDATE_SLAT_INCREASE = "slatIncrese";
     public final static String UPDATE_SLAT_DECREASE = "slatDecrese";
-    public final static String UPDATE_OPEN_CLOSE = "OpenClose";
+    public static final String UPDATE_SLAT_ANGLE_INCREASE = "slatAngleIncrese";
+    public static final String UPDATE_SLAT_ANGLE_DECREASE = "slatAngleDecrese";
+    public final static String UPDATE_OPEN_CLOSE = "openClose";
+    public static final String UPDATE_OPEN_CLOSE_ANGLE = "openCloseAngle";
     public final static String UPDATE_SLAT_MOVE = "slatMove";
     public final static String UPDATE_SLAT_STOP = "slatStop";
 
@@ -43,13 +47,15 @@ public interface DeviceStateUpdate {
     public final static String UPDATE_OUTPUT_VALUE = "outputValue";
 
     // scene
-    /**
-     * A scene call can have the value between 0 and 127.
-     */
+    /** A scene call can have the value between 0 and 127. */
     public final static String UPDATE_CALL_SCENE = "callScene";
     public final static String UPDATE_UNDO_SCENE = "undoScene";
     public final static String UPDATE_SCENE_OUTPUT = "sceneOutput";
     public final static String UPDATE_SCENE_CONFIG = "sceneConfig";
+
+    // general
+    /** command to refresh the output value of an device. */
+    public static final String REFRESH_OUTPUT = "refreshOutput";
 
     /**
      * Returns the state update value.

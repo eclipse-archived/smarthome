@@ -88,7 +88,7 @@ public class HttpTransportImpl implements HttpTransport {
 
     /**
      * Creates a new {@link HttpTransportImpl} with configurations of the given {@link Config} and set ignore all
-     * SSL-Certificates..
+     * SSL-Certificates.
      *
      * @param config
      * @param exeptAllCerts (true = all will ignore)

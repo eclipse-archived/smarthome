@@ -43,7 +43,12 @@ public enum OutputModeEnum {
      * | 40 | Relay with wiped mode scene table configuration |
      * | 41 | Relay with saving mode scene table configuration |
      * | 42 | Positioning control for uncalibrated shutter |
-     * | 43 | combined switch | (from ds web configurator, it dosn't stand in the ds-basic.pdf from 19.08.2015)
+     * | 43 | combined switch | (from dS web configurator, it dosn't stand in the ds-basic.pdf from 19.08.2015)
+     * | 49 | dimmed 0-10V [dimming with 0-10V control power] | (from dS web configurator, it dosn't stand in the
+     * ds-basic.pdf from 02.06.2015)
+     * | 51 | dimmed 1-10V [dimming with 1-10V control power] | (from dS web configurator, it dosn't stand in the
+     * ds-basic.pdf from 02.06.2015)
+     *
      */
     DISABLED(0),
     SWITCHED(16),
@@ -63,7 +68,9 @@ public enum OutputModeEnum {
     WIPE(40),
     POWERSAVE(41),
     POSITION_CON_US(42),
-    COMBINED_SWITCH(43);
+    COMBINED_SWITCH(43),
+    DIMMED_0_10V(49),
+    DIMMED_1_10V(51);
 
     private final int mode;
 
@@ -79,10 +86,77 @@ public enum OutputModeEnum {
      * Returns true, if the output mode id contains in digitalSTROM, otherwise false.
      *
      * @param modeID
-     * @return true if contains otherwise false
+     * @return true, if contains, otherwise false
      */
     public static boolean containsMode(Integer modeID) {
         return outputModes.keySet().contains(modeID);
+    }
+
+    /**
+     * Returns true, if the output mode is a dimmable output mode, otherwise false.
+     *
+     * @param outputMode
+     * @return true, if outputMode is dimmable, otherwise false
+     */
+    public static boolean outputModeIsDimmable(OutputModeEnum outputMode) {
+        if (outputMode == null) {
+            return false;
+        }
+        switch (outputMode) {
+            case RMS_DIMMER:
+            case RMS_DIMMER_CC:
+            case PC_DIMMER:
+            case PC_DIMMER_CC:
+            case RPC_DIMMER:
+            case RPC_DIMMER_CC:
+            case DIMMED_0_10V:
+            case DIMMED_1_10V:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns true, if the output mode is a switchable output mode, otherwise false.
+     *
+     * @param outputMode
+     * @return true, if outputMode is switchable, otherwise false
+     */
+    public static boolean outputModeIsSwitch(OutputModeEnum outputMode) {
+        if (outputMode == null) {
+            return false;
+        }
+        switch (outputMode) {
+            case SWITCHED:
+            case SWITCH:
+            case COMBINED_SWITCH:
+            case SINGLE_SWITCH:
+            case WIPE:
+            case POWERSAVE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns true, if the output mode is a shade control output mode, otherwise false.
+     * 
+     * @param outputMode
+     * @return true, if outputMode is for shade control, otherwise false
+     */
+    public static boolean outputModeIsShade(OutputModeEnum outputMode) {
+        if (outputMode == null) {
+            return false;
+        }
+        switch (outputMode) {
+            case POSITION_CON:
+            case POSITION_CON_US:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

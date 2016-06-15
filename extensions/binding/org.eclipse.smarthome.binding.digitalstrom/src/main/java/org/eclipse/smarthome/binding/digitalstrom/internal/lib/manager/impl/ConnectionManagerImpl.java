@@ -219,6 +219,9 @@ public class ConnectionManagerImpl implements ConnectionManager {
                 if (connListener != null) {
                     connListener.onConnectionStateChange(ConnectionListener.NOT_AUTHENTICATED,
                             ConnectionListener.WRONG_APP_TOKEN);
+                    if (!checkUserPassword()) {
+                        return;
+                    }
                 }
             }
         }
