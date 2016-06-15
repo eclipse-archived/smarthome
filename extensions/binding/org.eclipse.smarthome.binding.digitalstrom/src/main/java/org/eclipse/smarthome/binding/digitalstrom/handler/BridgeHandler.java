@@ -167,7 +167,7 @@ public class BridgeHandler extends BaseBridgeHandler
     @Override
     public void initialize() {
         logger.debug("Initializing digitalSTROM-BridgeHandler");
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING, "Checking configuration...");
+        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING, "Checking configuration...");
         // Start an extra thread to readout the configuration and check the connection, because it takes sometimes more
         // than 5000 milliseconds and the handler will suspend (ThingStatus.UNINITIALIZED).
         Config config = loadAndCheckConfig();

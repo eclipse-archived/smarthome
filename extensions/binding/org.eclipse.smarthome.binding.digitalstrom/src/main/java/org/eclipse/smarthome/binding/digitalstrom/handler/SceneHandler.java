@@ -133,7 +133,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
                                         + "' does not exist, please check the configuration.");
                         break;
                     case NO_STRUC_MAN:
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
                                 "Waiting for building digitalSTROM model.");
                         break;
                     case NO_SCENE:
@@ -141,7 +141,7 @@ public class SceneHandler extends BaseThingHandler implements SceneStatusListene
                         break;
                     default:
                         this.sceneThingID = sceneID;
-                        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_PENDING,
+                        updateStatus(ThingStatus.ONLINE, ThingStatusDetail.CONFIGURATION_PENDING,
                                 "Waiting for listener registration");
                         logger.debug("Set status on {}", getThing().getStatus());
                         this.bridgeHandler.registerSceneStatusListener(this);
