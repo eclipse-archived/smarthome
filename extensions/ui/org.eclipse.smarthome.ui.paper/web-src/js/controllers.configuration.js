@@ -277,6 +277,8 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
 }).controller('ThingController', function($scope, $timeout, $mdDialog, thingRepository, thingService, toastService) {
     $scope.setSubtitle([ 'Things' ]);
     $scope.setHeaderText('Shows all configured Things.');
+    $scope.newThingUID = window.localStorage.getItem('thingUID');
+    window.localStorage.removeItem('thingUID')
     $scope.refresh = function() {
         thingRepository.getAll(true);
     }
