@@ -24,6 +24,8 @@
           <filesets>
             <fileset>
               <directory>${basedir}/documentation/features/bindings/</directory>
+            </fileset>
+            <fileset>
               <directory>${basedir}/documentation/features/ui/</directory>
             </fileset>
           </filesets>
