@@ -105,11 +105,15 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             redirectTo : '/control'
         });
     }
+    $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+    if (window.localStorage.getItem('paperui.language') == 'de') {
+        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ];
+    }
     $mdDateLocaleProvider.formatDate = function(date) {
         if (!date) {
             return null;
         }
-        return (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate());
+        return (date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear());
     };
 
     $mdDateLocaleProvider.parseDate = function(date) {
@@ -118,7 +122,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         }
         var dateParts = date.split(/[\s\/,.:-]+/);
         if (dateParts.length > 2) {
-            return new Date(dateParts[1] + '.' + dateParts[2] + '.' + dateParts[0]);
+            return new Date(dateParts[1] + '.' + dateParts[0] + '.' + dateParts[2]);
         }
     };
 } ]).directive('editableitemstate', function() {
@@ -172,6 +176,31 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                     scope.$apply();
                 });
             }
+
+        }
+    };
+}).directive('colorSelect', function() {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+
+            element[0].addEventListener('click', function() {
+                scope.configuration[scope.parameter.name] = "#ffffff";
+            });
+
+        }
+    };
+}).directive('colorRemove', function() {
+    return {
+        restrict : 'A',
+        require : 'ngModel',
+        link : function(scope, element, attrs, ngModel) {
+
+            element[0].addEventListener('click', function() {
+                scope.configuration[scope.parameter.name] = undefined;
+                scope.$apply();
+            });
 
         }
     };

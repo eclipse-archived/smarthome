@@ -9,7 +9,7 @@
 							<div ng-switch-when="input">
 								<div ng-if="parameter.type=='INTEGER' || parameter.type=='DECIMAL'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" step="{{parameter.stepsize}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
 										<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
@@ -27,7 +27,7 @@
 								</div>
 								<div ng-if="parameter.type=='TEXT'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input step="1" ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container class="col-xs-12 configContainer"> <input on-select ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
 										<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
@@ -87,6 +87,27 @@
 											<small ng-bind-html="parameter.description"></small>
 										</p>
 									</span>
+								</div>
+							</div>
+							<div ng-switch-when="color">
+
+								<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
+								<md-input-container class="col-xs-11 configContainer" style="padding-right:0px"> <input color-select ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+
+								<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
+									<div ng-message="required">Field is required</div>
+								</div>
+								<span ng-show="!focus">
+									<p class="hint">
+										<small ng-bind-html="parameter.description"></small>
+									</p>
+								</span> <span ng-show="focus">
+									<p class="hint">
+										<small>&nbsp;</small>
+									</p>
+								</span> </md-input-container>
+								<div style="float:left;">
+									<i class="material-icons color-remove" ng-model="configuration[parameter.name]" color-remove>close</i>
 								</div>
 							</div>
 						</div>
