@@ -27,6 +27,8 @@ import org.apache.commons.net.ntp.TimeInfo;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.i18n.LocaleProvider;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
+import org.eclipse.smarthome.core.library.types.StringType;
+import org.eclipse.smarthome.core.thing.Channel;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingStatus;
@@ -56,8 +58,13 @@ public class NtpHandler extends BaseThingHandler {
     /** timeout for requests to the NTP server */
     private static final int NTP_TIMEOUT = 5000;
 
+    public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd HH:mm:ss z";
+
     /** for logging purposes */
-    private final DateFormat SDF = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.FULL, SimpleDateFormat.FULL);
+    private final DateFormat SDF = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
+
+    /** for publish purposes */
+    private DateFormat dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
 
     private final LocaleProvider localeProvider;
 
@@ -80,6 +87,7 @@ public class NtpHandler extends BaseThingHandler {
     private long timeOffset;
 
     private ChannelUID dateTimeChannelUID;
+    private ChannelUID stringChannelUID;
 
     public NtpHandler(final Thing thing, final LocaleProvider localeProvider) {
         super(thing);
@@ -120,6 +128,24 @@ public class NtpHandler extends BaseThingHandler {
                 logger.debug("{} using default locale: {}", getThing().getUID().toString(), locale);
             }
             dateTimeChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_DATE_TIME);
+            stringChannelUID = new ChannelUID(getThing().getUID(), CHANNEL_STING);
+            try {
+                Channel stringChannel = getThing().getChannel(stringChannelUID.getId());
+                Configuration cfg = stringChannel.getConfiguration();
+                String dateTimeFormatString = (String) cfg.get(PROPERTY_DATE_TIME_FORMAT);
+                if (dateTimeFormatString == null || dateTimeFormatString.isEmpty()) {
+                    dateTimeFormat = new SimpleDateFormat(dateTimeFormatString);
+                    logger.debug("Could not format {} with DateFormat '{}', using default format.",
+                            getThing().getUID().toString(), dateTimeFormatString);
+                }
+            } catch (Exception ex) {
+                logger.debug("No channel config or invalid format for {}. Using default format. ({})", stringChannelUID,
+                        ex.getMessage());
+                dateTimeFormat = new SimpleDateFormat(DATE_PATTERN_WITH_TZ);
+            }
+            SDF.setTimeZone(timeZone);
+            dateTimeFormat.setTimeZone(timeZone);
+
             logger.debug(
                     "Initialized NTP handler '{}' with configuration: host '{}', refresh interval {}, timezone {}, locale {}.",
                     getThing().getUID().toString(), hostname, refreshInterval, timeZone, locale);
@@ -171,6 +197,7 @@ public class NtpHandler extends BaseThingHandler {
         calendar.setTimeInMillis(networkTimeInMillis);
 
         updateState(dateTimeChannelUID, new DateTimeType(calendar));
+        updateState(stringChannelUID, new StringType(dateTimeFormat.format(calendar.getTime())));
     }
 
     /**
@@ -190,7 +217,7 @@ public class NtpHandler extends BaseThingHandler {
             InetAddress inetAddress = InetAddress.getByName(hostname);
             TimeInfo timeInfo = timeClient.getTime(inetAddress);
 
-            logger.debug("{} Got time update from: {}", getThing().getUID().toString(), hostname,
+            logger.debug("{} Got time update from: {} : {}", getThing().getUID().toString(), hostname,
                     SDF.format(new Date(timeInfo.getReturnTime())));
             updateStatus(ThingStatus.ONLINE, ThingStatusDetail.NONE);
             return timeInfo.getReturnTime();
