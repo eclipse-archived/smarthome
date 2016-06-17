@@ -188,12 +188,13 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     private String getCategory(Channel channel) {
-        ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
-        if (channelType != null) {
-            return channelType.getCategory();
-        } else {
-            return null;
+        if (channel.getChannelTypeUID() != null) {
+            ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), localeProvider.getLocale());
+            if (channelType != null) {
+                return channelType.getCategory();
+            }
         }
+        return null;
     }
 
     private String getLabel(Channel channel) {
@@ -201,9 +202,11 @@ public class ChannelItemProvider implements ItemProvider {
             return channel.getLabel();
         } else {
             final Locale locale = localeProvider.getLocale();
-            final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
-            if (channelType != null) {
-                return channelType.getLabel();
+            if (channel.getChannelTypeUID() != null) {
+                final ChannelType channelType = TypeResolver.resolve(channel.getChannelTypeUID(), locale);
+                if (channelType != null) {
+                    return channelType.getLabel();
+                }
             }
         }
         return null;
