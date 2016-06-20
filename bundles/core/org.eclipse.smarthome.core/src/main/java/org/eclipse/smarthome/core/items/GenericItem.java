@@ -17,7 +17,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ExecutorService;
 
+import org.eclipse.smarthome.core.common.ThreadPoolManager;
 import org.eclipse.smarthome.core.events.EventPublisher;
 import org.eclipse.smarthome.core.items.events.ItemEventFactory;
 import org.eclipse.smarthome.core.types.Command;
@@ -26,6 +28,8 @@ import org.eclipse.smarthome.core.types.State;
 import org.eclipse.smarthome.core.types.StateDescription;
 import org.eclipse.smarthome.core.types.StateDescriptionProvider;
 import org.eclipse.smarthome.core.types.UnDefType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -42,6 +46,10 @@ import com.google.common.collect.ImmutableSet;
  *
  */
 abstract public class GenericItem implements ActiveItem {
+
+    private final Logger logger = LoggerFactory.getLogger(GenericItem.class);
+
+    private static final String ITEM_THREADPOOLNAME = "items";
 
     protected EventPublisher eventPublisher;
 
@@ -208,17 +216,26 @@ abstract public class GenericItem implements ActiveItem {
         internalSend(command);
     }
 
-    protected void notifyListeners(State oldState, State newState) {
+    protected void notifyListeners(final State oldState, final State newState) {
         // if nothing has changed, we send update notifications
         Set<StateChangeListener> clonedListeners = null;
         clonedListeners = new CopyOnWriteArraySet<StateChangeListener>(listeners);
-        for (StateChangeListener listener : clonedListeners) {
-            listener.stateUpdated(this, newState);
-        }
-        if (newState != null && !newState.equals(oldState)) {
-            for (StateChangeListener listener : clonedListeners) {
-                listener.stateChanged(this, oldState, newState);
-            }
+        ExecutorService pool = ThreadPoolManager.getPool(ITEM_THREADPOOLNAME);
+        for (final StateChangeListener listener : clonedListeners) {
+            pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        listener.stateUpdated(GenericItem.this, newState);
+                        if (newState != null && !newState.equals(oldState)) {
+                            listener.stateChanged(GenericItem.this, oldState, newState);
+                        }
+                    } catch (Exception e) {
+                        logger.warn("failed notifying listener '{}' about state update of item {}: {}",
+                                new Object[] { listener.toString(), GenericItem.this.getName(), e.getMessage() }, e);
+                    }
+                }
+            });
         }
     }
 
