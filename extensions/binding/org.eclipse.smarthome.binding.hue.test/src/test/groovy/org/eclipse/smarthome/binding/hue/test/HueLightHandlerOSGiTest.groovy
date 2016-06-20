@@ -60,9 +60,9 @@ class HueLightHandlerOSGiTest extends OSGiTest {
     private static final int COLOR_TEMPERATURE_RANGE = MAX_COLOR_TEMPERATURE - MIN_COLOR_TEMPERATURE;
 
     final ThingTypeUID BRIDGE_THING_TYPE_UID = new ThingTypeUID("hue", "bridge")
-    final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "extended_color_light")
-    final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "dimmable_light")
-    final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "color_temperature_light")
+    final ThingTypeUID COLOR_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0210")
+    final ThingTypeUID LUX_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0100")
+    final ThingTypeUID OSRAM_PAR16_LIGHT_THING_TYPE_UID = new ThingTypeUID("hue", "0220")
     final String OSRAM_MODEL_TYPE = "PAR16 50 TW"
     final String OSRAM_MODEL_TYPE_ID = "PAR16_50_TW"
 
@@ -149,6 +149,69 @@ class HueLightHandlerOSGiTest extends OSGiTest {
         }, 10000)
 
         thingRegistry.forceRemove(hueBridge.getUID())
+    }
+
+    @Test
+    void 'assert that HueLightHandler status detail is set to bridge offline when the bridge is offline'() {
+        Bridge hueBridge = createBridge()
+
+        HueLightHandler hueLightHandler = getService(ThingHandler, HueLightHandler)
+        assertThat hueLightHandler, is(nullValue())
+
+        Thing hueLight = createLight(hueBridge, COLOR_LIGHT_THING_TYPE_UID)
+
+        try {
+            // wait for HueLightHandler to be registered
+            waitForAssert({
+                hueLightHandler = getService(ThingHandler, HueLightHandler)
+                assertThat hueLightHandler, is(notNullValue())
+            }, 10000)
+
+            def AsyncResultWrapper<String> addressWrapper = new AsyncResultWrapper<String>()
+            def AsyncResultWrapper<String> bodyWrapper = new AsyncResultWrapper<String>()
+
+            MockedHttpClient mockedHttpClient =  [
+                put: { String address, String body ->
+                    addressWrapper.set(address)
+                    bodyWrapper.set(body)
+                    new Result("", 200)
+                },
+                get: { String address ->
+                    if (address.endsWith("testUserName/")) {
+                        new Result(new HueLightState().toString(), 200)
+                    }
+                }
+            ] as MockedHttpClient
+
+            HueBridgeHandler hueBridgeHandler = hueLightHandler.getHueBridgeHandler()
+            installHttpClientMock(hueBridgeHandler, mockedHttpClient)
+
+            assertBridgeOnline(hueLightHandler.getBridge())
+            hueLightHandler.initialize()
+
+            waitForAssert({
+                assertThat(hueLight.getStatus(), is(ThingStatus.ONLINE))
+            }, 10000)
+
+            hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+
+            assertThat(hueBridge.getStatus(), is(ThingStatus.OFFLINE))
+            assertThat(hueBridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
+            waitForAssert({
+                assertThat(hueLight.getStatus(),  is(ThingStatus.OFFLINE))
+            }, 10000)
+            waitForAssert({
+                assertThat(hueLight.getStatusInfo().getStatusDetail(), is(ThingStatusDetail.BRIDGE_OFFLINE))
+            }, 10000)
+
+        } finally {
+            thingRegistry.forceRemove(hueLight.getUID())
+            thingRegistry.forceRemove(hueBridge.getUID())
+            waitForAssert({
+                assertThat thingRegistry.get(hueLight.getUID()), is(nullValue())
+                assertThat thingRegistry.get(hueBridge.getUID()), is(nullValue())
+            }, 10000)
+        }
     }
 
     @Test

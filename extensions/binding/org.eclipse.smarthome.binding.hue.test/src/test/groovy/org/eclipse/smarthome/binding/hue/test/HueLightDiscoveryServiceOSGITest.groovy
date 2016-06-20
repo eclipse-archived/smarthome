@@ -115,7 +115,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
         FullLight light = FullLight.class.newInstance()
         light.id = "1"
         light.modelid = "LCT001"
-        light.type = "extended_color_light"
+        light.type = "Extended color light"
 
         def AsyncResultWrapper<DiscoveryResult> resultWrapper = new AsyncResultWrapper<DiscoveryResult>()
         registerDiscoveryListener( [

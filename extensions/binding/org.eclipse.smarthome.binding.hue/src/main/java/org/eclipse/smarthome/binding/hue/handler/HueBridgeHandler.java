@@ -89,7 +89,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                     FullConfig fullConfig = bridge.getFullConfig();
                     if (!lastBridgeConnectionState) {
                         lastBridgeConnectionState = tryResumeBridgeConnection();
-                    } 
+                    }
                     if (lastBridgeConnectionState) {
                         Map<String, FullLight> lastLightStateCopy = new HashMap<>(lastLightStates);
                         for (final FullLight fullLight : fullConfig.getLights()) {
@@ -260,7 +260,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      */
     public void onConnectionLost(HueBridge bridge) {
         logger.debug("Bridge connection lost. Updating thing status to OFFLINE.");
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.OFFLINE.BRIDGE_OFFLINE);
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE);
     }
 
     /**
@@ -279,10 +279,10 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
         }
     }
-    
+
     /**
      * Check USER_NAME config for null. Call onConnectionResumed() otherwise.
-     * 
+     *
      * @return True if USER_NAME was not null.
      */
     private boolean tryResumeBridgeConnection() {
@@ -433,10 +433,10 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             }
         }
     }
-    
+
     /**
      * Iterate through lightStatusListeners and notify them about a changed ot added light state.
-     * 
+     *
      * @param fullLight
      * @param type Can be "changed" if just a state has changed or "added" if this is a new light on the bridge.
      */
@@ -468,7 +468,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
      * the light does not support color mode and the common properties equality is our result: true. Otherwise if no NPE
      * occurs
      * the equality of colorMode is our result.
-     * 
+     *
      * @param state1 Reference state
      * @param state2 State which is checked for equality.
      * @return True if the available informations of both states are equal.

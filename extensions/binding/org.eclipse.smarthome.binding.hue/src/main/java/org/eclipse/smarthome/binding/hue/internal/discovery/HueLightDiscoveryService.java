@@ -26,6 +26,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+
 import nl.q42.jue.FullLight;
 import nl.q42.jue.HueBridge;
 
@@ -43,6 +45,15 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
     private final static int SEARCH_TIME = 60;
+
+    // @formatter:off
+    private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
+            .put("on_off_light", "0000")
+            .put("dimmable_light", "0100")
+            .put("color_light", "0200")
+            .put("extended_color_light", "0210")
+            .put("color_temperature_light", "0220").build();
+    // @formatter:on
 
     private HueBridgeHandler hueBridgeHandler;
 
@@ -91,12 +102,12 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
     private void onLightAddedInternal(FullLight light) {
         ThingUID thingUID = getThingUID(light);
-        if (thingUID != null) {
+        ThingTypeUID thingTypeUID = getThingTypeUID(light);
+
+        if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LIGHT_ID, light.getId());
-
-            ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
             /*
              * TODO retrieve the light´s unique id (available since Hue bridge versions > 1.3) and set the mac address
@@ -130,7 +141,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
-        if (getSupportedThingTypes().contains(thingTypeUID)) {
+        if (thingTypeUID != null && getSupportedThingTypes().contains(thingTypeUID)) {
             String thingLightId = light.getId();
             ThingTypeUID modelUID = new ThingTypeUID(BINDING_ID,
                     light.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_"));
@@ -142,7 +153,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     }
 
     private ThingTypeUID getThingTypeUID(FullLight light) {
-        return new ThingTypeUID(BINDING_ID,
-                light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
+        String thingTypeId = TYPE_TO_ZIGBEE_ID_MAP
+                .get(light.getType().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_").toLowerCase());
+        return thingTypeId != null ? new ThingTypeUID(BINDING_ID, thingTypeId) : null;
     }
 }

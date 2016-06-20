@@ -22,11 +22,11 @@ The hue binding supports all five types of lights of the Hue system: [Supported 
 
 | Light type | ZigBee Device ID | Thing type |
 |------------|------------------|------------|
-| On/off light | 0x0000 | on_off_light |
-| Dimmable light | 0x0100 | dimmable_light |
-| Color temperature light | 0x0220 | color_temperature_light | 
-| Color light | 0x0200 | color_light | 
-| Extended Color light | 0x0210 | extended_color_light |
+| On/off light | 0x0000 | 0000 |
+| Dimmable light | 0x0100 | 0100 |
+| Color temperature light | 0x0220 | 0220 | 
+| Color light | 0x0200 | 0200 | 
+| Extended Color light | 0x0210 | 0210 |
 
 All different models of Hue or Osram bulbs nicely fit into one of these five categories. 
 
@@ -51,7 +51,7 @@ Bridge hue:bridge:1 [ ipAddress="192.168.0.64", userName="qwertzuiopasdfghjklyxc
 The bulbs are identified by the number that the Hue bridge assigns to them (also shown in the Hue app as an identifier).
 Thus, all if needs for manual configuration is this single value like
 ```
-extended_color_light bulb1 [ lightId="1" ]
+0210 bulb1 [ lightId="1" ]
 ```
 
 ## Channels
@@ -60,11 +60,11 @@ All devices support some of the following channels:
 
 | Channel Type ID | Item Type    | Description  | Thing types supporting this channel | 
 |-----------------|------------------------|--------------|----------------- |------------- |---------|
-| color | Color       | This channel supports full color control with hue, saturation and brightness values. | color_light, extendend_color_light | 
-| brightness | Dimmer       | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported. | dimmable_light, color_light, extended_color_light, color_temperature_light | 
-| color_temperature | Dimmer       | This channel supports adjusting the color temperature from cold (0%) to warm (100%) | extended_color_light, color_temperature_light |
-| alert | Option | This channel supports displaying alerts by flashing the bulb either once opr multiple times. Valid options are: None, Alert, Long Alert | on_off_light, dimmable_light, color_light, extended_color_light, color_temperature_light |
-| effect | Switch | This channel supports color looping. | color_light, extended_color_light, color_temperature_light |
+| color | Color       | This channel supports full color control with hue, saturation and brightness values. | 0200, 0210 | 
+| brightness | Dimmer       | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported. | 0100, 0200, 0210, 0220 | 
+| color_temperature | Dimmer       | This channel supports adjusting the color temperature from cold (0%) to warm (100%) | 0210, 0220 |
+| alert | Option | This channel supports displaying alerts by flashing the bulb either once opr multiple times. Valid options are: None, Alert, Long Alert | 0000, 0100, 0200, 0210, 0220 |
+| effect | Switch | This channel supports color looping. | 0200, 0210, 0220 |
 
 ## Full Example
 
@@ -72,15 +72,15 @@ demo.things:
 
 ```
 Bridge hue:bridge:1 [ ipAddress="192.168.0.64" ] {
-	extendend_color_light bulb1 [ lightId="1" ]
+	0210 bulb1 [ lightId="1" ]
 }
 ```
 
 demo.items:
 
 ```
-Color Light { channel="hue:extended_color_light:1:bulb1:color" }
-Dimmer Light_ColorTemp { channel="hue:extended_color_light:1:bulb1:color_temperature" }
+Color Light { channel="hue:0210:1:bulb1:color" }
+Dimmer Light_ColorTemp { channel="hue:0210:1:bulb1:color_temperature" }
 ```
 
 demo.sitemap:
