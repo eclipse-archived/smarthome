@@ -129,6 +129,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.element = 'textarea';
                         parameter.inputType = 'text';
                         parameter.label = parameter.label && parameter.label.length > 0 ? parameter.label : 'Script';
+                    } else {
+                        parameter.element = 'input';
+                        parameter.inputType = 'text';
                     }
                 } else if (parameter.type.toUpperCase() === 'TEXT') {
                     if (parameter.options && parameter.options.length > 0) {
