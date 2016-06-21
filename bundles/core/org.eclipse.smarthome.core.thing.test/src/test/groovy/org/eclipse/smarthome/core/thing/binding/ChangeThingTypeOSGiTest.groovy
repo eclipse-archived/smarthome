@@ -333,8 +333,10 @@ class ChangeThingTypeOSGiTest extends OSGiTest {
         assertThat handlerOsgiService2, is(thing.getHandler())
 
         // Ensure it's initialized
-        assertThat(specificInits, is(1))
-        assertThat(genericInits, is(0))
+        waitForAssert {
+            assertThat(specificInits, is(1))
+            assertThat(genericInits, is(0))
+        }
 
         // Ensure the Thing is ONLINE again
         assertThat thing.getStatus(), is(ThingStatus.ONLINE)
