@@ -376,7 +376,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
         getThingChannels : function(thing, thingType, channelTypes, advanced) {
             var thingChannels = [];
             var includedChannels = [];
-            if (thingType.channelGroups && thingType.channelGroups.length > 0) {
+            if (thingType && thingType.channelGroups && thingType.channelGroups.length > 0) {
                 for (var i = 0; i < thingType.channelGroups.length; i++) {
                     var group = {};
                     group.name = thingType.channelGroups[i].label;
