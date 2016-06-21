@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package org.eclipse.smarthome.core.items; 
+package org.eclipse.smarthome.core.items;
 
 import java.util.List;
 
@@ -13,13 +13,13 @@ import org.eclipse.smarthome.core.types.Command;
 import org.eclipse.smarthome.core.types.State;
 
 /**
- * {@link GenericItem} implementation used for testing. 
+ * {@link GenericItem} implementation used for testing.
  *
  * @author Christoph Knauf - Initial contribution
  */
 public class TestItem extends GenericItem {
 
-    public TestItem( String name) {
+    public TestItem(String name) {
         super("Test", name);
     }
 
