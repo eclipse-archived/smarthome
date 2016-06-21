@@ -95,12 +95,12 @@ class GroupItemTest extends OSGiTest {
         //State changes -> one change event is fired
         member.setState(new RawType())
 
-        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
-
         waitForAssert {
             assertThat events.size(), is(1)
-            assertThat changes.size(), is(1)
         }
+
+        def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
+        assertThat changes.size(), is(1)
 
         def change = changes.getAt(0) as GroupItemStateChangedEvent
         assertTrue change.getItemName().equals(groupItem.getName())
