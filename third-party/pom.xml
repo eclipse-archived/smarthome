@@ -54,6 +54,11 @@
                   <id>net.minidev:json-smart:2.1.1</id>
                   <transitive>false</transitive>
                 </artifact>
+                <artifact>
+                  <!-- https://dev.eclipse.org/ipzilla/show_bug.cgi?id=11322 -->
+                  <id>org.mapdb:mapdb:1.0.9</id>
+                  <transitive>false</transitive>
+                </artifact>
               </artifacts>
             </configuration>
           </execution>
