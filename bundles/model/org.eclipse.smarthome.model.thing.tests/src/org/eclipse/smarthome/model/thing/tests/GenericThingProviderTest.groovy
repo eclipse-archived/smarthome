@@ -50,7 +50,7 @@ class GenericThingProviderTest extends OSGiTest {
 
         String model =
                 '''
-			Bridge hue:bridge:myBridge [ ip = "1.2.3.4", username = "123" ] {
+			Bridge hue:bridge:myBridge @ "basement" [ ip = "1.2.3.4", username = "123" ] {
 				LCT001 bulb1 [ lightId = "1" ] { Switch : notification }
 				Bridge bridge myBridge2 [ ] {
 					LCT001 bulb2 [ ]
@@ -60,7 +60,7 @@ class GenericThingProviderTest extends OSGiTest {
                 Switch : notification [ duration = "5" ]
             }
 
-			hue:LCT001:bulb3 [ lightId = "4" ] {
+			hue:LCT001:bulb3 @ "livingroom" [ lightId = "4" ] {
 				Switch : notification [ duration = "5" ]
 			}
 			'''
@@ -81,6 +81,7 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat bridge1.configuration.get("ip"), is("1.2.3.4")
         assertThat bridge1.configuration.get("username"), is("123")
         assertThat bridge1.thingTypeUID.toString(), is("hue:bridge")
+        assertThat bridge1.location, is("basement")
 
         def bridge2 = actualThings.find {
             "hue:bridge:myBridge:myBridge2".equals(it.UID.toString())
@@ -142,6 +143,7 @@ class GenericThingProviderTest extends OSGiTest {
         assertThat bulb3.configuration.values().size(), is(1)
         assertThat bulb3.configuration.get("lightId"), is("4")
         assertThat bulb3.thingTypeUID.toString(), is("hue:LCT001")
+        assertThat bulb3.location, is("livingroom")
     }
 
     @Test

@@ -139,6 +139,8 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         val thingType = thingTypeUID.thingType
 
         val label = if(modelThing.label != null) modelThing.label else thingType?.label
+        
+        val location = modelThing.location
 
         val thingFromHandler = getThingFromThingHandlerFactories(thingTypeUID, label, configuration, thingUID,
             bridgeUID, thingHandlerFactory)
@@ -152,6 +154,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         thingBuilder.withConfiguration(configuration)
         thingBuilder.withBridge(bridgeUID)
         thingBuilder.withLabel(label)
+        thingBuilder.withLocation(location)
 
         val channels = createChannels(thingTypeUID, thingUID, modelThing.channels,
             thingType?.channelDefinitions ?: newArrayList)
@@ -229,7 +232,7 @@ class GenericThingProvider extends AbstractProvider<Thing> implements ThingProvi
         targetThing.bridgeUID = sourceThing.bridgeUID
         targetThing.configuration.merge(sourceThing.configuration)
         targetThing.merge(sourceThing.channels)
-
+        targetThing.location = sourceThing.location
     }
 
     def dispatch void merge(Configuration target, Configuration source) {

@@ -22,7 +22,7 @@ import org.eclipse.smarthome.core.thing.binding.ThingHandler;
  *
  * @author Dennis Nobel - Initial contribution and API
  * @author Thomas Höfer - Added thing and thing type properties
- * @author Simon Kaufmann - Added label
+ * @author Simon Kaufmann - Added label, location
  * @author Kai Kreuzer - Removed linked items from Thing
  */
 public interface Thing {
@@ -176,4 +176,20 @@ public interface Thing {
      * @param properties the properties to set (must not be null)
      */
     void setProperties(Map<String, String> properties);
+
+    /**
+     * Get the physical location of the {@link Thing}.
+     *
+     * @return the location identifier (presumably an item name) or <code>null</code> if no location has been
+     *         configured.
+     */
+    String getLocation();
+
+    /**
+     * Set the physical location of the {@link Thing}.
+     *
+     * @param location the location identifier (preferably an item name) or <code>null</code> if no location has been
+     *            configured.
+     */
+    void setLocation(String location);
 }
