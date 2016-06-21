@@ -43,7 +43,7 @@ public class LocaleProviderImpl implements LocaleProvider {
 
         if (StringUtils.isEmpty(language)) {
             // if no language is set, skip new locale...
-            logger.info("LOCALE: no language is set, keep old: {}", locale);
+            logger.debug("No language set, keeping {} as locale", locale);
             return;
         }
 
@@ -77,7 +77,7 @@ public class LocaleProviderImpl implements LocaleProvider {
         }
 
         locale = builder.build();
-        logger.info("LOCALE: new locale set: {}", locale);
+        logger.info("Locale set to {}", locale);
     }
 
     @Override
