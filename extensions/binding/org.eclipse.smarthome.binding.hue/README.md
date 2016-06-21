@@ -20,13 +20,13 @@ Almost all available Hue devices are supported by this binding. This includes no
 
 The hue binding supports all five types of lights of the Hue system: [Supported lights](http://www.developers.meethue.com/documentation/supported-lights). These are: 
 
-| Light type | ZigBee Device ID | Thing type |
-|------------|------------------|------------|
-| On/off light | 0x0000 | 0000 |
-| Dimmable light | 0x0100 | 0100 |
-| Color temperature light | 0x0220 | 0220 | 
-| Color light | 0x0200 | 0200 | 
-| Extended Color light | 0x0210 | 0210 |
+| Light type              | ZigBee Device ID | Thing type |
+|-------------------------|------------------|------------|
+| On/off light            | 0x0000           | 0000       |
+| Dimmable light          | 0x0100           | 0100       |
+| Color light             | 0x0200           | 0200       | 
+| Extended Color light    | 0x0210           | 0210       |
+| Color temperature light | 0x0220           | 0220       | 
 
 All different models of Hue or Osram bulbs nicely fit into one of these five categories. 
 
@@ -58,13 +58,13 @@ Thus, all if needs for manual configuration is this single value like
 
 All devices support some of the following channels:
 
-| Channel Type ID | Item Type    | Description  | Thing types supporting this channel | 
-|-----------------|------------------------|--------------|----------------- |------------- |---------|
-| color | Color       | This channel supports full color control with hue, saturation and brightness values. | 0200, 0210 | 
-| brightness | Dimmer       | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported. | 0100, 0200, 0210, 0220 | 
-| color_temperature | Dimmer       | This channel supports adjusting the color temperature from cold (0%) to warm (100%) | 0210, 0220 |
-| alert | Option | This channel supports displaying alerts by flashing the bulb either once opr multiple times. Valid options are: None, Alert, Long Alert | 0000, 0100, 0200, 0210, 0220 |
-| effect | Switch | This channel supports color looping. | 0200, 0210, 0220 |
+| Channel Type ID   | Item Type | Description                                                                                                                            | Thing types supporting this channel | 
+|-------------------|-----------|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| color             | Color     | This channel supports full color control with hue, saturation and brightness values.                                                   | 0200, 0210                          |  
+| brightness        | Dimmer    | This channel supports adjusting the brightness value. Note that this is not available, if the color channel is supported.              | 0100, 0220                          | 
+| color_temperature | Dimmer    | This channel supports adjusting the color temperature from cold (0%) to warm (100%)                                                    | 0210, 0220                          |
+| alert             | String    | This channel supports displaying alerts by flashing the bulb either once or multiple times. Valid values are: NONE, SELECT and LSELECT | 0000, 0100, 0200, 0210, 0220        |
+| effect            | Switch    | This channel supports color looping.                                                                                                   | 0200, 0210, 0220                    |
 
 ## Full Example
 

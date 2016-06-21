@@ -70,13 +70,27 @@ public class ThingUID extends UID {
     /**
      * Instantiates a new thing UID.
      *
-     * @param binding
-     *            the thing type
+     * @param bindingId
+     *            the binding id
      * @param id
      *            the id
      */
     public ThingUID(String bindingId, String id) {
         super(bindingId, NO_THING_TYPE, id);
+    }
+
+    /**
+     * Instantiates a new thing UID.
+     *
+     * @param bindingId
+     *            the binding id
+     * @param bridgeUID
+     *            the bridge UID through which the thing is accessed
+     * @param id
+     *            the id
+     */
+    public ThingUID(String bindingId, ThingUID bridgeUID, String id) {
+        super(getArray(bindingId, NO_THING_TYPE, id, bridgeUID.getBridgeIds(), bridgeUID.getId()));
     }
 
     private static String[] getArray(String bindingId, String thingTypeId, String id, String... bridgeIds) {

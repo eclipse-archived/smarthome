@@ -49,8 +49,7 @@ import nl.q42.jue.StateUpdate;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0
- *         - changed to support generic thing types
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
@@ -104,18 +103,29 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             if (getHueBridgeHandler() != null) {
                 ThingStatusInfo statusInfo = getBridge().getStatusInfo();
                 updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
-                FullLight fullLight = getLight();
-                if (fullLight != null) {
-                    String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
-                    updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
-                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                    String vendor = getVendor(modelId);
-                    if (vendor != null) {
-                        updateProperty(Thing.PROPERTY_VENDOR, vendor);
-                    }
-                    isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
-                }
+                updateProperties();
             }
+        }
+    }
+
+    private void updateProperties() {
+        FullLight fullLight = getLight();
+        if (fullLight != null) {
+            String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
+            updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
+            updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
+            String vendor = getVendor(modelId);
+            if (vendor != null) {
+                updateProperty(Thing.PROPERTY_VENDOR, vendor);
+            }
+            isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
+        }
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
+            updateProperties();
         }
     }
 

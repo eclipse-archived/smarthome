@@ -135,7 +135,7 @@ class HueLightDiscoveryServiceOSGITest extends OSGiTest {
 
         resultWrapper.wrappedObject.with {
             assertThat flag, is (DiscoveryResultFlag.NEW)
-            assertThat thingUID.toString(), is("hue:LCT001:testBridge:" + light.id)
+            assertThat thingUID.toString(), is("hue::testBridge:" + light.id)
             assertThat thingTypeUID, is (THING_TYPE_EXTENDED_COLOR_LIGHT)
             assertThat bridgeUID, is(hueBridge.getUID())
             assertThat properties.get(LIGHT_ID), is (light.id)

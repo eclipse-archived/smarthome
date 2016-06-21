@@ -36,8 +36,7 @@ import nl.q42.jue.HueBridge;
  * to a paired hue bridge. The default search time for hue is 60 seconds.
  *
  * @author Kai Kreuzer - Initial contribution
- * @author Andre Fuechsel - changed search timeout
- *         - changed discovery result creation to support generic thing types
+ * @author Andre Fuechsel - changed search timeout, changed discovery result creation to support generic thing types
  * @author Thomas Höfer - Added representation
  */
 public class HueLightDiscoveryService extends AbstractDiscoveryService implements LightStatusListener {
@@ -142,11 +141,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
         if (thingTypeUID != null && getSupportedThingTypes().contains(thingTypeUID)) {
-            String thingLightId = light.getId();
-            ThingTypeUID modelUID = new ThingTypeUID(BINDING_ID,
-                    light.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_"));
-            ThingUID thingUID = new ThingUID(modelUID, bridgeUID, thingLightId);
-            return thingUID;
+            return new ThingUID(BINDING_ID, bridgeUID, light.getId());
         } else {
             return null;
         }
