@@ -244,6 +244,7 @@
   <feature name="esh-storage-mapdb" version="${project.version}">
     <feature>esh-base</feature>
     <bundle>mvn:org.eclipse.smarthome.storage/org.eclipse.smarthome.storage.mapdb/${project.version}</bundle>
+    <bundle dependency="true">mvn:org.mapdb/mapdb/1.0.9</bundle>
   </feature>
 
   <feature name="esh-transform-exec" description="Exec Transformation" version="${project.version}">

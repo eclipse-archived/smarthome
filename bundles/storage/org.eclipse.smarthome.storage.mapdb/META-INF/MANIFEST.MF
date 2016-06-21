@@ -12,6 +12,7 @@ Import-Package: com.google.gson,
  com.google.gson.stream,
  org.eclipse.smarthome.config.core,
  org.eclipse.smarthome.core.storage,
+ org.mapdb,
  org.osgi.framework,
  org.osgi.service.cm,
  org.osgi.service.event,
@@ -19,6 +20,5 @@ Import-Package: com.google.gson,
 Bundle-SymbolicName: org.eclipse.smarthome.storage.mapdb;singleton:=true
 Bundle-DocURL: http://www.openhab.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-ClassPath: .,
- lib/mapdb-1.0.9.jar
+Bundle-ClassPath: .
 Service-Component: OSGI-INF/*.xml
