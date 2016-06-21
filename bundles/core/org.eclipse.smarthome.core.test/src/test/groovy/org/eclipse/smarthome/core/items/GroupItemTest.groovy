@@ -10,32 +10,27 @@ package org.eclipse.smarthome.core.items
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 
-import java.util.Set
-import javax.management.InstanceOfQueryExp
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
-import org.eclipse.smarthome.core.events.EventSubscriber
 import org.eclipse.smarthome.core.items.events.GroupItemStateChangedEvent
 import org.eclipse.smarthome.core.items.events.ItemEventFactory
 import org.eclipse.smarthome.core.library.items.NumberItem
 import org.eclipse.smarthome.core.library.items.SwitchItem
 import org.eclipse.smarthome.core.library.types.RawType
-import org.eclipse.smarthome.core.types.Command
 import org.eclipse.smarthome.core.types.RefreshType
-import org.eclipse.smarthome.core.types.State
-import org.eclipse.smarthome.core.types.UnDefType
+import org.eclipse.smarthome.test.OSGiTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
 
 /**
- * The GroupItemTest tests functionality of the GroupItem.  
- * 
+ * The GroupItemTest tests functionality of the GroupItem.
+ *
  * @author Dennis Nobel - Initial contribution
- * @author Christoph Knauf - event tests  
+ * @author Christoph Knauf - event tests
  */
-class GroupItemTest {
+class GroupItemTest extends OSGiTest {
 
     List<Event> events = []
     EventPublisher publisher
@@ -102,8 +97,10 @@ class GroupItemTest {
 
         def changes = events.findAll{it instanceof GroupItemStateChangedEvent}
 
-        assertThat events.size(), is(1)
-        assertThat changes.size(), is(1)
+        waitForAssert {
+            assertThat events.size(), is(1)
+            assertThat changes.size(), is(1)
+        }
 
         def change = changes.getAt(0) as GroupItemStateChangedEvent
         assertTrue change.getItemName().equals(groupItem.getName())
