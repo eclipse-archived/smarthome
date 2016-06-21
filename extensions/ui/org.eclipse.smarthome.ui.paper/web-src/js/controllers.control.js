@@ -92,7 +92,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     }
 
     $scope.getThingsForTab = function(tabName) {
-        $scope.things = thingService.getAll();
+        // todo: filter things for tabs here
     }
 
     $scope.getItemsForTab = function(tabName) {
