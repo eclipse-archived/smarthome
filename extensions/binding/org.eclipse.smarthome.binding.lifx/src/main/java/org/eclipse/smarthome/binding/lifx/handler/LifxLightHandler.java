@@ -63,6 +63,7 @@ import org.eclipse.smarthome.core.thing.ThingStatus;
 import org.eclipse.smarthome.core.thing.ThingStatusDetail;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
 import org.eclipse.smarthome.core.types.Command;
+import org.eclipse.smarthome.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,8 +168,7 @@ public class LifxLightHandler extends BaseThingHandler {
                 try {
                     fadeTime = Long.parseLong(fadeCfg.toString());
                 } catch (NumberFormatException e) {
-                    logger.warn("Invalid value '{}' for transition time, using default instead.",
-                            fadeCfg.toString());
+                    logger.warn("Invalid value '{}' for transition time, using default instead.", fadeCfg.toString());
                 }
             }
 
@@ -230,34 +230,57 @@ public class LifxLightHandler extends BaseThingHandler {
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
 
-        try {
-            switch (channelUID.getId()) {
-                case CHANNEL_COLOR:
-                    if (command instanceof HSBType) {
-                        handleHSBCommand((HSBType) command);
-                        return;
-                    }
-                case CHANNEL_BRIGHTNESS:
-                    if (command instanceof PercentType) {
-                        handlePercentCommand((PercentType) command);
-                    } else if (command instanceof OnOffType) {
-                        handleOnOffCommand((OnOffType) command);
-                    } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
-                    }
-                    break;
-                case CHANNEL_TEMPERATURE:
-                    if (command instanceof PercentType) {
-                        handleTemperatureCommand((PercentType) command);
-                    } else if (command instanceof IncreaseDecreaseType) {
-                        handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
-                    }
-                    break;
-                default:
-                    break;
+        if (command instanceof RefreshType) {
+            GetLightPowerRequest powerPacket = new GetLightPowerRequest();
+            GetRequest colorPacket = new GetRequest();
+
+            try {
+                switch (channelUID.getId()) {
+                    case CHANNEL_COLOR:
+                    case CHANNEL_BRIGHTNESS:
+                        sendPacket(powerPacket);
+                        sendPacket(colorPacket);
+                        break;
+                    case CHANNEL_TEMPERATURE:
+                        sendPacket(colorPacket);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Error while refreshing a channel for the bulb: {}", ex.getMessage(), ex);
             }
-        } catch (Exception ex) {
-            logger.error("Error while updating bulb: {}", ex.getMessage(), ex);
+        } else {
+            try {
+                switch (channelUID.getId()) {
+                    case CHANNEL_COLOR:
+                        if (command instanceof HSBType) {
+                            handleHSBCommand((HSBType) command);
+                            return;
+                        }
+                        break;
+                    case CHANNEL_BRIGHTNESS:
+                        if (command instanceof PercentType) {
+                            handlePercentCommand((PercentType) command);
+                        } else if (command instanceof OnOffType) {
+                            handleOnOffCommand((OnOffType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
+                        }
+                        break;
+                    case CHANNEL_TEMPERATURE:
+                        if (command instanceof PercentType) {
+                            handleTemperatureCommand((PercentType) command);
+                        } else if (command instanceof IncreaseDecreaseType) {
+                            handleIncreaseDecreaseTemperatureCommand((IncreaseDecreaseType) command);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception ex) {
+                logger.error("Error while updating bulb: {}", ex.getMessage(), ex);
+            }
         }
     }
 
