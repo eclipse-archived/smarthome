@@ -105,9 +105,10 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
             redirectTo : '/control'
         });
     }
-    $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
     if (window.localStorage.getItem('paperui.language') == 'de') {
         $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez' ];
+    } else {
+        $mdDateLocaleProvider.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
     }
     $mdDateLocaleProvider.formatDate = function(date) {
         if (!date) {
