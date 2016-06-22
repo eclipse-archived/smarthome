@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Kai Kreuzer - Initial contribution and API
  * @author Markus Rathgeb - Add locale provider support
+ * @author Thomas Höfer - Changed service tracker constructor usage for locale provider tracker
  */
 public class RESTActivator implements BundleActivator {
 
@@ -65,7 +66,7 @@ public class RESTActivator implements BundleActivator {
     @Override
     public void start(BundleContext bc) throws Exception {
         context = bc;
-        localeProviderTracker = new ServiceTracker<>(context, LocaleProvider.class,
+        localeProviderTracker = new ServiceTracker<>(context, LocaleProvider.class.getName(),
                 new LocaleProviderServiceTrackerCustomizer(context));
         localeProviderTracker.open();
         logger.debug("REST API has been started.");
