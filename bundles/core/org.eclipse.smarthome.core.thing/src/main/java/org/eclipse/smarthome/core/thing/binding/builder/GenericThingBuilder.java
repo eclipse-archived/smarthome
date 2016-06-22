@@ -68,6 +68,11 @@ public class GenericThingBuilder<T extends GenericThingBuilder<T>> {
         return self();
     }
 
+    public T withLocation(String location) {
+        this.thing.setLocation(location);
+        return self();
+    }
+
     public Thing build() {
         return this.thing;
     }

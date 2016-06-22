@@ -56,6 +56,8 @@ public class ThingImpl implements Thing {
 
     private ThingTypeUID thingTypeUID;
 
+    private String location;
+
     transient volatile private ThingStatusInfo status = ThingStatusInfoBuilder
             .create(ThingStatus.UNINITIALIZED, ThingStatusDetail.NONE).build();
 
@@ -223,6 +225,16 @@ public class ThingImpl implements Thing {
     @Override
     public void setProperties(Map<String, String> properties) {
         this.properties = new HashMap<>(properties);
+    }
+
+    @Override
+    public String getLocation() {
+        return location;
+    }
+
+    @Override
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     @Override
