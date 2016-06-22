@@ -20,7 +20,6 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.internal.core.provider.i18n.ConfigDescriptionParameterI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleTypeI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
@@ -289,9 +288,8 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
                 defModuleType.getLabel(), locale);
         String ldescription = ModuleTypeI18nUtil.getLocalizedModuleTypeDescription(i18nProvider, bundle, uid,
                 defModuleType.getDescription(), locale);
-        List<ConfigDescriptionParameter> lconfigDescriptions = ConfigDescriptionParameterI18nUtil
-                .getLocalizedConfigurationDescription(i18nProvider, defModuleType.getConfigurationDescription(), bundle,
-                        uid, ModuleTypeI18nUtil.MODULE_TYPE, locale);
+        List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
+                defModuleType.getConfigurationDescription(), bundle, uid, ModuleTypeI18nUtil.MODULE_TYPE, locale);
         if (defModuleType instanceof ActionType) {
             return createLocalizedActionType((ActionType) defModuleType, bundle, uid, locale, lconfigDescriptions,
                     llabel, ldescription);

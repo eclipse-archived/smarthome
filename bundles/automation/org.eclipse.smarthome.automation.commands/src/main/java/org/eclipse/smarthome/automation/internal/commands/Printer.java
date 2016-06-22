@@ -446,13 +446,15 @@ public class Printer {
     }
 
     private static String getInputRecord(Input input) {
-        return "  name=\"" + input.getName() + "\", type=\"" + input.getType() + "\", "
+        return "  name=\"" + input.getName() + "\", label=\"" + input.getLabel() + "\", decription=\""
+                + input.getDescription() + "\", type=\"" + input.getType() + "\", "
                 + (input.isRequired() ? REQUIRED : NOT_REQUIRED)
                 + (input.getDefaultValue() != null ? "\", default=\"" + input.getDefaultValue() : "");
     }
 
     private static String getOutputRecord(Output output) {
-        return "  name=\"" + output.getName() + "\", type=\"" + output.getType() + "\"";
+        return "  name=\"" + output.getName() + "\", label=\"" + output.getLabel() + "\", decription=\""
+                + output.getDescription() + "\", type=\"" + output.getType() + "\"";
     }
 
     /**

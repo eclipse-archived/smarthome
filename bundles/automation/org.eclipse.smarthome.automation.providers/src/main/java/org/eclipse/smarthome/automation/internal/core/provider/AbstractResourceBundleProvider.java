@@ -9,12 +9,15 @@ package org.eclipse.smarthome.automation.internal.core.provider;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -26,6 +29,10 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.ParameterOption;
+import org.eclipse.smarthome.config.core.i18n.ConfigDescriptionI18nUtil;
 import org.eclipse.smarthome.core.i18n.I18nProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -419,6 +426,60 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             }
         }
         return null;
+    }
+
+    protected List<ConfigDescriptionParameter> getLocalizedConfigurationDescription(I18nProvider i18nProvider,
+            List<ConfigDescriptionParameter> config, Bundle bundle, String uid, String prefix, Locale locale) {
+        List<ConfigDescriptionParameter> configDescriptions = new ArrayList<ConfigDescriptionParameter>();
+        if (config != null) {
+            ConfigDescriptionI18nUtil util = new ConfigDescriptionI18nUtil(i18nProvider);
+            for (ConfigDescriptionParameter parameter : config) {
+                String parameterName = parameter.getName();
+                URI uri = null;
+                try {
+                    uri = new URI(prefix + ":" + uid + ".name");
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+                String llabel = parameter.getLabel();
+                if (llabel != null) {
+                    llabel = util.getParameterLabel(bundle, uri, parameterName, llabel, locale);
+                }
+                String ldescription = parameter.getDescription();
+                if (ldescription != null) {
+                    ldescription = util.getParameterDescription(bundle, uri, parameterName, ldescription, locale);
+                }
+                String lpattern = parameter.getPattern();
+                if (lpattern != null) {
+                    lpattern = util.getParameterPattern(bundle, uri, parameterName, lpattern, locale);
+                }
+                List<ParameterOption> loptions = parameter.getOptions();
+                if (loptions != null && !loptions.isEmpty()) {
+                    for (ParameterOption option : loptions) {
+                        String label = util.getParameterOptionLabel(bundle, uri, parameterName, option.getValue(),
+                                option.getLabel(), locale);
+                        option = new ParameterOption(option.getValue(), label);
+                    }
+                }
+                String lunitLabel = parameter.getUnitLabel();
+                if (lunitLabel != null) {
+                    lunitLabel = util.getParameterUnitLabel(bundle, uri, parameterName, parameter.getUnit(), lunitLabel,
+                            locale);
+                }
+                configDescriptions.add(ConfigDescriptionParameterBuilder.create(parameterName, parameter.getType())
+                        .withMinimum(parameter.getMinimum()).withMaximum(parameter.getMaximum())
+                        .withStepSize(parameter.getStepSize()).withPattern(lpattern)
+                        .withRequired(parameter.isRequired()).withMultiple(parameter.isMultiple())
+                        .withReadOnly(parameter.isReadOnly()).withContext(parameter.getContext())
+                        .withDefault(parameter.getDefault()).withLabel(llabel).withDescription(ldescription)
+                        .withFilterCriteria(parameter.getFilterCriteria()).withGroupName(parameter.getGroupName())
+                        .withAdvanced(parameter.isAdvanced()).withOptions(loptions)
+                        .withLimitToOptions(parameter.getLimitToOptions())
+                        .withMultipleLimit(parameter.getMultipleLimit()).withUnit(parameter.getUnit())
+                        .withUnitLabel(lunitLabel).build());
+            }
+        }
+        return configDescriptions;
     }
 
     /**
