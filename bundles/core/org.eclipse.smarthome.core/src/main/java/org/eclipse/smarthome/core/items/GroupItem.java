@@ -92,7 +92,16 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
+    /**
+     * Adds the given item to the members of this group item.
+     *
+     * @param item the item to be added (must not be null)
+     * @throws IllegalArgumentException if the given item is null
+     */
     public void addMember(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item must not be null!");
+        }
         members.add(item);
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
@@ -100,7 +109,16 @@ public class GroupItem extends GenericItem implements StateChangeListener {
         }
     }
 
+    /**
+     * Removes the given item from the members of this group item.
+     *
+     * @param item the item to be removed (must not be null)
+     * @throws IllegalArgumentException if the given item is null
+     */
     public void removeMember(Item item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item must not be null!");
+        }
         members.remove(item);
         if (item instanceof GenericItem) {
             GenericItem genericItem = (GenericItem) item;
