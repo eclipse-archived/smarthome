@@ -293,9 +293,15 @@ public class AutomationResourceBundlesEventQueue implements Runnable, BundleTrac
     private List<Bundle> returnHostBundles(Bundle fragment) {
         List<Bundle> hosts = new ArrayList<Bundle>();
         Bundle[] bundles = pkgAdmin.getHosts(fragment);
-        if (bundles != null) {
+        if (bundles != null && bundles.length > 0) {
             for (int i = 0; i < bundles.length; i++) {
                 hosts.add(bundles[i]);
+            }
+        } else {
+            for (Bundle host : hostFragmentMapping.keySet()) {
+                if (hostFragmentMapping.get(host).contains(fragment)) {
+                    hosts.add(host);
+                }
             }
         }
         return hosts;

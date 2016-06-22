@@ -20,7 +20,6 @@ import java.util.Set;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.internal.core.provider.i18n.ConfigDescriptionParameterI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.RuleTemplateI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
@@ -274,8 +273,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      */
     private boolean checkExistence(String uid) {
         if (templateRegistry != null && templateRegistry.get(uid) != null) {
-            logger.error("Rule Template with UID \"{}\" already exists! Failed to create a second with the same UID!", uid,
-                    new IllegalArgumentException());
+            logger.error("Rule Template with UID \"{}\" already exists! Failed to create a second with the same UID!",
+                    uid, new IllegalArgumentException());
             return true;
         }
         return false;
@@ -299,10 +298,9 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     defTemplate.getLabel(), locale);
             String ldescription = RuleTemplateI18nUtil.getLocalizedRuleTemplateDescription(i18nProvider, bundle, uid,
                     defTemplate.getDescription(), locale);
-            List<ConfigDescriptionParameter> lconfigDescriptions = ConfigDescriptionParameterI18nUtil
-                    .getLocalizedConfigurationDescription(i18nProvider,
-                            ((RuleTemplate) defTemplate).getConfigurationDescription(), bundle, uid,
-                            RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
+            List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
+                    ((RuleTemplate) defTemplate).getConfigurationDescription(), bundle, uid,
+                    RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
             List<Action> lactions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
                     ((RuleTemplate) defTemplate).getActions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
             List<Condition> lconditions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
