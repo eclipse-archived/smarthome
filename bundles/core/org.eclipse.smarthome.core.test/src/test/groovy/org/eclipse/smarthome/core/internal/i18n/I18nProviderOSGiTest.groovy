@@ -67,7 +67,7 @@ class I18nProviderOSGiTest extends OSGiTest {
         LocaleProviderImpl localeProvider = getService(LocaleProvider,LocaleProviderImpl)
         Map<String,String> localeCfg = new HashMap<>();
         localeCfg.putAt("language", "de");
-        localeCfg.putAt("country", "DE");
+        localeCfg.putAt("region", "DE");
         localeProvider.modified(localeCfg);
     }
 
