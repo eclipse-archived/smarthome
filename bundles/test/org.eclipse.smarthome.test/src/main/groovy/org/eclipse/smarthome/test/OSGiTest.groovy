@@ -173,7 +173,7 @@ abstract class OSGiTest {
             try {
                 assertion()
                 return
-            } catch(Error error) {
+            } catch(Error | NullPointerException error) {
                 waitingTime += sleepTime
                 sleep sleepTime
             }
