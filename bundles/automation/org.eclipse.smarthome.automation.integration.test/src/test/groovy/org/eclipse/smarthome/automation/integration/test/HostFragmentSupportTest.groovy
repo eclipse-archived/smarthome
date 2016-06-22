@@ -79,6 +79,7 @@ class HostFragmentSupportTest extends OSGiTest{
     void before() {
         logger.info('@Before.begin')
 
+        Locale.setDefault(Locale.ENGLISH)
         registerVolatileStorageService()
 
         def autoupdateConfig = [
