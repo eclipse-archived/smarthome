@@ -47,7 +47,7 @@ public class StateDescription {
         if (options != null) {
             this.options = Collections.unmodifiableList(new ArrayList<StateOption>(options));
         } else {
-            this.options = Collections.unmodifiableList(new ArrayList<StateOption>(0));
+            this.options = Collections.emptyList();
         }
     }
 
