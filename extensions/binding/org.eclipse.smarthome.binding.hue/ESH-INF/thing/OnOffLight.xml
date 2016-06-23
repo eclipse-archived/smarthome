@@ -10,8 +10,8 @@
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Hue supported OnOff lights</label>
-		<description>Supports all OnOff lights</description>
+		<label>On/Off Light</label>
+		<description>Supports on/off lights</description>
 
 		<channels>
 			<channel id="switch" typeId="switch" />

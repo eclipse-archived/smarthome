@@ -10,8 +10,8 @@
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Hue supported color temperature lights</label>
-		<description>Supports all color temperature lights</description>
+		<label>Color Temperature Light</label>
+		<description>Supports color temperature lights</description>
 
 		<channels>
 			<channel id="color_temperature" typeId="color_temperature" />

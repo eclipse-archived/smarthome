@@ -10,8 +10,8 @@
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Hue supported dimmable lights</label>
-		<description>Supports all dimmable lights</description>
+		<label>Dimmable Light</label>
+		<description>Supports dimmable lights</description>
 
 		<channels>
 			<channel id="brightness" typeId="brightness" />

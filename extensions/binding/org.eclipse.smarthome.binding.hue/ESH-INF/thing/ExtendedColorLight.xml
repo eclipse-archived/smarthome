@@ -10,8 +10,8 @@
 			<bridge-type-ref id="bridge" />
 		</supported-bridge-type-refs>
 
-		<label>Hue supported extended color lights</label>
-		<description>Supports all extended color lights</description>
+		<label>Extended Color Light</label>
+		<description>Supports extended color lights</description>
 
 		<channels>
 			<channel id="color" typeId="color" />
