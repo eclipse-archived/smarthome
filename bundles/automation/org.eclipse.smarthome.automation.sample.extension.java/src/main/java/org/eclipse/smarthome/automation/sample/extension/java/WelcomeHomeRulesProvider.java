@@ -28,6 +28,7 @@ import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeAc
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.ProviderChangeListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -105,7 +106,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * @param config
      *            gives the new configuration of the rule
      */
-    public void update(String uid, String template, Map<String, Object> config) {
+    public void update(String uid, String template, Configuration config) {
 
         // specific for this application
         Rule oldelement = rules.get(uid);
@@ -145,7 +146,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
      * @return the created rule
      */
     private Rule createACRule() {
-        Map<String, Object> config = new HashMap<String, Object>();
+        Configuration config = new Configuration();
         config.put(CONFIG_UNIT, "Air Conditioner");
         config.put(CONFIG_EXPECTED_RESULT, "The air conditioner is switched on.");
         config.put(AirConditionerRuleTemplate.CONFIG_TARGET_TEMPERATURE, new Integer(18));
@@ -170,7 +171,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
         // initialize the condition - here the tricky part is the referring into the condition input - trigger output.
         // The syntax is a similar to the JUEL syntax.
-        Map<String, Object> config = new HashMap<String, Object>();
+        Configuration config = new Configuration();
         config.put(StateConditionType.CONFIG_STATE, "on");
         List<Condition> conditions = new ArrayList<Condition>();
         Map<String, String> inputs = new HashMap<String, String>();
@@ -179,7 +180,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
 
         // initialize the action - here the tricky part is the referring into the action configuration parameter - the
         // template configuration parameter. The syntax is a similar to the JUEL syntax.
-        config = new HashMap<String, Object>();
+        config = new Configuration();
         config.put(WelcomeHomeActionType.CONFIG_DEVICE, "Lights");
         config.put(WelcomeHomeActionType.CONFIG_RESULT, "Lights are switched on");
         List<Action> actions = new ArrayList<Action>();
@@ -198,7 +199,7 @@ public class WelcomeHomeRulesProvider implements RuleProvider {
         configDescriptions.add(result);
 
         // initialize the configuration
-        config = new HashMap<String, Object>();
+        config = new Configuration();
         config.put(CONFIG_UNIT, "Lights");
         config.put(CONFIG_EXPECTED_RESULT, "The lights are switched on.");
 

@@ -9,6 +9,7 @@ package org.eclipse.smarthome.automation.core.internal.type;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.automation.type.ModuleTypeProvider;
 import org.eclipse.smarthome.automation.type.TriggerType;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -216,7 +218,9 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         List<Trigger> res = new ArrayList<Trigger>(11);
         if (triggers != null) {
             for (Trigger t : triggers) {
-                Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), t.getConfiguration());
+                Configuration c = new Configuration();
+                c.setProperties(t.getConfiguration().getProperties());
+                Trigger trigger = new Trigger(t.getId(), t.getTypeUID(), c);
                 trigger.setLabel(trigger.getLabel());
                 trigger.setDescription(trigger.getDescription());
                 res.add(trigger);
@@ -229,7 +233,10 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         List<Condition> res = new ArrayList<Condition>(11);
         if (conditions != null) {
             for (Condition c : conditions) {
-                Condition condition = new Condition(c.getId(), c.getTypeUID(), c.getConfiguration(), c.getInputs());
+                Configuration conf = new Configuration();
+                conf.setProperties(c.getConfiguration().getProperties());
+                Condition condition = new Condition(c.getId(), c.getTypeUID(), conf,
+                        new HashMap<String, String>(c.getInputs()));
                 condition.setLabel(condition.getLabel());
                 condition.setDescription(condition.getDescription());
                 res.add(condition);
@@ -242,7 +249,9 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         List<Action> res = new ArrayList<Action>();
         if (actions != null) {
             for (Action a : actions) {
-                Action action = new Action(a.getId(), a.getTypeUID(), a.getConfiguration(), a.getInputs());
+                Configuration c = new Configuration();
+                c.setProperties(a.getConfiguration().getProperties());
+                Action action = new Action(a.getId(), a.getTypeUID(), c, a.getInputs());
                 action.setLabel(a.getLabel());
                 action.setDescription(a.getDescription());
                 res.add(action);

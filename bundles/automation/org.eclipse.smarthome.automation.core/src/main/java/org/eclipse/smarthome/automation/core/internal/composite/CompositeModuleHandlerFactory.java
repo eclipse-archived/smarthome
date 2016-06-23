@@ -30,6 +30,7 @@ import org.eclipse.smarthome.automation.type.CompositeActionType;
 import org.eclipse.smarthome.automation.type.CompositeConditionType;
 import org.eclipse.smarthome.automation.type.CompositeTriggerType;
 import org.eclipse.smarthome.automation.type.ModuleType;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +100,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
         if (module != null) {
             logger.debug("create composite module:" + module.getId() + ", of rule: " + ruleUID);
             String moduleType = module.getTypeUID();
+
             ModuleType mt = mtManager.get(moduleType);
             if (mt instanceof CompositeTriggerType) {
                 List<Trigger> childModules = ((CompositeTriggerType) mt).getChildren();
@@ -145,7 +147,7 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      */
     @SuppressWarnings("unchecked")
     private <T extends Module, MT extends ModuleHandler> LinkedHashMap<T, MT> getChildHandlers(
-            Map<String, Object> compositeConfig, List<T> childModules, String ruleUID) {
+            Configuration compositeConfig, List<T> childModules, String ruleUID) {
         LinkedHashMap<T, MT> mapModuleToHandler = new LinkedHashMap<T, MT>();
         for (T child : childModules) {
             ruleEngine.updateMapModuleTypeToRule(ruleUID, child.getTypeUID());
@@ -155,13 +157,14 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
                 mapModuleToHandler = null;
                 return null;
             }
-            ReferenceResolverUtil.updateModuleConfiguration(child, compositeConfig);
+            ReferenceResolverUtil.updateModuleConfiguration(child, compositeConfig.getProperties());
             MT childHandler = (MT) childMhf.getHandler(child, ruleUID);
             if (childHandler == null) {
                 mapModuleToHandler.clear();
                 mapModuleToHandler = null;
                 return null;
             }
+
             mapModuleToHandler.put(child, childHandler);
 
         }
@@ -178,16 +181,16 @@ public class CompositeModuleHandlerFactory extends BaseModuleHandlerFactory impl
      * @param child child module of composite module type.
      */
     private void resolveConfigurationProperties(Map<String, Object> compositeConfig, Module child) {
-        Map<String, Object> childConfig = child.getConfiguration();
-        for (Map.Entry<String, Object> e : childConfig.entrySet()) {
-            Object value = e.getValue();
+        Configuration childConfig = child.getConfiguration();
+        for (String key : childConfig.keySet()) {
+            Object value = childConfig.get(key);
             if (value != null && value instanceof String) {
                 String ref = (String) value;
                 if (ref.startsWith("$") && ref.length() > 1) {
                     ref = ref.substring(1);
                     Object o = compositeConfig.get(ref);
                     if (o != null) {
-                        e.setValue(o);
+                        childConfig.put(key, o);
                     }
                 }
             }

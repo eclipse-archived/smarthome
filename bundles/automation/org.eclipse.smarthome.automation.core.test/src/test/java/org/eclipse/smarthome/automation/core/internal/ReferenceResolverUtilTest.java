@@ -7,6 +7,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Trigger;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -76,17 +77,17 @@ public class ReferenceResolverUtilTest {
     @Test
     public void testModuleConfigurationResolving() {
         // test trigger configuration..
-        Module trigger = new Trigger(null, null, new HashMap<String, Object>(moduleConfiguration));
+        Module trigger = new Trigger(null, null, new Configuration(moduleConfiguration));
         ReferenceResolverUtil.updateModuleConfiguration(trigger, context);
-        Assert.assertEquals(trigger.getConfiguration(), expectedModuleConfiguration);
+        Assert.assertEquals(trigger.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test condition configuration..
-        Module condition = new Condition(null, null, new HashMap<String, Object>(moduleConfiguration), null);
+        Module condition = new Condition(null, null, new Configuration(moduleConfiguration), null);
         ReferenceResolverUtil.updateModuleConfiguration(condition, context);
-        Assert.assertEquals(condition.getConfiguration(), expectedModuleConfiguration);
+        Assert.assertEquals(condition.getConfiguration(), new Configuration(expectedModuleConfiguration));
         // test action configuration..
-        Module action = new Action(null, null, new HashMap<String, Object>(moduleConfiguration), null);
+        Module action = new Action(null, null, new Configuration(moduleConfiguration), null);
         ReferenceResolverUtil.updateModuleConfiguration(action, context);
-        Assert.assertEquals(action.getConfiguration(), expectedModuleConfiguration);
+        Assert.assertEquals(action.getConfiguration(), new Configuration(expectedModuleConfiguration));
     }
 
     @Test

@@ -96,7 +96,7 @@
                "type":"GenericEventTrigger",
                "configuration":{
                   "eventSource":"$itemName",
-                  "eventTopic":"smarthome/items/*",
+                  "eventTopic":"smarthome/items/${itemName}/state",
                   "eventTypes":"ItemStateChangedEvent"
                }
             }

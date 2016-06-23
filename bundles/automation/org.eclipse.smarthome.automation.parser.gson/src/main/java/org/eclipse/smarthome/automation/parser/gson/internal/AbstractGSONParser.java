@@ -11,8 +11,10 @@ import java.io.OutputStreamWriter;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.config.core.Configuration;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Abstract class that can be used by the parsers for the different entity types.
@@ -24,7 +26,10 @@ import com.google.gson.Gson;
 public abstract class AbstractGSONParser<T> implements Parser<T> {
 
     // A Gson instance to use by the parsers
-    static protected Gson gson = new Gson();
+    static protected Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Configuration.class, new ConfigurationDeserializer()) //
+            .registerTypeAdapter(Configuration.class, new ConfigurationSerializer()) //
+            .create();
 
     @Override
     public void serialize(Set<T> dataObjects, OutputStreamWriter writer) throws Exception {

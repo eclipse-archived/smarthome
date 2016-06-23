@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.automation.Module;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,19 +95,19 @@ public class ReferenceResolverUtil {
      * @param context containing Rule configuration or Composite configuration values.
      */
     public static void updateModuleConfiguration(Module module, Map<String, ?> context) {
-        for (Entry<String, Object> config : module.getConfiguration().entrySet()) {
-            Object o = config.getValue();
+        Configuration config = module.getConfiguration();
+        for (String configKey : config.keySet()) {
+            Object o = config.get(configKey);
             if (o instanceof String) {
                 String childConfigPropertyValue = (String) o;
                 if (isReference(childConfigPropertyValue)) {
                     Object result = resolveReference(childConfigPropertyValue, context);
                     if (result != null) {
-                        config.setValue(result);
+                        config.put(configKey, result);
                     }
                 } else if (isPattern(childConfigPropertyValue)) {
                     Object result = resolvePattern(childConfigPropertyValue, context);
-
-                    config.setValue(result);
+                    config.put(configKey, result);
                 }
             }
         }
