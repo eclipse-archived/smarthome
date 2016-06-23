@@ -19,17 +19,18 @@ import org.slf4j.LoggerFactory;
  * This class implements a local provider using an OSGi component.
  *
  * @author Markus Rathgeb - Initial contribution and API
+ * @author Thomas Höfer - Removed default initialization of locale attribute
  */
 public class LocaleProviderImpl implements LocaleProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final String LANGUAGE = "language";
-    private final String SCRIPT = "script";
-    private final String REGION = "region";
-    private final String VARIANT = "variant";
+    private static final String LANGUAGE = "language";
+    private static final String SCRIPT = "script";
+    private static final String REGION = "region";
+    private static final String VARIANT = "variant";
 
-    private Locale locale = Locale.getDefault();
+    private Locale locale;
 
     protected void activate(Map<String, Object> config) {
         modified(config);
@@ -82,6 +83,9 @@ public class LocaleProviderImpl implements LocaleProvider {
 
     @Override
     public Locale getLocale() {
+        if (locale == null) {
+            return Locale.getDefault();
+        }
         return locale;
     }
 
