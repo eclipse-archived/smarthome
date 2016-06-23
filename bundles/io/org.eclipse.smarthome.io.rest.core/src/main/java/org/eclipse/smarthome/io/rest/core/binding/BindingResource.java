@@ -29,6 +29,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.binding.BindingInfo;
 import org.eclipse.smarthome.core.binding.BindingInfoRegistry;
@@ -64,6 +67,7 @@ public class BindingResource implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
 
     private ConfigurationService configurationService;
+    private ConfigDescriptionRegistry configDescRegistry;
 
     private BindingInfoRegistry bindingInfoRegistry;
 
@@ -136,13 +140,31 @@ public class BindingResource implements RESTResource {
                 return Response.status(404).build();
             }
             Configuration oldConfiguration = configurationService.get(configId);
-            configurationService.update(configId, new Configuration(configuration));
+            configurationService.update(configId, new Configuration(normalizeConfiguration(configuration, bindingId)));
             return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
                     : Response.noContent().build();
         } catch (IOException ex) {
             logger.error("Cannot update configuration for service {}: " + ex.getMessage(), bindingId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, String bindingId) {
+        if (properties == null || properties.isEmpty()) {
+            return properties;
+        }
+
+        BindingInfo bindingInfo = this.bindingInfoRegistry.getBindingInfo(bindingId);
+        if (bindingInfo == null || bindingInfo.getConfigDescriptionURI() == null) {
+            return properties;
+        }
+
+        ConfigDescription configDesc = configDescRegistry.getConfigDescription(bindingInfo.getConfigDescriptionURI());
+        if (configDesc == null) {
+            return properties;
+        }
+
+        return ConfigUtil.normalizeTypes(properties, configDesc);
     }
 
     private String getConfigId(String bindingId) {
@@ -175,4 +197,13 @@ public class BindingResource implements RESTResource {
     protected void unsetConfigurationService(ConfigurationService configurationService) {
         this.configurationService = null;
     }
+
+    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = configDescriptionRegistry;
+    }
+
+    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = null;
+    }
+
 }
