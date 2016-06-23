@@ -17,13 +17,15 @@ import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
+import org.eclipse.smarthome.core.types.StateDescription;
 
 /**
  * Implementation providing default system wide channel types
  *
  * @author Ivan Iliev - Initial Contribution
- * @author Chris Jackson - Aded battery level
+ * @author Chris Jackson - Added battery level
  * @author Dennis Nobel - Changed to {@link ChannelTypeProvider}
+ * @author Markus Rathgeb - Make battery-low indication read-only
  *
  */
 public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
@@ -41,8 +43,8 @@ public class DefaultSystemChannelTypeProvider implements ChannelTypeProvider {
      * on/off.
      */
     public static final ChannelType SYSTEM_CHANNEL_LOW_BATTERY = new ChannelType(
-            new ChannelTypeUID("system:low-battery"), false, "Switch", "Low Battery", null, "Battery", null, null,
-            null);
+            new ChannelTypeUID("system:low-battery"), false, "Switch", "Low Battery", null, "Battery", null,
+            new StateDescription(null, null, null, null, true, null), null);
 
     /**
      * Battery level default system wide {@link ChannelType}. Represents the battery level as a percentage.
