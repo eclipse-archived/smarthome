@@ -7,10 +7,8 @@
  */
 package org.eclipse.smarthome.automation.core.internal;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Condition;
@@ -32,11 +30,6 @@ public class RuntimeCondition extends Condition {
         setConnections(Connection.getConnections(condition.getInputs(), LoggerFactory.getLogger(getClass())));
         setLabel(condition.getLabel());
         setDescription(condition.getDescription());
-    }
-
-    @Override
-    public void setConfiguration(Map<String, ?> configuration) {
-        this.configuration = configuration != null ? new HashMap<String, Object>(configuration) : null;
     }
 
     /**

@@ -23,6 +23,7 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.config.core.FilterCriteria;
 import org.eclipse.smarthome.config.core.ParameterOption;
 import org.junit.Assert;
@@ -204,7 +205,7 @@ public class RuleEngineTest {
         RuleEngine ruleEngine = createRuleEngine();
 
         List<ConfigDescriptionParameter> configDescriptions = createConfigDescriptions();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("config1", 5);
 
         Rule rule4 = new Rule("rule4");
@@ -215,7 +216,7 @@ public class RuleEngineTest {
         rule4.setConfiguration(configurations);
         ruleEngine.addRule(rule4, true);
         Rule rule4Get = ruleEngine.getRule("rule4");
-        Map<String, ?> rule4cfg = rule4Get.getConfiguration();
+        Configuration rule4cfg = rule4Get.getConfiguration();
         List<ConfigDescriptionParameter> rule4cfgD = rule4Get.getConfigurationDescriptions();
         Assert.assertNotNull("Rule configuration is null", rule4cfg);
         Assert.assertTrue("Missing config property in rule copy", rule4cfg.containsKey("config1"));
@@ -336,7 +337,7 @@ public class RuleEngineTest {
 
     private List<Trigger> createTriggers(String type) {
         List<Trigger> triggers = new ArrayList<Trigger>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
@@ -346,7 +347,7 @@ public class RuleEngineTest {
 
     private List<Condition> createConditions(String type) {
         List<Condition> conditions = new ArrayList<Condition>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");
@@ -361,7 +362,7 @@ public class RuleEngineTest {
 
     private List<Action> createActions(String type) {
         List<Action> actions = new ArrayList<Action>();
-        Map<String, Object> configurations = new HashMap<String, Object>();
+        Configuration configurations = new Configuration();
         configurations.put("a", "x");
         configurations.put("b", "y");
         configurations.put("c", "z");

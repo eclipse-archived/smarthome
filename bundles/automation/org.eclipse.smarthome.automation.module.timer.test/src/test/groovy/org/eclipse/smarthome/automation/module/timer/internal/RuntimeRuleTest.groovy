@@ -22,6 +22,7 @@ import org.eclipse.smarthome.automation.RuleStatus
 import org.eclipse.smarthome.automation.Trigger
 import org.eclipse.smarthome.automation.module.timer.handler.TimerTriggerHandler
 import org.eclipse.smarthome.automation.type.ModuleTypeRegistry
+import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.items.ItemProvider
 import org.eclipse.smarthome.core.items.ItemRegistry
 import org.eclipse.smarthome.core.library.items.SwitchItem
@@ -77,13 +78,13 @@ class RuntimeRuleTest extends OSGiTest{
         def testExpression = "* * * * * ?"
         def testItemName = "myLampItem"
 
-        def triggerConfig = [cronExpression:testExpression]
+        def triggerConfig = new Configuration([cronExpression:testExpression])
         def triggers = [new Trigger("MyTimerTrigger", "TimerTrigger", triggerConfig)]
 
-        def actionConfig = [itemName:testItemName, command:"ON"]
+        def actionConfig = new Configuration([itemName:testItemName, command:"ON"])
         def actions = [new Action("MyItemPostCommandAction", "ItemPostCommandAction", actionConfig, null)]
 
-        def conditionConfig = [operator:"=", itemName:testItemName, state:"OFF"]
+        def conditionConfig = new Configuration([operator:"=", itemName:testItemName, state:"OFF"])
         def conditions = [new Condition("MyItemStateCondition", "ItemStateCondition", conditionConfig, null)]
 
         def rule = new Rule("MyRule"+new Random().nextInt())

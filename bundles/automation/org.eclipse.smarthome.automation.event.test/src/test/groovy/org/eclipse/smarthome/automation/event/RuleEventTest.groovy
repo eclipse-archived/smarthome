@@ -24,6 +24,7 @@ import org.eclipse.smarthome.automation.events.RuleAddedEvent
 import org.eclipse.smarthome.automation.events.RuleRemovedEvent
 import org.eclipse.smarthome.automation.events.RuleStatusInfoEvent
 import org.eclipse.smarthome.automation.events.RuleUpdatedEvent
+import org.eclipse.smarthome.config.core.Configuration
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
 import org.eclipse.smarthome.core.events.EventSubscriber
@@ -98,10 +99,10 @@ class RuleEventTest extends OSGiTest{
         registerService(ruleEventHandler)
 
         //Creation of RULE
-        def triggerConfig = [eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"]
-        def condition1Config = [operator:"=", itemName:"myPresenceItem2", state:"ON"]
-        def condition2Config = [itemName:"myMotionItem2"]
-        def actionConfig = [itemName:"myLampItem2", command:"ON"]
+        def triggerConfig = new Configuration([eventSource:"myMotionItem2", eventTopic:"smarthome/*", eventTypes:"ItemStateEvent"])
+        def condition1Config = new Configuration([operator:"=", itemName:"myPresenceItem2", state:"ON"])
+        def condition2Config = new Configuration([itemName:"myMotionItem2"])
+        def actionConfig = new Configuration([itemName:"myLampItem2", command:"ON"])
         def triggers = [new Trigger("ItemStateChangeTrigger2", "GenericEventTrigger", triggerConfig)]
         def conditions = [
             new Condition("ItemStateCondition3", "ItemStateCondition", condition1Config, null),

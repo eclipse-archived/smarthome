@@ -30,6 +30,7 @@ import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.common.registry.AbstractRegistry;
 import org.eclipse.smarthome.core.common.registry.ManagedProvider;
 import org.eclipse.smarthome.core.common.registry.Provider;
@@ -449,7 +450,8 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     private void validateConfiguration(Rule r) {
         List<ConfigDescriptionParameter> configDescriptions = r.getConfigurationDescriptions();
-        Map<String, ?> configuration = r.getConfiguration();
+        Configuration moduleConfiguration = r.getConfiguration();
+        Map<String, Object> configuration = moduleConfiguration.getProperties();
         if (configuration != null) {
             validateConfiguration(configDescriptions, new HashMap<String, Object>(configuration));
             handleModuleConfigReferences(r.getTriggers(), configuration);
