@@ -35,6 +35,7 @@ import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
 import org.eclipse.smarthome.config.core.ConfigUtil;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
 import org.eclipse.smarthome.io.rest.RESTResource;
 import org.slf4j.Logger;
@@ -204,7 +205,7 @@ public class RuleResource implements RESTResource {
                     uriInfo.getPath(), ruleUID);
             return Response.status(Status.NOT_FOUND).build();
         } else {
-            rule.setConfiguration(config);
+            rule.setConfiguration(new Configuration(config));
             ruleRegistry.update(rule);
             return Response.ok().build();
         }
@@ -350,7 +351,7 @@ public class RuleResource implements RESTResource {
         if (rule != null) {
             Module module = getModule(rule, moduleCategory, id);
             if (module != null) {
-                Map<String, Object> configuration = module.getConfiguration();
+                Configuration configuration = module.getConfiguration();
                 configuration.put(param, ConfigUtil.normalizeType(value));
                 module.setConfiguration(configuration);
                 ruleRegistry.update(rule);

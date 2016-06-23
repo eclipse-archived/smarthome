@@ -184,7 +184,8 @@ public class Printer {
         ruleProperty.set(1, getTagsRecord(rule.getTags()));
         ruleContent.add(Utils.getRow(columnWidths, ruleProperty));
 
-        ruleContent.addAll(collectRecords(columnWidths, CONFIGURATION, rule.getConfiguration().entrySet()));
+        ruleContent.addAll(
+                collectRecords(columnWidths, CONFIGURATION, rule.getConfiguration().getProperties().entrySet()));
         ruleContent.addAll(collectRecords(columnWidths, CONFIGURATION_DESCRIPTIONS,
                 getConfigurationDescriptionRecords(rule.getConfigurationDescriptions())));
         ruleContent.addAll(collectRecords(columnWidths, TRIGGERS, rule.getTriggers()));
@@ -422,7 +423,8 @@ public class Printer {
         columnValues.set(1, module.getTypeUID());
         moduleContent.add(Utils.getRow(columnWidths, columnValues));
 
-        moduleContent.addAll(collectRecords(columnWidths, CONFIGURATION, module.getConfiguration().entrySet()));
+        moduleContent.addAll(
+                collectRecords(columnWidths, CONFIGURATION, module.getConfiguration().getProperties().entrySet()));
         Map<String, String> inputs = null;
         if (module instanceof Condition) {
             inputs = ((Condition) module).getInputs();

@@ -54,6 +54,7 @@ import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter.Type;
+import org.eclipse.smarthome.config.core.Configuration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
@@ -1191,7 +1192,7 @@ public class RuleEngine
 
     private <T extends Module> void setDefautlValues(String ruleUID, List<T> modules) {
         for (T module : modules) {
-            Map<String, Object> moduleConfiguration = module.getConfiguration();
+            Configuration moduleConfiguration = module.getConfiguration();
             String typeId = module.getTypeUID();
             ModuleType mt = mtManager.get(typeId);
             List<ConfigDescriptionParameter> configs = mt.getConfigurationDescription();
@@ -1269,9 +1270,9 @@ public class RuleEngine
         for (Module module : modules) {
             String type = module.getTypeUID();
             if (mtManager != null) {
-                Map<String, Object> mConfig = module.getConfiguration();
+                Configuration mConfig = module.getConfiguration();
                 if (mConfig == null) {
-                    mConfig = new HashMap<String, Object>(11);
+                    mConfig = new Configuration();
                 }
                 ModuleType mt = mtManager.get(type);
                 if (mt != null) {

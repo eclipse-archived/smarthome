@@ -186,8 +186,8 @@ public class BasicModuleHandlerFactory extends BaseModuleHandlerFactory {
     }
 
     @Override
-    protected ModuleHandler internalCreate(final Module module, final String ruleUID) {
-        logger.trace("create {} -> {}", module.getId(), module.getTypeUID());
+    protected synchronized ModuleHandler internalCreate(final Module module, final String ruleUID) {
+        logger.trace("create {} -> {} : {}", module.getId(), module.getTypeUID(), ruleUID);
 
         final ModuleHandler handler = handlers.get(ruleUID + module.getId());
         final String moduleTypeUID = module.getTypeUID();

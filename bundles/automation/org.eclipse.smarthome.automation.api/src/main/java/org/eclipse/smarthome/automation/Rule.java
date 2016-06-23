@@ -10,12 +10,11 @@ package org.eclipse.smarthome.automation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * Rule is built from {@link Module}s and consists of three sections:
@@ -39,7 +38,7 @@ public class Rule {
     protected List<Trigger> triggers;
     protected List<Condition> conditions;
     protected List<Action> actions;
-    protected Map<String, ?> configuration;
+    protected Configuration configuration;
     protected List<ConfigDescriptionParameter> configDescriptions;
     protected String templateUID;
     protected String uid;
@@ -80,7 +79,7 @@ public class Rule {
             List<Condition> conditions, //
             List<Action> actions, //
             List<ConfigDescriptionParameter> configDescriptions, //
-            Map<String, ?> configurations, String templateUID, Visibility visibility) {
+            Configuration configurations, String templateUID, Visibility visibility) {
         this.uid = uid;
         setTriggers(triggers);
         setConditions(conditions);
@@ -205,9 +204,9 @@ public class Rule {
      *
      * @return current configuration values
      */
-    public Map<String, ?> getConfiguration() {
+    public Configuration getConfiguration() {
         if (configuration == null) {
-            configuration = new HashMap<String, Object>(3);
+            configuration = new Configuration();
         }
         return configuration;
     }
@@ -219,10 +218,8 @@ public class Rule {
      *
      * @param ruleConfiguration new configuration values.
      */
-    public void setConfiguration(Map<String, ?> ruleConfiguration) {
-        if (ruleConfiguration != null) {
-            configuration = ruleConfiguration;
-        }
+    public void setConfiguration(Configuration ruleConfiguration) {
+        this.configuration = ruleConfiguration;
     }
 
     /**

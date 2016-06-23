@@ -13,6 +13,7 @@ import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.automation.handler.ActionHandler;
 import org.eclipse.smarthome.automation.handler.BaseModuleHandler;
 import org.eclipse.smarthome.automation.sample.extension.java.type.WelcomeHomeActionType;
+import org.eclipse.smarthome.config.core.Configuration;
 
 /**
  * This class serves to handle the Action types provided by this application. It is used to help the RuleEngine
@@ -43,7 +44,7 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action>implement
      * @return
      *         the string representing the device.
      */
-    private String getDevice(Map<String, ?> configration) {
+    private String getDevice(Configuration configration) {
         return (String) (configration != null ? configration.get(WelcomeHomeActionType.CONFIG_DEVICE) : null);
     }
 
@@ -55,7 +56,7 @@ public class WelcomeHomeActionHandler extends BaseModuleHandler<Action>implement
      * @return
      *         the command which to be executed.
      */
-    private String getResult(Map<String, ?> configration) {
+    private String getResult(Configuration configration) {
         return (String) (configration != null ? configration.get(WelcomeHomeActionType.CONFIG_RESULT) : null);
     }
 }
