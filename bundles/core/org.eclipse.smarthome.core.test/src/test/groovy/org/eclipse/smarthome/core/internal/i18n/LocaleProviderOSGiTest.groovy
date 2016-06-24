@@ -16,6 +16,7 @@ import org.eclipse.smarthome.test.OSGiTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.osgi.service.cm.ConfigurationAdmin
 
 /**
  * The {@link LocaleProviderOSGiTest} tests the basic functionality of the {@link LocaleProvider} OSGi service.
@@ -25,15 +26,19 @@ import org.junit.Test
 class LocaleProviderOSGiTest extends OSGiTest {
 
     def static final LANGUAGE_DE = "de"
+    def static final LANGUAGE_ES = "es"
     def static final LANGUAGE_RU = "ru"
 
     def static final SCRIPT_DE = "Latn"
+    def static final SCRIPT_ES = "Latn"
     def static final SCRIPT_RU = "Cyrl"
 
     def static final REGION_DE = "DE"
+    def static final REGION_ES = "DE"
     def static final REGION_RU = "RU"
 
     LocaleProvider localeProvider
+    ConfigurationAdmin configAdmin
     def defaultLocale
 
     @Before
@@ -41,11 +46,16 @@ class LocaleProviderOSGiTest extends OSGiTest {
         localeProvider = getService(LocaleProvider)
         assertThat localeProvider, is(notNullValue())
 
+        configAdmin = getService(ConfigurationAdmin)
+        assertThat configAdmin, is(notNullValue())
+
+        clearLocale()
+
         defaultLocale = Locale.getDefault()
     }
 
     @After
-    void tearDown() {
+    void tearDown () {
         Locale.setDefault(defaultLocale)
     }
 
@@ -57,29 +67,86 @@ class LocaleProviderOSGiTest extends OSGiTest {
     @Test
     void 'assert that default locale is provided if no locale has been configured'() {
         Locale.setDefault(Locale.GERMAN)
-        assertThat localeProvider.getLocale(), is(Locale.GERMAN)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.GERMAN)
+        }
 
         Locale.setDefault(Locale.ENGLISH)
-        assertThat localeProvider.getLocale(), is(Locale.ENGLISH)
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.ENGLISH)
+        }
     }
 
     @Test
     void 'assert that configured locale is provided'() {
-        assertLocale([(localeProvider.LANGUAGE) : LANGUAGE_DE, (localeProvider.SCRIPT) : SCRIPT_DE, (localeProvider.REGION) : REGION_DE])
-        assertLocale([(localeProvider.LANGUAGE) : LANGUAGE_RU, (localeProvider.SCRIPT) : SCRIPT_RU, (localeProvider.REGION) : REGION_RU])
+        updateAndAssertLocale(createLocaleProperties(LANGUAGE_DE, SCRIPT_DE, REGION_DE))
+        updateAndAssertLocale(createLocaleProperties(LANGUAGE_RU, SCRIPT_RU, REGION_RU))
     }
 
-    void assertLocale(def cfg) {
-        localeProvider.modified(cfg)
-
+    @Test
+    void 'assert that locale can be updated using directly the modified operation'() {
         // must be ignored
         Locale.setDefault(Locale.ENGLISH)
 
-        def locale = localeProvider.getLocale()
-        assertThat locale, is(notNullValue())
-        assertThat locale.getLanguage(), is(cfg[localeProvider.LANGUAGE])
-        assertThat locale.getScript(), is(cfg[localeProvider.SCRIPT])
-        assertThat locale.getCountry(), is(cfg[localeProvider.REGION])
-        assertThat locale.getVariant(), is("")
+        def cfg = createLocaleProperties(LANGUAGE_ES, SCRIPT_ES, REGION_ES)
+        localeProvider.modified(cfg)
+
+        assertLocale(cfg)
+    }
+
+    @Test
+    void 'assert that default locale is provided after locale has been cleared'() {
+        updateAndAssertLocale(createLocaleProperties(LANGUAGE_DE, SCRIPT_DE, REGION_DE), Locale.CHINA)
+
+        clearLocale()
+
+        waitForAssert {
+            assertThat localeProvider.getLocale(), is(Locale.CHINA)
+        }
+    }
+
+    void updateAndAssertLocale(def cfg, def locale=Locale.ENGLISH) {
+        updateConfig(cfg)
+
+        // must be ignored
+        Locale.setDefault(locale)
+
+        assertLocale(cfg)
+    }
+
+    def updateConfig(def cfg) {
+        def config = getConfig()
+        def properties = config.getProperties()
+        if (properties == null) {
+            properties = new Properties()
+        }
+        cfg.each { k, v ->
+            properties.put(k,  v)
+        }
+        config.update(properties)
+    }
+
+    def assertLocale(def cfg) {
+        waitForAssert {
+            def locale = localeProvider.getLocale()
+            assertThat locale, is(notNullValue())
+            assertThat locale.getLanguage(), is(cfg[localeProvider.LANGUAGE])
+            assertThat locale.getScript(), is(cfg[localeProvider.SCRIPT])
+            assertThat locale.getCountry(), is(cfg[localeProvider.REGION])
+            assertThat locale.getVariant(), is("")
+        }
+    }
+
+    def clearLocale() {
+        def config = getConfig()
+        config.update(createLocaleProperties())
+    }
+
+    def createLocaleProperties(def language="", def script="", def region = "") {
+        return [(localeProvider.LANGUAGE) : language, (localeProvider.SCRIPT) : script, (localeProvider.REGION) : region] as Properties
+    }
+
+    def getConfig() {
+        return configAdmin.getConfiguration("org.eclipse.smarthome.core.localeprovider")
     }
 }
