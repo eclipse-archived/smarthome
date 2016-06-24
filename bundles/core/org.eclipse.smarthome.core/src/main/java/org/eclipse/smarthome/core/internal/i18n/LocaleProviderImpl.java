@@ -36,15 +36,16 @@ public class LocaleProviderImpl implements LocaleProvider {
         modified(config);
     }
 
-    protected void modified(Map<String, Object> config) {
+    protected synchronized void modified(Map<String, Object> config) {
         final String language = (String) config.get(LANGUAGE);
         final String script = (String) config.get(SCRIPT);
         final String region = (String) config.get(REGION);
         final String variant = (String) config.get(VARIANT);
 
         if (StringUtils.isEmpty(language)) {
-            // if no language is set, skip new locale...
-            logger.debug("No language set, keeping {} as locale", locale);
+            // at least the language must be defined otherwise the system default locale is used
+            logger.debug("No language set, fallback to default system locale");
+            locale = null;
             return;
         }
 

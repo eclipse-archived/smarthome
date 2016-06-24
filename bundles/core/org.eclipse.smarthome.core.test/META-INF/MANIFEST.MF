@@ -17,4 +17,5 @@ Import-Package: groovy.lang,
  org.hamcrest;core=split,
  org.junit,
  org.junit.runner,
- org.junit.runners
+ org.junit.runners,
+ org.osgi.service.cm

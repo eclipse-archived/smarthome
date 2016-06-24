@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" enabled="true" modified="modified" name="org.eclipse.smarthome.core.localeprovider">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" enabled="true" immediate="true" modified="modified" name="org.eclipse.smarthome.core.localeprovider">
    <implementation class="org.eclipse.smarthome.core.internal.i18n.LocaleProviderImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.i18n.LocaleProvider"/>
