@@ -15,12 +15,19 @@ package org.eclipse.smarthome.config.core;
  * {@link ConfigDescriptionParameter}.
  *
  * @author Alex Tugarev - Initial Contribution
+ * @author Markus Rathgeb - Add default constructor for deserialization
  *
  */
 public class FilterCriteria {
 
     private String value;
     private String name;
+
+    /**
+     * Default constructor for deserialization e.g. by Gson.
+     */
+    protected FilterCriteria() {
+    }
 
     public FilterCriteria(String name, String value) {
         this.name = name;
