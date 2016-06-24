@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>Color Light</label>
-		<description>Supports color lights</description>
+		<description>A dimmable light with changeable colors.</description>
 
 		<channels>
 			<channel id="color" typeId="color" />

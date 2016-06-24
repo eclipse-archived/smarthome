@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>Color Temperature Light</label>
-		<description>Supports color temperature lights</description>
+		<description>A dimmable light with tunable color temperature.</description>
 
 		<channels>
 			<channel id="color_temperature" typeId="color_temperature" />

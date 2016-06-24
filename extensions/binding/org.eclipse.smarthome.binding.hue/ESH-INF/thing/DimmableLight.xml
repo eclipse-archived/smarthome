@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>Dimmable Light</label>
-		<description>Supports dimmable lights</description>
+		<description>A dimmable light.</description>
 
 		<channels>
 			<channel id="brightness" typeId="brightness" />

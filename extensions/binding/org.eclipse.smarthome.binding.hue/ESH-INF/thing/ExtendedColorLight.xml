@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>Extended Color Light</label>
-		<description>Supports extended color lights</description>
+		<description>A dimmable light with changeable colors and tunable color temperature.</description>
 
 		<channels>
 			<channel id="color" typeId="color" />

@@ -11,7 +11,7 @@
 		</supported-bridge-type-refs>
 
 		<label>On/Off Light</label>
-		<description>Supports on/off lights</description>
+		<description>A light that could be switched on and off.</description>
 
 		<channels>
 			<channel id="switch" typeId="switch" />
