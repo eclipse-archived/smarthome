@@ -8,6 +8,8 @@
 package org.eclipse.smarthome.io.rest.core.service;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.smarthome.config.core.ConfigDescription;
+import org.eclipse.smarthome.config.core.ConfigDescriptionRegistry;
+import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.ConfigurableService;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.RESTResource;
@@ -62,6 +67,7 @@ public class ConfigurableServiceResource implements RESTResource {
     private final Logger logger = LoggerFactory.getLogger(ConfigurableServiceResource.class);
 
     private ConfigurationService configurationService;
+    private ConfigDescriptionRegistry configDescRegistry;
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
@@ -78,13 +84,22 @@ public class ConfigurableServiceResource implements RESTResource {
     @ApiOperation(value = "Get configurable service for given service ID.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"), @ApiResponse(code = 404, message = "Not found") })
     public Response getById(@PathParam("serviceId") @ApiParam(value = "service ID", required = true) String serviceId) {
+        ConfigurableServiceDTO configurableService = getServiceById(serviceId);
+        if (configurableService != null) {
+            return Response.ok(configurableService).build();
+        } else {
+            return Response.status(404).build();
+        }
+    }
+
+    private ConfigurableServiceDTO getServiceById(String serviceId) {
         List<ConfigurableServiceDTO> configurableServices = getConfigurableServices();
         for (ConfigurableServiceDTO configurableService : configurableServices) {
             if (configurableService.id.equals(serviceId)) {
-                return Response.ok(configurableService).build();
+                return configurableService;
             }
         }
-        return Response.status(404).build();
+        return null;
     }
 
     @GET
@@ -118,13 +133,39 @@ public class ConfigurableServiceResource implements RESTResource {
             Map<String, Object> configuration) {
         try {
             Configuration oldConfiguration = configurationService.get(serviceId);
-            configurationService.update(serviceId, new Configuration(configuration));
+            configurationService.update(serviceId, new Configuration(normalizeConfiguration(configuration, serviceId)));
             return oldConfiguration != null ? Response.ok(oldConfiguration.getProperties()).build()
                     : Response.noContent().build();
         } catch (IOException ex) {
             logger.error("Cannot update configuration for service {}: " + ex.getMessage(), serviceId, ex);
             return Response.status(Status.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private Map<String, Object> normalizeConfiguration(Map<String, Object> properties, String serviceId) {
+        if (properties == null || properties.isEmpty()) {
+            return properties;
+        }
+
+        ConfigurableServiceDTO service = getServiceById(serviceId);
+        if (service == null) {
+            return properties;
+        }
+
+        URI uri;
+        try {
+            uri = new URI(service.configDescriptionURI);
+        } catch (URISyntaxException e) {
+            logger.warn("Not a valid URI: {}", service.configDescriptionURI);
+            return properties;
+        }
+
+        ConfigDescription configDesc = configDescRegistry.getConfigDescription(uri);
+        if (configDesc == null) {
+            return properties;
+        }
+
+        return ConfigUtil.normalizeTypes(properties, configDesc);
     }
 
     @DELETE
@@ -184,4 +225,13 @@ public class ConfigurableServiceResource implements RESTResource {
     protected void unsetConfigurationService(ConfigurationService configurationService) {
         this.configurationService = null;
     }
+
+    protected void setConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = configDescriptionRegistry;
+    }
+
+    protected void unsetConfigDescriptionRegistry(ConfigDescriptionRegistry configDescriptionRegistry) {
+        this.configDescRegistry = null;
+    }
+
 }
