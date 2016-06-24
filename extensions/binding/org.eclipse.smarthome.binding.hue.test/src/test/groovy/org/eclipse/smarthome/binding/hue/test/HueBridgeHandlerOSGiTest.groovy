@@ -207,6 +207,24 @@ class HueBridgeHandlerOSGiTest extends OSGiTest {
         assertThat(bridge.getStatusInfo().getStatusDetail(), equalTo(ThingStatusDetail.OFFLINE.CONFIGURATION_ERROR))
     }
 
+    @Test
+    void 'verify offline is set without bridge offline status'() {
+        Configuration configuration = new Configuration().with {
+            put(HOST, DUMMY_HOST)
+            put(SERIAL_NUMBER, "testSerialNumber")
+            it
+        }
+        Bridge bridge = createBridgeThing(configuration)
+
+        HueBridgeHandler hueBridgeHandler = getRegisteredHueBridgeHandler()
+        hueBridgeHandler.thingUpdated(bridge)
+
+        hueBridgeHandler.onConnectionLost(hueBridgeHandler.bridge)
+
+        assertThat(bridge.getStatus(), is(ThingStatus.OFFLINE))
+        assertThat(bridge.getStatusInfo().getStatusDetail(), is(not(ThingStatusDetail.BRIDGE_OFFLINE)))
+    }
+
     private Bridge createBridgeThing(Configuration configuration){
         Bridge bridge = thingRegistry.createThingOfType(
                 BRIDGE_THING_TYPE_UID,

@@ -23,7 +23,14 @@ class HueLightState {
     boolean isOn = true;
     def alert = 'none'
     def effect = 'none'
+    def model = 'LCT001'
 
+    public HueLightState() {
+    }
+
+    public HueLightState(String model) {
+        this.model = model
+    }
 
     public HueLightState bri(int brightness){
         this.brightness = brightness
@@ -82,7 +89,7 @@ class HueLightState {
               },
               "type": "Extended color light",
               "name": "Hue Light 1",
-              "modelid": "LCT001",
+              "modelid": "${model}",
               "swversion": "65003148",
               "pointsymbol": {
                 "1": "none",

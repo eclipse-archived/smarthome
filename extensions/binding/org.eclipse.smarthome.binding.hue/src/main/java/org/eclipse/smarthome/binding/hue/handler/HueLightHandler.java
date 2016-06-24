@@ -9,6 +9,8 @@ package org.eclipse.smarthome.binding.hue.handler;
 
 import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,8 @@ import org.eclipse.smarthome.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import nl.q42.jue.FullLight;
@@ -45,7 +49,7 @@ import nl.q42.jue.StateUpdate;
  * @author Dennis Nobel - Initial contribution of hue binding
  * @author Oliver Libutzki
  * @author Kai Kreuzer - stabilized code
- * @author Andre Fuechsel - implemented switch off when brightness == 0
+ * @author Andre Fuechsel - implemented switch off when brightness == 0, changed to support generic thing types
  * @author Thomas Höfer - added thing properties
  * @author Jochen Hiller - fixed status updates for reachable=true/false
  * @author Markus Mazurczak - added code for command handling of OSRAM PAR16 50
@@ -55,12 +59,20 @@ import nl.q42.jue.StateUpdate;
  */
 public class HueLightHandler extends BaseThingHandler implements LightStatusListener {
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_LCT001, THING_TYPE_LCT002,
-            THING_TYPE_LCT003, THING_TYPE_LCT007, THING_TYPE_LLC001, THING_TYPE_LLC006, THING_TYPE_LLC007,
-            THING_TYPE_LLC010, THING_TYPE_LLC011, THING_TYPE_LLC012, THING_TYPE_LLC013, THING_TYPE_LWL001,
-            THING_TYPE_LST001, THING_TYPE_LST002, THING_TYPE_LCT003, THING_TYPE_LWB004, THING_TYPE_LWB006,
-            THING_TYPE_LWB007, THING_TYPE_CLASSIC_A60_RGBW, THING_TYPE_SURFACE_LIGHT_TW, THING_TYPE_ZLL_LIGHT,
-            THING_TYPE_LLC020, THING_TYPE_PAR16_50_TW, THING_TYPE_FLEX_RGBW);
+    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Sets.newHashSet(THING_TYPE_COLOR_LIGHT,
+            THING_TYPE_COLOR_TEMPERATURE_LIGHT, THING_TYPE_DIMMABLE_LIGHT, THING_TYPE_EXTENDED_COLOR_LIGHT,
+            THING_TYPE_ON_OFF_LIGHT);
+
+    private final static Map<String, List<String>> VENDOR_MODEL_MAP = new ImmutableMap.Builder<String, List<String>>()
+            .put("Philips",
+                    Lists.newArrayList("LCT001", "LCT002", "LCT003", "LCT007", "LLC001", "LLC006", "LLC007", "LLC010",
+                            "LLC011", "LLC012", "LLC013", "LLC020", "LST001", "LST002", "LWB004", "LWB006", "LWB007",
+                            "LWL001"))
+            .put("OSRAM", Lists.newArrayList("Classic_A60_RGBW", "PAR16_50_TW", "Surface_Light_TW")).build();
+
+    private final static String OSRAM_PAR16_50_TW_MODEL_ID = "PAR16_50_TW";
+
+    public static final String NORMALIZE_ID_REGEX = "[^a-zA-Z0-9_]";
 
     private String lightId;
 
@@ -91,13 +103,39 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             if (getHueBridgeHandler() != null) {
                 ThingStatusInfo statusInfo = getBridge().getStatusInfo();
                 updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
-                FullLight fullLight = getLight();
-                if (fullLight != null) {
-                    updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-                    isOsramPar16 = THING_TYPE_PAR16_50_TW.equals(getThing().getThingTypeUID());
-                }
+                updateProperties();
             }
         }
+    }
+
+    private void updateProperties() {
+        FullLight fullLight = getLight();
+        if (fullLight != null) {
+            String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
+            updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
+            updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
+            String vendor = getVendor(modelId);
+            if (vendor != null) {
+                updateProperty(Thing.PROPERTY_VENDOR, vendor);
+            }
+            isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
+        }
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
+            updateProperties();
+        }
+    }
+
+    private String getVendor(String modelId) {
+        for (String vendor : VENDOR_MODEL_MAP.keySet()) {
+            if (VENDOR_MODEL_MAP.get(vendor).contains(modelId)) {
+                return vendor;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -159,6 +197,14 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
                     }
                 } else if (command instanceof IncreaseDecreaseType) {
                     lightState = convertBrightnessChangeToStateUpdate((IncreaseDecreaseType) command, light);
+                }
+                break;
+            case CHANNEL_SWITCH:
+                if (command instanceof OnOffType) {
+                    lightState = LightStateConverter.toOnOffLightState((OnOffType) command);
+                    if (isOsramPar16) {
+                        lightState = addOsramSpecificCommands(lightState, (OnOffType) command);
+                    }
                 }
                 break;
             case CHANNEL_COLOR:
