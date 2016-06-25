@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 
+import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
@@ -48,14 +49,18 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
         this.mdnsClient = mdnsClient;
         if (isBackgroundDiscoveryEnabled()) {
             for (MDNSDiscoveryParticipant participant : participants) {
-                mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+                for (JmDNS instance : mdnsClient.getClientInstances()) {
+                    instance.addServiceListener(participant.getServiceType(), this);
+                }
             }
         }
     }
 
     public void unsetMDNSClient(MDNSClient mdnsClient) {
         for (MDNSDiscoveryParticipant participant : participants) {
-            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.removeServiceListener(participant.getServiceType(), this);
+            }
         }
         this.mdnsClient = null;
     }
@@ -69,14 +74,18 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
             }
         }, 0, TimeUnit.SECONDS);
         for (MDNSDiscoveryParticipant participant : participants) {
-            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.addServiceListener(participant.getServiceType(), this);
+            }
         }
     }
 
     @Override
     protected void stopBackgroundDiscovery() {
         for (MDNSDiscoveryParticipant participant : participants) {
-            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.removeServiceListener(participant.getServiceType(), this);
+            }
         }
     }
 
@@ -84,12 +93,15 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
     protected void startScan() {
         logger.debug("mDNS discovery service started");
         for (MDNSDiscoveryParticipant participant : participants) {
-            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
-            logger.debug(services.length + " services found for " + participant.getServiceType());
-            for (ServiceInfo service : services) {
-                DiscoveryResult result = participant.createResult(service);
-                if (result != null) {
-                    thingDiscovered(result);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                ServiceInfo[] services = instance.list(participant.getServiceType());
+                logger.debug("{} services found for {} (instance {})", services.length, participant.getServiceType(),
+                        instance.getName());
+                for (ServiceInfo service : services) {
+                    DiscoveryResult result = participant.createResult(service);
+                    if (result != null) {
+                        thingDiscovered(result);
+                    }
                 }
             }
         }
@@ -97,30 +109,37 @@ public class MDNSDiscoveryService extends AbstractDiscoveryService implements Se
 
     protected void initializeParticipants() {
         for (MDNSDiscoveryParticipant participant : participants) {
-            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
-            ServiceInfo[] services = mdnsClient.getClient().list(participant.getServiceType());
-            logger.debug(services.length + " services found for " + participant.getServiceType());
-            for (ServiceInfo service : services) {
-                DiscoveryResult result = participant.createResult(service);
-                if (result != null) {
-                    thingDiscovered(result);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.removeServiceListener(participant.getServiceType(), this);
+                ServiceInfo[] services = instance.list(participant.getServiceType());
+                logger.debug("{} services found for {} (instance {})", services.length, participant.getServiceType(),
+                        instance.getName());
+                for (ServiceInfo service : services) {
+                    DiscoveryResult result = participant.createResult(service);
+                    if (result != null) {
+                        thingDiscovered(result);
+                    }
                 }
+                instance.addServiceListener(participant.getServiceType(), this);
             }
-            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
         }
     }
 
     protected void addMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.add(participant);
         if (mdnsClient != null && isBackgroundDiscoveryEnabled()) {
-            mdnsClient.getClient().addServiceListener(participant.getServiceType(), this);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.addServiceListener(participant.getServiceType(), this);
+            }
         }
     }
 
     protected void removeMdnsDiscoveryParticipant(MDNSDiscoveryParticipant participant) {
         this.participants.remove(participant);
         if (mdnsClient != null) {
-            mdnsClient.getClient().removeServiceListener(participant.getServiceType(), this);
+            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                instance.removeServiceListener(participant.getServiceType(), this);
+            }
         }
     }
 
