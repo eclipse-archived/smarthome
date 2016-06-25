@@ -7,6 +7,8 @@
  */
 package org.eclipse.smarthome.io.transport.mdns;
 
+import java.util.Set;
+
 import javax.jmdns.JmDNS;
 
 /**
@@ -18,9 +20,9 @@ import javax.jmdns.JmDNS;
 public interface MDNSClient {
 
     /**
-     * This method returns an jmDNS instance
-     * 
+     * This method returns the set of JmDNS instances
+     *
      */
-    public JmDNS getClient();
+    public Set<JmDNS> getClientInstances();
 
 }

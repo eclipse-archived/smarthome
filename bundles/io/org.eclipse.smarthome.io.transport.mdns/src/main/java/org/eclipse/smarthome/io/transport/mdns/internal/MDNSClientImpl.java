@@ -8,6 +8,13 @@
 package org.eclipse.smarthome.io.transport.mdns.internal;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.jmdns.JmDNS;
 
@@ -24,25 +31,60 @@ import org.slf4j.LoggerFactory;
 public class MDNSClientImpl implements MDNSClient {
     private final Logger logger = LoggerFactory.getLogger(MDNSClientImpl.class);
 
-    private JmDNS jmdns;
+    private Set<JmDNS> jmdnsInstances = new CopyOnWriteArraySet<>();
+
+    private static Set<InetAddress> getAllInetAddresses() {
+        final Set<InetAddress> addresses = new HashSet<>();
+        Enumeration<NetworkInterface> itInterfaces;
+        try {
+            itInterfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (final SocketException e) {
+            return addresses;
+        }
+        while (itInterfaces.hasMoreElements()) {
+            final NetworkInterface iface = itInterfaces.nextElement();
+            try {
+                if (!iface.isUp() || iface.isLoopback()) {
+                    continue;
+                }
+            } catch (final SocketException ex) {
+                continue;
+            }
+            final Enumeration<InetAddress> itAddresses = iface.getInetAddresses();
+            while (itAddresses.hasMoreElements()) {
+                final InetAddress address = itAddresses.nextElement();
+                if (address.isLoopbackAddress() || address.isLinkLocalAddress()) {
+                    continue;
+                }
+                addresses.add(address);
+            }
+        }
+        return addresses;
+    }
 
     @Override
-    public JmDNS getClient() {
-        return jmdns;
+    public Set<JmDNS> getClientInstances() {
+        return jmdnsInstances;
     }
 
     public void activate() {
-        try {
-            jmdns = JmDNS.create();
-            logger.debug("mDNS service has been started");
-        } catch (IOException e) {
+        for (InetAddress address : getAllInetAddresses()) {
+            try {
+                JmDNS jmdns = JmDNS.create(address, "JmDNS-IP-" + (jmdnsInstances.size() + 1));
+                jmdnsInstances.add(jmdns);
+                logger.debug("mDNS service has been started ({} for IP {})", jmdns.getName(), address.getHostAddress());
+            } catch (IOException e) {
+                logger.debug("JmDNS instanciation failed ({})!", address.getHostAddress());
+            }
+        }
+        if (jmdnsInstances.isEmpty()) {
             // we must cancel the activation of this component here
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("No mDNS service has been started");
         }
     }
 
     public void deactivate() {
-        if (jmdns != null) {
+        for (JmDNS jmdns : jmdnsInstances) {
             try {
                 jmdns.close();
             } catch (IOException e) {

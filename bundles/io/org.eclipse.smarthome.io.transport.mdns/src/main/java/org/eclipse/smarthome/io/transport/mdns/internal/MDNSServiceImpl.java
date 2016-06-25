@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 
+import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
 import org.eclipse.smarthome.io.transport.mdns.MDNSClient;
@@ -32,7 +33,7 @@ public class MDNSServiceImpl implements MDNSService {
     private final Logger logger = LoggerFactory.getLogger(MDNSServiceImpl.class);
     private MDNSClient mdnsClient;
 
-    private Set<ServiceInfo> servicesToRegisterQueue = new CopyOnWriteArraySet<>();
+    private Set<ServiceDescription> servicesToRegisterQueue = new CopyOnWriteArraySet<>();
 
     public MDNSServiceImpl() {
     }
@@ -44,13 +45,24 @@ public class MDNSServiceImpl implements MDNSService {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    for (ServiceInfo serviceInfo : servicesToRegisterQueue) {
+                    logger.debug("Registering {} queued services", servicesToRegisterQueue.size());
+                    for (ServiceDescription description : servicesToRegisterQueue) {
                         try {
-                            logger.debug("Registering new service " + serviceInfo.getType() + " at port "
-                                    + String.valueOf(serviceInfo.getPort()));
-                            mdnsClient.getClient().registerService(serviceInfo);
+                            for (JmDNS instance : mdnsClient.getClientInstances()) {
+                                logger.debug("Registering new service {} at port {} (instance {})",
+                                        description.serviceType, String.valueOf(description.servicePort),
+                                        instance.getName());
+                                // Create one ServiceInfo object for each JmDNS instance
+                                ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType,
+                                        description.serviceName, description.servicePort, 0, 0,
+                                        description.serviceProperties);
+                                instance.registerService(serviceInfo);
+                            }
                         } catch (IOException e) {
                             logger.error(e.getMessage());
+                        } catch (IllegalStateException e) {
+                            logger.debug("Not registering service {}, because service is already deactivated!",
+                                    description.serviceType);
                         }
                     }
                     servicesToRegisterQueue.clear();
@@ -72,23 +84,26 @@ public class MDNSServiceImpl implements MDNSService {
         if (mdnsClient == null) {
             // queue the service to register it as soon as the mDNS client is
             // available
-            ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName,
-                    description.servicePort, 0, 0, description.serviceProperties);
-            servicesToRegisterQueue.add(serviceInfo);
+            servicesToRegisterQueue.add(description);
         } else {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName,
-                            description.servicePort, 0, 0, description.serviceProperties);
                     try {
-                        logger.debug("Registering new service " + description.serviceType + " at port "
-                                + String.valueOf(description.servicePort));
-                        mdnsClient.getClient().registerService(serviceInfo);
+                        for (JmDNS instance : mdnsClient.getClientInstances()) {
+                            logger.debug("Registering new service {} at port {} (instance {})", description.serviceType,
+                                    String.valueOf(description.servicePort), instance.getName());
+                            // Create one ServiceInfo object for each JmDNS instance
+                            ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType,
+                                    description.serviceName, description.servicePort, 0, 0,
+                                    description.serviceProperties);
+                            instance.registerService(serviceInfo);
+                        }
                     } catch (IOException e) {
                         logger.error(e.getMessage());
                     } catch (IllegalStateException e) {
-                        logger.debug("Not registering service, because service is already deactivated!");
+                        logger.debug("Not registering service {}, because service is already deactivated!",
+                                description.serviceType);
                     }
                 }
             };
@@ -104,19 +119,24 @@ public class MDNSServiceImpl implements MDNSService {
         if (mdnsClient == null) {
             return;
         }
-        ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName,
-                description.servicePort, 0, 0, description.serviceProperties);
-        logger.debug("Unregistering service " + description.serviceType + " at port "
-                + String.valueOf(description.servicePort));
-        mdnsClient.getClient().unregisterService(serviceInfo);
+        for (JmDNS instance : mdnsClient.getClientInstances()) {
+            logger.debug("Unregistering service {} at port {} (instance {})", description.serviceType,
+                    String.valueOf(description.servicePort), instance.getName());
+            ServiceInfo serviceInfo = ServiceInfo.create(description.serviceType, description.serviceName,
+                    description.servicePort, 0, 0, description.serviceProperties);
+            instance.unregisterService(serviceInfo);
+        }
     }
 
     /**
      * This method unregisters all services from Bonjour/MDNS
      */
     protected void unregisterAllServices() {
-        if (mdnsClient != null) {
-            mdnsClient.getClient().unregisterAllServices();
+        if (mdnsClient == null) {
+            return;
+        }
+        for (JmDNS instance : mdnsClient.getClientInstances()) {
+            instance.unregisterAllServices();
         }
     }
 
@@ -128,8 +148,10 @@ public class MDNSServiceImpl implements MDNSService {
         unregisterAllServices();
         try {
             if (mdnsClient != null) {
-                mdnsClient.getClient().close();
-                logger.debug("mDNS service has been stopped");
+                for (JmDNS instance : mdnsClient.getClientInstances()) {
+                    instance.close();
+                    logger.debug("mDNS service has been stopped (instance {})", instance.getName());
+                }
             }
         } catch (IOException e) {
             logger.error(e.getMessage());
