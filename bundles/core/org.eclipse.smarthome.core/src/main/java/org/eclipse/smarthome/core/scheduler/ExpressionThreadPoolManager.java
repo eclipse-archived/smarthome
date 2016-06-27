@@ -50,13 +50,13 @@ public class ExpressionThreadPoolManager extends ThreadPoolManager {
                 // do a double check if it is still null or if another thread might have created it meanwhile
                 pool = pools.get(poolName);
                 if (pool == null) {
-                    int[] cfg = getConfig(poolName);
-                    pool = new ExpressionThreadPoolExecutor(poolName, cfg[0]);
+                    Integer cfg = getConfig(poolName);
+                    pool = new ExpressionThreadPoolExecutor(poolName, cfg);
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
                     logger.debug("Created an expression-drive scheduled thread pool '{}' of size {}",
-                            new Object[] { poolName, cfg[0] });
+                            new Object[] { poolName, cfg });
                 }
             }
         }
