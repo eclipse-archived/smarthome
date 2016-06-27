@@ -34,7 +34,7 @@ class ThreadPoolManagerTest {
 
         assertTrue result.allowsCoreThreadTimeOut()
         assertThat result.getKeepAliveTime(TimeUnit.SECONDS), is(ThreadPoolManager.THREAD_TIMEOUT)
-        assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
+        assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_SIZE)
     }
 
     @Test
@@ -47,7 +47,7 @@ class ThreadPoolManagerTest {
 
         assertTrue tpe.allowsCoreThreadTimeOut()
         assertThat tpe.getKeepAliveTime(TimeUnit.SECONDS), is(ThreadPoolManager.THREAD_TIMEOUT)
-        assertThat tpe.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
+        assertThat tpe.getMaximumPoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_SIZE)
     }
 
     @Test
@@ -65,16 +65,16 @@ class ThreadPoolManagerTest {
     void 'get configured cached pool'() {
 
         def tpm = new ThreadPoolManager()
-        tpm.modified(["test4":"4,10"])
+        tpm.modified(["test4":"4"])
         ThreadPoolExecutor result = ThreadPoolManager.getPool("test4")
 
-        assertThat result.getCorePoolSize(), is(4)
+        assertThat result.getMaximumPoolSize(), is(4)
     }
 
     @Test
     void 'reconfiguring scheduled pool'() {
         ThreadPoolExecutor result = ThreadPoolManager.getScheduledPool("test5")
-        assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
+        assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_SIZE)
 
         def tpm = new ThreadPoolManager()
         tpm.modified(["test5":"11"])
@@ -85,14 +85,14 @@ class ThreadPoolManagerTest {
     @Test
     void 'reconfiguring cached pool'() {
         ThreadPoolExecutor result = ThreadPoolManager.getPool("test6")
-        assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
+        assertThat result.getMaximumPoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_SIZE)
 
         def tpm = new ThreadPoolManager()
         tpm.modified(["test6":"7"])
 
-        assertThat result.getCorePoolSize(), is(7)
+        assertThat result.getMaximumPoolSize(), is(7)
 
-        tpm.modified(["test6":"3,8"])
-        assertThat result.getCorePoolSize(), is(3)
+        tpm.modified(["test6":"3"])
+        assertThat result.getMaximumPoolSize(), is(3)
     }
 }
