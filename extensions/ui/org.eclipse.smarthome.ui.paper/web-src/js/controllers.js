@@ -107,7 +107,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
     discoveryResultRepository.getAll();
     thingTypeRepository.getAll();
     bindingRepository.getAll();
-}).controller('PreferencesPageController', function($rootScope, $scope, toastService) {
+}).controller('PreferencesPageController', function($rootScope, $scope, $window, $location, toastService) {
     $scope.setHeaderText('Edit user preferences.');
 
     var localStorage = window.localStorage;
@@ -119,7 +119,12 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
         $rootScope.advancedMode = $scope.advancedMode;
         localStorage.setItem('paperui.language', $scope.language);
         localStorage.setItem('paperui.advancedMode', $rootScope.advancedMode);
-        toastService.showSuccessToast('Preferences saved successfully. Please reload the page.');
+
+        toastService.showSuccessToast('Preferences saved successfully.');
+        setTimeout(function() {
+            $window.location.reload();
+        }, 1500);
+
     }
 
     $scope.getSelected = function(property) {

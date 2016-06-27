@@ -834,3 +834,10 @@ md-chips strong {
 .fab-item hr.border-line {
 	margin: 0px;
 }
+
+.material-icons.color-remove {
+	font-size: 12px;
+	margin-top: 10px;
+	cursor: pointer;
+	color: grey;
+}
