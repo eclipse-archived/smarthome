@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +46,7 @@ public class ThreadPoolManager {
 
     private final static Logger logger = LoggerFactory.getLogger(ThreadPoolManager.class);
 
-    protected static final int DEFAULT_THREAD_POOL_CORE_SIZE = 5;
+    protected static final int DEFAULT_THREAD_POOL_SIZE = 5;
 
     protected static final long THREAD_TIMEOUT = 65L;
     protected static final long THREAD_MONITOR_SLEEP = 60000;
@@ -74,9 +75,14 @@ public class ThreadPoolManager {
                     Integer poolSize = Integer.valueOf((String) config);
                     configs.put(poolName, poolSize);
                     ThreadPoolExecutor pool = (ThreadPoolExecutor) pools.get(poolName);
-                    if (pool != null) {
+                    if (pool instanceof ScheduledThreadPoolExecutor) {
                         pool.setCorePoolSize(poolSize);
-                        logger.debug("Updated thread pool '{}' to size {}", new Object[] { poolName, poolSize });
+                        logger.debug("Updated scheduled thread pool '{}' to size {}",
+                                new Object[] { poolName, poolSize });
+                    } else if (pool instanceof QueueingThreadPoolExecutor) {
+                        pool.setMaximumPoolSize(poolSize);
+                        logger.debug("Updated queuing thread pool '{}' to size {}",
+                                new Object[] { poolName, poolSize });
                     }
                 } catch (NumberFormatException e) {
                     logger.warn("Ignoring invalid configuration for pool '{}': {} - value must be an integer",
@@ -132,7 +138,7 @@ public class ThreadPoolManager {
                 pool = pools.get(poolName);
                 if (pool == null) {
                     int cfg = getConfig(poolName);
-                    pool = new QueueingThreadPoolExecutor(poolName, cfg);
+                    pool = QueueingThreadPoolExecutor.createInstance(poolName, cfg);
                     ((ThreadPoolExecutor) pool).setKeepAliveTime(THREAD_TIMEOUT, TimeUnit.SECONDS);
                     ((ThreadPoolExecutor) pool).allowCoreThreadTimeOut(true);
                     pools.put(poolName, pool);
@@ -145,7 +151,7 @@ public class ThreadPoolManager {
 
     protected static int getConfig(String poolName) {
         Integer cfg = configs.get(poolName);
-        return (cfg != null) ? cfg : DEFAULT_THREAD_POOL_CORE_SIZE;
+        return (cfg != null) ? cfg : DEFAULT_THREAD_POOL_SIZE;
     }
 
     /**
