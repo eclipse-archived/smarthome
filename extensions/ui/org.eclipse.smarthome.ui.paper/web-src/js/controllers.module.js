@@ -65,8 +65,8 @@ angular.module('PaperUI.controllers.rules').controller('addModuleDialogControlle
             if (index != -1) {
                 $scope.configuration = configService.convertValues(sharedProperties.getModuleArray(type)[index].configuration);
                 angular.copy($scope.configuration, originalConfiguration);
-                $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             }
+            $scope.configuration = configService.setConfigDefaults($scope.configuration, $scope.parameters);
             if (hasScript && type != 'trigger') {
                 var triggers = sharedProperties.getModuleArray('trigger');
                 angular.forEach(triggers, function(trigger, i) {

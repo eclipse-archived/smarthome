@@ -121,8 +121,12 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.element = 'select';
                         thingList = thingList === undefined ? thingService.getAll() : thingList;
                         parameter.options = thingList;
-                    } else if (parameter.context.toUpperCase() === 'COLOR' || parameter.context.toUpperCase() === 'TIME') {
+                    } else if (parameter.context.toUpperCase() === 'TIME') {
                         parameter.element = 'input';
+                        parameter.input = "TEXT";
+                        parameter.inputType = parameter.context;
+                    } else if (parameter.context.toUpperCase() === 'COLOR') {
+                        parameter.element = 'color';
                         parameter.input = "TEXT";
                         parameter.inputType = parameter.context;
                     } else if (parameter.context.toUpperCase() === 'SCRIPT') {
@@ -219,9 +223,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     var date = Date.parse(value);
                     if (param !== null && param.context && !isNaN(date)) {
                         if (param.context.toUpperCase() === 'TIME') {
-                            value = value.getHours() + ':' + value.getMinutes() + ':' + value.getSeconds();
+                            value = (value.getHours() < 10 ? '0' : '') + value.getHours() + ':' + (value.getMinutes() < 10 ? '0' : '') + value.getMinutes();
                         } else if (param.context.toUpperCase() === 'DATE') {
-                            value = (value.getFullYear() + '-' + (value.getMonth() + 1) + '-' + value.getDate());
+                            value = (value.getFullYear() + '-' + (value.getMonth() < 10 ? '0' : '') + (value.getMonth() + 1) + '-' + value.getDate());
                         }
                     }
                 }
@@ -232,7 +236,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             });
             return configArray;
         },
-        getConfigAsObject : function(configArray, paramGroups) {
+        getConfigAsObject : function(configArray, paramGroups, sending) {
             var config = {};
 
             for (var i = 0; configArray && i < configArray.length; i++) {
@@ -244,9 +248,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     if (param.context.toUpperCase() === 'TIME') {
                         var time = configEntry.value ? configEntry.value.split(/[\s\/,.:-]+/) : [];
                         if (time.length > 1) {
-                            configEntry.value = new Date(1970, 0, 1, time[0], time[1], time.length > 2 ? time[2] : 0);
-                        } else {
-                            configEntry.value = null;
+                            configEntry.value = new Date(1970, 0, 1, time[0], time[1]);
                         }
                     } else if (param.context.toUpperCase() === 'DATE') {
                         var dateParts = configEntry.value ? configEntry.value.split(/[\s\/,.:-]+/) : [];
@@ -304,17 +306,15 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         if (date) {
                             if (typeof sending !== "undefined" && sending) {
                                 if (parameter.context.toUpperCase() === 'DATE') {
-                                    configuration[parameter.name] = date instanceof Date ? (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()) : date;
+                                    configuration[parameter.name] = date instanceof Date ? (date.getFullYear() + '-' + (date.getMonth() < 10 ? '0' : '') + (date.getMonth() + 1) + '-' + date.getDate()) : date;
                                 } else {
-                                    configuration[parameter.name] = date instanceof Date ? date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() : date;
+                                    configuration[parameter.name] = date instanceof Date ? (date.getHours() < 10 ? '0' : '') + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() : date;
                                 }
                             } else {
                                 if (parameter.context.toUpperCase() === 'TIME') {
                                     var time = date.split(/[\s\/,.:-]+/);
                                     if (time.length > 1) {
-                                        configuration[parameter.name] = new Date(1970, 0, 1, time[0], time[1], time.length > 2 ? time[2] : 0);
-                                    } else {
-                                        configuration[parameter.name] = null;
+                                        configuration[parameter.name] = new Date(1970, 0, 1, time[0], time[1]);
                                     }
                                 } else {
                                     var dateParts = date.split(/[\s\/,.:-]+/);
@@ -327,8 +327,8 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                             }
                         }
 
-                    } else if (parameter.context && (parameter.context.toUpperCase() === 'COLOR')) {
-                        configuration[parameter.name] = "#ffffff";
+                    } else if (!hasValue && parameter.context && (parameter.context.toUpperCase() === 'COLOR' && !sending)) {
+                        // configuration[parameter.name] = "#ffffff";
                     } else if (!hasValue && parameter.type === 'TEXT') {
                         configuration[parameter.name] = parameter.defaultValue
                     } else if (parameter.type === 'BOOLEAN') {
