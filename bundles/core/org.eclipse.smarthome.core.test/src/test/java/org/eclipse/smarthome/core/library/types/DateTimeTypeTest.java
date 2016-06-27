@@ -125,6 +125,8 @@ public class DateTimeTypeTest {
                         "2014-03-30T10:58:47.033+0200") },
                 { new ParameterSet(TimeZone.getTimeZone("CET"), "2014-03-30T10:58:47UTS",
                         "2014-03-30T10:58:47.000+0200") },
+                { new ParameterSet(TimeZone.getTimeZone("GMT+5"), "2014-03-30T10:58:47.000Z",
+                        "2014-03-30T15:58:47.000+0500") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT"), initTimeMap(), TimeZone.getTimeZone("GMT"),
                         "2014-03-30T10:58:47.033+0000") },
                 { new ParameterSet(TimeZone.getTimeZone("GMT+2"), initTimeMap(), TimeZone.getTimeZone("GML"),
