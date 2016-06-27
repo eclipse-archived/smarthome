@@ -110,7 +110,7 @@ public class QueueingThreadPoolExecutor extends ThreadPoolExecutor {
             synchronized (this) {
                 // check again to make sure it has not been created by another thread
                 if (queueThread == null || !queueThread.isAlive()) {
-                    logger.warn("Thread pool '{}' exhausted, queueing tasks now.", threadPoolName);
+                    logger.debug("Thread pool '{}' exhausted, queueing tasks now.", threadPoolName);
                     queueThread = createNewQueueThread();
                     queueThread.start();
                 }
