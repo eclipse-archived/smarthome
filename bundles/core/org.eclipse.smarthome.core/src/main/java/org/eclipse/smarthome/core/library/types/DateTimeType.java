@@ -22,6 +22,7 @@ public class DateTimeType implements PrimitiveType, State, Command {
     public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DATE_PATTERN_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ssz";
     public static final String DATE_PATTERN_WITH_TZ_AND_MS = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    public static final String DATE_PATTERN_WITH_TZ_AND_MS_ISO = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
 
     private Calendar calendar;
 
@@ -41,9 +42,13 @@ public class DateTimeType implements PrimitiveType, State, Command {
                 date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ_AND_MS).parse(calendarValue);
             } catch (ParseException fpe3) {
                 try {
-                    date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ).parse(calendarValue);
-                } catch (ParseException fpe2) {
-                    date = new SimpleDateFormat(DATE_PATTERN).parse(calendarValue);
+                    date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ_AND_MS_ISO).parse(calendarValue);
+                } catch (ParseException fpe4) {
+                    try {
+                        date = new SimpleDateFormat(DATE_PATTERN_WITH_TZ).parse(calendarValue);
+                    } catch (ParseException fpe2) {
+                        date = new SimpleDateFormat(DATE_PATTERN).parse(calendarValue);
+                    }
                 }
             }
         } catch (ParseException fpe) {
