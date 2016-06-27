@@ -151,6 +151,12 @@ public class ThingHelper {
             builder.withChannels(thing.getChannels());
         }
 
+        if (updatedContents.location != null) {
+            builder.withLocation(updatedContents.location);
+        } else {
+            builder.withLocation(thing.getLocation());
+        }
+
         Thing mergedThing = builder.build();
 
         // keep all child things in place on a merged bridge
