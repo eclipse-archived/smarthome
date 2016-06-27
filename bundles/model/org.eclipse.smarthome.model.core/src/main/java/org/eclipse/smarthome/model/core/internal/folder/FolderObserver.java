@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -97,8 +98,9 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     }
 
     @Override
-    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch) {
-        return new WatchQueueReader(watchService, toWatch, folderFileExtMap, modelRepo);
+    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,
+            Map<WatchKey, Path> registeredKeys) {
+        return new WatchQueueReader(watchService, toWatch, registeredKeys, folderFileExtMap, modelRepo);
     }
 
     @Override
@@ -112,13 +114,15 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
     }
 
     @Override
-    protected void registerDirectory(Path subDir) throws IOException {
+    protected WatchKey registerDirectory(Path subDir) throws IOException {
         if (subDir != null && MapUtils.isNotEmpty(folderFileExtMap)) {
             String folderName = subDir.getFileName().toString();
             if (folderFileExtMap.containsKey(folderName)) {
-                subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+                WatchKey registrationKey = subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+                return registrationKey;
             }
         }
+        return null;
     }
 
     private static class WatchQueueReader extends AbstractWatchQueueReader {
@@ -127,9 +131,10 @@ public class FolderObserver extends AbstractWatchService implements ManagedServi
 
         private ModelRepository modelRepo = null;
 
-        public WatchQueueReader(WatchService watchService, Path dirToWatch, Map<String, String[]> folderFileExtMap,
+        public WatchQueueReader(WatchService watchService, Path dirToWatch, Map<WatchKey, Path> registeredKeys,
+                Map<String, String[]> folderFileExtMap,
                 ModelRepository modelRepo) {
-            super(watchService, dirToWatch);
+            super(watchService, dirToWatch,registeredKeys);
 
             this.folderFileExtMap = folderFileExtMap;
             this.modelRepo = modelRepo;

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -157,8 +158,9 @@ public class ConfigDispatcher extends AbstractWatchService {
      * (java.nio.file.Path)
      */
     @Override
-    protected void registerDirectory(Path subDir) throws IOException {
-        subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+    protected WatchKey registerDirectory(Path subDir) throws IOException {
+        WatchKey registrationKey = subDir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+        return registrationKey;
     }
 
     /*
@@ -169,8 +171,9 @@ public class ConfigDispatcher extends AbstractWatchService {
      * (java.nio.file.WatchService, java.nio.file.Path)
      */
     @Override
-    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch) {
-        return new WatchQueueReader(watchService, toWatch);
+    protected AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,
+            Map<WatchKey, Path> registredWatchKeys) {
+        return new WatchQueueReader(watchService, toWatch, registredWatchKeys);
     }
 
     private String getDefaultServiceConfigFile() {
@@ -315,15 +318,15 @@ public class ConfigDispatcher extends AbstractWatchService {
 
     private class WatchQueueReader extends AbstractWatchQueueReader {
 
-        public WatchQueueReader(WatchService watchService, Path dir) {
-            super(watchService, dir);
+        public WatchQueueReader(WatchService watchService, Path dir, Map<WatchKey, Path> registeredKeys) {
+            super(watchService, dir, registeredKeys);
         }
 
         @Override
         protected void processWatchEvent(WatchEvent<?> event, Kind<?> kind, Path path) {
             if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
                 try {
-                    processConfigFile(new File(dir.toAbsolutePath() + File.separator + path.toString()));
+                    processConfigFile(new File(baseWatchedDir.toAbsolutePath() + File.separator + path.toString()));
                 } catch (IOException e) {
                     logger.warn("Could not process config file '{}': {}", path, e);
                 }
