@@ -48,7 +48,6 @@ class ThreadPoolManagerTest {
         assertTrue tpe.allowsCoreThreadTimeOut()
         assertThat tpe.getKeepAliveTime(TimeUnit.SECONDS), is(ThreadPoolManager.THREAD_TIMEOUT)
         assertThat tpe.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
-        assertThat tpe.getMaximumPoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_MAX_SIZE)
     }
 
     @Test
@@ -70,7 +69,6 @@ class ThreadPoolManagerTest {
         ThreadPoolExecutor result = ThreadPoolManager.getPool("test4")
 
         assertThat result.getCorePoolSize(), is(4)
-        assertThat result.getMaximumPoolSize(), is(10)
     }
 
     @Test
@@ -88,16 +86,13 @@ class ThreadPoolManagerTest {
     void 'reconfiguring cached pool'() {
         ThreadPoolExecutor result = ThreadPoolManager.getPool("test6")
         assertThat result.getCorePoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_CORE_SIZE)
-        assertThat result.getMaximumPoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_MAX_SIZE)
 
         def tpm = new ThreadPoolManager()
         tpm.modified(["test6":"7"])
 
         assertThat result.getCorePoolSize(), is(7)
-        assertThat result.getMaximumPoolSize(), is(ThreadPoolManager.DEFAULT_THREAD_POOL_MAX_SIZE)
 
         tpm.modified(["test6":"3,8"])
         assertThat result.getCorePoolSize(), is(3)
-        assertThat result.getMaximumPoolSize(), is(8)
     }
 }
