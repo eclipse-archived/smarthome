@@ -14,11 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,7 +28,6 @@ import org.slf4j.LoggerFactory;
  * >java docs</a> for more details
  *
  * @author Fabio Marini
- * @author Dimitar Ivanov - added javadoc; introduced WatchKey to directory mapping for the queue reader
  *
  */
 public abstract class AbstractWatchService {
@@ -78,7 +74,6 @@ public abstract class AbstractWatchService {
         if (StringUtils.isNotBlank(pathToWatch)) {
             Path toWatch = Paths.get(pathToWatch);
             try {
-                final Map<WatchKey, Path> registeredWatchKeys = new HashMap<>();
                 if (watchSubDirectories()) {
                     watchService = FileSystems.getDefault().newWatchService();
 
@@ -86,16 +81,16 @@ public abstract class AbstractWatchService {
                         @Override
                         public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attrs)
                                 throws IOException {
-                            registerDirectoryInternal(subDir, registeredWatchKeys);
+                            registerDirectory(subDir);
                             return FileVisitResult.CONTINUE;
                         }
                     });
                 } else {
                     watchService = toWatch.getFileSystem().newWatchService();
-                    registerDirectoryInternal(toWatch, registeredWatchKeys);
+                    registerDirectory(toWatch);
                 }
 
-                AbstractWatchQueueReader reader = buildWatchQueueReader(watchService, toWatch, registeredWatchKeys);
+                AbstractWatchQueueReader reader = buildWatchQueueReader(watchService, toWatch);
 
                 Thread qr = new Thread(reader, "Dir Watcher");
                 qr.start();
@@ -105,64 +100,41 @@ public abstract class AbstractWatchService {
         }
     }
 
-    private void registerDirectoryInternal(Path directory, Map<WatchKey, Path> registredWatchKeys) throws IOException {
-        WatchKey registrationKey = registerDirectory(directory);
-        if (registrationKey != null) {
-            registredWatchKeys.put(registrationKey, directory);
-        } else {
-            logger.info("The directory '{}' was not registered in the watch service", directory);
-        }
-    }
-
-    /**
-     * This method will close the {@link #watchService}.
-     */
     protected void stopWatchService() {
-        if (watchService != null) {
-            try {
-                watchService.close();
-            } catch (IOException e) {
-                logger.warn("Cannot deactivate folder watcher", e);
-            }
-
-            watchService = null;
-        }
+    	if(watchService != null) {
+	    	try {
+	            watchService.close();
+	        } catch (IOException e) {
+	            logger.warn("Cannot deactivate folder watcher", e);
+	        }
+	
+	        watchService = null;
+    	}
     }
 
     /**
-     * Build a queue reader to process the watch events, provided by the watch service for the given directory
      * 
-     * @param watchService the watch service, providing the watch events for the watched directory
-     * @param toWatch the directory being watched by the watch service
-     * @param registredWatchKeys a mapping between the registered directories and their {@link WatchKey registration
-     *            keys}.
-     * @return the concrete queue reader
+     * @param watchService
+     * @param toWatch
+     * @return
      */
-    protected abstract AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch,
-            Map<WatchKey, Path> registredWatchKeys);
+    protected abstract AbstractWatchQueueReader buildWatchQueueReader(WatchService watchService, Path toWatch);
 
     /**
-     * @return the path to be watched as a {@link String}. The returned path should be applicable for creating a
-     *         {@link Path} with the {@link Paths#get(String, String...)} method.
+     * 
+     * @return
      */
     protected abstract String getSourcePath();
 
     /**
-     * Determines whether the subdirectories of the source path (determined by the {@link #getSourcePath()}) will be
-     * watched or not.
      * 
-     * @return <code>true</code> if the subdirectories will be watched and <code>false</code> if only the source path
-     *         (determined by the {@link #getSourcePath()}) will be watched
+     * @return
      */
     protected abstract boolean watchSubDirectories();
 
     /**
-     * Registers a directory to be watched by the watch service. The {@link WatchKey} of the registration should be
-     * provided.
-     * 
-     * @param directory the directory, which will be registered in the watch service
-     * @return The {@link WatchKey} of the registration or <code>null</code> if no registration has been done.
-     * @throws IOException if an error occurs while processing the given path
+     * @param subDir
+     * @throws IOException
      */
-    protected abstract WatchKey registerDirectory(Path directory) throws IOException;
+    protected abstract void registerDirectory(Path subDir) throws IOException;
 }
