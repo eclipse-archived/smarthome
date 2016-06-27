@@ -34,7 +34,7 @@ class LocaleProviderOSGiTest extends OSGiTest {
     def static final SCRIPT_RU = "Cyrl"
 
     def static final REGION_DE = "DE"
-    def static final REGION_ES = "DE"
+    def static final REGION_ES = "ES"
     def static final REGION_RU = "RU"
 
     LocaleProvider localeProvider
@@ -50,6 +50,10 @@ class LocaleProviderOSGiTest extends OSGiTest {
         assertThat configAdmin, is(notNullValue())
 
         clearLocale()
+
+        waitForAssert {
+            assertThat localeProvider.@locale, is(null)
+        }
 
         defaultLocale = Locale.getDefault()
     }
