@@ -152,7 +152,7 @@ public class ThingResource implements RESTResource {
         Configuration configuration = new Configuration(normalizeConfiguration(thingBean.configuration, thingTypeUID));
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
-                configuration);
+                thingBean.location, configuration);
 
         if (thing != null) {
             if (thingBean.properties != null) {
@@ -418,7 +418,7 @@ public class ThingResource implements RESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);
