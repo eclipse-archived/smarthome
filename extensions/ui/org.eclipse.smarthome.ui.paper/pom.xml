@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +26,7 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>0.0.27</version>
+        <version>1.0</version>
 
         <executions>
           <execution>
@@ -46,13 +46,18 @@
             </configuration>
           </execution>
 
-          <!-- Default execution argument is 'install' -->
-
           <execution>
             <id>npm install</id>
             <goals>
               <goal>npm</goal>
             </goals>
+            <configuration>
+              <arguments>install</arguments>
+              <environmentVariables>
+                <npm_config_cache>${project.build.directory}/npm_cache</npm_config_cache>
+                <npm_config_tmp>${project.build.directory}/npm_tmp</npm_config_tmp>
+              </environmentVariables>
+            </configuration>
           </execution>
 
           <execution>
