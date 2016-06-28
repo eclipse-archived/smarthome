@@ -841,3 +841,54 @@ md-chips strong {
 	cursor: pointer;
 	color: grey;
 }
+
+.configContainer.dayOfWeek {
+	padding-right: 0px;
+}
+
+.md-button.dow-button, .md-button.dow-button:hover {
+	width: 35px;
+	height: 35px;
+	line-height: 35px;
+	margin-left: 5px;
+	margin-right: 5px;
+	background-color: #bfbfbf;
+	font-size: 14px;
+	z-index: 20;
+	min-width: 0;
+	vertical-align: middle;
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, .26);
+	border-radius: 50%;
+	background-clip: padding-box;
+	overflow: hidden;
+	transition: all .3s cubic-bezier(.55, 0, .55, .2);
+	transition-property: background-color, box-shadow, -webkit-transform;
+	transition-property: background-color, box-shadow, transform;
+}
+
+.md-button.dow-button.dow-selected {
+	background-color: #4CAF50;
+}
+
+@media all and (min-width: 1200px) {
+	.md-button.dow-button, .md-button.dow-button:hover {
+		margin-left: 8px;
+		margin-right: 8px;
+	}
+	.dayParameter {
+		padding-right: 30px;
+	}}
+
+@media all and (max-width: 768px) {
+	.dayParameter {
+		padding-right: 32px;
+	}
+}
+
+md-dialog-content .dayParameter {
+	width: 100%
+}
+
+.dayParameter>div {
+	min-height: 48px;
+}
