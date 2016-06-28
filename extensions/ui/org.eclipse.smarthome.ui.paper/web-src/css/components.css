@@ -545,7 +545,7 @@ md-progress-circular.md-default-theme .md-inner .md-left .md-half-circle
 	margin: 0px !important;
 }
 
-.border-invalid {
+.border-invalid, .border-invalid.border-invalid {
 	border-bottom: 1px solid rgb(244, 67, 54);
 }
 

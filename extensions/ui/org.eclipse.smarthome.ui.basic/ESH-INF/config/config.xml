@@ -41,7 +41,7 @@
 			</options>
 			<default>false</default>
 		</parameter>
-		<parameter name="defaultSitemap" type="text" required="true">
+		<parameter name="defaultSitemap" type="text" required="false">
 			<label>Default Sitemap</label>
 			<description>The sitemap to show if no parameter is passed.</description>
 		</parameter>
