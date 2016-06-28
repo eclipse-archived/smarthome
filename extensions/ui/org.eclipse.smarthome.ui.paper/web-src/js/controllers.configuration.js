@@ -609,10 +609,11 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
             dict.bridgeUID = thing.bridgeUID
             update = true;
         }
-        if (update) {
+        originalThing.configuration = thing.configuration = {};
+        if (JSON.stringify(originalThing) !== JSON.stringify(thing)) {
             thingService.update({
                 thingUID : thing.UID
-            }, dict);
+            }, thing);
         }
         toastService.showDefaultToast('Thing updated');
         $scope.navigateTo('things/view/' + thing.UID);
