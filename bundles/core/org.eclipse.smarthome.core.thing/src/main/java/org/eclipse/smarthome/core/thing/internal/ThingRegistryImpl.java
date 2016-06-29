@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Chris Jackson - ensure thing added event is sent before linked events
  * @auther Thomas Höfer - Added config description validation exception to updateConfiguration operation
  */
-public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implements ThingRegistry {
+public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID> implements ThingRegistry {
 
     private Logger logger = LoggerFactory.getLogger(ThingRegistryImpl.class.getName());
 
@@ -241,11 +241,14 @@ public class ThingRegistryImpl extends AbstractRegistry<Thing, ThingUID>implemen
 
     @Override
     public Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUID, ThingUID bridgeUID, String label,
-            Configuration configuration) {
+            String location, Configuration configuration) {
         logger.debug("Creating thing for type '{}'.", thingTypeUID);
         for (ThingHandlerFactory thingHandlerFactory : thingHandlerFactories) {
             if (thingHandlerFactory.supportsThingType(thingTypeUID)) {
                 Thing thing = thingHandlerFactory.createThing(thingTypeUID, configuration, thingUID, bridgeUID);
+                if (location != null) {
+                    thing.setLocation(location);
+                }
                 thing.setLabel(label);
                 return thing;
             }
