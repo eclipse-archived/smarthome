@@ -11,6 +11,7 @@ import static org.eclipse.smarthome.binding.hue.HueBindingConstants.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.smarthome.binding.hue.HueBindingConstants;
+import org.eclipse.smarthome.binding.hue.HueErrorCodeDescriptor;
 import org.eclipse.smarthome.config.core.Configuration;
+import org.eclipse.smarthome.config.core.status.ConfigStatusCallback;
+import org.eclipse.smarthome.config.core.status.ConfigStatusInfo;
+import org.eclipse.smarthome.config.core.status.ConfigStatusMessage;
+import org.eclipse.smarthome.config.core.status.ConfigStatusProvider;
 import org.eclipse.smarthome.core.library.types.OnOffType;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -58,7 +65,7 @@ import nl.q42.jue.exceptions.UnauthorizedException;
  * @author Stefan Bußweiler - Added new thing status handling
  * @author Jochen Hiller - fixed status updates, use reachable=true/false for state compare
  */
-public class HueBridgeHandler extends BaseBridgeHandler {
+public class HueBridgeHandler extends BaseBridgeHandler implements ConfigStatusProvider {
 
     private static final String LIGHT_STATE_ADDED = "added";
 
@@ -130,7 +137,7 @@ public class HueBridgeHandler extends BaseBridgeHandler {
                         }
                     }
                 } catch (UnauthorizedException | IllegalStateException e) {
-                    if (isReachable(bridge.getIPAddress())) {
+                    if (isReachable()) {
                         lastBridgeConnectionState = false;
                         onNotAuthenticated(bridge);
                     } else {
@@ -151,27 +158,6 @@ public class HueBridgeHandler extends BaseBridgeHandler {
             } catch (Throwable t) {
                 logger.error("An unexpected error occurred: {}", t.getMessage(), t);
             }
-        }
-
-        private boolean isReachable(String ipAddress) {
-            try {
-                // note that InetAddress.isReachable is unreliable, see
-                // http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
-                // That's why we do an HTTP access instead
-
-                // If there is no connection, this line will fail
-                bridge.authenticate("invalid");
-            } catch (IOException e) {
-                return false;
-            } catch (ApiException e) {
-                if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")) {
-                    return false;
-                } else {
-                    // this seems to be only an authentication issue
-                    return true;
-                }
-            }
-            return true;
         }
     };
 
@@ -496,5 +482,70 @@ public class HueBridgeHandler extends BaseBridgeHandler {
         }
         return colorModeIsEqual && effectIsEqual;
     }
+    
+    private boolean isReachable() {
+        synchronized (bridge) { 
+        	try {
+                // note that InetAddress.isReachable is unreliable, see
+                // http://stackoverflow.com/questions/9922543/why-does-inetaddress-isreachable-return-false-when-i-can-ping-the-ip-address
+                // That's why we do an HTTP access instead
 
+                // If there is no connection, this line will fail
+                bridge.authenticate("invalid");
+            } catch (IOException e) {
+                return false;
+            } catch (ApiException e) {
+                if (e.getMessage().contains("SocketTimeout") || e.getMessage().contains("ConnectException")
+                		|| e.getMessage().contains("NoRouteToHostException")) {
+                    return false;
+                } else {
+                    // this seems to be only an authentication issue
+                    return true;
+                }
+            }
+            return true;
+        } 
+    }
+
+	@Override
+	public Collection<ConfigStatusMessage> getConfigStatus() {
+		logger.debug("IP configuration check started.");
+		
+		// Error handler bound to the IP address field
+		ConfigStatusInfo configStatus = new ConfigStatusInfo();
+		ConfigStatusMessage.Builder errBuilder = ConfigStatusMessage.Builder.error(HueBindingConstants.HOST);
+		
+		// Bridge IP address to be used for checks
+		final String bridgeIpAddress = (String) getThing().getConfiguration().get(HueBindingConstants.HOST);
+		
+		// Check whether an IP address is provided
+        if (bridgeIpAddress == null) {
+            logger.error("No IP address has been provided.");
+            configStatus.add(errBuilder.withMessageKey(HueErrorCodeDescriptor.CONFIG_FLOW_ERROR_PREFIX 
+            		+ HueErrorCodeDescriptor.IP_ADDRESS_MISSING.getCode()).build());
+	    	
+            return configStatus.getConfigStatusMessages();
+        }
+
+        // Check if the bridge on the given IP address is reachable
+        if (! isReachable()) {
+            logger.error("The bridge is not responding and is not reachable on {}.", bridgeIpAddress);
+        	configStatus.add(errBuilder.withMessageKey(HueErrorCodeDescriptor.CONFIG_FLOW_ERROR_PREFIX 
+        			+ HueErrorCodeDescriptor.BRIDGE_NOT_RESPONDING.getCode()).build());
+	    	
+            return configStatus.getConfigStatusMessages();
+        }
+
+        return configStatus.getConfigStatusMessages();
+	}	
+
+	@Override
+	public boolean supportsEntity(String entityId) {
+
+		return getThing().getUID().getAsString().equals(entityId);
+	}
+
+	@Override
+	public void setConfigStatusCallback(ConfigStatusCallback configStatusCallback) {	
+	}
 }
