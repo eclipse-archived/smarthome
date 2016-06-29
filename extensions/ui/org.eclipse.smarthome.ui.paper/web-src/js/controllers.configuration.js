@@ -599,16 +599,6 @@ angular.module('PaperUI.controllers.configuration', [ 'PaperUI.constants' ]).con
                 thingRepository.update(thing);
             });
         }
-        var dict = {};
-        var update = false;
-        if (originalThing.label !== thing.label) {
-            dict.label = thing.label;
-            update = true;
-        }
-        if (originalThing.bridgeUID !== thing.bridgeUID) {
-            dict.bridgeUID = thing.bridgeUID
-            update = true;
-        }
         originalThing.configuration = thing.configuration = {};
         if (JSON.stringify(originalThing) !== JSON.stringify(thing)) {
             thingService.update({
