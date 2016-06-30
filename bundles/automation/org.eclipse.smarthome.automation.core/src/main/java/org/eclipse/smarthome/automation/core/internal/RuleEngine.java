@@ -198,18 +198,6 @@ public class RuleEngine
      * @return UID of added rule.
      */
     public Rule addRule(Rule rule, boolean isEnabled) {
-        return addRule0(rule, isEnabled);
-    }
-
-    /**
-     * Utility method that adds rule into rule engine. It creates internal RuleImpl object which is deep copy of the
-     * passed {@link Rule} object and adds this copy into RuleEngine
-     *
-     * @param rule a rule which has to be added
-     * @param isEnabled
-     * @throws IllegalArgumentException when the rule with the same UID is already added.
-     */
-    private Rule addRule0(Rule rule, boolean isEnabled) {
         RuntimeRule rr;
         Rule ruleWithUID;
         String rUID = rule.getUID();
@@ -419,20 +407,29 @@ public class RuleEngine
         if (modules != null) {
             for (T m : modules) {
                 updateMapModuleTypeToRule(rUID, m.getTypeUID());
-                ModuleHandler moduleHandler = getModuleHandler(m, rUID);
-                if (moduleHandler != null) {
-                    if (m instanceof RuntimeAction) {
-                        ((RuntimeAction) m).setModuleHandler((ActionHandler) moduleHandler);
-                    } else if (m instanceof RuntimeCondition) {
-                        ((RuntimeCondition) m).setModuleHandler((ConditionHandler) moduleHandler);
-                    } else if (m instanceof RuntimeTrigger) {
-                        ((RuntimeTrigger) m).setModuleHandler((TriggerHandler) moduleHandler);
+                try {
+                    ModuleHandler moduleHandler = getModuleHandler(m, rUID);
+                    if (moduleHandler != null) {
+                        if (m instanceof RuntimeAction) {
+                            ((RuntimeAction) m).setModuleHandler((ActionHandler) moduleHandler);
+                        } else if (m instanceof RuntimeCondition) {
+                            ((RuntimeCondition) m).setModuleHandler((ConditionHandler) moduleHandler);
+                        } else if (m instanceof RuntimeTrigger) {
+                            ((RuntimeTrigger) m).setModuleHandler((TriggerHandler) moduleHandler);
+                        }
+                    } else {
+                        if (sb == null) {
+                            sb = new StringBuffer();
+                        }
+                        String message = "Missing handler '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
+                        sb.append(message).append("\n");
+                        logger.trace(message);
                     }
-                } else {
+                } catch (Throwable t) {
                     if (sb == null) {
                         sb = new StringBuffer();
                     }
-                    String message = "Missing handler  '" + m.getTypeUID() + "' for module '" + m.getId() + "'";
+                    String message = "Getting handler '" + m.getTypeUID() + "' for module '" + m.getId() + "' fails";
                     sb.append(message).append("\n");
                     logger.trace(message);
                 }

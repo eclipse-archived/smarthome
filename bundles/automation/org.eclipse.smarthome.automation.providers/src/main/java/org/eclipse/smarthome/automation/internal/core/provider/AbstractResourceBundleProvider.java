@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.parser.Parser;
+import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -226,13 +227,13 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             parsers = null;
         }
         synchronized (providedObjectsHolder) {
-            providedObjectsHolder = null;
+            providedObjectsHolder.clear();
         }
         synchronized (providerPortfolio) {
-            providerPortfolio = null;
+            providerPortfolio.clear();
         }
         synchronized (waitingProviders) {
-            waitingProviders = null;
+            waitingProviders.clear();
         }
     }
 
@@ -289,21 +290,6 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      *            objects.
      */
     protected void processAutomationProvider(Bundle bundle) {
-        synchronized (providerPortfolio) {
-            for (Vendor vendor : providerPortfolio.keySet()) {
-                if (vendor.getVendorSymbolicName().equals(bundle.getSymbolicName())) {
-                    List<String> portfolio = providerPortfolio.remove(vendor);
-                    if (portfolio != null && !portfolio.isEmpty()) {
-                        for (String uid : portfolio) {
-                            synchronized (providedObjectsHolder) {
-                                providedObjectsHolder.remove(uid);
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
         Enumeration<URL> urlEnum = null;
         try {
             urlEnum = bundle.findEntries(path, null, true);
@@ -316,38 +302,68 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
             return;
         }
         Vendor vendor = new Vendor(bundle.getSymbolicName(), bundle.getVersion().toString());
+        List<String> newPortfolio = new ArrayList<String>();
         while (urlEnum.hasMoreElements()) {
             URL url = urlEnum.nextElement();
             String parserType = getParserType(url);
             Parser<E> parser = parsers.get(parserType);
-            synchronized (waitingProviders) {
-                List<URL> urlList = waitingProviders.get(bundle);
-                if (parser != null) {
-                    if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
-                        waitingProviders.remove(bundle);
-                    }
-                    InputStreamReader reader = null;
+            updateWaitingProviders(parser, bundle, url);
+            InputStreamReader reader = null;
+            try {
+                Set<E> parsedObjects = parseData(parser, reader = new InputStreamReader(url.openStream()));
+                if (parsedObjects != null && !parsedObjects.isEmpty()) {
+                    addNewProvidedObjects(newPortfolio, parsedObjects);
+                    removeUninstalledObjects(getPreviousPortfolio(vendor), newPortfolio);
+                    updateProviderRegistration();
+                }
+            } catch (IOException e) {
+                logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
+                processAutomationProviderUninstalled(bundle);
+            } finally {
+                if (reader != null) {
                     try {
-                        importData(vendor, parser, reader = new InputStreamReader(url.openStream()));
-                    } catch (IOException e) {
-                        logger.error("Can't read from resource of bundle with ID {}", bundle.getBundleId(), e);
-                        processAutomationProviderUninstalled(bundle);
-                    } finally {
-                        if (reader != null) {
-                            try {
-                                reader.close();
-                            } catch (IOException ignore) {
-                            }
-                        }
+                        reader.close();
+                    } catch (IOException ignore) {
                     }
-                } else if (parser == null) {
-                    if (urlList == null) {
-                        urlList = new ArrayList<URL>();
-                    }
-                    urlList.add(url);
-                    waitingProviders.put(bundle, urlList);
                 }
             }
+        }
+        putNewPortfolio(vendor, newPortfolio);
+    }
+
+    protected void removeUninstalledObjects(List<String> previousPortfolio, List<String> newPortfolio) {
+        if (previousPortfolio != null && !previousPortfolio.isEmpty()) {
+            synchronized (providedObjectsHolder) {
+                for (String uid : previousPortfolio) {
+                    if (!newPortfolio.contains(uid)) {
+                        providedObjectsHolder.remove(uid);
+                    }
+                }
+            }
+        }
+    }
+
+    protected List<String> getPreviousPortfolio(Vendor vendor) {
+        synchronized (providerPortfolio) {
+            List<String> portfolio = providerPortfolio.get(vendor);
+            if (portfolio == null) {
+                Iterator<Vendor> keys = providerPortfolio.keySet().iterator();
+                while (keys.hasNext()) {
+                    Vendor v = keys.next();
+                    if (v.getVendorSymbolicName().equals(vendor.getVendorSymbolicName())) {
+                        portfolio = providerPortfolio.get(v);
+                        keys.remove();
+                        break;
+                    }
+                }
+            }
+            return portfolio;
+        }
+    }
+
+    protected void putNewPortfolio(Vendor vendor, List<String> portfolio) {
+        synchronized (providerPortfolio) {
+            providerPortfolio.put(vendor, portfolio);
         }
     }
 
@@ -419,10 +435,12 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
                 }
             }
         }
-        Bundle[] bundles = bc.getBundles();
-        for (int i = 0; i < bundles.length; i++) {
-            if (bundles[i].getSymbolicName().equals(symbolicName)) {
-                return bundles[i];
+        if (symbolicName != null) {
+            Bundle[] bundles = bc.getBundles();
+            for (int i = 0; i < bundles.length; i++) {
+                if (bundles[i].getSymbolicName().equals(symbolicName)) {
+                    return bundles[i];
+                }
             }
         }
         return null;
@@ -492,6 +510,36 @@ public abstract class AbstractResourceBundleProvider<E> implements ServiceTracke
      * @param inputStreamReader the {@link InputStreamReader} which is used for loading the objects.
      * @return a set of automation objects - the result of loading.
      */
-    protected abstract Set<E> importData(Vendor vendor, Parser<E> parser, InputStreamReader inputStreamReader);
+    protected Set<E> parseData(Parser<E> parser, InputStreamReader inputStreamReader) {
+        if (parser != null) {
+            try {
+                return parser.parse(inputStreamReader);
+            } catch (ParsingException e) {
+                logger.error(e.getLocalizedMessage(), e);
+            }
+        }
+        return null;
+    }
+
+    protected abstract void updateProviderRegistration();
+
+    protected abstract void addNewProvidedObjects(List<String> newPortfolio, Set<E> parsedObjects);
+
+    protected void updateWaitingProviders(Parser<E> parser, Bundle bundle, URL url) {
+        synchronized (waitingProviders) {
+            List<URL> urlList = waitingProviders.get(bundle);
+            if (parser != null) {
+                if (urlList != null && urlList.remove(url) && urlList.isEmpty()) {
+                    waitingProviders.remove(bundle);
+                }
+            } else if (parser == null) {
+                if (urlList == null) {
+                    urlList = new ArrayList<URL>();
+                }
+                urlList.add(url);
+                waitingProviders.put(bundle, urlList);
+            }
+        }
+    }
 
 }

@@ -7,12 +7,11 @@
  */
 package org.eclipse.smarthome.automation.internal.core.provider;
 
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -23,7 +22,6 @@ import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.ModuleI18nUtil;
 import org.eclipse.smarthome.automation.internal.core.provider.i18n.RuleTemplateI18nUtil;
 import org.eclipse.smarthome.automation.parser.Parser;
-import org.eclipse.smarthome.automation.parser.ParsingException;
 import org.eclipse.smarthome.automation.template.RuleTemplate;
 import org.eclipse.smarthome.automation.template.Template;
 import org.eclipse.smarthome.automation.template.TemplateProvider;
@@ -169,18 +167,12 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
     /**
      * @see TemplateProvider#getTemplate(java.lang.String, java.util.Locale)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Template> T getTemplate(String UID, Locale locale) {
-        Template defTemplate = null;
-        synchronized (providerPortfolio) {
-            defTemplate = providedObjectsHolder.get(UID);
+        synchronized (providedObjectsHolder) {
+            return (T) getPerLocale(providedObjectsHolder.get(UID), locale);
         }
-        if (defTemplate != null) {
-            @SuppressWarnings("unchecked")
-            T t = (T) getPerLocale(defTemplate, locale);
-            return t;
-        }
-        return null;
     }
 
     /**
@@ -190,15 +182,8 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
     public Collection<Template> getTemplates(Locale locale) {
         ArrayList<Template> templatesList = new ArrayList<Template>();
         synchronized (providedObjectsHolder) {
-            Iterator<Template> i = providedObjectsHolder.values().iterator();
-            while (i.hasNext()) {
-                Template defTemplate = i.next();
-                if (defTemplate != null) {
-                    Template t = getPerLocale(defTemplate, locale);
-                    if (t != null) {
-                        templatesList.add(t);
-                    }
-                }
+            for (Template t : providedObjectsHolder.values()) {
+                templatesList.add(getPerLocale(t, locale));
             }
         }
         return templatesList;
@@ -220,47 +205,18 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
         return moduleTypeRegistry != null && templateRegistry != null && queue != null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected Set<Template> importData(Vendor vendor, Parser<Template> parser, InputStreamReader inputStreamReader) {
-        List<String> portfolio = null;
-        if (vendor != null) {
-            synchronized (providerPortfolio) {
-                portfolio = providerPortfolio.get(vendor);
-                if (portfolio == null) {
-                    portfolio = new ArrayList<String>();
-                    providerPortfolio.put(vendor, portfolio);
-                }
-            }
-        }
-        Set<Template> providedObjects = null;
-        try {
-            providedObjects = parser.parse(inputStreamReader);
-        } catch (ParsingException e) {
-            logger.error("Template parsing of vendor {} is faild!", vendor, e);
-        }
-        if (providedObjects != null && !providedObjects.isEmpty()) {
-            for (Template ruleT : providedObjects) {
-                String uid = ruleT.getUID();
-                if (checkExistence(uid)) {
+    protected void addNewProvidedObjects(List<String> newPortfolio, Set<Template> parsedObjects) {
+        synchronized (providedObjectsHolder) {
+            for (Template parsedObject : parsedObjects) {
+                String uid = parsedObject.getUID();
+                if (providedObjectsHolder.get(uid) == null && checkExistence(uid)) {
                     continue;
                 }
-                if (portfolio != null) {
-                    portfolio.add(uid);
-                }
-                synchronized (providedObjectsHolder) {
-                    providedObjectsHolder.put(uid, ruleT);
-                }
-            }
-            Dictionary<String, Object> properties = new Hashtable<String, Object>();
-            properties.put(REG_PROPERTY_RULE_TEMPLATES, providedObjectsHolder.keySet());
-            if (tpReg == null) {
-                tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
-            } else {
-                tpReg.setProperties(properties);
+                newPortfolio.add(uid);
+                providedObjectsHolder.put(uid, parsedObject);
             }
         }
-        return providedObjects;
     }
 
     /**
@@ -288,7 +244,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
      * @return the localized {@link Template}.
      */
     private Template getPerLocale(Template defTemplate, Locale locale) {
-        if (locale == null) {
+        if (locale == null || defTemplate == null) {
             return defTemplate;
         }
         String uid = defTemplate.getUID();
@@ -313,6 +269,20 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
                     lconditions, lactions, lconfigDescriptions, ((RuleTemplate) defTemplate).getVisibility());
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void updateProviderRegistration() {
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        synchronized (providedObjectsHolder) {
+            properties.put(REG_PROPERTY_RULE_TEMPLATES, new HashSet<String>(providedObjectsHolder.keySet()));
+        }
+        if (tpReg == null) {
+            tpReg = bc.registerService(TemplateProvider.class.getName(), this, properties);
+        } else {
+            tpReg.setProperties(properties);
+        }
     }
 
 }
