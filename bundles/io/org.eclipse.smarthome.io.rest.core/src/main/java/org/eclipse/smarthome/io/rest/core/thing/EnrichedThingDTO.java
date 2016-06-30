@@ -33,7 +33,6 @@ public class EnrichedThingDTO extends ThingDTO {
         if (thingDTO.label != null) {
             this.label = thingDTO.label;
         }
-        this.location = thingDTO.location;
         this.thingTypeUID = thingDTO.thingTypeUID;
         this.bridgeUID = thingDTO.bridgeUID;
         this.channels = new ArrayList<>();
