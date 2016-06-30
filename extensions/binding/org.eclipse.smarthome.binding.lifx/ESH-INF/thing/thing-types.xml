@@ -9,6 +9,7 @@
 
         <channels>
             <channel id="color" typeId="color" />
+            <channel id="brightness" typeId="brightness" />
             <channel id="temperature" typeId="temperature" />
         </channels>
 
