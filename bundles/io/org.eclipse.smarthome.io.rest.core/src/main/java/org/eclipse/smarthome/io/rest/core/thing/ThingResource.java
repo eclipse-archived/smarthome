@@ -167,6 +167,9 @@ public class ThingResource implements RESTResource {
                 }
                 ThingHelper.addChannelsToThing(thing, channels);
             }
+            if (thingBean.location != null) {
+                thing.setLocation(thingBean.location);
+            }
         } else if (thingUID != null) {
             // if there wasn't any ThingFactory capable of creating the thing,
             // we create the Thing exactly the way we received it, i.e. we
@@ -418,7 +421,7 @@ public class ThingResource implements RESTResource {
     public Response updateConfiguration(@HeaderParam(HttpHeaders.ACCEPT_LANGUAGE) String language,
             @PathParam("thingUID") @ApiParam(value = "thing") String thingUID,
             @ApiParam(value = "configuration parameters") Map<String, Object> configurationParameters)
-                    throws IOException {
+            throws IOException {
         final Locale locale = LocaleUtil.getLocale(language);
 
         ThingUID thingUIDObject = new ThingUID(thingUID);

@@ -43,6 +43,9 @@ public class EnrichedThingDTO extends ThingDTO {
         this.configuration = thingDTO.configuration;
         this.properties = thingDTO.properties;
         this.statusInfo = statusInfo;
+        if (thingDTO.location != null) {
+            this.location = thingDTO.location;
+        }
     }
 
 }
