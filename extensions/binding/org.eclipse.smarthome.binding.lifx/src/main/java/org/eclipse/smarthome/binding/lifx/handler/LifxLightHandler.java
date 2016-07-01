@@ -257,13 +257,17 @@ public class LifxLightHandler extends BaseThingHandler {
                         if (command instanceof HSBType) {
                             handleHSBCommand((HSBType) command);
                             return;
+                        } else if (command instanceof PercentType) {
+                            handlePercentCommand((PercentType) command);
+                        } else if (command instanceof OnOffType) {
+                            handleColorOnOffCommand((OnOffType) command);
                         }
                         break;
                     case CHANNEL_BRIGHTNESS:
                         if (command instanceof PercentType) {
                             handlePercentCommand((PercentType) command);
                         } else if (command instanceof OnOffType) {
-                            handleOnOffCommand((OnOffType) command);
+                            handleBrightnessOnOffCommand((OnOffType) command);
                         } else if (command instanceof IncreaseDecreaseType) {
                             handleIncreaseDecreaseCommand((IncreaseDecreaseType) command);
                         }
@@ -329,7 +333,26 @@ public class LifxLightHandler extends BaseThingHandler {
         }
     }
 
-    private void handleOnOffCommand(OnOffType onOffType) {
+    private void handleColorOnOffCommand(OnOffType onOffType) {
+
+        if (currentColorState != null) {
+            PercentType percentType = onOffType == OnOffType.ON ? new PercentType(100) : new PercentType(0);
+            HSBType newColorState = new HSBType(currentColorState.getHue(), currentColorState.getSaturation(),
+                    percentType);
+            handleHSBCommand(newColorState);
+        }
+
+        PowerState lfxPowerState = onOffType == OnOffType.ON ? PowerState.ON : PowerState.OFF;
+        SetLightPowerRequest packet = new SetLightPowerRequest(lfxPowerState);
+        sendPacket(packet);
+
+        // the LIFX LAN protocol spec indicates that the response returned for a request would be the
+        // previous value, so we explicitely demand for the latest value
+        GetLightPowerRequest powerPacket = new GetLightPowerRequest();
+        sendPacket(powerPacket);
+    }
+
+    private void handleBrightnessOnOffCommand(OnOffType onOffType) {
         PowerState lfxPowerState = onOffType == OnOffType.ON ? PowerState.ON : PowerState.OFF;
         SetLightPowerRequest packet = new SetLightPowerRequest(lfxPowerState);
         sendPacket(packet);
