@@ -289,9 +289,9 @@ public class LifxLightHandler extends BaseThingHandler {
     }
 
     private void handleTemperatureCommand(PercentType temperature) {
+        logger.debug("The set temperature '{}' yields {} Kelvin", temperature, toKelvin(temperature.intValue()));
         SetColorRequest packet = new SetColorRequest((int) (currentColorState.getHue().floatValue() / 360 * 65535.0f),
-                (int) (currentColorState.getSaturation().floatValue() / 100 * 65535.0f),
-                (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
+                0, (int) (currentColorState.getBrightness().floatValue() / 100 * 65535.0f),
                 toKelvin(temperature.intValue()), fadeTime);
         packet.setResponseRequired(false);
         sendPacket(packet);
@@ -777,12 +777,12 @@ public class LifxLightHandler extends BaseThingHandler {
 
     private int toKelvin(int temperature) {
         // range is from 2500-9000K
-        return 9000 - (temperature * 65 + 2500);
+        return 9000 - (temperature * 65);
     }
 
     private int toPercent(int kelvin) {
         // range is from 2500-9000K
-        return 100 - ((kelvin - 2500) / 65);
+        return (kelvin - 9000) / (-65);
     }
 
     public void handleLightStatus(StateResponse packet) {
