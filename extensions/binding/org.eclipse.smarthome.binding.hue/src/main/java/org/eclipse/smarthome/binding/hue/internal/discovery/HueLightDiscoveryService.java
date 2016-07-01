@@ -44,6 +44,7 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
     private final Logger logger = LoggerFactory.getLogger(HueLightDiscoveryService.class);
 
     private final static int SEARCH_TIME = 60;
+    private final static String MODEL_ID = "modelId";
 
     // @formatter:off
     private final static Map<String, String> TYPE_TO_ZIGBEE_ID_MAP = new ImmutableMap.Builder<String, String>()
@@ -103,14 +104,17 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
         ThingUID thingUID = getThingUID(light);
         ThingTypeUID thingTypeUID = getThingTypeUID(light);
 
+        String modelId = light.getModelID().replaceAll(HueLightHandler.NORMALIZE_ID_REGEX, "_");
+
         if (thingUID != null && thingTypeUID != null) {
             ThingUID bridgeUID = hueBridgeHandler.getThing().getUID();
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(LIGHT_ID, light.getId());
+            properties.put(MODEL_ID, modelId);
 
             /*
              * TODO retrieve the light´s unique id (available since Hue bridge versions > 1.3) and set the mac address
-             * as discovery result representationÏ. For this purpose the jue library has to be modified.
+             * as discovery result representation. For this purpose the jue library has to be modified.
              */
 
             DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withThingType(thingTypeUID)
@@ -118,7 +122,8 @@ public class HueLightDiscoveryService extends AbstractDiscoveryService implement
 
             thingDiscovered(discoveryResult);
         } else {
-            logger.debug("discovered unsupported light of type '{}' with id {}", light.getModelID(), light.getId());
+            logger.debug("discovered unsupported light of type '{}' and model '{}' with id {}", light.getType(),
+                    modelId, light.getId());
         }
     }
 
