@@ -92,7 +92,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             for (var j = 0; j < configGroups.length; j++) {
                 indexArray[configGroups[j].name] = j;
             }
-            if (!configParameters) {
+            if (!configParameters || configParameters.length == 0) {
                 return parameters;
             }
             var groupsList = [];
