@@ -182,7 +182,8 @@ public class ThingResource implements RESTResource {
         }
 
         thingRegistry.add(thing);
-        return getThingResponse(Status.CREATED, thing, locale, "Thing " + thingUID.toString() + " already exists!");
+        return getThingResponse(Status.CREATED, thing, locale,
+                "Thing " + thing.getUID().toString() + " already exists!");
     }
 
     @GET
