@@ -118,6 +118,12 @@
 			margin: 4px;
 		}
 	}
+	&-title {
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		max-width: 100%;
+	}
 }
 
 .navigation {
@@ -208,6 +214,7 @@
 		cursor: pointer;
 	}
 	&__icon {
+		.flex-shrink(0);
 		width: 32px;
 		padding-left: @form-row-desktop-padding;
 		html.ui-layout-condensed & {
@@ -246,7 +253,7 @@
 			padding-left: @form-row-desktop-padding-condensed;
 		}
 		
-		.flex-shrink(2);
+		.flex-shrink(0);
 		.flex-grow(2);
 		.flex-2011(2 2 auto);
 		
@@ -262,6 +269,7 @@
 			}
 		}
 		padding-right: @form-row-desktop-padding;
+		padding-left: 4px;
 		html.ui-layout-condensed & {
 			padding-left: @form-row-desktop-padding-condensed;
 		}
@@ -351,6 +359,11 @@
 		&--rollerblind {
 			padding: 0 10px 0 5px;
 		}
+	}
+	&__text {
+		overflow: hidden;
+		flex-shrink: 2;
+		text-overflow: ellipsis;
 	}
 	&--no-label {
 		.mdl-form__title {
