@@ -13,7 +13,7 @@
         	<property name="vendor">Philips</property>
         </properties>
         
-        <config-description>
+        <config-description uri="config:description:hueBridge">
             <parameter name="ipAddress" type="text">
                 <context>network_address</context>
                 <label>Network Address</label>
