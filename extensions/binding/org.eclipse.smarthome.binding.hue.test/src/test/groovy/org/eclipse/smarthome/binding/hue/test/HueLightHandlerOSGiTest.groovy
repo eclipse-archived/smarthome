@@ -541,10 +541,12 @@ class HueLightHandlerOSGiTest extends OSGiTest {
             assertBridgeOnline(hueLightHandler.getBridge())
             hueLightHandler.initialize()
 
-            hueLight.with {
-                assertThat properties.get(Thing.PROPERTY_MODEL_ID), is(expectedModel)
-                assertThat properties.get(Thing.PROPERTY_VENDOR), is(expectedVendor)
-            }
+            waitForAssert({
+                hueLight.with {
+                    assertThat properties.get(Thing.PROPERTY_MODEL_ID), is(expectedModel)
+                    assertThat properties.get(Thing.PROPERTY_VENDOR), is(expectedVendor)
+                }
+            })
 
             postCommand(hueLight, channel, command)
 
