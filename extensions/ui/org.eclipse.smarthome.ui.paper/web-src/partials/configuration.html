@@ -170,7 +170,7 @@
 		</div>
 		<div ng-init="counter=0;form={}">
 			<div ng-include="'partials/include.thingconfig.html'" onload="counter=counter+1;"></div>
-			<div class="container">
+			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
 				<p>Configure parameters for the thing.</p>
 				<div ng-if="counter==1" ng-include="'partials/include.config.html'"></div>

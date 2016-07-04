@@ -22,20 +22,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     $scope.refresh = function() {
         itemRepository.getAll(function(items) {
             $scope.tabs = [];
-            $scope.tabs.push({
-                name : 'all',
-                label : 'All'
-            });
-            $scope.items['All'] = items;
-            for (var int = 0; int < items.length; int++) {
-                var item = items[int];
-                if (item.tags.indexOf('home-group') > -1) {
-                    $scope.tabs.push({
-                        name : item.name,
-                        label : item.label
-                    });
-                }
-            }
+            // $scope.items['All'] = items;
         }, true);
     }
     $scope.channelTypes = [];
@@ -66,6 +53,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
                             i++;
                         }
                     }
+                    getTabs();
                     $scope.isLoadComplete = true;
                 });
             });
@@ -79,6 +67,26 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             }
         }
         return false;
+    }
+
+    function getTabs() {
+        if (!$scope.things) {
+            return;
+        }
+        var arr = [];
+        for (var i = 0; i < $scope.things.length; i++) {
+            $scope.things[i].location = $scope.things[i].location ? $scope.things[i].location.toUpperCase() : 'default';
+            arr[$scope.things[i].location] = $scope.things[i].location;
+        }
+        for ( var value in arr) {
+            $scope.tabs.push({
+                name : value
+            });
+        }
+    }
+
+    $scope.tabComparator = function(actual, expected) {
+        return actual == expected;
     }
 
     $scope.getItem = function(itemName) {

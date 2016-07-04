@@ -17,7 +17,7 @@
 			<md-input-container class="col-xs-12 noPadding" style=" margin-right:3%;"> <label>Description</label> <textarea rows="1" ng-model="description"></textarea> </md-input-container>
 		</div>
 	</div>
-	<div ng-show="step==2">
+	<div ng-show="step==2 && parameters.length>0">
 		<h3 class="md-title-nospace">Configurations</h3>
 		<div ng-init="form={}">
 			<div ng-include="'partials/include.config.html'"></div>

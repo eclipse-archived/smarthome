@@ -1,15 +1,15 @@
 <div class="row">
-	<form name="form.configForm">
+	<form novalidate name="form.configForm">
 		<div class="includeConfig" ng-show="!expertMode">
 			<fieldset ng-class="{borderhidden: parameters.length==1}" ng-repeat="group in parameters track by $index">
 				<legend ng-if="parameters.length>1">{{group.groupLabel}}</legend>
 				<div ng-repeat="parameter in group.parameters track by $index">
 					<div ng-switch="parameter.element">
-						<div class="parameter col-sm-6 col-xs-12">
+						<div ng-if="parameter.element!='textarea' && parameter.element!='dayofweek'" class="parameter col-sm-6 col-xs-12">
 							<div ng-switch-when="input">
 								<div ng-if="parameter.type=='INTEGER' || parameter.type=='DECIMAL'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" type="number" min="{{parameter.min}}" max="{{parameter.max}}" step="{{parameter.stepsize}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
 									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 										<div ng-message="min">Minimum allowed number is {{parameter.min}}</div>
 										<div ng-message="max">Maximum allowed number is {{parameter.max}}</div>
@@ -27,8 +27,8 @@
 								</div>
 								<div ng-if="parameter.type=='TEXT'">
 									<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
-									<md-input-container class="col-xs-12 configContainer"> <input on-select ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
-									<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
+									<md-input-container ng-class="{'md-input-invalid':form.configForm[parameter.name].$invalid}" class="col-xs-12 configContainer"> <input ng-init="focus=false" name="{{parameter.name}}" ng-minlength="parameter.min" ng-maxlength="parameter.max" ng-model="configuration[parameter.name]" ng-required="parameter.required" type="{{parameter.inputType}}" ng-focus="focus=true" ng-blur="focus=false">
+									<div ng-messages="form.configForm[parameter.name].$error">
 										<div ng-message="minlength">Minimum length is {{parameter.min}}</div>
 										<div ng-message="maxlength">Maximum length is {{parameter.max}}</div>
 										<div ng-message="required">Field is required</div>
@@ -53,7 +53,7 @@
 							<div ng-switch-when="select">
 								<label class="config-textInput">{{parameter.label}}</label>
 
-								<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="parameter.required" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing'">
+								<md-input-container class="col-xs-12 configContainer"> <md-select class="config-select" isrequired="{{parameter.required}}" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" placeholder="Select a value" ng-focus="focus=true" ng-blur="focus=false" ng-required="parameter.required"> <md-option ng-value="parameter.context=='item'? option.name:parameter.context=='thing'?option.UID:option.value" ng-repeat="option in parameter.options"> <span style="display: inline-block;" ng-if="parameter.context=='item' || parameter.context=='thing'">
 									{{ option.label?option.label:option.name }}
 									<span class="md-caption" style="color: grey;">({{ option.name?option.name: parameter.context=='thing'?option.UID:'' }}) </span>
 								</span> <span ng-if="!parameter.context">{{option.label}}</span> </md-option> </md-select>
@@ -62,7 +62,7 @@
 								</div>
 								<span ng-show="focus">
 									<p class="hint">
-										<small>&nbsp;</small>
+										<small style="visibility: hidden;">{{parameter.description}}</small>
 									</p>
 								</span> <span ng-show="!focus">
 									<p class="hint">
@@ -106,7 +106,7 @@
 										<small>&nbsp;</small>
 									</p>
 								</span> </md-input-container>
-								<div style="float:left;">
+								<div style="float: left;">
 									<i class="material-icons color-remove" ng-model="configuration[parameter.name]" color-remove>close</i>
 								</div>
 							</div>
@@ -114,7 +114,7 @@
 						<div class="parameter col-xs-12 scriptfield" ng-switch-when="textarea">
 							<label class="config-textInput" for="{{parameter.name}}">{{parameter.label}}</label>
 							<div class="col-xs-12 configContainer">
-								<textarea scriptarea class="scriptArea" ng-minlength="parameter.min" ng-maxlength="parameter.max" rows="2" wrap="off" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" ng-focus="focus=true" ng-blur="focus=false"></textarea>
+								<textarea isrequired="true" scriptarea class="scriptArea" ng-minlength="parameter.min" ng-maxlength="parameter.max" rows="2" wrap="off" ng-init="focus=false" name="{{parameter.name}}" ng-model="configuration[parameter.name]" ng-required="parameter.required" ng-focus="focus=true" ng-blur="focus=false"></textarea>
 								<div ng-messages="form.configForm[parameter.name].$error" ng-show="focus">
 									<p ng-message="minlength" class="customMessage">Minimum length is {{parameter.min}}</p>
 									<p ng-message="maxlength" class="customMessage">Maximum length is {{parameter.max}}</p>
@@ -133,6 +133,24 @@
 										<small>available outputs</small>
 									</p>
 								</span>
+							</span>
+						</div>
+						<div class="parameter col-sm-6 col-xs-12 dayParameter" ng-switch-when="dayofweek">
+							<label class="config-textInput">Day of week</label>
+							<input ng-required="parameter.required" type="hidden" ng-model="configuration[parameter.name]" />
+							<div day-of-week multi="{{parameter.multiple}}" ng-required="{{parameter.required}}" ng-model="configuration[parameter.name]" class="dayOfWeek col-xs-12 configContainer">
+								<button value="MON" class="md-button dow-button">M</button>
+								<button value="TUE" class="md-button dow-button">{{parameter.locale=='de'?'D':'T'}}</button>
+								<button value="WED" class="md-button dow-button">{{parameter.locale=='de'?'M':'W'}}</button>
+								<button value="THU" class="md-button dow-button">{{parameter.locale=='de'?'D':'T'}}</button>
+								<button value="FRI" class="md-button dow-button">F</button>
+								<button value="SAT" class="md-button dow-button">S</button>
+								<button value="SUN" class="md-button dow-button">S</button>
+							</div>
+							<span>
+								<p class="hint noMargin">
+									<small ng-bind-html="parameter.description"></small>
+								</p>
 							</span>
 						</div>
 					</div>

@@ -92,7 +92,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
             for (var j = 0; j < configGroups.length; j++) {
                 indexArray[configGroups[j].name] = j;
             }
-            if (!configParameters) {
+            if (!configParameters || configParameters.length == 0) {
                 return parameters;
             }
             var groupsList = [];
@@ -112,6 +112,7 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                     name : parameter.groupName
                 }, true);
 
+                parameter.locale = window.localStorage.getItem('paperui.language');
                 if (parameter.context) {
                     if (parameter.context.toUpperCase() === 'ITEM') {
                         parameter.element = 'select';
@@ -133,6 +134,9 @@ angular.module('PaperUI.services', [ 'PaperUI.constants' ]).config(function($htt
                         parameter.element = 'textarea';
                         parameter.inputType = 'text';
                         parameter.label = parameter.label && parameter.label.length > 0 ? parameter.label : 'Script';
+                    } else if (parameter.context.toUpperCase() === 'DAYOFWEEK') {
+                        parameter.element = 'dayofweek';
+                        parameter.inputType = 'text';
                     } else {
                         parameter.element = 'input';
                         parameter.inputType = 'text';

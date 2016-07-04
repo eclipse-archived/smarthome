@@ -152,7 +152,7 @@ public class ThingResource implements RESTResource {
         Configuration configuration = new Configuration(normalizeConfiguration(thingBean.configuration, thingTypeUID));
 
         Thing thing = thingRegistry.createThingOfType(thingTypeUID, thingUID, bridgeUID, thingBean.label,
-                thingBean.location, configuration);
+                configuration);
 
         if (thing != null) {
             if (thingBean.properties != null) {
@@ -167,6 +167,9 @@ public class ThingResource implements RESTResource {
                 }
                 ThingHelper.addChannelsToThing(thing, channels);
             }
+            if (thingBean.location != null) {
+                thing.setLocation(thingBean.location);
+            }
         } else if (thingUID != null) {
             // if there wasn't any ThingFactory capable of creating the thing,
             // we create the Thing exactly the way we received it, i.e. we
@@ -179,7 +182,8 @@ public class ThingResource implements RESTResource {
         }
 
         thingRegistry.add(thing);
-        return getThingResponse(Status.CREATED, thing, locale, "Thing " + thingUID.toString() + " already exists!");
+        return getThingResponse(Status.CREATED, thing, locale,
+                "Thing " + thing.getUID().toString() + " already exists!");
     }
 
     @GET

@@ -97,6 +97,6 @@ public interface ThingRegistry extends Registry<Thing, ThingUID> {
      *            the configuration
      * @return the created thing
      */
-    Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID, String label,
-            String location, Configuration configuration);
+	Thing createThingOfType(ThingTypeUID thingTypeUID, ThingUID thingUIDObject, ThingUID bridgeUID, String label,
+			Configuration configuration);
 }

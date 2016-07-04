@@ -149,16 +149,13 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         require : 'ngModel',
         link : function(scope, element, attrs, ngModel) {
 
-            element[0].addEventListener('click', function() {
-                scope.$watch(attrs.ngModel, function(value) {
-                    if ((value === undefined || value == "") && attrs.isrequired) {
-                        element.addClass('border-invalid');
-                    } else {
-                        element.removeClass('border-invalid');
-                    }
-                });
+            scope.$watch(attrs.ngModel, function(value) {
+                if ((value === undefined || value == "") && attrs.isrequired == "true") {
+                    element.addClass('border-invalid');
+                } else {
+                    element.removeClass('border-invalid');
+                }
             });
-
         }
     };
 }).directive('customFocus', function() {
@@ -180,6 +177,7 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
 
         }
     };
+
 }).directive('colorSelect', function() {
     return {
         restrict : 'A',
@@ -202,7 +200,55 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
                 scope.configuration[scope.parameter.name] = undefined;
                 scope.$apply();
             });
-
+        }
+    };
+}).directive('dayOfWeek', function() {
+    return {
+        restrict : 'A',
+        link : function(scope, element, attrs, ngModel) {
+            if (element[0] && element[0].children && element[0].children.length > 1) {
+                if (!scope.configuration[scope.parameter.name]) {
+                    scope.configuration[scope.parameter.name] = attrs.multi == "true" ? [] : "";
+                    if (attrs.ngRequired == "true") {
+                        $(element[0]).addClass('border-invalid');
+                    }
+                }
+                for (var nodeIndex = 0; nodeIndex < element[0].children.length; nodeIndex++) {
+                    if (scope.configuration[scope.parameter.name].indexOf(element[0].children[nodeIndex].value) != -1) {
+                        $(element[0].children[nodeIndex]).addClass('dow-selected');
+                    }
+                    element[0].children[nodeIndex].addEventListener('click', function(event) {
+                        $(element[0]).removeClass('border-invalid');
+                        if (attrs.multi == "true") {
+                            var index = scope.configuration[scope.parameter.name].indexOf(event.target.value)
+                            if (index == -1) {
+                                scope.configuration[scope.parameter.name].push(event.target.value);
+                                $(event.target).addClass('dow-selected');
+                            } else {
+                                scope.configuration[scope.parameter.name].splice(index, 1);
+                                $(event.target).removeClass('dow-selected');
+                                if (attrs.ngRequired && scope.configuration[scope.parameter.name].length == 0) {
+                                    $(element[0]).addClass('border-invalid');
+                                }
+                            }
+                        } else {
+                            if (scope.configuration[scope.parameter.name] == "" || scope.configuration[scope.parameter.name] != event.target.value) {
+                                if (scope.configuration[scope.parameter.name] != event.target.value) {
+                                    $(element[0].children).removeClass('dow-selected');
+                                }
+                                scope.configuration[scope.parameter.name] = event.target.value;
+                                $(event.target).addClass('dow-selected');
+                            } else {
+                                scope.configuration[scope.parameter.name] = "";
+                                $(event.target).removeClass('dow-selected');
+                                if (attrs.ngRequired == "true") {
+                                    $(element[0]).addClass('border-invalid');
+                                }
+                            }
+                        }
+                    });
+                }
+            }
         }
     };
 }).run([ '$location', '$rootScope', 'globalConfig', function($location, $rootScope, globalConfig) {

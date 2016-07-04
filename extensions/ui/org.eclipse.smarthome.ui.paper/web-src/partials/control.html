@@ -9,14 +9,13 @@
 		<button class="md-button" ng-click="$location.path('configuration/locations')">Add Location</button>
 	</p>
  -->
-	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex" ng-show="tabs.length > 0"> <md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.label}}" layout-fill> <md-tab-content layout-fill="">
-
+	<md-tabs md-stretch-tabs="always" class="section-tabs" md-selected="selectedIndex" ng-show="tabs.length > 0"> <md-tab ng-repeat="tab in tabs" ng-disabled="tab.disabled" label="{{tab.name}}" layout-fill> <md-tab-content layout-fill="">
 	<p class="text-center" ng-show="getItem(tabs[selectedIndex].name).members.length == 0">
 		No Things available.
 		<button class="md-button" ng-click="$location.path('inbox/setup')">Add Thing</button>
 	</p>
 	<div ng-controller="ControlController" class="items row" md-swipe-left="next()" md-swipe-right="prev()" ng-if="tabs[selectedIndex] === tab" ng-attr-id="{{'items-' + tabs.indexOf(tab)}}">
-		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things">
+		<div class="col-lg-4 col-sm-6 col-xs-12 item-wrapper" ng-repeat="thing in things | filter: {'location':tab.name}:true">
 			<div class="card item" ng-show="isLoadComplete">
 				<h3 class="clabel">{{thing.label}}</h3>
 				<div class="ibadge">

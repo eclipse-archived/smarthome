@@ -159,7 +159,7 @@
 		</div>
 		<div ng-init="form={}">
 			<div ng-include="'partials/include.thingconfig.html'"></div>
-			<div class="container">
+			<div class="container" ng-show="parameters.length > 0">
 				<h3>Configuration Parameters</h3>
 				<p>Configure parameters for the thing.</p>
 
