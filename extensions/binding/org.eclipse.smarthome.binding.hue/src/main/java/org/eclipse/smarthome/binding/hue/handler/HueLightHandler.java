@@ -84,6 +84,8 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     // Flag to indicate whether the bulb is of type Osram par16 50 TW or not
     private boolean isOsramPar16 = false;
 
+    private boolean propertiesInitializedSuccessfully = false;
+
     private HueBridgeHandler bridgeHandler;
 
     ScheduledFuture<?> scheduledFuture;
@@ -103,29 +105,25 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
             if (getHueBridgeHandler() != null) {
                 ThingStatusInfo statusInfo = getBridge().getStatusInfo();
                 updateStatus(statusInfo.getStatus(), statusInfo.getStatusDetail(), statusInfo.getDescription());
-                updateProperties();
+                initializeProperties();
             }
         }
     }
 
-    private void updateProperties() {
-        FullLight fullLight = getLight();
-        if (fullLight != null) {
-            String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
-            updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
-            updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
-            String vendor = getVendor(modelId);
-            if (vendor != null) {
-                updateProperty(Thing.PROPERTY_VENDOR, vendor);
+    private synchronized void initializeProperties() {
+        if (!propertiesInitializedSuccessfully) {
+            FullLight fullLight = getLight();
+            if (fullLight != null) {
+                String modelId = fullLight.getModelID().replaceAll(NORMALIZE_ID_REGEX, "_");
+                updateProperty(Thing.PROPERTY_MODEL_ID, modelId);
+                updateProperty(Thing.PROPERTY_FIRMWARE_VERSION, fullLight.getSoftwareVersion());
+                String vendor = getVendor(modelId);
+                if (vendor != null) {
+                    updateProperty(Thing.PROPERTY_VENDOR, vendor);
+                }
+                isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
+                propertiesInitializedSuccessfully = true;
             }
-            isOsramPar16 = OSRAM_PAR16_50_TW_MODEL_ID.equals(modelId);
-        }
-    }
-
-    @Override
-    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
-        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
-            updateProperties();
         }
     }
 
@@ -341,6 +339,9 @@ public class HueLightHandler extends BaseThingHandler implements LightStatusList
     @Override
     public void onLightStateChanged(HueBridge bridge, FullLight fullLight) {
         if (fullLight != null && fullLight.getId().equals(lightId)) {
+
+            initializeProperties();
+
             lastSentColorTemp = null;
             lastSentBrightness = null;
 
