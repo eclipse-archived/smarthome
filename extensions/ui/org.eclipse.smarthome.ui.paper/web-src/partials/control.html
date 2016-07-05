@@ -56,6 +56,14 @@
 													</div>
 												</div>
 												<md-slider class="md-default-theme" style="height: 40px;" flex min="0" max="100" ng-model="item.state" ng-change="setBrightness(item.state)" aria-label={{item.label}}></md-slider>
+												<div layout="row" layout-align="start center" class="dimmer-widget" ng-if="!isHideSwitch(item.category)">
+													<div flex="40">
+														<p>Off/On</p>
+													</div>
+													<div flex="60" layout="row" layout-align="end center" class="dimmer-widget">
+														<md-switch class="md-default-theme" ng-model="on" ng-change="setOn(on)" ng-true-value="'ON'" ng-false-value="'OFF'" aria-label={{item.label}}></md-switch>
+													</div>
+												</div>
 											</div>
 											<div ng-switch-when="ColorItem" ng-controller="ColorItemController">
 												<div layout="row" layout-align="start center" class="dimmer-widget">
