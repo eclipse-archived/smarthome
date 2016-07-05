@@ -325,7 +325,21 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
     if ($scope.item.state === 'UNDEF' || $scope.item.state === 'NULL') {
         $scope.item.state = '-';
     }
+    $scope.on = parseInt($scope.item.state) > 0 ? 'ON' : 'OFF';
 
+    $scope.setOn = function(on) {
+        $scope.on = on === 'ON' ? 'ON' : 'OFF';
+
+        $scope.sendCommand(on);
+
+        var brightness = parseInt($scope.item.state);
+        if (on === 'ON' && brightness === 0) {
+            $scope.item.state = 100;
+        }
+        if (on === 'OFF' && brightness > 0) {
+            $scope.item.state = 0;
+        }
+    }
     $scope.pending = false;
     $scope.setBrightness = function(brightness) {
         // send updates every 300 ms only
@@ -338,6 +352,15 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             $scope.pending = true;
         }
     }
+    $scope.$watch('item.state', function() {
+        var brightness = parseInt($scope.item.state);
+        if (brightness > 0 && $scope.on === 'OFF') {
+            $scope.on = 'ON';
+        }
+        if (brightness === 0 && $scope.on === 'ON') {
+            $scope.on = 'OFF';
+        }
+    });
 }).controller('ColorItemController', function($scope, $timeout, $element, itemService) {
 
     function getStateAsObject(state) {
