@@ -40,11 +40,16 @@ public class Configuration {
     private transient final Logger logger = LoggerFactory.getLogger(Configuration.class);
 
     public Configuration() {
-        this(new HashMap<String, Object>());
+        this(null);
     }
 
+    /**
+     * Create a new configuration.
+     *
+     * @param properties the properties the configuration should be filled. If null, an empty configuration is created.
+     */
     public Configuration(Map<String, Object> properties) {
-        this.properties = ConfigUtil.normalizeTypes(properties);
+        this.properties = properties == null ? new HashMap<String, Object>() : ConfigUtil.normalizeTypes(properties);
     }
 
     public <T> T as(Class<T> configurationClass) {
