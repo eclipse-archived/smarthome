@@ -43,17 +43,14 @@ import com.google.common.base.Predicate;
  * @author Oliver Libutzki - Reorganization of Guice injection
  *
  */
-@SuppressWarnings("restriction")
 public class ScriptEngineImpl implements ScriptEngine {
 
     protected XtextResourceSet resourceSet;
-    private ScriptRuntime scriptRuntime;
 
     public ScriptEngineImpl() {
     }
 
     public void activate() {
-
     }
 
     private XtextResourceSet getResourceSet() {
@@ -68,12 +65,13 @@ public class ScriptEngineImpl implements ScriptEngine {
         this.resourceSet = null;
     }
 
+    /**
+     * we need to make sure that the scriptRuntime service has been started before us
+     */
     protected void setScriptRuntime(final ScriptRuntime scriptRuntime) {
-        this.scriptRuntime = scriptRuntime;
     }
 
     protected void unsetScriptRuntime(final ScriptRuntime scriptRuntime) {
-        this.scriptRuntime = null;
     }
 
     /**
