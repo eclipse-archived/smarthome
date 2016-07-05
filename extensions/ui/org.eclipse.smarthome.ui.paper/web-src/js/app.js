@@ -14,14 +14,6 @@ angular.module('PaperUI', [ 'PaperUI.controllers', 'PaperUI.controllers.control'
         templateUrl : 'partials/setup.html',
         controller : 'SetupWizardController',
         title : 'Inbox'
-    }).when('/inbox/manual-setup/choose', {
-        templateUrl : 'partials/setup.html',
-        controller : 'ManualSetupChooseController',
-        title : 'Inbox'
-    }).when('/inbox/manual-setup/configure/:thingTypeUID', {
-        templateUrl : 'partials/setup.html',
-        controller : 'ManualSetupConfigureController',
-        title : 'Inbox'
     }).when('/inbox/setup/bindings', {
         templateUrl : 'partials/setup.html',
         controller : 'SetupWizardController',

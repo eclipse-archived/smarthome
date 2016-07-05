@@ -157,18 +157,6 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             groupNames : selectedGroupNames
         });
     }
-}).controller('ManualSetupChooseController', function($scope, bindingRepository, thingTypeRepository, thingService) {
-    $scope.setSubtitle([ 'Manual Setup' ]);
-    $scope.setHeaderText('Choose a thing, which should be aded manually to your Smart Home.')
-
-    $scope.currentBindingId = null;
-    $scope.setCurrentBindingId = function(bindingId) {
-        $scope.currentBindingId = bindingId;
-    };
-
-    bindingRepository.getAll(function(data) {
-    });
-
 }).controller('ManualSetupConfigureController', function($scope, $routeParams, $mdDialog, $location, toastService, bindingRepository, thingTypeRepository, thingService, thingRepository, configService, linkService) {
 
     var thingTypeUID = $routeParams.thingTypeUID;
@@ -205,14 +193,6 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
             $location.path('configuration/things');
         });
     };
-
-    function linkChannel(channelUID) {
-        var itemName = channelUID.replace(/:/g, "_");
-        linkService.link({
-            itemName : itemName,
-            channelUID : channelUID
-        });
-    }
 
     $scope.needsBridge = false;
     $scope.bridges = [];
