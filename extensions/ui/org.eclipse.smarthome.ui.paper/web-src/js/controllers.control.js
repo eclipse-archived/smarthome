@@ -73,14 +73,24 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         if (!$scope.things) {
             return;
         }
-        var arr = [];
+        var arr = [], otherTab = false;
         for (var i = 0; i < $scope.things.length; i++) {
-            $scope.things[i].location = $scope.things[i].location ? $scope.things[i].location.toUpperCase() : 'default';
-            arr[$scope.things[i].location] = $scope.things[i].location;
+            if ($scope.things[i].location && $scope.things[i].location.toUpperCase() != "OTHER") {
+                $scope.things[i].location = $scope.things[i].location.toUpperCase();
+                arr[$scope.things[i].location] = $scope.things[i].location;
+            } else {
+                $scope.things[i].location = "OTHER";
+                otherTab = true;
+            }
         }
         for ( var value in arr) {
             $scope.tabs.push({
                 name : value
+            });
+        }
+        if (otherTab) {
+            $scope.tabs.push({
+                name : "OTHER"
             });
         }
     }
