@@ -239,6 +239,11 @@ angular.module('PaperUI.controllers.setup', []).controller('SetupPageController'
     $scope.filter = function(discoveryResult) {
         return $scope.showIgnored || discoveryResult.flag === 'NEW';
     }
+    $scope.areEntriesIgnored = function(discoveryResults) {
+        return $.grep(discoveryResults, function(discoveryResult) {
+            return discoveryResult.flag === 'IGNORED';
+        }).length > 0;
+    }
 }).controller('SetupWizardBindingsController', function($scope, bindingRepository, discoveryService) {
     $scope.setSubtitle([ 'Choose Binding' ]);
     $scope.setHeaderText('Choose a Binding for which you want to add new things.');
