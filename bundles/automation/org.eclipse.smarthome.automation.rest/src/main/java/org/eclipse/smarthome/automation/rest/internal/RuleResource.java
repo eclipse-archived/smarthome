@@ -34,6 +34,7 @@ import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
+import org.eclipse.smarthome.automation.rest.internal.dto.RuleDTO;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
@@ -84,28 +85,22 @@ public class RuleResource implements RESTResource {
     private Collection<EnrichedRuleDTO> enrich(Collection<Rule> rules) {
         Collection<EnrichedRuleDTO> enrichedRules = new ArrayList<EnrichedRuleDTO>(rules.size());
         for (Rule rule : rules) {
-            enrichedRules.add(enrich(rule));
+            enrichedRules.add(new EnrichedRuleDTO(rule, ruleRegistry));
         }
         return enrichedRules;
-    }
-
-    private EnrichedRuleDTO enrich(Rule rule) {
-        EnrichedRuleDTO enrichedRule = new EnrichedRuleDTO(rule);
-        enrichedRule.enabled = ruleRegistry.isEnabled(rule.getUID());
-        enrichedRule.status = ruleRegistry.getStatus(rule.getUID());
-        return enrichedRule;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Creates a rule.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created Rule", response = String.class) ),
+            @ApiResponse(code = 201, message = "Created", responseHeaders = @ResponseHeader(name = "Location", description = "Newly created Rule", response = String.class)),
             @ApiResponse(code = 409, message = "Creation of the rule is refused. Rule with the same UID already exists."),
             @ApiResponse(code = 400, message = "Creation of the rule is refused. Missing required parameter.") })
-    public Response create(@ApiParam(value = "rule data", required = true) Rule rule) throws IOException {
+    public Response create(@ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
         try {
-            Rule newRule = ruleRegistry.add(rule);
+            final Rule incomingRule = rule.createRule();
+            Rule newRule = ruleRegistry.add(incomingRule);
             return Response.status(Status.CREATED)
                     .header("Location", "rules/" + URLEncoder.encode(newRule.getUID(), "UTF-8")).build();
 
@@ -130,7 +125,7 @@ public class RuleResource implements RESTResource {
     public Response getByUID(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(enrich(rule)).build();
+            return Response.ok(new EnrichedRuleDTO(rule, ruleRegistry)).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
