@@ -7,6 +7,7 @@
  */
 package org.eclipse.smarthome.model.script.runtime.internal;
 
+import org.eclipse.smarthome.model.script.ScriptServiceUtil;
 import org.eclipse.smarthome.model.script.runtime.ScriptRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,15 @@ public class ScriptRuntimeActivator implements ScriptRuntime {
     }
 
     public void deactivate() throws Exception {
+    }
+
+    /**
+     * We depend on ScriptServiceUtil through DS to make sure it is initialized before the runtime is used.
+     */
+    public void setScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
+    }
+
+    public void unsetScriptServiceUtil(ScriptServiceUtil scriptServiceUtil) {
     }
 
 }
