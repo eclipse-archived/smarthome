@@ -8,7 +8,7 @@
 package org.eclipse.smarthome.model.script.scoping;
 
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
-import org.eclipse.smarthome.model.script.internal.ScriptActivator;
+import org.eclipse.smarthome.model.script.internal.ServiceFactory;
 
 /**
  * This is a special class loader that tries to resolve classes from available {@link ActionService}s,
@@ -29,13 +29,9 @@ final public class ActionClassLoader extends ClassLoader {
             Class<?> clazz = getParent().loadClass(name);
             return clazz;
         } catch (ClassNotFoundException e) {
-            Object[] services = ScriptActivator.actionServiceTracker.getServices();
-            if (services != null) {
-                for (Object service : services) {
-                    ActionService actionService = (ActionService) service;
-                    if (actionService.getActionClassName().equals(name)) {
-                        return actionService.getActionClass();
-                    }
+            for (ActionService actionService : ServiceFactory.getActionServices()) {
+                if (actionService.getActionClassName().equals(name)) {
+                    return actionService.getActionClass();
                 }
             }
         }
