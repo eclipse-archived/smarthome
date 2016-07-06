@@ -33,6 +33,8 @@ import org.eclipse.xtext.validation.CheckMode;
 import org.eclipse.xtext.validation.IResourceValidator;
 import org.eclipse.xtext.validation.Issue;
 import org.eclipse.xtext.xbase.XExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 
@@ -47,10 +49,14 @@ public class ScriptEngineImpl implements ScriptEngine {
 
     protected XtextResourceSet resourceSet;
 
+    private final Logger logger = LoggerFactory.getLogger(ScriptEngineImpl.class);
+
     public ScriptEngineImpl() {
     }
 
     public void activate() {
+        ScriptRuntimeStandaloneSetup.doSetup();
+        logger.debug("Registered 'script' configuration parser");
     }
 
     private XtextResourceSet getResourceSet() {

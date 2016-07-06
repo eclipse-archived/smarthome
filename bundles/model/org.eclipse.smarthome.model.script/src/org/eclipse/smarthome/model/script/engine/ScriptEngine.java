@@ -16,12 +16,11 @@ import org.eclipse.xtext.xbase.XExpression;
  * @author Kai Kreuzer - Initial contribution and API
  *
  */
-@SuppressWarnings("restriction")
 public interface ScriptEngine {
 
     /**
      * Parses a string and returns a parsed script object.
-     * 
+     *
      * @param scriptAsString script to parse
      * @return Script object, which can be executed
      * @throws ScriptParsingException
@@ -30,7 +29,7 @@ public interface ScriptEngine {
 
     /**
      * Executes a script that is passed as a string
-     * 
+     *
      * @param scriptAsString
      * @return the return value of the script
      * @throws ScriptParsingException
@@ -40,7 +39,7 @@ public interface ScriptEngine {
 
     /**
      * Wraps an Xbase XExpression in a Script instance
-     * 
+     *
      * @param expression the XExpression
      * @return the Script instance containing the expression
      */
