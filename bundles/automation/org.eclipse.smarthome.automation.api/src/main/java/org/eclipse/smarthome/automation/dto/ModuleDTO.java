@@ -6,11 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.Map;
-
-import org.eclipse.smarthome.automation.Module;
 
 /**
  * This is a data transfer object that is used to serialize the respective class.
@@ -25,11 +23,4 @@ public class ModuleDTO {
     public Map<String, Object> configuration;
     public String type;
 
-    public ModuleDTO(final Module module) {
-        id = module.getId();
-        label = module.getLabel();
-        description = module.getDescription();
-        configuration = module.getConfiguration().getProperties();
-        type = module.getTypeUID();
-    }
 }

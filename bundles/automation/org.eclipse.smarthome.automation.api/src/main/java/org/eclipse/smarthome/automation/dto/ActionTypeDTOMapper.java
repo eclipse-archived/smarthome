@@ -6,39 +6,36 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.type.ActionType;
-import org.eclipse.smarthome.automation.type.Input;
-import org.eclipse.smarthome.automation.type.Output;
 
 /**
- * This is a data transfer object that is used to serialize the respective class.
+ * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class ActionTypeDTO extends ModuleTypeDTO {
+public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
 
-    public List<Input> inputs;
-    public List<Output> outputs;
-
-    public ActionTypeDTO(final ActionType actionType) {
-        super(actionType);
-        inputs = actionType.getInputs();
-        outputs = actionType.getOutputs();
+    public static ActionTypeDTO map(final ActionType actionType) {
+        final ActionTypeDTO actionTypeDto = new ActionTypeDTO();
+        fillProperties(actionType, actionTypeDto);
+        actionTypeDto.inputs = actionType.getInputs();
+        actionTypeDto.outputs = actionType.getOutputs();
+        return actionTypeDto;
     }
 
-    public static List<ActionTypeDTO> toDtoList(final Collection<ActionType> types) {
+    public static List<ActionTypeDTO> map(final Collection<ActionType> types) {
         if (types == null) {
             return null;
         }
         final List<ActionTypeDTO> dtos = new ArrayList<>(types.size());
         for (final ActionType type : types) {
-            dtos.add(new ActionTypeDTO(type));
+            dtos.add(map(type));
         }
         return dtos;
     }

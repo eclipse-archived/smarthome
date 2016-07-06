@@ -33,12 +33,17 @@ import org.eclipse.smarthome.automation.Module;
 import org.eclipse.smarthome.automation.Rule;
 import org.eclipse.smarthome.automation.RuleRegistry;
 import org.eclipse.smarthome.automation.Trigger;
-import org.eclipse.smarthome.automation.rest.internal.dto.ActionDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.ActionDTO;
+import org.eclipse.smarthome.automation.dto.ActionDTOMapper;
+import org.eclipse.smarthome.automation.dto.ConditionDTO;
+import org.eclipse.smarthome.automation.dto.ConditionDTOMapper;
+import org.eclipse.smarthome.automation.dto.ModuleDTO;
+import org.eclipse.smarthome.automation.dto.RuleDTO;
+import org.eclipse.smarthome.automation.dto.RuleDTOMapper;
+import org.eclipse.smarthome.automation.dto.TriggerDTO;
+import org.eclipse.smarthome.automation.dto.TriggerDTOMapper;
 import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.ModuleDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.RuleDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.TriggerDTO;
+import org.eclipse.smarthome.automation.rest.internal.dto.EnrichedRuleDTOMapper;
 import org.eclipse.smarthome.config.core.ConfigUtil;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.io.rest.JSONResponse;
@@ -90,7 +95,7 @@ public class RuleResource implements RESTResource {
     private Collection<EnrichedRuleDTO> enrich(Collection<Rule> rules) {
         Collection<EnrichedRuleDTO> enrichedRules = new ArrayList<EnrichedRuleDTO>(rules.size());
         for (Rule rule : rules) {
-            enrichedRules.add(new EnrichedRuleDTO(rule, ruleRegistry));
+            enrichedRules.add(EnrichedRuleDTOMapper.map(rule, ruleRegistry));
         }
         return enrichedRules;
     }
@@ -104,7 +109,7 @@ public class RuleResource implements RESTResource {
             @ApiResponse(code = 400, message = "Creation of the rule is refused. Missing required parameter.") })
     public Response create(@ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
         try {
-            final Rule newRule = ruleRegistry.add(rule.createRule());
+            final Rule newRule = ruleRegistry.add(RuleDTOMapper.map(rule));
             return Response.status(Status.CREATED)
                     .header("Location", "rules/" + URLEncoder.encode(newRule.getUID(), "UTF-8")).build();
 
@@ -129,7 +134,7 @@ public class RuleResource implements RESTResource {
     public Response getByUID(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(new EnrichedRuleDTO(rule, ruleRegistry)).build();
+            return Response.ok(EnrichedRuleDTOMapper.map(rule, ruleRegistry)).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -159,7 +164,7 @@ public class RuleResource implements RESTResource {
             @ApiResponse(code = 404, message = "Rule corresponding to the given UID does not found.") })
     public Response update(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID,
             @ApiParam(value = "rule data", required = true) RuleDTO rule) throws IOException {
-        final Rule oldRule = ruleRegistry.update(rule.createRule());
+        final Rule oldRule = ruleRegistry.update(RuleDTOMapper.map(rule));
         if (oldRule == null) {
             logger.info("Received HTTP PUT request for update at '{}' for the unknown rule '{}'.", uriInfo.getPath(),
                     ruleUID);
@@ -239,7 +244,7 @@ public class RuleResource implements RESTResource {
     public Response getTriggers(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(TriggerDTO.toDtoList(rule.getTriggers())).build();
+            return Response.ok(TriggerDTOMapper.map(rule.getTriggers())).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -254,7 +259,7 @@ public class RuleResource implements RESTResource {
     public Response getConditions(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(ConditionDTO.toDtoList(rule.getConditions())).build();
+            return Response.ok(ConditionDTOMapper.map(rule.getConditions())).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -269,7 +274,7 @@ public class RuleResource implements RESTResource {
     public Response getActions(@PathParam("ruleUID") @ApiParam(value = "ruleUID", required = true) String ruleUID) {
         Rule rule = ruleRegistry.get(ruleUID);
         if (rule != null) {
-            return Response.ok(ActionDTO.toDtoList(rule.getActions())).build();
+            return Response.ok(ActionDTOMapper.map(rule.getActions())).build();
         } else {
             return Response.status(Status.NOT_FOUND).build();
         }
@@ -399,13 +404,13 @@ public class RuleResource implements RESTResource {
     protected ModuleDTO getModuleDTO(Rule rule, String moduleCategory, String id) {
         if (moduleCategory.equals("triggers")) {
             final Trigger trigger = getTrigger(rule, id);
-            return trigger == null ? null : new TriggerDTO(trigger);
+            return trigger == null ? null : TriggerDTOMapper.map(trigger);
         } else if (moduleCategory.equals("conditions")) {
             final Condition condition = getCondition(rule, id);
-            return condition == null ? null : new ConditionDTO(condition);
+            return condition == null ? null : ConditionDTOMapper.map(condition);
         } else if (moduleCategory.equals("actions")) {
             final Action action = getAction(rule, id);
-            return action == null ? null : new ActionDTO(action);
+            return action == null ? null : ActionDTOMapper.map(action);
         } else {
             return null;
         }
