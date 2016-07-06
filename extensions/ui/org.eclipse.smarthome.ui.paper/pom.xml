@@ -28,6 +28,17 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.0</version>
 
+        <configuration>
+          <nodeVersion>v5.4.0</nodeVersion>
+          <npmVersion>3.3.12</npmVersion>
+          <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <environmentVariables>
+            <npm_config_cache>${project.build.directory}/npm_cache</npm_config_cache>
+            <npm_config_tmp>${project.build.directory}/npm_tmp</npm_config_tmp>
+          </environmentVariables>
+        </configuration>
+
         <executions>
           <execution>
             <id>Install node and npm</id>
@@ -36,14 +47,6 @@
             </goals>
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
-            <configuration>
-              <nodeVersion>v5.4.0</nodeVersion>
-              <npmVersion>3.3.12</npmVersion>
-              <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
-              <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
-              <!-- optional: where to download node and npm from. Defaults to http://nodejs.org/dist/ -->
-              <!--<downloadRoot>https://nodejs.org:80/dist/</downloadRoot>-->
-            </configuration>
           </execution>
 
           <execution>
@@ -51,13 +54,6 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <configuration>
-              <arguments>install</arguments>
-              <environmentVariables>
-                <npm_config_cache>${project.build.directory}/npm_cache</npm_config_cache>
-                <npm_config_tmp>${project.build.directory}/npm_tmp</npm_config_tmp>
-              </environmentVariables>
-            </configuration>
           </execution>
 
           <execution>
