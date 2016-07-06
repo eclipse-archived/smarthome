@@ -15,6 +15,10 @@ import org.eclipse.smarthome.core.items.ItemRegistry;
 import org.eclipse.smarthome.model.core.ModelRepository;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.action.ActionService;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * Utility class for providing easy access to script services.
@@ -34,16 +38,45 @@ public class ScriptServiceUtil {
 
     private ScriptEngine scriptEngine;
 
+    @SuppressWarnings("rawtypes")
+    private ServiceTracker scriptEngineTracker;
+
     public List<ActionService> actionServices = new CopyOnWriteArrayList<ActionService>();
 
-    public void activate() {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void activate(final BundleContext bc) {
         if (instance != null) {
             throw new IllegalStateException("ScriptServiceUtil should only be activated once!");
         }
         instance = this;
+
+        scriptEngineTracker = new ServiceTracker(bc, ScriptEngine.class.getName(), new ServiceTrackerCustomizer() {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                Object service = bc.getService(reference);
+                if (service instanceof ScriptEngine) {
+                    instance.scriptEngine = (ScriptEngine) service;
+                }
+                return null;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+            }
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                if (service instanceof ScriptEngine) {
+                    instance.scriptEngine = null;
+                }
+            }
+        });
+        scriptEngineTracker.open();
     }
 
     public void deactivate() {
+        scriptEngineTracker.close();
         instance = null;
     }
 
@@ -106,11 +139,4 @@ public class ScriptServiceUtil {
         this.modelRepository = null;
     }
 
-    public void setScriptEngine(ScriptEngine scriptEngine) {
-        this.scriptEngine = scriptEngine;
-    }
-
-    public void unsetScriptEngine(ScriptEngine scriptEngine) {
-        this.scriptEngine = null;
-    }
 }
