@@ -6,13 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.smarthome.automation.Visibility;
-import org.eclipse.smarthome.automation.type.ModuleType;
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter;
 
 /**
@@ -29,12 +28,4 @@ public class ModuleTypeDTO {
     public String description;
     public List<ConfigDescriptionParameter> configDescriptions;
 
-    public ModuleTypeDTO(final ModuleType moduleType) {
-        uid = moduleType.getUID();
-        visibility = moduleType.getVisibility();
-        tags = moduleType.getTags();
-        label = moduleType.getLabel();
-        description = moduleType.getDescription();
-        configDescriptions = moduleType.getConfigurationDescription();
-    }
 }

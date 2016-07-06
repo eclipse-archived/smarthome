@@ -26,10 +26,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.eclipse.smarthome.automation.rest.internal.dto.ActionTypeDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.ConditionTypeDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.ModuleTypeDTO;
-import org.eclipse.smarthome.automation.rest.internal.dto.TriggerTypeDTO;
+import org.eclipse.smarthome.automation.dto.ActionTypeDTOMapper;
+import org.eclipse.smarthome.automation.dto.ConditionTypeDTOMapper;
+import org.eclipse.smarthome.automation.dto.ModuleTypeDTO;
+import org.eclipse.smarthome.automation.dto.TriggerTypeDTOMapper;
 import org.eclipse.smarthome.automation.type.ActionType;
 import org.eclipse.smarthome.automation.type.ConditionType;
 import org.eclipse.smarthome.automation.type.ModuleType;
@@ -79,23 +79,23 @@ public class ModuleTypeResource implements RESTResource {
         final List<ModuleTypeDTO> modules = new ArrayList<>();
         if (type == null || type.equals("trigger")) {
             if (tags == null) {
-                modules.addAll(TriggerTypeDTO.toDtoList(moduleTypeRegistry.getAll(TriggerType.class, locale)));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getAll(TriggerType.class, locale)));
             } else {
-                modules.addAll(TriggerTypeDTO.toDtoList(moduleTypeRegistry.<TriggerType> getByTags(tags, locale)));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType> getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("condition")) {
             if (tags == null) {
-                modules.addAll(ConditionTypeDTO.toDtoList(moduleTypeRegistry.getAll(ConditionType.class, locale)));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getAll(ConditionType.class, locale)));
             } else {
-                modules.addAll(ConditionTypeDTO.toDtoList(moduleTypeRegistry.<ConditionType> getByTags(tags, locale)));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType> getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("action")) {
             if (tags == null) {
-                modules.addAll(ActionTypeDTO.toDtoList(moduleTypeRegistry.getAll(ActionType.class, locale)));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getAll(ActionType.class, locale)));
             } else {
-                modules.addAll(ActionTypeDTO.toDtoList(moduleTypeRegistry.<ActionType> getByTags(tags, locale)));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType> getByTags(tags, locale)));
             }
         }
         return Response.ok(modules).build();
@@ -120,11 +120,11 @@ public class ModuleTypeResource implements RESTResource {
 
     private ModuleTypeDTO getModuleTypeDTO(final ModuleType moduleType) {
         if (moduleType instanceof ActionType) {
-            return new ActionTypeDTO((ActionType) moduleType);
+            return ActionTypeDTOMapper.map((ActionType) moduleType);
         } else if (moduleType instanceof ConditionType) {
-            return new ConditionTypeDTO((ConditionType) moduleType);
+            return ConditionTypeDTOMapper.map((ConditionType) moduleType);
         } else if (moduleType instanceof TriggerType) {
-            return new TriggerTypeDTO((TriggerType) moduleType);
+            return TriggerTypeDTOMapper.map((TriggerType) moduleType);
         } else {
             throw new IllegalArgumentException(
                     String.format("Cannot handle given module type class (%s)", moduleType.getClass()));

@@ -6,37 +6,37 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.smarthome.automation.type.ConditionType;
-import org.eclipse.smarthome.automation.type.Input;
 
 /**
- * This is a data transfer object that is used to serialize the respective class.
+ * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class ConditionTypeDTO extends ModuleTypeDTO {
+public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
 
-    public List<Input> inputs;
-
-    public ConditionTypeDTO(final ConditionType conditionType) {
-        super(conditionType);
-        inputs = conditionType.getInputs();
+    public static ConditionTypeDTO map(final ConditionType conditionType) {
+        final ConditionTypeDTO conditionTypeDto = new ConditionTypeDTO();
+        fillProperties(conditionType, conditionTypeDto);
+        conditionTypeDto.inputs = conditionType.getInputs();
+        return conditionTypeDto;
     }
 
-    public static List<ConditionTypeDTO> toDtoList(final Collection<ConditionType> types) {
+    public static List<ConditionTypeDTO> map(final Collection<ConditionType> types) {
         if (types == null) {
             return null;
         }
         final List<ConditionTypeDTO> dtos = new ArrayList<>(types.size());
         for (final ConditionType type : types) {
-            dtos.add(new ConditionTypeDTO(type));
+            dtos.add(map(type));
         }
         return dtos;
     }
+
 }

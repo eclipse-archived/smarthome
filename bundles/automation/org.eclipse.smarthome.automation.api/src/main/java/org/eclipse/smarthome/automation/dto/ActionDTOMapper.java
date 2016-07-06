@@ -6,54 +6,57 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.smarthome.automation.Action;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This is a data transfer object that is used to serialize the respective class.
+ * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class ActionDTO extends ModuleDTO {
+public class ActionDTOMapper extends ModuleDTOMapper {
 
-    public Map<String, String> inputs;
-
-    public ActionDTO(final Action action) {
-        super(action);
+    public static ActionDTO map(final Action action) {
+        final ActionDTO actionDto = new ActionDTO();
+        fillProperties(action, actionDto);
+        actionDto.inputs = action.getInputs();
+        return actionDto;
     }
 
-    public Action createAction() {
-        final Action action = new Action(id, type, new Configuration(configuration), inputs);
-        action.setLabel(label);
-        action.setDescription(description);
+    public static Action mapDto(final ActionDTO actionDto) {
+        final Action action = new Action(actionDto.id, actionDto.type, new Configuration(actionDto.configuration),
+                actionDto.inputs);
+        action.setLabel(actionDto.label);
+        action.setDescription(actionDto.description);
         return action;
     }
 
-    public static List<ActionDTO> toDtoList(final List<Action> actions) {
+    public static List<ActionDTO> map(final Collection<Action> actions) {
         if (actions == null) {
             return null;
         }
         final List<ActionDTO> dtos = new ArrayList<>(actions.size());
         for (final Action action : actions) {
-            dtos.add(new ActionDTO(action));
+            dtos.add(map(action));
         }
         return dtos;
     }
 
-    public static List<Action> fromDtoList(final List<ActionDTO> dtos) {
+    public static List<Action> mapDto(final Collection<ActionDTO> dtos) {
         if (dtos == null) {
             return null;
         }
         final List<Action> actions = new ArrayList<>(dtos.size());
         for (final ActionDTO dto : dtos) {
-            actions.add(dto.createAction());
+            actions.add(mapDto(dto));
         }
         return actions;
     }
+
 }

@@ -6,37 +6,37 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.smarthome.automation.type.Output;
 import org.eclipse.smarthome.automation.type.TriggerType;
 
 /**
- * This is a data transfer object that is used to serialize the respective class.
+ * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class TriggerTypeDTO extends ModuleTypeDTO {
+public class TriggerTypeDTOMapper extends ModuleTypeDTOMapper {
 
-    public List<Output> outputs;
-
-    public TriggerTypeDTO(final TriggerType triggerType) {
-        super(triggerType);
-        outputs = triggerType.getOutputs();
+    public static TriggerTypeDTO map(final TriggerType triggerType) {
+        final TriggerTypeDTO triggerTypeDto = new TriggerTypeDTO();
+        fillProperties(triggerType, triggerTypeDto);
+        triggerTypeDto.outputs = triggerType.getOutputs();
+        return triggerTypeDto;
     }
 
-    public static List<TriggerTypeDTO> toDtoList(final Collection<TriggerType> types) {
+    public static List<TriggerTypeDTO> map(final Collection<TriggerType> types) {
         if (types == null) {
             return null;
         }
         final List<TriggerTypeDTO> dtos = new ArrayList<>(types.size());
         for (final TriggerType type : types) {
-            dtos.add(new TriggerTypeDTO(type));
+            dtos.add(map(type));
         }
         return dtos;
     }
+
 }

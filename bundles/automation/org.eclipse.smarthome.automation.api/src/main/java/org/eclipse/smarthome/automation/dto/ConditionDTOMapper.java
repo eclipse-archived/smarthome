@@ -6,54 +6,56 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.eclipse.smarthome.automation.rest.internal.dto;
+package org.eclipse.smarthome.automation.dto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.smarthome.automation.Condition;
 import org.eclipse.smarthome.config.core.Configuration;
 
 /**
- * This is a data transfer object that is used to serialize the respective class.
+ * This is a utility class to convert between the respective object and its DTO.
  *
  * @author Markus Rathgeb - Initial contribution and API
  */
-public class ConditionDTO extends ModuleDTO {
+public class ConditionDTOMapper extends ModuleDTOMapper {
 
-    public Map<String, String> inputs;
-
-    public ConditionDTO(final Condition condition) {
-        super(condition);
+    public static ConditionDTO map(final Condition condition) {
+        final ConditionDTO conditionDto = new ConditionDTO();
+        fillProperties(condition, conditionDto);
+        conditionDto.inputs = condition.getInputs();
+        return conditionDto;
     }
 
-    public Condition createCondition() {
-        final Condition condition = new Condition(id, type, new Configuration(configuration), inputs);
-        condition.setLabel(label);
-        condition.setDescription(description);
+    public static Condition mapDto(final ConditionDTO conditionDto) {
+        final Condition condition = new Condition(conditionDto.id, conditionDto.type,
+                new Configuration(conditionDto.configuration), conditionDto.inputs);
+        condition.setLabel(conditionDto.label);
+        condition.setDescription(conditionDto.description);
         return condition;
     }
 
-    public static List<ConditionDTO> toDtoList(final List<Condition> conditions) {
+    public static List<ConditionDTO> map(final List<Condition> conditions) {
         if (conditions == null) {
             return null;
         }
         final List<ConditionDTO> dtos = new ArrayList<>(conditions.size());
         for (final Condition action : conditions) {
-            dtos.add(new ConditionDTO(action));
+            dtos.add(map(action));
         }
         return dtos;
     }
 
-    public static List<Condition> fromDtoList(final List<ConditionDTO> dtos) {
+    public static List<Condition> mapDto(final List<ConditionDTO> dtos) {
         if (dtos == null) {
             return null;
         }
         final List<Condition> conditions = new ArrayList<>(dtos.size());
         for (final ConditionDTO dto : dtos) {
-            conditions.add(dto.createCondition());
+            conditions.add(mapDto(dto));
         }
         return conditions;
     }
+
 }
