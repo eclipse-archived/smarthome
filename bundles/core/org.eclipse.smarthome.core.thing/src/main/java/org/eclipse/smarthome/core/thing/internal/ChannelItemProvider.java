@@ -31,15 +31,19 @@ import org.eclipse.smarthome.core.thing.link.ItemChannelLink;
 import org.eclipse.smarthome.core.thing.link.ItemChannelLinkRegistry;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
 import org.eclipse.smarthome.core.thing.type.TypeResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class dynamically provides items for all links that point to non-existing items.
  *
  * @author Kai Kreuzer
  * @author Markus Rathgeb - Add locale provider support
- *
+ * @author Thomas Höfer - Added modified operation
  */
 public class ChannelItemProvider implements ItemProvider {
+
+    private final Logger logger = LoggerFactory.getLogger(ChannelItemProvider.class);
 
     private Set<ProviderChangeListener<Item>> listeners = new HashSet<>();
 
@@ -123,13 +127,21 @@ public class ChannelItemProvider implements ItemProvider {
     }
 
     protected void activate(Map<String, Object> properties) {
+        modified(properties);
+    }
+
+    protected synchronized void modified(Map<String, Object> properties) {
         if (properties != null) {
             String enabled = (String) properties.get("enabled");
             if ("false".equalsIgnoreCase(enabled)) {
                 this.enabled = false;
+            } else {
+                this.enabled = true;
             }
         }
+
         if (enabled) {
+            logger.debug("Enabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
                 for (Item item : getAll()) {
                     listener.added(this, item);
@@ -139,24 +151,33 @@ public class ChannelItemProvider implements ItemProvider {
             this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
             this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
         } else {
+            logger.debug("Disabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
                 for (Item item : getAll()) {
                     listener.removed(this, item);
                 }
             }
+            removeRegistryChangeListeners();
         }
     }
 
     protected void deactivate() {
-        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
-        this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
-        this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
+        removeRegistryChangeListeners();
         synchronized (this) {
             items = null;
         }
     }
 
+    private void removeRegistryChangeListeners() {
+        this.itemRegistry.removeRegistryChangeListener(itemRegistryListener);
+        this.linkRegistry.removeRegistryChangeListener(linkRegistryListener);
+        this.thingRegistry.removeRegistryChangeListener(thingRegistryListener);
+    }
+
     private void createItemForLink(ItemChannelLink link) {
+        if (!enabled) {
+            return;
+        }
         if (itemRegistry.get(link.getItemName()) != null) {
             // there is already an item, we do not need to create one
             return;
