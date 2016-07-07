@@ -78,7 +78,7 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         if (job != null && !job.isDone()) {
             job.cancel(false);
         }
-        job = scheduler.schedule(runnable, 1000, TimeUnit.SECONDS);
+        job = scheduler.schedule(runnable, 1, TimeUnit.SECONDS);
     }
 
     Runnable runnable = new Runnable() {
@@ -86,6 +86,7 @@ public class ScriptItemRefresher implements ItemRegistryChangeListener {
         public void run() {
             try {
                 modelRepository.reloadAllModelsOfType("script");
+                modelRepository.reloadAllModelsOfType("rules");
             } catch (Exception e) {
                 logger.debug("Exception occurred during execution: {}", e.getMessage(), e);
             }
