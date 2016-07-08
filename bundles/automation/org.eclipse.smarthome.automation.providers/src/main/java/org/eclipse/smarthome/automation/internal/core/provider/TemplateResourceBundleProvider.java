@@ -299,7 +299,7 @@ public class TemplateResourceBundleProvider extends AbstractResourceBundleProvid
             String ldescription = RuleTemplateI18nUtil.getLocalizedRuleTemplateDescription(i18nProvider, bundle, uid,
                     defTemplate.getDescription(), locale);
             List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
-                    ((RuleTemplate) defTemplate).getConfigurationDescription(), bundle, uid,
+                    ((RuleTemplate) defTemplate).getConfigurationDescriptions(), bundle, uid,
                     RuleTemplateI18nUtil.RULE_TEMPLATE, locale);
             List<Action> lactions = ModuleI18nUtil.getLocalizedModules(i18nProvider,
                     ((RuleTemplate) defTemplate).getActions(), bundle, uid, RuleTemplateI18nUtil.RULE_TEMPLATE, locale);

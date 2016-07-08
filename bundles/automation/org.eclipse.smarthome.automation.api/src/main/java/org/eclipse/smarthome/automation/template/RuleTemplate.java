@@ -183,7 +183,7 @@ public class RuleTemplate implements Template {
      *
      * @return a {@link Set} of {@link ConfigDescriptionParameter}s.
      */
-    public List<ConfigDescriptionParameter> getConfigurationDescription() {
+    public List<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions != null ? configDescriptions : Collections.<ConfigDescriptionParameter> emptyList();
     }
 

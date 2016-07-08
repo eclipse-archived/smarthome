@@ -1195,7 +1195,7 @@ public class RuleEngine
             Configuration moduleConfiguration = module.getConfiguration();
             String typeId = module.getTypeUID();
             ModuleType mt = mtManager.get(typeId);
-            List<ConfigDescriptionParameter> configs = mt.getConfigurationDescription();
+            List<ConfigDescriptionParameter> configs = mt.getConfigurationDescriptions();
             if (configs != null) {
                 for (ConfigDescriptionParameter config : configs) {
                     String defaultValue = config.getDefault();
@@ -1276,7 +1276,7 @@ public class RuleEngine
                 }
                 ModuleType mt = mtManager.get(type);
                 if (mt != null) {
-                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescription();
+                    List<ConfigDescriptionParameter> configDescriptions = mt.getConfigurationDescriptions();
                     for (ConfigDescriptionParameter cftDesc : configDescriptions) {
                         String parameterName = cftDesc.getName();
                         if (mConfig.get(parameterName) == null) {
