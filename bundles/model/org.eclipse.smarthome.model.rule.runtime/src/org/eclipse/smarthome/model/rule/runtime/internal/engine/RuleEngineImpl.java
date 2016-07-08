@@ -85,9 +85,6 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
     };
 
     public void activate() {
-        RulesStandaloneSetup.doSetup();
-        logger.debug("Registered 'rule' configuration parser");
-
         injector = RulesStandaloneSetup.getInjector();
         triggerManager = injector.getInstance(RuleTriggerManager.class);
 

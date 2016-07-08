@@ -21,6 +21,7 @@ import org.eclipse.xtext.common.types.access.reflect.ReflectionTypeScopeProvider
 import org.eclipse.xtext.common.types.xtext.AbstractTypeScopeProvider;
 import org.eclipse.xtext.generator.IGenerator;
 import org.eclipse.xtext.generator.IGenerator.NullGenerator;
+import org.eclipse.xtext.linking.lazy.LazyURIEncoder;
 import org.eclipse.xtext.scoping.IScopeProvider;
 import org.eclipse.xtext.scoping.impl.AbstractDeclarativeScopeProvider;
 import org.eclipse.xtext.xbase.interpreter.IExpressionInterpreter;
@@ -77,4 +78,9 @@ public class RulesRuntimeModule extends org.eclipse.smarthome.model.rule.Abstrac
         return new ActionClassLoader(super.bindClassLoaderToInstance());
     }
 
+    @Override
+    public void configureUseIndexFragmentsForLazyLinking(Binder binder) {
+        binder.bind(Boolean.TYPE).annotatedWith(Names.named(LazyURIEncoder.USE_INDEXED_FRAGMENTS_BINDING))
+                .toInstance(Boolean.FALSE);
+    }
 }

@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.thing.runtime">
    <implementation class="org.eclipse.smarthome.model.thing.runtime.internal.ThingRuntimeActivator"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.thing.runtime.internal.ThingRuntimeActivator"/>
+      <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
    </service>
 </scr:component>

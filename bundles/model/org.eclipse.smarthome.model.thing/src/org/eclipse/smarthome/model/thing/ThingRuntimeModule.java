@@ -9,6 +9,10 @@ package org.eclipse.smarthome.model.thing;
 
 import org.eclipse.smarthome.model.thing.valueconverter.ThingValueConverters;
 import org.eclipse.xtext.conversion.IValueConverterService;
+import org.eclipse.xtext.linking.lazy.LazyURIEncoder;
+
+import com.google.inject.Binder;
+import com.google.inject.name.Names;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -24,5 +28,11 @@ public class ThingRuntimeModule extends org.eclipse.smarthome.model.thing.Abstra
     @Override
     public Class<? extends org.eclipse.xtext.serializer.sequencer.ISyntacticSequencer> bindISyntacticSequencer() {
         return org.eclipse.smarthome.model.thing.serializer.ThingSyntacticSequencerExtension.class;
+    }
+
+    @Override
+    public void configureUseIndexFragmentsForLazyLinking(Binder binder) {
+        binder.bind(Boolean.TYPE).annotatedWith(Names.named(LazyURIEncoder.USE_INDEXED_FRAGMENTS_BINDING))
+                .toInstance(Boolean.FALSE);
     }
 }

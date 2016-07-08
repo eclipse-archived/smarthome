@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.sitemap.runtime">
    <implementation class="org.eclipse.smarthome.model.sitemap.runtime.internal.SitemapRuntimeActivator"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.sitemap.runtime.internal.SitemapRuntimeActivator"/>
+      <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
    </service>
 </scr:component>

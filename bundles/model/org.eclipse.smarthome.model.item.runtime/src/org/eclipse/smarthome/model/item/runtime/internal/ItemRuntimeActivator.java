@@ -8,10 +8,11 @@
 package org.eclipse.smarthome.model.item.runtime.internal;
 
 import org.eclipse.smarthome.model.ItemsStandaloneSetup;
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ItemRuntimeActivator {
+public class ItemRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(ItemRuntimeActivator.class);
 
@@ -21,6 +22,11 @@ public class ItemRuntimeActivator {
     }
 
     public void deactivate() throws Exception {
+    }
+
+    @Override
+    public String getExtension() {
+        return "items";
     }
 
 }

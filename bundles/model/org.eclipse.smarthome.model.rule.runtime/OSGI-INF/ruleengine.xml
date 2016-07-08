@@ -8,7 +8,7 @@
     http://www.eclipse.org/legal/epl-v10.html
 
 -->
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="false" name="org.eclipse.smarthome.model.ruleengine">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" immediate="true" name="org.eclipse.smarthome.model.ruleengine">
    <implementation class="org.eclipse.smarthome.model.rule.runtime.internal.engine.RuleEngineImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.core.events.EventSubscriber"/>

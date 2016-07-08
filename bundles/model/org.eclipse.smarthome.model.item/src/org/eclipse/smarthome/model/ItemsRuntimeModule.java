@@ -10,9 +10,20 @@
  */
 package org.eclipse.smarthome.model;
 
+import org.eclipse.xtext.linking.lazy.LazyURIEncoder;
+
+import com.google.inject.Binder;
+import com.google.inject.name.Names;
+
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class ItemsRuntimeModule extends org.eclipse.smarthome.model.AbstractItemsRuntimeModule {
+
+    @Override
+    public void configureUseIndexFragmentsForLazyLinking(Binder binder) {
+        binder.bind(Boolean.TYPE).annotatedWith(Names.named(LazyURIEncoder.USE_INDEXED_FRAGMENTS_BINDING))
+                .toInstance(Boolean.FALSE);
+    }
 
 }
