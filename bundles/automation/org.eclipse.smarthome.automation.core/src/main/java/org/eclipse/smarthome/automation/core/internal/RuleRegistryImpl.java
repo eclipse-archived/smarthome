@@ -409,7 +409,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         } else {
             Rule r1 = new Rule(rule.getUID(), RuleUtils.getTriggersCopy(template.getTriggers()),
                     RuleUtils.getConditionsCopy(template.getConditions()),
-                    RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescription(),
+                    RuleUtils.getActionsCopy(template.getActions()), template.getConfigurationDescriptions(),
                     rule.getConfiguration(), template.getUID(), template.getVisibility());
             validateConfiguration(r1);
             r1.setName(rule.getName());

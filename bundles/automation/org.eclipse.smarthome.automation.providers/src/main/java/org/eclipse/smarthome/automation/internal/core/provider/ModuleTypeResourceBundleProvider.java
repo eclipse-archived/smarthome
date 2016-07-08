@@ -289,7 +289,7 @@ public class ModuleTypeResourceBundleProvider extends AbstractResourceBundleProv
         String ldescription = ModuleTypeI18nUtil.getLocalizedModuleTypeDescription(i18nProvider, bundle, uid,
                 defModuleType.getDescription(), locale);
         List<ConfigDescriptionParameter> lconfigDescriptions = getLocalizedConfigurationDescription(i18nProvider,
-                defModuleType.getConfigurationDescription(), bundle, uid, ModuleTypeI18nUtil.MODULE_TYPE, locale);
+                defModuleType.getConfigurationDescriptions(), bundle, uid, ModuleTypeI18nUtil.MODULE_TYPE, locale);
         if (defModuleType instanceof ActionType) {
             return createLocalizedActionType((ActionType) defModuleType, bundle, uid, locale, lconfigDescriptions,
                     llabel, ldescription);
