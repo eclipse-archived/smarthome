@@ -12,8 +12,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.emf.common.util.URI;
@@ -44,6 +46,8 @@ public class ModelRepositoryImpl implements ModelRepository {
     private final ResourceSet resourceSet;
 
     private final List<ModelRepositoryChangeListener> listeners = new CopyOnWriteArrayList<>();
+
+    private Set<String> ignoredResources = new HashSet<>();
 
     public ModelRepositoryImpl() {
         XtextResourceSet xtextResourceSet = new SynchronizedXtextResourceSet();
@@ -81,6 +85,8 @@ public class ModelRepositoryImpl implements ModelRepository {
                 resource = getResource(name);
                 if (resource == null) {
                     // seems to be a new file
+                    // don't use XMI as a default
+                    Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().remove("*");
                     resource = resourceSet.createResource(URI.createURI(name));
                     if (resource != null) {
                         logger.info("Loading model '{}'", name);
@@ -100,6 +106,8 @@ public class ModelRepositoryImpl implements ModelRepository {
                             logger.warn("Configuration model '" + name + "' cannot be parsed correctly!", e);
                             resourceSet.getResources().remove(resource);
                         }
+                    } else {
+                        logger.warn("Ignoring file '{}' as we do not have a parser for it.", name);
                     }
                 }
             }

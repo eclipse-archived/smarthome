@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.item.runtime">
    <implementation class="org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeActivator"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.item.runtime.internal.ItemRuntimeActivator"/>
+      <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
    </service>
 </scr:component>

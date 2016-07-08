@@ -2,6 +2,6 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.eclipse.smarthome.model.persistence.runtime">
    <implementation class="org.eclipse.smarthome.model.persistence.runtime.internal.PersistenceRuntimeActivator"/>
    <service>
-      <provide interface="org.eclipse.smarthome.model.persistence.runtime.internal.PersistenceRuntimeActivator"/>
+      <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
    </service>
 </scr:component>

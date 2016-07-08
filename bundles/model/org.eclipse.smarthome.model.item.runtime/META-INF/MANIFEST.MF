@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.smarthome.model.item.runtime;singleton:=true
 Bundle-Version: 0.9.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: Eclipse.org/SmartHome
-Import-Package: org.osgi.framework,
+Import-Package: org.eclipse.smarthome.model.core,
+ org.osgi.framework,
  org.slf4j
 Require-Bundle: org.eclipse.smarthome.model.item
 Service-Component: OSGI-INF/runtime.xml

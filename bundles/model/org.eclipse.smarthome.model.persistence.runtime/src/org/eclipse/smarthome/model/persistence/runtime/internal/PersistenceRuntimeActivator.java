@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.model.persistence.runtime.internal;
 
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.persistence.PersistenceStandaloneSetup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PersistenceRuntimeActivator {
+public class PersistenceRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(PersistenceRuntimeActivator.class);
 
@@ -21,6 +22,11 @@ public class PersistenceRuntimeActivator {
     }
 
     public void deactivate() throws Exception {
+    }
+
+    @Override
+    public String getExtension() {
+        return "persist";
     }
 
 }
