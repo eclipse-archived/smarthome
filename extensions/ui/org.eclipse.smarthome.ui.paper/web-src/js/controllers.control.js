@@ -195,7 +195,8 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Contact' : {},
         'DimmableLight' : {
             label : 'Brightness',
-            icon : 'wb_incandescent'
+            icon : 'wb_incandescent',
+            showSwitch : true
         },
         'CarbonDioxide' : {
             label : 'CO2'
@@ -221,8 +222,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Smoke' : {},
         'SoundVolume' : {
             label : 'Volume',
-            icon : 'volume_up',
-            hideSwitch : true
+            icon : 'volume_up'
         },
         'Switch' : {},
         'Temperature' : {
@@ -263,11 +263,11 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
             return defaultIcon;
         }
     }
-    $scope.isHideSwitch = function(itemCategory) {
+    $scope.showSwitch = function(itemCategory) {
         if (itemCategory) {
             var category = categories[itemCategory];
             if (category) {
-                return category.hideSwitch;
+                return category.showSwitch;
             }
         }
         return false;
