@@ -76,26 +76,26 @@ public class ModuleTypeResource implements RESTResource {
             @QueryParam("type") @ApiParam(value = "filtering by action, condition or trigger", required = false) String type) {
         final Locale locale = LocaleUtil.getLocale(language);
         final Set<String> tags = tagList != null ? new HashSet<String>(Arrays.asList(tagList.split(","))) : null;
-        final List<ModuleTypeDTO> modules = new ArrayList<>();
+        final List<ModuleTypeDTO> modules = new ArrayList<ModuleTypeDTO>();
         if (type == null || type.equals("trigger")) {
             if (tags == null) {
                 modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.getAll(TriggerType.class, locale)));
             } else {
-                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType> getByTags(tags, locale)));
+                modules.addAll(TriggerTypeDTOMapper.map(moduleTypeRegistry.<TriggerType>getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("condition")) {
             if (tags == null) {
                 modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.getAll(ConditionType.class, locale)));
             } else {
-                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType> getByTags(tags, locale)));
+                modules.addAll(ConditionTypeDTOMapper.map(moduleTypeRegistry.<ConditionType>getByTags(tags, locale)));
             }
         }
         if (type == null || type.equals("action")) {
             if (tags == null) {
                 modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.getAll(ActionType.class, locale)));
             } else {
-                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType> getByTags(tags, locale)));
+                modules.addAll(ActionTypeDTOMapper.map(moduleTypeRegistry.<ActionType>getByTags(tags, locale)));
             }
         }
         return Response.ok(modules).build();
