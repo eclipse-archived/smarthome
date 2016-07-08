@@ -147,9 +147,7 @@ public class ChannelItemProvider implements ItemProvider {
                     listener.added(this, item);
                 }
             }
-            this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
-            this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
-            this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
+            addRegistryChangeListeners();
         } else {
             logger.debug("Disabling channel item provider.");
             for (ProviderChangeListener<Item> listener : listeners) {
@@ -166,6 +164,12 @@ public class ChannelItemProvider implements ItemProvider {
         synchronized (this) {
             items = null;
         }
+    }
+
+    private void addRegistryChangeListeners() {
+        this.linkRegistry.addRegistryChangeListener(linkRegistryListener);
+        this.itemRegistry.addRegistryChangeListener(itemRegistryListener);
+        this.thingRegistry.addRegistryChangeListener(thingRegistryListener);
     }
 
     private void removeRegistryChangeListeners() {
