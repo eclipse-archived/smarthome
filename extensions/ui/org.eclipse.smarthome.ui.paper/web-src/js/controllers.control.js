@@ -222,8 +222,7 @@ angular.module('PaperUI.controllers.control', []).controller('ControlPageControl
         'Smoke' : {},
         'SoundVolume' : {
             label : 'Volume',
-            icon : 'volume_up',
-            showSwitch : false
+            icon : 'volume_up'
         },
         'Switch' : {},
         'Temperature' : {
