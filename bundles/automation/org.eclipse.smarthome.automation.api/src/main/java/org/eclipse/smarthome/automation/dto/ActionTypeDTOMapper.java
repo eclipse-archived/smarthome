@@ -33,7 +33,7 @@ public class ActionTypeDTOMapper extends ModuleTypeDTOMapper {
         if (types == null) {
             return null;
         }
-        final List<ActionTypeDTO> dtos = new ArrayList<>(types.size());
+        final List<ActionTypeDTO> dtos = new ArrayList<ActionTypeDTO>(types.size());
         for (final ActionType type : types) {
             dtos.add(map(type));
         }
