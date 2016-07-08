@@ -119,7 +119,7 @@ public abstract class ModuleType {
      *
      * @return a {@link Set} of meta-information configuration descriptions.
      */
-    public List<ConfigDescriptionParameter> getConfigurationDescription() {
+    public List<ConfigDescriptionParameter> getConfigurationDescriptions() {
         return configDescriptions != null ? configDescriptions : Collections.<ConfigDescriptionParameter> emptyList();
     }
 

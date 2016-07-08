@@ -177,35 +177,35 @@ public class ModuleTypeManager implements ServiceTrackerCustomizer {
         ModuleType result;
         if (mType instanceof CompositeTriggerType) {
             CompositeTriggerType m = (CompositeTriggerType) mType;
-            result = new CompositeTriggerType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new CompositeTriggerType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs(),
                     copyTriggers(m.getChildren()));
 
         } else if (mType instanceof TriggerType) {
             TriggerType m = (TriggerType) mType;
-            result = new TriggerType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new TriggerType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getOutputs());
 
         } else if (mType instanceof CompositeConditionType) {
             CompositeConditionType m = (CompositeConditionType) mType;
-            result = new CompositeConditionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new CompositeConditionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(),
                     copyConditions(m.getChildren()));
 
         } else if (mType instanceof ConditionType) {
             ConditionType m = (ConditionType) mType;
-            result = new ConditionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new ConditionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs());
 
         } else if (mType instanceof CompositeActionType) {
             CompositeActionType m = (CompositeActionType) mType;
-            result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new CompositeActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs(),
                     copyActions(m.getChildren()));
 
         } else if (mType instanceof ActionType) {
             ActionType m = (ActionType) mType;
-            result = new ActionType(mType.getUID(), mType.getConfigurationDescription(), mType.getLabel(),
+            result = new ActionType(mType.getUID(), mType.getConfigurationDescriptions(), mType.getLabel(),
                     mType.getDescription(), mType.getTags(), mType.getVisibility(), m.getInputs(), m.getOutputs());
 
         } else {

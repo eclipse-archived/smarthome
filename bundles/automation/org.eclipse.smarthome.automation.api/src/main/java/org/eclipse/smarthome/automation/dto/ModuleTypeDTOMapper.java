@@ -23,7 +23,7 @@ public class ModuleTypeDTOMapper {
         to.tags = from.getTags();
         to.label = from.getLabel();
         to.description = from.getDescription();
-        to.configDescriptions = from.getConfigurationDescription();
+        to.configDescriptions = from.getConfigurationDescriptions();
     }
 
 }

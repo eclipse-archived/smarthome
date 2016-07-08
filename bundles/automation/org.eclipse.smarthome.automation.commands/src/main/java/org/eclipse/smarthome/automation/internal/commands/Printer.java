@@ -232,7 +232,7 @@ public class Printer {
         templateContent.add(Utils.getRow(columnWidths, templateProperty));
         if (template instanceof RuleTemplate) {
             templateContent.addAll(collectRecords(columnWidths, CONFIGURATION_DESCRIPTIONS,
-                    getConfigurationDescriptionRecords(((RuleTemplate) template).getConfigurationDescription())));
+                    getConfigurationDescriptionRecords(((RuleTemplate) template).getConfigurationDescriptions())));
             templateContent.addAll(collectRecords(columnWidths, TRIGGERS, ((RuleTemplate) template).getTriggers()));
             templateContent.addAll(collectRecords(columnWidths, CONDITIONS, ((RuleTemplate) template).getConditions()));
             templateContent.addAll(collectRecords(columnWidths, ACTIONS, ((RuleTemplate) template).getActions()));
@@ -277,7 +277,7 @@ public class Printer {
         moduleTypeContent.add(Utils.getRow(columnWidths, moduleTypeProperty));
 
         moduleTypeContent.addAll(collectRecords(columnWidths, CONFIGURATION_DESCRIPTIONS,
-                getConfigurationDescriptionRecords(moduleType.getConfigurationDescription())));
+                getConfigurationDescriptionRecords(moduleType.getConfigurationDescriptions())));
         if (moduleType instanceof TriggerType) {
             moduleTypeContent.addAll(collectRecords(columnWidths, OUTPUTS, ((TriggerType) moduleType).getOutputs()));
         }
