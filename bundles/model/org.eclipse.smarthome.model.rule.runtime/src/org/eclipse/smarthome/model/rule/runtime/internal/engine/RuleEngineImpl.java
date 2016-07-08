@@ -35,7 +35,6 @@ import org.eclipse.smarthome.model.rule.jvmmodel.RulesJvmModelInferrer;
 import org.eclipse.smarthome.model.rule.rules.Rule;
 import org.eclipse.smarthome.model.rule.rules.RuleModel;
 import org.eclipse.smarthome.model.rule.runtime.RuleEngine;
-import org.eclipse.smarthome.model.rule.runtime.RuleRuntime;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -67,13 +66,16 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
     private ItemRegistry itemRegistry;
     private ModelRepository modelRepository;
     private ScriptEngine scriptEngine;
-    private RuleRuntime ruleRuntime;
 
     private RuleTriggerManager triggerManager;
 
     private Injector injector;
 
     private ScheduledFuture<?> startupJob;
+
+    // this flag is used to signal that items are still being added and that we hence do not consider the rule engine
+    // ready to be operational
+    private boolean starting = true;
 
     private Runnable startupRunnable = new Runnable() {
         @Override
@@ -146,14 +148,6 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
         this.scriptEngine = null;
     }
 
-    protected void setRuleRuntime(final RuleRuntime ruleRuntime) {
-        this.ruleRuntime = ruleRuntime;
-    }
-
-    protected void unsetRuleRuntime(final RuleRuntime ruleRuntime) {
-        this.ruleRuntime = null;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -192,7 +186,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
      */
     @Override
     public void stateChanged(Item item, State oldState, State newState) {
-        if (triggerManager != null) {
+        if (!starting && triggerManager != null) {
             Iterable<Rule> rules = triggerManager.getRules(CHANGE, item, oldState, newState);
 
             executeRules(rules, oldState);
@@ -204,7 +198,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
      */
     @Override
     public void stateUpdated(Item item, State state) {
-        if (triggerManager != null) {
+        if (!starting && triggerManager != null) {
             Iterable<Rule> rules = triggerManager.getRules(UPDATE, item, state);
             executeRules(rules);
         }
@@ -212,7 +206,7 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
 
     @Override
     protected void receiveCommand(ItemCommandEvent commandEvent) {
-        if (triggerManager != null && itemRegistry != null) {
+        if (!starting && triggerManager != null && itemRegistry != null) {
             String itemName = commandEvent.getItemName();
             Command command = commandEvent.getItemCommand();
             try {
@@ -257,9 +251,10 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
     }
 
     private void scheduleStartupRules() {
-        if (startupJob == null || startupJob.isCancelled() || startupJob.isDone()) {
-            startupJob = scheduler.schedule(startupRunnable, 5, TimeUnit.SECONDS);
+        if (startupJob != null && !startupJob.isCancelled() && !startupJob.isDone()) {
+            startupJob.cancel(true);
         }
+        startupJob = scheduler.schedule(startupRunnable, 5, TimeUnit.SECONDS);
     }
 
     private void runStartupRules() {
@@ -281,19 +276,17 @@ public class RuleEngineImpl extends AbstractItemEventSubscriber
                                 new Object[] { rule.getName(), e.getCause().getMessage() });
                         executedRules.add(rule);
                     } else {
-                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing.",
-                                rule.getName());
+                        logger.debug("Execution of startup rule '{}' has been postponed as items are still missing: {}",
+                                rule.getName(), e.getMessage());
                     }
                 }
             }
             for (Rule rule : executedRules) {
                 triggerManager.removeRule(STARTUP, rule);
             }
+            // now that we have executed the startup rules, we are ready for others as well
+            starting = false;
         }
-    }
-
-    protected synchronized void executeRule(Rule rule) {
-        executeRule(rule, new RuleEvaluationContext());
     }
 
     protected synchronized void executeRule(Rule rule, RuleEvaluationContext context) {

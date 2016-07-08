@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Diagnostic;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.script.engine.Script;
 import org.eclipse.smarthome.model.script.engine.ScriptEngine;
 import org.eclipse.smarthome.model.script.engine.ScriptExecutionException;
@@ -45,7 +46,7 @@ import com.google.common.base.Predicate;
  * @author Oliver Libutzki - Reorganization of Guice injection
  *
  */
-public class ScriptEngineImpl implements ScriptEngine {
+public class ScriptEngineImpl implements ScriptEngine, ModelParser {
 
     protected XtextResourceSet resourceSet;
 
@@ -166,6 +167,11 @@ public class ScriptEngineImpl implements ScriptEngine {
             }
         });
         return issues;
+    }
+
+    @Override
+    public String getExtension() {
+        return "script";
     }
 
 }

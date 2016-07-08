@@ -12,6 +12,7 @@
    <implementation class="org.eclipse.smarthome.model.script.runtime.internal.engine.ScriptEngineImpl"/>
    <service>
       <provide interface="org.eclipse.smarthome.model.script.engine.ScriptEngine"/>
+      <provide interface="org.eclipse.smarthome.model.core.ModelParser"/>
    </service>
    <!-- we must depend on ScriptServiceUtil, because the activate() of this component will trigger Guice startup, which needs the all services (such as the ItemRegistry) to be in place already -->
    <reference cardinality="1..1" interface="org.eclipse.smarthome.model.script.ScriptServiceUtil" name="ScriptServiceUtil" policy="static"/>

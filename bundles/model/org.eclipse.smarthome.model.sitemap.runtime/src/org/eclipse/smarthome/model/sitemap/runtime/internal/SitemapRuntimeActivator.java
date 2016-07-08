@@ -8,10 +8,11 @@
 package org.eclipse.smarthome.model.sitemap.runtime.internal;
 
 import org.eclipse.smarthome.model.SitemapStandaloneSetup;
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SitemapRuntimeActivator {
+public class SitemapRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(SitemapRuntimeActivator.class);
 
@@ -21,6 +22,11 @@ public class SitemapRuntimeActivator {
     }
 
     public void deactivate() throws Exception {
+    }
+
+    @Override
+    public String getExtension() {
+        return "sitemap";
     }
 
 }

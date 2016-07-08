@@ -7,11 +7,12 @@
  */
 package org.eclipse.smarthome.model.thing.runtime.internal;
 
+import org.eclipse.smarthome.model.core.ModelParser;
 import org.eclipse.smarthome.model.thing.ThingStandaloneSetup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ThingRuntimeActivator {
+public class ThingRuntimeActivator implements ModelParser {
 
     private final Logger logger = LoggerFactory.getLogger(ThingRuntimeActivator.class);
 
@@ -21,6 +22,11 @@ public class ThingRuntimeActivator {
     }
 
     public void deactivate() throws Exception {
+    }
+
+    @Override
+    public String getExtension() {
+        return "things";
     }
 
 }
