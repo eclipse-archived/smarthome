@@ -37,7 +37,7 @@ angular.module('PaperUI.controllers', [ 'PaperUI.constants' ]).controller('BodyC
 
     var numberOfInboxEntries = -1;
     eventService.onEvent('smarthome/inbox/*/added', function(topic, discoveryResult) {
-        toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/setup');
+        toastService.showDefaultToast('New Inbox Entry: ' + discoveryResult.label, 'Show Inbox', 'inbox/search');
     });
     eventService.onEvent('smarthome/items/*/state', function(topic, stateObject) {
 
