@@ -47,11 +47,10 @@ public abstract class AbstractLinkRegistry<L extends AbstractLink> extends Abstr
     }
 
     /**
-     * Returns the item name, which is bound to the given UID.
+     * Returns the item names, which are bound to the given UID.
      *
-     * @param uid
-     *            UID
-     * @return item name or null if no item is bound to the given UID
+     * @param uid UID
+     * @return a non-null collection of item names that are linked to the given UID.
      */
     public Set<String> getLinkedItems(UID uid) {
         Set<String> linkedItems = new LinkedHashSet<>();
