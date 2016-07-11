@@ -41,7 +41,7 @@ public class ActionDTOMapper extends ModuleDTOMapper {
         if (actions == null) {
             return null;
         }
-        final List<ActionDTO> dtos = new ArrayList<>(actions.size());
+        final List<ActionDTO> dtos = new ArrayList<ActionDTO>(actions.size());
         for (final Action action : actions) {
             dtos.add(map(action));
         }
@@ -52,7 +52,7 @@ public class ActionDTOMapper extends ModuleDTOMapper {
         if (dtos == null) {
             return null;
         }
-        final List<Action> actions = new ArrayList<>(dtos.size());
+        final List<Action> actions = new ArrayList<Action>(dtos.size());
         for (final ActionDTO dto : dtos) {
             actions.add(mapDto(dto));
         }
