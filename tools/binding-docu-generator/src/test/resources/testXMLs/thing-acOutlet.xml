@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2014, 2015, Deutsche Telekom AG. All rights reserved.
+  -->
+<thing:thing-descriptions bindingId="dect"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- DECT power outlet -->
+    <thing-type id="acOutlet">
+        <label>AC Outlet</label>
+        <description>An AC Outlet which can be turned on/off remotely.</description>
+        <!-- channels -->
+        <channels>
+            <channel id="onOffState" typeId="acSwitch"/>
+        </channels>
+    </thing-type>
+
+    <!-- Switch -->
+    <channel-type id="acSwitch">
+        <item-type>Switch</item-type>
+        <label>Enabled</label>
+        <description>Turns the ac outlet on/off.</description>
+        <category>PowerOutlet</category>
+        <state readOnly="false"/>
+    </channel-type>
+</thing:thing-descriptions>

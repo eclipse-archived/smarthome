@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2014, 2015, Deutsche Telekom AG. All rights reserved.
+  -->
+<thing:thing-descriptions bindingId="dect"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    <!-- Alert Channel Group -->
+    <channel-group-type id="alert">
+        <label>Alert</label>
+        <description>An alert, that shows the current status and can be disabled.</description>
+        <channels>
+            <channel id="alertState" typeId="alertAlarm">
+                <label>Status</label>
+            </channel>
+            <channel id="alertEnable" typeId="alertReporting">
+                <label>Report the Alert</label>
+            </channel>
+        </channels>
+    </channel-group-type>
+
+    <!-- Switch -->
+    <channel-type id="alertAlarm">
+        <item-type>Switch</item-type>
+        <label>Alarm</label>
+        <description>
+            The alarm state of a physical detector. Examples are flood and door open close detectors.
+        </description>
+        <category>Alarm</category>
+        <state readOnly="true"/>
+    </channel-type>
+    <channel-type id="alertReporting">
+        <item-type>Switch</item-type>
+        <label>Alarm activate</label>
+        <description>Turns reporting the alarm on/off.</description>
+        <category>Alarm</category>
+        <state readOnly="false"/>
+    </channel-type>
+</thing:thing-descriptions>

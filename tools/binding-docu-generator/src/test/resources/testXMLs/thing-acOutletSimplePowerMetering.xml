@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2014 - 2016, Deutsche Telekom AG. All rights reserved.
+  -->
+<thing:thing-descriptions bindingId="dect"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+
+    <!-- DECT power outlet -->
+    <thing-type id="acOutletSimplePowerMetering">
+        <label>AC Outlet with Simple Power Metering</label>
+        <description>An AC Outlet which can be turned on/off remotely and that has a simple Power Metering unit.
+        </description>
+
+        <!-- channels -->
+        <channels>
+            <channel id="onOffState" typeId="acSwitch"/>
+            <channel id="powerMeteringEnergy" typeId="powerMeteringEnergy"/>
+            <channel id="powerMeteringEnergyAtLastReset" typeId="powerMeteringEnergyAtLastReset"/>
+            <channel id="powerMeteringTimeAtLastReset" typeId="powerMeteringTimeAtLastReset"/>
+            <channel id="powerMeteringInstantaneousPower" typeId="powerMeteringInstantaneousPower"/>
+            <channel id="powerMeteringAveragePower" typeId="powerMeteringAveragePower"/>
+            <channel id="powerMeteringAveragePowerInterval" typeId="powerMeteringAveragePowerInterval"/>
+            <channel id="powerMeteringVoltage" typeId="powerMeteringVoltage"/>
+            <channel id="powerMeteringCurrent" typeId="powerMeteringCurrent"/>
+            <channel id="powerMeteringFrequency" typeId="powerMeteringFrequency"/>
+            <channel id="powerMeteringPowerFactor" typeId="powerMeteringPowerFactor"/>
+            <channel id="powerMeteringReportInterval" typeId="powerMeteringReportInterval"/>
+            <channel id="powerMeteringMeasurementReset" typeId="powerMeteringMeasurementReset"/>
+        </channels>
+    </thing-type>
+
+    <!-- Power Metering Channels -->
+    <channel-type id="powerMeteringEnergy">
+        <item-type>Number</item-type>
+        <label>Energy</label>
+        <description>Energy since last Reset/Power Up in Watts/Hour.</description>
+        <state pattern="%d W/h" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringEnergyAtLastReset">
+        <item-type>Number</item-type>
+        <label>Energy at last Reset</label>
+        <description>Energy at last Reset/Power Up in Watts/Hour.</description>
+        <state pattern="%d W/h" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringTimeAtLastReset">
+        <item-type>DateTime</item-type>
+        <label>Time at last Reset</label>
+        <description>Date time of last Reset/Power Up.</description>
+        <state readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringInstantaneousPower">
+        <item-type>Number</item-type>
+        <label>Instantaneous Power</label>
+        <description>Present power in Watts.</description>
+        <state pattern="%d W" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringAveragePower">
+        <item-type>Number</item-type>
+        <label>Average Power</label>
+        <description>Average power over the period of time specified in Average Power Interval in Watts.</description>
+        <state pattern="%d W" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringAveragePowerInterval">
+        <item-type>Number</item-type>
+        <label>Average Power Interval</label>
+        <description>Average Power Interval in Seconds.</description>
+        <state pattern="%d s" readOnly="false"/>
+    </channel-type>
+    <channel-type id="powerMeteringVoltage">
+        <item-type>Number</item-type>
+        <label>Voltage</label>
+        <description>Present Voltage in Volts.</description>
+        <state pattern="%d V" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringCurrent">
+        <item-type>Number</item-type>
+        <label>Current</label>
+        <description>Present Current in Amperes.</description>
+        <state pattern="%d A" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringFrequency">
+        <item-type>Number</item-type>
+        <label>Frequency</label>
+        <description>Present Frequency in Hertz.</description>
+        <state pattern="%d Hz" readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringPowerFactor">
+        <item-type>Number</item-type>
+        <label>Power Factor</label>
+        <description>Ratio between real and apparent power (between zero and one).</description>
+        <state readOnly="true"/>
+    </channel-type>
+    <channel-type id="powerMeteringReportInterval">
+        <item-type>Number</item-type>
+        <label>Report Interval</label>
+        <description>Report Interval in Seconds.</description>
+        <state pattern="%d s" readOnly="false"/>
+    </channel-type>
+    <channel-type id="powerMeteringMeasurementReset">
+        <item-type>Switch</item-type>
+        <label>Reset Measurements</label>
+        <description>Resets the energy value.</description>
+        <state readOnly="false"/>
+    </channel-type>
+</thing:thing-descriptions>

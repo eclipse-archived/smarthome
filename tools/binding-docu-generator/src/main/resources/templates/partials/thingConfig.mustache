@@ -1,0 +1,11 @@
+{{^thingList.configDescriptions.empty}}
+## Thing Config
+{{/thingList.configDescriptions.empty}}
+{{#thingList}}
+{{#model}}
+{{#configDescriptions}}
+### {{id}}
+{{>configDescriptions}}
+{{/configDescriptions}}
+{{/model}}
+{{/thingList}}

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<thing:thing-descriptions bindingId="binding-1"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:thing="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0"
+                          xsi:schemaLocation="http://eclipse.org/smarthome/schemas/thing-description/v1.0.0 http://eclipse.org/smarthome/schemas/thing-description-1.0.0.xsd">
+    <bridge-type id="bridge">
+        <label>Bridge #1</label>
+        <description>The bridge number one.</description>
+		
+		<properties>
+             <property name="vendor">Vendor #1</property>
+             <property name="modelId">Model #1</property>
+             <property name="connection">INTERNET</property>             
+        </properties>	
+        
+        <config-description uri="config:description:configOne">
+            <parameter name="id" type="text">
+                <label>Parameter #1</label>
+                <description>
+                    The parameter number one.
+                </description>
+                <required>true</required>
+            </parameter>
+
+            <parameter name="pollingInterval" type="integer" min="15" max="300">
+                <label>Polling Interval</label>
+                <description>
+                    The refresh interval for all values.
+                </description>
+                <default>60</default>
+                <required>false</required>
+            </parameter>
+        </config-description>
+    </bridge-type>
+
+    <thing-type id="thermostat">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge"/>
+        </supported-bridge-type-refs>
+
+        <label>Thermostat</label>
+        <description>An thermostat.</description>
+
+        <!-- channels -->
+        <channels>
+            <channel id="roomSetpoint" typeId="roomSetpoint"/>
+            <channel id="heatingMode" typeId="heatingMode"/>
+            <channel id="currentRoomTemperature" typeId="currentRoomTemperature"/>
+            <channel id="schedule" typeId="schedule"/>
+            <channel id="scheduleState" typeId="scheduleState"/>
+            <channel id="activePreset" typeId="activePreset"/>
+            <channel id="gatewayEnvironment" typeId="gatewayEnvironment"/>
+            <channel id="savingsResultUnit" typeId="savingsResultUnit"/>
+            <channel id="savingsResultValue" typeId="savingsResultValue"/>
+            <channel id="savingsResultFormUrl" typeId="savingsResultFormUrl"/>
+            <channel id="heatReport" typeId="heatReport"/>
+
+            <!-- preset temperatures -->
+            <channel id="presetHome" typeId="presetHome"/>
+            <channel id="presetAsleep" typeId="presetAsleep"/>
+            <channel id="presetAway" typeId="presetAway"/>
+            <channel id="presetVacation" typeId="presetVacation"/>
+            <channel id="presetNoFrost" typeId="presetNoFrost"/>
+        </channels>
+        
+        <properties>
+             <property name="vendor">Vendor #1</property>
+             <property name="modelId">thermostat-1</property>
+        </properties>
+
+        <!-- config enabling/disable central heating commands -->
+        <config-description>
+            <parameter name="enableHeatDemandCalculation" type="boolean">
+                <label>Calculate decentral head demands</label>
+                <description>Turn on/off the heat demand calculation for incoming heat reports.</description>
+                <default>false</default>
+                <required>true</required>
+            </parameter>
+            <parameter name="thermostatId" type="text">
+                <label>ThermostatID</label>
+                <description>ID of the Thermostat.</description>
+                <required>false</required>
+            </parameter>    
+            <parameter name="applianceId" type="text">
+                <label>ApplianceID</label>
+                <description>ID of the >Appliance.</description>
+                <required>false</required>
+            </parameter>                 
+        </config-description>
+    </thing-type>
+
+    <channel-type id="roomSetpoint">
+        <item-type>Number</item-type>
+        <label>Room setpoint</label>
+        <description>The room temperature setpoint.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="heatingMode">
+        <item-type>String</item-type>
+        <label>Heating mode</label>
+        <description>The current operation mode.</description>
+        <category>Temperature</category>
+        <state readOnly="false">
+            <options>
+                <option value="comfort">Comfort</option>
+                <option value="economy">Eco</option>
+                <option value="high_economy">Super eco</option>
+            </options>
+        </state>
+    </channel-type>
+
+    <channel-type id="currentRoomTemperature">
+        <item-type>Number</item-type>
+        <label>Current room temperature</label>
+        <description>The current measured room temperature.</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="schedule" advanced="true">
+        <item-type>String</item-type>
+        <label>Weekly Schedule</label>
+        <description>The current weekly schedule in JSON format.</description>
+        <state readOnly="false"/>
+    </channel-type>
+
+    <channel-type id="scheduleState">
+        <item-type>Switch</item-type>
+        <label>Schedule State</label>
+        <description>Turn on/off the weekly schedule.</description>
+        <category>Switch</category>
+        <state readOnly="false"/>
+    </channel-type>
+
+    <channel-type id="activePreset">
+        <item-type>String</item-type>
+        <label>Active Preset</label>
+        <description>The current active preset.</description>
+        <state readOnly="false">
+            <options>
+                <option value="vacation">Vacation</option>
+                <option value="home">Home</option>
+                <option value="away">Away</option>
+                <option value="asleep">Night</option>
+                <option value="no_frost">Frost protection</option>
+            </options>
+        </state>
+    </channel-type>
+
+    <channel-type id="presetHome">
+        <item-type>Number</item-type>
+        <label>Preset Home</label>
+        <description>The temperature setpoint for preset.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="presetAsleep">
+        <item-type>Number</item-type>
+        <label>Preset Night</label>
+        <description>The temperature setpoint for preset.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="presetAway">
+        <item-type>Number</item-type>
+        <label>Preset Away</label>
+        <description>The temperature setpoint for preset.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="presetVacation">
+        <item-type>Number</item-type>
+        <label>Preset Vacation</label>
+        <description>The temperature setpoint for preset.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="presetNoFrost">
+        <item-type>Number</item-type>
+        <label>Preset Frost protection</label>
+        <description>The temperature setpoint for preset.</description>
+        <category>Temperature</category>
+        <state readOnly="false" pattern="%.1f °C"/>
+    </channel-type>
+
+    <channel-type id="gatewayEnvironment" advanced="true">
+        <item-type>String</item-type>
+        <label>Gateway Environment</label>
+        <description>The current gateway environment in JSON format.</description>
+        <state readOnly="false"/>
+    </channel-type>
+
+    <channel-type id="savingsResultValue" advanced="true">
+        <item-type>Number</item-type>
+        <label>Saving Result value</label>
+        <description>The saved energy.</description>
+        <state readOnly="true"/>
+    </channel-type>
+
+    <channel-type id="savingsResultUnit" advanced="true">
+        <item-type>String</item-type>
+        <label>Saving Result Unit</label>
+        <description>The unit of the saved energy.</description>
+        <state readOnly="true"/>
+    </channel-type>
+
+    <channel-type id="savingsResultFormUrl" advanced="true">
+        <item-type>String</item-type>
+        <label>Saving Result Form</label>
+        <description>The url to the savings result input form.</description>
+        <state readOnly="true"/>
+    </channel-type>
+
+    <channel-type id="heatReport" advanced="true">
+        <item-type>String</item-type>
+        <label>Heat Report</label>
+        <description>Contains a message with data that gets pushed for further decentral heat demand calculations. The data is written by the SmartLife Plugin into this channel.
+        </description>
+        <state readOnly="false"/>
+    </channel-type>
+
+    <!-- The heater (boiler) thermostat -->
+    <thing-type id="boiler">
+        <supported-bridge-type-refs>
+            <bridge-type-ref id="bridge"/>
+        </supported-bridge-type-refs>
+
+        <label>Boiler</label>
+        <description>A central heating boiler</description>
+
+        <!-- defined channels -->
+        <channels>
+            <channel id="boilerState" typeId="boilerState"/>
+            <channel id="temperature" typeId="temperature"/>
+        </channels>
+        
+        <properties>
+             <property name="modelId">Boiler</property>
+        </properties>
+    </thing-type>
+
+
+    <channel-type id="boilerState">
+        <item-type>Switch</item-type>
+        <label>Boiler State</label>
+        <description>Represents the state on/off of the boiler.</description>
+        <category>Switch</category>
+        <state readOnly="true"/>
+    </channel-type>
+
+    <channel-type id="temperature">
+        <item-type>Number</item-type>
+        <label>Temperature</label>
+        <description>The temperature of boiler.</description>
+        <category>Temperature</category>
+        <state readOnly="true" pattern="%.1f °C"/>
+    </channel-type>
+
+
+</thing:thing-descriptions>

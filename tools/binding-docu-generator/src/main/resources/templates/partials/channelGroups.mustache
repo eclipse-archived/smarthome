@@ -1,0 +1,9 @@
+{{^channelGroupList.empty}}
+## Channel Groups
+|Channel Group Type Id|Channels|Description|
+|---|---|---|
+{{/channelGroupList.empty}}
+{{#channelGroupList}}
+{{#model}}<a name="channel-group-id-{{id}}"></a>{{id}} | {{#channels}} {{>channelInfo}} {{/channels}} | {{description}}
+{{/model}}
+{{/channelGroupList}}
