@@ -1,22 +1,14 @@
-/*
- * Copyright (c) Alexander Kammerer 2015.
- *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License
- * which accompanies this distribution.
- */
-
 package org.eclipse.smarthome.tools.docgenerator;
 
-import org.eclipse.smarthome.tools.docgenerator.impl.DefaultEshConfigurationParser;
-import org.eclipse.smarthome.tools.docgenerator.impl.MustacheDocumentationGenerator;
-import org.eclipse.smarthome.tools.docgenerator.models.ConfigurationParseResult;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.smarthome.tools.docgenerator.impl.DefaultEshConfigurationParser;
+import org.eclipse.smarthome.tools.docgenerator.impl.MustacheDocumentationGenerator;
+import org.eclipse.smarthome.tools.docgenerator.models.ConfigurationParseResult;
 
 import java.nio.file.Paths;
 
