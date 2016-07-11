@@ -40,7 +40,7 @@ public class ConditionDTOMapper extends ModuleDTOMapper {
         if (conditions == null) {
             return null;
         }
-        final List<ConditionDTO> dtos = new ArrayList<>(conditions.size());
+        final List<ConditionDTO> dtos = new ArrayList<ConditionDTO>(conditions.size());
         for (final Condition action : conditions) {
             dtos.add(map(action));
         }
@@ -51,7 +51,7 @@ public class ConditionDTOMapper extends ModuleDTOMapper {
         if (dtos == null) {
             return null;
         }
-        final List<Condition> conditions = new ArrayList<>(dtos.size());
+        final List<Condition> conditions = new ArrayList<Condition>(dtos.size());
         for (final ConditionDTO dto : dtos) {
             conditions.add(mapDto(dto));
         }

@@ -32,7 +32,7 @@ public class TriggerTypeDTOMapper extends ModuleTypeDTOMapper {
         if (types == null) {
             return null;
         }
-        final List<TriggerTypeDTO> dtos = new ArrayList<>(types.size());
+        final List<TriggerTypeDTO> dtos = new ArrayList<TriggerTypeDTO>(types.size());
         for (final TriggerType type : types) {
             dtos.add(map(type));
         }

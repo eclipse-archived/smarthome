@@ -32,7 +32,7 @@ public class ConditionTypeDTOMapper extends ModuleTypeDTOMapper {
         if (types == null) {
             return null;
         }
-        final List<ConditionTypeDTO> dtos = new ArrayList<>(types.size());
+        final List<ConditionTypeDTO> dtos = new ArrayList<ConditionTypeDTO>(types.size());
         for (final ConditionType type : types) {
             dtos.add(map(type));
         }
