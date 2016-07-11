@@ -6,6 +6,8 @@ Large parts of the documentation for a Eclipse SmartHome binding can be generate
 
 Execute `mvn org.eclipse.smarthome.tools:binding-docu-generator:$VERSION:generate-docu`. This will generate a file named README.md in the directory of your binding.
 
+You can take a look at a generated readme [here](README-example.md).
+
 ## Customizing the README
 
 If you want to customize the generated readme, create a file named `README.md.mustache` in the directory of your binding. This template is using the
