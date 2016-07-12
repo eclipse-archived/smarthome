@@ -87,7 +87,7 @@ import org.slf4j.LoggerFactory;
  * @author Kai Kreuzer - refactored (managed) provider and registry implementation and other fixes
  * @author Benedikt Niehues - added events for rules
  */
-public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements RuleRegistry, StatusInfoCallback {
+public class RuleRegistryImpl extends AbstractRegistry<Rule, String> implements RuleRegistry, StatusInfoCallback {
 
     private RuleEngine ruleEngine;
     private Logger logger;
@@ -223,7 +223,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
     protected void onAddElement(Rule r) throws IllegalArgumentException {
         Rule rule = resolveTemplate(r); // can be called from any provider.
         try {
-            postEvent(RuleEventFactory.createRuleAddedEvent(rule, SOURCE));
+            postRuleAddedEvent(rule);
             String rUID = rule.getUID();
             if (rUID != null && disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
                 ruleEngine.addRule(rule, false);
@@ -237,11 +237,27 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
         }
     }
 
+    protected void postRuleAddedEvent(Rule rule) {
+        postEvent(RuleEventFactory.createRuleAddedEvent(rule, SOURCE));
+    }
+
+    protected void postRuleRemovedEvent(Rule rule) {
+        postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
+    }
+
+    protected void postRuleUpdatedEvent(Rule rule, Rule oldRule) {
+        postEvent(RuleEventFactory.createRuleUpdatedEvent(rule, oldRule, SOURCE));
+    }
+
+    protected void postRuleStatusInfoEvent(RuleStatusInfo statusInfo, String ruleUID) {
+        postEvent(RuleEventFactory.createRuleStatusInfoEvent(statusInfo, ruleUID, SOURCE));
+    }
+
     @Override
     protected void onRemoveElement(Rule rule) {
         String uid = rule.getUID();
         if (ruleEngine.removeRule(uid)) {
-            postEvent(RuleEventFactory.createRuleRemovedEvent(rule, SOURCE));
+            postRuleRemovedEvent(rule);
         }
         if (disabledRulesStorage != null) {
             disabledRulesStorage.remove(uid);
@@ -283,7 +299,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
      */
     @Override
     protected void onUpdateElement(Rule oldElement, Rule element) throws IllegalArgumentException {
-        postEvent(RuleEventFactory.createRuleUpdatedEvent(element, oldElement, SOURCE));
+        postRuleUpdatedEvent(element, oldElement);
         String rUID = element.getUID();
         if (disabledRulesStorage != null && disabledRulesStorage.get(rUID) != null) {
             ruleEngine.setRuleEnabled(rUID, false);
@@ -347,7 +363,7 @@ public class RuleRegistryImpl extends AbstractRegistry<Rule, String>implements R
 
     @Override
     public void statusInfoChanged(String ruleUID, RuleStatusInfo statusInfo) {
-        postEvent(RuleEventFactory.createRuleStatusInfoEvent(statusInfo, ruleUID, SOURCE));
+        postRuleStatusInfoEvent(statusInfo, ruleUID);
     }
 
     @Override
