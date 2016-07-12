@@ -67,7 +67,7 @@ public class PersistenceExtensions implements ManagedService {
      * @param item the item to store
      * @param serviceName the name of the {@link PersistenceService} to use
      */
-    static public void persist(Item item, String serviceName) {
+    public static void persist(Item item, String serviceName) {
         PersistenceService service = services.get(serviceName);
         if (service != null) {
             service.store(item);
@@ -82,7 +82,7 @@ public class PersistenceExtensions implements ManagedService {
      *
      * @param item the item to store
      */
-    static public void persist(Item item) {
+    public static void persist(Item item) {
         if (isDefaultServiceAvailable()) {
             persist(item, defaultService);
         }
@@ -98,7 +98,7 @@ public class PersistenceExtensions implements ManagedService {
      *         the default persistence service is not available or does not refer to a
      *         {@link QueryablePersistenceService}
      */
-    static public HistoricItem historicState(Item item, AbstractInstant timestamp) {
+    public static HistoricItem historicState(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return historicState(item, timestamp, defaultService);
         } else {
@@ -117,7 +117,7 @@ public class PersistenceExtensions implements ManagedService {
      *         if the provided <code>serviceName</code> does not refer to an available
      *         {@link QueryablePersistenceService}
      */
-    static public HistoricItem historicState(Item item, AbstractInstant timestamp, String serviceName) {
+    public static HistoricItem historicState(Item item, AbstractInstant timestamp, String serviceName) {
         PersistenceService service = services.get(serviceName);
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -149,7 +149,7 @@ public class PersistenceExtensions implements ManagedService {
      *         persistence service does not refer to a {@link QueryablePersistenceService}, or <code>null</code> if the
      *         default persistence service is not available
      */
-    static public Boolean changedSince(Item item, AbstractInstant timestamp) {
+    public static Boolean changedSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return changedSince(item, timestamp, defaultService);
         } else {
@@ -167,7 +167,7 @@ public class PersistenceExtensions implements ManagedService {
      * @return <code>true</code> if item state has changed, or <code>false</code> if it hasn't or if the given
      *         <code>serviceName</code> does not refer to an available {@link QueryablePersistenceService}
      */
-    static public Boolean changedSince(Item item, AbstractInstant timestamp, String serviceName) {
+    public static Boolean changedSince(Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         Iterator<HistoricItem> it = result.iterator();
         HistoricItem itemThen = historicState(item, timestamp);
@@ -199,7 +199,7 @@ public class PersistenceExtensions implements ManagedService {
      *         {@link QueryablePersistenceService}, or <code>null</code> if the default persistence service is not
      *         available
      */
-    static public Boolean updatedSince(Item item, AbstractInstant timestamp) {
+    public static Boolean updatedSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return updatedSince(item, timestamp, defaultService);
         } else {
@@ -218,7 +218,7 @@ public class PersistenceExtensions implements ManagedService {
      *         since <code>timestamp</code> or if the given <code>serviceName</code> does not refer to a
      *         {@link QueryablePersistenceService}
      */
-    static public Boolean updatedSince(Item item, AbstractInstant timestamp, String serviceName) {
+    public static Boolean updatedSince(Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         if (result.iterator().hasNext()) {
             return true;
@@ -238,7 +238,7 @@ public class PersistenceExtensions implements ManagedService {
      *         <code>item</code> if the default persistence service does not refer to a
      *         {@link QueryablePersistenceService}
      */
-    static public HistoricItem maximumSince(Item item, AbstractInstant timestamp) {
+    public static HistoricItem maximumSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return maximumSince(item, timestamp, defaultService);
         } else {
@@ -258,7 +258,7 @@ public class PersistenceExtensions implements ManagedService {
      *         maximum value or if the given <code>serviceName</code> does not refer to an available
      *         {@link QueryablePersistenceService}
      */
-    static public HistoricItem maximumSince(final Item item, AbstractInstant timestamp, String serviceName) {
+    public static HistoricItem maximumSince(final Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         Iterator<HistoricItem> it = result.iterator();
         HistoricItem maximumHistoricItem = null;
@@ -310,7 +310,7 @@ public class PersistenceExtensions implements ManagedService {
      *         <code>item</code>'s state if <code>item</code>'s state is the minimum value or if the default persistence
      *         service does not refer to an available {@link QueryablePersistenceService}
      */
-    static public HistoricItem minimumSince(Item item, AbstractInstant timestamp) {
+    public static HistoricItem minimumSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return minimumSince(item, timestamp, defaultService);
         } else {
@@ -329,7 +329,7 @@ public class PersistenceExtensions implements ManagedService {
      *         constructed from the <code>item</code>'s state if <code>item</code>'s state is the minimum value or if
      *         the given <code>serviceName</code> does not refer to an available {@link QueryablePersistenceService}
      */
-    static public HistoricItem minimumSince(final Item item, AbstractInstant timestamp, String serviceName) {
+    public static HistoricItem minimumSince(final Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         Iterator<HistoricItem> it = result.iterator();
         HistoricItem minimumHistoricItem = null;
@@ -381,7 +381,7 @@ public class PersistenceExtensions implements ManagedService {
      *         found or if the default persistence service does not refer to an available
      *         {@link QueryablePersistenceService}
      */
-    static public DecimalType averageSince(Item item, AbstractInstant timestamp) {
+    public static DecimalType averageSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return averageSince(item, timestamp, defaultService);
         } else {
@@ -400,7 +400,7 @@ public class PersistenceExtensions implements ManagedService {
      *         previous states could be found or if the persistence service given by <code>serviceName</code> does not
      *         refer to an available {@link QueryablePersistenceService}
      */
-    static public DecimalType averageSince(Item item, AbstractInstant timestamp, String serviceName) {
+    public static DecimalType averageSince(Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         Iterator<HistoricItem> it = result.iterator();
 
@@ -434,7 +434,7 @@ public class PersistenceExtensions implements ManagedService {
      *         service is not available, or {@link DecimalType.ZERO} if no historic states could be found or if the
      *         default persistence service does not refer to a {@link QueryablePersistenceService}
      */
-    static public DecimalType sumSince(Item item, AbstractInstant timestamp) {
+    public static DecimalType sumSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return sumSince(item, timestamp, defaultService);
         } else {
@@ -453,7 +453,7 @@ public class PersistenceExtensions implements ManagedService {
      *         states could be found for the <code>item</code> or if <code>serviceName</code> does no refer to a
      *         {@link QueryablePersistenceService}
      */
-    static public DecimalType sumSince(Item item, AbstractInstant timestamp, String serviceName) {
+    public static DecimalType sumSince(Item item, AbstractInstant timestamp, String serviceName) {
         Iterable<HistoricItem> result = getAllStatesSince(item, timestamp, serviceName);
         Iterator<HistoricItem> it = result.iterator();
 
@@ -468,7 +468,7 @@ public class PersistenceExtensions implements ManagedService {
         return new DecimalType(sum);
     }
 
-    static private Iterable<HistoricItem> getAllStatesSince(Item item, AbstractInstant timestamp, String serviceName) {
+    private static Iterable<HistoricItem> getAllStatesSince(Item item, AbstractInstant timestamp, String serviceName) {
         PersistenceService service = services.get(serviceName);
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -492,7 +492,7 @@ public class PersistenceExtensions implements ManagedService {
      *         persisted updates or the default persistence service is not available or a
      *         {@link QueryablePersistenceService}
      */
-    static public AbstractInstant lastUpdate(Item item) {
+    public static AbstractInstant lastUpdate(Item item) {
         if (isDefaultServiceAvailable()) {
             return lastUpdate(item, defaultService);
         } else {
@@ -509,7 +509,7 @@ public class PersistenceExtensions implements ManagedService {
      *         persisted updates or if persistence service given by <code>serviceName</code> does not refer to an
      *         available {@link QueryablePersistenceService}
      */
-    static public AbstractInstant lastUpdate(Item item, String serviceName) {
+    public static AbstractInstant lastUpdate(Item item, String serviceName) {
         PersistenceService service = services.get(serviceName);
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -541,7 +541,7 @@ public class PersistenceExtensions implements ManagedService {
      *         there is no persisted state for the given <code>item</code> at the given <code>timestamp</code> available
      *         in the default persistence service
      */
-    static public DecimalType deltaSince(Item item, AbstractInstant timestamp) {
+    public static DecimalType deltaSince(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return deltaSince(item, timestamp, defaultService);
         } else {
@@ -561,7 +561,7 @@ public class PersistenceExtensions implements ManagedService {
      *         <code>item</code> at the given <code>timestamp</code> using the persistence service named
      *         <code>serviceName</code>
      */
-    static public DecimalType deltaSince(Item item, AbstractInstant timestamp, String serviceName) {
+    public static DecimalType deltaSince(Item item, AbstractInstant timestamp, String serviceName) {
         HistoricItem itemThen = historicState(item, timestamp, serviceName);
         if (itemThen != null) {
             DecimalType valueThen = (DecimalType) itemThen.getState();
@@ -587,7 +587,7 @@ public class PersistenceExtensions implements ManagedService {
      *         the given <code>timestamp</code>, or if there is a state but it is zero (which would cause a
      *         divide-by-zero error)
      */
-    static public DecimalType evolutionRate(Item item, AbstractInstant timestamp) {
+    public static DecimalType evolutionRate(Item item, AbstractInstant timestamp) {
         if (isDefaultServiceAvailable()) {
             return evolutionRate(item, timestamp, defaultService);
         } else {
@@ -609,7 +609,7 @@ public class PersistenceExtensions implements ManagedService {
      *         <code>serviceName</code>, or if there is a state but it is zero (which would cause a divide-by-zero
      *         error)
      */
-    static public DecimalType evolutionRate(Item item, AbstractInstant timestamp, String serviceName) {
+    public static DecimalType evolutionRate(Item item, AbstractInstant timestamp, String serviceName) {
         HistoricItem itemThen = historicState(item, timestamp, serviceName);
         if (itemThen != null) {
             DecimalType valueThen = (DecimalType) itemThen.getState();
@@ -632,7 +632,7 @@ public class PersistenceExtensions implements ManagedService {
      * @return the previous state or <code>null</code> if no previous state could be found, or if the default
      *         persistence service is not configured or does not refer to a {@link QueryablePersistenceService}
      */
-    static public HistoricItem previousState(Item item) {
+    public static HistoricItem previousState(Item item) {
         return previousState(item, false);
     }
 
@@ -644,7 +644,7 @@ public class PersistenceExtensions implements ManagedService {
      * @return the previous state or <code>null</code> if no previous state could be found, or if the default
      *         persistence service is not configured or does not refer to a {@link QueryablePersistenceService}
      */
-    static public HistoricItem previousState(Item item, boolean skipEqual) {
+    public static HistoricItem previousState(Item item, boolean skipEqual) {
         if (isDefaultServiceAvailable()) {
             return previousState(item, skipEqual, defaultService);
         } else {
@@ -663,7 +663,7 @@ public class PersistenceExtensions implements ManagedService {
      * @return the previous state or <code>null</code> if no previous state could be found, or if the given
      *         <code>serviceName</code> is not available or does not refer to a {@link QueryablePersistenceService}
      */
-    static public HistoricItem previousState(Item item, boolean skipEqual, String serviceName) {
+    public static HistoricItem previousState(Item item, boolean skipEqual, String serviceName) {
         PersistenceService service = services.get(serviceName);
         if (service instanceof QueryablePersistenceService) {
             QueryablePersistenceService qService = (QueryablePersistenceService) service;
@@ -708,7 +708,7 @@ public class PersistenceExtensions implements ManagedService {
      *
      * @return true if a default service is available
      */
-    static private boolean isDefaultServiceAvailable() {
+    private static boolean isDefaultServiceAvailable() {
         if (defaultService != null) {
             return true;
         } else {
