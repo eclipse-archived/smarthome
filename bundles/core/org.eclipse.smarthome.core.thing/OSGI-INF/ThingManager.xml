@@ -20,5 +20,5 @@
    <reference bind="setConfigDescriptionRegistry" cardinality="1..1" interface="org.eclipse.smarthome.config.core.ConfigDescriptionRegistry" name="ConfigDescriptionRegistry" policy="static" unbind="unsetConfigDescriptionRegistry"/>
    <reference bind="setManagedThingProvider" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.ManagedThingProvider" name="ManagedThingProvider" policy="static" unbind="unsetManagedThingProvider"/>
    <reference bind="setThingTypeRegistry" cardinality="1..1" interface="org.eclipse.smarthome.core.thing.type.ThingTypeRegistry" name="ThingTypeRegistry" policy="static" unbind="unsetThingTypeRegistry"/>
-   <reference bind="setBundleProcessor" cardinality="0..n" interface="org.eclipse.smarthome.core.thing.BundleProcessor" name="BundleProcessor" policy="dynamic" unbind="unsetBundleProcessor"/>
+   <reference bind="setBundleProcessor" cardinality="0..n" interface="org.eclipse.smarthome.config.core.BundleProcessor" name="BundleProcessor" policy="dynamic" unbind="unsetBundleProcessor"/>
 </scr:component>
