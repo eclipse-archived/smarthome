@@ -1,0 +1,8 @@
+{{^channelList.empty}}
+|Channel Type Id|Item Type|ReadOnly|Options|Description|
+|---|---|---|---|---|
+{{/channelList.empty}}
+{{#channelList}}
+{{#model}}<a name="channel-id-{{id}}"></a>{{id}} | {{itemType}} | {{#state}}{{#readOnly}} Yes {{/readOnly}} {{^readOnly}} No {{/readOnly}} {{/state}} | {{#state}} {{#options}}{{#model}}{{value}}{{/model}}{{^last}}, {{/last}}{{/options}} {{/state}} | {{description}}
+{{/model}}
+{{/channelList}}
