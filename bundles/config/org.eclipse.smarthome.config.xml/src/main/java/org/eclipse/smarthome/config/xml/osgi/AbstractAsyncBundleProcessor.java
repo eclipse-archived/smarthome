@@ -171,13 +171,15 @@ public abstract class AbstractAsyncBundleProcessor implements BundleProcessor {
 
     @Override
     public boolean hasFinishedLoading(Bundle bundle) {
-        if (queue.contains(bundle)) {
-            logger.trace("Bundle {} is still loading", bundle.getSymbolicName());
-            return false;
-        } else {
-            logger.trace("Bundle {} is not currently loading", bundle.getSymbolicName());
-            return true;
+        if (isBundleRelevant(bundle)) {
+            if (!processedBundleIds.contains(bundle.getBundleId())) {
+                logger.trace("Resources of bundle '{}' are not yet loaded.", bundle.getSymbolicName());
+                return false;
+            } else {
+                logger.trace("Bundle {} has been fully processed.", bundle.getSymbolicName());
+            }
         }
+        return true;
     }
 
     /**

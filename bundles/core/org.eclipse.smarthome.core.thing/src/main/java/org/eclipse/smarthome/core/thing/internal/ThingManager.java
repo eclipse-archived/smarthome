@@ -652,17 +652,19 @@ public class ThingManager extends AbstractItemEventSubscriber implements ThingTr
         for (BundleProcessor proc : bundleProcessors) {
             if (!proc.hasFinishedLoading(bundle)) {
                 veto = true;
-                logger.trace("Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
-                initializerVetoes.put(bundle, proc);
-                if (!initializerQueue.containsEntry(bundle, thingHandler)) {
-                    logger.trace("Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
-                    initializerQueue.put(bundle.getBundleId(), thingHandler);
+                if (!initializerVetoes.containsEntry(bundle, proc)) {
+                    logger.trace("Marking '{}' vetoed by '{}'", bundle.getSymbolicName(), proc);
+                    initializerVetoes.put(bundle, proc);
                 }
             } else {
                 logger.trace("'{}' already finished processing '{}'", proc, bundle.getSymbolicName());
             }
         }
         if (veto) {
+            if (!initializerQueue.containsEntry(bundle, thingHandler)) {
+                logger.trace("Queueing '{}' in bundle '{}'", thingHandler, bundle.getSymbolicName());
+                initializerQueue.put(bundle.getBundleId(), thingHandler);
+            }
             logger.debug(
                     "Meta-data of bundle '{}' is not fully loaded ({}), deferring handler initialization for thing '{}'",
                     bundle.getSymbolicName(), initializerVetoes.get(bundle), thingHandler.getThing().getUID());
