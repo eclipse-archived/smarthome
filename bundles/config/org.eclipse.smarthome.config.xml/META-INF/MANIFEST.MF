@@ -22,7 +22,6 @@ Import-Package: com.thoughtworks.xstream,
  org.eclipse.smarthome.config.xml.util,
  org.eclipse.smarthome.core.common.osgi,
  org.eclipse.smarthome.core.i18n,
- org.eclipse.smarthome.core.thing,
  org.osgi.framework,
  org.osgi.util.tracker,
  org.slf4j

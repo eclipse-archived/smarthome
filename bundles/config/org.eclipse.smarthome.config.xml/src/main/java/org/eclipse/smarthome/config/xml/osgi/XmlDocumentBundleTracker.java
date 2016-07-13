@@ -13,8 +13,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.smarthome.config.core.BundleProcessor;
 import org.eclipse.smarthome.config.xml.util.XmlDocumentReader;
-import org.eclipse.smarthome.core.thing.BundleProcessor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -53,6 +53,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
 
     private BundleContext bundleContext;
 
+    @SuppressWarnings("rawtypes")
     private ServiceRegistration asyncLoaderRegistration;
 
     /**
@@ -74,7 +75,7 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
      */
     public XmlDocumentBundleTracker(BundleContext bundleContext, String xmlDirectory,
             XmlDocumentReader<T> xmlDocumentTypeReader, XmlDocumentProviderFactory<T> xmlDocumentProviderFactory)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         super(bundleContext, Bundle.ACTIVE, null);
         this.bundleContext = bundleContext;
@@ -142,13 +143,18 @@ public class XmlDocumentBundleTracker<T> extends BundleTracker<Bundle> {
                 }
             }
 
+            @Override
+            public String toString() {
+                return super.toString() + "(" + XmlDocumentBundleTracker.this.xmlDirectory + ")";
+            }
+
         };
     }
 
     @Override
     public final synchronized void open() {
-        super.open();
         asyncLoaderRegistration = bundleContext.registerService(BundleProcessor.class.getName(), asyncLoader, null);
+        super.open();
     }
 
     @Override

@@ -9,12 +9,13 @@ package org.eclipse.smarthome.core.thing.internal
 
 import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
-import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.BundleProcessor
 import org.eclipse.smarthome.config.core.ConfigDescription
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameter
 import org.eclipse.smarthome.config.core.ConfigDescriptionParameterBuilder
 import org.eclipse.smarthome.config.core.ConfigDescriptionProvider
+import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.core.common.registry.RegistryChangeListener
 import org.eclipse.smarthome.core.events.Event
 import org.eclipse.smarthome.core.events.EventPublisher
@@ -26,7 +27,6 @@ import org.eclipse.smarthome.core.items.events.ItemStateEvent
 import org.eclipse.smarthome.core.library.types.DecimalType
 import org.eclipse.smarthome.core.library.types.StringType
 import org.eclipse.smarthome.core.thing.Bridge
-import org.eclipse.smarthome.core.thing.BundleProcessor
 import org.eclipse.smarthome.core.thing.Channel
 import org.eclipse.smarthome.core.thing.ChannelUID
 import org.eclipse.smarthome.core.thing.ManagedThingProvider
@@ -37,7 +37,6 @@ import org.eclipse.smarthome.core.thing.ThingStatusDetail
 import org.eclipse.smarthome.core.thing.ThingStatusInfo
 import org.eclipse.smarthome.core.thing.ThingTypeUID
 import org.eclipse.smarthome.core.thing.ThingUID
-import org.eclipse.smarthome.core.thing.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandler
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory
 import org.eclipse.smarthome.core.thing.binding.ThingHandler
@@ -134,7 +133,7 @@ class ThingManagerOSGiTest extends OSGiTest {
             registerHandler: { Thing thing, ThingHandlerCallback callback ->
                 def thingHandler = [
                     setCallback: {},
-                    getThing: {return THING}
+                    getThing: { return THING }
                 ] as ThingHandler
                 registerService(thingHandler,[
                     (ThingHandler.SERVICE_PROPERTY_THING_ID): THING.getUID(),
@@ -193,7 +192,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         // event should not be delivered, because the source is the same
         eventPublisher.post(ItemEventFactory.createStateEvent(itemName, new DecimalType(10), CHANNEL_UID.toString()))
-        waitFor {handleUpdateWasCalled == true}
+        waitFor({handleUpdateWasCalled == true}, 1000)
         assertThat handleUpdateWasCalled, is(false)
     }
 
@@ -404,7 +403,8 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedThingProvider.add(thingB)
 
         def bridgeHandler = [
-            setCallback: {callbackArg -> callback = callbackArg }
+            setCallback: {callbackArg -> callback = callbackArg },
+            getThing: { return bridge }
         ] as ThingHandler
 
         registerService(bridgeHandler,[
@@ -520,6 +520,7 @@ class ThingManagerOSGiTest extends OSGiTest {
         managedItemChannelLinkProvider.add(new ItemChannelLink(itemName, CHANNEL_UID))
         def thingHandler = [
             setCallback: {callbackArg -> callback = callbackArg },
+            getThing: { return THING },
             thingUpdated: {
             }
         ] as ThingHandler
@@ -731,7 +732,7 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         // ThingHandler.initialize() called, thing status is ONLINE.NONE
         waitForAssert({
-        assertThat initializedCalled, is(true)
+            assertThat initializedCalled, is(true)
             assertThat initializedCalled, is(true)
             assertThat thing.getStatusInfo(), is(statusInfo)
         }, 4000)
@@ -766,10 +767,10 @@ class ThingManagerOSGiTest extends OSGiTest {
         registerService(thingHandlerFactory)
 
         boolean finished = false;
+        Bundle bundle = null;
         BundleProcessorListener listener = null;
-        Bundle bundle = ["getSymbolicName": {-> return "test"}] as Bundle;
         def bundleProcessor = [
-            "isFinishedLoading": { object -> if (finished) return null else return bundle },
+            "hasFinishedLoading": { object -> bundle = object; return finished },
             "registerListener": {l -> listener = l},
             "unregisterListener": {l -> listener = null}
         ] as BundleProcessor
@@ -780,14 +781,14 @@ class ThingManagerOSGiTest extends OSGiTest {
 
         managedThingProvider.add(thing)
 
-        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
         assertThat initializedCalled, is(false)
         assertThat thing.getStatusInfo(), is(statusInfo)
 
         finished = true;
         listener.bundleFinished(bundleProcessor, bundle)
 
-        // ThingHandler.initialize() called, thing status is ONLINE.NONE
+        // ThingHandler.initialize() called, thing status is INITIALIZING.NONE
+        statusInfo = ThingStatusInfoBuilder.create(ThingStatus.INITIALIZING, ThingStatusDetail.NONE).build()
         waitForAssert({
             assertThat initializedCalled, is(true)
             assertThat thing.getStatusInfo(), is(statusInfo)

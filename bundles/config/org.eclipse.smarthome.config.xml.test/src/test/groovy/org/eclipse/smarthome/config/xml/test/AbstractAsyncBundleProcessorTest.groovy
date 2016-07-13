@@ -12,8 +12,8 @@ import static org.hamcrest.CoreMatchers.*
 import static org.junit.Assert.*
 import static org.junit.matchers.JUnitMatchers.*
 
+import org.eclipse.smarthome.config.core.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.config.xml.osgi.AbstractAsyncBundleProcessor
-import org.eclipse.smarthome.core.thing.BundleProcessor.BundleProcessorListener
 import org.eclipse.smarthome.test.SyntheticBundleInstaller
 import org.junit.Before
 import org.junit.Test
@@ -34,9 +34,11 @@ class AbstractAsyncBundleProcessorTest {
     void setUp() {
         b1 = [
             getSymbolicName: { -> "b1"},
+            getBundleId: { -> 1L }
         ] as Bundle
         b2 = [
             getSymbolicName: { -> "b2"},
+            getBundleId: { -> 2L }
         ] as Bundle
     }
 
@@ -86,11 +88,11 @@ class AbstractAsyncBundleProcessorTest {
 
     @Test
     void 'assert throwing exceptions does not break loading'() {
-        def List<String> called = new ArrayList<String>()
+        def List<Long> called = new ArrayList<Long>()
         AbstractAsyncBundleProcessor acl = new AbstractAsyncBundleProcessor() {
                     @Override
                     protected void processBundle(Bundle bundle) {
-                        called.add(bundle.getSymbolicName())
+                        called.add(bundle.getBundleId())
                         throw new RuntimeException()
                     }
                 };
@@ -101,8 +103,8 @@ class AbstractAsyncBundleProcessorTest {
         acl.addingBundle b2
         SyntheticBundleInstaller.waitUntilLoadingFinished(b2)
 
-        assertTrue called.contains("b1")
-        assertTrue called.contains("b2")
+        assertTrue called.contains(1L)
+        assertTrue called.contains(2L)
     }
 
     @Test
