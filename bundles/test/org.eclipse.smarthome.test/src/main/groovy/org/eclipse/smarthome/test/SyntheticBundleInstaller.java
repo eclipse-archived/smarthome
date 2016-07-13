@@ -35,8 +35,8 @@ public class SyntheticBundleInstaller {
         String bundlePath = bundlePoolPath + "/" + testBundleName + "/";
         byte[] syntheticBundleBytes = createSyntheticBundle(bundleContext.getBundle(), bundlePath, testBundleName);
 
-        Bundle syntheticBundle = bundleContext.installBundle(testBundleName, new ByteArrayInputStream(
-                syntheticBundleBytes));
+        Bundle syntheticBundle = bundleContext.installBundle(testBundleName,
+                new ByteArrayInputStream(syntheticBundleBytes));
         syntheticBundle.start(Bundle.ACTIVE);
         waitUntilLoadingFinished(syntheticBundle);
         return syntheticBundle;
@@ -90,8 +90,9 @@ public class SyntheticBundleInstaller {
             JarOutputStream jarOutputStream) throws IOException {
         String filePath = bundlePath + "/" + fileInBundle;
         URL resource = bundle.getResource(filePath);
-        if (resource == null)
+        if (resource == null) {
             return;
+        }
         ZipEntry zipEntry = new ZipEntry(fileInBundle);
         jarOutputStream.putNextEntry(zipEntry);
         IOUtils.copy(resource.openStream(), jarOutputStream);
@@ -105,7 +106,7 @@ public class SyntheticBundleInstaller {
             String path = url.getPath();
             URI baseURI = url.toURI();
 
-            List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties", "*.json");
+            List<URL> list = collectEntries(bundle, path, "*.xml", "*.properties", "*.json", ".keep");
             for (URL entryURL : list) {
                 String fileEntry = convertToFileEntry(baseURI, entryURL);
                 result.add(fileEntry);
@@ -140,8 +141,9 @@ public class SyntheticBundleInstaller {
     private static Manifest getManifest(Bundle bundle, String bundlePath) throws IOException {
         String filePath = bundlePath + "/" + "META-INF/MANIFEST.MF";
         URL resource = bundle.getResource(filePath);
-        if (resource == null)
+        if (resource == null) {
             return null;
+        }
         return new Manifest(resource.openStream());
     }
 }
